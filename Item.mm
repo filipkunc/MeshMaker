@@ -84,7 +84,7 @@
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
 	glScalef(scale->x, scale->y, scale->z);
-	glutSolidTeapot(1.0);
+	glutSolidIcosahedron();
 	glPopMatrix();
 }
 
