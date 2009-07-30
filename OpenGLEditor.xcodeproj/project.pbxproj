@@ -27,8 +27,20 @@
 		A754C41B0FF92F2800A48E13 /* OpenGLDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A754C4140FF92F2800A48E13 /* OpenGLDrawing.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C4210FF92F9400A48E13 /* GLUT.framework */; };
+		A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A792CF361020C3EB00D02F86 /* Mesh.mm */; };
+		A7A96A5E10223024003110A1 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A96A0410222CCC003110A1 /* MeshTest.mm */; };
 		A7C8600C10135C700032DC33 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C8600B10135C700032DC33 /* Plane.cpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A7A96A4D10222F1D003110A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A37F4A9FDCFA73011CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D15AC270486D014006FF6A4 /* OpenGLEditor */;
+			remoteInfo = OpenGLEditor;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		089C1660FE840EACC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -72,6 +84,13 @@
 		A754C4160FF92F2800A48E13 /* OpenGLSelecting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLSelecting.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A754C4210FF92F9400A48E13 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
+		A792CF351020C3EA00D02F86 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
+		A792CF361020C3EB00D02F86 /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Mesh.mm; sourceTree = "<group>"; };
+		A7A969FB10222C3C003110A1 /* OpenGLEditorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenGLEditorTests-Info.plist"; sourceTree = "<group>"; };
+		A7A96A0310222CCC003110A1 /* MeshTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshTest.h; sourceTree = "<group>"; };
+		A7A96A0410222CCC003110A1 /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
+		A7A96A4810222EE2003110A1 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C8600A10135C700032DC33 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		A7C8600B10135C700032DC33 /* Plane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Plane.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -84,6 +103,13 @@
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
 				A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A96A4510222EE2003110A1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				8D15AC370486D014006FF6A4 /* OpenGLEditor.app */,
+				A7A96A4810222EE2003110A1 /* Tests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,11 +148,14 @@
 		2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */ = {
 			isa = PBXGroup;
 			children = (
+				A7A96A2410222D21003110A1 /* TestClasses */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
 				19C28FB0FE9D524F11CA2CBB /* Products */,
+				A7A969FB10222C3C003110A1 /* OpenGLEditorTests-Info.plist */,
+				A7A96A4910222EE2003110A1 /* Tests-Info.plist */,
 			);
 			name = OpenGLEditor;
 			sourceTree = "<group>";
@@ -149,6 +179,8 @@
 				2A37F4ACFDCFA73011CA2CEA /* MyDocument.mm */,
 				A754C4090FF92EE300A48E13 /* OpenGLSceneView.h */,
 				A754C40A0FF92EE300A48E13 /* OpenGLSceneView.mm */,
+				A792CF351020C3EA00D02F86 /* Mesh.h */,
+				A792CF361020C3EB00D02F86 /* Mesh.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -204,6 +236,15 @@
 			name = MathCore;
 			sourceTree = "<group>";
 		};
+		A7A96A2410222D21003110A1 /* TestClasses */ = {
+			isa = PBXGroup;
+			children = (
+				A7A96A0310222CCC003110A1 /* MeshTest.h */,
+				A7A96A0410222CCC003110A1 /* MeshTest.mm */,
+			);
+			name = TestClasses;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -225,6 +266,25 @@
 			productReference = 8D15AC370486D014006FF6A4 /* OpenGLEditor.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A7A96A4710222EE2003110A1 /* Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7A96A4C10222EE3003110A1 /* Build configuration list for PBXNativeTarget "Tests" */;
+			buildPhases = (
+				A7A96A4310222EE2003110A1 /* Resources */,
+				A7A96A4410222EE2003110A1 /* Sources */,
+				A7A96A4510222EE2003110A1 /* Frameworks */,
+				A7A96A4610222EE2003110A1 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A7A96A4E10222F1D003110A1 /* PBXTargetDependency */,
+			);
+			name = Tests;
+			productName = Tests;
+			productReference = A7A96A4810222EE2003110A1 /* Tests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -238,6 +298,7 @@
 			projectRoot = "";
 			targets = (
 				8D15AC270486D014006FF6A4 /* OpenGLEditor */,
+				A7A96A4710222EE2003110A1 /* Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -254,7 +315,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A7A96A4310222EE2003110A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A7A96A4610222EE2003110A1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8D15AC300486D014006FF6A4 /* Sources */ = {
@@ -275,10 +359,27 @@
 				A754C41A0FF92F2800A48E13 /* ManipulatorWidget.mm in Sources */,
 				A754C41B0FF92F2800A48E13 /* OpenGLDrawing.cpp in Sources */,
 				A7C8600C10135C700032DC33 /* Plane.cpp in Sources */,
+				A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A96A4410222EE2003110A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7A96A5E10223024003110A1 /* MeshTest.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A7A96A4E10222F1D003110A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D15AC270486D014006FF6A4 /* OpenGLEditor */;
+			targetProxy = A7A96A4D10222F1D003110A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C165FFE840EACC02AAC07 /* InfoPlist.strings */ = {
@@ -316,6 +417,64 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		A7A96A4A10222EE3003110A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/OpenGLEditor.app/Contents/MacOS/OpenGLEditor";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "Tests-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Tests;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenGLEditor.app/Contents/MacOS/OpenGLEditor";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		A7A96A4B10222EE3003110A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/OpenGLEditor.app/Contents/MacOS/OpenGLEditor";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "Tests-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Tests;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenGLEditor.app/Contents/MacOS/OpenGLEditor";
+				WRAPPER_EXTENSION = octest;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		C05733C808A9546B00998B17 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -376,6 +535,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A7A96A4C10222EE3003110A1 /* Build configuration list for PBXNativeTarget "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7A96A4A10222EE3003110A1 /* Debug */,
+				A7A96A4B10222EE3003110A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "OpenGLEditor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

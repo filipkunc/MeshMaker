@@ -8,12 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 #import "MathDeclaration.h"
+#import "Mesh.h"
 
 @interface Item : NSObject 
 {
 	Vector3D *position;
 	Quaternion *rotation;
 	Vector3D *scale;
+	Mesh *mesh;
 	BOOL selected;
 }
 
