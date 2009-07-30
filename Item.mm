@@ -51,6 +51,8 @@
 		position = new Vector3D();
 		rotation = new Quaternion();
 		scale = new Vector3D();
+		mesh = [[Mesh alloc] init];
+		[mesh makeCube];
 		selected = NO;
 	}
 	return self;
@@ -73,6 +75,7 @@
 	delete position;
 	delete rotation;
 	delete scale;
+	[mesh release];
 	[super dealloc];
 }
 
@@ -84,7 +87,8 @@
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
 	glScalef(scale->x, scale->y, scale->z);
-	glutSolidIcosahedron();
+	//glutSolidIcosahedron();
+	[mesh draw];
 	glPopMatrix();
 }
 
