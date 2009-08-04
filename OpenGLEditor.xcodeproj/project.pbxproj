@@ -37,7 +37,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A37F4A9FDCFA73011CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D15AC270486D014006FF6A4 /* OpenGLEditor */;
+			remoteGlobalIDString = 8D15AC270486D014006FF6A4;
 			remoteInfo = OpenGLEditor;
 		};
 /* End PBXContainerItemProxy section */
@@ -93,6 +93,7 @@
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C8600A10135C700032DC33 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		A7C8600B10135C700032DC33 /* Plane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Plane.cpp; sourceTree = "<group>"; };
+		A7DB1DA8102767420062C4E5 /* OpenGLManipulating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLManipulating.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +182,7 @@
 				A754C40A0FF92EE300A48E13 /* OpenGLSceneView.mm */,
 				A792CF351020C3EA00D02F86 /* Mesh.h */,
 				A792CF361020C3EB00D02F86 /* Mesh.mm */,
+				A7DB1DA8102767420062C4E5 /* OpenGLManipulating.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";

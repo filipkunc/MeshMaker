@@ -15,7 +15,7 @@
 
 @interface OpenGLSceneView : NSOpenGLView 
 {
-	IBOutlet id<ItemCollectionProtocol> items;
+	IBOutlet id<OpenGLManipulating> items;
 	
 	Vector3D *selectionOffset;
 	Camera *camera;

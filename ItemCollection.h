@@ -9,35 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "Item.h"
 #import "OpenGLSelecting.h"
+#import "OpenGLManipulating.h"
 
-enum ManipulatorType 
-{
-	ManipulatorTypeDefault = 0,
-	ManipulatorTypeTranslation = 1, 
-	ManipulatorTypeRotation = 2,
-	ManipulatorTypeScale = 3
-};
-
-@protocol ItemCollectionProtocol <OpenGLSelecting>
-
-@property (readonly) Vector3D selectionCenter;
-@property (readonly) Quaternion selectionRotation;
-@property (readonly) Vector3D selectionScale;
-@property (readwrite) BOOL toggleWhenSelecting;
-@property (readonly) NSUInteger selectedCount;
-
-- (void)draw;
-- (void)moveSelectedByOffset:(Vector3D)offset;
-- (void)rotateSelectedByOffset:(Quaternion)offset;
-- (void)scaleSelectedByOffset:(Vector3D)offset;
-- (void)removeSelected;
-- (void)cloneSelected;
-- (void)changeSelection:(BOOL)isSelected;
-- (void)invertSelection;
-
-@end
-
-@interface ItemCollection : NSObject <ItemCollectionProtocol>
+@interface ItemCollection : NSObject <OpenGLManipulating>
 {
 	NSMutableArray *items;
 	Vector3D *selectionCenter;
