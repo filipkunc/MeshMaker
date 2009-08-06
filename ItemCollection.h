@@ -24,14 +24,6 @@
 	enum ManipulatorType currentManipulator;
 }
 
-@property (readwrite, assign) enum ManipulatorType currentManipulator;
-@property (readwrite, assign) Vector3D selectionCenter;
-@property (readwrite, assign) Quaternion selectionRotation;
-@property (readwrite, assign) Vector3D selectionScale;
-@property (readwrite, assign) BOOL toggleWhenSelecting;
-@property (readwrite, assign) float selectionX, selectionY, selectionZ;
-@property (readonly) NSUInteger selectedCount;
-
 - (float)selectionValueAtIndex:(NSUInteger)index;
 - (void)setSelectionValue:(float)value atIndex:(NSUInteger)index;
 - (void)addItem:(Item *)item;

@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="100022"/>
+			<integer value="5"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -75,10 +75,9 @@
 								<string key="NSToolbarItemPaletteLabel">Y</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSTextField" key="NSToolbarItemView" id="132434997">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {70, 22}}</string>
-									<reference key="NSSuperview"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="504043982">
 										<int key="NSCellFlags">-1804468671</int>
@@ -294,10 +293,9 @@
 								<string key="NSToolbarItemPaletteLabel">Z</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSTextField" key="NSToolbarItemView" id="85652736">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {70, 22}}</string>
-									<reference key="NSSuperview"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="1006375368">
 										<int key="NSCellFlags">-1804468671</int>
@@ -376,10 +374,9 @@
 								<string key="NSToolbarItemPaletteLabel">X</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSTextField" key="NSToolbarItemView" id="723099555">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {70, 22}}</string>
-									<reference key="NSSuperview"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="760553423">
 										<int key="NSCellFlags">-1804468671</int>
@@ -601,9 +598,6 @@
 			<object class="NSCustomObject" id="796877042">
 				<string key="NSClassName">NSApplication</string>
 			</object>
-			<object class="NSCustomObject" id="928976294">
-				<string key="NSClassName">ItemCollection</string>
-			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
 			<object class="NSMutableArray" key="connectionRecords">
@@ -625,44 +619,12 @@
 					<int key="connectionID">18</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">items</string>
-						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="928976294"/>
-					</object>
-					<int key="connectionID">100038</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">items</string>
-						<reference key="source" ref="572410432"/>
-						<reference key="destination" ref="928976294"/>
-					</object>
-					<int key="connectionID">100039</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">addTeapot:</string>
 						<reference key="source" ref="512844837"/>
 						<reference key="destination" ref="474581757"/>
 					</object>
 					<int key="connectionID">100047</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: selectionZ</string>
-						<reference key="source" ref="1006375368"/>
-						<reference key="destination" ref="928976294"/>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="1006375368"/>
-							<reference key="NSDestination" ref="928976294"/>
-							<string key="NSLabel">value: selectionZ</string>
-							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">selectionZ</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">100070</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -697,38 +659,6 @@
 					<int key="connectionID">100085</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: selectionX</string>
-						<reference key="source" ref="723099555"/>
-						<reference key="destination" ref="928976294"/>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="723099555"/>
-							<reference key="NSDestination" ref="928976294"/>
-							<string key="NSLabel">value: selectionX</string>
-							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">selectionX</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">100107</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: selectionY</string>
-						<reference key="source" ref="132434997"/>
-						<reference key="destination" ref="928976294"/>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="132434997"/>
-							<reference key="NSDestination" ref="928976294"/>
-							<string key="NSLabel">value: selectionY</string>
-							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">selectionY</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">100108</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">changeManipulator:</string>
 						<reference key="source" ref="512844837"/>
@@ -759,6 +689,54 @@
 						<reference key="destination" ref="534841699"/>
 					</object>
 					<int key="connectionID">100116</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: manipulated.selectionY</string>
+						<reference key="source" ref="504043982"/>
+						<reference key="destination" ref="512844837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="504043982"/>
+							<reference key="NSDestination" ref="512844837"/>
+							<string key="NSLabel">value: manipulated.selectionY</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">manipulated.selectionY</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">100120</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: manipulated.selectionX</string>
+						<reference key="source" ref="760553423"/>
+						<reference key="destination" ref="512844837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="760553423"/>
+							<reference key="NSDestination" ref="512844837"/>
+							<string key="NSLabel">value: manipulated.selectionX</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">manipulated.selectionX</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">100122</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: manipulated.selectionZ</string>
+						<reference key="source" ref="1006375368"/>
+						<reference key="destination" ref="512844837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="1006375368"/>
+							<reference key="NSDestination" ref="512844837"/>
+							<string key="NSLabel">value: manipulated.selectionZ</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">manipulated.selectionZ</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">100124</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -848,11 +826,6 @@
 						<int key="objectID">100028</int>
 						<reference key="object" ref="767646089"/>
 						<reference key="parent" ref="24235194"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">100037</int>
-						<reference key="object" ref="928976294"/>
-						<reference key="parent" ref="0"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100040</int>
@@ -988,7 +961,6 @@
 					<string>100021.IBPluginDependency</string>
 					<string>100022.IBEditorWindowLastContentRect</string>
 					<string>100022.IBPluginDependency</string>
-					<string>100037.IBPluginDependency</string>
 					<string>100040.IBPluginDependency</string>
 					<string>100041.IBPluginDependency</string>
 					<string>100042.IBPluginDependency</string>
@@ -1025,8 +997,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>OpenGLSceneView</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{294, 435}, {616, 227}}</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{294, 662}, {616, 0}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1086,19 +1057,11 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">100116</int>
+			<int key="maxID">100124</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBPartialClassDescription">
-					<string key="className">ItemCollection</string>
-					<string key="superclassName">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">ItemCollection.h</string>
-					</object>
-				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">MyDocument</string>
 					<string key="superclassName">NSDocument</string>
@@ -1116,17 +1079,8 @@
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSMutableArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>items</string>
-							<string>view</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>ItemCollection</string>
-							<string>OpenGLSceneView</string>
-						</object>
+						<string key="NS.key.0">view</string>
+						<string key="NS.object.0">OpenGLSceneView</string>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
@@ -1141,7 +1095,7 @@
 						<string key="NS.object.0">id</string>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">items</string>
+						<string key="NS.key.0">manipulated</string>
 						<string key="NS.object.0">id</string>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">

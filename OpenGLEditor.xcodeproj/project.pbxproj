@@ -27,6 +27,7 @@
 		A754C41B0FF92F2800A48E13 /* OpenGLDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A754C4140FF92F2800A48E13 /* OpenGLDrawing.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C4210FF92F9400A48E13 /* GLUT.framework */; };
+		A767D80A1028C96C00757986 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */; };
 		A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A792CF361020C3EB00D02F86 /* Mesh.mm */; };
 		A7A96A5E10223024003110A1 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A96A0410222CCC003110A1 /* MeshTest.mm */; };
 		A7C8600C10135C700032DC33 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C8600B10135C700032DC33 /* Plane.cpp */; };
@@ -84,6 +85,8 @@
 		A754C4160FF92F2800A48E13 /* OpenGLSelecting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLSelecting.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A754C4210FF92F9400A48E13 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
+		A767D8081028C96C00757986 /* OpenGLManipulatingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLManipulatingController.h; sourceTree = "<group>"; };
+		A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLManipulatingController.mm; sourceTree = "<group>"; };
 		A792CF351020C3EA00D02F86 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		A792CF361020C3EB00D02F86 /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Mesh.mm; sourceTree = "<group>"; };
 		A7A969FB10222C3C003110A1 /* OpenGLEditorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenGLEditorTests-Info.plist"; sourceTree = "<group>"; };
@@ -183,6 +186,8 @@
 				A792CF351020C3EA00D02F86 /* Mesh.h */,
 				A792CF361020C3EB00D02F86 /* Mesh.mm */,
 				A7DB1DA8102767420062C4E5 /* OpenGLManipulating.h */,
+				A767D8081028C96C00757986 /* OpenGLManipulatingController.h */,
+				A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -362,6 +367,7 @@
 				A754C41B0FF92F2800A48E13 /* OpenGLDrawing.cpp in Sources */,
 				A7C8600C10135C700032DC33 /* Plane.cpp in Sources */,
 				A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */,
+				A767D80A1028C96C00757986 /* OpenGLManipulatingController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

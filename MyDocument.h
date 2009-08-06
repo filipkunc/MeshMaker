@@ -13,10 +13,11 @@
 
 @interface MyDocument : NSDocument
 {
-	IBOutlet ItemCollection *items;
+	ItemCollection *items;
 	IBOutlet OpenGLSceneView *view;
 }
 
+- (id<OpenGLManipulating>)manipulated;
 - (IBAction)addTeapot:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 

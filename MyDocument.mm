@@ -13,13 +13,44 @@
 - (id)init
 {
     self = [super init];
-    if (self) {
-    
+    if (self) 
+	{
         // Add your subclass-specific initialization here.
         // If an error occurs here, send a [self release] message and return nil.
+		items = [[ItemCollection alloc] init];
     }
     return self;
 }
+
+- (void)dealloc
+{
+	[items release];
+	[super dealloc];
+}
+
+- (void)awakeFromNib
+{
+	[view setManipulated:items];
+}
+
+- (id<OpenGLManipulating>)manipulated
+{
+	return items;
+}
+
+- (IBAction)addTeapot:(id)sender
+{
+	[items addItem:[[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)]];
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)changeManipulator:(id)sender
+{
+	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
+	[items setCurrentManipulator:newManipulator];
+	[view setCurrentManipulator:newManipulator];
+}
+
 
 - (NSString *)windowNibName
 {
@@ -60,19 +91,6 @@
 		*outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:unimpErr userInfo:NULL];
 	}
     return YES;
-}
-
-- (IBAction)addTeapot:(id)sender
-{
-	[items addItem:[[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)]];
-	[view setNeedsDisplay:YES];
-}
-
-- (IBAction)changeManipulator:(id)sender
-{
-	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
-	[items setCurrentManipulator:newManipulator];
-	[view setCurrentManipulator:newManipulator];
 }
 
 @end

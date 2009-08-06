@@ -11,11 +11,11 @@
 #import "Camera.h"
 #import "OpenGLSelecting.h"
 #import "Manipulator.h"
-#import "ItemCollection.h"
+#import "OpenGLManipulating.h"
 
 @interface OpenGLSceneView : NSOpenGLView 
 {
-	IBOutlet id<OpenGLManipulating> items;
+	id<OpenGLManipulating> manipulated;
 	
 	Vector3D *selectionOffset;
 	Camera *camera;
@@ -30,6 +30,7 @@
 	Manipulator *currentManipulator;
 }
 
+@property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 
 - (void)drawGridWithSize:(int)size step:(int)step;

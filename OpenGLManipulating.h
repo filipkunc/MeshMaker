@@ -18,20 +18,19 @@ enum ManipulatorType
 
 @protocol OpenGLManipulating <OpenGLSelecting>
 
-@property (readonly) Vector3D selectionCenter;
-@property (readonly) Quaternion selectionRotation;
-@property (readonly) Vector3D selectionScale;
-@property (readwrite) BOOL toggleWhenSelecting;
+@property (readwrite, assign) enum ManipulatorType currentManipulator;
+@property (readwrite, assign) Vector3D selectionCenter;
+@property (readwrite, assign) Quaternion selectionRotation;
+@property (readwrite, assign) Vector3D selectionScale;
+@property (readwrite, assign) float selectionX, selectionY, selectionZ;
 @property (readonly) NSUInteger selectedCount;
 
-- (void)draw;
 - (void)moveSelectedByOffset:(Vector3D)offset;
 - (void)rotateSelectedByOffset:(Quaternion)offset;
 - (void)scaleSelectedByOffset:(Vector3D)offset;
+- (void)updateSelection;
+- (void)draw;
 - (void)changeSelection:(BOOL)isSelected;
 - (void)invertSelection;
-
-- (void)removeSelected;
-- (void)cloneSelected;
 
 @end

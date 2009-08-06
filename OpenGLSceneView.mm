@@ -9,13 +9,22 @@
 
 #import <GLUT/glut.h>
 #import "OpenGLSceneView.h"
-#import "Item.h"
 
 const float perspectiveAngle = 45.0f;
 const float minDistance = 0.2f;
 const float maxDistance = 1000.0f;
 
 @implementation OpenGLSceneView
+
+- (id<OpenGLManipulating>)manipulated
+{
+	return manipulated;
+}
+
+- (void)setManipulated:(id<OpenGLManipulating>)value
+{
+	manipulated = value;
+}
 
 - (void)awakeFromNib
 {
@@ -33,6 +42,8 @@ const float maxDistance = 1000.0f;
 	self = [super initWithCoder:c];
 	if (self)
 	{		
+		manipulated = nil;
+		
 		// The GL context must be active for these functions to have an effect
 		NSOpenGLContext *glcontext = [self openGLContext];
 		[glcontext makeCurrentContext];
@@ -176,17 +187,17 @@ const float maxDistance = 1000.0f;
 	
 	glEnable(GL_LIGHTING);
 	
-	[items draw];
+	[manipulated draw];
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	
-	if ([items selectedCount] > 0)
+	if ([manipulated selectedCount] > 0)
 	{
-		[currentManipulator setPosition:[items selectionCenter]];
+		[currentManipulator setPosition:[manipulated selectionCenter]];
 		[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
-		[scaleManipulator setRotation:[items selectionRotation]];
-		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[items selectionCenter]];
+		[scaleManipulator setRotation:[manipulated selectionRotation]];
+		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
 	}
 		
 	if (isSelecting)
@@ -219,12 +230,12 @@ const float maxDistance = 1000.0f;
 {
 	lastPoint = [self convertPoint:[e locationInWindow] fromView:nil];
 	
-	if ([items selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
+	if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
 	{
 		if (currentManipulator == translationManipulator)
 		{
 			*selectionOffset = [self translationFromPoint:lastPoint];
-			*selectionOffset -= [items selectionCenter];
+			*selectionOffset -= [manipulated selectionCenter];
 			isManipulating = YES;
 		}
 		else if (currentManipulator == rotationManipulator)
@@ -247,12 +258,12 @@ const float maxDistance = 1000.0f;
 - (void)mouseMoved:(NSEvent *)e
 {
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
-	if ([items selectedCount] > 0)
+	if ([manipulated selectedCount] > 0)
 	{
 		if (!isManipulating)
 		{
 			[currentManipulator setSelectedIndex:-1];
-			[currentManipulator setPosition:[items selectionCenter]];
+			[currentManipulator setPosition:[manipulated selectionCenter]];
 			[self selectWithPoint:currentPoint selecting:currentManipulator];
 			[self setNeedsDisplay:YES];
 		}
@@ -266,12 +277,12 @@ const float maxDistance = 1000.0f;
 	if (isSelecting)
 	{
 		isSelecting = NO;
-		[items changeSelection:NO];
+		[manipulated changeSelection:NO];
 		NSRect rect = [self currentRect];
 		if (rect.size.width > 5.0f && rect.size.height > 5.0f)
-			[self selectWithRect:[self currentRect] selecting:items];
+			[self selectWithRect:[self currentRect] selecting:manipulated];
 		else
-			[self selectWithPoint:currentPoint selecting:items];
+			[self selectWithPoint:currentPoint selecting:manipulated];
 		[self setNeedsDisplay:YES];
 	}
 }
@@ -287,20 +298,20 @@ const float maxDistance = 1000.0f;
 		{
 			Vector3D move = [self translationFromPoint:currentPoint];
 			move -= *selectionOffset;
-			move -= [items selectionCenter];
-			[items moveSelectedByOffset:move];
+			move -= [manipulated selectionCenter];
+			[manipulated moveSelectedByOffset:move];
 			[self setNeedsDisplay:YES];
 		}
 		else if (currentManipulator == rotationManipulator)
 		{
 			Quaternion rotation = [self rotationFromPoint:currentPoint lastPosition:selectionOffset];
-			[items rotateSelectedByOffset:rotation];
+			[manipulated rotateSelectedByOffset:rotation];
 			[self setNeedsDisplay:YES];
 		}
 		else if (currentManipulator == scaleManipulator)
 		{
 			Vector3D scale = [self scaleFromPoint:currentPoint lastPosition:selectionOffset];
-			[items scaleSelectedByOffset:scale];
+			[manipulated scaleSelectedByOffset:scale];
 			[self setNeedsDisplay:YES];
 		}
 	}
@@ -361,14 +372,16 @@ const float maxDistance = 1000.0f;
 	switch ([e keyCode]) {
 		case 51: // delete
 		{
-			[items removeSelected];
+			NSLog(@"removeSelected not implemented");
+			//[manipulated removeSelected];
 			[self setNeedsDisplay:YES];
 		}break;
 		case 8: // cmd + C
 		{
 			if ([e modifierFlags] & NSCommandKeyMask)
 			{
-				[items cloneSelected];
+				NSLog(@"cloneSelected not implemented");
+				//[manipulated cloneSelected];
 				[self setNeedsDisplay:YES];
 			}
 		}break;
@@ -543,7 +556,7 @@ const float maxDistance = 1000.0f;
 
 - (void)drawSelectionPlaneWithIndex:(int)index
 {
-	Vector3D position = [items selectionCenter];
+	Vector3D position = [manipulated selectionCenter];
 	
 	glPushMatrix();
 	glTranslatef(position.x, position.y, position.z);
@@ -557,7 +570,7 @@ const float maxDistance = 1000.0f;
 	DrawPlane(camera->GetAxisX(), camera->GetAxisY(), size);
 	
 	Vector3D position = [self positionInSpaceByPoint:point];
-	Vector3D result = [items selectionCenter];
+	Vector3D result = [manipulated selectionCenter];
 	result[axis] = position[axis];
 	return result;
 }
@@ -568,7 +581,7 @@ const float maxDistance = 1000.0f;
 	DrawPlane(camera->GetAxisX(), camera->GetAxisY(), size);
 	
 	Vector3D position = [self positionInSpaceByPoint:point];
-	Vector3D result = [items selectionCenter];
+	Vector3D result = [manipulated selectionCenter];
 	position.Transform(rotation.Conjugate());
 	result[axis] = position[axis];
 	return result;
@@ -580,7 +593,7 @@ const float maxDistance = 1000.0f;
 	[self drawSelectionPlaneWithIndex:index];
 	Vector3D position = [self positionInSpaceByPoint:point];
 	Vector3D result = position;
-	result[index] = [items selectionCenter][index];
+	result[index] = [manipulated selectionCenter][index];
 	return result;
 }
 
@@ -591,7 +604,7 @@ const float maxDistance = 1000.0f;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(camera->GetViewMatrix());
 	
-	Vector3D position = [items selectionCenter];
+	Vector3D position = [manipulated selectionCenter];
 	int selectedIndex = [currentManipulator selectedIndex];
 	
 	if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
@@ -607,7 +620,7 @@ const float maxDistance = 1000.0f;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(camera->GetViewMatrix());
 	
-	Vector3D position = [items selectionCenter];
+	Vector3D position = [manipulated selectionCenter];
 	int selectedIndex = [currentManipulator selectedIndex];
 	
 	Vector3D scale = Vector3D();
@@ -618,7 +631,7 @@ const float maxDistance = 1000.0f;
 		enum Axis selectedAxis = [selectedWidget axis];
 		if (selectedAxis >= AxisX && selectedAxis <= AxisZ)
 		{
-			position = [self positionFromRotatedAxis:selectedAxis point:point rotation:[items selectionRotation]];
+			position = [self positionFromRotatedAxis:selectedAxis point:point rotation:[manipulated selectionRotation]];
 			scale = position - *lastPosition;
 		}
 		else if (selectedAxis == Center)
@@ -648,7 +661,7 @@ const float maxDistance = 1000.0f;
 	int selectedIndex = [currentManipulator selectedIndex];
 	
 	position = [self positionFromPlaneAxis:(PlaneAxis)(selectedIndex + 3) point:point];
-	position -= [items selectionCenter];
+	position -= [manipulated selectionCenter];
 	
 	switch(selectedIndex)
     {
