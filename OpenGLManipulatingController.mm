@@ -1,31 +1,31 @@
 //
-//  ItemCollection.mm
-//  OpenGLWidgets
+//  OpenGLManipulatingController.mm
+//  OpenGLEditor
 //
-//  Created by Filip Kunc on 6/28/09.
+//  Created by Filip Kunc on 8/4/09.
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
-#import <GLUT/glut.h>
-#import "ItemCollection.h"
+#import "OpenGLManipulatingController.h"
 
-@implementation ItemCollection
+
+@implementation OpenGLManipulatingController
 
 @synthesize currentManipulator, selectedCount;
 
-- (id)init
+- (id)initWithModel:(id<OpenGLManipulatingModel>)aModel
 {
 	self = [super init];
 	if (self)
 	{
-		items = [[NSMutableArray alloc] init];
+		model = aModel;
 		selectionCenter = new Vector3D();
 		selectionRotation = new Quaternion();
 		selectionEuler = new Vector3D();
 		selectionScale = new Vector3D(1, 1, 1);
 		toggleWhenSelecting = NO;
 		selectedCount = 0;
-		lastSelected = nil;
+		lastSelectedIndex = -1;
 		currentManipulator = ManipulatorTypeDefault;
 	}
 	return self;
@@ -33,7 +33,6 @@
 
 - (void)dealloc
 {
-	[items release];
 	delete selectionCenter;
 	delete selectionRotation;
 	delete selectionEuler;
@@ -103,7 +102,8 @@
 			if (selectedCount == 1)
 			{
 				selectionRotation->FromEulerAngles(*selectionEuler);
-				[lastSelected setRotation:*selectionRotation];
+				if (lastSelectedIndex > -1)
+					[model setRotation:*selectionRotation atIndex:lastSelectedIndex];
 			}
 			else
 			{
@@ -118,7 +118,8 @@
 			if (selectedCount == 1)
 			{
 				(*selectionScale)[index] = value;
-				[lastSelected setScale:*selectionScale];
+				if (lastSelectedIndex > -1)
+					[model setScale:*selectionScale atIndex:lastSelectedIndex];
 			}
 			else
 			{
@@ -144,15 +145,14 @@
 	[self willChangeSelection];
 	selectedCount = 0;
 	*selectionCenter = Vector3D();
-	lastSelected = nil;
-	for (int i = 0; i < [items count]; i++)
+	lastSelectedIndex = -1;
+	for (int i = 0; i < [model count]; i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
+		if ([model isSelectedAtIndex:i])
 		{
 			selectedCount++;
-			*selectionCenter += [item position];
-			lastSelected = item;
+			*selectionCenter += [model positionAtIndex:i];
+			lastSelectedIndex = i;
 		}
 	}
 	*selectionRotation = Quaternion();
@@ -160,10 +160,10 @@
 	if (selectedCount > 0)
 	{
 		*selectionCenter /= (float)selectedCount;
-		if (selectedCount == 1 && lastSelected != nil)
+		if (selectedCount == 1 && lastSelectedIndex > -1)
 		{
-			*selectionRotation = [lastSelected rotation];
-			*selectionScale = [lastSelected scale];
+			*selectionRotation = [model rotationAtIndex:lastSelectedIndex];
+			*selectionScale = [model scaleAtIndex:lastSelectedIndex];
 		}
 	}
 	else
@@ -225,91 +225,12 @@
 	[self didChangeSelection];
 }
 
-- (void)addItem:(Item *)item
-{
-	[items addObject:item];
-}
-
-- (Item *)itemAtIndex:(NSUInteger)index
-{
-	return [items objectAtIndex:index];
-}
-
-- (NSUInteger)count
-{
-	return [items count];
-}
-
-- (void)removeItemAtIndex:(NSUInteger)index
-{
-	BOOL needUpdateSelection = [[self itemAtIndex:index] selected];
-	[items removeObjectAtIndex:index];
-	if (needUpdateSelection)
-		[self updateSelection];
-}
-
-- (void)removeSelected
-{
-	for (int i = 0; i < [items count]; i++)
-	{
-		if ([[self itemAtIndex:i] selected])
-		{
-			[items removeObjectAtIndex:i];
-			i--;
-		}
-	}
-	[self updateSelection];
-}
-
-- (void)changeSelection:(BOOL)isSelected
-{
-	for (int i = 0; i < [items count]; i++)
-	{
-		[[self itemAtIndex:i] setSelected:isSelected];
-	}
-	[self updateSelection];
-}
-
-- (void)invertSelection
-{
-	for (int i = 0; i < [items count]; i++)
-	{
-		Item *item = [self itemAtIndex:i];
-		item.selected = !item.selected;
-	}
-	[self updateSelection];
-}
-
-- (void)draw
-{
-	for (int i = 0; i < [items count]; i++)
-	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
-		{
-			glColor3f(1, 1, 1);
-			glDisable(GL_LIGHTING);
-			glPushMatrix();
-			glTranslatef([item position].x, [item position].y, [item position].z);
-			glutWireCube(4.0);
-			glPopMatrix();
-			glEnable(GL_LIGHTING);
-			[item draw];
-		}
-		else
-		{
-			[item draw];
-		}
-	}
-}
-
 - (void)moveSelectedByOffset:(Vector3D)offset
 {
-	for (int i = 0; i < [items count]; i++)
+	for (int i = 0; i < [model count]; i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
-			[item moveByOffset:offset];
+		if ([model isSelectedAtIndex:i])
+			[model moveByOffset:offset atIndex:i];
 	}
 	
 	[self setSelectionCenter:*selectionCenter + offset];
@@ -319,79 +240,77 @@
 {
 	if ([self selectedCount] > 1)
 	{
-		for (int i = 0; i < [items count]; i++)
+		for (int i = 0; i < [model count]; i++)
 		{
-			Item *item = [self itemAtIndex:i];
-			if ([item selected])
+			if ([model isSelectedAtIndex:i])
 			{
-				Vector3D position = [item position];
+				Vector3D position = [model positionAtIndex:i];
 				position -= *selectionCenter;
 				position.Transform(offset);
 				position += *selectionCenter;
-				[item setPosition:position];
-				[item rotateByOffset:offset];
+				[model setPosition:position atIndex:i];
+				[model rotateByOffset:offset atIndex:i];
 			}
 		}
 		[self setSelectionRotation:offset * (*selectionRotation)];
 	}
-	else
+	else if (lastSelectedIndex > -1)
 	{
-		[lastSelected rotateByOffset:offset];
-		[self setSelectionRotation:[lastSelected rotation]];
+		[model rotateByOffset:offset atIndex:lastSelectedIndex];
+		[self setSelectionRotation:[model rotationAtIndex:lastSelectedIndex]];
 	}	
 }
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
-	for (int i = 0; i < [items count]; i++)
+	for (int i = 0; i < [model count]; i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
-			[item scaleByOffset:offset];
+		if ([model isSelectedAtIndex:i])
+			[model scaleByOffset:offset atIndex:i];
 	}
 	[self setSelectionScale:*selectionScale + offset];
 }
 
-- (void)cloneSelected
+- (void)draw
 {
-	int count = [items count];
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < [model count]; i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
-		{
-			Item *clone = [[Item alloc] init];
-			[clone setPosition:[item position]];
-			[clone setRotation:[item rotation]];
-			[clone setScale:[item scale]];
-			[clone setSelected:YES];
-			[item setSelected:NO];
-			[items addObject:clone];
-		}
+		[model drawAtIndex:i];
 	}
-	[self updateSelection];
 }
-
-#pragma mark OpenGLSelecting
 
 - (NSUInteger)selectableCount
 {
-	return [items count];
+	return [model count];
 }
 
 - (void)drawForSelectionAtIndex:(NSUInteger)index
 {
-	[[self itemAtIndex:index] draw];
+	[model drawAtIndex:index];
 }
 
 - (void)selectObjectAtIndex:(NSUInteger)index
 {
-	Item *item = [self itemAtIndex:index];
 	if (toggleWhenSelecting)
-		[item setSelected:![item selected]];
+		[model setSelected:![model isSelectedAtIndex:index] atIndex:index];
 	else
-		[item setSelected:YES];
+		[model setSelected:YES atIndex:index];
+	[self updateSelection];
+}
+
+- (void)changeSelection:(BOOL)isSelected
+{
+	for (int i = 0; i < [model count]; i++)
+		[model setSelected:isSelected atIndex:i];
+	[self updateSelection];
+}
+
+- (void)invertSelection
+{
+	for (int i = 0; i < [model count]; i++)
+		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
 	[self updateSelection];
 }
 
 @end
+
