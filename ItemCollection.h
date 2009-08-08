@@ -10,28 +10,14 @@
 #import "Item.h"
 #import "OpenGLSelecting.h"
 #import "OpenGLManipulating.h"
+#import "OpenGLManipulatingController.h"
 
-@interface ItemCollection : NSObject <OpenGLManipulating>
+@interface ItemCollection : NSObject <OpenGLManipulatingModel>
 {
 	NSMutableArray *items;
-	Vector3D *selectionCenter;
-	Quaternion *selectionRotation;
-	Vector3D *selectionEuler;
-	Vector3D *selectionScale;
-	BOOL toggleWhenSelecting;
-	NSUInteger selectedCount;
-	Item *lastSelected;
-	enum ManipulatorType currentManipulator;
 }
 
-- (float)selectionValueAtIndex:(NSUInteger)index;
-- (void)setSelectionValue:(float)value atIndex:(NSUInteger)index;
-- (void)addItem:(Item *)item;
 - (Item *)itemAtIndex:(NSUInteger)index;
-- (NSUInteger)count;
-- (void)removeItemAtIndex:(NSUInteger)index;
-- (void)updateSelection;
-- (void)willChangeSelection;
-- (void)didChangeSelection;
+- (void)addItem:(Item *)item;
 
 @end

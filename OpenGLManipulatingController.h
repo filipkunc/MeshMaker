@@ -41,7 +41,9 @@
 	enum ManipulatorType currentManipulator;
 }
 
-- (id)initWithModel:(id<OpenGLManipulatingModel>)aModel;
+@property (readwrite, assign) id<OpenGLManipulatingModel> model;
+@property (readonly, assign) NSInteger lastSelectedIndex;
+
 - (float)selectionValueAtIndex:(NSUInteger)index;
 - (void)setSelectionValue:(float)value atIndex:(NSUInteger)index;
 - (void)willChangeSelection;

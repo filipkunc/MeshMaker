@@ -41,7 +41,7 @@
 	*scale = aScale;
 }
 
-@synthesize selected;
+@synthesize selected, mesh;
 
 - (id)init
 {

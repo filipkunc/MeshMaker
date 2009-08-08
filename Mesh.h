@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "MathDeclaration.h"
+#import "OpenGLManipulatingController.h"
 #import <vector>
 using namespace std;
 
@@ -17,9 +18,11 @@ typedef struct {
 
 Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3);
 
-@interface Mesh : NSObject {
+@interface Mesh : NSObject <OpenGLManipulatingModel>
+{
 	vector<Vector3D> *vertices;
 	vector<Triangle> *triangles;
+	vector<BOOL> *selectedIndices;
 }
 
 - (Vector3D)vertexAtIndex:(NSUInteger)anIndex;
