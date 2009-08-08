@@ -26,6 +26,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	{
 		vertices = new vector<Vector3D>();
 		triangles = new vector<Triangle>();
+		selectedIndices = new vector<BOOL>();
 	}
 	return self;
 }
@@ -34,6 +35,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 {
 	delete vertices;
 	delete triangles;
+	delete selectedIndices;
 	[super dealloc];
 }
 
@@ -89,6 +91,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 {
 	vertices->clear();
 	triangles->clear();
+	selectedIndices->clear();
 	
 	// back vertices
 	vertices->push_back(Vector3D(-1, -1, -1)); // 0
@@ -125,6 +128,70 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	// right triangles
 	triangles->push_back(MakeTriangle(5, 2, 1));
 	triangles->push_back(MakeTriangle(2, 5, 6));
+	
+	for (int i = 0; i < vertices->size(); i++)
+		selectedIndices->push_back(NO);
+}
+
+- (NSUInteger)count
+{
+	return vertices->size();
+}
+
+- (Vector3D)positionAtIndex:(NSUInteger)index
+{
+	return (*vertices)[index];
+}
+
+- (Quaternion)rotationAtIndex:(NSUInteger)index
+{
+	return Quaternion();
+}
+
+- (Vector3D)scaleAtIndex:(NSUInteger)index
+{
+	return Vector3D(1, 1, 1);
+}
+
+- (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index
+{
+	(*vertices)[index] = position;
+}
+
+- (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index {}
+- (void)setScale:(Vector3D)scale atIndex:(NSUInteger)index {}
+
+- (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index
+{
+	(*vertices)[index] += offset;
+}
+
+- (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index {}
+- (void)scaleByOffset:(Vector3D)offset atIndex:(NSUInteger)index {}
+
+- (BOOL)isSelectedAtIndex:(NSUInteger)index
+{
+	return (*selectedIndices)[index];
+}
+
+- (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index 
+{
+	(*selectedIndices)[index] = selected;
+}
+
+- (void)drawAtIndex:(NSUInteger)index
+{
+	Vector3D v = [self vertexAtIndex:index];
+	BOOL selected = [self isSelectedAtIndex:index];
+	glPointSize(3.0f);
+	if (selected)
+		glColor3f(1, 0, 0);
+	else
+		glColor3f(0, 0, 1);
+	glDisable(GL_LIGHTING);
+	glBegin(GL_POINTS);
+	glVertex3f(v.x, v.y, v.z);
+	glEnd();
 }
 
 @end

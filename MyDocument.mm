@@ -18,39 +18,64 @@
         // Add your subclass-specific initialization here.
         // If an error occurs here, send a [self release] message and return nil.
 		items = [[ItemCollection alloc] init];
+		itemsController = [[OpenGLManipulatingController alloc] init];
+		meshController = [[OpenGLManipulatingController alloc] init];
+		
+		[itemsController setModel:items];
     }
     return self;
 }
 
 - (void)dealloc
 {
+	[meshController release];
+	[itemsController release];
 	[items release];
 	[super dealloc];
 }
 
 - (void)awakeFromNib
 {
-	[view setManipulated:items];
+	[view setManipulated:itemsController];
+	[view setDisplayed:itemsController];
 }
 
 - (id<OpenGLManipulating>)manipulated
 {
-	return items;
+	return meshController;
 }
 
-- (IBAction)addTeapot:(id)sender
+- (IBAction)addMesh:(id)sender
 {
 	[items addItem:[[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)]];
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)editVertices:(id)sender
+{
+	if ([view manipulated] == itemsController)
+	{
+		NSInteger index = [itemsController lastSelectedIndex];
+		if (index > -1)
+		{
+			Item *item = [items itemAtIndex:index];
+			[meshController setModel:[item mesh]];
+			[view setManipulated:meshController];
+		}
+	}
+	else
+	{
+		[view setManipulated:itemsController];
+	}
 	[view setNeedsDisplay:YES];
 }
 
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
-	[items setCurrentManipulator:newManipulator];
+	[[self manipulated] setCurrentManipulator:newManipulator];
 	[view setCurrentManipulator:newManipulator];
 }
-
 
 - (NSString *)windowNibName
 {

@@ -11,14 +11,13 @@
 
 @implementation OpenGLManipulatingController
 
-@synthesize currentManipulator, selectedCount;
+@synthesize currentManipulator, selectedCount, model, lastSelectedIndex;
 
-- (id)initWithModel:(id<OpenGLManipulatingModel>)aModel
+- (id)init
 {
 	self = [super init];
 	if (self)
 	{
-		model = aModel;
 		selectionCenter = new Vector3D();
 		selectionRotation = new Quaternion();
 		selectionEuler = new Vector3D();

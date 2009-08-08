@@ -15,6 +15,7 @@
 
 @interface OpenGLSceneView : NSOpenGLView 
 {
+	id<OpenGLManipulating> displayed;
 	id<OpenGLManipulating> manipulated;
 	
 	Vector3D *selectionOffset;
@@ -30,6 +31,7 @@
 	Manipulator *currentManipulator;
 }
 
+@property (readwrite, assign) id<OpenGLManipulating> displayed;
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 

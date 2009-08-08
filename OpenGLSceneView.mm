@@ -16,15 +16,7 @@ const float maxDistance = 1000.0f;
 
 @implementation OpenGLSceneView
 
-- (id<OpenGLManipulating>)manipulated
-{
-	return manipulated;
-}
-
-- (void)setManipulated:(id<OpenGLManipulating>)value
-{
-	manipulated = value;
-}
+@synthesize manipulated, displayed;
 
 - (void)awakeFromNib
 {
@@ -42,6 +34,7 @@ const float maxDistance = 1000.0f;
 	self = [super initWithCoder:c];
 	if (self)
 	{		
+		displayed = nil;
 		manipulated = nil;
 		
 		// The GL context must be active for these functions to have an effect
@@ -187,7 +180,11 @@ const float maxDistance = 1000.0f;
 	
 	glEnable(GL_LIGHTING);
 	
+	if (displayed != manipulated)
+		[displayed draw];
+	
 	[manipulated draw];
+	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
