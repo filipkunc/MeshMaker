@@ -19,6 +19,7 @@ public:
 	Matrix4x4();
     Matrix4x4(const float * m);
     Matrix4x4(const Matrix4x4 & m);
+	Matrix4x4(const Vector3D & translate, const Quaternion & rotate, const Vector3D & scale);
 
     float & operator() (int row, int col);
     float operator() (int row, int col) const;
@@ -55,6 +56,7 @@ public:
 	void Scale(float uniformScale);
 	void Scale(float x, float y, float z);
 	void Scale(const Vector3D & v);
+	void TranslateRotateScale(const Vector3D & translate, const Quaternion & rotate, const Vector3D & scale);
 
 	Matrix4x4 Inverse() const;
 	Matrix4x4 Transpose() const;

@@ -16,10 +16,12 @@
 	ItemCollection *items;
 	OpenGLManipulatingController *itemsController;
 	OpenGLManipulatingController *meshController;
+	id<OpenGLManipulating> manipulated;
 	IBOutlet OpenGLSceneView *view;
 }
 
-- (id<OpenGLManipulating>)manipulated;
+@property (readwrite, assign) id<OpenGLManipulating> manipulated;
+
 - (IBAction)addMesh:(id)sender;
 - (IBAction)editVertices:(id)sender;
 - (IBAction)changeManipulator:(id)sender;

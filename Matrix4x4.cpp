@@ -23,6 +23,22 @@ Matrix4x4::Matrix4x4(const Matrix4x4 & m)
 	memcpy(this->m, m.m, 16 * sizeof(float));
 }
 
+Matrix4x4::Matrix4x4(const Vector3D & translate, const Quaternion & rotate, const Vector3D & scale)
+{
+	TranslateRotateScale(translate, rotate, scale);
+}
+
+void Matrix4x4::TranslateRotateScale(const Vector3D & translate, const Quaternion & rotate, const Vector3D & scale)
+{
+	Matrix4x4 t;
+	Matrix4x4 r;
+	Matrix4x4 s;
+	t.Translate(translate);
+	rotate.ToMatrix(r);
+	s.Scale(scale);
+	*this = t * r * s;
+}
+
 float & Matrix4x4::operator() (int row, int col)
 {
 	return m[row + col * 4];

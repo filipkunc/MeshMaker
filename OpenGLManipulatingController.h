@@ -39,6 +39,11 @@
 	NSUInteger selectedCount;
 	NSInteger lastSelectedIndex;
 	enum ManipulatorType currentManipulator;
+	
+	Matrix4x4 *modelTransform;
+	Vector3D *modelPosition;
+	Quaternion *modelRotation;
+	Vector3D *modelScale;
 }
 
 @property (readwrite, assign) id<OpenGLManipulatingModel> model;
@@ -48,5 +53,6 @@
 - (void)setSelectionValue:(float)value atIndex:(NSUInteger)index;
 - (void)willChangeSelection;
 - (void)didChangeSelection;
+- (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
 
 @end
