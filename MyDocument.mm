@@ -22,6 +22,7 @@
 		meshController = [[OpenGLManipulatingController alloc] init];
 		
 		[itemsController setModel:items];
+		manipulated = itemsController;
     }
     return self;
 }
@@ -36,13 +37,21 @@
 
 - (void)awakeFromNib
 {
-	[view setManipulated:itemsController];
+	[view setManipulated:manipulated];
 	[view setDisplayed:itemsController];
 }
 
 - (id<OpenGLManipulating>)manipulated
 {
-	return meshController;
+	return manipulated;
+}
+
+- (void)setManipulated:(id<OpenGLManipulating>)value
+{
+	manipulated = value;
+	[manipulated setCurrentManipulator:[view currentManipulator]];
+	[view setManipulated:value];
+	[view setNeedsDisplay:YES];
 }
 
 - (IBAction)addMesh:(id)sender
@@ -53,21 +62,27 @@
 
 - (IBAction)editVertices:(id)sender
 {
-	if ([view manipulated] == itemsController)
+	if (manipulated == itemsController)
 	{
 		NSInteger index = [itemsController lastSelectedIndex];
 		if (index > -1)
 		{
 			Item *item = [items itemAtIndex:index];
 			[meshController setModel:[item mesh]];
-			[view setManipulated:meshController];
+			[meshController setPosition:[item position] 
+							   rotation:[item rotation] 
+								  scale:[item scale]];
+			[self setManipulated:meshController];
 		}
 	}
 	else
 	{
-		[view setManipulated:itemsController];
+		[itemsController setModel:items];
+		[itemsController setPosition:Vector3D()
+							rotation:Quaternion()
+							   scale:Vector3D(1, 1, 1)];
+		[self setManipulated:itemsController];
 	}
-	[view setNeedsDisplay:YES];
 }
 
 - (IBAction)changeManipulator:(id)sender

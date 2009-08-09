@@ -26,6 +26,10 @@
 		selectedCount = 0;
 		lastSelectedIndex = -1;
 		currentManipulator = ManipulatorTypeDefault;
+		modelTransform = new Matrix4x4();
+		modelPosition = new Vector3D();
+		modelRotation = new Quaternion();
+		modelScale = new Vector3D(1, 1, 1);
 	}
 	return self;
 }
@@ -36,7 +40,19 @@
 	delete selectionRotation;
 	delete selectionEuler;
 	delete selectionScale;
+	delete modelTransform;
+	delete modelPosition;
+	delete modelRotation;
+	delete modelScale;
 	[super dealloc];
+}
+
+- (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
+{
+	*modelPosition = aPosition;
+	*modelRotation = aRotation;
+	*modelScale = aScale;
+	modelTransform->TranslateRotateScale(aPosition, aRotation, aScale);
 }
 
 - (float)selectionX
@@ -170,6 +186,7 @@
 		*selectionCenter = Vector3D();
 	}
 	selectionRotation->ToEulerAngles(*selectionEuler);
+	selectionCenter->Transform(*modelTransform);
 	[self didChangeSelection];
 }
 
@@ -226,10 +243,23 @@
 
 - (void)moveSelectedByOffset:(Vector3D)offset
 {
+	Vector3D transformedOffset = offset;
+	Matrix4x4 m, r, s;
+	Quaternion inverseRotation = modelRotation->Conjugate();
+	
+	Vector3D inverseScale = *modelScale;
+	for (int i = 0; i < 3; i++)
+		inverseScale[i] = 1.0f / inverseScale[i];
+	
+	inverseRotation.ToMatrix(r);
+	s.Scale(inverseScale);
+	m = s * r;
+	transformedOffset.Transform(m);
+	
 	for (int i = 0; i < [model count]; i++)
 	{
 		if ([model isSelectedAtIndex:i])
-			[model moveByOffset:offset atIndex:i];
+			[model moveByOffset:transformedOffset atIndex:i];
 	}
 	
 	[self setSelectionCenter:*selectionCenter + offset];
@@ -239,15 +269,17 @@
 {
 	if ([self selectedCount] > 1)
 	{
+		Vector3D rotationCenter = *selectionCenter;
+		rotationCenter.Transform(modelTransform->Inverse());
 		for (int i = 0; i < [model count]; i++)
 		{
 			if ([model isSelectedAtIndex:i])
 			{
-				Vector3D position = [model positionAtIndex:i];
-				position -= *selectionCenter;
-				position.Transform(offset);
-				position += *selectionCenter;
-				[model setPosition:position atIndex:i];
+				Vector3D itemPosition = [model positionAtIndex:i];
+				itemPosition -= rotationCenter;
+				itemPosition.Transform(offset);
+				itemPosition += rotationCenter;
+				[model setPosition:itemPosition atIndex:i];
 				[model rotateByOffset:offset atIndex:i];
 			}
 		}
@@ -262,20 +294,41 @@
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
-	for (int i = 0; i < [model count]; i++)
+	if ([self selectedCount] > 1)
 	{
-		if ([model isSelectedAtIndex:i])
-			[model scaleByOffset:offset atIndex:i];
+		Vector3D rotationCenter = *selectionCenter;
+		rotationCenter.Transform(modelTransform->Inverse());
+		for (int i = 0; i < [model count]; i++)
+		{
+			if ([model isSelectedAtIndex:i])
+			{
+				Vector3D itemPosition = [model positionAtIndex:i];
+				itemPosition -= rotationCenter;
+				itemPosition.x *= 1.0f + offset.x;
+				itemPosition.y *= 1.0f + offset.y;
+				itemPosition.z *= 1.0f + offset.z;
+				itemPosition += rotationCenter;
+				[model setPosition:itemPosition atIndex:i];
+				[model scaleByOffset:offset atIndex:i];
+			}
+		}
+	}
+	else if (lastSelectedIndex > -1)
+	{
+		[model scaleByOffset:offset atIndex:lastSelectedIndex];
 	}
 	[self setSelectionScale:*selectionScale + offset];
 }
 
 - (void)draw
 {
+	glPushMatrix();
+	glMultMatrixf(modelTransform->m);
 	for (int i = 0; i < [model count]; i++)
 	{
 		[model drawAtIndex:i];
 	}
+	glPopMatrix();
 }
 
 - (NSUInteger)selectableCount
@@ -285,7 +338,10 @@
 
 - (void)drawForSelectionAtIndex:(NSUInteger)index
 {
+	glPushMatrix();
+	glMultMatrixf(modelTransform->m);
 	[model drawAtIndex:index];
+	glPopMatrix();
 }
 
 - (void)selectObjectAtIndex:(NSUInteger)index

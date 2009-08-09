@@ -29,7 +29,9 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3);
 - (Triangle)triangleAtIndex:(NSUInteger)anIndex;
 - (void)addVertex:(Vector3D)aVertex;
 - (void)addTriangle:(Triangle)aTriangle;
-- (void)draw;
+- (void)drawFill;
+- (void)drawWire;
+- (void)draw:(BOOL)selected;
 - (void)makeCube;
 
 @end

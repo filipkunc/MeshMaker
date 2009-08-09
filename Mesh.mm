@@ -59,8 +59,8 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	triangles->push_back(aTriangle);
 }
 
-- (void)draw
-{	
+- (void)drawFill
+{
 	Vector3D triangleVertices[3];
 	
 	glBegin(GL_TRIANGLES);
@@ -85,6 +85,32 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	}
 	
 	glEnd();
+}
+
+- (void)drawWire
+{
+	glDisable(GL_LIGHTING);
+	glColor3f(1, 1, 1);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	[self drawFill];
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_LIGHTING);
+}
+
+- (void)draw:(BOOL)selected
+{	
+	if (selected)
+	{
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1.0f, 1.0f);
+		[self drawFill];
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		[self drawWire];
+	}
+	else
+	{
+		[self drawFill];
+	}
 }
 
 - (void)makeCube
@@ -183,7 +209,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 {
 	Vector3D v = [self vertexAtIndex:index];
 	BOOL selected = [self isSelectedAtIndex:index];
-	glPointSize(3.0f);
+	glPointSize(4.0f);
 	if (selected)
 		glColor3f(1, 0, 0);
 	else

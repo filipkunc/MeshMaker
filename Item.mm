@@ -87,8 +87,7 @@
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
 	glScalef(scale->x, scale->y, scale->z);
-	//glutSolidIcosahedron();
-	[mesh draw];
+	[mesh draw:selected];
 	glPopMatrix();
 }
 
