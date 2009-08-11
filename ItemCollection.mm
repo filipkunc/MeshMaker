@@ -102,4 +102,9 @@
 	[[self itemAtIndex:index] draw];
 }
 
+- (void)removeAtIndex:(NSUInteger)index
+{
+	[items removeObjectAtIndex:index];
+}
+
 @end

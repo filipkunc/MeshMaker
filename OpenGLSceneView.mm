@@ -47,7 +47,7 @@ const float maxDistance = 1000.0f;
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHT0);
 		
-		float diffuse[] = { 0, 1, 1, 1 };
+		float diffuse[] = { 0.5, 0.7, 1.0, 1 };
 		
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
 		

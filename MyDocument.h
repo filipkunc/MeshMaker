@@ -24,6 +24,7 @@
 
 - (IBAction)addMesh:(id)sender;
 - (IBAction)editVertices:(id)sender;
+- (IBAction)collapseVertices:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 
 @end
