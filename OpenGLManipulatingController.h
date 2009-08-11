@@ -25,6 +25,7 @@
 - (BOOL)isSelectedAtIndex:(NSUInteger)index;
 - (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index;
 - (void)drawAtIndex:(NSUInteger)index;
+- (void)removeAtIndex:(NSUInteger)index;
 
 @end
 

@@ -85,6 +85,47 @@
 	}
 }
 
+- (IBAction)collapseVertices:(id)sender
+{
+	if (manipulated == itemsController)
+	{
+		Mesh *mesh = nil;
+		Matrix4x4 firstMatrix, itemMatrix;
+		for (int i = 0; i < [items count]; i++)
+		{
+			if ([items isSelectedAtIndex:i])
+			{
+				Item *item = [items itemAtIndex:i];
+				if (mesh == nil)
+				{
+					mesh = [[items itemAtIndex:i] mesh];
+					firstMatrix.TranslateRotateScale([item position],
+													 [item rotation],
+													 [item scale]);
+					firstMatrix = firstMatrix.Inverse();
+				}
+				else
+				{
+					itemMatrix.TranslateRotateScale([item position],
+													 [item rotation],
+													 [item scale]);
+					Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
+					[[item mesh] transformWithMatrix:finalMatrix];
+					[mesh mergeWithMesh:[item mesh]];
+					[items removeAtIndex:i];
+					i--;
+				}
+			}
+		}
+	}
+	else
+	{
+		Mesh *mesh = (Mesh *)[meshController model];
+		[mesh collapseSelected];
+	}
+	[view setNeedsDisplay:YES];
+}
+
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
