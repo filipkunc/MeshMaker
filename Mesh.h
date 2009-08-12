@@ -17,7 +17,7 @@ typedef struct {
 } Edge;
 
 typedef struct {
-	NSUInteger edgeIndices[3];
+	NSUInteger vertexIndices[3];
 } Triangle;
 
 Edge MakeEdge(NSUInteger index1, NSUInteger index2);
@@ -33,7 +33,6 @@ enum MeshSelectionMode
 @interface Mesh : NSObject <OpenGLManipulatingModel>
 {
 	vector<Vector3D> *vertices;
-	vector<Edge> *edges;
 	vector<Triangle> *triangles;
 	vector<BOOL> *selectedIndices;
 	enum MeshSelectionMode selectionMode;
@@ -42,16 +41,18 @@ enum MeshSelectionMode
 @property (readwrite, assign) enum MeshSelectionMode selectionMode; 
 
 - (Vector3D)vertexAtIndex:(NSUInteger)anIndex;
-- (Edge)edgeAtIndex:(NSUInteger)anIndex;
 - (Triangle)triangleAtIndex:(NSUInteger)anIndex;
 - (void)addVertex:(Vector3D)aVertex;
-- (void)addEdge:(Edge)anEdge;
 - (void)addTriangle:(Triangle)aTriangle;
+- (void)removeVertex:(NSUInteger)index;
+- (void)removeTriangle:(NSUInteger)triangle;
 - (void)drawFill;
 - (void)drawWire;
 - (void)draw:(BOOL)selected;
 - (void)makeCube;
-- (void)collapseSelected;
+- (void)removeDegeneratedTriangles;
+- (void)removeSelectedVertices;
+- (void)collapseSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
 

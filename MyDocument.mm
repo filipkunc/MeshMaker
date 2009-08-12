@@ -121,7 +121,7 @@
 	else
 	{
 		Mesh *mesh = (Mesh *)[meshController model];
-		[mesh collapseSelected];
+		[mesh collapseSelectedVertices];
 	}
 	[view setNeedsDisplay:YES];
 }

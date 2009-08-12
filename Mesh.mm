@@ -19,10 +19,22 @@ Edge MakeEdge(NSUInteger index1, NSUInteger index2)
 Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 {
 	Triangle triangle;
-	triangle.edgeIndices[0] = index1;
-	triangle.edgeIndices[1] = index2;
-	triangle.edgeIndices[2] = index3;
+	triangle.vertexIndices[0] = index1;
+	triangle.vertexIndices[1] = index2;
+	triangle.vertexIndices[2] = index3;
 	return triangle;
+}
+
+BOOL IsTriangleDegenerated(Triangle triangle)
+{
+	if (triangle.vertexIndices[0] == triangle.vertexIndices[1])
+		return YES;
+	if (triangle.vertexIndices[0] == triangle.vertexIndices[2])
+		return YES;
+	if (triangle.vertexIndices[1] == triangle.vertexIndices[2])
+		return YES;
+
+	return NO;
 }
 
 @implementation Mesh
@@ -35,7 +47,6 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	if (self)
 	{
 		vertices = new vector<Vector3D>();
-		edges = new vector<Edge>();
 		triangles = new vector<Triangle>();
 		selectedIndices = new vector<BOOL>();
 	}
@@ -45,7 +56,6 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 - (void)dealloc
 {
 	delete vertices;
-	delete edges;
 	delete triangles;
 	delete selectedIndices;
 	[super dealloc];
@@ -54,11 +64,6 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 - (Vector3D)vertexAtIndex:(NSUInteger)anIndex
 {
 	return (*vertices)[anIndex];
-}
-
-- (Edge)edgeAtIndex:(NSUInteger)anIndex
-{
-	return (*edges)[anIndex];
 }
 
 - (Triangle)triangleAtIndex:(NSUInteger)anIndex
@@ -71,11 +76,6 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	vertices->push_back(aVertex);
 }
 
-- (void)addEdge:(Edge)anEdge
-{
-	edges->push_back(anEdge);
-}
-
 - (void)addTriangle:(Triangle)aTriangle
 {
 	triangles->push_back(aTriangle);
@@ -84,7 +84,6 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 - (void)drawFill
 {
 	Vector3D triangleVertices[3];
-	NSUInteger indices[3];
 	
 	glBegin(GL_TRIANGLES);
 	
@@ -93,17 +92,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 		Triangle currentTriangle = [self triangleAtIndex:i];
 		for (NSUInteger j = 0; j < 3; j++)
 		{
-			Edge currentEdge = [self edgeAtIndex:currentTriangle.edgeIndices[j]];
-			indices[j] = currentEdge.vertexIndices[0];
-			for (NSUInteger k = 0; k < j; k++)
-			{
-				if (indices[j] == indices[k])
-				{
-					indices[j] = currentEdge.vertexIndices[1];
-					break;
-				}
-			}
-			Vector3D currentVertex = [self vertexAtIndex:indices[j]];
+			Vector3D currentVertex = [self vertexAtIndex:currentTriangle.vertexIndices[j]];
 			triangleVertices[j] = currentVertex;
 		}
 		Vector3D u = triangleVertices[1] - triangleVertices[0];
@@ -149,30 +138,44 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 - (void)makeCube
 {
 	vertices->clear();
-	edges->clear();
 	triangles->clear();
 	selectedIndices->clear();
 	
 	// back vertices
-	vertices->push_back(Vector3D(-1, 0, -1)); // 0
-	vertices->push_back(Vector3D( 1, 0, -1)); // 1
-	vertices->push_back(Vector3D( 0, 1, -1)); // 2
+	vertices->push_back(Vector3D(-1, -1, -1)); // 0
+	vertices->push_back(Vector3D( 1, -1, -1)); // 1
+	vertices->push_back(Vector3D( 1,  1, -1)); // 2
+	vertices->push_back(Vector3D(-1,  1, -1)); // 3
 	
-//	vertices->push_back(Vector3D(-1, 0, 1)); // 3
-//	vertices->push_back(Vector3D( 1, 0, 1)); // 4
-//	vertices->push_back(Vector3D( 0, 1, 1)); // 5
+	// front vertices
+	vertices->push_back(Vector3D(-1, -1,  1)); // 4
+	vertices->push_back(Vector3D( 1, -1,  1)); // 5
+	vertices->push_back(Vector3D( 1,  1,  1)); // 6
+	vertices->push_back(Vector3D(-1,  1,  1)); // 7
 	
 	// back triangles
-	edges->push_back(MakeEdge(0, 1)); // 0
-	edges->push_back(MakeEdge(1, 2)); // 1
-	edges->push_back(MakeEdge(0, 2)); // 2
-	
-//	edges->push_back(MakeEdge(3, 4)); // 3
-//	edges->push_back(MakeEdge(4, 5)); // 4
-//	edges->push_back(MakeEdge(3, 5)); // 5
-	
 	triangles->push_back(MakeTriangle(0, 1, 2));
-//	triangles->push_back(MakeTriangle(3, 4, 5));
+	triangles->push_back(MakeTriangle(0, 2, 3));
+	
+	// front triangles
+	triangles->push_back(MakeTriangle(6, 5, 4));
+	triangles->push_back(MakeTriangle(7, 6, 4));
+	
+	// bottom triangles
+	triangles->push_back(MakeTriangle(4, 1, 0));
+	triangles->push_back(MakeTriangle(1, 4, 5));
+	
+	// top triangles
+	triangles->push_back(MakeTriangle(6, 3, 2));
+	triangles->push_back(MakeTriangle(3, 6, 7));
+	
+	// left triangles
+	triangles->push_back(MakeTriangle(0, 3, 4));
+	triangles->push_back(MakeTriangle(7, 4, 3));
+	
+	// right triangles
+	triangles->push_back(MakeTriangle(5, 2, 1));
+	triangles->push_back(MakeTriangle(2, 5, 6));
 	
 	for (int i = 0; i < vertices->size(); i++)
 		selectedIndices->push_back(NO);
@@ -180,64 +183,45 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 
 - (void)removeVertex:(NSUInteger)index
 {
-	for (NSUInteger i = 0; i < edges->size(); i++)
+	for (NSUInteger i = 0; i < triangles->size(); i++)
 	{
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
-			if ((*edges)[i].vertexIndices[j] >= index)
-				(*edges)[i].vertexIndices[j]--;
+			if (triangles->at(i).vertexIndices[j] >= index)
+				triangles->at(i).vertexIndices[j]--;
 		}
 	}
 	vertices->erase(vertices->begin() + index);
 }
 
-- (void)removeEdge:(NSUInteger)index
+- (void)removeTriangle:(NSUInteger)index
 {
-	for (NSUInteger i = 0; i < triangles->size(); i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			if ((*triangles)[i].edgeIndices[j] >= index)
-				(*triangles)[i].edgeIndices[j]--;
-		}
-	}
-	edges->erase(edges->begin() + index);
+	triangles->erase(triangles->begin() + index);
 }
 
-- (void)collapseSelected
+- (void)removeDegeneratedTriangles
 {
-	int selectedCount = 0;
-	Vector3D center = Vector3D();
+	NSLog(@"removeDegeneratedTriangles");
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (int i = 0; i < triangles->size(); i++)
 	{
-		if ((*selectedIndices)[i])
+		if (IsTriangleDegenerated(triangles->at(i)))
 		{
-			selectedCount++;
-			center += [self vertexAtIndex:i];
-			
-			for (int j = 0; j < edges->size(); j++)
-			{
-				for (int k = 0; k < 2; k++)
-				{
-					if ((*edges)[j].vertexIndices[k] == i)
-						(*edges)[j].vertexIndices[k] = vertices->size();
-				}
-				if ((*edges)[j].vertexIndices[0] == (*edges)[j].vertexIndices[1])
-				{
-					[self removeEdge:j];
-					j--;
-				}
-			}
+			[self removeTriangle:i];
+			i--;
 		}
-	}
+	}	
+}
+
+- (void)removeSelectedVertices
+{
+	NSLog(@"removeSelectedVertices");
 	
-	center /= selectedCount;
-	vertices->push_back(center);
+	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
 	
 	for (int i = 0; i < selectedIndices->size(); i++)
 	{
-		if ((*selectedIndices)[i])
+		if (selectedIndices->at(i))
 		{
 			[self removeVertex:i];
 			selectedIndices->erase(selectedIndices->begin() + i);
@@ -246,37 +230,78 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	}
 }
 
+- (void)collapseSelectedVertices
+{
+	NSLog(@"collapseSelectedVertices");
+	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
+	
+	int selectedCount = 0;
+	Vector3D center = Vector3D();
+	
+	for (int i = 0; i < selectedIndices->size(); i++)
+	{
+		if (selectedIndices->at(i))
+		{
+			selectedCount++;
+			center += vertices->at(i);
+		}
+	}
+	
+	NSLog(@"selectedCount = %i", selectedCount);
+		
+	if (selectedCount < 2)
+		return;
+	
+	center /= selectedCount;
+	vertices->push_back(center);
+	selectedIndices->push_back(NO);
+	
+	int centerIndex = vertices->size() - 1;
+	
+	for (int i = 0; i < selectedIndices->size(); i++)
+	{
+		if (selectedIndices->at(i))
+		{
+			for (int j = 0; j < triangles->size(); j++)
+			{
+				for (int k = 0; k < 3; k++)
+				{
+					if (triangles->at(j).vertexIndices[k] == i)
+						triangles->at(j).vertexIndices[k] = centerIndex;
+				}				
+			}
+		}
+	}
+	
+	[self removeSelectedVertices];
+	[self removeDegeneratedTriangles];
+	
+	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
+	
+	NSLog(@"finished");
+}
+
 - (void)transformWithMatrix:(Matrix4x4)matrix
 {
 	for (int i = 0; i < vertices->size(); i++)
-	{
-		Vector3D transformed = (*vertices)[i];
-		transformed.Transform(matrix);
-		(*vertices)[i] = transformed;
-	}
+		vertices->at(i).Transform(matrix);
 }
 
 - (void)mergeWithMesh:(Mesh *)mesh
 {
+	NSLog(@"mergeWithMesh:");
+	
 	int vertexCount = vertices->size();
-	int edgeCount = edges->size();
 	for (int i = 0; i < mesh->vertices->size(); i++)
 	{
 		vertices->push_back((*mesh->vertices)[i]);
 	}
-	for (int i = 0; i < mesh->edges->size(); i++)
-	{
-		Edge edge = (*mesh->edges)[i];
-		edge.vertexIndices[0] += vertexCount;
-		edge.vertexIndices[1] += vertexCount;
-		edges->push_back(edge);
-	}
 	for (int i = 0; i < mesh->triangles->size(); i++)
 	{
 		Triangle triangle = (*mesh->triangles)[i];
-		triangle.edgeIndices[0] += edgeCount;
-		triangle.edgeIndices[1] += edgeCount;
-		triangle.edgeIndices[2] += edgeCount;
+		triangle.vertexIndices[0] += vertexCount;
+		triangle.vertexIndices[1] += vertexCount;
+		triangle.vertexIndices[2] += vertexCount;
 		triangles->push_back(triangle);
 	}
 	selectedIndices->clear();
@@ -291,7 +316,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 
 - (Vector3D)positionAtIndex:(NSUInteger)index
 {
-	return (*vertices)[index];
+	return vertices->at(index);
 }
 
 - (Quaternion)rotationAtIndex:(NSUInteger)index
@@ -306,7 +331,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 
 - (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index
 {
-	(*vertices)[index] = position;
+	vertices->at(index) = position;
 }
 
 - (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index {}
@@ -314,7 +339,7 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 
 - (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index
 {
-	(*vertices)[index] += offset;
+	vertices->at(index) += offset;
 }
 
 - (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index {}
@@ -322,12 +347,12 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 
 - (BOOL)isSelectedAtIndex:(NSUInteger)index
 {
-	return (*selectedIndices)[index];
+	return selectedIndices->at(index);
 }
 
 - (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index 
 {
-	(*selectedIndices)[index] = selected;
+	selectedIndices->at(index) = selected;
 }
 
 - (void)drawAtIndex:(NSUInteger)index
