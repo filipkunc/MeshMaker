@@ -39,10 +39,23 @@
 - (NSRect)currentRect;
 - (void)beginOrtho;
 - (void)endOrtho;
-- (void)selectWithX:(double)x y:(double)y width:(double)width height:(double)height
-		  selecting:(id<OpenGLSelecting>)selecting nearestOnly:(BOOL)nearestOnly;
-- (void)selectWithPoint:(NSPoint)point selecting:(id<OpenGLSelecting>)selecting;
-- (void)selectWithRect:(NSRect)rect selecting:(id<OpenGLSelecting>)selecting;
+
+- (void)selectWithX:(double)x 
+				  y:(double)y
+			  width:(double)width 
+			 height:(double)height
+		  selecting:(id<OpenGLSelecting>)selecting 
+		nearestOnly:(BOOL)nearestOnly
+		selectionMode:(enum OpenGLSelectionMode)selectionMode;
+
+- (void)selectWithPoint:(NSPoint)point 
+			  selecting:(id<OpenGLSelecting>)selecting
+		  selectionMode:(enum OpenGLSelectionMode)selectionMode;
+
+- (void)selectWithRect:(NSRect)rect 
+			 selecting:(id<OpenGLSelecting>)selecting
+		 selectionMode:(enum OpenGLSelectionMode)selectionMode;
+
 - (Vector3D)positionInSpaceByPoint:(NSPoint)point;
 - (void)drawSelectionPlaneWithIndex:(int)index;
 - (Vector3D)positionFromAxis:(Axis)axis point:(NSPoint)point;

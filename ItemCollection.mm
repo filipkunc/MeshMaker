@@ -97,7 +97,7 @@
 	[[self itemAtIndex:index] setSelected:selected];
 }
 
-- (void)drawAtIndex:(NSUInteger)index
+- (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection
 {
 	[[self itemAtIndex:index] draw];
 }
@@ -105,6 +105,59 @@
 - (void)removeAtIndex:(NSUInteger)index
 {
 	[items removeObjectAtIndex:index];
+}
+
+- (void)collapseSelectedItems
+{
+	Vector3D center = Vector3D();
+	int selectedCount = 0;
+	
+	for (int i = 0; i < [items count]; i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			selectedCount++;
+			center += [[self itemAtIndex:i] position];
+		}
+	}
+	
+	if (selectedCount < 2)
+		return;
+	
+	center /= selectedCount;
+	
+	Item *newItem = [[Item alloc] initWithPosition:center rotation:Quaternion() scale:Vector3D(1, 1, 1)];
+	Mesh *mesh = [newItem mesh];
+	
+	Matrix4x4 firstMatrix, itemMatrix;
+	
+	firstMatrix.TranslateRotateScale([newItem position],
+									 [newItem rotation],
+									 [newItem scale]);
+	
+	firstMatrix = firstMatrix.Inverse();
+	
+	for (int i = 0; i < [items count]; i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			Item *item = [self itemAtIndex:i];
+			
+			itemMatrix.TranslateRotateScale([item position],
+											[item rotation],
+											[item scale]);
+			
+			Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
+			
+			[[item mesh] transformWithMatrix:finalMatrix];
+			[mesh mergeWithMesh:[item mesh]];
+			[self removeAtIndex:i];
+			i--;
+		}
+	}
+	
+	[newItem setSelected:YES];
+	[self addItem:newItem];
 }
 
 @end

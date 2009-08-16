@@ -32,5 +32,6 @@ enum ManipulatorType
 - (void)draw;
 - (void)changeSelection:(BOOL)isSelected;
 - (void)invertSelection;
+- (void)removeSelected;
 
 @end

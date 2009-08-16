@@ -23,8 +23,11 @@
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
 - (IBAction)addMesh:(id)sender;
+- (void)editMeshWithMode:(enum MeshSelectionMode)mode;
+- (IBAction)editItems:(id)sender;
 - (IBAction)editVertices:(id)sender;
-- (IBAction)collapseVertices:(id)sender;
+- (IBAction)editTriangles:(id)sender;
+- (IBAction)collapseSelected:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 
 @end
