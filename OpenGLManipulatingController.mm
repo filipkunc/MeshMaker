@@ -22,7 +22,6 @@
 		selectionRotation = new Quaternion();
 		selectionEuler = new Vector3D();
 		selectionScale = new Vector3D(1, 1, 1);
-		toggleWhenSelecting = NO;
 		selectedCount = 0;
 		lastSelectedIndex = -1;
 		currentManipulator = ManipulatorTypeDefault;
@@ -326,7 +325,7 @@
 	glMultMatrixf(modelTransform->m);
 	for (int i = 0; i < [model count]; i++)
 	{
-		[model drawAtIndex:i];
+		[model drawAtIndex:i forSelection:NO];
 	}
 	glPopMatrix();
 }
@@ -340,16 +339,27 @@
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
-	[model drawAtIndex:index];
+	[model drawAtIndex:index forSelection:YES];
 	glPopMatrix();
 }
 
 - (void)selectObjectAtIndex:(NSUInteger)index
+				   withMode:(enum OpenGLSelectionMode)selectionMode
 {
-	if (toggleWhenSelecting)
-		[model setSelected:![model isSelectedAtIndex:index] atIndex:index];
-	else
-		[model setSelected:YES atIndex:index];
+	switch (selectionMode) 
+	{
+		case OpenGLSelectionModeAdd:
+			[model setSelected:YES atIndex:index];
+			break;
+		case OpenGLSelectionModeSubtract:
+			[model setSelected:NO atIndex:index];
+			break;
+		case OpenGLSelectionModeInvert:
+			[model setSelected:![model isSelectedAtIndex:index] atIndex:index];
+			break;
+		default:
+			break;
+	}
 	[self updateSelection];
 }
 
@@ -364,6 +374,20 @@
 {
 	for (int i = 0; i < [model count]; i++)
 		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
+	[self updateSelection];
+}
+
+- (void)removeSelected
+{
+	for (int i = 0; i < [model count]; i++)
+	{
+		if ([model isSelectedAtIndex:i])
+		{
+			NSLog(@"removing at %i", i);
+			[model removeAtIndex:i];
+			i--;
+		}
+	}
 	[self updateSelection];
 }
 

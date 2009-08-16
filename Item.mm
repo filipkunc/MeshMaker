@@ -52,7 +52,6 @@
 		rotation = new Quaternion();
 		scale = new Vector3D();
 		mesh = [[Mesh alloc] init];
-		[mesh makeCube];
 		selected = NO;
 	}
 	return self;

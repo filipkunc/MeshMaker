@@ -157,7 +157,8 @@
 	glPopMatrix();
 }
 
-- (void)selectObjectAtIndex:(NSUInteger)index
+- (void)selectObjectAtIndex:(NSUInteger)index 
+				   withMode:(enum OpenGLSelectionMode)selectionMode
 {
 	selectedIndex = index;
 }

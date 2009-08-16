@@ -56,67 +56,51 @@
 
 - (IBAction)addMesh:(id)sender
 {
-	[items addItem:[[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)]];
+	Item *cube = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
+	[[cube mesh] makeCube];
+	[items addItem:cube];
 	[view setNeedsDisplay:YES];
+}
+
+- (void)editMeshWithMode:(enum MeshSelectionMode)mode
+{
+	NSInteger index = [itemsController lastSelectedIndex];
+	if (index > -1)
+	{
+		Item *item = [items itemAtIndex:index];
+		[[item mesh] setSelectionMode:mode];
+		[meshController setModel:[item mesh]];
+		[meshController setPosition:[item position] 
+						   rotation:[item rotation] 
+							  scale:[item scale]];
+		[self setManipulated:meshController];
+	}
+}
+
+- (IBAction)editItems:(id)sender
+{
+	[itemsController setModel:items];
+	[itemsController setPosition:Vector3D()
+						rotation:Quaternion()
+						   scale:Vector3D(1, 1, 1)];
+	[self setManipulated:itemsController];
 }
 
 - (IBAction)editVertices:(id)sender
 {
-	if (manipulated == itemsController)
-	{
-		NSInteger index = [itemsController lastSelectedIndex];
-		if (index > -1)
-		{
-			Item *item = [items itemAtIndex:index];
-			[meshController setModel:[item mesh]];
-			[meshController setPosition:[item position] 
-							   rotation:[item rotation] 
-								  scale:[item scale]];
-			[self setManipulated:meshController];
-		}
-	}
-	else
-	{
-		[itemsController setModel:items];
-		[itemsController setPosition:Vector3D()
-							rotation:Quaternion()
-							   scale:Vector3D(1, 1, 1)];
-		[self setManipulated:itemsController];
-	}
+	[self editMeshWithMode:MeshSelectionModeVertices];
 }
 
-- (IBAction)collapseVertices:(id)sender
+- (IBAction)editTriangles:(id)sender
+{
+	[self editMeshWithMode:MeshSelectionModeTriangles];
+}
+
+- (IBAction)collapseSelected:(id)sender
 {
 	if (manipulated == itemsController)
 	{
-		Mesh *mesh = nil;
-		Matrix4x4 firstMatrix, itemMatrix;
-		for (int i = 0; i < [items count]; i++)
-		{
-			if ([items isSelectedAtIndex:i])
-			{
-				Item *item = [items itemAtIndex:i];
-				if (mesh == nil)
-				{
-					mesh = [[items itemAtIndex:i] mesh];
-					firstMatrix.TranslateRotateScale([item position],
-													 [item rotation],
-													 [item scale]);
-					firstMatrix = firstMatrix.Inverse();
-				}
-				else
-				{
-					itemMatrix.TranslateRotateScale([item position],
-													 [item rotation],
-													 [item scale]);
-					Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
-					[[item mesh] transformWithMatrix:finalMatrix];
-					[mesh mergeWithMesh:[item mesh]];
-					[items removeAtIndex:i];
-					i--;
-				}
-			}
-		}
+		[items collapseSelectedItems];
 	}
 	else
 	{

@@ -47,10 +47,6 @@ const float maxDistance = 1000.0f;
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHT0);
 		
-		float diffuse[] = { 0.5, 0.7, 1.0, 1 };
-		
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-		
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
 		isSelecting = NO;
@@ -261,7 +257,7 @@ const float maxDistance = 1000.0f;
 		{
 			[currentManipulator setSelectedIndex:-1];
 			[currentManipulator setPosition:[manipulated selectionCenter]];
-			[self selectWithPoint:currentPoint selecting:currentManipulator];
+			[self selectWithPoint:currentPoint selecting:currentManipulator selectionMode:OpenGLSelectionModeAdd];
 			[self setNeedsDisplay:YES];
 		}
 	}
@@ -274,12 +270,20 @@ const float maxDistance = 1000.0f;
 	if (isSelecting)
 	{
 		isSelecting = NO;
-		[manipulated changeSelection:NO];
+		OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
+		
+		if ([e modifierFlags] & NSControlKeyMask)
+			selectionMode = OpenGLSelectionModeInvert;
+		else if ([e modifierFlags] & NSShiftKeyMask)
+			selectionMode = OpenGLSelectionModeAdd;
+		else
+			[manipulated changeSelection:NO];
+		
 		NSRect rect = [self currentRect];
 		if (rect.size.width > 5.0f && rect.size.height > 5.0f)
-			[self selectWithRect:[self currentRect] selecting:manipulated];
+			[self selectWithRect:[self currentRect] selecting:manipulated selectionMode:selectionMode];
 		else
-			[self selectWithPoint:currentPoint selecting:manipulated];
+			[self selectWithPoint:currentPoint selecting:manipulated selectionMode:selectionMode];
 		[self setNeedsDisplay:YES];
 	}
 }
@@ -369,8 +373,8 @@ const float maxDistance = 1000.0f;
 	switch ([e keyCode]) {
 		case 51: // delete
 		{
-			NSLog(@"removeSelected not implemented");
-			//[manipulated removeSelected];
+			//NSLog(@"removeSelected not implemented");
+			[manipulated removeSelected];
 			[self setNeedsDisplay:YES];
 		}break;
 		case 8: // cmd + C
@@ -436,8 +440,13 @@ const float maxDistance = 1000.0f;
 
 #pragma mark Selection
 
-- (void)selectWithX:(double)x y:(double)y width:(double)width height:(double)height
-		  selecting:(id<OpenGLSelecting>)selecting nearestOnly:(BOOL)nearestOnly
+- (void)selectWithX:(double)x
+				  y:(double)y
+			  width:(double)width
+			 height:(double)height
+		  selecting:(id<OpenGLSelecting>)selecting 
+		nearestOnly:(BOOL)nearestOnly
+	  selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
 	if (selecting == nil || [selecting selectableCount] <= 0)
 		return;
@@ -495,7 +504,7 @@ const float maxDistance = 1000.0f;
         }
         selectedIndex--;
         if (selectedIndex >= 0)
-			[selecting selectObjectAtIndex:selectedIndex];
+			[selecting selectObjectAtIndex:selectedIndex withMode:selectionMode];
 	}
 	else
 	{
@@ -504,29 +513,35 @@ const float maxDistance = 1000.0f;
             int selectedIndex = (int)selectBuffer[(i * 4) + 3];
             selectedIndex--;
             if (selectedIndex >= 0)
-				[selecting selectObjectAtIndex:selectedIndex];
+				[selecting selectObjectAtIndex:selectedIndex withMode:selectionMode];
         }
 	}	
 }
 
-- (void)selectWithPoint:(NSPoint)point selecting:(id<OpenGLSelecting>)selecting
+- (void)selectWithPoint:(NSPoint)point 
+			  selecting:(id<OpenGLSelecting>)selecting 
+		  selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
 	[self selectWithX:point.x
 					y:point.y
 				width:8.0
 			   height:8.0
 			selecting:selecting
-		  nearestOnly:YES];
+		  nearestOnly:YES
+		selectionMode:selectionMode];
 }
 
-- (void)selectWithRect:(NSRect)rect selecting:(id<OpenGLSelecting>)selecting
+- (void)selectWithRect:(NSRect)rect
+			 selecting:(id<OpenGLSelecting>)selecting
+		 selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
 	[self selectWithX:rect.origin.x + rect.size.width / 2
 					y:rect.origin.y + rect.size.height / 2 
 				width:rect.size.width
 			   height:rect.size.height
 			selecting:selecting
-		  nearestOnly:NO];
+		  nearestOnly:NO
+		selectionMode:selectionMode];
 }
 
 #pragma mark Position retrieve

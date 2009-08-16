@@ -8,14 +8,6 @@
 
 #import "Mesh.h"
 
-Edge MakeEdge(NSUInteger index1, NSUInteger index2)
-{
-	Edge edge;
-	edge.vertexIndices[0] = index1;
-	edge.vertexIndices[1] = index2;
-	return edge;
-}
-
 Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 {
 	Triangle triangle;
@@ -61,6 +53,31 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	[super dealloc];
 }
 
+- (void)setSelectionMode:(enum MeshSelectionMode)value
+{
+	selectionMode = value;
+	selectedIndices->clear();
+	switch (selectionMode) 
+	{
+		case MeshSelectionModeVertices:
+		{
+			for (int i = 0; i < vertices->size(); i++)
+			{
+				selectedIndices->push_back(NO);
+			}
+		}	break;
+		case MeshSelectionModeTriangles:
+		{
+			for (int i = 0; i < triangles->size(); i++)
+			{
+				selectedIndices->push_back(NO);
+			}
+		}	break;
+		default:
+			break;
+	}
+}
+
 - (Vector3D)vertexAtIndex:(NSUInteger)anIndex
 {
 	return (*vertices)[anIndex];
@@ -82,13 +99,36 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 }
 
 - (void)drawFill
-{
+{	
+	float normalDiffuse[] = { 0.5, 0.7, 1.0, 1 };
+	float selectedDiffuse[] = { 1, 0, 0, 1 };
+	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, normalDiffuse);
+	
 	Vector3D triangleVertices[3];
+	
+	float *lastDiffuse = normalDiffuse; 
 	
 	glBegin(GL_TRIANGLES);
 	
 	for (NSUInteger i = 0; i < triangles->size(); i++)
 	{
+		if (selectionMode == MeshSelectionModeTriangles) 
+		{
+			if (selectedIndices->at(i))
+			{
+				if (lastDiffuse == normalDiffuse)
+				{
+					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, selectedDiffuse);
+					lastDiffuse = selectedDiffuse;
+				}
+			}
+			else if (lastDiffuse == selectedDiffuse)
+			{
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, normalDiffuse);
+				lastDiffuse = normalDiffuse;
+			}
+		}
 		Triangle currentTriangle = [self triangleAtIndex:i];
 		for (NSUInteger j = 0; j < 3; j++)
 		{
@@ -181,7 +221,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 		selectedIndices->push_back(NO);
 }
 
-- (void)removeVertex:(NSUInteger)index
+- (void)removeVertexAtIndex:(NSUInteger)index
 {
 	for (NSUInteger i = 0; i < triangles->size(); i++)
 	{
@@ -192,11 +232,15 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 		}
 	}
 	vertices->erase(vertices->begin() + index);
+	if (selectionMode == MeshSelectionModeVertices)
+		selectedIndices->erase(selectedIndices->begin() + index);
 }
 
-- (void)removeTriangle:(NSUInteger)index
+- (void)removeTriangleAtIndex:(NSUInteger)index
 {
 	triangles->erase(triangles->begin() + index);
+	if (selectionMode == MeshSelectionModeTriangles)
+		selectedIndices->erase(selectedIndices->begin() + index);
 }
 
 - (void)removeDegeneratedTriangles
@@ -207,10 +251,38 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	{
 		if (IsTriangleDegenerated(triangles->at(i)))
 		{
-			[self removeTriangle:i];
+			[self removeTriangleAtIndex:i];
 			i--;
 		}
 	}	
+}
+
+- (BOOL)isVertexUsedAtIndex:(NSUInteger)index
+{
+	for (int i = 0; i < triangles->size(); i++)
+	{
+		Triangle triangle = triangles->at(i);
+		for (int j = 0; j < 3; j++)
+		{
+			if (triangle.vertexIndices[j] == index)
+				return YES;
+		}
+	}
+	return NO;
+}
+
+- (void)removeNonUsedVertices
+{
+	NSLog(@"removeNonUsedVertices");
+	
+	for (int i = 0; i < vertices->size(); i++)
+	{
+		if (![self isVertexUsedAtIndex:i])
+		{
+			[self removeVertexAtIndex:i];
+			i--;
+		}
+	}
 }
 
 - (void)removeSelectedVertices
@@ -223,8 +295,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	{
 		if (selectedIndices->at(i))
 		{
-			[self removeVertex:i];
-			selectedIndices->erase(selectedIndices->begin() + i);
+			[self removeVertexAtIndex:i];
 			i--;
 		}
 	}
@@ -275,6 +346,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	
 	[self removeSelectedVertices];
 	[self removeDegeneratedTriangles];
+	[self removeNonUsedVertices];
 	
 	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
 	
@@ -311,12 +383,16 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (NSUInteger)count
 {
-	return vertices->size();
+	if (selectionMode == MeshSelectionModeVertices)
+		return vertices->size();
+	return triangles->size();
 }
 
 - (Vector3D)positionAtIndex:(NSUInteger)index
 {
-	return vertices->at(index);
+	if (selectionMode == MeshSelectionModeVertices)
+		return vertices->at(index);
+	return Vector3D();
 }
 
 - (Quaternion)rotationAtIndex:(NSUInteger)index
@@ -331,7 +407,8 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index
 {
-	vertices->at(index) = position;
+	if (selectionMode == MeshSelectionModeVertices)
+		vertices->at(index) = position;
 }
 
 - (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index {}
@@ -339,7 +416,8 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index
 {
-	vertices->at(index) += offset;
+	if (selectionMode == MeshSelectionModeVertices)
+		vertices->at(index) += offset;
 }
 
 - (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index {}
@@ -355,24 +433,45 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	selectedIndices->at(index) = selected;
 }
 
-- (void)drawAtIndex:(NSUInteger)index
+- (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection
 {
-	Vector3D v = [self vertexAtIndex:index];
-	BOOL selected = [self isSelectedAtIndex:index];
-	glPointSize(4.0f);
-	if (selected)
-		glColor3f(1, 0, 0);
-	else
-		glColor3f(0, 0, 1);
-	glDisable(GL_LIGHTING);
-	glBegin(GL_POINTS);
-	glVertex3f(v.x, v.y, v.z);
-	glEnd();
+	if (selectionMode == MeshSelectionModeVertices)
+	{
+		Vector3D v = [self vertexAtIndex:index];
+		if (!forSelection)
+		{
+			BOOL selected = [self isSelectedAtIndex:index];
+			glPointSize(5.0f);
+			if (selected)
+				glColor3f(1, 0, 0);
+			else
+				glColor3f(0, 0, 1);
+			glDisable(GL_LIGHTING);
+		}
+		glBegin(GL_POINTS);
+		glVertex3f(v.x, v.y, v.z);
+		glEnd();
+	}
+	else if (forSelection)
+	{
+		Triangle currentTriangle = [self triangleAtIndex:index];
+		glBegin(GL_TRIANGLES);
+		for (NSUInteger i = 0; i < 3; i++)
+		{
+			Vector3D v = [self vertexAtIndex:currentTriangle.vertexIndices[i]];
+			glVertex3f(v.x, v.y, v.z);
+		}
+		glEnd();
+	}
 }
 
 - (void)removeAtIndex:(NSUInteger)index
 {
-	
+	if (selectionMode == MeshSelectionModeTriangles)
+	{
+		[self removeTriangleAtIndex:index];
+		[self removeNonUsedVertices];
+	}
 }
 
 @end

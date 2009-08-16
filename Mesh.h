@@ -13,20 +13,15 @@
 using namespace std;
 
 typedef struct {
-	NSUInteger vertexIndices[2];
-} Edge;
-
-typedef struct {
 	NSUInteger vertexIndices[3];
 } Triangle;
 
-Edge MakeEdge(NSUInteger index1, NSUInteger index2);
 Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3);
+BOOL IsTriangleDegenerated(Triangle triangle);
 
 enum MeshSelectionMode
 {
 	MeshSelectionModeVertices = 0,
-	MeshSelectionModeEdges,
 	MeshSelectionModeTriangles
 };
 
@@ -44,8 +39,8 @@ enum MeshSelectionMode
 - (Triangle)triangleAtIndex:(NSUInteger)anIndex;
 - (void)addVertex:(Vector3D)aVertex;
 - (void)addTriangle:(Triangle)aTriangle;
-- (void)removeVertex:(NSUInteger)index;
-- (void)removeTriangle:(NSUInteger)triangle;
+- (void)removeVertexAtIndex:(NSUInteger)index;
+- (void)removeTriangleAtIndex:(NSUInteger)index;
 - (void)drawFill;
 - (void)drawWire;
 - (void)draw:(BOOL)selected;

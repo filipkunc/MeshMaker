@@ -24,7 +24,7 @@
 - (void)scaleByOffset:(Vector3D)offset atIndex:(NSUInteger)index;
 - (BOOL)isSelectedAtIndex:(NSUInteger)index;
 - (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index;
-- (void)drawAtIndex:(NSUInteger)index;
+- (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection;
 - (void)removeAtIndex:(NSUInteger)index;
 
 @end
@@ -36,7 +36,6 @@
 	Quaternion *selectionRotation;
 	Vector3D *selectionEuler;
 	Vector3D *selectionScale;
-	BOOL toggleWhenSelecting;
 	NSUInteger selectedCount;
 	NSInteger lastSelectedIndex;
 	enum ManipulatorType currentManipulator;

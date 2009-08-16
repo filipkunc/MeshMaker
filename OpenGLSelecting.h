@@ -7,10 +7,17 @@
  *
  */
 
+enum OpenGLSelectionMode
+{
+	OpenGLSelectionModeAdd,
+	OpenGLSelectionModeSubtract,
+	OpenGLSelectionModeInvert,
+};
+
 @protocol OpenGLSelecting
 
 - (NSUInteger)selectableCount;
 - (void)drawForSelectionAtIndex:(NSUInteger)index;
-- (void)selectObjectAtIndex:(NSUInteger)index;
+- (void)selectObjectAtIndex:(NSUInteger)index withMode:(enum OpenGLSelectionMode)selectionMode;
 
 @end
