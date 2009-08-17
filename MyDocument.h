@@ -22,7 +22,8 @@
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
-- (IBAction)addMesh:(id)sender;
+- (IBAction)addCube:(id)sender;
+- (IBAction)addCylinder:(id)sender;
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (IBAction)editItems:(id)sender;
 - (IBAction)editVertices:(id)sender;

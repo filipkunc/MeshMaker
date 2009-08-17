@@ -98,7 +98,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	triangles->push_back(aTriangle);
 }
 
-- (void)drawFill
+- (void)drawFillWithScale:(Vector3D)scale
 {	
 	float normalDiffuse[] = { 0.5, 0.7, 1.0, 1 };
 	float selectedDiffuse[] = { 1, 0, 0, 1 };
@@ -139,6 +139,9 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 		Vector3D v = triangleVertices[2] - triangleVertices[0];
 		Vector3D n = v.Cross(u);
 		n.Normalize();
+		n.x *= scale.x;
+		n.y *= scale.y;
+		n.z *= scale.z;		
 		for (NSUInteger j = 0; j < 3; j++)
 		{
 			glNormal3f(n.x, n.y, n.z);
@@ -149,29 +152,29 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	glEnd();
 }
 
-- (void)drawWire
+- (void)drawWireWithScale:(Vector3D)scale
 {
 	glDisable(GL_LIGHTING);
 	glColor3f(1, 1, 1);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	[self drawFill];
+	[self drawFillWithScale:scale];
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_LIGHTING);
 }
 
-- (void)draw:(BOOL)selected
+- (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected
 {	
 	if (selected)
 	{
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(1.0f, 1.0f);
-		[self drawFill];
+		[self drawFillWithScale:scale];
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		[self drawWire];
+		[self drawWireWithScale:scale];
 	}
 	else
 	{
-		[self drawFill];
+		[self drawFillWithScale:scale];
 	}
 }
 
@@ -216,6 +219,77 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	// right triangles
 	triangles->push_back(MakeTriangle(5, 2, 1));
 	triangles->push_back(MakeTriangle(2, 5, 6));
+	
+	for (int i = 0; i < vertices->size(); i++)
+		selectedIndices->push_back(NO);
+}
+
+- (void)makeCylinder
+{
+	vertices->push_back(Vector3D(0, -1, 0)); // 0
+ 	vertices->push_back(Vector3D(0,  1, 0)); // 1
+	
+	vertices->push_back(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
+	vertices->push_back(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
+		
+	int max = 6;
+	float step = (FLOAT_PI * 2.0f) / max;
+	float angle = step;
+	for (int i = 1; i < max; i++)
+	{
+		vertices->push_back(Vector3D(cosf(angle), -1, sinf(angle))); // 4
+		vertices->push_back(Vector3D(cosf(angle),  1, sinf(angle))); // 5
+		
+		Triangle triangle1, triangle2;
+		triangle1.vertexIndices[0] = vertices->size() - 3;
+		triangle1.vertexIndices[1] = vertices->size() - 2;
+		triangle1.vertexIndices[2] = vertices->size() - 1;
+	
+		triangle2.vertexIndices[0] = vertices->size() - 2;
+		triangle2.vertexIndices[1] = vertices->size() - 3;
+		triangle2.vertexIndices[2] = vertices->size() - 4;
+		
+		triangles->push_back(triangle1);
+		triangles->push_back(triangle2);
+		
+		Triangle triangle3, triangle4;
+		triangle3.vertexIndices[0] = vertices->size() - 4;
+		triangle3.vertexIndices[1] = 0;
+		triangle3.vertexIndices[2] = vertices->size() - 2;
+		
+		triangle4.vertexIndices[0] = vertices->size() - 3;
+		triangle4.vertexIndices[1] = vertices->size() - 1;
+		triangle4.vertexIndices[2] = 1;
+		
+		triangles->push_back(triangle3);
+		triangles->push_back(triangle4);
+		
+		angle += step;
+	}
+	
+	Triangle triangle1, triangle2;
+	triangle1.vertexIndices[0] = 2;
+	triangle1.vertexIndices[1] = 3;
+	triangle1.vertexIndices[2] = vertices->size() - 1;
+	
+	triangle2.vertexIndices[0] = vertices->size() - 1;
+	triangle2.vertexIndices[1] = vertices->size() - 2;
+	triangle2.vertexIndices[2] = 2;
+	
+	triangles->push_back(triangle1);
+	triangles->push_back(triangle2);
+	
+	Triangle triangle3, triangle4;
+	triangle3.vertexIndices[0] = 0;
+	triangle3.vertexIndices[1] = 2;
+	triangle3.vertexIndices[2] = vertices->size() - 2;
+	
+	triangle4.vertexIndices[0] = 3;
+	triangle4.vertexIndices[1] = 1;
+	triangle4.vertexIndices[2] = vertices->size() - 1;
+	
+	triangles->push_back(triangle3);
+	triangles->push_back(triangle4);
 	
 	for (int i = 0; i < vertices->size(); i++)
 		selectedIndices->push_back(NO);
@@ -464,6 +538,8 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 		glEnd();
 	}
 }
+
+- (void)cloneAtIndex:(NSUInteger)index {}
 
 - (void)removeAtIndex:(NSUInteger)index
 {

@@ -377,13 +377,23 @@
 	[self updateSelection];
 }
 
+- (void)cloneSelected
+{
+	int count = [model count];
+	for (int i = 0; i < count; i++)
+	{
+		if ([model isSelectedAtIndex:i])
+			[model cloneAtIndex:i];
+	}
+	[self updateSelection];
+}
+
 - (void)removeSelected
 {
 	for (int i = 0; i < [model count]; i++)
 	{
 		if ([model isSelectedAtIndex:i])
 		{
-			NSLog(@"removing at %i", i);
 			[model removeAtIndex:i];
 			i--;
 		}

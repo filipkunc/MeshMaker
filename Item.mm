@@ -86,7 +86,7 @@
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
 	glScalef(scale->x, scale->y, scale->z);
-	[mesh draw:selected];
+	[mesh drawWithScale:*scale selected:selected];
 	glPopMatrix();
 }
 
@@ -103,6 +103,22 @@
 - (void)scaleByOffset:(Vector3D)offset
 {
 	*scale += offset;
+}
+
+- (Item *)clone
+{
+	Item *newItem = [[Item alloc] init];
+
+	[newItem setPosition:[self position]];
+	[newItem setRotation:[self rotation]];
+	[newItem setScale:[self scale]];
+	
+	[[newItem mesh] mergeWithMesh:[self mesh]];
+	
+	[newItem setSelected:YES];
+	[self setSelected:NO];
+	
+	return newItem;
 }
 
 @end

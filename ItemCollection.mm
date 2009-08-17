@@ -102,6 +102,12 @@
 	[[self itemAtIndex:index] draw];
 }
 
+- (void)cloneAtIndex:(NSUInteger)index
+{
+	Item *newItem = [[self itemAtIndex:index] clone];
+	[items addObject:newItem];
+}
+
 - (void)removeAtIndex:(NSUInteger)index
 {
 	[items removeObjectAtIndex:index];
