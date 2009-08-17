@@ -373,7 +373,6 @@ const float maxDistance = 1000.0f;
 	switch ([e keyCode]) {
 		case 51: // delete
 		{
-			//NSLog(@"removeSelected not implemented");
 			[manipulated removeSelected];
 			[self setNeedsDisplay:YES];
 		}break;
@@ -381,8 +380,7 @@ const float maxDistance = 1000.0f;
 		{
 			if ([e modifierFlags] & NSCommandKeyMask)
 			{
-				NSLog(@"cloneSelected not implemented");
-				//[manipulated cloneSelected];
+				[manipulated cloneSelected];
 				[self setNeedsDisplay:YES];
 			}
 		}break;

@@ -41,10 +41,11 @@ enum MeshSelectionMode
 - (void)addTriangle:(Triangle)aTriangle;
 - (void)removeVertexAtIndex:(NSUInteger)index;
 - (void)removeTriangleAtIndex:(NSUInteger)index;
-- (void)drawFill;
-- (void)drawWire;
-- (void)draw:(BOOL)selected;
+- (void)drawFillWithScale:(Vector3D)scale;
+- (void)drawWireWithScale:(Vector3D)scale;
+- (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected;
 - (void)makeCube;
+- (void)makeCylinder;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;
 - (void)collapseSelectedVertices;

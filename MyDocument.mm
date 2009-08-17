@@ -54,11 +54,19 @@
 	[view setNeedsDisplay:YES];
 }
 
-- (IBAction)addMesh:(id)sender
+- (IBAction)addCube:(id)sender
 {
 	Item *cube = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
 	[[cube mesh] makeCube];
 	[items addItem:cube];
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)addCylinder:(id)sender
+{
+	Item *cylinder = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
+	[[cylinder mesh] makeCylinder];
+	[items addItem:cylinder];
 	[view setNeedsDisplay:YES];
 }
 

@@ -30,5 +30,6 @@
 - (void)moveByOffset:(Vector3D)offset;
 - (void)rotateByOffset:(Quaternion)offset;
 - (void)scaleByOffset:(Vector3D)offset;
+- (Item *)clone;
 
 @end
