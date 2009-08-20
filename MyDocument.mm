@@ -57,7 +57,7 @@
 - (IBAction)addCube:(id)sender
 {
 	Item *cube = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	[[cube mesh] makeCubeWithSteps:10];
+	[[cube mesh] makeCube];
 	NSLog(@"cube vertexCount = %i",[[cube mesh] vertexCount]);
 	NSLog(@"cube triangleCount = %i",[[cube mesh] triangleCount]);
 	[items addItem:cube];
