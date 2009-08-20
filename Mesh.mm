@@ -17,6 +17,31 @@ Triangle MakeTriangle(NSUInteger index1, NSUInteger index2, NSUInteger index3)
 	return triangle;
 }
 
+void MakeQuad(NSUInteger index1, NSUInteger index2, NSUInteger index3, NSUInteger index4,
+	Triangle *triangle1, Triangle *triangle2)
+{
+	triangle1->vertexIndices[0] = index1;
+	triangle1->vertexIndices[1] = index2;
+	triangle1->vertexIndices[2] = index3;
+	
+	triangle2->vertexIndices[0] = index4;
+	triangle2->vertexIndices[1] = index3;
+	triangle2->vertexIndices[2] = index2;
+}
+
+void MakeQuadInv(NSUInteger index1, NSUInteger index2, NSUInteger index3, NSUInteger index4,
+			  Triangle *triangle1, Triangle *triangle2)
+{
+	triangle1->vertexIndices[2] = index1;
+	triangle1->vertexIndices[1] = index2;
+	triangle1->vertexIndices[0] = index3;
+	
+	triangle2->vertexIndices[2] = index4;
+	triangle2->vertexIndices[1] = index3;
+	triangle2->vertexIndices[0] = index2;
+}
+
+
 BOOL IsTriangleDegenerated(Triangle triangle)
 {
 	if (triangle.vertexIndices[0] == triangle.vertexIndices[1])
@@ -32,6 +57,16 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 @implementation Mesh
 
 @synthesize selectionMode;
+
+- (NSUInteger)vertexCount
+{
+	return vertices->size();
+}
+
+- (NSUInteger)triangleCount
+{
+	return triangles->size();
+}
 
 - (id)init
 {
@@ -180,6 +215,8 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (void)makeCube
 {
+	NSLog(@"makeCube");
+	
 	vertices->clear();
 	triangles->clear();
 	selectedIndices->clear();
@@ -220,19 +257,124 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	triangles->push_back(MakeTriangle(5, 2, 1));
 	triangles->push_back(MakeTriangle(2, 5, 6));
 	
-	for (int i = 0; i < vertices->size(); i++)
-		selectedIndices->push_back(NO);
+	[self setSelectionMode:[self selectionMode]];
 }
 
-- (void)makeCylinder
+- (void)makeCubeWithSteps:(int)steps
 {
+	NSLog(@"makeCubeWithSteps:%i", steps);
+	
+	vertices->clear();
+	triangles->clear();
+	selectedIndices->clear();
+	
+	int max = steps + 1;
+	float step = 2.0f / (float)max;
+
+	// back
+	for (int y = 0; y < max; y++)
+	{
+		for (int x = 0; x < max; x++)
+		{
+			vertices->push_back(Vector3D(-1.0f + x * step, -1.0f + y * step, -1.0f));
+		}
+	}
+	
+	// front
+	for (int y = 0; y < max; y++)
+	{
+		for (int x = 0; x < max; x++)
+		{
+			vertices->push_back(Vector3D(-1.0f + x * step, -1.0f + y * step, 1.0f - step));
+		}
+	}
+	
+	// left
+	for (int z = 0; z < max; z++)
+	{
+		for (int y = 0; y < max; y++)
+		{
+			vertices->push_back(Vector3D(-1.0f, -1.0f + y * step, -1.0f + z * step));
+		}
+	}
+	
+	// right
+	for (int z = 0; z < max; z++)
+	{
+		for (int y = 0; y < max; y++)
+		{
+			vertices->push_back(Vector3D(1.0f - step, -1.0f + y * step, -1.0f + z * step));
+		}
+	}
+	
+	// top
+	for (int x = 0; x < max; x++)
+	{
+		for (int z = 0; z < max; z++)
+		{
+			vertices->push_back(Vector3D(-1.0f + x * step, -1.0f, -1.0f + z * step));
+		}
+	}
+		
+	// bottom
+	for (int x = 0; x < max; x++)
+	{
+		for (int z = 0; z < max; z++)
+		{
+			vertices->push_back(Vector3D(-1.0f + x * step, 1.0f - step, -1.0f + z * step));
+		}
+	}
+	
+	for (int i = 0; i < 6; i++)
+	{
+		for (int y = 0; y < max - 1; y++)
+		{
+			for (int x = 0; x < max - 1; x++)
+			{
+				Triangle triangle1, triangle2;
+				int j = x + y * max + i * max * max;
+				if (i % 2 == 1)
+				{
+					MakeQuadInv(j,
+								j + 1, 
+								j + max, 
+								j + max + 1,
+								&triangle1, 
+								&triangle2);
+				}
+				else
+				{
+					MakeQuad(j,
+							 j + 1, 
+							 j + max, 
+							 j + max + 1,
+							 &triangle1, 
+							 &triangle2);
+				}
+				triangles->push_back(triangle1);
+				triangles->push_back(triangle2);
+			}
+		}
+	}
+	
+	[self setSelectionMode:[self selectionMode]];	
+}
+
+- (void)makeCylinderWithSteps:(int)steps
+{
+	NSLog(@"makeCylinderWithSteps:%i", steps);
+	
+	vertices->clear();
+	triangles->clear();
+	selectedIndices->clear();
+	
 	vertices->push_back(Vector3D(0, -1, 0)); // 0
  	vertices->push_back(Vector3D(0,  1, 0)); // 1
 	
 	vertices->push_back(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
 	vertices->push_back(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
 		
-	int max = 6;
+	int max = steps;
 	float step = (FLOAT_PI * 2.0f) / max;
 	float angle = step;
 	for (int i = 1; i < max; i++)
@@ -291,8 +433,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	triangles->push_back(triangle3);
 	triangles->push_back(triangle4);
 	
-	for (int i = 0; i < vertices->size(); i++)
-		selectedIndices->push_back(NO);
+	[self setSelectionMode:[self selectionMode]];
 }
 
 - (void)removeVertexAtIndex:(NSUInteger)index
@@ -375,9 +516,9 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	}
 }
 
-- (void)collapseSelectedVertices
+- (void)fastCollapseSelectedVertices
 {
-	NSLog(@"collapseSelectedVertices");
+	NSLog(@"fastCollapseSelectedVertices");
 	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
 	
 	int selectedCount = 0;
@@ -393,7 +534,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	}
 	
 	NSLog(@"selectedCount = %i", selectedCount);
-		
+	
 	if (selectedCount < 2)
 		return;
 	
@@ -419,12 +560,52 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	}
 	
 	[self removeSelectedVertices];
+}
+
+- (void)collapseSelectedVertices
+{
+	NSLog(@"collapseSelectedVertices");
+	
+	[self fastCollapseSelectedVertices];
+	
 	[self removeDegeneratedTriangles];
 	[self removeNonUsedVertices];
 	
 	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
+}
+
+- (void)collapseSimilarVertices:(float)tolerance
+{
+	NSLog(@"collapseSimilarVertices");
 	
-	NSLog(@"finished");
+	for (int i = 0; i < vertices->size(); i++)
+	{
+		BOOL selectedSomething = NO;
+		for (int j = 0; j < vertices->size(); j++)
+		{
+			if (i != j)
+			{
+				Vector3D diff = vertices->at(i) - vertices->at(j);
+				if (diff.GetLengthSq() < tolerance)
+				{
+					selectedIndices->at(i) = YES;
+					selectedIndices->at(j) = YES;
+					selectedSomething = YES;
+				}
+			}
+		}
+		if (selectedSomething)
+		{
+			[self fastCollapseSelectedVertices];
+			i--;
+		}
+	}
+	
+	[self removeSelectedVertices];
+	[self removeDegeneratedTriangles];
+	[self removeNonUsedVertices];
+	
+	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
 }
 
 - (void)transformWithMatrix:(Matrix4x4)matrix

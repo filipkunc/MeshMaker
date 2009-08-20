@@ -34,6 +34,8 @@ enum MeshSelectionMode
 }
 
 @property (readwrite, assign) enum MeshSelectionMode selectionMode; 
+@property (readonly) NSUInteger vertexCount;
+@property (readonly) NSUInteger triangleCount;
 
 - (Vector3D)vertexAtIndex:(NSUInteger)anIndex;
 - (Triangle)triangleAtIndex:(NSUInteger)anIndex;
@@ -45,10 +47,13 @@ enum MeshSelectionMode
 - (void)drawWireWithScale:(Vector3D)scale;
 - (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected;
 - (void)makeCube;
-- (void)makeCylinder;
+- (void)makeCubeWithSteps:(int)steps;
+- (void)makeCylinderWithSteps:(int)steps;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;
+- (void)fastCollapseSelectedVertices;
 - (void)collapseSelectedVertices;
+- (void)collapseSimilarVertices:(float)tolerance;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
 

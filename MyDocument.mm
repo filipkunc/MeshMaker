@@ -57,7 +57,9 @@
 - (IBAction)addCube:(id)sender
 {
 	Item *cube = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	[[cube mesh] makeCube];
+	[[cube mesh] makeCubeWithSteps:10];
+	NSLog(@"cube vertexCount = %i",[[cube mesh] vertexCount]);
+	NSLog(@"cube triangleCount = %i",[[cube mesh] triangleCount]);
 	[items addItem:cube];
 	[view setNeedsDisplay:YES];
 }
@@ -65,7 +67,9 @@
 - (IBAction)addCylinder:(id)sender
 {
 	Item *cylinder = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	[[cylinder mesh] makeCylinder];
+	[[cylinder mesh] makeCylinderWithSteps:10];
+	NSLog(@"cylinder vertexCount = %i",[[cylinder mesh] vertexCount]);
+	NSLog(@"cylinder triangleCount = %i",[[cylinder mesh] triangleCount]);
 	[items addItem:cylinder];
 	[view setNeedsDisplay:YES];
 }
@@ -109,6 +113,7 @@
 	if (manipulated == itemsController)
 	{
 		[items collapseSelectedItems];
+		[itemsController updateSelection];
 	}
 	else
 	{
