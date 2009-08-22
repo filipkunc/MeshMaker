@@ -28,7 +28,9 @@
 - (IBAction)editItems:(id)sender;
 - (IBAction)editVertices:(id)sender;
 - (IBAction)editTriangles:(id)sender;
+- (IBAction)editEdges:(id)sender;
 - (IBAction)collapseSelected:(id)sender;
+- (IBAction)splitSelected:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 
 @end
