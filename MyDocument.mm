@@ -108,6 +108,11 @@
 	[self editMeshWithMode:MeshSelectionModeTriangles];
 }
 
+- (IBAction)editEdges:(id)sender
+{
+	[self editMeshWithMode:MeshSelectionModeEdges];
+}
+
 - (IBAction)collapseSelected:(id)sender
 {
 	if (manipulated == itemsController)
@@ -118,7 +123,19 @@
 	else
 	{
 		Mesh *mesh = (Mesh *)[meshController model];
-		[mesh collapseSelectedVertices];
+		if ([mesh selectionMode] == MeshSelectionModeVertices)
+			[mesh collapseSelectedVertices];
+	}
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)splitSelected:(id)sender
+{
+	if (manipulated == meshController)
+	{
+		Mesh *mesh = (Mesh *)[meshController model];
+		if ([mesh selectionMode] == MeshSelectionModeEdges)
+			[mesh splitSelectedEdges];
 	}
 	[view setNeedsDisplay:YES];
 }

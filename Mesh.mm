@@ -20,6 +20,52 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	return NO;
 }
 
+BOOL AreEdgesSame(Edge a, Edge b)
+{
+	if (a.vertexIndices[0] == b.vertexIndices[0] &&
+		a.vertexIndices[1] == b.vertexIndices[1])
+		return YES;
+	
+	if (a.vertexIndices[0] == b.vertexIndices[1] &&
+		b.vertexIndices[1] == b.vertexIndices[0])
+		return YES;
+	
+	return NO;
+}
+
+BOOL IsIndexInTriangle(Triangle triangle, NSUInteger index)
+{
+	for (NSUInteger i = 0; i < 3; i++)
+	{
+		if (triangle.vertexIndices[i] == index)
+			return YES;
+	}
+	return NO;
+}
+
+BOOL IsEdgeInTriangle(Triangle triangle, Edge edge)
+{
+	if (IsIndexInTriangle(triangle, edge.vertexIndices[0]) &&
+		IsIndexInTriangle(triangle, edge.vertexIndices[1]))
+	{
+		return YES;
+	}
+	return NO;
+}
+
+NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
+{
+	for (NSUInteger i = 0; i < 3; i++)
+	{
+		if (triangle.vertexIndices[i] != edge.vertexIndices[0] &&
+			triangle.vertexIndices[i] != edge.vertexIndices[1])
+		{
+			return triangle.vertexIndices[i];
+		}
+	}
+	return 0;
+}
+
 @implementation Mesh
 
 @synthesize selectionMode;
@@ -34,6 +80,11 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	return triangles->size();
 }
 
+- (NSUInteger)edgeCount
+{
+	return edges->size();
+}
+
 - (id)init
 {
 	self = [super init];
@@ -41,6 +92,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	{
 		vertices = new vector<Vector3D>();
 		triangles = new vector<Triangle>();
+		edges = new vector<Edge>();
 		selectedIndices = new vector<BOOL>();
 	}
 	return self;
@@ -50,6 +102,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 {
 	delete vertices;
 	delete triangles;
+	delete edges;
 	delete selectedIndices;
 	[super dealloc];
 }
@@ -62,36 +115,49 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	{
 		case MeshSelectionModeVertices:
 		{
-			for (int i = 0; i < vertices->size(); i++)
+			for (NSUInteger i = 0; i < vertices->size(); i++)
 			{
 				selectedIndices->push_back(NO);
 			}
-		}	break;
+		} break;
 		case MeshSelectionModeTriangles:
 		{
-			for (int i = 0; i < triangles->size(); i++)
+			for (NSUInteger i = 0; i < triangles->size(); i++)
 			{
 				selectedIndices->push_back(NO);
 			}
-		}	break;
-		default:
-			break;
+		} break;
+		case MeshSelectionModeEdges:
+		{
+			[self makeEdges];
+			for (NSUInteger i = 0; i < edges->size(); i++)
+			{
+				selectedIndices->push_back(NO);
+			}
+		} break;
 	}
 }
 
 - (Vector3D)vertexAtIndex:(NSUInteger)anIndex
 {
-	return (*vertices)[anIndex];
+	return vertices->at(anIndex);
 }
 
 - (Triangle)triangleAtIndex:(NSUInteger)anIndex
 {
-	return (*triangles)[anIndex];
+	return triangles->at(anIndex);
+}
+
+- (Edge)edgeAtIndex:(NSUInteger)anIndex
+{
+	return edges->at(anIndex);
 }
 
 - (void)addVertex:(Vector3D)aVertex
 {
 	vertices->push_back(aVertex);
+	if (selectionMode == MeshSelectionModeVertices)
+		selectedIndices->push_back(NO);
 }
 
 - (void)addTriangleWithIndex1:(NSUInteger)index1
@@ -103,6 +169,8 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	triangle.vertexIndices[1] = index2;
 	triangle.vertexIndices[2] = index3;
 	triangles->push_back(triangle);
+	if (selectionMode == MeshSelectionModeTriangles)
+		selectedIndices->push_back(NO);
 }
 
 - (void)addQuadWithIndex1:(NSUInteger)index1
@@ -121,6 +189,24 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	
 	triangles->push_back(triangle1);
 	triangles->push_back(triangle2);
+	
+	if (selectionMode == MeshSelectionModeTriangles)
+	{
+		selectedIndices->push_back(NO);
+		selectedIndices->push_back(NO);
+	}
+}
+
+- (void)addEdgeWithIndex1:(NSUInteger)index1
+				   index2:(NSUInteger)index2
+{
+	Edge edge;
+	edge.vertexIndices[0] = index1;
+	edge.vertexIndices[1] = index2;
+	edges->push_back(edge);
+	
+	if (selectionMode == MeshSelectionModeEdges)
+		selectedIndices->push_back(NO);
 }
 
 - (void)drawFillWithScale:(Vector3D)scale
@@ -181,9 +267,12 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 {
 	glDisable(GL_LIGHTING);
 	glColor3f(1, 1, 1);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	[self drawFillWithScale:scale];
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (selectionMode != MeshSelectionModeEdges)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		[self drawFillWithScale:scale];
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 	glEnable(GL_LIGHTING);
 }
 
@@ -244,7 +333,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	[self setSelectionMode:[self selectionMode]];
 }
 
-- (void)makeCylinderWithSteps:(int)steps
+- (void)makeCylinderWithSteps:(NSUInteger)steps
 {
 	NSLog(@"makeCylinderWithSteps:%i", steps);
 	
@@ -258,10 +347,10 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	vertices->push_back(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
 	vertices->push_back(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
 		
-	int max = steps;
+	NSUInteger max = steps;
 	float step = (FLOAT_PI * 2.0f) / max;
 	float angle = step;
-	for (int i = 1; i < max; i++)
+	for (NSUInteger i = 1; i < max; i++)
 	{
 		vertices->push_back(Vector3D(cosf(angle), -1, sinf(angle))); // 4
 		vertices->push_back(Vector3D(cosf(angle),  1, sinf(angle))); // 5
@@ -320,11 +409,60 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	[self setSelectionMode:[self selectionMode]];
 }
 
+- (void)makeEdges
+{
+	edges->clear();
+	for (NSUInteger i = 0; i < triangles->size(); i++)
+	{
+		Triangle triangle = triangles->at(i);
+		Edge edge1, edge2, edge3;
+		
+		edge1.vertexIndices[0] = triangle.vertexIndices[0];
+		edge1.vertexIndices[1] = triangle.vertexIndices[1];
+		
+		edge2.vertexIndices[0] = triangle.vertexIndices[1];
+		edge2.vertexIndices[1] = triangle.vertexIndices[2];
+		
+		edge3.vertexIndices[0] = triangle.vertexIndices[0];
+		edge3.vertexIndices[1] = triangle.vertexIndices[2];
+		
+		BOOL addEdge1 = YES;
+		BOOL addEdge2 = YES;
+		BOOL addEdge3 = YES;
+		
+		for (NSUInteger j = 0; j < edges->size(); j++)
+		{
+			Edge edge = edges->at(j);
+			if (AreEdgesSame(edge1, edge))
+			{
+				addEdge1 = NO;
+			}
+			if (AreEdgesSame(edge2, edge))
+			{
+				addEdge2 = NO;
+			}
+			if 	(AreEdgesSame(edge3, edge))
+			{
+				addEdge3 = NO;
+			}
+			//if (addEdge1 == addEdge2 == addEdge3 == NO)
+//				break;
+		}
+		
+		if (addEdge1)
+			edges->push_back(edge1);
+		if (addEdge2)
+			edges->push_back(edge2);
+		if (addEdge3)
+			edges->push_back(edge3);
+	}
+}
+
 - (void)removeVertexAtIndex:(NSUInteger)index
 {
 	for (NSUInteger i = 0; i < triangles->size(); i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (NSUInteger j = 0; j < 3; j++)
 		{
 			if (triangles->at(i).vertexIndices[j] >= index)
 				triangles->at(i).vertexIndices[j]--;
@@ -339,6 +477,13 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 {
 	triangles->erase(triangles->begin() + index);
 	if (selectionMode == MeshSelectionModeTriangles)
+		selectedIndices->erase(selectedIndices->begin() + index);
+}
+
+- (void)removeEdgeAtIndex:(NSUInteger)index
+{
+	edges->erase(edges->begin() + index);
+	if (selectionMode == MeshSelectionModeEdges)
 		selectedIndices->erase(selectedIndices->begin() + index);
 }
 
@@ -358,10 +503,10 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (BOOL)isVertexUsedAtIndex:(NSUInteger)index
 {
-	for (int i = 0; i < triangles->size(); i++)
+	for (NSUInteger i = 0; i < triangles->size(); i++)
 	{
 		Triangle triangle = triangles->at(i);
-		for (int j = 0; j < 3; j++)
+		for (NSUInteger j = 0; j < 3; j++)
 		{
 			if (triangle.vertexIndices[j] == index)
 				return YES;
@@ -405,10 +550,10 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	NSLog(@"fastCollapseSelectedVertices");
 	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
 	
-	int selectedCount = 0;
+	NSUInteger selectedCount = 0;
 	Vector3D center = Vector3D();
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (NSUInteger i = 0; i < selectedIndices->size(); i++)
 	{
 		if (selectedIndices->at(i))
 		{
@@ -426,15 +571,15 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 	vertices->push_back(center);
 	selectedIndices->push_back(NO);
 	
-	int centerIndex = vertices->size() - 1;
+	NSUInteger centerIndex = vertices->size() - 1;
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (NSUInteger i = 0; i < selectedIndices->size(); i++)
 	{
 		if (selectedIndices->at(i))
 		{
-			for (int j = 0; j < triangles->size(); j++)
+			for (NSUInteger j = 0; j < triangles->size(); j++)
 			{
-				for (int k = 0; k < 3; k++)
+				for (NSUInteger k = 0; k < 3; k++)
 				{
 					if (triangles->at(j).vertexIndices[k] == i)
 						triangles->at(j).vertexIndices[k] = centerIndex;
@@ -460,7 +605,7 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (void)transformWithMatrix:(Matrix4x4)matrix
 {
-	for (int i = 0; i < vertices->size(); i++)
+	for (NSUInteger i = 0; i < vertices->size(); i++)
 		vertices->at(i).Transform(matrix);
 }
 
@@ -468,29 +613,88 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 {
 	NSLog(@"mergeWithMesh:");
 	
-	int vertexCount = vertices->size();
-	for (int i = 0; i < mesh->vertices->size(); i++)
+	NSUInteger vertexCount = vertices->size();
+	for (NSUInteger i = 0; i < mesh->vertices->size(); i++)
 	{
-		vertices->push_back((*mesh->vertices)[i]);
+		vertices->push_back(mesh->vertices->at(i));
 	}
-	for (int i = 0; i < mesh->triangles->size(); i++)
+	for (NSUInteger i = 0; i < mesh->triangles->size(); i++)
 	{
-		Triangle triangle = (*mesh->triangles)[i];
+		Triangle triangle = mesh->triangles->at(i);
 		triangle.vertexIndices[0] += vertexCount;
 		triangle.vertexIndices[1] += vertexCount;
 		triangle.vertexIndices[2] += vertexCount;
 		triangles->push_back(triangle);
 	}
 	selectedIndices->clear();
-	for (int i = 0; i < vertices->size(); i++)
+	for (NSUInteger i = 0; i < vertices->size(); i++)
 		selectedIndices->push_back(NO);
 }
 
+- (void)splitEdgeAtIndex:(NSUInteger)index
+{
+	NSLog(@"splitEdgeAtIndex:%i", index);
+	
+	Edge edge = [self edgeAtIndex:index];
+	[self removeEdgeAtIndex:index];
+	Vector3D firstVertex = [self vertexAtIndex:edge.vertexIndices[0]];
+	Vector3D secondVertex = [self vertexAtIndex:edge.vertexIndices[1]];
+	Vector3D centerVertex = firstVertex + secondVertex;
+	centerVertex /= 2.0f;
+	vertices->push_back(centerVertex);
+	NSUInteger centerIndex = vertices->size() - 1;
+		
+	BOOL first = YES;
+	
+	for (int i = 0; i < triangles->size(); i++)
+	{
+		Triangle triangle = [self triangleAtIndex:i];
+		if (IsEdgeInTriangle(triangle, edge))
+		{
+			NSUInteger oppositeIndex = NonEdgeIndexInTriangle(triangle, edge);
+			
+			[self removeTriangleAtIndex:i];
+			i--;
+			
+			[self addEdgeWithIndex1:centerIndex index2:oppositeIndex];
+			
+			if (first)
+			{
+				first = NO;
+				[self addTriangleWithIndex1:edge.vertexIndices[0] index2:oppositeIndex index3:centerIndex];
+				[self addTriangleWithIndex1:edge.vertexIndices[1] index2:centerIndex index3:oppositeIndex];
+			}
+			else
+			{
+				[self addTriangleWithIndex1:edge.vertexIndices[1] index2:oppositeIndex index3:centerIndex];
+				[self addTriangleWithIndex1:edge.vertexIndices[0] index2:centerIndex index3:oppositeIndex];
+			}
+		}
+	}
+	
+	[self addEdgeWithIndex1:centerIndex index2:edge.vertexIndices[1]];
+	[self addEdgeWithIndex1:centerIndex index2:edge.vertexIndices[0]];
+}
+
+- (void)splitSelectedEdges
+{
+	NSLog(@"splitSelectedEdges");
+	
+	for (int i = 0; i < selectedIndices->size(); i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			[self splitEdgeAtIndex:i];
+			i--;
+		}
+	}
+}
+
+#pragma mark OpenGLManipulatingModel implementation
+
 - (NSUInteger)count
 {
-	if (selectionMode == MeshSelectionModeVertices)
-		return vertices->size();
-	return triangles->size();
+	return selectedIndices->size();	
 }
 
 - (Vector3D)positionAtIndex:(NSUInteger)index
@@ -540,33 +744,59 @@ BOOL IsTriangleDegenerated(Triangle triangle)
 
 - (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection
 {
-	if (selectionMode == MeshSelectionModeVertices)
+	switch (selectionMode) 
 	{
-		Vector3D v = [self vertexAtIndex:index];
-		if (!forSelection)
+		case MeshSelectionModeVertices:
 		{
-			BOOL selected = [self isSelectedAtIndex:index];
-			glPointSize(5.0f);
-			if (selected)
-				glColor3f(1, 0, 0);
-			else
-				glColor3f(0, 0, 1);
-			glDisable(GL_LIGHTING);
-		}
-		glBegin(GL_POINTS);
-		glVertex3f(v.x, v.y, v.z);
-		glEnd();
-	}
-	else if (forSelection)
-	{
-		Triangle currentTriangle = [self triangleAtIndex:index];
-		glBegin(GL_TRIANGLES);
-		for (NSUInteger i = 0; i < 3; i++)
-		{
-			Vector3D v = [self vertexAtIndex:currentTriangle.vertexIndices[i]];
+			Vector3D v = [self vertexAtIndex:index];
+			if (!forSelection)
+			{
+				BOOL selected = [self isSelectedAtIndex:index];
+				glPointSize(5.0f);
+				if (selected)
+					glColor3f(1, 0, 0);
+				else
+					glColor3f(0, 0, 1);
+				glDisable(GL_LIGHTING);
+			}
+			glBegin(GL_POINTS);
 			glVertex3f(v.x, v.y, v.z);
-		}
-		glEnd();
+			glEnd();
+		} break;
+		case MeshSelectionModeTriangles:
+		{
+			if (forSelection)
+			{
+				Triangle currentTriangle = [self triangleAtIndex:index];
+				glBegin(GL_TRIANGLES);
+				for (NSUInteger i = 0; i < 3; i++)
+				{
+					Vector3D v = [self vertexAtIndex:currentTriangle.vertexIndices[i]];
+					glVertex3f(v.x, v.y, v.z);
+				}
+				glEnd();
+			}
+		} break;
+		case MeshSelectionModeEdges:
+		{
+			Edge currentEdge = [self edgeAtIndex:index];
+			if (!forSelection)
+			{
+				BOOL selected = [self isSelectedAtIndex:index];
+				if (selected)
+					glColor3f(1, 0, 0);
+				else
+					glColor3f(1, 1, 1);
+				glDisable(GL_LIGHTING);
+			}
+			glBegin(GL_LINES);
+			for (NSUInteger i = 0; i < 2; i++)
+			{
+				Vector3D v = [self vertexAtIndex:currentEdge.vertexIndices[i]];
+				glVertex3f(v.x, v.y, v.z);
+			}
+			glEnd();
+		} break;
 	}
 }
 
