@@ -22,6 +22,12 @@ typedef struct {
 
 BOOL IsTriangleDegenerated(Triangle triangle);
 BOOL AreEdgesSame(Edge a, Edge b);
+BOOL IsIndexInTriangle(Triangle triangle, NSUInteger index);
+BOOL IsEdgeInTriangle(Triangle triangle, Edge edge);
+NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge);
+Vector3D NormalFromTriangle(Vector3D triangleVertices[3]);
+Triangle MakeTriangle(NSUInteger a, NSUInteger b, NSUInteger c);
+Triangle MakeTriangleOpposite(Triangle triangle);
 
 enum MeshSelectionMode
 {
@@ -49,6 +55,8 @@ enum MeshSelectionMode
 - (Edge)edgeAtIndex:(NSUInteger)anIndex;
 
 - (void)addVertex:(Vector3D)aVertex;
+
+- (void)addTriangle:(Triangle)aTriangle;
 
 - (void)addTriangleWithIndex1:(NSUInteger)index1
 					   index2:(NSUInteger)index2
@@ -78,5 +86,6 @@ enum MeshSelectionMode
 - (void)mergeWithMesh:(Mesh *)mesh;
 - (void)splitEdgeAtIndex:(NSUInteger)index;
 - (void)splitSelectedEdges;
+- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle;
 
 @end

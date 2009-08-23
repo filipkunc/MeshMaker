@@ -91,6 +91,8 @@
 
 - (IBAction)editItems:(id)sender
 {
+	Mesh *mesh = (Mesh *)[meshController model];
+	[mesh setSelectionMode:MeshSelectionModeVertices];
 	[itemsController setModel:items];
 	[itemsController setPosition:Vector3D()
 						rotation:Quaternion()

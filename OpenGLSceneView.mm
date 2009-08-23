@@ -455,9 +455,6 @@ const float maxDistance = 1000.0f;
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	
 	glSelectBuffer(16535, selectBuffer);
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glMatrixMode(GL_PROJECTION);
@@ -487,9 +484,7 @@ const float maxDistance = 1000.0f;
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
-	
-	glDisable(GL_CULL_FACE);
-	
+		
 	if (objectsFound <= 0)
 		return;
 	
@@ -527,8 +522,8 @@ const float maxDistance = 1000.0f;
 {
 	[self selectWithX:point.x
 					y:point.y
-				width:8.0
-			   height:8.0
+				width:10.0
+			   height:10.0
 			selecting:selecting
 		  nearestOnly:YES
 		selectionMode:selectionMode];
