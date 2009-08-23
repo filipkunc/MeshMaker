@@ -66,6 +66,31 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 	return 0;
 }
 
+Vector3D NormalFromTriangle(Vector3D triangleVertices[3])
+{
+	Vector3D u = triangleVertices[1] - triangleVertices[0];
+	Vector3D v = triangleVertices[2] - triangleVertices[0];
+	return v.Cross(u);
+}
+
+Triangle MakeTriangle(NSUInteger a, NSUInteger b, NSUInteger c)
+{
+	Triangle triangle;
+	triangle.vertexIndices[0] = a;
+	triangle.vertexIndices[1] = b;
+	triangle.vertexIndices[2] = c;
+	return triangle;
+}
+
+Triangle MakeTriangleOpposite(Triangle triangle)
+{
+	Triangle opposite;
+	opposite.vertexIndices[0] = triangle.vertexIndices[2];
+	opposite.vertexIndices[1] = triangle.vertexIndices[1];
+	opposite.vertexIndices[2] = triangle.vertexIndices[0];
+	return opposite;
+}
+
 @implementation Mesh
 
 @synthesize selectionMode;
@@ -160,6 +185,13 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 		selectedIndices->push_back(NO);
 }
 
+- (void)addTriangle:(Triangle)aTriangle
+{
+	triangles->push_back(aTriangle);
+	if (selectionMode == MeshSelectionModeTriangles)
+		selectedIndices->push_back(NO);
+}
+
 - (void)addTriangleWithIndex1:(NSUInteger)index1
 					   index2:(NSUInteger)index2
 					   index3:(NSUInteger)index3
@@ -168,9 +200,7 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 	triangle.vertexIndices[0] = index1;
 	triangle.vertexIndices[1] = index2;
 	triangle.vertexIndices[2] = index3;
-	triangles->push_back(triangle);
-	if (selectionMode == MeshSelectionModeTriangles)
-		selectedIndices->push_back(NO);
+	[self addTriangle:triangle];
 }
 
 - (void)addQuadWithIndex1:(NSUInteger)index1
@@ -187,14 +217,8 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 	triangle2.vertexIndices[1] = index3;
 	triangle2.vertexIndices[2] = index4;
 	
-	triangles->push_back(triangle1);
-	triangles->push_back(triangle2);
-	
-	if (selectionMode == MeshSelectionModeTriangles)
-	{
-		selectedIndices->push_back(NO);
-		selectedIndices->push_back(NO);
-	}
+	[self addTriangle:triangle1];
+	[self addTriangle:triangle2];
 }
 
 - (void)addEdgeWithIndex1:(NSUInteger)index1
@@ -241,14 +265,8 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 			}
 		}
 		Triangle currentTriangle = [self triangleAtIndex:i];
-		for (NSUInteger j = 0; j < 3; j++)
-		{
-			Vector3D currentVertex = [self vertexAtIndex:currentTriangle.vertexIndices[j]];
-			triangleVertices[j] = currentVertex;
-		}
-		Vector3D u = triangleVertices[1] - triangleVertices[0];
-		Vector3D v = triangleVertices[2] - triangleVertices[0];
-		Vector3D n = v.Cross(u);
+		[self getTriangleVertices:triangleVertices fromTriangle:currentTriangle];
+		Vector3D n = NormalFromTriangle(triangleVertices);
 		n.Normalize();
 		n.x *= scale.x;
 		n.y *= scale.y;
@@ -631,6 +649,12 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 		selectedIndices->push_back(NO);
 }
 
+- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle
+{
+	for (NSUInteger j = 0; j < 3; j++)
+		triangleVertices[j] = [self vertexAtIndex:triangle.vertexIndices[j]];
+}
+
 - (void)splitEdgeAtIndex:(NSUInteger)index
 {
 	NSLog(@"splitEdgeAtIndex:%i", index);
@@ -643,9 +667,9 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 	centerVertex /= 2.0f;
 	vertices->push_back(centerVertex);
 	NSUInteger centerIndex = vertices->size() - 1;
-		
-	BOOL first = YES;
 	
+	Vector3D triangleVertices[3];
+		
 	for (int i = 0; i < triangles->size(); i++)
 	{
 		Triangle triangle = [self triangleAtIndex:i];
@@ -658,17 +682,25 @@ NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 			
 			[self addEdgeWithIndex1:centerIndex index2:oppositeIndex];
 			
-			if (first)
-			{
-				first = NO;
-				[self addTriangleWithIndex1:edge.vertexIndices[0] index2:oppositeIndex index3:centerIndex];
-				[self addTriangleWithIndex1:edge.vertexIndices[1] index2:centerIndex index3:oppositeIndex];
-			}
-			else
-			{
-				[self addTriangleWithIndex1:edge.vertexIndices[1] index2:oppositeIndex index3:centerIndex];
-				[self addTriangleWithIndex1:edge.vertexIndices[0] index2:centerIndex index3:oppositeIndex];
-			}
+			[self getTriangleVertices:triangleVertices fromTriangle:triangle];
+			Vector3D splittedTriangleNormal = NormalFromTriangle(triangleVertices);
+			
+			Triangle firstTriangle = MakeTriangle(edge.vertexIndices[0], oppositeIndex, centerIndex);
+			[self getTriangleVertices:triangleVertices fromTriangle:firstTriangle];
+			Vector3D firstTriangleNormal = NormalFromTriangle(triangleVertices);
+			
+			Triangle secondTriangle = MakeTriangle(edge.vertexIndices[1], oppositeIndex, centerIndex);
+			[self getTriangleVertices:triangleVertices fromTriangle:secondTriangle];
+			Vector3D secondTriangleNormal = NormalFromTriangle(triangleVertices);
+			
+			if (firstTriangleNormal.Dot(splittedTriangleNormal) < 0.0f)
+				firstTriangle = MakeTriangleOpposite(firstTriangle);
+			
+			if (secondTriangleNormal.Dot(splittedTriangleNormal) < 0.0f)
+				secondTriangle = MakeTriangleOpposite(secondTriangle);
+			
+			[self addTriangle:firstTriangle];
+			[self addTriangle:secondTriangle];
 		}
 	}
 	
