@@ -59,6 +59,7 @@
 							<string>2BA004B9-95A8-4B21-A55F-3747D15912C9</string>
 							<string>3275AA6B-7159-4596-9DF0-F25B101E4ED9</string>
 							<string>52A9EC91-FCB7-464E-A935-1D0B15906B12</string>
+							<string>5C10FA43-AADC-4118-83E4-B44B17FEBDEC</string>
 							<string>70B71E9B-3FF3-4E2E-99C1-7E234108173D</string>
 							<string>7DFA476B-B84F-4D99-B63D-3B89EE180A4E</string>
 							<string>879C988C-EFE1-4225-B97D-29DFE29FB67C</string>
@@ -279,6 +280,28 @@
 								<string key="NSToolbarItemToolTip"/>
 								<nil key="NSToolbarItemView"/>
 								<reference key="NSToolbarItemImage" ref="952702509"/>
+								<nil key="NSToolbarItemTarget"/>
+								<nil key="NSToolbarItemAction"/>
+								<string key="NSToolbarItemMinSize">{0, 0}</string>
+								<string key="NSToolbarItemMaxSize">{0, 0}</string>
+								<bool key="NSToolbarItemEnabled">YES</bool>
+								<bool key="NSToolbarItemAutovalidates">YES</bool>
+								<int key="NSToolbarItemTag">-1</int>
+								<bool key="NSToolbarIsUserRemovable">YES</bool>
+								<int key="NSToolbarItemVisibilityPriority">0</int>
+							</object>
+							<object class="NSToolbarItem" id="571621107">
+								<object class="NSMutableString" key="NSToolbarItemIdentifier">
+									<characters key="NS.bytes">5C10FA43-AADC-4118-83E4-B44B17FEBDEC</characters>
+								</object>
+								<string key="NSToolbarItemLabel">Turn Edges</string>
+								<string key="NSToolbarItemPaletteLabel">Turn Edges</string>
+								<string key="NSToolbarItemToolTip"/>
+								<nil key="NSToolbarItemView"/>
+								<object class="NSCustomResource" key="NSToolbarItemImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">NSRefreshTemplate</string>
+								</object>
 								<nil key="NSToolbarItemTarget"/>
 								<nil key="NSToolbarItemAction"/>
 								<string key="NSToolbarItemMinSize">{0, 0}</string>
@@ -706,6 +729,7 @@
 						<reference ref="748301453"/>
 						<reference ref="441889733"/>
 						<reference ref="345729276"/>
+						<reference ref="571621107"/>
 						<reference ref="804788330"/>
 						<reference ref="767646089"/>
 						<reference ref="734223413"/>
@@ -729,6 +753,7 @@
 						<reference ref="786968178"/>
 						<reference ref="345729276"/>
 						<reference ref="441889733"/>
+						<reference ref="571621107"/>
 						<reference ref="804788330"/>
 						<reference ref="734223413"/>
 						<reference ref="276005224"/>
@@ -965,6 +990,14 @@
 					</object>
 					<int key="connectionID">100142</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">turnSelectedEdges:</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="571621107"/>
+					</object>
+					<int key="connectionID">100144</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1043,6 +1076,7 @@
 							<reference ref="169982275"/>
 							<reference ref="748301453"/>
 							<reference ref="345729276"/>
+							<reference ref="571621107"/>
 						</object>
 						<reference key="parent" ref="275939982"/>
 					</object>
@@ -1217,6 +1251,11 @@
 						<reference key="object" ref="345729276"/>
 						<reference key="parent" ref="24235194"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">100143</int>
+						<reference key="object" ref="571621107"/>
+						<reference key="parent" ref="24235194"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -1255,6 +1294,7 @@
 					<string>100136.IBPluginDependency</string>
 					<string>100139.IBPluginDependency</string>
 					<string>100141.IBPluginDependency</string>
+					<string>100143.IBPluginDependency</string>
 					<string>5.IBEditorWindowLastContentRect</string>
 					<string>5.IBWindowTemplateEditedContentRect</string>
 					<string>5.ImportedFromIB2</string>
@@ -1273,7 +1313,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>OpenGLSceneView</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{208, 700}, {616, 0}}</string>
+					<string>{{314, 700}, {616, 0}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1308,8 +1348,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{205, 315}, {800, 385}}</string>
-					<string>{{205, 315}, {800, 385}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{222, 315}, {800, 385}}</string>
+					<string>{{222, 315}, {800, 385}}</string>
 					<reference ref="9"/>
 					<string>{{201, 387}, {507, 413}}</string>
 					<boolean value="NO"/>
@@ -1340,7 +1381,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">100142</int>
+			<int key="maxID">100144</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1361,9 +1402,11 @@
 							<string>editTriangles:</string>
 							<string>editVertices:</string>
 							<string>splitSelected:</string>
+							<string>turnSelectedEdges:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>

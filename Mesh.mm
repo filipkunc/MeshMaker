@@ -722,6 +722,71 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
+- (void)turnEdgeAtIndex:(NSUInteger)index
+{
+	NSLog(@"turnEdgeAtIndex:%i", index);
+	
+	Edge edge = [self edgeAtIndex:index];
+	int counter = 0;
+	int oldTriangleIndices[2];
+	Triangle oldTriangles[2];
+	
+	for (int i = 0; i < triangles->size(); i++)
+	{
+		Triangle triangle = [self triangleAtIndex:i];
+		if (IsEdgeInTriangle(triangle, edge))
+		{
+			oldTriangleIndices[counter] = i;
+			oldTriangles[counter] = triangle;
+			counter++;
+			if (counter == 2)
+			{
+				Edge turned;
+				turned.vertexIndices[0] = NonEdgeIndexInTriangle(oldTriangles[0], edge);
+				turned.vertexIndices[1] = NonEdgeIndexInTriangle(oldTriangles[1], edge);
+				
+				Vector3D triangleVertices[3];
+				
+				for (int j = 0; j < 2; j++)
+				{
+					Triangle newTriangle = MakeTriangle(edge.vertexIndices[j], 
+														turned.vertexIndices[0], 
+														turned.vertexIndices[1]);
+					
+					[self getTriangleVertices:triangleVertices fromTriangle:newTriangle];
+					Vector3D newTriangleNormal = NormalFromTriangle(triangleVertices);
+					
+					[self getTriangleVertices:triangleVertices fromTriangle:oldTriangles[j]];
+					Vector3D oldTriangleNormal = NormalFromTriangle(triangleVertices);
+					
+					if (newTriangleNormal.Dot(oldTriangleNormal) < 0.0f)
+						newTriangle = MakeTriangleOpposite(newTriangle);
+					
+					triangles->at(oldTriangleIndices[j]) = newTriangle;
+				}
+				
+				edges->at(index) = turned;
+				
+				return;
+			}
+		}
+	}
+}
+
+- (void)turnSelectedEdges
+{
+	NSLog(@"turnSelectedEdges");
+	
+	for (int i = 0; i < selectedIndices->size(); i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			[self turnEdgeAtIndex:i];
+			[self setSelected:NO atIndex:i];
+		}
+	}
+}
+
 #pragma mark OpenGLManipulatingModel implementation
 
 - (NSUInteger)count

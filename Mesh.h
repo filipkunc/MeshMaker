@@ -84,8 +84,10 @@ enum MeshSelectionMode
 - (void)collapseSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
+- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle;
 - (void)splitEdgeAtIndex:(NSUInteger)index;
 - (void)splitSelectedEdges;
-- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle;
+- (void)turnEdgeAtIndex:(NSUInteger)index;
+- (void)turnSelectedEdges;
 
 @end
