@@ -31,6 +31,7 @@
 - (IBAction)editEdges:(id)sender;
 - (IBAction)collapseSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
+- (IBAction)turnSelectedEdges:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 
 @end

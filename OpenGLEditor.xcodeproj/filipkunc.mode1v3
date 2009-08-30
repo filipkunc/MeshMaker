@@ -277,13 +277,13 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>20</integer>
+									<integer>22</integer>
 									<integer>4</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 140}, {228, 591}}</string>
+							<string>{{0, 185}, {228, 591}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -320,7 +320,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>OpenGLSceneView.mm</string>
+								<string>Mesh.mm</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -328,11 +328,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>OpenGLSceneView.mm</string>
+										<string>Mesh.mm</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A7152CD0104177E800CE4BBD</string>
+										<string>A7156460104AE79C00B9C89D</string>
 										<key>history</key>
 										<array>
 											<string>A7B486A1101B608A00CC8B5C</string>
@@ -352,11 +352,11 @@
 											<string>A70B2D041038AADC004EA2DB</string>
 											<string>A70B2D051038AADC004EA2DB</string>
 											<string>A7FCF2B3103B3D1500C68320</string>
-											<string>A7B269AE10407BED00E47943</string>
-											<string>A7152CAD104167D700CE4BBD</string>
-											<string>A7152CBB10416A4900CE4BBD</string>
-											<string>A7152CC9104176E200CE4BBD</string>
-											<string>A7152CCF104177E800CE4BBD</string>
+											<string>A7156433104ADCBE00B9C89D</string>
+											<string>A7156442104AE52B00B9C89D</string>
+											<string>A715644D104AE63800B9C89D</string>
+											<string>A715644E104AE63800B9C89D</string>
+											<string>A715644F104AE63800B9C89D</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -382,52 +382,23 @@
 											<string>A78FAEDB1034BCEE00892F0C</string>
 											<string>A74984A810374E4500CF0E52</string>
 											<string>A7B26A2A104085EA00E47943</string>
-											<string>A7152C5D104159D600CE4BBD</string>
-											<string>A7152C5E104159D600CE4BBD</string>
-											<string>A7152C6510415CB700CE4BBD</string>
-											<string>A7152C6610415CB700CE4BBD</string>
-											<string>A7152C6710415CB700CE4BBD</string>
-											<string>A7152C6810415CB700CE4BBD</string>
-											<string>A7152C6910415CB700CE4BBD</string>
-											<string>A7152C6A10415CB700CE4BBD</string>
-											<string>A7152C6B10415CB700CE4BBD</string>
-											<string>A7152C6C10415CB700CE4BBD</string>
-											<string>A7152C6D10415CB700CE4BBD</string>
-											<string>A7152C6E10415CB700CE4BBD</string>
-											<string>A7152C6F10415CB700CE4BBD</string>
-											<string>A7152C7010415CB700CE4BBD</string>
-											<string>A7152C7110415CB700CE4BBD</string>
-											<string>A7152C7210415CB700CE4BBD</string>
-											<string>A7152C7310415CB700CE4BBD</string>
-											<string>A7152C7410415CB700CE4BBD</string>
-											<string>A7152C7510415CB700CE4BBD</string>
-											<string>A7152C7610415CB700CE4BBD</string>
-											<string>A7152C7710415CB700CE4BBD</string>
-											<string>A7152C7810415CB700CE4BBD</string>
-											<string>A7152C89104161AD00CE4BBD</string>
-											<string>A7152C8A104161AD00CE4BBD</string>
-											<string>A7152C8B104161AD00CE4BBD</string>
-											<string>A7152C8C104161AD00CE4BBD</string>
-											<string>A7152C8D104161AD00CE4BBD</string>
-											<string>A7152C8E104161AD00CE4BBD</string>
-											<string>A7152C8F104161AD00CE4BBD</string>
-											<string>A7152C90104161AD00CE4BBD</string>
-											<string>A7152C91104161AD00CE4BBD</string>
-											<string>A7152C92104161AD00CE4BBD</string>
-											<string>A7152C991041646A00CE4BBD</string>
-											<string>A7152C9A1041646A00CE4BBD</string>
-											<string>A7152C9B1041646A00CE4BBD</string>
-											<string>A7152C9C1041646A00CE4BBD</string>
-											<string>A7152CA3104166BF00CE4BBD</string>
-											<string>A7152CA4104166BF00CE4BBD</string>
-											<string>A7152CA5104166BF00CE4BBD</string>
-											<string>A7152CA6104166BF00CE4BBD</string>
-											<string>A7152CA7104166BF00CE4BBD</string>
-											<string>A7152CA8104166BF00CE4BBD</string>
-											<string>A7152CAF104167D700CE4BBD</string>
-											<string>A7152CB0104167D700CE4BBD</string>
-											<string>A7152CBD10416A4900CE4BBD</string>
-											<string>A7152CCB104176E200CE4BBD</string>
+											<string>A7156436104ADCBE00B9C89D</string>
+											<string>A7156437104ADCBE00B9C89D</string>
+											<string>A7156438104ADCBE00B9C89D</string>
+											<string>A7156439104ADCBE00B9C89D</string>
+											<string>A715643A104ADCBE00B9C89D</string>
+											<string>A715643B104ADCBE00B9C89D</string>
+											<string>A715643C104ADCBE00B9C89D</string>
+											<string>A715643D104ADCBE00B9C89D</string>
+											<string>A7156444104AE52B00B9C89D</string>
+											<string>A7156445104AE52B00B9C89D</string>
+											<string>A7156446104AE52B00B9C89D</string>
+											<string>A7156447104AE52B00B9C89D</string>
+											<string>A7156450104AE63800B9C89D</string>
+											<string>A7156451104AE63800B9C89D</string>
+											<string>A7156452104AE63800B9C89D</string>
+											<string>A7156453104AE63800B9C89D</string>
+											<string>A7156454104AE63800B9C89D</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -466,7 +437,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A7152CD1104177E800CE4BBD</string>
+										<string>A7156461104AE79C00B9C89D</string>
 										<key>history</key>
 										<array>
 											<string>A7B486A1101B608A00CC8B5C</string>
@@ -480,7 +451,7 @@
 											<string>A7A6D9B7102E0B5A00D7D6C0</string>
 											<string>A7A8E1EC10334F760026E010</string>
 											<string>A73B9DAF104016C2003B09C5</string>
-											<string>A7B26A3E10409F0F00E47943</string>
+											<string>A791B3A21043283600A63D3A</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -554,9 +525,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>A7152C61104159D600CE4BBD</string>
+				<string>A7156427104A6CB600B9C89D</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>A7152C62104159D600CE4BBD</string>
+				<string>A7156428104A6CB600B9C89D</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
@@ -691,6 +662,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
+		<string>A7156457104AE63800B9C89D</string>
+		<string>A7156458104AE63800B9C89D</string>
 		<string>1CD10A99069EF8BA00B06720</string>
 		<string>A754C4000FF92EA200A48E13</string>
 		<string>/Users/filipkunc/Documents/Programming/GitProjects/OpenGLEditor/OpenGLEditor.xcodeproj</string>
@@ -774,7 +747,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>A754C4000FF92EA200A48E13</string>
-				<string>A7152C7E10415D0400CE4BBD</string>
+				<string>A715642B104A72EF00B9C89D</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -894,13 +867,13 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1CD10A99069EF8BA00B06720</string>
-				<string>A7152C7F10415D0400CE4BBD</string>
+				<string>A715642C104A72EF00B9C89D</string>
 				<string>1C162984064C10D400B95A72</string>
-				<string>A7152C8010415D0400CE4BBD</string>
-				<string>A7152C8110415D0400CE4BBD</string>
-				<string>A7152C8210415D0400CE4BBD</string>
-				<string>A7152C8310415D0400CE4BBD</string>
-				<string>A7152C8410415D0400CE4BBD</string>
+				<string>A715642D104A72EF00B9C89D</string>
+				<string>A715642E104A72EF00B9C89D</string>
+				<string>A715642F104A72EF00B9C89D</string>
+				<string>A7156430104A72EF00B9C89D</string>
+				<string>A7156431104A72EF00B9C89D</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>
@@ -1056,7 +1029,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C78EAAD065D492600B07095</string>
-				<string>A7152C8510415D0400CE4BBD</string>
+				<string>A7156432104A72EF00B9C89D</string>
 				<string>1C78EAAC065D492600B07095</string>
 			</array>
 			<key>ToolbarConfiguration</key>

@@ -142,6 +142,17 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (IBAction)turnSelectedEdges:(id)sender
+{
+	if (manipulated == meshController)
+	{
+		Mesh *mesh = (Mesh *)[meshController model];
+		if ([mesh selectionMode] == MeshSelectionModeEdges)
+			[mesh turnSelectedEdges];
+	}
+	[view setNeedsDisplay:YES];
+}
+
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
