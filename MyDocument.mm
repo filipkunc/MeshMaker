@@ -37,6 +37,7 @@
 
 - (void)awakeFromNib
 {
+	[editModePopUp selectItemWithTag:0];
 	[view setManipulated:manipulated];
 	[view setDisplayed:itemsController];
 }
@@ -89,7 +90,7 @@
 	}
 }
 
-- (IBAction)editItems:(id)sender
+- (void)editItems
 {
 	Mesh *mesh = (Mesh *)[meshController model];
 	[mesh setSelectionMode:MeshSelectionModeVertices];
@@ -100,19 +101,26 @@
 	[self setManipulated:itemsController];
 }
 
-- (IBAction)editVertices:(id)sender
+- (IBAction)changeEditMode:(id)sender
 {
-	[self editMeshWithMode:MeshSelectionModeVertices];
-}
-
-- (IBAction)editTriangles:(id)sender
-{
-	[self editMeshWithMode:MeshSelectionModeTriangles];
-}
-
-- (IBAction)editEdges:(id)sender
-{
-	[self editMeshWithMode:MeshSelectionModeEdges];
+	EditMode mode = (EditMode)[[editModePopUp selectedItem] tag];
+	switch (mode)
+	{
+		case EditModeItems:
+			[self editItems];
+			break;
+		case EditModeVertices:
+			[self editMeshWithMode:MeshSelectionModeVertices];
+			break;
+		case EditModeTriangles:
+			[self editMeshWithMode:MeshSelectionModeTriangles];
+			break;
+		case EditModeEdges:
+			[self editMeshWithMode:MeshSelectionModeEdges];
+			break;
+		default:
+			break;
+	}
 }
 
 - (IBAction)collapseSelected:(id)sender
