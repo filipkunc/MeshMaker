@@ -113,7 +113,7 @@
 	[items removeObjectAtIndex:index];
 }
 
-- (void)collapseSelectedItems
+- (void)mergeSelectedItems
 {
 	Vector3D center = Vector3D();
 	int selectedCount = 0;

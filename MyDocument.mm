@@ -123,18 +123,18 @@
 	}
 }
 
-- (IBAction)collapseSelected:(id)sender
+- (IBAction)mergeSelected:(id)sender
 {
 	if (manipulated == itemsController)
 	{
-		[items collapseSelectedItems];
+		[items mergeSelectedItems];
 		[itemsController updateSelection];
 	}
 	else
 	{
 		Mesh *mesh = (Mesh *)[meshController model];
 		if ([mesh selectionMode] == MeshSelectionModeVertices)
-			[mesh collapseSelectedVertices];
+			[mesh mergeSelectedVertices];
 	}
 	[view setNeedsDisplay:YES];
 }
