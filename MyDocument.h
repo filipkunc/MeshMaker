@@ -36,7 +36,7 @@ enum EditMode
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
 - (IBAction)changeEditMode:(id)sender;
-- (IBAction)collapseSelected:(id)sender;
+- (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)turnSelectedEdges:(id)sender;
 - (IBAction)changeManipulator:(id)sender;

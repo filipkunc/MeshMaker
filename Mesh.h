@@ -80,8 +80,8 @@ enum MeshSelectionMode
 - (void)makeEdges;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;
-- (void)fastCollapseSelectedVertices;
-- (void)collapseSelectedVertices;
+- (void)fastMergeSelectedVertices;
+- (void)mergeSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
 - (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle;

@@ -19,6 +19,6 @@
 
 - (Item *)itemAtIndex:(NSUInteger)index;
 - (void)addItem:(Item *)item;
-- (void)collapseSelectedItems;
+- (void)mergeSelectedItems;
 
 @end

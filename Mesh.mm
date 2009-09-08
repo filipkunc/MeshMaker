@@ -567,9 +567,9 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
-- (void)fastCollapseSelectedVertices
+- (void)fastMergeSelectedVertices
 {
-	NSLog(@"fastCollapseSelectedVertices");
+	NSLog(@"fastMergeSelectedVertices");
 	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
 	
 	NSUInteger selectedCount = 0;
@@ -613,11 +613,11 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self removeSelectedVertices];
 }
 
-- (void)collapseSelectedVertices
+- (void)mergeSelectedVertices
 {
-	NSLog(@"collapseSelectedVertices");
+	NSLog(@"mergeSelectedVertices");
 	
-	[self fastCollapseSelectedVertices];
+	[self fastMergeSelectedVertices];
 	
 	[self removeDegeneratedTriangles];
 	[self removeNonUsedVertices];
