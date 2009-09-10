@@ -332,7 +332,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A78FCC3F10598DD6004DC19E</string>
+										<string>A78E88671059948F0036AC55</string>
 										<key>history</key>
 										<array>
 											<string>A7B486A1101B608A00CC8B5C</string>
@@ -357,7 +357,7 @@
 											<string>A7ADB89810585BAD00E56FFA</string>
 											<string>A7ADB89910585BAD00E56FFA</string>
 											<string>A7ADB89A10585BAD00E56FFA</string>
-											<string>A7ADB8AA10585BAD00E56FFA</string>
+											<string>A78FCC4D10598E94004DC19E</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -422,7 +422,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A78FCC4010598DD6004DC19E</string>
+										<string>A78E88681059948F0036AC55</string>
 										<key>history</key>
 										<array>
 											<string>A7B486A1101B608A00CC8B5C</string>
@@ -435,7 +435,7 @@
 											<string>A7A6D9B7102E0B5A00D7D6C0</string>
 											<string>A7A8E1EC10334F760026E010</string>
 											<string>A7ADB8AB10585BAD00E56FFA</string>
-											<string>A7ADB8AE10585BAD00E56FFA</string>
+											<string>A78FCC4E10598E94004DC19E</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -508,9 +508,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>A78FCC4110598DD6004DC19E</string>
+				<string>A78E88571059907C0036AC55</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>A78FCC4210598DD6004DC19E</string>
+				<string>A78E88581059907C0036AC55</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
@@ -645,7 +645,10 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
+		<string>1CD10A99069EF8BA00B06720</string>
+		<string>A754C4000FF92EA200A48E13</string>
 		<string>/Users/filipkunc/Documents/Programming/GitProjects/OpenGLEditor/OpenGLEditor.xcodeproj</string>
+		<string>1C78EAAD065D492600B07095</string>
 	</array>
 	<key>WindowString</key>
 	<string>0 130 1280 648 0 0 1280 778 </string>
@@ -725,7 +728,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>A754C4000FF92EA200A48E13</string>
-				<string>A7ADB88810584BA200E56FFA</string>
+				<string>A78E885B105990930036AC55</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -845,13 +848,13 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1CD10A99069EF8BA00B06720</string>
-				<string>A7ADB88910584BA200E56FFA</string>
+				<string>A78E885C105990930036AC55</string>
 				<string>1C162984064C10D400B95A72</string>
-				<string>A7ADB88A10584BA200E56FFA</string>
-				<string>A7ADB88B10584BA200E56FFA</string>
-				<string>A7ADB88C10584BA200E56FFA</string>
-				<string>A7ADB88D10584BA200E56FFA</string>
-				<string>A7ADB88E10584BA200E56FFA</string>
+				<string>A78E885D105990930036AC55</string>
+				<string>A78E885E105990930036AC55</string>
+				<string>A78E885F105990930036AC55</string>
+				<string>A78E8860105990930036AC55</string>
+				<string>A78E8861105990930036AC55</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>
@@ -1007,7 +1010,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C78EAAD065D492600B07095</string>
-				<string>A7ADB88F10584BA200E56FFA</string>
+				<string>A78E8862105990930036AC55</string>
 				<string>1C78EAAC065D492600B07095</string>
 			</array>
 			<key>ToolbarConfiguration</key>
@@ -1017,7 +1020,7 @@
 			<key>WindowToolGUID</key>
 			<string>1C78EAAD065D492600B07095</string>
 			<key>WindowToolIsVisible</key>
-			<false/>
+			<true/>
 		</dict>
 		<dict>
 			<key>Identifier</key>
