@@ -900,11 +900,57 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	return selectedIndices->size();	
 }
 
+- (Vector3D)centerOfEdgeAtIndex:(NSUInteger)index
+{
+	Edge edge = [self edgeAtIndex:index];
+
+	Vector3D center = Vector3D();
+	for (NSUInteger i = 0; i < 2; i++)
+		center += [self vertexAtIndex:edge.vertexIndices[i]];
+	
+	return center / 2.0f;
+}
+
+- (Vector3D)centerOfTriangleAtIndex:(NSUInteger)index
+{
+	Triangle triangle = [self triangleAtIndex:index];
+	
+	Vector3D center = Vector3D();
+	for (NSUInteger i = 0; i < 3; i++)
+		center += [self vertexAtIndex:triangle.vertexIndices[i]];
+	
+	return center / 3.0f;
+}
+
+- (void)moveEdgeByOffset:(Vector3D)offset atIndex:(NSUInteger)index
+{
+	Edge edge = [self edgeAtIndex:index];
+	
+	for (NSUInteger i = 0; i < 2; i++)
+		vertices->at(edge.vertexIndices[i]) += offset;
+}
+
+- (void)moveTriangleByOffset:(Vector3D)offset atIndex:(NSUInteger)index
+{
+	Triangle triangle = [self triangleAtIndex:index];
+	
+	for (NSUInteger i = 0; i < 3; i++)
+		vertices->at(triangle.vertexIndices[i]) += offset;
+}
+
 - (Vector3D)positionAtIndex:(NSUInteger)index
 {
-	if (selectionMode == MeshSelectionModeVertices)
-		return vertices->at(index);
-	return Vector3D();
+	switch (selectionMode) 
+	{
+		case MeshSelectionModeVertices:
+			return vertices->at(index);
+		case MeshSelectionModeEdges:
+			return [self centerOfEdgeAtIndex:index];
+		case MeshSelectionModeTriangles:
+			return [self centerOfTriangleAtIndex:index];
+		default:
+			return Vector3D();
+	}
 }
 
 - (Quaternion)rotationAtIndex:(NSUInteger)index
@@ -919,8 +965,17 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index
 {
-	if (selectionMode == MeshSelectionModeVertices)
-		vertices->at(index) = position;
+	switch (selectionMode) 
+	{
+		case MeshSelectionModeVertices:
+			vertices->at(index) = position;
+			break;
+		case MeshSelectionModeEdges:
+		case MeshSelectionModeTriangles:
+			[self moveByOffset:position - [self positionAtIndex:index] atIndex:index];			
+		default:
+			break;
+	}
 }
 
 - (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index {}
@@ -928,8 +983,20 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index
 {
-	if (selectionMode == MeshSelectionModeVertices)
-		vertices->at(index) += offset;
+	switch (selectionMode) 
+	{
+		case MeshSelectionModeVertices:
+			vertices->at(index) += offset;
+			break;
+		case MeshSelectionModeEdges:
+			[self moveEdgeByOffset:offset atIndex:index];
+			break;
+		case MeshSelectionModeTriangles:
+			[self moveTriangleByOffset:offset atIndex:index];
+			break;
+		default:
+			break;
+	}
 }
 
 - (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index {}
