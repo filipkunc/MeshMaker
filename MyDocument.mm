@@ -133,8 +133,7 @@
 	else
 	{
 		Mesh *mesh = (Mesh *)[meshController model];
-		if ([mesh selectionMode] == MeshSelectionModeVertices)
-			[mesh mergeSelectedVertices];
+		[mesh mergeSelected];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -144,8 +143,7 @@
 	if (manipulated == meshController)
 	{
 		Mesh *mesh = (Mesh *)[meshController model];
-		if ([mesh selectionMode] == MeshSelectionModeEdges)
-			[mesh splitSelectedEdges];
+		[mesh splitSelected];
 	}
 	[view setNeedsDisplay:YES];
 }

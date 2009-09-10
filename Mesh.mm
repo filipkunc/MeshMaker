@@ -661,6 +661,57 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
+- (void)splitTriangleAtIndex:(NSUInteger)index
+{
+	NSLog(@"splitTriangleAtIndex:%i", index);
+	
+	Triangle triangle = [self triangleAtIndex:index];
+	Vector3D triangleVertices[3];
+	[self getTriangleVertices:triangleVertices fromTriangle:triangle];
+	
+	Vector3D centerVertex = Vector3D();
+	
+	for (NSUInteger i = 0; i < 3; i++)
+		centerVertex +=	triangleVertices[i];
+	
+	centerVertex /= 3;
+	
+	vertices->push_back(centerVertex);
+	
+	NSUInteger centerVertexIndex = vertices->size() - 1;
+	
+	Vector3D triangleNormal = NormalFromTriangleVertices(triangleVertices);
+		
+	for (NSUInteger i = 0; i < 3; i++)
+	{
+		Triangle newTriangle;
+		
+		if (i == 2)
+		{
+			newTriangle = MakeTriangle(triangle.vertexIndices[2], 
+									   triangle.vertexIndices[0], 
+									   centerVertexIndex);
+		}
+		else
+		{
+			newTriangle = MakeTriangle(triangle.vertexIndices[i], 
+									   triangle.vertexIndices[i + 1], 
+									   centerVertexIndex);
+		}
+		
+		[self getTriangleVertices:triangleVertices fromTriangle:newTriangle];
+		
+		Vector3D newTriangleNormal = NormalFromTriangleVertices(triangleVertices);
+		
+		if (triangleNormal.Dot(newTriangleNormal) < 0)
+			newTriangle = MakeTriangleOpposite(newTriangle);
+		
+		[self addTriangle:newTriangle];
+	}
+	
+	[self removeTriangleAtIndex:index];
+}
+
 - (void)splitEdgeAtIndex:(NSUInteger)index
 {
 	NSLog(@"splitEdgeAtIndex:%i", index);
@@ -723,6 +774,20 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		if ([self isSelectedAtIndex:i])
 		{
 			[self splitEdgeAtIndex:i];
+			i--;
+		}
+	}
+}
+
+- (void)splitSelectedTriangles
+{
+	NSLog(@"splitSelectedTriangles");
+	
+	for (int i = 0; i < selectedIndices->size(); i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			[self splitTriangleAtIndex:i];
 			i--;
 		}
 	}
@@ -798,6 +863,33 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			[self turnEdgeAtIndex:i];
 			//[self setSelected:NO atIndex:i];
 		}
+	}
+}
+
+- (void)mergeSelected
+{
+	switch (selectionMode)
+	{
+		case MeshSelectionModeVertices:
+			[self mergeSelectedVertices];
+			break;
+		default:
+			break;
+	}
+}
+
+- (void)splitSelected
+{
+	switch (selectionMode)
+	{
+		case MeshSelectionModeEdges:
+			[self splitSelectedEdges];
+			break;
+		case MeshSelectionModeTriangles:
+			[self splitSelectedTriangles];
+			break;
+		default:
+			break;
 	}
 }
 
