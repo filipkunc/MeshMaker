@@ -84,6 +84,11 @@
 	[self setSelectionValue:value atIndex:2];
 }
 
+- (void)setNilValueForKey:(NSString *)key
+{
+	[self setValue:[NSNumber numberWithFloat:0.0f] forKey:key];
+}
+
 - (float)selectionValueAtIndex:(NSUInteger)index
 {
 	switch (currentManipulator)

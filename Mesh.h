@@ -41,7 +41,7 @@ enum MeshSelectionMode
 	vector<Vector3D> *vertices;
 	vector<Triangle> *triangles;
 	vector<Edge> *edges;
-	vector<BOOL> *selectedIndices;
+	vector<BOOL> *selected;
 	enum MeshSelectionMode selectionMode;
 }
 
@@ -80,6 +80,7 @@ enum MeshSelectionMode
 - (void)makeEdges;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;
+- (void)fastMergeVertexFirst:(NSUInteger)firstIndex second:(NSUInteger)secondIndex;
 - (void)fastMergeSelectedVertices;
 - (void)mergeSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
@@ -90,6 +91,7 @@ enum MeshSelectionMode
 - (void)splitSelectedEdges;
 - (void)turnEdgeAtIndex:(NSUInteger)index;
 - (void)turnSelectedEdges;
+- (void)mergeVertexPairs;
 - (void)mergeSelected;
 - (void)splitSelected;
 

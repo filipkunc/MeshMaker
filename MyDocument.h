@@ -39,6 +39,9 @@ enum EditMode
 - (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)turnSelectedEdges:(id)sender;
+- (IBAction)mergeVertexPairs:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
+- (IBAction)cloneSelected:(id)sender;
+- (IBAction)deleteSelected:(id)sender;
 
 @end
