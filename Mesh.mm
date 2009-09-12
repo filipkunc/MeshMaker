@@ -118,7 +118,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		vertices = new vector<Vector3D>();
 		triangles = new vector<Triangle>();
 		edges = new vector<Edge>();
-		selectedIndices = new vector<BOOL>();
+		selected = new vector<BOOL>();
 	}
 	return self;
 }
@@ -128,28 +128,28 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	delete vertices;
 	delete triangles;
 	delete edges;
-	delete selectedIndices;
+	delete selected;
 	[super dealloc];
 }
 
 - (void)setSelectionMode:(enum MeshSelectionMode)value
 {
 	selectionMode = value;
-	selectedIndices->clear();
+	selected->clear();
 	switch (selectionMode) 
 	{
 		case MeshSelectionModeVertices:
 		{
 			for (NSUInteger i = 0; i < vertices->size(); i++)
 			{
-				selectedIndices->push_back(NO);
+				selected->push_back(NO);
 			}
 		} break;
 		case MeshSelectionModeTriangles:
 		{
 			for (NSUInteger i = 0; i < triangles->size(); i++)
 			{
-				selectedIndices->push_back(NO);
+				selected->push_back(NO);
 			}
 		} break;
 		case MeshSelectionModeEdges:
@@ -157,7 +157,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			[self makeEdges];
 			for (NSUInteger i = 0; i < edges->size(); i++)
 			{
-				selectedIndices->push_back(NO);
+				selected->push_back(NO);
 			}
 		} break;
 	}
@@ -182,14 +182,14 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	vertices->push_back(aVertex);
 	if (selectionMode == MeshSelectionModeVertices)
-		selectedIndices->push_back(NO);
+		selected->push_back(NO);
 }
 
 - (void)addTriangle:(Triangle)aTriangle
 {
 	triangles->push_back(aTriangle);
 	if (selectionMode == MeshSelectionModeTriangles)
-		selectedIndices->push_back(NO);
+		selected->push_back(NO);
 }
 
 - (void)addTriangleWithIndex1:(NSUInteger)index1
@@ -230,7 +230,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	edges->push_back(edge);
 	
 	if (selectionMode == MeshSelectionModeEdges)
-		selectedIndices->push_back(NO);
+		selected->push_back(NO);
 }
 
 - (void)drawFillWithScale:(Vector3D)scale
@@ -250,7 +250,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	{
 		if (selectionMode == MeshSelectionModeTriangles) 
 		{
-			if (selectedIndices->at(i))
+			if (selected->at(i))
 			{
 				if (lastDiffuse == normalDiffuse)
 				{
@@ -294,9 +294,9 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	glEnable(GL_LIGHTING);
 }
 
-- (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected
+- (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected
 {	
-	if (selected)
+	if (isSelected)
 	{
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(1.0f, 1.0f);
@@ -316,7 +316,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	
 	vertices->clear();
 	triangles->clear();
-	selectedIndices->clear();
+	selected->clear();
 	
 	// back vertices
 	vertices->push_back(Vector3D(-1, -1, -1)); // 0
@@ -357,7 +357,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	
 	vertices->clear();
 	triangles->clear();
-	selectedIndices->clear();
+	selected->clear();
 	
 	vertices->push_back(Vector3D(0, -1, 0)); // 0
  	vertices->push_back(Vector3D(0,  1, 0)); // 1
@@ -492,21 +492,21 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 	vertices->erase(vertices->begin() + index);
 	if (selectionMode == MeshSelectionModeVertices)
-		selectedIndices->erase(selectedIndices->begin() + index);
+		selected->erase(selected->begin() + index);
 }
 
 - (void)removeTriangleAtIndex:(NSUInteger)index
 {
 	triangles->erase(triangles->begin() + index);
 	if (selectionMode == MeshSelectionModeTriangles)
-		selectedIndices->erase(selectedIndices->begin() + index);
+		selected->erase(selected->begin() + index);
 }
 
 - (void)removeEdgeAtIndex:(NSUInteger)index
 {
 	edges->erase(edges->begin() + index);
 	if (selectionMode == MeshSelectionModeEdges)
-		selectedIndices->erase(selectedIndices->begin() + index);
+		selected->erase(selected->begin() + index);
 }
 
 - (void)removeDegeneratedTriangles
@@ -555,11 +555,11 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	NSLog(@"removeSelectedVertices");
 	
-	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
+	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (int i = 0; i < selected->size(); i++)
 	{
-		if (selectedIndices->at(i))
+		if (selected->at(i))
 		{
 			[self removeVertexAtIndex:i];
 			i--;
@@ -567,17 +567,59 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
+- (void)fastMergeVertexFirst:(NSUInteger)firstIndex second:(NSUInteger)secondIndex
+{
+	NSLog(@"fastMergeVertexFirst:%i second:%i", firstIndex, secondIndex);
+	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
+	
+	Vector3D first = [self vertexAtIndex:firstIndex];
+	Vector3D second = [self vertexAtIndex:secondIndex];
+	Vector3D center = first + second;
+	center /= 2;
+	
+	vertices->push_back(center);
+	selected->push_back(NO);
+	
+	NSUInteger centerIndex = vertices->size() - 1;
+	
+	for (NSUInteger i = 0; i < triangles->size(); i++)
+	{
+		for (NSUInteger j = 0; j < 3; j++)
+		{
+			if (triangles->at(i).vertexIndices[j] == firstIndex ||
+				triangles->at(i).vertexIndices[j] == secondIndex)
+			{
+				triangles->at(i).vertexIndices[j] = centerIndex;
+			}
+		}
+	}
+	
+	// erasing should happen from the back of STL vector 
+	if (firstIndex > secondIndex)
+	{
+		[self removeVertexAtIndex:firstIndex];
+		[self removeVertexAtIndex:secondIndex];
+	}
+	else
+	{
+		[self removeVertexAtIndex:secondIndex];
+		[self removeVertexAtIndex:firstIndex];
+	}
+	
+	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
+}
+
 - (void)fastMergeSelectedVertices
 {
 	NSLog(@"fastMergeSelectedVertices");
-	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
+	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 	
 	NSUInteger selectedCount = 0;
 	Vector3D center = Vector3D();
 	
-	for (NSUInteger i = 0; i < selectedIndices->size(); i++)
+	for (NSUInteger i = 0; i < selected->size(); i++)
 	{
-		if (selectedIndices->at(i))
+		if (selected->at(i))
 		{
 			selectedCount++;
 			center += vertices->at(i);
@@ -591,13 +633,13 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	
 	center /= selectedCount;
 	vertices->push_back(center);
-	selectedIndices->push_back(NO);
+	selected->push_back(NO);
 	
 	NSUInteger centerIndex = vertices->size() - 1;
 	
-	for (NSUInteger i = 0; i < selectedIndices->size(); i++)
+	for (NSUInteger i = 0; i < selected->size(); i++)
 	{
-		if (selectedIndices->at(i))
+		if (selected->at(i))
 		{
 			for (NSUInteger j = 0; j < triangles->size(); j++)
 			{
@@ -622,7 +664,48 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self removeDegeneratedTriangles];
 	[self removeNonUsedVertices];
 	
-	NSAssert(vertices->size() == selectedIndices->size(), @"vertices->size() == selectedIndices->size()");
+	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
+}
+
+- (void)mergeVertexPairs
+{
+	NSLog(@"mergeVertexPairs");
+	
+	for (int i = 0; i < selected->size(); i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			Vector3D firstVertex = [self vertexAtIndex:i];
+			float smallestDistance = 10.0f; // maximum distance between vertices in pair
+			int secondIndex = -1;
+			for (int j = i + 1; j < selected->size(); j++)
+			{
+				if ([self isSelectedAtIndex:j])
+				{
+					Vector3D secondVertex = [self vertexAtIndex:j];
+					float currentDistance = firstVertex.Distance(secondVertex);
+					if (currentDistance < smallestDistance)
+					{
+						secondIndex = j;
+						smallestDistance = currentDistance;
+					}
+				}
+			}
+			
+			if (secondIndex > -1)
+			{
+				[self fastMergeVertexFirst:i second:secondIndex];
+				i--;
+			}
+		}
+	}
+		
+	[self removeDegeneratedTriangles];
+	
+	[self removeDegeneratedTriangles];
+	[self removeNonUsedVertices];
+	
+	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 }
 
 - (void)transformWithMatrix:(Matrix4x4)matrix
@@ -648,9 +731,9 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		triangle.vertexIndices[2] += vertexCount;
 		triangles->push_back(triangle);
 	}
-	selectedIndices->clear();
+	selected->clear();
 	for (NSUInteger i = 0; i < vertices->size(); i++)
-		selectedIndices->push_back(NO);
+		selected->push_back(NO);
 }
 
 - (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle
@@ -769,7 +852,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	NSLog(@"splitSelectedEdges");
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (int i = 0; i < selected->size(); i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
@@ -783,7 +866,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	NSLog(@"splitSelectedTriangles");
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (int i = 0; i < selected->size(); i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
@@ -833,7 +916,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 					[self getTriangleVertices:triangleVertices fromTriangle:newTriangle];
 					Vector3D newTriangleNormal = NormalFromTriangleVertices(triangleVertices);
 					
-					
+					// two dot products, it is working, but not in all cases
 					if (newTriangleNormal.Dot(oldTriangleNormal1) < 0.0f ||
 						newTriangleNormal.Dot(oldTriangleNormal2) < 0.0f)
 					{
@@ -856,11 +939,13 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	NSLog(@"turnSelectedEdges");
 	
-	for (int i = 0; i < selectedIndices->size(); i++)
+	for (int i = 0; i < selected->size(); i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
 			[self turnEdgeAtIndex:i];
+			
+			// uncomment this line to deselect after edge turn
 			//[self setSelected:NO atIndex:i];
 		}
 	}
@@ -868,6 +953,8 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (void)mergeSelected
 {
+	NSLog(@"mergeSelected");
+	
 	switch (selectionMode)
 	{
 		case MeshSelectionModeVertices:
@@ -880,6 +967,8 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (void)splitSelected
 {
+	NSLog(@"splitSelected");
+	
 	switch (selectionMode)
 	{
 		case MeshSelectionModeEdges:
@@ -897,7 +986,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (NSUInteger)count
 {
-	return selectedIndices->size();	
+	return selected->size();	
 }
 
 - (Vector3D)centerOfEdgeAtIndex:(NSUInteger)index
@@ -1004,12 +1093,12 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (BOOL)isSelectedAtIndex:(NSUInteger)index
 {
-	return selectedIndices->at(index);
+	return selected->at(index);
 }
 
-- (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index 
+- (void)setSelected:(BOOL)isSelected atIndex:(NSUInteger)index 
 {
-	selectedIndices->at(index) = selected;
+	selected->at(index) = isSelected;
 }
 
 - (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection
@@ -1021,9 +1110,9 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			Vector3D v = [self vertexAtIndex:index];
 			if (!forSelection)
 			{
-				BOOL selected = [self isSelectedAtIndex:index];
+				BOOL isSelected = [self isSelectedAtIndex:index];
 				glPointSize(5.0f);
-				if (selected)
+				if (isSelected)
 					glColor3f(1, 0, 0);
 				else
 					glColor3f(0, 0, 1);
@@ -1052,8 +1141,8 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			Edge currentEdge = [self edgeAtIndex:index];
 			if (!forSelection)
 			{
-				BOOL selected = [self isSelectedAtIndex:index];
-				if (selected)
+				BOOL isSelected = [self isSelectedAtIndex:index];
+				if (isSelected)
 					glColor3f(1, 0, 0);
 				else
 					glColor3f(1, 1, 1);

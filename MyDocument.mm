@@ -68,7 +68,7 @@
 - (IBAction)addCylinder:(id)sender
 {
 	Item *cylinder = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	[[cylinder mesh] makeCylinderWithSteps:10];
+	[[cylinder mesh] makeCylinderWithSteps:30];
 	NSLog(@"cylinder vertexCount = %i",[[cylinder mesh] vertexCount]);
 	NSLog(@"cylinder triangleCount = %i",[[cylinder mesh] triangleCount]);
 	[items addItem:cylinder];
@@ -148,6 +148,18 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (IBAction)cloneSelected:(id)sender
+{
+	[manipulated cloneSelected];
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)deleteSelected:(id)sender
+{
+	[manipulated removeSelected];
+	[view setNeedsDisplay:YES];
+}
+
 - (IBAction)turnSelectedEdges:(id)sender
 {
 	if (manipulated == meshController)
@@ -155,6 +167,17 @@
 		Mesh *mesh = (Mesh *)[meshController model];
 		if ([mesh selectionMode] == MeshSelectionModeEdges)
 			[mesh turnSelectedEdges];
+	}
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)mergeVertexPairs:(id)sender
+{
+	if (manipulated == meshController)
+	{
+		Mesh *mesh = (Mesh *)[meshController model];
+		if ([mesh selectionMode] == MeshSelectionModeVertices)
+			[mesh mergeVertexPairs];
 	}
 	[view setNeedsDisplay:YES];
 }
