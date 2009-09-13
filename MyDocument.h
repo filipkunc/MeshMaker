@@ -10,6 +10,7 @@
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
+#import "AddCylinderSheetController.h"
 
 enum EditMode
 {
@@ -19,7 +20,7 @@ enum EditMode
 	EditModeEdges = 3
 };
 
-@interface MyDocument : NSDocument
+@interface MyDocument : NSDocument <AddCylinderProtocol>
 {
 	ItemCollection *items;
 	OpenGLManipulatingController *itemsController;
@@ -27,12 +28,14 @@ enum EditMode
 	id<OpenGLManipulating> manipulated;
 	IBOutlet OpenGLSceneView *view;
 	IBOutlet NSPopUpButton *editModePopUp;
+	IBOutlet AddCylinderSheetController *addCylinderSheetController;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
 - (IBAction)addCube:(id)sender;
 - (IBAction)addCylinder:(id)sender;
+- (void)addCylinderWithSteps:(NSUInteger)steps;
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
 - (IBAction)changeEditMode:(id)sender;

@@ -67,8 +67,14 @@
 
 - (IBAction)addCylinder:(id)sender
 {
+	[addCylinderSheetController beginSheetWithProtocol:self];
+}
+
+- (void)addCylinderWithSteps:(NSUInteger)steps
+{
 	Item *cylinder = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	[[cylinder mesh] makeCylinderWithSteps:30];
+	
+	[[cylinder mesh] makeCylinderWithSteps:steps];
 	NSLog(@"cylinder vertexCount = %i",[[cylinder mesh] vertexCount]);
 	NSLog(@"cylinder triangleCount = %i",[[cylinder mesh] triangleCount]);
 	[items addItem:cylinder];
