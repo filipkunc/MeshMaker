@@ -33,9 +33,11 @@ enum EditMode
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
+- (void)addItem:(Item *)item;
 - (IBAction)addCube:(id)sender;
 - (IBAction)addCylinder:(id)sender;
 - (void)addCylinderWithSteps:(NSUInteger)steps;
+- (IBAction)addSphere:(id)sender;
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
 - (IBAction)changeEditMode:(id)sender;
@@ -46,5 +48,7 @@ enum EditMode
 - (IBAction)changeManipulator:(id)sender;
 - (IBAction)cloneSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
+- (IBAction)selectAll:(id)sender;
+- (IBAction)invertSelection:(id)sender;
 
 @end

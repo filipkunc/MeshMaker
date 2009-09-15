@@ -55,14 +55,22 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (void)addItem:(Item *)item
+{
+	NSLog(@"item vertexCount = %i", [[item mesh] vertexCount]);
+	NSLog(@"item triangleCount = %i", [[item mesh] triangleCount]);
+	[items addItem:item];
+	[itemsController changeSelection:NO];
+	[items setSelected:YES atIndex:[items count] - 1];
+	[itemsController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
 - (IBAction)addCube:(id)sender
 {
-	Item *cube = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
+	Item *cube = [[Item alloc] init];
 	[[cube mesh] makeCube];
-	NSLog(@"cube vertexCount = %i",[[cube mesh] vertexCount]);
-	NSLog(@"cube triangleCount = %i",[[cube mesh] triangleCount]);
-	[items addItem:cube];
-	[view setNeedsDisplay:YES];
+	[self addItem:cube];
 }
 
 - (IBAction)addCylinder:(id)sender
@@ -72,13 +80,16 @@
 
 - (void)addCylinderWithSteps:(NSUInteger)steps
 {
-	Item *cylinder = [[Item alloc] initWithPosition:Vector3D() rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	
+	Item *cylinder = [[Item alloc] init];
 	[[cylinder mesh] makeCylinderWithSteps:steps];
-	NSLog(@"cylinder vertexCount = %i",[[cylinder mesh] vertexCount]);
-	NSLog(@"cylinder triangleCount = %i",[[cylinder mesh] triangleCount]);
-	[items addItem:cylinder];
-	[view setNeedsDisplay:YES];
+	[self addItem:cylinder];
+}
+
+- (IBAction)addSphere:(id)sender
+{
+	Item *sphere = [[Item alloc] init];
+	[[sphere mesh] makeSphere];
+	[self addItem:sphere];
 }
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode
@@ -193,6 +204,18 @@
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
 	[[self manipulated] setCurrentManipulator:newManipulator];
 	[view setCurrentManipulator:newManipulator];
+}
+
+- (IBAction)selectAll:(id)sender
+{
+	[[self manipulated] changeSelection:YES];
+	[view setNeedsDisplay:YES];
+}
+
+- (IBAction)invertSelection:(id)sender
+{
+	[[self manipulated] invertSelection];
+	[view setNeedsDisplay:YES];
 }
 
 - (NSString *)windowNibName
