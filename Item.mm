@@ -50,7 +50,7 @@
 	{
 		position = new Vector3D();
 		rotation = new Quaternion();
-		scale = new Vector3D();
+		scale = new Vector3D(1, 1, 1);
 		mesh = [[Mesh alloc] init];
 		selected = NO;
 	}

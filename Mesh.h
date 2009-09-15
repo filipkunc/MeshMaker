@@ -61,6 +61,7 @@ enum MeshSelectionMode
 - (void)addTriangleWithIndex1:(NSUInteger)index1
 					   index2:(NSUInteger)index2
 					   index3:(NSUInteger)index3;
+
 - (void)addQuadWithIndex1:(NSUInteger)index1
 				   index2:(NSUInteger)index2
 				   index3:(NSUInteger)index3 
@@ -77,6 +78,7 @@ enum MeshSelectionMode
 - (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected;
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(NSUInteger)steps;
+- (void)makeSphere;
 - (void)makeEdges;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;

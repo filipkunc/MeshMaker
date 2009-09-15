@@ -356,7 +356,7 @@ const float maxDistance = 1000.0f;
 }
 
 - (void)scrollWheel:(NSEvent *)e
-{
+{	
 	float zoom = [e deltaY];
 	float sensitivity = camera->GetZoom() * 0.02f;
 	
@@ -451,11 +451,11 @@ const float maxDistance = 1000.0f;
 	
 	int objectsFound = 0;
     int viewport[4];
-	unsigned int selectBuffer[16535];
+	unsigned int selectBuffer[1024 * 1024];
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glSelectBuffer(16535, selectBuffer);
+	glSelectBuffer(1024 * 1024, selectBuffer);
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();

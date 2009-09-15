@@ -427,6 +427,60 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self setSelectionMode:[self selectionMode]];
 }
 
+- (void)makeSphere
+{
+	NSLog(@"makeSphere");
+	
+	vertices->clear();
+	triangles->clear();
+	selected->clear();
+		
+	float step = FLOAT_PI * 0.1f;
+		
+	for (float alpha = 0.5f * FLOAT_PI; alpha < 1.5f * FLOAT_PI; alpha += step)
+	{
+		float y0 = sinf(alpha);
+		float y1 = sinf(alpha + step);
+		float w0 = cosf(alpha);                
+		float w1 = cosf(alpha + step);
+		
+		float x0 = 0.0f, x1 = 0.0f, z0 = 0.0f, z1 = 0.0f;
+		
+		float beta = 0.0f;
+		
+		x0 = sinf(beta) * w0;
+		x1 = sinf(beta) * w1;
+		z0 = cosf(beta) * w0;
+		z1 = cosf(beta) * w1;
+		
+		vertices->push_back(Vector3D(x0, y0, z0)); // index
+		vertices->push_back(Vector3D(x1, y1, z1)); // index + 1
+		
+		for (beta = step; beta < 2.0f * FLOAT_PI + step; beta += step)
+		{
+			x0 = sinf(beta) * w0;
+			x1 = sinf(beta) * w1;
+			z0 = cosf(beta) * w0;
+			z1 = cosf(beta) * w1;
+			
+			vertices->push_back(Vector3D(x0, y0, z0)); // index
+			vertices->push_back(Vector3D(x1, y1, z1)); // index + 1
+			
+			int index = vertices->size() - 1;
+			
+			if (index >= 0)
+			{
+				[self addQuadWithIndex1:index - 2
+								 index2:index - 3
+								 index3:index - 1
+								 index4:index];
+			}
+		}
+	}
+	
+	[self setSelectionMode:[self selectionMode]];
+}
+
 - (void)makeEdges
 {
 	edges->clear();
