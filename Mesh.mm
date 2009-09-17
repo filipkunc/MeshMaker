@@ -435,49 +435,70 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	triangles->clear();
 	selected->clear();
 		
-	float step = FLOAT_PI * 0.1f;
-		
-	for (float alpha = 0.5f * FLOAT_PI; alpha < 1.5f * FLOAT_PI; alpha += step)
+	int max = 40;
+	
+	vertices->push_back(Vector3D(0, 1, 0));
+	vertices->push_back(Vector3D(0, -1, 0));
+	
+	float step = FLOAT_PI / max;
+	
+	for (NSUInteger i = 0; i < 2 * max; i++)
 	{
-		float y0 = sinf(alpha);
-		float y1 = sinf(alpha + step);
-		float w0 = cosf(alpha);                
-		float w1 = cosf(alpha + step);
+		float beta = i * step;
 		
-		float x0 = 0.0f, x1 = 0.0f, z0 = 0.0f, z1 = 0.0f;
-		
-		float beta = 0.0f;
-		
-		x0 = sinf(beta) * w0;
-		x1 = sinf(beta) * w1;
-		z0 = cosf(beta) * w0;
-		z1 = cosf(beta) * w1;
-		
-		vertices->push_back(Vector3D(x0, y0, z0)); // index
-		vertices->push_back(Vector3D(x1, y1, z1)); // index + 1
-		
-		for (beta = step; beta < 2.0f * FLOAT_PI + step; beta += step)
+		for (NSUInteger j = 1; j < max; j++)
 		{
-			x0 = sinf(beta) * w0;
-			x1 = sinf(beta) * w1;
-			z0 = cosf(beta) * w0;
-			z1 = cosf(beta) * w1;
-			
-			vertices->push_back(Vector3D(x0, y0, z0)); // index
-			vertices->push_back(Vector3D(x1, y1, z1)); // index + 1
-			
-			int index = vertices->size() - 1;
-			
-			if (index >= 0)
+			float alpha = 0.5f * FLOAT_PI + j * step;
+			float y0 = sinf(alpha);
+			float w0 = cosf(alpha);                
+	
+			float x0 = sinf(beta) * w0;
+			float z0 = cosf(beta) * w0;
+						
+			vertices->push_back(Vector3D(x0, y0, z0));
+						
+			if (i > 0 && j < max - 1)
 			{
-				[self addQuadWithIndex1:index - 2
-								 index2:index - 3
-								 index3:index - 1
-								 index4:index];
+				int index = (i - 1) * (max - 1);
+				[self addQuadWithIndex1:1 + max + j + index
+								 index2:2 + j + index
+								 index3:1 + j + index
+								 index4:max + j + index];
 			}
+		}
+		
+		int index = i * (max - 1);
+		if (i < 2 * max - 1)
+		{
+			[self addTriangleWithIndex1:0
+								 index2:2 + index + max - 1
+								 index3:2 + index];
+			
+			[self addTriangleWithIndex1:1
+								 index2:index + max
+								 index3:index + 2 * max - 1];
+		}
+		else 
+		{
+			[self addTriangleWithIndex1:0
+								 index2:2
+								 index3:2 + index];
+			
+			[self addTriangleWithIndex1:1
+								 index2:index + max
+								 index3:max];
 		}
 	}
 	
+	for (NSUInteger j = 1; j < max - 1; j++)
+	{
+		int index = (2 * max - 1) * (max - 1);
+		[self addQuadWithIndex1:1 + j + index
+						 index2:1 + j
+						 index3:2 + j
+						 index4:2 + j + index];
+	}
+		
 	[self setSelectionMode:[self selectionMode]];
 }
 
@@ -1220,7 +1241,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	if (selectionMode == MeshSelectionModeTriangles)
 	{
 		[self removeTriangleAtIndex:index];
-		[self removeNonUsedVertices];
+		[self removeNonUsedVertices]; // need fix this, incredibly slow
 	}
 }
 
