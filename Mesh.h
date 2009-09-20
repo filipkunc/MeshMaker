@@ -78,7 +78,7 @@ enum MeshSelectionMode
 - (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected;
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(NSUInteger)steps;
-- (void)makeSphere;
+- (void)makeSphereWithSteps:(NSUInteger)steps;
 - (void)makeEdges;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;

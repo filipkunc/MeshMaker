@@ -1,6 +1,6 @@
-#import "AddCylinderSheetController.h"
+#import "AddItemWithStepsSheetController.h"
 
-@implementation AddCylinderSheetController
+@implementation AddItemWithStepsSheetController
 
 @synthesize steps;
 
@@ -14,14 +14,14 @@
 	return self;
 }
 
-- (void)beginSheetWithProtocol:(id<AddCylinderProtocol>)addCylinderProtocol
+- (void)beginSheetWithProtocol:(id<AddItemWithStepsProtocol>)addItemWithSteps
 {
-	documentProtocol = addCylinderProtocol;
+	documentProtocol = addItemWithSteps;
 	
 	if (sheet == nil) 
 	{
         NSBundle *myBundle = [NSBundle bundleForClass:[self class]];
-        NSNib *nib = [[NSNib alloc] initWithNibNamed:@"AddCylinderSheet" bundle:myBundle];
+        NSNib *nib = [[NSNib alloc] initWithNibNamed:@"AddItemWithStepsSheet" bundle:myBundle];
 		
         BOOL success = [nib instantiateNibWithOwner:self topLevelObjects:nil];
         if (success != YES) 
@@ -39,9 +39,9 @@
 		  contextInfo:NULL];
 }
 
-- (IBAction)addCylinder:(id)sender
+- (IBAction)addItem:(id)sender
 {
-	[documentProtocol addCylinderWithSteps:steps];
+	[documentProtocol addItemWithSteps:steps];
 	[NSApp endSheet:sheet];
 }
 
