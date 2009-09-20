@@ -427,15 +427,15 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self setSelectionMode:[self selectionMode]];
 }
 
-- (void)makeSphere
+- (void)makeSphereWithSteps:(NSUInteger)steps
 {
-	NSLog(@"makeSphere");
+	NSLog(@"makeSphereWithSteps:%i", steps);
 	
 	vertices->clear();
 	triangles->clear();
 	selected->clear();
 		
-	int max = 40;
+	NSUInteger max = steps;
 	
 	vertices->push_back(Vector3D(0, 1, 0));
 	vertices->push_back(Vector3D(0, -1, 0));

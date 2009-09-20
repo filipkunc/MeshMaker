@@ -75,21 +75,31 @@
 
 - (IBAction)addCylinder:(id)sender
 {
-	[addCylinderSheetController beginSheetWithProtocol:self];
-}
-
-- (void)addCylinderWithSteps:(NSUInteger)steps
-{
-	Item *cylinder = [[Item alloc] init];
-	[[cylinder mesh] makeCylinderWithSteps:steps];
-	[self addItem:cylinder];
+	itemWithSteps = ItemWithStepsCylinder;
+	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
 - (IBAction)addSphere:(id)sender
 {
-	Item *sphere = [[Item alloc] init];
-	[[sphere mesh] makeSphere];
-	[self addItem:sphere];
+	itemWithSteps = ItemWithStepsSphere;
+	[addItemWithStepsSheetController beginSheetWithProtocol:self];
+}
+
+- (void)addItemWithSteps:(NSUInteger)steps
+{
+	Item *item = [[Item alloc] init];
+	switch (itemWithSteps)
+	{
+		case ItemWithStepsCylinder:
+			[[item mesh] makeCylinderWithSteps:steps];
+			break;
+		case ItemWithStepsSphere:
+			[[item mesh] makeSphereWithSteps:steps];
+			break;
+		default:
+			break;
+	}
+	[self addItem:item];
 }
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode

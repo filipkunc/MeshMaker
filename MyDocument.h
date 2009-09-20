@@ -10,7 +10,7 @@
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
-#import "AddCylinderSheetController.h"
+#import "AddItemWithStepsSheetController.h"
 
 enum EditMode
 {
@@ -20,7 +20,13 @@ enum EditMode
 	EditModeEdges = 3
 };
 
-@interface MyDocument : NSDocument <AddCylinderProtocol>
+enum ItemWithSteps
+{
+	ItemWithStepsCylinder = 0,
+	ItemWithStepsSphere = 1
+};
+
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol>
 {
 	ItemCollection *items;
 	OpenGLManipulatingController *itemsController;
@@ -28,7 +34,8 @@ enum EditMode
 	id<OpenGLManipulating> manipulated;
 	IBOutlet OpenGLSceneView *view;
 	IBOutlet NSPopUpButton *editModePopUp;
-	IBOutlet AddCylinderSheetController *addCylinderSheetController;
+	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
+	enum ItemWithSteps itemWithSteps;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -36,7 +43,6 @@ enum EditMode
 - (void)addItem:(Item *)item;
 - (IBAction)addCube:(id)sender;
 - (IBAction)addCylinder:(id)sender;
-- (void)addCylinderWithSteps:(NSUInteger)steps;
 - (IBAction)addSphere:(id)sender;
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
