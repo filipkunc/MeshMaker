@@ -13,6 +13,17 @@
 #import "Manipulator.h"
 #import "OpenGLManipulating.h"
 
+enum CameraMode
+{
+	CameraModePerspective = 0,
+	CameraModeLeft = 1,
+	CameraModeRight = 2,
+	CameraModeTop = 3,
+	CameraModeBottom = 4,
+	CameraModeFront = 5,
+	CameraModeBack = 6
+};
+
 @interface OpenGLSceneView : NSOpenGLView 
 {
 	id<OpenGLManipulating> displayed;
@@ -29,16 +40,20 @@
 	Manipulator *rotationManipulator;
 	Manipulator *scaleManipulator;
 	Manipulator *currentManipulator;
+	
+	enum CameraMode cameraMode;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> displayed;
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
+@property (readwrite, assign) enum CameraMode cameraMode;
 
 - (void)drawGridWithSize:(int)size step:(int)step;
 - (NSRect)currentRect;
 - (void)beginOrtho;
 - (void)endOrtho;
+- (void)applyProjectionWithRect:(NSRect)baseRect;
 
 - (void)selectWithX:(double)x 
 				  y:(double)y

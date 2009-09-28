@@ -150,6 +150,12 @@
 	}
 }
 
+- (IBAction)changeCameraMode:(id)sender
+{
+	CameraMode mode = (CameraMode)[[cameraModePopUp selectedItem] tag];
+	[view setCameraMode:mode];
+}
+
 - (IBAction)mergeSelected:(id)sender
 {
 	if (manipulated == itemsController)

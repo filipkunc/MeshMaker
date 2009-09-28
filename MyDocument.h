@@ -34,6 +34,7 @@ enum ItemWithSteps
 	id<OpenGLManipulating> manipulated;
 	IBOutlet OpenGLSceneView *view;
 	IBOutlet NSPopUpButton *editModePopUp;
+	IBOutlet NSPopUpButton *cameraModePopUp;
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum ItemWithSteps itemWithSteps;
 }
@@ -47,6 +48,7 @@ enum ItemWithSteps
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
 - (IBAction)changeEditMode:(id)sender;
+- (IBAction)changeCameraMode:(id)sender;
 - (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)turnSelectedEdges:(id)sender;
