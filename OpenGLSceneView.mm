@@ -52,9 +52,9 @@ const float maxDistance = 1000.0f;
 		isSelecting = NO;
 		
 		camera = new Camera();
-		camera->SetRadX(-45.0f);
-		camera->SetRadY(45.0f);
-		camera->SetZoom(20.0f);
+		camera->SetRadX(-45.0f * DEG_TO_RAD);
+		camera->SetRadY(45.0f * DEG_TO_RAD);
+		camera->SetZoom(200.0f);
 		
 		lastPoint = NSMakePoint(0, 0);
 		
@@ -122,6 +122,17 @@ const float maxDistance = 1000.0f;
 	[self setNeedsDisplay:YES];
 }
 
+- (enum CameraMode)cameraMode
+{
+	return cameraMode;
+}
+
+- (void)setCameraMode:(enum CameraMode)value
+{
+	cameraMode = value;
+	[self setNeedsDisplay:YES];
+}
+
 - (void)dealloc
 {
 	delete selectionOffset;
@@ -140,7 +151,28 @@ const float maxDistance = 1000.0f;
 	glViewport(0, 0, baseRect.size.width, baseRect.size.height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(perspectiveAngle, baseRect.size.width / baseRect.size.height, minDistance, maxDistance);
+	
+	[self applyProjectionWithRect:baseRect];
+}
+
+- (void)applyProjectionWithRect:(NSRect)baseRect
+{
+	float w_h = baseRect.size.width / baseRect.size.height;
+		
+	if (cameraMode != CameraModePerspective)
+	{
+		float x = camera->GetZoom() * w_h;
+		float y = camera->GetZoom(); 
+		
+		x /= 2.0f;
+		y /= 2.0f;
+		
+		glOrtho(-x, x, -y, y, minDistance, maxDistance);
+	}
+	else 
+	{
+		gluPerspective(perspectiveAngle, w_h, minDistance, maxDistance);
+	}
 }
 
 - (void)drawGridWithSize:(int)size step:(int)step
@@ -164,6 +196,8 @@ const float maxDistance = 1000.0f;
 	// Clear the background
 	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	[self reshape];
 	
 	// Set the viewpoint
 	glMatrixMode(GL_MODELVIEW);
@@ -463,7 +497,7 @@ const float maxDistance = 1000.0f;
     glLoadIdentity();
     gluPickMatrix(x, y, width, height, viewport);
 	NSRect baseRect = [self convertRectToBase:[self bounds]];
-	gluPerspective(perspectiveAngle, baseRect.size.width / baseRect.size.height, minDistance, maxDistance);
+	[self applyProjectionWithRect:baseRect];
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(camera->GetViewMatrix());
     glInitNames();
