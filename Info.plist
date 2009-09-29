@@ -9,7 +9,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>????</string>
+				<string>model3D</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string></string>

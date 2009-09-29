@@ -119,6 +119,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		triangles = new vector<Triangle>();
 		edges = new vector<Edge>();
 		selected = new vector<BOOL>();
+		selectionMode = MeshSelectionModeVertices;
 	}
 	return self;
 }
@@ -1243,6 +1244,46 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		[self removeTriangleAtIndex:index];
 		[self removeNonUsedVertices]; // need fix this, incredibly slow
 	}
+}
+
+#pragma mark NSCoding implementation
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	self = [super init];
+
+	if (self)
+	{
+		vertices = new vector<Vector3D>();
+		triangles = new vector<Triangle>();
+		edges = new vector<Edge>();
+		selected = new vector<BOOL>();
+		selectionMode = MeshSelectionModeVertices;
+		
+		NSUInteger tempLength = 0;
+		
+		const Vector3D *tempVertices = (const Vector3D *)[aDecoder decodeBytesForKey:@"vertices"
+																	  returnedLength:&tempLength];
+		tempLength /= sizeof(Vector3D);
+		
+		for (NSUInteger i = 0; i < tempLength; i++)
+			vertices->push_back(tempVertices[i]);
+		
+		const Triangle *tempTriangles = (const Triangle *)[aDecoder decodeBytesForKey:@"triangles"
+																	   returnedLength:&tempLength];
+		tempLength /= sizeof(Triangle);
+		
+		for (NSUInteger i = 0; i < tempLength; i++)
+			triangles->push_back(tempTriangles[i]);
+	}
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+	// problem with zero size, should be handled in code for Item
+	[aCoder encodeBytes:(uint8_t *)&vertices->at(0) length:vertices->size() * sizeof(Vector3D) forKey:@"vertices"];
+	[aCoder encodeBytes:(uint8_t *)&triangles->at(0) length:triangles->size() * sizeof(Triangle) forKey:@"triangles"];
 }
 
 @end
