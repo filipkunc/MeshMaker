@@ -71,6 +71,17 @@ void Camera::SetRadZ(float value)
 	radians.z = value;
 	ComputeVectors();
 }
+
+Vector3D Camera::GetRadians() const
+{
+	return radians;
+}
+
+void Camera::SetRadians(const Vector3D & newRadians)
+{
+	radians = newRadians;
+	ComputeVectors();
+}
 	
 float Camera::GetZoom() const
 {

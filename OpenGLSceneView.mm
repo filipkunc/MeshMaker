@@ -54,7 +54,9 @@ const float maxDistance = 1000.0f;
 		camera = new Camera();
 		camera->SetRadX(-45.0f * DEG_TO_RAD);
 		camera->SetRadY(45.0f * DEG_TO_RAD);
-		camera->SetZoom(200.0f);
+		camera->SetZoom(20.0f);
+		
+		perspectiveRadians = new Vector3D(camera->GetRadians());
 		
 		lastPoint = NSMakePoint(0, 0);
 		
@@ -128,13 +130,44 @@ const float maxDistance = 1000.0f;
 }
 
 - (void)setCameraMode:(enum CameraMode)value
-{
+{	
+	if (cameraMode == CameraModePerspective)
+	{
+		*perspectiveRadians = camera->GetRadians();
+	}
 	cameraMode = value;
+	switch (cameraMode)
+	{
+		case CameraModePerspective:
+			camera->SetRadians(*perspectiveRadians);
+			break;
+		case CameraModeTop:
+			camera->SetRadians(Vector3D(-90.0f * DEG_TO_RAD, 0, 0));
+			break;
+		case CameraModeBottom:
+			camera->SetRadians(Vector3D(90.0f * DEG_TO_RAD, 0, 0));
+			break;
+		case CameraModeLeft:
+			camera->SetRadians(Vector3D(0, -90.0f * DEG_TO_RAD, 0));
+			break;
+		case CameraModeRight:
+			camera->SetRadians(Vector3D(0, 90.0f * DEG_TO_RAD, 0));
+			break;
+		case CameraModeFront:
+			camera->SetRadians(Vector3D(0, 0, 0));
+			break;
+		case CameraModeBack:
+			camera->SetRadians(Vector3D(0, 180.0f * DEG_TO_RAD, 0));
+			break;
+		default:
+			break;
+	}
 	[self setNeedsDisplay:YES];
 }
 
 - (void)dealloc
 {
+	delete perspectiveRadians;
 	delete selectionOffset;
 	delete camera;
 	[defaultManipulator release];
