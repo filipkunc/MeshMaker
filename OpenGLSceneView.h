@@ -31,6 +31,7 @@ enum CameraMode
 	
 	Vector3D *selectionOffset;
 	Camera *camera;
+	Vector3D *perspectiveRadians;
 	NSPoint lastPoint;
 	NSPoint currentPoint;
 	BOOL isManipulating;

@@ -28,6 +28,8 @@ public:
 	void SetRadY(float value);
 	float GetRadZ() const;
 	void SetRadZ(float value);
+	Vector3D GetRadians() const;
+	void SetRadians(const Vector3D & newRadians);
 	float GetZoom() const;
 	void SetZoom(float value);
 	Vector3D GetCenter() const;
