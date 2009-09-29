@@ -21,6 +21,21 @@
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	self = [super init];
+	if (self)
+	{
+		items = [[aDecoder decodeObjectForKey:@"items"] retain];
+	}
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+	[aCoder encodeObject:items forKey:@"items"];
+}
+
 - (void)dealloc
 {
 	[items release];

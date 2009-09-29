@@ -10,7 +10,7 @@
 #import "MathDeclaration.h"
 #import "Mesh.h"
 
-@interface Item : NSObject 
+@interface Item : NSObject <NSCoding>
 {
 	Vector3D *position;
 	Quaternion *rotation;

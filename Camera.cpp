@@ -13,6 +13,7 @@ Camera::Camera()
 	axisX = Vector3D(1, 0, 0);
 	axisY = Vector3D(0, 1, 0);
 	axisZ = Vector3D(0, 0, 1);
+	isLimitAxisY = false;
 }
 
 void Camera::ComputeVectors()

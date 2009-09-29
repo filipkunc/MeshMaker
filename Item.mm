@@ -69,6 +69,54 @@
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	self = [super init];
+	if (self)
+	{
+		position = new Vector3D();
+		position->x = [aDecoder decodeFloatForKey:@"positionX"];
+		position->y = [aDecoder decodeFloatForKey:@"positionY"];
+		position->z = [aDecoder decodeFloatForKey:@"positionZ"];
+		
+		rotation = new Quaternion();
+		rotation->x = [aDecoder decodeFloatForKey:@"rotationX"];
+		rotation->y = [aDecoder decodeFloatForKey:@"rotationY"];
+		rotation->z = [aDecoder decodeFloatForKey:@"rotationZ"];
+		rotation->w = [aDecoder decodeFloatForKey:@"rotationW"];
+		
+		scale = new Vector3D();
+		scale->x = [aDecoder decodeFloatForKey:@"scaleX"];
+		scale->y = [aDecoder decodeFloatForKey:@"scaleY"];
+		scale->z = [aDecoder decodeFloatForKey:@"scaleZ"];
+		
+		selected = [aDecoder decodeBoolForKey:@"selected"];
+		
+		mesh = [[aDecoder decodeObjectForKey:@"mesh"] retain];
+	}
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{	
+	[aCoder encodeFloat:position->x forKey:@"positionX"];
+	[aCoder encodeFloat:position->y forKey:@"positionY"];
+	[aCoder encodeFloat:position->z forKey:@"positionZ"];
+	
+	[aCoder encodeFloat:rotation->x forKey:@"rotationX"];
+	[aCoder encodeFloat:rotation->y forKey:@"rotationY"];
+	[aCoder encodeFloat:rotation->z forKey:@"rotationZ"];
+	[aCoder encodeFloat:rotation->w forKey:@"rotationW"];
+	
+	[aCoder encodeFloat:scale->x forKey:@"scaleX"];
+	[aCoder encodeFloat:scale->y forKey:@"scaleY"];
+	[aCoder encodeFloat:scale->z forKey:@"scaleZ"];
+	
+	[aCoder encodeBool:selected forKey:@"selected"];
+
+	[aCoder encodeObject:mesh forKey:@"mesh"];
+}
+
 - (void)dealloc
 {
 	delete position;

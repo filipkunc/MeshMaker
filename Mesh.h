@@ -36,7 +36,7 @@ enum MeshSelectionMode
 	MeshSelectionModeEdges
 };
 
-@interface Mesh : NSObject <OpenGLManipulatingModel>
+@interface Mesh : NSObject <OpenGLManipulatingModel, NSCoding>
 {
 	vector<Vector3D> *vertices;
 	vector<Triangle> *triangles;
