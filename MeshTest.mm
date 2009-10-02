@@ -34,12 +34,12 @@
 	
 	[mesh makeCube];
 
-	STAssertEquals([mesh vertexCount], 8U, @"vertexCount in cube must be equal to 8");
-	STAssertEquals([mesh triangleCount], 12U, @"triangleCount in cube must be equal to 12");
+	STAssertEquals([mesh vertexCount], 8UL, @"vertexCount in cube must be equal to 8");
+	STAssertEquals([mesh triangleCount], 12UL, @"triangleCount in cube must be equal to 12");
 	
 	[mesh makeEdges];
 	
-	STAssertEquals([mesh edgeCount], 18U, @"edgeCount in cube must be equal to 18");
+	STAssertEquals([mesh edgeCount], 18UL, @"edgeCount in cube must be equal to 18");
 	
 	[mesh release];
 }
@@ -58,9 +58,9 @@
 	{
 		[mesh turnEdgeAtIndex:i];
 		
-		STAssertEquals([mesh vertexCount], 8U, @"vertexCount in cube must be equal to 8");
-		STAssertEquals([mesh triangleCount], 12U, @"triangleCount in cube must be equal to 12");
-		STAssertEquals([mesh edgeCount], 18U, @"edgeCount in cube must be equal to 18");
+		STAssertEquals([mesh vertexCount], 8UL, @"vertexCount in cube must be equal to 8");
+		STAssertEquals([mesh triangleCount], 12UL, @"triangleCount in cube must be equal to 12");
+		STAssertEquals([mesh edgeCount], 18UL, @"edgeCount in cube must be equal to 18");
 	}
 	
 	[mesh release];
@@ -80,9 +80,9 @@
 	[mesh2 retain];
 	[mesh2 makeEdges];
 	
-	STAssertEquals([mesh2 vertexCount], 8U, @"vertexCount in cube must be equal to 8");
-	STAssertEquals([mesh2 triangleCount], 12U, @"triangleCount in cube must be equal to 12");
-	STAssertEquals([mesh2 edgeCount], 18U, @"edgeCount in cube must be equal to 18");
+	STAssertEquals([mesh2 vertexCount], 8UL, @"vertexCount in cube must be equal to 8");
+	STAssertEquals([mesh2 triangleCount], 12UL, @"triangleCount in cube must be equal to 12");
+	STAssertEquals([mesh2 edgeCount], 18UL, @"edgeCount in cube must be equal to 18");
 	
 	[data release];
 	[mesh release];
