@@ -28,6 +28,7 @@ enum ItemWithSteps
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol>
 {
+@public // public for unit tests
 	ItemCollection *items;
 	OpenGLManipulatingController *itemsController;
 	OpenGLManipulatingController *meshController;
@@ -41,7 +42,8 @@ enum ItemWithSteps
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
-- (void)addItem:(Item *)item;
+- (void)addItem:(Item *)item withName:(NSString *)name;
+- (void)removeItem:(Item *)item withName:(NSString *)name;
 - (IBAction)addCube:(id)sender;
 - (IBAction)addCylinder:(id)sender;
 - (IBAction)addSphere:(id)sender;

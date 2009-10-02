@@ -31,6 +31,7 @@
 		A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C4210FF92F9400A48E13 /* GLUT.framework */; };
 		A767D80A1028C96C00757986 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */; };
 		A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A792CF361020C3EB00D02F86 /* Mesh.mm */; };
+		A79772DF1076783F0053CB29 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A79772DE1076783F0053CB29 /* MyDocumentTest.mm */; };
 		A7A96A5E10223024003110A1 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A96A0410222CCC003110A1 /* MeshTest.mm */; };
 		A7C8600C10135C700032DC33 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C8600B10135C700032DC33 /* Plane.cpp */; };
 /* End PBXBuildFile section */
@@ -94,7 +95,8 @@
 		A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLManipulatingController.mm; sourceTree = "<group>"; };
 		A792CF351020C3EA00D02F86 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		A792CF361020C3EB00D02F86 /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Mesh.mm; sourceTree = "<group>"; };
-		A7A969FB10222C3C003110A1 /* OpenGLEditorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenGLEditorTests-Info.plist"; sourceTree = "<group>"; };
+		A79772DD1076783F0053CB29 /* MyDocumentTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentTest.h; sourceTree = "<group>"; };
+		A79772DE1076783F0053CB29 /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7A96A0310222CCC003110A1 /* MeshTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshTest.h; sourceTree = "<group>"; };
 		A7A96A0410222CCC003110A1 /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
 		A7A96A4810222EE2003110A1 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -163,9 +165,6 @@
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
 				19C28FB0FE9D524F11CA2CBB /* Products */,
-				A7A969FB10222C3C003110A1 /* OpenGLEditorTests-Info.plist */,
-				A7A96A4910222EE2003110A1 /* Tests-Info.plist */,
-				A7184769105D03EE00D0B194 /* AddItemWithStepsSheet.xib */,
 			);
 			name = OpenGLEditor;
 			sourceTree = "<group>";
@@ -212,6 +211,8 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A7A96A4910222EE2003110A1 /* Tests-Info.plist */,
+				A7184769105D03EE00D0B194 /* AddItemWithStepsSheet.xib */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* Info.plist */,
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
@@ -256,6 +257,8 @@
 			children = (
 				A7A96A0310222CCC003110A1 /* MeshTest.h */,
 				A7A96A0410222CCC003110A1 /* MeshTest.mm */,
+				A79772DD1076783F0053CB29 /* MyDocumentTest.h */,
+				A79772DE1076783F0053CB29 /* MyDocumentTest.mm */,
 			);
 			name = TestClasses;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A7A96A5E10223024003110A1 /* MeshTest.mm in Sources */,
+				A79772DF1076783F0053CB29 /* MyDocumentTest.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,7 +531,7 @@
 		C05733CC08A9546B00998B17 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OBJC_CALL_CXX_CDTORS = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -535,20 +539,20 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
 		C05733CD08A9546B00998B17 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OBJC_CALL_CXX_CDTORS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};

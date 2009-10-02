@@ -19,6 +19,7 @@
 
 - (Item *)itemAtIndex:(NSUInteger)index;
 - (void)addItem:(Item *)item;
+- (void)removeItem:(Item *)item;
 - (void)mergeSelectedItems;
 
 @end

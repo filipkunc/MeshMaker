@@ -55,13 +55,39 @@
 	[view setNeedsDisplay:YES];
 }
 
-- (void)addItem:(Item *)item
+- (void)addItem:(Item *)item withName:(NSString *)name
 {
 	NSLog(@"item vertexCount = %i", [[item mesh] vertexCount]);
 	NSLog(@"item triangleCount = %i", [[item mesh] triangleCount]);
+	NSLog(@"adding %@", name);
+	
+	// undo - remove item
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = [undo prepareWithInvocationTarget:self];
+	[doc removeItem:item withName:name];
+	if (![undo isUndoing])
+		[undo setActionName:[NSString stringWithFormat:@"Add %@", name]];
+	
 	[items addItem:item];
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
+	[itemsController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
+- (void)removeItem:(Item *)item withName:(NSString *)name
+{
+	NSLog(@"removing %@", name);
+	
+	// undo - add item
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = [undo prepareWithInvocationTarget:self];
+	[doc addItem:item withName:name];
+	if (![undo isUndoing])
+		[undo setActionName:[NSString stringWithFormat:@"Remove %@", name]];
+	
+	[items removeItem:item];
+	[itemsController changeSelection:NO];
 	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
 }
@@ -70,7 +96,7 @@
 {
 	Item *cube = [[Item alloc] init];
 	[[cube mesh] makeCube];
-	[self addItem:cube];
+	[self addItem:cube withName:@"Cube"];
 }
 
 - (IBAction)addCylinder:(id)sender
@@ -92,14 +118,15 @@
 	{
 		case ItemWithStepsCylinder:
 			[[item mesh] makeCylinderWithSteps:steps];
+			[self addItem:item withName:@"Cylinder"];
 			break;
 		case ItemWithStepsSphere:
 			[[item mesh] makeSphereWithSteps:steps];
+			[self addItem:item withName:@"Sphere"];
 			break;
 		default:
 			break;
 	}
-	[self addItem:item];
 }
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode

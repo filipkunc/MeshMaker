@@ -52,6 +52,11 @@
 	[items addObject:item];
 }
 
+- (void)removeItem:(Item *)item
+{
+	[items removeObject:item];
+}
+
 - (NSUInteger)count
 {
 	return [items count];
