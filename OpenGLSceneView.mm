@@ -432,35 +432,6 @@ const float maxDistance = 1000.0f;
 	[self setNeedsDisplay:YES];
 }
 
-#pragma mark Keyboard Events
-
-- (void)keyDown:(NSEvent *)e
-{
-	//NSLog([e description]);
-	switch ([e keyCode]) {
-		case 51: // delete
-		{
-			[manipulated removeSelected];
-			[self setNeedsDisplay:YES];
-		}break;
-		case 8: // cmd + C
-		{
-			if ([e modifierFlags] & NSCommandKeyMask)
-			{
-				[manipulated cloneSelected];
-				[self setNeedsDisplay:YES];
-			}
-		}break;
-		default:
-			break;
-	}
-}
-
-- (void)keyUp:(NSEvent *)e
-{
-
-}
-
 -(NSRect)currentRect
 {
 	float minX = MIN(lastPoint.x, currentPoint.x);

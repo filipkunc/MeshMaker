@@ -394,7 +394,7 @@
 }
 
 - (void)removeSelected
-{
+{	
 	for (int i = 0; i < [model count]; i++)
 	{
 		if ([model isSelectedAtIndex:i])

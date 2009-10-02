@@ -9,7 +9,8 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import "Mesh.h"
 
-@interface MeshTest : SenTestCase {
+@interface MeshTest : SenTestCase 
+{
 	Mesh *mesh;
 }
 
