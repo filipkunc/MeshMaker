@@ -16,5 +16,6 @@
 - (void)testMesh;
 - (void)testMakeEdges;
 - (void)testTurnEdges;
+- (void)testArchivation;
 
 @end

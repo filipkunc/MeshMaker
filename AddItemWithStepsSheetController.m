@@ -24,6 +24,9 @@
         NSNib *nib = [[NSNib alloc] initWithNibNamed:@"AddItemWithStepsSheet" bundle:myBundle];
 		
         BOOL success = [nib instantiateNibWithOwner:self topLevelObjects:nil];
+		
+		[nib release];
+		
         if (success != YES) 
 		{
 			NSLog(@"beginSheet failed");
@@ -31,7 +34,7 @@
             return;
         }
     }
-	
+		
 	[NSApp beginSheet:sheet
 	   modalForWindow:documentWindow
 		modalDelegate:self
