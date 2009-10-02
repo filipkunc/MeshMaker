@@ -40,6 +40,8 @@
 	[mesh makeEdges];
 	
 	STAssertEquals([mesh edgeCount], 18U, @"edgeCount in cube must be equal to 18");
+	
+	[mesh release];
 }
 
 - (void)testTurnEdges
@@ -60,6 +62,31 @@
 		STAssertEquals([mesh triangleCount], 12U, @"triangleCount in cube must be equal to 12");
 		STAssertEquals([mesh edgeCount], 18U, @"edgeCount in cube must be equal to 18");
 	}
+	
+	[mesh release];
+}
+
+- (void)testArchivation
+{
+	mesh = [[Mesh alloc] init];
+	
+	STAssertNotNil(mesh, @"mesh can't be nil");
+	
+	[mesh makeCube];
+	
+	NSData *data = [[NSKeyedArchiver archivedDataWithRootObject:mesh] retain];
+	
+	Mesh *mesh2 = (Mesh *)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+	[mesh2 retain];
+	[mesh2 makeEdges];
+	
+	STAssertEquals([mesh2 vertexCount], 8U, @"vertexCount in cube must be equal to 8");
+	STAssertEquals([mesh2 triangleCount], 12U, @"triangleCount in cube must be equal to 12");
+	STAssertEquals([mesh2 edgeCount], 18U, @"edgeCount in cube must be equal to 18");
+	
+	[data release];
+	[mesh release];
+	[mesh2 release];
 }
 
 @end
