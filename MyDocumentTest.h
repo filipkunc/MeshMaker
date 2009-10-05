@@ -14,6 +14,7 @@
 	MyDocument *document;
 }
 
-- (void)testUndo;
+- (void)testUndoMakeCube;
+- (void)testUndoItemManipulation;
 
 @end
