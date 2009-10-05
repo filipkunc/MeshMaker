@@ -16,6 +16,7 @@
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
 		A718474C105D033600D0B194 /* AddItemWithStepsSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = A718474B105D033600D0B194 /* AddItemWithStepsSheetController.m */; };
 		A718476A105D03EE00D0B194 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7184769105D03EE00D0B194 /* AddItemWithStepsSheet.xib */; };
+		A7236B10107A7D2600A2CFE4 /* ItemManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7236B0F107A7D2600A2CFE4 /* ItemManipulationState.mm */; };
 		A754C3FA0FF92E9100A48E13 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A754C3EE0FF92E9100A48E13 /* Camera.cpp */; };
 		A754C3FB0FF92E9100A48E13 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A754C3F20FF92E9100A48E13 /* Matrix4x4.cpp */; };
 		A754C3FC0FF92E9100A48E13 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A754C3F40FF92E9100A48E13 /* Quaternion.cpp */; };
@@ -64,6 +65,8 @@
 		A718474A105D033600D0B194 /* AddItemWithStepsSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddItemWithStepsSheetController.h; sourceTree = "<group>"; };
 		A718474B105D033600D0B194 /* AddItemWithStepsSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddItemWithStepsSheetController.m; sourceTree = "<group>"; };
 		A7184769105D03EE00D0B194 /* AddItemWithStepsSheet.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
+		A7236B0E107A7D2600A2CFE4 /* ItemManipulationState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemManipulationState.h; sourceTree = "<group>"; };
+		A7236B0F107A7D2600A2CFE4 /* ItemManipulationState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ItemManipulationState.mm; sourceTree = "<group>"; };
 		A754C3EE0FF92E9100A48E13 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		A754C3EF0FF92E9100A48E13 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		A754C3F00FF92E9100A48E13 /* MathDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathDeclaration.h; sourceTree = "<group>"; };
@@ -176,6 +179,8 @@
 				A718474B105D033600D0B194 /* AddItemWithStepsSheetController.m */,
 				A754C40C0FF92F2800A48E13 /* Item.h */,
 				A754C40D0FF92F2800A48E13 /* Item.mm */,
+				A7236B0E107A7D2600A2CFE4 /* ItemManipulationState.h */,
+				A7236B0F107A7D2600A2CFE4 /* ItemManipulationState.mm */,
 				A754C40E0FF92F2800A48E13 /* ItemCollection.h */,
 				A754C40F0FF92F2800A48E13 /* ItemCollection.mm */,
 				A754C4100FF92F2800A48E13 /* Manipulator.h */,
@@ -381,6 +386,7 @@
 				A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */,
 				A767D80A1028C96C00757986 /* OpenGLManipulatingController.mm in Sources */,
 				A718474C105D033600D0B194 /* AddItemWithStepsSheetController.m in Sources */,
+				A7236B10107A7D2600A2CFE4 /* ItemManipulationState.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

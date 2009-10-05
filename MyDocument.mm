@@ -7,6 +7,7 @@
 //
 
 #import "MyDocument.h"
+#import "ItemManipulationState.h"
 
 @implementation MyDocument
 
@@ -40,6 +41,7 @@
 	[editModePopUp selectItemWithTag:0];
 	[view setManipulated:manipulated];
 	[view setDisplayed:itemsController];
+	[view setDelegate:self];
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -61,7 +63,6 @@
 	NSLog(@"item triangleCount = %i", [[item mesh] triangleCount]);
 	NSLog(@"adding %@", name);
 	
-	// undo - remove item
 	NSUndoManager *undo = [self undoManager];
 	MyDocument *doc = [undo prepareWithInvocationTarget:self];
 	[doc removeItem:item withName:name];
@@ -79,7 +80,6 @@
 {
 	NSLog(@"removing %@", name);
 	
-	// undo - add item
 	NSUndoManager *undo = [self undoManager];
 	MyDocument *doc = [undo prepareWithInvocationTarget:self];
 	[doc addItem:item withName:name];
@@ -90,6 +90,77 @@
 	[itemsController changeSelection:NO];
 	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
+}
+
+- (void)applyWithCurrentManipulations:(NSMutableArray *)currentManipulations 
+					 oldManipulations:(NSMutableArray *)oldManipulations
+{
+	NSLog(@"applyManipulations:");
+	
+	for (ItemManipulationState *currentState in currentManipulations)
+	{
+		Item *item = [items itemAtIndex:[currentState itemIndex]];
+		[currentState applyManipulationToItem:item];
+	}
+	
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = (MyDocument *)[undo prepareWithInvocationTarget:self];
+	[doc applyWithCurrentManipulations:oldManipulations
+					  oldManipulations:currentManipulations];
+	if (![undo isUndoing])
+		[undo setActionName:@"Manipulations"];
+	[itemsController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
+- (void)revertManipulations:(NSMutableArray *)oldManipulations
+{
+	NSLog(@"revertManipulations:");
+	
+	NSMutableArray *currentManipulations = [[NSMutableArray alloc] init];
+	
+	for (ItemManipulationState *oldState in oldManipulations)
+	{
+		Item *item = [items itemAtIndex:[oldState itemIndex]];
+		ItemManipulationState *currentState = [[ItemManipulationState alloc] initWithItem:item 
+																					index:[oldState itemIndex]];
+		[oldState applyManipulationToItem:item];
+		[currentManipulations addObject:currentState];
+	}
+	
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = (MyDocument *)[undo prepareWithInvocationTarget:self];
+	[doc applyWithCurrentManipulations:currentManipulations
+					  oldManipulations:oldManipulations];
+	if (![undo isUndoing])
+		[undo setActionName:@"Manipulations"];	
+	[itemsController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
+- (void)manipulationStarted
+{
+	NSLog(@"manipulationStarted");
+	
+	NSMutableArray *itemManipulations = [[NSMutableArray alloc] init];
+	
+	for (NSUInteger i = 0; i < [items count]; i++)
+	{
+		Item *item = [items itemAtIndex:i];
+		ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
+		[itemManipulations addObject:itemState];
+	}
+	
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = [undo prepareWithInvocationTarget:self];
+	[doc revertManipulations:itemManipulations];
+	if (![undo isUndoing])
+		[undo setActionName:@"Manipulations"];
+}
+
+- (void)manipulationEnded
+{
+	NSLog(@"manipulationEnded");
 }
 
 - (IBAction)addCube:(id)sender
