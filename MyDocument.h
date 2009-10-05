@@ -26,7 +26,7 @@ enum ItemWithSteps
 	ItemWithStepsSphere = 1
 };
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate>
 {
 @public // public for unit tests
 	ItemCollection *items;

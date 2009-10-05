@@ -16,7 +16,7 @@ const float maxDistance = 1000.0f;
 
 @implementation OpenGLSceneView
 
-@synthesize manipulated, displayed;
+@synthesize manipulated, displayed, delegate;
 
 - (void)awakeFromNib
 {
@@ -36,6 +36,7 @@ const float maxDistance = 1000.0f;
 	{		
 		displayed = nil;
 		manipulated = nil;
+		delegate = nil;
 		
 		// The GL context must be active for these functions to have an effect
 		NSOpenGLContext *glcontext = [self openGLContext];
@@ -308,6 +309,8 @@ const float maxDistance = 1000.0f;
 			[self scaleFromPoint:lastPoint lastPosition:selectionOffset];
 			isManipulating = YES;
 		}
+		if (isManipulating)
+			[delegate manipulationStarted];
 	}
 	else
 	{
@@ -332,8 +335,12 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseUp:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
-	isManipulating = NO;
+	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	if (isManipulating)
+	{
+		[delegate manipulationEnded];
+		isManipulating = NO;
+	}
 	if (isSelecting)
 	{
 		isSelecting = NO;

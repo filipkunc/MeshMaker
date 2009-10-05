@@ -24,10 +24,18 @@ enum CameraMode
 	CameraModeBack = 6
 };
 
+@protocol OpenGLSceneViewDelegate
+
+- (void)manipulationStarted;
+- (void)manipulationEnded;
+
+@end
+
 @interface OpenGLSceneView : NSOpenGLView 
 {
 	id<OpenGLManipulating> displayed;
 	id<OpenGLManipulating> manipulated;
+	id<OpenGLSceneViewDelegate> delegate;
 	
 	Vector3D *selectionOffset;
 	Camera *camera;
@@ -47,6 +55,7 @@ enum CameraMode
 
 @property (readwrite, assign) id<OpenGLManipulating> displayed;
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
+@property (readwrite, assign) id<OpenGLSceneViewDelegate> delegate;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 @property (readwrite, assign) enum CameraMode cameraMode;
 
