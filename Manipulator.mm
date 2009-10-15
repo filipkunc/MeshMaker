@@ -138,12 +138,12 @@
 
 #pragma mark OpenGLSelecting
 
-- (NSUInteger)selectableCount
+- (uint)selectableCount
 {
 	return [widgets count];
 }
 
-- (void)drawForSelectionAtIndex:(NSUInteger)index
+- (void)drawForSelectionAtIndex:(uint)index
 {
 	ManipulatorWidget *widget = (ManipulatorWidget *)[widgets objectAtIndex:index];
 	if ([widget widget] == WidgetLine)
@@ -157,7 +157,7 @@
 	glPopMatrix();
 }
 
-- (void)selectObjectAtIndex:(NSUInteger)index 
+- (void)selectObjectAtIndex:(uint)index 
 				   withMode:(enum OpenGLSelectionMode)selectionMode
 {
 	selectedIndex = index;

@@ -89,7 +89,7 @@
 	[self setValue:[NSNumber numberWithFloat:0.0f] forKey:key];
 }
 
-- (float)selectionValueAtIndex:(NSUInteger)index
+- (float)selectionValueAtIndex:(uint)index
 {
 	switch (currentManipulator)
 	{
@@ -105,7 +105,7 @@
 	}
 }
 
-- (void)setSelectionValue:(float)value atIndex:(NSUInteger)index
+- (void)setSelectionValue:(float)value atIndex:(uint)index
 {
 	switch (currentManipulator)
 	{
@@ -162,32 +162,47 @@
 - (void)updateSelection
 {
 	[self willChangeSelection];
-	selectedCount = 0;
-	*selectionCenter = Vector3D();
-	lastSelectedIndex = -1;
-	for (int i = 0; i < [model count]; i++)
+	
+	id aModel = model;
+	if ([aModel respondsToSelector:@selector(getSelectionCenter:rotation:scale:)])
 	{
-		if ([model isSelectedAtIndex:i])
+		[model getSelectionCenter:selectionCenter rotation:selectionRotation scale:selectionScale];
+		selectedCount = 0;
+		for (uint i = 0; i < [model count]; i++)
 		{
-			selectedCount++;
-			*selectionCenter += [model positionAtIndex:i];
-			lastSelectedIndex = i;
-		}
-	}
-	*selectionRotation = Quaternion();
-	*selectionScale = Vector3D(1, 1, 1);
-	if (selectedCount > 0)
-	{
-		*selectionCenter /= (float)selectedCount;
-		if (selectedCount == 1 && lastSelectedIndex > -1)
-		{
-			*selectionRotation = [model rotationAtIndex:lastSelectedIndex];
-			*selectionScale = [model scaleAtIndex:lastSelectedIndex];
+			if ([model isSelectedAtIndex:i])
+				selectedCount++;
 		}
 	}
 	else
 	{
 		*selectionCenter = Vector3D();
+		*selectionRotation = Quaternion();
+		*selectionScale = Vector3D(1, 1, 1);
+		selectedCount = 0;
+		lastSelectedIndex = -1;
+		for (int i = 0; i < [model count]; i++)
+		{
+			if ([model isSelectedAtIndex:i])
+			{
+				selectedCount++;
+				*selectionCenter += [model positionAtIndex:i];
+				lastSelectedIndex = i;
+			}
+		}
+		if (selectedCount > 0)
+		{
+			*selectionCenter /= (float)selectedCount;
+			if (selectedCount == 1 && lastSelectedIndex > -1)
+			{
+				*selectionRotation = [model rotationAtIndex:lastSelectedIndex];
+				*selectionScale = [model scaleAtIndex:lastSelectedIndex];
+			}
+		}
+		else
+		{
+			*selectionCenter = Vector3D();
+		}
 	}
 	selectionRotation->ToEulerAngles(*selectionEuler);
 	selectionCenter->Transform(*modelTransform);
@@ -246,7 +261,7 @@
 }
 
 - (void)moveSelectedByOffset:(Vector3D)offset
-{
+{	
 	Vector3D transformedOffset = offset;
 	Matrix4x4 m, r, s;
 	Quaternion inverseRotation = modelRotation->Conjugate();
@@ -260,66 +275,99 @@
 	m = s * r;
 	transformedOffset.Transform(m);
 	
-	for (int i = 0; i < [model count]; i++)
+	id aModel = model;
+	if ([aModel respondsToSelector:@selector(moveSelectedByOffset:)])
 	{
-		if ([model isSelectedAtIndex:i])
-			[model moveByOffset:transformedOffset atIndex:i];
+		[model moveSelectedByOffset:transformedOffset];
 	}
-	
+	else
+	{
+		for (int i = 0; i < [model count]; i++)
+		{
+			if ([model isSelectedAtIndex:i])
+				[model moveByOffset:transformedOffset atIndex:i];
+		}
+	}
+		
 	[self setSelectionCenter:*selectionCenter + offset];
 }
 
 - (void)rotateSelectedByOffset:(Quaternion)offset
-{
-	if ([self selectedCount] > 1)
+{	
+	id aModel = model;
+	if ([aModel respondsToSelector:@selector(rotateSelectedByOffset:)])
 	{
 		Vector3D rotationCenter = *selectionCenter;
 		rotationCenter.Transform(modelTransform->Inverse());
-		for (int i = 0; i < [model count]; i++)
-		{
-			if ([model isSelectedAtIndex:i])
-			{
-				Vector3D itemPosition = [model positionAtIndex:i];
-				itemPosition -= rotationCenter;
-				itemPosition.Transform(offset);
-				itemPosition += rotationCenter;
-				[model setPosition:itemPosition atIndex:i];
-				[model rotateByOffset:offset atIndex:i];
-			}
-		}
+		[model moveSelectedByOffset:-rotationCenter];
+		[model rotateSelectedByOffset:offset];
+		[model moveSelectedByOffset:rotationCenter];
 		[self setSelectionRotation:offset * (*selectionRotation)];
 	}
-	else if (lastSelectedIndex > -1)
+	else
 	{
-		[model rotateByOffset:offset atIndex:lastSelectedIndex];
-		[self setSelectionRotation:[model rotationAtIndex:lastSelectedIndex]];
-	}	
+		if ([self selectedCount] > 1)
+		{
+			Vector3D rotationCenter = *selectionCenter;
+			rotationCenter.Transform(modelTransform->Inverse());
+			for (int i = 0; i < [model count]; i++)
+			{
+				if ([model isSelectedAtIndex:i])
+				{
+					Vector3D itemPosition = [model positionAtIndex:i];
+					itemPosition -= rotationCenter;
+					itemPosition.Transform(offset);
+					itemPosition += rotationCenter;
+					[model setPosition:itemPosition atIndex:i];
+					[model rotateByOffset:offset atIndex:i];
+				}
+			}
+			[self setSelectionRotation:offset * (*selectionRotation)];
+		}
+		else if (lastSelectedIndex > -1)
+		{
+			[model rotateByOffset:offset atIndex:lastSelectedIndex];
+			[self setSelectionRotation:[model rotationAtIndex:lastSelectedIndex]];
+		}		
+	}
 }
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
-	if ([self selectedCount] > 1)
+	id aModel = model;
+	if ([aModel respondsToSelector:@selector(scaleSelectedByOffset:)])
 	{
 		Vector3D rotationCenter = *selectionCenter;
 		rotationCenter.Transform(modelTransform->Inverse());
-		for (int i = 0; i < [model count]; i++)
+		[model moveSelectedByOffset:-rotationCenter];
+		[model scaleSelectedByOffset:offset + Vector3D(1, 1, 1)];
+		[model moveSelectedByOffset:rotationCenter];
+	}
+	else
+	{
+		if ([self selectedCount] > 1)
 		{
-			if ([model isSelectedAtIndex:i])
+			Vector3D rotationCenter = *selectionCenter;
+			rotationCenter.Transform(modelTransform->Inverse());
+			for (int i = 0; i < [model count]; i++)
 			{
-				Vector3D itemPosition = [model positionAtIndex:i];
-				itemPosition -= rotationCenter;
-				itemPosition.x *= 1.0f + offset.x;
-				itemPosition.y *= 1.0f + offset.y;
-				itemPosition.z *= 1.0f + offset.z;
-				itemPosition += rotationCenter;
-				[model setPosition:itemPosition atIndex:i];
-				[model scaleByOffset:offset atIndex:i];
+				if ([model isSelectedAtIndex:i])
+				{
+					Vector3D itemPosition = [model positionAtIndex:i];
+					itemPosition -= rotationCenter;
+					itemPosition.x *= 1.0f + offset.x;
+					itemPosition.y *= 1.0f + offset.y;
+					itemPosition.z *= 1.0f + offset.z;
+					itemPosition += rotationCenter;
+					[model setPosition:itemPosition atIndex:i];
+					[model scaleByOffset:offset atIndex:i];
+				}
 			}
 		}
-	}
-	else if (lastSelectedIndex > -1)
-	{
-		[model scaleByOffset:offset atIndex:lastSelectedIndex];
+		else if (lastSelectedIndex > -1)
+		{
+			[model scaleByOffset:offset atIndex:lastSelectedIndex];
+		}
 	}
 	[self setSelectionScale:*selectionScale + offset];
 }
@@ -335,12 +383,21 @@
 	glPopMatrix();
 }
 
-- (NSUInteger)selectableCount
+- (void)willSelect
+{
+	id aModel = model;
+	if ([aModel respondsToSelector:@selector(willSelect)])
+	{
+		[model willSelect];
+	}
+}
+
+- (uint)selectableCount
 {
 	return [model count];
 }
 
-- (void)drawForSelectionAtIndex:(NSUInteger)index
+- (void)drawForSelectionAtIndex:(uint)index
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
@@ -348,7 +405,7 @@
 	glPopMatrix();
 }
 
-- (void)selectObjectAtIndex:(NSUInteger)index
+- (void)selectObjectAtIndex:(uint)index
 				   withMode:(enum OpenGLSelectionMode)selectionMode
 {
 	switch (selectionMode) 
@@ -370,6 +427,7 @@
 
 - (void)changeSelection:(BOOL)isSelected
 {
+	[self willSelect];
 	for (int i = 0; i < [model count]; i++)
 		[model setSelected:isSelected atIndex:i];
 	[self updateSelection];
@@ -377,6 +435,7 @@
 
 - (void)invertSelection
 {
+	[self willSelect];
 	for (int i = 0; i < [model count]; i++)
 		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
 	[self updateSelection];
@@ -384,25 +443,13 @@
 
 - (void)cloneSelected
 {
-	int count = [model count];
-	for (int i = 0; i < count; i++)
-	{
-		if ([model isSelectedAtIndex:i])
-			[model cloneAtIndex:i];
-	}
+	[model cloneSelected];
 	[self updateSelection];
 }
 
 - (void)removeSelected
 {	
-	for (int i = 0; i < [model count]; i++)
-	{
-		if ([model isSelectedAtIndex:i])
-		{
-			[model removeAtIndex:i];
-			i--;
-		}
-	}
+	[model removeSelected];
 	[self updateSelection];
 }
 

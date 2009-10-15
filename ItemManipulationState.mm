@@ -12,7 +12,7 @@
 
 @synthesize itemIndex;
 
-- (id)initWithItem:(Item *)item index:(NSUInteger)index;
+- (id)initWithItem:(Item *)item index:(uint)index;
 {
 	self = [super init];
 	if (self)

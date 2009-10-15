@@ -42,7 +42,7 @@
 	[super dealloc];
 }
 
-- (Item *)itemAtIndex:(NSUInteger)index
+- (Item *)itemAtIndex:(uint)index
 {
 	return (Item *)[items objectAtIndex:index];
 }
@@ -57,80 +57,94 @@
 	[items removeObject:item];
 }
 
-- (NSUInteger)count
+- (uint)count
 {
 	return [items count];
 }
 
-- (Vector3D)positionAtIndex:(NSUInteger)index
+- (Vector3D)positionAtIndex:(uint)index
 {
 	return [[self itemAtIndex:index] position];
 }
 
-- (Quaternion)rotationAtIndex:(NSUInteger)index
+- (Quaternion)rotationAtIndex:(uint)index
 {
 	return [[self itemAtIndex:index] rotation];
 }
 
-- (Vector3D)scaleAtIndex:(NSUInteger)index
+- (Vector3D)scaleAtIndex:(uint)index
 {
 	return [[self itemAtIndex:index] scale];
 }
 
-- (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index
+- (void)setPosition:(Vector3D)position atIndex:(uint)index
 {
 	[[self itemAtIndex:index] setPosition:position];
 }
 
-- (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index
+- (void)setRotation:(Quaternion)rotation atIndex:(uint)index
 {
 	[[self itemAtIndex:index] setRotation:rotation];
 }
 
-- (void)setScale:(Vector3D)scale atIndex:(NSUInteger)index
+- (void)setScale:(Vector3D)scale atIndex:(uint)index
 {
 	[[self itemAtIndex:index] setScale:scale];
 }
 
-- (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index
+- (void)moveByOffset:(Vector3D)offset atIndex:(uint)index
 {
 	[[self itemAtIndex:index] moveByOffset:offset];
 }
 
-- (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index
+- (void)rotateByOffset:(Quaternion)offset atIndex:(uint)index
 {
 	[[self itemAtIndex:index] rotateByOffset:offset];
 }
 
-- (void)scaleByOffset:(Vector3D)offset atIndex:(NSUInteger)index
+- (void)scaleByOffset:(Vector3D)offset atIndex:(uint)index
 {
 	[[self itemAtIndex:index] scaleByOffset:offset];
 }
 
-- (BOOL)isSelectedAtIndex:(NSUInteger)index
+- (BOOL)isSelectedAtIndex:(uint)index
 {
 	return [[self itemAtIndex:index] selected];
 }
 
-- (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index
+- (void)setSelected:(BOOL)selected atIndex:(uint)index
 {
 	[[self itemAtIndex:index] setSelected:selected];
 }
 
-- (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
 {
 	[[self itemAtIndex:index] draw];
 }
 
-- (void)cloneAtIndex:(NSUInteger)index
+- (void)cloneSelected
 {
-	Item *newItem = [[self itemAtIndex:index] clone];
-	[items addObject:newItem];
+	int count = [self count];
+	for (int i = 0; i < count; i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			Item *newItem = [[self itemAtIndex:i] clone];
+			[items addObject:newItem];
+		}
+	}
 }
 
-- (void)removeAtIndex:(NSUInteger)index
+- (void)removeSelected
 {
-	[items removeObjectAtIndex:index];
+	for (int i = 0; i < [self count]; i++)
+	{
+		if ([self isSelectedAtIndex:i])
+		{
+			[items removeObjectAtIndex:i];
+			i--;
+		}
+	}
 }
 
 - (void)mergeSelectedItems
@@ -177,7 +191,7 @@
 			
 			[[item mesh] transformWithMatrix:finalMatrix];
 			[mesh mergeWithMesh:[item mesh]];
-			[self removeAtIndex:i];
+			[items removeObjectAtIndex:i];
 			i--;
 		}
 	}

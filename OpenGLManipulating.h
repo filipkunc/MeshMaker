@@ -23,7 +23,7 @@ enum ManipulatorType
 @property (readwrite, assign) Quaternion selectionRotation;
 @property (readwrite, assign) Vector3D selectionScale;
 @property (readwrite, assign) float selectionX, selectionY, selectionZ;
-@property (readonly) NSUInteger selectedCount;
+@property (readonly) uint selectedCount;
 
 - (void)moveSelectedByOffset:(Vector3D)offset;
 - (void)rotateSelectedByOffset:(Quaternion)offset;
