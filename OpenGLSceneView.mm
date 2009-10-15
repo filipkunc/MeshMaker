@@ -84,7 +84,7 @@ const float maxDistance = 1000.0f;
 		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisX widget:WidgetCube]];
 		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisY widget:WidgetCube]];
 		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetCube]];
-		
+				
 		currentManipulator = defaultManipulator;
 	}
 	return self;
@@ -493,6 +493,12 @@ const float maxDistance = 1000.0f;
 {
 	if (selecting == nil || [selecting selectableCount] <= 0)
 		return;
+	
+	id aSelecting = selecting;
+	if ([aSelecting respondsToSelector:@selector(willSelect)])
+	{
+		[selecting willSelect];
+	}
 	
 	int objectsFound = 0;
     int viewport[4];

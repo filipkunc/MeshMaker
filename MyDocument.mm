@@ -144,7 +144,7 @@
 	
 	NSMutableArray *itemManipulations = [[NSMutableArray alloc] init];
 	
-	for (NSUInteger i = 0; i < [items count]; i++)
+	for (uint i = 0; i < [items count]; i++)
 	{
 		Item *item = [items itemAtIndex:i];
 		ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
@@ -182,7 +182,7 @@
 	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
-- (void)addItemWithSteps:(NSUInteger)steps
+- (void)addItemWithSteps:(uint)steps
 {
 	Item *item = [[Item alloc] init];
 	switch (itemWithSteps)

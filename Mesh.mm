@@ -33,9 +33,9 @@ BOOL AreEdgesSame(Edge first, Edge second)
 	return NO;
 }
 
-BOOL IsIndexInTriangle(Triangle triangle, NSUInteger index)
+BOOL IsIndexInTriangle(Triangle triangle, uint index)
 {
-	for (NSUInteger i = 0; i < 3; i++)
+	for (uint i = 0; i < 3; i++)
 	{
 		if (triangle.vertexIndices[i] == index)
 			return YES;
@@ -53,9 +53,9 @@ BOOL IsEdgeInTriangle(Triangle triangle, Edge edge)
 	return NO;
 }
 
-NSUInteger NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
+uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 {
-	for (NSUInteger i = 0; i < 3; i++)
+	for (uint i = 0; i < 3; i++)
 	{
 		if (triangle.vertexIndices[i] != edge.vertexIndices[0] &&
 			triangle.vertexIndices[i] != edge.vertexIndices[1])
@@ -73,7 +73,7 @@ Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
 	return v.Cross(u);
 }
 
-Triangle MakeTriangle(NSUInteger first, NSUInteger second, NSUInteger third)
+Triangle MakeTriangle(uint first, uint second, uint third)
 {
 	Triangle triangle;
 	triangle.vertexIndices[0] = first;
@@ -95,17 +95,17 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 @synthesize selectionMode;
 
-- (NSUInteger)vertexCount
+- (uint)vertexCount
 {
 	return vertices->size();
 }
 
-- (NSUInteger)triangleCount
+- (uint)triangleCount
 {
 	return triangles->size();
 }
 
-- (NSUInteger)edgeCount
+- (uint)edgeCount
 {
 	return edges->size();
 }
@@ -119,6 +119,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		triangles = new vector<Triangle>();
 		edges = new vector<Edge>();
 		selected = new vector<BOOL>();
+		markedVertices = new vector<BOOL>();
 		selectionMode = MeshSelectionModeVertices;
 	}
 	return self;
@@ -130,6 +131,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	delete triangles;
 	delete edges;
 	delete selected;
+	delete markedVertices;
 	[super dealloc];
 }
 
@@ -141,14 +143,14 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	{
 		case MeshSelectionModeVertices:
 		{
-			for (NSUInteger i = 0; i < vertices->size(); i++)
+			for (uint i = 0; i < vertices->size(); i++)
 			{
 				selected->push_back(NO);
 			}
 		} break;
 		case MeshSelectionModeTriangles:
 		{
-			for (NSUInteger i = 0; i < triangles->size(); i++)
+			for (uint i = 0; i < triangles->size(); i++)
 			{
 				selected->push_back(NO);
 			}
@@ -156,7 +158,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		case MeshSelectionModeEdges:
 		{
 			[self makeEdges];
-			for (NSUInteger i = 0; i < edges->size(); i++)
+			for (uint i = 0; i < edges->size(); i++)
 			{
 				selected->push_back(NO);
 			}
@@ -164,19 +166,29 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
-- (Vector3D)vertexAtIndex:(NSUInteger)anIndex
+- (Vector3D)vertexAtIndex:(uint)anIndex
 {
 	return vertices->at(anIndex);
 }
 
-- (Triangle)triangleAtIndex:(NSUInteger)anIndex
+- (Triangle)triangleAtIndex:(uint)anIndex
 {
 	return triangles->at(anIndex);
 }
 
-- (Edge)edgeAtIndex:(NSUInteger)anIndex
+- (Edge)edgeAtIndex:(uint)anIndex
 {
 	return edges->at(anIndex);
+}
+
+- (BOOL)isVertexMarkedAtIndex:(uint)anIndex
+{
+	return markedVertices->at(anIndex);
+}
+
+- (void)setVertexMarked:(BOOL)isMarked atIndex:(uint)anIndex
+{
+	markedVertices->at(anIndex) = isMarked;
 }
 
 - (void)addVertex:(Vector3D)aVertex
@@ -193,9 +205,9 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		selected->push_back(NO);
 }
 
-- (void)addTriangleWithIndex1:(NSUInteger)index1
-					   index2:(NSUInteger)index2
-					   index3:(NSUInteger)index3
+- (void)addTriangleWithIndex1:(uint)index1
+					   index2:(uint)index2
+					   index3:(uint)index3
 {
 	Triangle triangle;
 	triangle.vertexIndices[0] = index1;
@@ -204,10 +216,10 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self addTriangle:triangle];
 }
 
-- (void)addQuadWithIndex1:(NSUInteger)index1
-				   index2:(NSUInteger)index2
-				   index3:(NSUInteger)index3 
-				   index4:(NSUInteger)index4
+- (void)addQuadWithIndex1:(uint)index1
+				   index2:(uint)index2
+				   index3:(uint)index3 
+				   index4:(uint)index4
 {
 	Triangle triangle1, triangle2;
 	triangle1.vertexIndices[0] = index1;
@@ -222,8 +234,8 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self addTriangle:triangle2];
 }
 
-- (void)addEdgeWithIndex1:(NSUInteger)index1
-				   index2:(NSUInteger)index2
+- (void)addEdgeWithIndex1:(uint)index1
+				   index2:(uint)index2
 {
 	Edge edge;
 	edge.vertexIndices[0] = index1;
@@ -234,8 +246,31 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		selected->push_back(NO);
 }
 
+- (void)drawFast
+{
+	// experimental fast drawing
+	
+	// Flat lighting is missing due to complexity of generating normals.
+	// Normal must be different for each triangle and distributed on all
+	// three vertices of this triangle.
+	// Problem is that vertices is shared, but normals not.
+	// Another possibility is using shared normals and doing smooth shading.
+	// Each normal will be then averaged on each vertex.
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	
+	uint *trianglePtr = (uint *)(&(*triangles)[0]);
+	float *vertexPtr = (float *)(&(*vertices)[0]);
+	
+	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+	
+	glDrawElements(GL_TRIANGLES, triangles->size() * 3, GL_UNSIGNED_INT, trianglePtr);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
 - (void)drawFillWithScale:(Vector3D)scale
-{	
+{		
 	float normalDiffuse[] = { 0.5, 0.7, 1.0, 1 };
 	float selectedDiffuse[] = { 1, 0, 0, 1 };
 	
@@ -247,7 +282,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	
 	glBegin(GL_TRIANGLES);
 	
-	for (NSUInteger i = 0; i < triangles->size(); i++)
+	for (uint i = 0; i < triangles->size(); i++)
 	{
 		if (selectionMode == MeshSelectionModeTriangles) 
 		{
@@ -272,7 +307,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		n.x *= scale.x;
 		n.y *= scale.y;
 		n.z *= scale.z;		
-		for (NSUInteger j = 0; j < 3; j++)
+		for (uint j = 0; j < 3; j++)
 		{
 			glNormal3f(n.x, n.y, n.z);
 			glVertex3f(triangleVertices[j].x, triangleVertices[j].y, triangleVertices[j].z);			
@@ -352,7 +387,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self setSelectionMode:[self selectionMode]];
 }
 
-- (void)makeCylinderWithSteps:(NSUInteger)steps
+- (void)makeCylinderWithSteps:(uint)steps
 {
 	NSLog(@"makeCylinderWithSteps:%i", steps);
 	
@@ -366,10 +401,10 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	vertices->push_back(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
 	vertices->push_back(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
 		
-	NSUInteger max = steps;
+	uint max = steps;
 	float step = (FLOAT_PI * 2.0f) / max;
 	float angle = step;
-	for (NSUInteger i = 1; i < max; i++)
+	for (uint i = 1; i < max; i++)
 	{
 		vertices->push_back(Vector3D(cosf(angle), -1, sinf(angle))); // 4
 		vertices->push_back(Vector3D(cosf(angle),  1, sinf(angle))); // 5
@@ -428,7 +463,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self setSelectionMode:[self selectionMode]];
 }
 
-- (void)makeSphereWithSteps:(NSUInteger)steps
+- (void)makeSphereWithSteps:(uint)steps
 {
 	NSLog(@"makeSphereWithSteps:%i", steps);
 	
@@ -436,18 +471,18 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	triangles->clear();
 	selected->clear();
 		
-	NSUInteger max = steps;
+	uint max = steps;
 	
 	vertices->push_back(Vector3D(0, 1, 0));
 	vertices->push_back(Vector3D(0, -1, 0));
 	
 	float step = FLOAT_PI / max;
 	
-	for (NSUInteger i = 0; i < 2 * max; i++)
+	for (uint i = 0; i < 2 * max; i++)
 	{
 		float beta = i * step;
 		
-		for (NSUInteger j = 1; j < max; j++)
+		for (uint j = 1; j < max; j++)
 		{
 			float alpha = 0.5f * FLOAT_PI + j * step;
 			float y0 = sinf(alpha);
@@ -491,7 +526,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		}
 	}
 	
-	for (NSUInteger j = 1; j < max - 1; j++)
+	for (uint j = 1; j < max - 1; j++)
 	{
 		int index = (2 * max - 1) * (max - 1);
 		[self addQuadWithIndex1:1 + j + index
@@ -506,13 +541,13 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 - (void)makeEdges
 {
 	edges->clear();
-	for (NSUInteger i = 0; i < triangles->size(); i++)
+	for (uint i = 0; i < triangles->size(); i++)
 	{
 		Triangle triangle = triangles->at(i);
 		Edge triangleEdges[3];
 		BOOL addTriangleEdges[3];
 		
-		for (NSUInteger j = 0; j < 3; j++)
+		for (uint j = 0; j < 3; j++)
 		{
 			addTriangleEdges[j] = YES;
 			if (j == 2)
@@ -529,10 +564,10 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 		int falseCounter = 0;
 		
-		for (NSUInteger j = 0; j < edges->size(); j++)
+		for (uint j = 0; j < edges->size(); j++)
 		{
 			Edge edge = edges->at(j);
-			for (NSUInteger k = 0; k < 3; k++)
+			for (uint k = 0; k < 3; k++)
 			{
 				if (addTriangleEdges[k] && 
 					AreEdgesSame(triangleEdges[k], edge))
@@ -546,7 +581,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 				break;
 		}
 		
-		for (NSUInteger j = 0; j < 3; j++)
+		for (uint j = 0; j < 3; j++)
 		{
 			if (addTriangleEdges[j])
 				edges->push_back(triangleEdges[j]);
@@ -556,11 +591,20 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	NSLog(@"edgeCount:%i", [self edgeCount]);
 }
 
-- (void)removeVertexAtIndex:(NSUInteger)index
+- (void)makeMarkedVertices
 {
-	for (NSUInteger i = 0; i < triangles->size(); i++)
+	NSLog(@"makeMarkedVertices");
+	
+	markedVertices->clear();
+	for (uint i = 0; i < vertices->size(); i++)
+		markedVertices->push_back(NO);
+}
+
+- (void)removeVertexAtIndex:(uint)index
+{
+	for (uint i = 0; i < triangles->size(); i++)
 	{
-		for (NSUInteger j = 0; j < 3; j++)
+		for (uint j = 0; j < 3; j++)
 		{
 			if (triangles->at(i).vertexIndices[j] >= index)
 				triangles->at(i).vertexIndices[j]--;
@@ -571,14 +615,14 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		selected->erase(selected->begin() + index);
 }
 
-- (void)removeTriangleAtIndex:(NSUInteger)index
+- (void)removeTriangleAtIndex:(uint)index
 {
 	triangles->erase(triangles->begin() + index);
 	if (selectionMode == MeshSelectionModeTriangles)
 		selected->erase(selected->begin() + index);
 }
 
-- (void)removeEdgeAtIndex:(NSUInteger)index
+- (void)removeEdgeAtIndex:(uint)index
 {
 	edges->erase(edges->begin() + index);
 	if (selectionMode == MeshSelectionModeEdges)
@@ -599,12 +643,12 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}	
 }
 
-- (BOOL)isVertexUsedAtIndex:(NSUInteger)index
+- (BOOL)isVertexUsedAtIndex:(uint)index
 {
-	for (NSUInteger i = 0; i < triangles->size(); i++)
+	for (uint i = 0; i < triangles->size(); i++)
 	{
 		Triangle triangle = triangles->at(i);
-		for (NSUInteger j = 0; j < 3; j++)
+		for (uint j = 0; j < 3; j++)
 		{
 			if (triangle.vertexIndices[j] == index)
 				return YES;
@@ -643,7 +687,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
-- (void)fastMergeVertexFirst:(NSUInteger)firstIndex second:(NSUInteger)secondIndex
+- (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex
 {
 	NSLog(@"fastMergeVertexFirst:%i second:%i", firstIndex, secondIndex);
 	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
@@ -656,11 +700,11 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	vertices->push_back(center);
 	selected->push_back(NO);
 	
-	NSUInteger centerIndex = vertices->size() - 1;
+	uint centerIndex = vertices->size() - 1;
 	
-	for (NSUInteger i = 0; i < triangles->size(); i++)
+	for (uint i = 0; i < triangles->size(); i++)
 	{
-		for (NSUInteger j = 0; j < 3; j++)
+		for (uint j = 0; j < 3; j++)
 		{
 			if (triangles->at(i).vertexIndices[j] == firstIndex ||
 				triangles->at(i).vertexIndices[j] == secondIndex)
@@ -690,10 +734,10 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	NSLog(@"fastMergeSelectedVertices");
 	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 	
-	NSUInteger selectedCount = 0;
+	uint selectedCount = 0;
 	Vector3D center = Vector3D();
 	
-	for (NSUInteger i = 0; i < selected->size(); i++)
+	for (uint i = 0; i < selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
@@ -711,15 +755,15 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	vertices->push_back(center);
 	selected->push_back(NO);
 	
-	NSUInteger centerIndex = vertices->size() - 1;
+	uint centerIndex = vertices->size() - 1;
 	
-	for (NSUInteger i = 0; i < selected->size(); i++)
+	for (uint i = 0; i < selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
-			for (NSUInteger j = 0; j < triangles->size(); j++)
+			for (uint j = 0; j < triangles->size(); j++)
 			{
-				for (NSUInteger k = 0; k < 3; k++)
+				for (uint k = 0; k < 3; k++)
 				{
 					if (triangles->at(j).vertexIndices[k] == i)
 						triangles->at(j).vertexIndices[k] = centerIndex;
@@ -786,7 +830,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 - (void)transformWithMatrix:(Matrix4x4)matrix
 {
-	for (NSUInteger i = 0; i < vertices->size(); i++)
+	for (uint i = 0; i < vertices->size(); i++)
 		vertices->at(i).Transform(matrix);
 }
 
@@ -794,12 +838,12 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	NSLog(@"mergeWithMesh:");
 	
-	NSUInteger vertexCount = vertices->size();
-	for (NSUInteger i = 0; i < mesh->vertices->size(); i++)
+	uint vertexCount = vertices->size();
+	for (uint i = 0; i < mesh->vertices->size(); i++)
 	{
 		vertices->push_back(mesh->vertices->at(i));
 	}
-	for (NSUInteger i = 0; i < mesh->triangles->size(); i++)
+	for (uint i = 0; i < mesh->triangles->size(); i++)
 	{
 		Triangle triangle = mesh->triangles->at(i);
 		triangle.vertexIndices[0] += vertexCount;
@@ -808,19 +852,19 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		triangles->push_back(triangle);
 	}
 	selected->clear();
-	for (NSUInteger i = 0; i < vertices->size(); i++)
+	for (uint i = 0; i < vertices->size(); i++)
 		selected->push_back(NO);
 }
 
 - (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle
 {
-	for (NSUInteger i = 0; i < 3; i++)
+	for (uint i = 0; i < 3; i++)
 	{
 		triangleVertices[i] = [self vertexAtIndex:triangle.vertexIndices[i]];
 	}
 }
 
-- (void)splitTriangleAtIndex:(NSUInteger)index
+- (void)splitTriangleAtIndex:(uint)index
 {
 	NSLog(@"splitTriangleAtIndex:%i", index);
 	
@@ -830,18 +874,18 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	
 	Vector3D centerVertex = Vector3D();
 	
-	for (NSUInteger i = 0; i < 3; i++)
+	for (uint i = 0; i < 3; i++)
 		centerVertex +=	triangleVertices[i];
 	
 	centerVertex /= 3;
 	
 	vertices->push_back(centerVertex);
 	
-	NSUInteger centerVertexIndex = vertices->size() - 1;
+	uint centerVertexIndex = vertices->size() - 1;
 	
 	Vector3D triangleNormal = NormalFromTriangleVertices(triangleVertices);
 		
-	for (NSUInteger i = 0; i < 3; i++)
+	for (uint i = 0; i < 3; i++)
 	{
 		Triangle newTriangle;
 		
@@ -871,7 +915,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	[self removeTriangleAtIndex:index];
 }
 
-- (void)splitEdgeAtIndex:(NSUInteger)index
+- (void)splitEdgeAtIndex:(uint)index
 {
 	NSLog(@"splitEdgeAtIndex:%i", index);
 	
@@ -882,7 +926,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	Vector3D centerVertex = firstVertex + secondVertex;
 	centerVertex /= 2.0f;
 	vertices->push_back(centerVertex);
-	NSUInteger centerIndex = vertices->size() - 1;
+	uint centerIndex = vertices->size() - 1;
 	
 	Vector3D triangleVertices[3];
 		
@@ -891,7 +935,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		Triangle triangle = [self triangleAtIndex:i];
 		if (IsEdgeInTriangle(triangle, edge))
 		{
-			NSUInteger oppositeIndex = NonEdgeIndexInTriangle(triangle, edge);
+			uint oppositeIndex = NonEdgeIndexInTriangle(triangle, edge);
 			
 			[self removeTriangleAtIndex:i];
 			i--;
@@ -952,7 +996,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
-- (void)turnEdgeAtIndex:(NSUInteger)index
+- (void)turnEdgeAtIndex:(uint)index
 {
 	NSLog(@"turnEdgeAtIndex:%i", index);
 	
@@ -1060,124 +1104,109 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 
 #pragma mark OpenGLManipulatingModel implementation
 
-- (NSUInteger)count
+- (uint)count
 {
 	return selected->size();	
 }
 
-- (Vector3D)centerOfEdgeAtIndex:(NSUInteger)index
+- (void)willSelect
 {
-	Edge edge = [self edgeAtIndex:index];
-
-	Vector3D center = Vector3D();
-	for (NSUInteger i = 0; i < 2; i++)
-		center += [self vertexAtIndex:edge.vertexIndices[i]];
-	
-	return center / 2.0f;
+	[self makeMarkedVertices];
 }
 
-- (Vector3D)centerOfTriangleAtIndex:(NSUInteger)index
+- (void)getSelectionCenter:(Vector3D *)center 
+				  rotation:(Quaternion *)rotation
+					 scale:(Vector3D *)scale
 {
-	Triangle triangle = [self triangleAtIndex:index];
-	
-	Vector3D center = Vector3D();
-	for (NSUInteger i = 0; i < 3; i++)
-		center += [self vertexAtIndex:triangle.vertexIndices[i]];
-	
-	return center / 3.0f;
-}
+	*center = Vector3D();
+	*rotation = Quaternion();
+	*scale = Vector3D(1, 1, 1);
 
-- (void)moveEdgeByOffset:(Vector3D)offset atIndex:(NSUInteger)index
-{
-	Edge edge = [self edgeAtIndex:index];
-	
-	for (NSUInteger i = 0; i < 2; i++)
-		vertices->at(edge.vertexIndices[i]) += offset;
-}
-
-- (void)moveTriangleByOffset:(Vector3D)offset atIndex:(NSUInteger)index
-{
-	Triangle triangle = [self triangleAtIndex:index];
-	
-	for (NSUInteger i = 0; i < 3; i++)
-		vertices->at(triangle.vertexIndices[i]) += offset;
-}
-
-- (Vector3D)positionAtIndex:(NSUInteger)index
-{
-	switch (selectionMode) 
+	uint markedCount = 0;
+	for (uint i = 0; i < markedVertices->size(); i++)
 	{
-		case MeshSelectionModeVertices:
-			return vertices->at(index);
-		case MeshSelectionModeEdges:
-			return [self centerOfEdgeAtIndex:index];
-		case MeshSelectionModeTriangles:
-			return [self centerOfTriangleAtIndex:index];
-		default:
-			return Vector3D();
+		if (markedVertices->at(i))
+		{
+			*center += vertices->at(i);
+			markedCount++;
+		}
+	}
+	if (markedCount > 0)
+		*center /= (float)markedCount;
+}
+
+- (void)moveSelectedByOffset:(Vector3D)offset
+{
+	for (uint i = 0; i < markedVertices->size(); i++)
+	{
+		if (markedVertices->at(i))
+			vertices->at(i) += offset;
 	}
 }
 
-- (Quaternion)rotationAtIndex:(NSUInteger)index
+- (void)rotateSelectedByOffset:(Quaternion)offset
 {
-	return Quaternion();
-}
-
-- (Vector3D)scaleAtIndex:(NSUInteger)index
-{
-	return Vector3D(1, 1, 1);
-}
-
-- (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index
-{
-	switch (selectionMode) 
+	for (uint i = 0; i < markedVertices->size(); i++)
 	{
-		case MeshSelectionModeVertices:
-			vertices->at(index) = position;
-			break;
-		case MeshSelectionModeEdges:
-		case MeshSelectionModeTriangles:
-			[self moveByOffset:position - [self positionAtIndex:index] atIndex:index];			
-		default:
-			break;
+		if (markedVertices->at(i))
+			vertices->at(i).Transform(offset);
 	}
 }
 
-- (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index {}
-- (void)setScale:(Vector3D)scale atIndex:(NSUInteger)index {}
-
-- (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index
+- (void)scaleSelectedByOffset:(Vector3D)offset
 {
-	switch (selectionMode) 
+	for (uint i = 0; i < markedVertices->size(); i++)
 	{
-		case MeshSelectionModeVertices:
-			vertices->at(index) += offset;
-			break;
-		case MeshSelectionModeEdges:
-			[self moveEdgeByOffset:offset atIndex:index];
-			break;
-		case MeshSelectionModeTriangles:
-			[self moveTriangleByOffset:offset atIndex:index];
-			break;
-		default:
-			break;
-	}
+		if (markedVertices->at(i))
+		{
+			Vector3D &v = vertices->at(i);
+			v.x *= offset.x;
+			v.y *= offset.y;
+			v.z *= offset.z;
+		}
+	}	
 }
 
-- (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index {}
-- (void)scaleByOffset:(Vector3D)offset atIndex:(NSUInteger)index {}
-
-- (BOOL)isSelectedAtIndex:(NSUInteger)index
+- (BOOL)isSelectedAtIndex:(uint)index
 {
 	return selected->at(index);
 }
 
-- (void)setSelected:(BOOL)isSelected atIndex:(NSUInteger)index 
+- (void)setEdgeMarked:(BOOL)isMarked atIndex:(uint)index
 {
-	selected->at(index) = isSelected;
+	Edge edge = [self edgeAtIndex:index];
+	markedVertices->at(edge.vertexIndices[0]) = isMarked;
+	markedVertices->at(edge.vertexIndices[1]) = isMarked;
 }
 
-- (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection
+- (void)setTriangleMarked:(BOOL)isMarked atIndex:(uint)index
+{
+	Triangle triangle = [self triangleAtIndex:index];
+	markedVertices->at(triangle.vertexIndices[0]) = isMarked;
+	markedVertices->at(triangle.vertexIndices[1]) = isMarked;
+	markedVertices->at(triangle.vertexIndices[2]) = isMarked;
+}
+
+- (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
+{
+	selected->at(index) = isSelected;
+	switch (selectionMode)
+	{
+		case MeshSelectionModeVertices:
+			markedVertices->at(index) = isSelected;
+			break;
+		case MeshSelectionModeEdges:
+			[self setEdgeMarked:isSelected atIndex:index];
+			break;
+		case MeshSelectionModeTriangles:
+			[self setTriangleMarked:isSelected atIndex:index];
+			break;
+		default:
+			break;
+	}
+}
+
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
 {
 	switch (selectionMode) 
 	{
@@ -1204,7 +1233,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			{
 				Triangle currentTriangle = [self triangleAtIndex:index];
 				glBegin(GL_TRIANGLES);
-				for (NSUInteger i = 0; i < 3; i++)
+				for (uint i = 0; i < 3; i++)
 				{
 					Vector3D v = [self vertexAtIndex:currentTriangle.vertexIndices[i]];
 					glVertex3f(v.x, v.y, v.z);
@@ -1225,7 +1254,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 				glDisable(GL_LIGHTING);
 			}
 			glBegin(GL_LINES);
-			for (NSUInteger i = 0; i < 2; i++)
+			for (uint i = 0; i < 2; i++)
 			{
 				Vector3D v = [self vertexAtIndex:currentEdge.vertexIndices[i]];
 				glVertex3f(v.x, v.y, v.z);
@@ -1235,14 +1264,23 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
-- (void)cloneAtIndex:(NSUInteger)index {}
+- (void)cloneSelected
+{
+}
 
-- (void)removeAtIndex:(NSUInteger)index
+- (void)removeSelected
 {
 	if (selectionMode == MeshSelectionModeTriangles)
 	{
-		[self removeTriangleAtIndex:index];
-		[self removeNonUsedVertices]; // need fix this, incredibly slow
+		for (int i = 0; i < [self triangleCount]; i++)
+		{
+			if ([self isSelectedAtIndex:i])
+			{
+				[self removeTriangleAtIndex:i];
+				i--;
+			}
+		}
+		[self removeNonUsedVertices]; // still slow, but called once per selection
 	}
 }
 
@@ -1260,20 +1298,20 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		selected = new vector<BOOL>();
 		selectionMode = MeshSelectionModeVertices;
 		
-		NSUInteger tempLength = 0;
+		unsigned long tempLength = 0;
 		
 		const Vector3D *tempVertices = (const Vector3D *)[aDecoder decodeBytesForKey:@"vertices"
 																	  returnedLength:&tempLength];
 		tempLength /= sizeof(Vector3D);
 		
-		for (NSUInteger i = 0; i < tempLength; i++)
+		for (uint i = 0; i < tempLength; i++)
 			vertices->push_back(tempVertices[i]);
 		
 		const Triangle *tempTriangles = (const Triangle *)[aDecoder decodeBytesForKey:@"triangles"
 																	   returnedLength:&tempLength];
 		tempLength /= sizeof(Triangle);
 		
-		for (NSUInteger i = 0; i < tempLength; i++)
+		for (uint i = 0; i < tempLength; i++)
 			triangles->push_back(tempTriangles[i]);
 	}
 	return self;

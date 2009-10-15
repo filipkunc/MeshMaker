@@ -17,7 +17,7 @@
 	NSMutableArray *items;
 }
 
-- (Item *)itemAtIndex:(NSUInteger)index;
+- (Item *)itemAtIndex:(uint)index;
 - (void)addItem:(Item *)item;
 - (void)removeItem:(Item *)item;
 - (void)mergeSelectedItems;

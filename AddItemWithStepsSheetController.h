@@ -2,7 +2,7 @@
 
 @protocol AddItemWithStepsProtocol
 
-- (void)addItemWithSteps:(NSUInteger)steps;
+- (void)addItemWithSteps:(uint)steps;
 
 @end
 
@@ -13,10 +13,10 @@
 	
 	id<AddItemWithStepsProtocol> documentProtocol;
 	
-	NSUInteger steps;
+	uint steps;
 }
 
-@property (readwrite, assign) NSUInteger steps;
+@property (readwrite, assign) uint steps;
 
 - (void)beginSheetWithProtocol:(id<AddItemWithStepsProtocol>)addItemWithSteps;
 - (IBAction)addItem:(id)sender;

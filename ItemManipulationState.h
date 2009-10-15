@@ -11,15 +11,15 @@
 
 @interface ItemManipulationState : NSObject
 {
-	NSUInteger itemIndex;
+	uint itemIndex;
 	Vector3D *position;
 	Quaternion *rotation;
 	Vector3D *scale;
 }
 
-@property (readonly) NSUInteger itemIndex;
+@property (readonly) uint itemIndex;
 
-- (id)initWithItem:(Item *)item index:(NSUInteger)index;
+- (id)initWithItem:(Item *)item index:(uint)index;
 - (void)applyManipulationToItem:(Item *)item;
 
 @end

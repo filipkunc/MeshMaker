@@ -12,21 +12,35 @@
 
 @protocol OpenGLManipulatingModel
 
-- (NSUInteger)count;
-- (Vector3D)positionAtIndex:(NSUInteger)index;
-- (Quaternion)rotationAtIndex:(NSUInteger)index;
-- (Vector3D)scaleAtIndex:(NSUInteger)index;
-- (void)setPosition:(Vector3D)position atIndex:(NSUInteger)index;
-- (void)setRotation:(Quaternion)rotation atIndex:(NSUInteger)index;
-- (void)setScale:(Vector3D)scale atIndex:(NSUInteger)index;
-- (void)moveByOffset:(Vector3D)offset atIndex:(NSUInteger)index;
-- (void)rotateByOffset:(Quaternion)offset atIndex:(NSUInteger)index;
-- (void)scaleByOffset:(Vector3D)offset atIndex:(NSUInteger)index;
-- (BOOL)isSelectedAtIndex:(NSUInteger)index;
-- (void)setSelected:(BOOL)selected atIndex:(NSUInteger)index;
-- (void)drawAtIndex:(NSUInteger)index forSelection:(BOOL)forSelection;
-- (void)cloneAtIndex:(NSUInteger)index;
-- (void)removeAtIndex:(NSUInteger)index;
+- (uint)count;
+- (BOOL)isSelectedAtIndex:(uint)index;
+- (void)setSelected:(BOOL)selected atIndex:(uint)index;
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection;
+- (void)cloneSelected;
+- (void)removeSelected;
+
+@optional // better for Mesh-like objects
+- (void)willSelect;
+
+- (void)getSelectionCenter:(Vector3D *)center 
+				  rotation:(Quaternion *)rotation
+					 scale:(Vector3D *)scale;
+
+- (void)moveSelectedByOffset:(Vector3D)offset;
+- (void)rotateSelectedByOffset:(Quaternion)offset;
+- (void)scaleSelectedByOffset:(Vector3D)offset;
+
+@optional // better for Item-like objects
+
+- (Vector3D)positionAtIndex:(uint)index;
+- (Quaternion)rotationAtIndex:(uint)index;
+- (Vector3D)scaleAtIndex:(uint)index;
+- (void)setPosition:(Vector3D)position atIndex:(uint)index;
+- (void)setRotation:(Quaternion)rotation atIndex:(uint)index;
+- (void)setScale:(Vector3D)scale atIndex:(uint)index;
+- (void)moveByOffset:(Vector3D)offset atIndex:(uint)index;
+- (void)rotateByOffset:(Quaternion)offset atIndex:(uint)index;
+- (void)scaleByOffset:(Vector3D)offset atIndex:(uint)index;
 
 @end
 
@@ -37,7 +51,7 @@
 	Quaternion *selectionRotation;
 	Vector3D *selectionEuler;
 	Vector3D *selectionScale;
-	NSUInteger selectedCount;
+	uint selectedCount;
 	NSInteger lastSelectedIndex;
 	enum ManipulatorType currentManipulator;
 	
@@ -50,8 +64,8 @@
 @property (readwrite, assign) id<OpenGLManipulatingModel> model;
 @property (readonly, assign) NSInteger lastSelectedIndex;
 
-- (float)selectionValueAtIndex:(NSUInteger)index;
-- (void)setSelectionValue:(float)value atIndex:(NSUInteger)index;
+- (float)selectionValueAtIndex:(uint)index;
+- (void)setSelectionValue:(float)value atIndex:(uint)index;
 - (void)willChangeSelection;
 - (void)didChangeSelection;
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;

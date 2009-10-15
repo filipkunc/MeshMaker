@@ -16,8 +16,11 @@ enum OpenGLSelectionMode
 
 @protocol OpenGLSelecting
 
-- (NSUInteger)selectableCount;
-- (void)drawForSelectionAtIndex:(NSUInteger)index;
-- (void)selectObjectAtIndex:(NSUInteger)index withMode:(enum OpenGLSelectionMode)selectionMode;
+- (uint)selectableCount;
+- (void)drawForSelectionAtIndex:(uint)index;
+- (void)selectObjectAtIndex:(uint)index withMode:(enum OpenGLSelectionMode)selectionMode;
+
+@optional
+- (void)willSelect;
 
 @end
