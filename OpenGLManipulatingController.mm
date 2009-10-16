@@ -392,6 +392,15 @@
 	}
 }
 
+- (void)didSelect
+{
+	id aModel = model;
+	if ([aModel respondsToSelector:@selector(didSelect)])
+	{
+		[model didSelect];
+	}
+}
+
 - (uint)selectableCount
 {
 	return [model count];
@@ -408,6 +417,7 @@
 - (void)selectObjectAtIndex:(uint)index
 				   withMode:(enum OpenGLSelectionMode)selectionMode
 {
+	[self willSelect];
 	switch (selectionMode) 
 	{
 		case OpenGLSelectionModeAdd:
@@ -422,6 +432,7 @@
 		default:
 			break;
 	}
+	[self didSelect];
 	[self updateSelection];
 }
 
@@ -430,6 +441,7 @@
 	[self willSelect];
 	for (int i = 0; i < [model count]; i++)
 		[model setSelected:isSelected atIndex:i];
+	[self didSelect];
 	[self updateSelection];
 }
 
@@ -438,6 +450,7 @@
 	[self willSelect];
 	for (int i = 0; i < [model count]; i++)
 		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
+	[self didSelect];
 	[self updateSelection];
 }
 

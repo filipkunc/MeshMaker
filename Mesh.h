@@ -56,23 +56,19 @@ enum MeshSelectionMode
 - (Edge)edgeAtIndex:(uint)anIndex;
 - (BOOL)isVertexMarkedAtIndex:(uint)anIndex;
 - (void)setVertexMarked:(BOOL)isMarked atIndex:(uint)anIndex;
-
+- (void)setEdgeMarked:(BOOL)isMarked atIndex:(uint)index;
+- (void)setTriangleMarked:(BOOL)isMarked atIndex:(uint)index;
 - (void)addVertex:(Vector3D)aVertex;
-
 - (void)addTriangle:(Triangle)aTriangle;
-
 - (void)addTriangleWithIndex1:(uint)index1
 					   index2:(uint)index2
 					   index3:(uint)index3;
-
 - (void)addQuadWithIndex1:(uint)index1
 				   index2:(uint)index2
 				   index3:(uint)index3 
 				   index4:(uint)index4;
-
 - (void)addEdgeWithIndex1:(uint)index1
 				   index2:(uint)index2;
-
 - (void)removeVertexAtIndex:(uint)index;
 - (void)removeTriangleAtIndex:(uint)index;
 - (void)removeEdgeAtIndex:(uint)index;

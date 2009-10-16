@@ -595,9 +595,45 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 {
 	NSLog(@"makeMarkedVertices");
 	
-	markedVertices->clear();
-	for (uint i = 0; i < vertices->size(); i++)
-		markedVertices->push_back(NO);
+	markedVertices->resize(vertices->size());
+	for (uint i = 0; i < markedVertices->size(); i++)
+	{
+		markedVertices->at(i) = NO;
+	}
+	
+	switch (selectionMode)
+	{
+		case MeshSelectionModeVertices:
+		{
+			for (uint i = 0; i < vertices->size(); i++)
+			{
+				if (selected->at(i))
+					markedVertices->at(i) = YES;
+			}
+		} break;
+		case MeshSelectionModeTriangles:
+		{
+			for (uint i = 0; i < triangles->size(); i++)
+			{
+				if (selected->at(i))
+				{
+					[self setTriangleMarked:YES atIndex:i];
+				}
+			}
+		} break;
+		case MeshSelectionModeEdges:
+		{
+			for (uint i = 0; i < edges->size(); i++)
+			{
+				if (selected->at(i))
+				{
+					[self setEdgeMarked:YES atIndex:i];
+				}
+			}
+		} break;
+		default:
+			break;
+	}
 }
 
 - (void)removeVertexAtIndex:(uint)index
@@ -1109,7 +1145,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	return selected->size();	
 }
 
-- (void)willSelect
+- (void)didSelect
 {
 	[self makeMarkedVertices];
 }
@@ -1133,6 +1169,8 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 	if (markedCount > 0)
 		*center /= (float)markedCount;
+	
+	NSLog(@"markedCount = %i", markedCount);
 }
 
 - (void)moveSelectedByOffset:(Vector3D)offset
@@ -1190,20 +1228,6 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
 {
 	selected->at(index) = isSelected;
-	switch (selectionMode)
-	{
-		case MeshSelectionModeVertices:
-			markedVertices->at(index) = isSelected;
-			break;
-		case MeshSelectionModeEdges:
-			[self setEdgeMarked:isSelected atIndex:index];
-			break;
-		case MeshSelectionModeTriangles:
-			[self setTriangleMarked:isSelected atIndex:index];
-			break;
-		default:
-			break;
-	}
 }
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection

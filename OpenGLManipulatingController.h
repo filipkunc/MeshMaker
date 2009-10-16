@@ -21,6 +21,7 @@
 
 @optional // better for Mesh-like objects
 - (void)willSelect;
+- (void)didSelect;
 
 - (void)getSelectionCenter:(Vector3D *)center 
 				  rotation:(Quaternion *)rotation
