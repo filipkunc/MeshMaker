@@ -399,6 +399,7 @@
 	{
 		[model didSelect];
 	}
+	[self updateSelection];
 }
 
 - (uint)selectableCount
@@ -417,7 +418,6 @@
 - (void)selectObjectAtIndex:(uint)index
 				   withMode:(enum OpenGLSelectionMode)selectionMode
 {
-	[self willSelect];
 	switch (selectionMode) 
 	{
 		case OpenGLSelectionModeAdd:
@@ -432,8 +432,6 @@
 		default:
 			break;
 	}
-	[self didSelect];
-	[self updateSelection];
 }
 
 - (void)changeSelection:(BOOL)isSelected
