@@ -90,12 +90,17 @@
 		
 		glDisable(GL_CLIP_PLANE0);
 		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		glColor4f(0.8f, 0.8f, 0.8f, 0.25f);
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
 		glutSolidSphere(size * 0.7f, 20, 20);
 		glPopMatrix();
+		
+		glDisable(GL_BLEND);
 		
 		center -= axisZ * size * 0.02f;
 		

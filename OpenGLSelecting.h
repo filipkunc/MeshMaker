@@ -22,5 +22,6 @@ enum OpenGLSelectionMode
 
 @optional
 - (void)willSelect;
+- (void)didSelect;
 
 @end

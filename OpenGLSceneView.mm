@@ -201,7 +201,7 @@ const float maxDistance = 1000.0f;
 		x /= 2.0f;
 		y /= 2.0f;
 		
-		glOrtho(-x, x, -y, y, minDistance, maxDistance);
+		glOrtho(-x, x, -y, y, -maxDistance, maxDistance);
 	}
 	else 
 	{
@@ -565,6 +565,11 @@ const float maxDistance = 1000.0f;
 				[selecting selectObjectAtIndex:selectedIndex withMode:selectionMode];
         }
 	}	
+	
+	if ([aSelecting respondsToSelector:@selector(didSelect)])
+	{
+		[selecting didSelect];
+	}
 }
 
 - (void)selectWithPoint:(NSPoint)point 
