@@ -1154,6 +1154,11 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 				  rotation:(Quaternion *)rotation
 					 scale:(Vector3D *)scale
 {
+	if (markedVertices->size() != vertices->size())
+	{
+		[self makeMarkedVertices];
+	}
+	
 	*center = Vector3D();
 	*rotation = Quaternion();
 	*scale = Vector3D(1, 1, 1);
