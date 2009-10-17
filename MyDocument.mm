@@ -24,6 +24,9 @@
 		
 		[itemsController setModel:items];
 		manipulated = itemsController;
+
+		[itemsController addSelectionObserver:self];
+		[meshController addSelectionObserver:self];
     }
     return self;
 }
@@ -90,6 +93,57 @@
 	[itemsController changeSelection:NO];
 	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
+}
+
+- (float)selectionX
+{
+	return [manipulated selectionX];
+}
+
+- (float)selectionY
+{
+	return [manipulated selectionY];
+}
+
+- (float)selectionZ
+{
+	return [manipulated selectionZ];
+}
+
+- (void)setSelectionX:(float)value
+{
+	[self manipulationStarted];
+	[manipulated setSelectionX:value];
+	[self manipulationEnded];
+}
+
+- (void)setSelectionY:(float)value
+{
+	[self manipulationStarted];
+	[manipulated setSelectionY:value];
+	[self manipulationEnded];
+}
+
+- (void)setSelectionZ:(float)value
+{
+	[self manipulationStarted];
+	[manipulated setSelectionZ:value];
+	[self manipulationEnded];
+}
+
+- (void)setNilValueForKey:(NSString *)key
+{
+	[self setValue:[NSNumber numberWithFloat:0.0f] forKey:key];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath 
+					  ofObject:(id)object 
+						change:(NSDictionary *)change
+					   context:(void *)context
+{
+	// Is it right way to do it? I really don't know, but it works.
+	[self willChangeValueForKey:keyPath];
+	[self didChangeValueForKey:keyPath];
 }
 
 - (void)applyWithCurrentManipulations:(NSMutableArray *)currentManipulations 
