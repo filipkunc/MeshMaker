@@ -46,6 +46,28 @@
 	[super dealloc];
 }
 
+- (void)addObserver:(id)observer forKeyPath:(NSString *)keyPath
+{
+	[self addObserver:observer
+		   forKeyPath:keyPath
+			  options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
+			  context:NULL];
+}
+
+- (void)addSelectionObserver:(id)observer
+{
+	[self addObserver:observer forKeyPath:@"selectionX"];
+	[self addObserver:observer forKeyPath:@"selectionY"];
+	[self addObserver:observer forKeyPath:@"selectionZ"];
+}
+
+- (void)removeSelectionObserver:(id)observer
+{
+	[self removeObserver:observer forKeyPath:@"selectionX"];
+	[self removeObserver:observer forKeyPath:@"selectionY"];
+	[self removeObserver:observer forKeyPath:@"selectionZ"];
+}
+
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
 {
 	*modelPosition = aPosition;

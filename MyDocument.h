@@ -41,6 +41,7 @@ enum ItemWithSteps
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
+@property (readwrite, assign) float selectionX, selectionY, selectionZ;
 
 - (void)addItem:(Item *)item withName:(NSString *)name;
 - (void)removeItem:(Item *)item withName:(NSString *)name;
