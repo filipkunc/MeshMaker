@@ -87,6 +87,9 @@ const float maxDistance = 1000.0f;
 		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetCube]];
 				
 		currentManipulator = defaultManipulator;
+		
+		cameraMode = CameraModePerspective;
+		viewMode = ViewModeSolid;
 	}
 	return self;
 }
@@ -167,6 +170,17 @@ const float maxDistance = 1000.0f;
 	[self setNeedsDisplay:YES];
 }
 
+- (enum ViewMode)viewMode
+{
+	return viewMode;
+}
+
+- (void)setViewMode:(enum ViewMode)value
+{
+	viewMode = value;
+	[self setNeedsDisplay:YES];
+}
+
 - (void)dealloc
 {
 	delete perspectiveRadians;
@@ -229,7 +243,7 @@ const float maxDistance = 1000.0f;
 - (void)drawRect:(NSRect)rect
 {
 	// Clear the background
-	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	[self reshape];
@@ -240,15 +254,15 @@ const float maxDistance = 1000.0f;
 	
 	glDisable(GL_LIGHTING);
 	
-	glColor3f(0.3f, 0.3f, 0.3f);
+	glColor3f(0.1f, 0.1f, 0.1f);
 	[self drawGridWithSize:10 step:2];
 	
 	glEnable(GL_LIGHTING);
 	
 	if (displayed != manipulated)
-		[displayed draw];
+		[displayed drawWithMode:viewMode];
 	
-	[manipulated draw];
+	[manipulated drawWithMode:viewMode];
 	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);

@@ -117,9 +117,9 @@
 	[[self itemAtIndex:index] setSelected:selected];
 }
 
-- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
-	[[self itemAtIndex:index] draw];
+	[[self itemAtIndex:index] drawWithMode:mode];
 }
 
 - (void)cloneSelected

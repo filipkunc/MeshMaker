@@ -16,6 +16,12 @@ enum ManipulatorType
 	ManipulatorTypeScale = 3
 };
 
+enum ViewMode
+{
+	ViewModeSolid = 0,
+	ViewModeWireframe = 1
+};
+
 @protocol OpenGLManipulating <OpenGLSelecting>
 
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
@@ -29,7 +35,7 @@ enum ManipulatorType
 - (void)rotateSelectedByOffset:(Quaternion)offset;
 - (void)scaleSelectedByOffset:(Vector3D)offset;
 - (void)updateSelection;
-- (void)draw;
+- (void)drawWithMode:(enum ViewMode)mode;
 - (void)changeSelection:(BOOL)isSelected;
 - (void)invertSelection;
 - (void)cloneSelected;

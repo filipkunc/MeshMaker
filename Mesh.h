@@ -75,8 +75,8 @@ enum MeshSelectionMode
 - (void)removeTriangleAtIndex:(uint)index;
 - (void)removeEdgeAtIndex:(uint)index;
 - (void)drawFillWithScale:(Vector3D)scale;
-- (void)drawWireWithScale:(Vector3D)scale;
-- (void)drawWithScale:(Vector3D)scale selected:(BOOL)selected;
+- (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected;
+- (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected;
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(uint)steps;
 - (void)makeSphereWithSteps:(uint)steps;

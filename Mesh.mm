@@ -125,7 +125,7 @@ Triangle FlipTriangle(Triangle triangle)
 		float hue = (random() % 10) / 10.0f;
 		color = [NSColor colorWithCalibratedHue:hue 
 									 saturation:1.0f
-									 brightness:1.0f 
+									 brightness:0.7f 
 										  alpha:1.0f];
 		[color retain];
 	}
@@ -348,10 +348,13 @@ Triangle FlipTriangle(Triangle triangle)
 	glEnd();
 }
 
-- (void)drawWireWithScale:(Vector3D)scale
+- (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected
 {
 	glDisable(GL_LIGHTING);
-	glColor3f(1, 1, 1);
+	if (isSelected)
+		glColor3f(1, 1, 1);
+	else
+		glColor3f([color redComponent], [color greenComponent], [color blueComponent]); 
 	if (selectionMode != MeshSelectionModeEdges)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -369,7 +372,7 @@ Triangle FlipTriangle(Triangle triangle)
 		glPolygonOffset(1.0f, 1.0f);
 		[self drawFillWithScale:scale];
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		[self drawWireWithScale:scale];
+		[self drawWireWithScale:scale selected:isSelected];
 	}
 	else
 	{
@@ -1211,6 +1214,11 @@ Triangle FlipTriangle(Triangle triangle)
 
 - (void)moveSelectedByOffset:(Vector3D)offset
 {
+	if (markedVertices->size() != vertices->size())
+	{
+		[self makeMarkedVertices];
+	}
+	
 	for (uint i = 0; i < markedVertices->size(); i++)
 	{
 		if (markedVertices->at(i))
@@ -1220,6 +1228,11 @@ Triangle FlipTriangle(Triangle triangle)
 
 - (void)rotateSelectedByOffset:(Quaternion)offset
 {
+	if (markedVertices->size() != vertices->size())
+	{
+		[self makeMarkedVertices];
+	}
+	
 	for (uint i = 0; i < markedVertices->size(); i++)
 	{
 		if (markedVertices->at(i))
@@ -1229,6 +1242,11 @@ Triangle FlipTriangle(Triangle triangle)
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
+	if (markedVertices->size() != vertices->size())
+	{
+		[self makeMarkedVertices];
+	}
+	
 	for (uint i = 0; i < markedVertices->size(); i++)
 	{
 		if (markedVertices->at(i))
@@ -1266,7 +1284,7 @@ Triangle FlipTriangle(Triangle triangle)
 	selected->at(index) = isSelected;
 }
 
-- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
 	switch (selectionMode) 
 	{

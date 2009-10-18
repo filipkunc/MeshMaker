@@ -394,13 +394,13 @@
 	[self setSelectionScale:*selectionScale + offset];
 }
 
-- (void)draw
+- (void)drawWithMode:(enum ViewMode)mode
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
 	for (int i = 0; i < [model count]; i++)
 	{
-		[model drawAtIndex:i forSelection:NO];
+		[model drawAtIndex:i forSelection:NO withMode:mode];
 	}
 	glPopMatrix();
 }
@@ -433,7 +433,7 @@
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
-	[model drawAtIndex:index forSelection:YES];
+	[model drawAtIndex:index forSelection:YES withMode:ViewModeSolid];
 	glPopMatrix();
 }
 

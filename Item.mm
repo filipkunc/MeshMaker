@@ -126,14 +126,17 @@
 	[super dealloc];
 }
 
-- (void)draw
+- (void)drawWithMode:(enum ViewMode)mode
 {
 	glPushMatrix();
 	glTranslatef(position->x, position->y, position->z);
 	Matrix4x4 rotationMatrix;
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
-	[mesh drawWithScale:*scale selected:selected];
+	if (mode == ViewModeSolid)
+		[mesh drawWithScale:*scale selected:selected];
+	else
+		[mesh drawWireWithScale:*scale selected:selected];
 	glPopMatrix();
 }
 
