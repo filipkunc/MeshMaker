@@ -61,5 +61,6 @@ enum ItemWithSteps
 - (IBAction)deleteSelected:(id)sender;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
+- (void)readFromTmd:(NSString *)fileName;
 
 @end
