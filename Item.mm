@@ -133,7 +133,6 @@
 	Matrix4x4 rotationMatrix;
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
-	glScalef(scale->x, scale->y, scale->z);
 	[mesh drawWithScale:*scale selected:selected];
 	glPopMatrix();
 }

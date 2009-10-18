@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="5"/>
+			<integer value="6"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -85,11 +85,9 @@
 								<string key="NSToolbarItemPaletteLabel">Y</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSTextField" key="NSToolbarItemView" id="132434997">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {70, 22}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="504043982">
 										<int key="NSCellFlags">-1804468671</int>
@@ -269,11 +267,9 @@
 								<string key="NSToolbarItemPaletteLabel">Camera Mode</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSPopUpButton" key="NSToolbarItemView" id="161073358">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSPopUpButtonCell" key="NSCell" id="835264558">
 										<int key="NSCellFlags">-2076049856</int>
@@ -529,11 +525,9 @@
 								<string key="NSToolbarItemPaletteLabel">Z</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSTextField" key="NSToolbarItemView" id="85652736">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {70, 22}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="1006375368">
 										<int key="NSCellFlags">-1804468671</int>
@@ -620,11 +614,9 @@
 								<string key="NSToolbarItemPaletteLabel">X</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSTextField" key="NSToolbarItemView" id="723099555">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {70, 22}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="760553423">
 										<int key="NSCellFlags">-1804468671</int>
@@ -711,11 +703,9 @@
 								<string key="NSToolbarItemPaletteLabel">Edit Mode</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSPopUpButton" key="NSToolbarItemView" id="631661131">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 										<int key="NSCellFlags">-2076049856</int>
@@ -944,7 +934,7 @@
 							<reference key="NSSuperview" ref="568628114"/>
 							<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 								<object class="NSMutableData" key="NSPixelAttributes">
-									<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAADAAAACAAAAAAA</bytes>
+									<bytes key="NS.bytes">AAAABQAAAEkAAABgAAAACAAAABgAAAALAAAACAAAAAwAAAAgAAAAAA</bytes>
 								</object>
 							</object>
 						</object>

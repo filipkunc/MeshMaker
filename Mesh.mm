@@ -68,9 +68,10 @@ uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
 {
-	Vector3D u = triangleVertices[1] - triangleVertices[0];
-	Vector3D v = triangleVertices[2] - triangleVertices[0];
-	return v.Cross(u);
+	// now is same as RedBook (OpenGL Programming Guide)
+	Vector3D u = triangleVertices[0] - triangleVertices[1];
+	Vector3D v = triangleVertices[1] - triangleVertices[2];
+	return u.Cross(v);
 }
 
 Triangle MakeTriangle(uint first, uint second, uint third)
@@ -82,7 +83,7 @@ Triangle MakeTriangle(uint first, uint second, uint third)
 	return triangle;
 }
 
-Triangle MakeTriangleOpposite(Triangle triangle)
+Triangle FlipTriangle(Triangle triangle)
 {
 	Triangle opposite;
 	opposite.vertexIndices[0] = triangle.vertexIndices[2];
@@ -121,6 +122,12 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		selected = new vector<BOOL>();
 		markedVertices = new vector<BOOL>();
 		selectionMode = MeshSelectionModeVertices;
+		float hue = (random() % 10) / 10.0f;
+		color = [NSColor colorWithCalibratedHue:hue 
+									 saturation:1.0f
+									 brightness:1.0f 
+										  alpha:1.0f];
+		[color retain];
 	}
 	return self;
 }
@@ -132,6 +139,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	delete edges;
 	delete selected;
 	delete markedVertices;
+	[color release];
 	[super dealloc];
 }
 
@@ -270,15 +278,30 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 }
 
 - (void)drawFillWithScale:(Vector3D)scale
-{		
-	float normalDiffuse[] = { 0.5, 0.7, 1.0, 1 };
-	float selectedDiffuse[] = { 1, 0, 0, 1 };
+{	
+	float frontDiffuse[] = { 0.4, 0.4, 0.4, 1 };
+	CGFloat components[4];
+	[color getComponents:components];
+	float backDiffuse[4];
+	float selectedDiffuse[4];
 	
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, normalDiffuse);
+	for (uint i = 0; i < 4; i++)
+	{
+		backDiffuse[i] = components[i];
+		if (i < 3)
+			selectedDiffuse[i] = 1.0f - components[i];
+		else
+			selectedDiffuse[i] = components[i];
+	}
+	
+	glMaterialfv(GL_BACK, GL_DIFFUSE, backDiffuse);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, frontDiffuse);
 	
 	Vector3D triangleVertices[3];
 	
-	float *lastDiffuse = normalDiffuse; 
+	float *lastDiffuse = frontDiffuse; 
+	
+	BOOL flip = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
 	
 	glBegin(GL_TRIANGLES);
 	
@@ -288,7 +311,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		{
 			if (selected->at(i))
 			{
-				if (lastDiffuse == normalDiffuse)
+				if (lastDiffuse == frontDiffuse)
 				{
 					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, selectedDiffuse);
 					lastDiffuse = selectedDiffuse;
@@ -296,17 +319,25 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			}
 			else if (lastDiffuse == selectedDiffuse)
 			{
-				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, normalDiffuse);
-				lastDiffuse = normalDiffuse;
+				glMaterialfv(GL_BACK, GL_DIFFUSE, backDiffuse);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, frontDiffuse);
+				lastDiffuse = frontDiffuse;
 			}
 		}
 		Triangle currentTriangle = [self triangleAtIndex:i];
+		if (flip)
+			currentTriangle = FlipTriangle(currentTriangle);
+		
 		[self getTriangleVertices:triangleVertices fromTriangle:currentTriangle];
+		for (uint j = 0; j < 3; j++)
+		{
+			for (uint k = 0; k < 3; k++)
+			{
+				triangleVertices[j][k] *= scale[k];
+			}
+		}
 		Vector3D n = NormalFromTriangleVertices(triangleVertices);
 		n.Normalize();
-		n.x *= scale.x;
-		n.y *= scale.y;
-		n.z *= scale.z;		
 		for (uint j = 0; j < 3; j++)
 		{
 			glNormal3f(n.x, n.y, n.z);
@@ -943,7 +974,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 		Vector3D newTriangleNormal = NormalFromTriangleVertices(triangleVertices);
 		
 		if (triangleNormal.Dot(newTriangleNormal) < 0)
-			newTriangle = MakeTriangleOpposite(newTriangle);
+			newTriangle = FlipTriangle(newTriangle);
 		
 		[self addTriangle:newTriangle];
 	}
@@ -990,10 +1021,10 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 			Vector3D secondTriangleNormal = NormalFromTriangleVertices(triangleVertices);
 			
 			if (firstTriangleNormal.Dot(splittedTriangleNormal) < 0.0f)
-				firstTriangle = MakeTriangleOpposite(firstTriangle);
+				firstTriangle = FlipTriangle(firstTriangle);
 			
 			if (secondTriangleNormal.Dot(splittedTriangleNormal) < 0.0f)
-				secondTriangle = MakeTriangleOpposite(secondTriangle);
+				secondTriangle = FlipTriangle(secondTriangle);
 			
 			[self addTriangle:firstTriangle];
 			[self addTriangle:secondTriangle];
@@ -1076,7 +1107,7 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 					if (newTriangleNormal.Dot(oldTriangleNormal1) < 0.0f ||
 						newTriangleNormal.Dot(oldTriangleNormal2) < 0.0f)
 					{
-						newTriangle = MakeTriangleOpposite(newTriangle);
+						newTriangle = FlipTriangle(newTriangle);
 						NSLog(@"opposite in turnEdgeAtIndex	");
 					}
 					
@@ -1313,20 +1344,40 @@ Triangle MakeTriangleOpposite(Triangle triangle)
 	}
 }
 
+- (void)flipSelectedTriangles
+{
+	if (selectionMode == MeshSelectionModeTriangles)
+	{	
+		for (uint i = 0; i < [self triangleCount]; i++)
+		{
+			if ([self isSelectedAtIndex:i])
+				[self flipTriangleAtIndex:i];
+		}
+	}
+}
+
+- (void)flipAllTriangles
+{
+	for (uint i = 0; i < [self triangleCount]; i++)
+	{
+		[self flipTriangleAtIndex:i];
+	}
+}
+				 
+- (void)flipTriangleAtIndex:(uint)index
+{
+	Triangle &triangle = triangles->at(index);
+	triangle = FlipTriangle(triangle);
+}
+
 #pragma mark NSCoding implementation
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-	self = [super init];
+	self = [self init];
 
 	if (self)
-	{
-		vertices = new vector<Vector3D>();
-		triangles = new vector<Triangle>();
-		edges = new vector<Edge>();
-		selected = new vector<BOOL>();
-		selectionMode = MeshSelectionModeVertices;
-		
+	{		
 		unsigned long tempLength = 0;
 		
 		const Vector3D *tempVertices = (const Vector3D *)[aDecoder decodeBytesForKey:@"vertices"

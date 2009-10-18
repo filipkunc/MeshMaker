@@ -182,15 +182,22 @@
 		if ([self isSelectedAtIndex:i])
 		{
 			Item *item = [self itemAtIndex:i];
+			Vector3D scale = [item scale];
 			
 			itemMatrix.TranslateRotateScale([item position],
 											[item rotation],
-											[item scale]);
+											scale);
 			
 			Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
+			Mesh *itemMesh = [item mesh];
 			
-			[[item mesh] transformWithMatrix:finalMatrix];
-			[mesh mergeWithMesh:[item mesh]];
+			[itemMesh transformWithMatrix:finalMatrix];
+			
+			// mirror detection, some component of scale is negative
+			if (scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f)
+				[itemMesh flipAllTriangles];
+				
+			[mesh mergeWithMesh:itemMesh];
 			[items removeObjectAtIndex:i];
 			i--;
 		}

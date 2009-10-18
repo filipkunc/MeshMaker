@@ -8,6 +8,8 @@
 
 #import "MyDocument.h"
 #import "ItemManipulationState.h"
+#import "MeshManipulationState.h"
+#import "TmdModel.h"
 
 @implementation MyDocument
 
@@ -33,6 +35,8 @@
 
 - (void)dealloc
 {
+	[itemsController removeSelectionObserver:self];
+	[meshController removeSelectionObserver:self];
 	[meshController release];
 	[itemsController release];
 	[items release];
@@ -196,20 +200,27 @@
 {
 	NSLog(@"manipulationStarted");
 	
-	NSMutableArray *itemManipulations = [[NSMutableArray alloc] init];
-	
-	for (uint i = 0; i < [items count]; i++)
+	if (manipulated == itemsController)
 	{
-		Item *item = [items itemAtIndex:i];
-		ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
-		[itemManipulations addObject:itemState];
+		NSMutableArray *itemManipulations = [[NSMutableArray alloc] init];
+		
+		for (uint i = 0; i < [items count]; i++)
+		{
+			Item *item = [items itemAtIndex:i];
+			ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
+			[itemManipulations addObject:itemState];
+		}
+		
+		NSUndoManager *undo = [self undoManager];
+		MyDocument *doc = [undo prepareWithInvocationTarget:self];
+		[doc revertManipulations:itemManipulations];
+		if (![undo isUndoing])
+			[undo setActionName:@"Manipulations"];
 	}
-	
-	NSUndoManager *undo = [self undoManager];
-	MyDocument *doc = [undo prepareWithInvocationTarget:self];
-	[doc revertManipulations:itemManipulations];
-	if (![undo isUndoing])
-		[undo setActionName:@"Manipulations"];
+	else if (manipulated == meshController)
+	{
+		NSLog(@"started on mesh");
+	}
 }
 
 - (void)manipulationEnded
@@ -404,8 +415,66 @@
 	return [NSKeyedArchiver archivedDataWithRootObject:items];
 }
 
+- (void)readFromTmd:(NSString *)fileName
+{
+	TmdModel *model = new TmdModel();
+	model->Load([fileName cStringUsingEncoding:NSASCIIStringEncoding]);
+	
+	ItemCollection *newItems = [[ItemCollection alloc] init];
+	for (int i = 0; i < model->desc.no_meshes; i++)
+	{
+		Item *item = [[Item alloc] init];
+		Mesh *itemMesh = [item mesh];
+		
+		mesh &tmdMesh = model->meshes[i];
+		mesh_desc &tmdMeshDesc = model->m_descs[i];
+		
+		itemMesh->vertices->clear();
+		for (int i = 0; i < tmdMeshDesc.no_vertices; i++)
+		{
+			itemMesh->vertices->push_back(tmdMesh.vertices[i]);
+		}
+		
+		itemMesh->triangles->clear();
+		for (int i = 0; i < tmdMeshDesc.no_faces; i++)
+		{
+			face &f = tmdMesh.faces[i];
+			Triangle tri = MakeTriangle(f.vertID[2], f.vertID[1], f.vertID[0]);
+			itemMesh->triangles->push_back(tri);
+		}
+		
+		[itemMesh setSelectionMode:[itemMesh selectionMode]];
+		
+		[newItems addItem:item];
+	}
+	
+	delete model;
+	
+	[items release];
+	items = newItems;
+	[itemsController setModel:items];
+	[itemsController updateSelection];
+	[self setManipulated:itemsController];
+}
+
+- (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)typeName
+{
+	NSLog(@"readFromFile typeName:%@", typeName);
+	if ([typeName isEqual:@"model3D"])
+	{
+		return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
+	}
+	else if ([typeName isEqual:@"TMD"])
+	{
+		[self readFromTmd:fileName];
+		return YES;
+	}
+	return NO;
+}
+
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
 {
+	NSLog(@"readFromData typeName:%@", typeName);
 	ItemCollection *newItems = nil;
 	@try
 	{

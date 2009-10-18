@@ -32,8 +32,10 @@
 		A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C4210FF92F9400A48E13 /* GLUT.framework */; };
 		A767D80A1028C96C00757986 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */; };
 		A792CF371020C3EB00D02F86 /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A792CF361020C3EB00D02F86 /* Mesh.mm */; };
+		A79314D3108A7E3100F289FE /* TmdModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A79314D1108A7E3100F289FE /* TmdModel.cpp */; };
 		A79772DF1076783F0053CB29 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A79772DE1076783F0053CB29 /* MyDocumentTest.mm */; };
 		A7A96A5E10223024003110A1 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A96A0410222CCC003110A1 /* MeshTest.mm */; };
+		A7BA9BD9108A438500747901 /* MeshManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7BA9BD8108A438500747901 /* MeshManipulationState.mm */; };
 		A7C8600C10135C700032DC33 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C8600B10135C700032DC33 /* Plane.cpp */; };
 /* End PBXBuildFile section */
 
@@ -98,12 +100,16 @@
 		A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLManipulatingController.mm; sourceTree = "<group>"; };
 		A792CF351020C3EA00D02F86 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		A792CF361020C3EB00D02F86 /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Mesh.mm; sourceTree = "<group>"; };
+		A79314D1108A7E3100F289FE /* TmdModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TmdModel.cpp; sourceTree = "<group>"; };
+		A79314D2108A7E3100F289FE /* TmdModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TmdModel.h; sourceTree = "<group>"; };
 		A79772DD1076783F0053CB29 /* MyDocumentTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentTest.h; sourceTree = "<group>"; };
 		A79772DE1076783F0053CB29 /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7A96A0310222CCC003110A1 /* MeshTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshTest.h; sourceTree = "<group>"; };
 		A7A96A0410222CCC003110A1 /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
 		A7A96A4810222EE2003110A1 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		A7BA9BD7108A438500747901 /* MeshManipulationState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshManipulationState.h; sourceTree = "<group>"; };
+		A7BA9BD8108A438500747901 /* MeshManipulationState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshManipulationState.mm; sourceTree = "<group>"; };
 		A7C8600A10135C700032DC33 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		A7C8600B10135C700032DC33 /* Plane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Plane.cpp; sourceTree = "<group>"; };
 		A7DB1DA8102767420062C4E5 /* OpenGLManipulating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLManipulating.h; sourceTree = "<group>"; };
@@ -175,6 +181,7 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				A79314CF108A7DE000F289FE /* ImportExport */,
 				A718474A105D033600D0B194 /* AddItemWithStepsSheetController.h */,
 				A718474B105D033600D0B194 /* AddItemWithStepsSheetController.m */,
 				A754C40C0FF92F2800A48E13 /* Item.h */,
@@ -200,6 +207,8 @@
 				A7DB1DA8102767420062C4E5 /* OpenGLManipulating.h */,
 				A767D8081028C96C00757986 /* OpenGLManipulatingController.h */,
 				A767D8091028C96C00757986 /* OpenGLManipulatingController.mm */,
+				A7BA9BD7108A438500747901 /* MeshManipulationState.h */,
+				A7BA9BD8108A438500747901 /* MeshManipulationState.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -255,6 +264,15 @@
 				A7C8600B10135C700032DC33 /* Plane.cpp */,
 			);
 			name = MathCore;
+			sourceTree = "<group>";
+		};
+		A79314CF108A7DE000F289FE /* ImportExport */ = {
+			isa = PBXGroup;
+			children = (
+				A79314D1108A7E3100F289FE /* TmdModel.cpp */,
+				A79314D2108A7E3100F289FE /* TmdModel.h */,
+			);
+			name = ImportExport;
 			sourceTree = "<group>";
 		};
 		A7A96A2410222D21003110A1 /* TestClasses */ = {
@@ -387,6 +405,8 @@
 				A767D80A1028C96C00757986 /* OpenGLManipulatingController.mm in Sources */,
 				A718474C105D033600D0B194 /* AddItemWithStepsSheetController.m in Sources */,
 				A7236B10107A7D2600A2CFE4 /* ItemManipulationState.mm in Sources */,
+				A7BA9BD9108A438500747901 /* MeshManipulationState.mm in Sources */,
+				A79314D3108A7E3100F289FE /* TmdModel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

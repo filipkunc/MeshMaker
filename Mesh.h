@@ -27,7 +27,7 @@ BOOL IsEdgeInTriangle(Triangle triangle, Edge edge);
 uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge);
 Vector3D NormalFromTriangle(Vector3D triangleVertices[3]);
 Triangle MakeTriangle(uint a, uint b, uint c);
-Triangle MakeTriangleOpposite(Triangle triangle);
+Triangle FlipTriangle(Triangle triangle);
 
 enum MeshSelectionMode
 {
@@ -38,11 +38,13 @@ enum MeshSelectionMode
 
 @interface Mesh : NSObject <OpenGLManipulatingModel, NSCoding>
 {
+@public
 	vector<Vector3D> *vertices;
 	vector<Triangle> *triangles;
 	vector<Edge> *edges;
 	vector<BOOL> *selected;
 	vector<BOOL> *markedVertices;
+	NSColor *color;
 	enum MeshSelectionMode selectionMode;
 }
 
@@ -96,5 +98,8 @@ enum MeshSelectionMode
 - (void)mergeVertexPairs;
 - (void)mergeSelected;
 - (void)splitSelected;
+- (void)flipSelectedTriangles;
+- (void)flipAllTriangles;
+- (void)flipTriangleAtIndex:(uint)index;
 
 @end

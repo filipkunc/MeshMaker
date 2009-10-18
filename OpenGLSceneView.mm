@@ -43,6 +43,7 @@ const float maxDistance = 1000.0f;
 		[glcontext makeCurrentContext];
 		
 		// Configure the view
+		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 		glShadeModel(GL_SMOOTH);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
