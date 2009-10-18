@@ -26,7 +26,7 @@
 @property (readonly) Mesh *mesh;
 
 - (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
-- (void)draw;
+- (void)drawWithMode:(enum ViewMode)mode;
 - (void)moveByOffset:(Vector3D)offset;
 - (void)rotateByOffset:(Quaternion)offset;
 - (void)scaleByOffset:(Vector3D)offset;

@@ -46,6 +46,7 @@
 - (void)awakeFromNib
 {
 	[editModePopUp selectItemWithTag:0];
+	[viewModePopUp selectItemWithTag:0];
 	[view setManipulated:manipulated];
 	[view setDisplayed:itemsController];
 	[view setDelegate:self];
@@ -317,6 +318,12 @@
 {
 	CameraMode mode = (CameraMode)[[cameraModePopUp selectedItem] tag];
 	[view setCameraMode:mode];
+}
+
+- (IBAction)changeViewMode:(id)sender
+{
+	ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
+	[view setViewMode:mode];
 }
 
 - (IBAction)mergeSelected:(id)sender

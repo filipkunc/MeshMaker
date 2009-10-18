@@ -36,6 +36,7 @@ enum ItemWithSteps
 	IBOutlet OpenGLSceneView *view;
 	IBOutlet NSPopUpButton *editModePopUp;
 	IBOutlet NSPopUpButton *cameraModePopUp;
+	IBOutlet NSPopUpButton *viewModePopUp;
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum ItemWithSteps itemWithSteps;
 }
@@ -52,11 +53,12 @@ enum ItemWithSteps
 - (void)editItems;
 - (IBAction)changeEditMode:(id)sender;
 - (IBAction)changeCameraMode:(id)sender;
+- (IBAction)changeManipulator:(id)sender;
+- (IBAction)changeViewMode:(id)sender;
 - (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)turnSelectedEdges:(id)sender;
 - (IBAction)mergeVertexPairs:(id)sender;
-- (IBAction)changeManipulator:(id)sender;
 - (IBAction)cloneSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
 - (IBAction)selectAll:(id)sender;
