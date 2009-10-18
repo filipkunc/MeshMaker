@@ -512,9 +512,9 @@ Triangle FlipTriangle(Triangle triangle)
 	
 	float step = FLOAT_PI / max;
 	
-	for (uint i = 0; i < 2 * max; i++)
+	for (uint i = 0; i < max; i++)
 	{
-		float beta = i * step;
+		float beta = i * step * 2.0f;
 		
 		for (uint j = 1; j < max; j++)
 		{
@@ -538,7 +538,7 @@ Triangle FlipTriangle(Triangle triangle)
 		}
 		
 		int index = i * (max - 1);
-		if (i < 2 * max - 1)
+		if (i < max - 1)
 		{
 			[self addTriangleWithIndex1:0
 								 index2:2 + index + max - 1
@@ -562,7 +562,7 @@ Triangle FlipTriangle(Triangle triangle)
 	
 	for (uint j = 1; j < max - 1; j++)
 	{
-		int index = (2 * max - 1) * (max - 1);
+		int index = (max - 1) * (max - 1);
 		[self addQuadWithIndex1:1 + j + index
 						 index2:1 + j
 						 index3:2 + j
