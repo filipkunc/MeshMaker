@@ -17,18 +17,18 @@
 	STAssertNotNil(document, @"document can't be nil");
 	
 	// check the initial state
-	STAssertEquals([document->items count], 0UL, @"items must be empty");	
+	STAssertEquals([document->items count], 0U, @"items must be empty");	
 	
 	// adding cube adds one item on undo stack
 	[document addCube:self];
 	
-	STAssertEquals([document->items count], 1UL, @"items must contain one item");	
+	STAssertEquals([document->items count], 1U, @"items must contain one item");	
 	
 	// undo this action
 	[[document undoManager] undo];
 	
 	// state must be same as before
-	STAssertEquals([document->items count], 0UL, @"items must be empty");
+	STAssertEquals([document->items count], 0U, @"items must be empty");
 	
 	[document release];
 }
@@ -38,9 +38,9 @@
 	document = [[MyDocument alloc] init];
 	
 	STAssertNotNil(document, @"document can't be nil");
-	STAssertEquals([document->items count], 0UL, @"items must be empty");	
+	STAssertEquals([document->items count], 0U, @"items must be empty");	
 	[document addCube:self];
-	STAssertEquals([document->items count], 1UL, @"items must contain one item");
+	STAssertEquals([document->items count], 1U, @"items must contain one item");
 	
 	[document manipulationStarted];
 	[document->itemsController moveSelectedByOffset:Vector3D(0, 5, 0)]; 
