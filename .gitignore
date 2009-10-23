@@ -6,3 +6,16 @@ build/*
 # osx noise
 .DS_Store
 profile
+
+# visual studio noise
+Debug/*
+Release/*
+*/Debug/*
+*/Release/*
+*/obj/*
+*.exe
+*.dll
+*.obj
+*.pdb
+*.ncb
+*.user

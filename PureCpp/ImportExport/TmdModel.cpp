@@ -21,7 +21,11 @@ void TmdModel::Load(const char * file)
 		return;
 	}
 	fin.read((char *) &desc, sizeof desc);
+#ifdef WIN32
+	if (strcmpi(desc.version, MODEL_VERSION) != 0)
+#else
 	if (strcasecmp(desc.version, MODEL_VERSION) != 0)
+#endif
 	{
 		desc.no_materials = 0;
 		desc.no_meshes = 0;

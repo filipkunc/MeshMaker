@@ -13,7 +13,7 @@
 #pragma once
 
 #include <stdio.h>
-#include "MathDeclaration.h"
+#include "../MathCore/MathDeclaration.h"
 
 #define MODEL_VERSION "TMD v.3.1"
 
