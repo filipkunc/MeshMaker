@@ -8,7 +8,9 @@
  */
 
 #include "OpenGLDrawing.h"
-#include "MathDeclaration.h"
+
+// GLUT for Windows can be downloaded from http://www.xmission.com/~nate/glut.html
+// On Mac OS X is default GLUT installation
 #include <GLUT/glut.h>
 
 void DrawCone(float width, float height, float offset)

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "MathDeclaration.h"
+#include "MathCore/MathDeclaration.h"
 
 enum Axis
 {
