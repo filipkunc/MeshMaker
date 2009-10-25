@@ -8,90 +8,6 @@
 
 #import "Mesh.h"
 
-BOOL IsTriangleDegenerated(Triangle triangle)
-{
-	if (triangle.vertexIndices[0] == triangle.vertexIndices[1])
-		return YES;
-	if (triangle.vertexIndices[0] == triangle.vertexIndices[2])
-		return YES;
-	if (triangle.vertexIndices[1] == triangle.vertexIndices[2])
-		return YES;
-
-	return NO;
-}
-
-BOOL AreEdgesSame(Edge first, Edge second)
-{
-	if (first.vertexIndices[0] == second.vertexIndices[0] &&
-		first.vertexIndices[1] == second.vertexIndices[1])
-		return YES;
-	
-	if (first.vertexIndices[0] == second.vertexIndices[1] &&
-		first.vertexIndices[1] == second.vertexIndices[0])
-		return YES;
-	
-	return NO;
-}
-
-BOOL IsIndexInTriangle(Triangle triangle, uint index)
-{
-	for (uint i = 0; i < 3; i++)
-	{
-		if (triangle.vertexIndices[i] == index)
-			return YES;
-	}
-	return NO;
-}
-
-BOOL IsEdgeInTriangle(Triangle triangle, Edge edge)
-{
-	if (IsIndexInTriangle(triangle, edge.vertexIndices[0]) &&
-		IsIndexInTriangle(triangle, edge.vertexIndices[1]))
-	{
-		return YES;
-	}
-	return NO;
-}
-
-uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge)
-{
-	for (uint i = 0; i < 3; i++)
-	{
-		if (triangle.vertexIndices[i] != edge.vertexIndices[0] &&
-			triangle.vertexIndices[i] != edge.vertexIndices[1])
-		{
-			return triangle.vertexIndices[i];
-		}
-	}
-	return 0;
-}
-
-Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
-{
-	// now is same as RedBook (OpenGL Programming Guide)
-	Vector3D u = triangleVertices[0] - triangleVertices[1];
-	Vector3D v = triangleVertices[1] - triangleVertices[2];
-	return u.Cross(v);
-}
-
-Triangle MakeTriangle(uint first, uint second, uint third)
-{
-	Triangle triangle;
-	triangle.vertexIndices[0] = first;
-	triangle.vertexIndices[1] = second;
-	triangle.vertexIndices[2] = third;
-	return triangle;
-}
-
-Triangle FlipTriangle(Triangle triangle)
-{
-	Triangle opposite;
-	opposite.vertexIndices[0] = triangle.vertexIndices[2];
-	opposite.vertexIndices[1] = triangle.vertexIndices[1];
-	opposite.vertexIndices[2] = triangle.vertexIndices[0];
-	return opposite;
-}
-
 @implementation Mesh
 
 @synthesize selectionMode;
@@ -863,14 +779,14 @@ Triangle FlipTriangle(Triangle triangle)
 	
 	for (int i = 0; i < selected->size(); i++)
 	{
-		if ([self isSelectedAtIndex:i])
+		if (selected->at(i))
 		{
 			Vector3D firstVertex = [self vertexAtIndex:i];
 			float smallestDistance = 10.0f; // maximum distance between vertices in pair
 			int secondIndex = -1;
 			for (int j = i + 1; j < selected->size(); j++)
 			{
-				if ([self isSelectedAtIndex:j])
+				if (selected->at(j))
 				{
 					Vector3D secondVertex = [self vertexAtIndex:j];
 					float currentDistance = firstVertex.Distance(secondVertex);
@@ -890,8 +806,6 @@ Triangle FlipTriangle(Triangle triangle)
 		}
 	}
 		
-	[self removeDegeneratedTriangles];
-	
 	[self removeDegeneratedTriangles];
 	[self removeNonUsedVertices];
 	
@@ -1044,7 +958,7 @@ Triangle FlipTriangle(Triangle triangle)
 	
 	for (int i = 0; i < selected->size(); i++)
 	{
-		if ([self isSelectedAtIndex:i])
+		if (selected->at(i))
 		{
 			[self splitEdgeAtIndex:i];
 			i--;
@@ -1058,7 +972,7 @@ Triangle FlipTriangle(Triangle triangle)
 	
 	for (int i = 0; i < selected->size(); i++)
 	{
-		if ([self isSelectedAtIndex:i])
+		if (selected->at(i))
 		{
 			[self splitTriangleAtIndex:i];
 			i--;
@@ -1131,12 +1045,12 @@ Triangle FlipTriangle(Triangle triangle)
 	
 	for (int i = 0; i < selected->size(); i++)
 	{
-		if ([self isSelectedAtIndex:i])
+		if (selected->at(i))
 		{
 			[self turnEdgeAtIndex:i];
 			
 			// uncomment this line to deselect after edge turn
-			//[self setSelected:NO atIndex:i];
+			//selected->at(i) = NO;
 		}
 	}
 }
@@ -1293,7 +1207,7 @@ Triangle FlipTriangle(Triangle triangle)
 			Vector3D v = [self vertexAtIndex:index];
 			if (!forSelection)
 			{
-				BOOL isSelected = [self isSelectedAtIndex:index];
+				BOOL isSelected = selected->at(index);
 				glPointSize(5.0f);
 				if (isSelected)
 					glColor3f(1, 0, 0);
@@ -1324,7 +1238,7 @@ Triangle FlipTriangle(Triangle triangle)
 			Edge currentEdge = [self edgeAtIndex:index];
 			if (!forSelection)
 			{
-				BOOL isSelected = [self isSelectedAtIndex:index];
+				BOOL isSelected = selected->at(index);
 				if (isSelected)
 					glColor3f(1, 0, 0);
 				else
@@ -1352,7 +1266,7 @@ Triangle FlipTriangle(Triangle triangle)
 	{
 		for (int i = 0; i < [self triangleCount]; i++)
 		{
-			if ([self isSelectedAtIndex:i])
+			if (selected->at(i))
 			{
 				[self removeTriangleAtIndex:i];
 				i--;
@@ -1368,7 +1282,7 @@ Triangle FlipTriangle(Triangle triangle)
 	{	
 		for (uint i = 0; i < [self triangleCount]; i++)
 		{
-			if ([self isSelectedAtIndex:i])
+			if (selected->at(i))
 				[self flipTriangleAtIndex:i];
 		}
 	}

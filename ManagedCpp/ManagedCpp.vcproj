@@ -196,6 +196,18 @@
 			Name="PureCpp"
 			>
 			<File
+				RelativePath="..\PureCpp\Enums.h"
+				>
+			</File>
+			<File
+				RelativePath="..\PureCpp\MeshHelpers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\PureCpp\MeshHelpers.h"
+				>
+			</File>
+			<File
 				RelativePath="..\PureCpp\OpenGLDrawing.cpp"
 				>
 			</File>
@@ -281,6 +293,22 @@
 			>
 			<File
 				RelativePath=".\AssemblyInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Item.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Item.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Mesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Mesh.h"
 				>
 			</File>
 			<File

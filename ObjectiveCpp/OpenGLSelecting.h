@@ -6,13 +6,9 @@
  *  Copyright 2009 __MyCompanyName__. All rights reserved.
  *
  */
+#pragma once
 
-enum OpenGLSelectionMode
-{
-	OpenGLSelectionModeAdd,
-	OpenGLSelectionModeSubtract,
-	OpenGLSelectionModeInvert,
-};
+#import "Enums.h"
 
 @protocol OpenGLSelecting
 

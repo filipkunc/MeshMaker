@@ -10,21 +10,7 @@
 #pragma once
 
 #include "MathCore/MathDeclaration.h"
-
-enum Axis
-{
-	Center = -1,
-	AxisX = 0,
-	AxisY = 1,
-	AxisZ = 2,
-};
-
-enum PlaneAxis
-{
-	PlaneAxisX = 3,
-	PlaneAxisY = 4,
-	PlaneAxisZ = 5,
-};
+#include "Enums.h"
 
 void DrawCone(float width, float height, float offset);
 void DrawLine(float size);

@@ -7,7 +7,28 @@ namespace ManagedCpp {
 	const float perspectiveAngle = 45.0f;
 	const float minDistance = 0.2f;
 	const float maxDistance = 1000.0f;
+
+	OpenGLSceneView::OpenGLSceneView()
+	{
+		InitializeComponent();
+
+		camera = new Camera();
+		camera->SetRadX(-45.0f * DEG_TO_RAD);
+		camera->SetRadY(45.0f * DEG_TO_RAD);
+		camera->SetZoom(20.0f);
+
+		testMesh = gcnew Mesh();
+		testMesh->MakeCube();
+	}
 	
+	OpenGLSceneView::~OpenGLSceneView()
+	{
+		if (components)
+		{
+			delete components;
+		}
+	}
+
 	void OpenGLSceneView::DrawGrid(int size, int step)
 	{
 		glBegin(GL_LINES);
@@ -44,6 +65,8 @@ namespace ManagedCpp {
 
 		glEnable(GL_LIGHTING);
 
+		testMesh->Draw(Vector3D(1, 1, 1), YES);
+
         glFlush();
 	}
 
@@ -62,19 +85,60 @@ namespace ManagedCpp {
 
 	#pragma region Mouse events
 
-	void OpenGLSceneView::OnMouseMove(MouseEventArgs ^e)
-	{
-		UserControl::OnMouseMove(e);
-	}
-
 	void OpenGLSceneView::OnMouseDown(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseDown(e);
+		if (e->Button == System::Windows::Forms::MouseButtons::Middle)
+		{
+			lastPoint = PointF(e->X, e->Y);
+		}
+	}
+
+	void OpenGLSceneView::OnMouseMove(MouseEventArgs ^e)
+	{
+		UserControl::OnMouseMove(e);
+		if (e->Button == System::Windows::Forms::MouseButtons::Middle)
+		{
+			PointF point = PointF(e->X, e->Y);
+			float diffX = point.X - lastPoint.X;
+			float diffY = point.Y - lastPoint.Y;
+			
+			if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
+			{
+				const float sensitivity = 0.005f;
+				camera->RotateLeftRight(diffX * sensitivity);
+				camera->RotateUpDown(diffY * sensitivity);
+			}
+			else
+			{
+				RectangleF bounds = this->ClientRectangle;
+				float w = bounds.Width;
+				float h = bounds.Height;
+				float sensitivity = (w + h) / 2.0f;
+				sensitivity = 1.0f / sensitivity;
+				camera->LeftRight(-diffX * camera->GetZoom() * sensitivity);
+				camera->UpDown(-diffY * camera->GetZoom() * sensitivity);
+			}
+			
+			lastPoint = point;
+			this->Invalidate();
+		}
 	}
 
 	void OpenGLSceneView::OnMouseUp(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseUp(e);
+	}
+
+	void OpenGLSceneView::OnMouseWheel(MouseEventArgs ^e)
+	{
+		UserControl::OnMouseWheel(e);
+		float zoom = e->Delta / 20.0f;
+		float sensitivity = camera->GetZoom() * 0.02f;
+		
+		camera->Zoom(zoom * sensitivity);
+
+		this->Invalidate();
 	}
 
 	#pragma endregion
@@ -129,7 +193,7 @@ namespace ManagedCpp {
 			return;
         
 		deviceContext = GetDC((HWND)this->Handle.ToPointer());
-        // CAUTION: Not doing the following WGL.wglSwapBuffers() on the DC will
+        // CAUTION: Not doing the following SwapBuffers() on the DC will
         // result in a failure to subsequently create the RC.
 		SwapBuffers(deviceContext);
 
@@ -175,6 +239,14 @@ namespace ManagedCpp {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
+
+		// Configure the view
+		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+		glShadeModel(GL_SMOOTH);
+		glEnable(GL_LIGHTING);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LIGHT0);
+
         EndGL();
 	}	
 
