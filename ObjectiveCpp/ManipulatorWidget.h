@@ -9,15 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "OpenGLDrawing.h"
 
-enum Widget
-{
-	WidgetLine,
-	WidgetArrow,
-	WidgetPlane,
-	WidgetCircle,
-	WidgetCube,
-};
-
 @interface ManipulatorWidget : NSObject 
 {
 	enum Axis axis;

@@ -12,20 +12,6 @@
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
 
-enum EditMode
-{
-	EditModeItems = 0,
-	EditModeVertices = 1,
-	EditModeTriangles = 2,
-	EditModeEdges = 3
-};
-
-enum ItemWithSteps
-{
-	ItemWithStepsCylinder = 0,
-	ItemWithStepsSphere = 1
-};
-
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate>
 {
 @public // public for unit tests

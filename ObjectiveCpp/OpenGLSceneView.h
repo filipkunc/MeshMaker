@@ -13,17 +13,6 @@
 #import "Manipulator.h"
 #import "OpenGLManipulating.h"
 
-enum CameraMode
-{
-	CameraModePerspective = 0,
-	CameraModeLeft = 1,
-	CameraModeRight = 2,
-	CameraModeTop = 3,
-	CameraModeBottom = 4,
-	CameraModeFront = 5,
-	CameraModeBack = 6
-};
-
 @protocol OpenGLSceneViewDelegate
 
 - (void)manipulationStarted;

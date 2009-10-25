@@ -13,6 +13,7 @@
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
+		A7089381109230A1005C254E /* MeshHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7089380109230A1005C254E /* MeshHelpers.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C4210FF92F9400A48E13 /* GLUT.framework */; };
 		A7C6FE751090D4BD008A55E1 /* TmdModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */; };
@@ -62,8 +63,18 @@
 		32DBCF750370BD2300C91783 /* OpenGLEditor_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLEditor_Prefix.pch; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* OpenGLEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenGLEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A708935010922B69005C254E /* AssemblyInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AssemblyInfo.cpp; sourceTree = "<group>"; };
+		A708936710922B69005C254E /* OpenGLSceneView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGLSceneView.cpp; sourceTree = "<group>"; };
+		A708936810922B69005C254E /* OpenGLSceneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLSceneView.h; sourceTree = "<group>"; };
+		A708936C10922C8B005C254E /* Item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Item.h; sourceTree = "<group>"; };
+		A708936D10922C8B005C254E /* Item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Item.cpp; sourceTree = "<group>"; };
+		A708937D10923053005C254E /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
+		A708937E10923053005C254E /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
+		A708937F109230A1005C254E /* MeshHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshHelpers.h; sourceTree = "<group>"; };
+		A7089380109230A1005C254E /* MeshHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshHelpers.cpp; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A754C4210FF92F9400A48E13 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
+		A7A776EF109348AC0099DB45 /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enums.h; sourceTree = "<group>"; };
 		A7A96A4810222EE2003110A1 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TmdModel.cpp; sourceTree = "<group>"; };
@@ -180,6 +191,7 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				A708934F10922B69005C254E /* ManagedCpp */,
 				A7C6FEAE1090D4FB008A55E1 /* ObjectiveCppTests */,
 				A7C6FE8A1090D4E3008A55E1 /* ObjectiveCpp */,
 				A7C6FE601090D4BD008A55E1 /* PureCpp */,
@@ -219,6 +231,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		A708934F10922B69005C254E /* ManagedCpp */ = {
+			isa = PBXGroup;
+			children = (
+				A708935010922B69005C254E /* AssemblyInfo.cpp */,
+				A708936710922B69005C254E /* OpenGLSceneView.cpp */,
+				A708936810922B69005C254E /* OpenGLSceneView.h */,
+				A708936C10922C8B005C254E /* Item.h */,
+				A708936D10922C8B005C254E /* Item.cpp */,
+				A708937D10923053005C254E /* Mesh.h */,
+				A708937E10923053005C254E /* Mesh.cpp */,
+			);
+			path = ManagedCpp;
+			sourceTree = "<group>";
+		};
 		A7C6FE601090D4BD008A55E1 /* PureCpp */ = {
 			isa = PBXGroup;
 			children = (
@@ -226,6 +252,9 @@
 				A7C6FE641090D4BD008A55E1 /* MathCore */,
 				A7C6FE731090D4BD008A55E1 /* OpenGLDrawing.cpp */,
 				A7C6FE741090D4BD008A55E1 /* OpenGLDrawing.h */,
+				A708937F109230A1005C254E /* MeshHelpers.h */,
+				A7089380109230A1005C254E /* MeshHelpers.cpp */,
+				A7A776EF109348AC0099DB45 /* Enums.h */,
 			);
 			path = PureCpp;
 			sourceTree = "<group>";
@@ -423,6 +452,7 @@
 				A7C6FEAB1090D4E3008A55E1 /* MyDocument.mm in Sources */,
 				A7C6FEAC1090D4E3008A55E1 /* OpenGLManipulatingController.mm in Sources */,
 				A7C6FEAD1090D4E3008A55E1 /* OpenGLSceneView.mm in Sources */,
+				A7089381109230A1005C254E /* MeshHelpers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

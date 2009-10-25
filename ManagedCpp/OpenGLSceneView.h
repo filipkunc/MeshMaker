@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "../PureCpp/Enums.h"
 #include "../PureCpp/MathCore/Camera.h"
 
 using namespace System;
@@ -13,9 +14,10 @@ using namespace System::Data;
 using namespace System::Drawing;
 using namespace System::Diagnostics;
 
+#include "Mesh.h"
 
-namespace ManagedCpp {
-
+namespace ManagedCpp
+{
 	/// <summary>
 	/// Summary for OpenGLSceneView
 	/// </summary>
@@ -27,28 +29,37 @@ namespace ManagedCpp {
 	///          resources associated with this form.
 	public ref class OpenGLSceneView : public System::Windows::Forms::UserControl
 	{
-	public:
-		OpenGLSceneView(void)
-		{
-			InitializeComponent();
-			
-			camera = new Camera();
-			camera->SetRadX(-45.0f * DEG_TO_RAD);
-			camera->SetRadY(45.0f * DEG_TO_RAD);
-			camera->SetZoom(20.0f);
-		}
+	private:
+		System::ComponentModel::Container^ components;
 
+		HDC deviceContext;
+		HGLRC glRenderingContext;
+		
+		/*id<OpenGLManipulating> displayed;
+		id<OpenGLManipulating> manipulated;
+		id<OpenGLSceneViewDelegate> delegate;*/
+		
+		Vector3D *selectionOffset;
+		Camera *camera;
+		Vector3D *perspectiveRadians;
+		PointF lastPoint;
+		PointF currentPoint;
+		CocoaBool isManipulating;
+		CocoaBool isSelecting;
+		/*Manipulator *defaultManipulator;
+		Manipulator *translationManipulator;
+		Manipulator *rotationManipulator;
+		Manipulator *scaleManipulator;
+		Manipulator *currentManipulator;*/
+		
+		enum CameraMode cameraMode;
+		enum ViewMode viewMode;
+
+		Mesh ^testMesh;
+	public:
+		OpenGLSceneView();
 	protected:
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		~OpenGLSceneView()
-		{
-			if (components)
-			{
-				delete components;
-			}
-		}
+		~OpenGLSceneView();
 
 		virtual void OnLoad(EventArgs ^e) override;
 		virtual void OnSizeChanged(EventArgs ^e) override;
@@ -57,6 +68,7 @@ namespace ManagedCpp {
 		virtual void OnMouseMove(MouseEventArgs ^e) override;
 		virtual void OnMouseDown(MouseEventArgs ^e) override;
 		virtual void OnMouseUp(MouseEventArgs ^e) override;
+		virtual void OnMouseWheel(MouseEventArgs ^e) override;
 		void DrawGrid(int size, int step);
 		void RenderGL();
 		void BeginGL();
@@ -64,14 +76,6 @@ namespace ManagedCpp {
 		void InitializeGL();
 		void ResizeGL();			
 	private:
-		HDC deviceContext;
-		HGLRC glRenderingContext;
-		Camera *camera;
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		System::ComponentModel::Container^ components;
-
 #pragma region Windows Form Designer generated code
 		/// <summary>
 		/// Required method for Designer support - do not modify

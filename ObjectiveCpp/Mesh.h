@@ -9,32 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "MathDeclaration.h"
 #import "OpenGLManipulatingController.h"
+#import "MeshHelpers.h"
 #import <vector>
 using namespace std;
-
-typedef struct {
-	uint vertexIndices[3];
-} Triangle;
-
-typedef struct {
-	uint vertexIndices[2];
-} Edge;
-
-BOOL IsTriangleDegenerated(Triangle triangle);
-BOOL AreEdgesSame(Edge a, Edge b);
-BOOL IsIndexInTriangle(Triangle triangle, uint index);
-BOOL IsEdgeInTriangle(Triangle triangle, Edge edge);
-uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge);
-Vector3D NormalFromTriangle(Vector3D triangleVertices[3]);
-Triangle MakeTriangle(uint a, uint b, uint c);
-Triangle FlipTriangle(Triangle triangle);
-
-enum MeshSelectionMode
-{
-	MeshSelectionModeVertices = 0,
-	MeshSelectionModeTriangles,
-	MeshSelectionModeEdges
-};
 
 @interface Mesh : NSObject <OpenGLManipulatingModel, NSCoding>
 {
