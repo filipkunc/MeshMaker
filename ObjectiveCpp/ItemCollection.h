@@ -12,7 +12,7 @@
 #import "OpenGLManipulating.h"
 #import "OpenGLManipulatingController.h"
 
-@interface ItemCollection : NSObject <OpenGLManipulatingModel, NSCoding>
+@interface ItemCollection : NSObject <OpenGLManipulatingModelItem, NSCoding>
 {
 	NSMutableArray *items;
 }
