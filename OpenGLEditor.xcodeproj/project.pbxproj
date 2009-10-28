@@ -72,6 +72,7 @@
 		A708937E10923053005C254E /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
 		A708937F109230A1005C254E /* MeshHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshHelpers.h; sourceTree = "<group>"; };
 		A7089380109230A1005C254E /* MeshHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshHelpers.cpp; sourceTree = "<group>"; };
+		A711A9A810986B6D00F02394 /* OpenGLManipulatingModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLManipulatingModel.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A754C4210FF92F9400A48E13 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A7A776EF109348AC0099DB45 /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enums.h; sourceTree = "<group>"; };
@@ -316,6 +317,7 @@
 				A7C6FEA01090D4E3008A55E1 /* OpenGLSceneView.h */,
 				A7C6FEA11090D4E3008A55E1 /* OpenGLSceneView.mm */,
 				A7C6FEA21090D4E3008A55E1 /* OpenGLSelecting.h */,
+				A711A9A810986B6D00F02394 /* OpenGLManipulatingModel.h */,
 			);
 			path = ObjectiveCpp;
 			sourceTree = "<group>";

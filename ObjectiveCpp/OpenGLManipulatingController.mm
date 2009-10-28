@@ -46,6 +46,20 @@
 	[super dealloc];
 }
 
+- (void)setModel:(id<OpenGLManipulatingModel>)value
+{
+	model = value;
+	id newModel = value;
+	if ([newModel conformsToProtocol:@protocol(OpenGLManipulatingModelMesh)])
+		modelMesh = (id<OpenGLManipulatingModelMesh>)value;
+	else 
+		modelMesh = nil;
+	if ([newModel conformsToProtocol:@protocol(OpenGLManipulatingModelItem)])
+		modelItem = (id<OpenGLManipulatingModelItem>)value;
+	else 
+		modelItem = nil;
+}
+
 - (void)addObserver:(id)observer forKeyPath:(NSString *)keyPath
 {
 	[self addObserver:observer
@@ -143,8 +157,8 @@
 			if (selectedCount == 1)
 			{
 				selectionRotation->FromEulerAngles(*selectionEuler);
-				if (lastSelectedIndex > -1)
-					[model setRotation:*selectionRotation atIndex:lastSelectedIndex];
+				if (lastSelectedIndex > -1 && modelItem != nil)
+					[modelItem setRotation:*selectionRotation atIndex:lastSelectedIndex];
 			}
 			else
 			{
@@ -159,8 +173,8 @@
 			if (selectedCount == 1)
 			{
 				(*selectionScale)[index] = value;
-				if (lastSelectedIndex > -1)
-					[model setScale:*selectionScale atIndex:lastSelectedIndex];
+				if (lastSelectedIndex > -1 && modelItem != nil)
+					[modelItem setScale:*selectionScale atIndex:lastSelectedIndex];
 			}
 			else
 			{
@@ -185,10 +199,9 @@
 {
 	[self willChangeSelection];
 	
-	id aModel = model;
-	if ([aModel respondsToSelector:@selector(getSelectionCenter:rotation:scale:)])
+	if (modelMesh != nil)
 	{
-		[model getSelectionCenter:selectionCenter rotation:selectionRotation scale:selectionScale];
+		[modelMesh getSelectionCenter:selectionCenter rotation:selectionRotation scale:selectionScale];
 		selectedCount = 0;
 		for (uint i = 0; i < [model count]; i++)
 		{
@@ -196,7 +209,7 @@
 				selectedCount++;
 		}
 	}
-	else
+	else if (modelItem != nil)
 	{
 		*selectionCenter = Vector3D();
 		*selectionRotation = Quaternion();
@@ -208,7 +221,7 @@
 			if ([model isSelectedAtIndex:i])
 			{
 				selectedCount++;
-				*selectionCenter += [model positionAtIndex:i];
+				*selectionCenter += [modelItem positionAtIndex:i];
 				lastSelectedIndex = i;
 			}
 		}
@@ -217,8 +230,8 @@
 			*selectionCenter /= (float)selectedCount;
 			if (selectedCount == 1 && lastSelectedIndex > -1)
 			{
-				*selectionRotation = [model rotationAtIndex:lastSelectedIndex];
-				*selectionScale = [model scaleAtIndex:lastSelectedIndex];
+				*selectionRotation = [modelItem rotationAtIndex:lastSelectedIndex];
+				*selectionScale = [modelItem scaleAtIndex:lastSelectedIndex];
 			}
 		}
 		else
@@ -297,17 +310,16 @@
 	m = s * r;
 	transformedOffset.Transform(m);
 	
-	id aModel = model;
-	if ([aModel respondsToSelector:@selector(moveSelectedByOffset:)])
+	if (modelMesh != nil)
 	{
-		[model moveSelectedByOffset:transformedOffset];
+		[modelMesh moveSelectedByOffset:transformedOffset];
 	}
-	else
+	else if (modelItem != nil)
 	{
 		for (int i = 0; i < [model count]; i++)
 		{
 			if ([model isSelectedAtIndex:i])
-				[model moveByOffset:transformedOffset atIndex:i];
+				[modelItem moveByOffset:transformedOffset atIndex:i];
 		}
 	}
 		
@@ -316,17 +328,16 @@
 
 - (void)rotateSelectedByOffset:(Quaternion)offset
 {	
-	id aModel = model;
-	if ([aModel respondsToSelector:@selector(rotateSelectedByOffset:)])
+	if (modelMesh != nil)
 	{
 		Vector3D rotationCenter = *selectionCenter;
 		rotationCenter.Transform(modelTransform->Inverse());
-		[model moveSelectedByOffset:-rotationCenter];
-		[model rotateSelectedByOffset:offset];
-		[model moveSelectedByOffset:rotationCenter];
+		[modelMesh moveSelectedByOffset:-rotationCenter];
+		[modelMesh rotateSelectedByOffset:offset];
+		[modelMesh moveSelectedByOffset:rotationCenter];
 		[self setSelectionRotation:offset * (*selectionRotation)];
 	}
-	else
+	else if (modelItem != nil)
 	{
 		if ([self selectedCount] > 1)
 		{
@@ -336,36 +347,35 @@
 			{
 				if ([model isSelectedAtIndex:i])
 				{
-					Vector3D itemPosition = [model positionAtIndex:i];
+					Vector3D itemPosition = [modelItem positionAtIndex:i];
 					itemPosition -= rotationCenter;
 					itemPosition.Transform(offset);
 					itemPosition += rotationCenter;
-					[model setPosition:itemPosition atIndex:i];
-					[model rotateByOffset:offset atIndex:i];
+					[modelItem setPosition:itemPosition atIndex:i];
+					[modelItem rotateByOffset:offset atIndex:i];
 				}
 			}
 			[self setSelectionRotation:offset * (*selectionRotation)];
 		}
 		else if (lastSelectedIndex > -1)
 		{
-			[model rotateByOffset:offset atIndex:lastSelectedIndex];
-			[self setSelectionRotation:[model rotationAtIndex:lastSelectedIndex]];
+			[modelItem rotateByOffset:offset atIndex:lastSelectedIndex];
+			[self setSelectionRotation:[modelItem rotationAtIndex:lastSelectedIndex]];
 		}		
 	}
 }
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
-	id aModel = model;
-	if ([aModel respondsToSelector:@selector(scaleSelectedByOffset:)])
+	if (modelMesh != nil)
 	{
 		Vector3D rotationCenter = *selectionCenter;
 		rotationCenter.Transform(modelTransform->Inverse());
-		[model moveSelectedByOffset:-rotationCenter];
-		[model scaleSelectedByOffset:offset + Vector3D(1, 1, 1)];
-		[model moveSelectedByOffset:rotationCenter];
+		[modelMesh moveSelectedByOffset:-rotationCenter];
+		[modelMesh scaleSelectedByOffset:offset + Vector3D(1, 1, 1)];
+		[modelMesh moveSelectedByOffset:rotationCenter];
 	}
-	else
+	else if (modelItem != nil)
 	{
 		if ([self selectedCount] > 1)
 		{
@@ -375,20 +385,20 @@
 			{
 				if ([model isSelectedAtIndex:i])
 				{
-					Vector3D itemPosition = [model positionAtIndex:i];
+					Vector3D itemPosition = [modelItem positionAtIndex:i];
 					itemPosition -= rotationCenter;
 					itemPosition.x *= 1.0f + offset.x;
 					itemPosition.y *= 1.0f + offset.y;
 					itemPosition.z *= 1.0f + offset.z;
 					itemPosition += rotationCenter;
-					[model setPosition:itemPosition atIndex:i];
-					[model scaleByOffset:offset atIndex:i];
+					[modelItem setPosition:itemPosition atIndex:i];
+					[modelItem scaleByOffset:offset atIndex:i];
 				}
 			}
 		}
 		else if (lastSelectedIndex > -1)
 		{
-			[model scaleByOffset:offset atIndex:lastSelectedIndex];
+			[modelItem scaleByOffset:offset atIndex:lastSelectedIndex];
 		}
 	}
 	[self setSelectionScale:*selectionScale + offset];

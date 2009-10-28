@@ -13,7 +13,7 @@
 #import <vector>
 using namespace std;
 
-@interface Mesh : NSObject <OpenGLManipulatingModel, NSCoding>
+@interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding>
 {
 @public
 	vector<Vector3D> *vertices;
