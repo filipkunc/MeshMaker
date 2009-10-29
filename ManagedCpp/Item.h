@@ -32,6 +32,7 @@ namespace ManagedCpp
 		property Vector3D Position { Vector3D get(); void set(Vector3D value); }
 		property Quaternion Rotation { Quaternion get(); void set(Quaternion value); }
 		property Vector3D Scale { Vector3D get(); void set(Vector3D value); }
+		property CocoaBool Selected { CocoaBool get(); void set(CocoaBool value); }
 		
 		void Draw(ViewMode mode);
 		void MoveBy(Vector3D offset);
@@ -39,5 +40,6 @@ namespace ManagedCpp
 		void ScaleBy(Vector3D offset);
 		
 		Item ^ Clone();
+		Mesh ^ GetMesh();
 	};
 }
