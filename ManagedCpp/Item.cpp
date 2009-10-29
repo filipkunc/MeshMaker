@@ -65,6 +65,16 @@ namespace ManagedCpp
 	{
 		*scale = value;
 	}
+
+	CocoaBool Item::Selected::get()
+	{
+		return selected;
+	}
+
+	void Item::Selected::set(CocoaBool value)
+	{
+		selected = value;
+	}
 	
 	void Item::Draw(ViewMode mode)
 	{
@@ -95,7 +105,7 @@ namespace ManagedCpp
 		*scale += offset;
 	}
 	
-	Item^ Item::Clone()
+	Item ^Item::Clone()
 	{
 		Item ^newItem = gcnew Item(this->Position, this->Rotation, this->Scale);
 
@@ -104,5 +114,10 @@ namespace ManagedCpp
 		this->selected = YES;
 		
 		return newItem;
+	}
+
+	Mesh ^Item::GetMesh()
+	{
+		return mesh;
 	}
 }
