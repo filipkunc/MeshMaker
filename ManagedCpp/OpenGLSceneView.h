@@ -15,6 +15,7 @@ using namespace System::Drawing;
 using namespace System::Diagnostics;
 
 #include "Mesh.h"
+#include "OpenGLManipulating.h"
 
 namespace ManagedCpp
 {
@@ -35,9 +36,9 @@ namespace ManagedCpp
 		HDC deviceContext;
 		HGLRC glRenderingContext;
 		
-		/*id<OpenGLManipulating> displayed;
-		id<OpenGLManipulating> manipulated;
-		id<OpenGLSceneViewDelegate> delegate;*/
+		OpenGLManipulating ^displayed;
+		OpenGLManipulating ^manipulated;
+		//OpenGLSceneViewDelegate
 		
 		Vector3D *selectionOffset;
 		Camera *camera;
@@ -75,6 +76,35 @@ namespace ManagedCpp
 		void EndGL();
 		void InitializeGL();
 		void ResizeGL();			
+		void ApplyProjection(RectangleF baseRect);
+		void BeginOrtho();
+		void EndOrtho();
+		
+		void Select(
+			double x, 
+			double y, 
+			double width, 
+			double height,
+			OpenGLSelecting ^selecting,
+			CocoaBool nearestOnly,
+			OpenGLSelectionMode selectionMode);
+
+		void Select(
+			PointF point, 
+			OpenGLSelecting ^selecting, 
+			OpenGLSelectionMode selectionMode);
+
+		void Select(
+			RectangleF rect,
+			OpenGLSelecting ^selecting,
+			OpenGLSelectionMode selectionMode);
+
+		Vector3D GetPositionInSpace(PointF point);
+		void DrawSelectionPlane(int index);
+		Vector3D GetPositionOnAxis(Axis axis, PointF point);
+		Vector3D GetPositionOnRotatedAxis(Axis axis, PointF point, Quaternion rotation);
+		Vector3D GetPositionOnPlane(PlaneAxis plane, PointF point);
+
 	private:
 #pragma region Windows Form Designer generated code
 		/// <summary>
