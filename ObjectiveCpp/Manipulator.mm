@@ -1,5 +1,5 @@
 //
-//  Manipulators.m
+//  Manipulator.mm
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 6/21/09.
