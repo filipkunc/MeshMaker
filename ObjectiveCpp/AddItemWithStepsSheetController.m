@@ -1,3 +1,11 @@
+//
+//  AddItemWithStepsSheetController.m
+//  OpenGLEditor
+//
+//  Created by Filip Kunc on 9/20/09.
+//  For license see LICENSE.TXT
+//
+
 #import "AddItemWithStepsSheetController.h"
 
 @implementation AddItemWithStepsSheetController

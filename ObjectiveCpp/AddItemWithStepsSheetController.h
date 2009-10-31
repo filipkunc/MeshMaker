@@ -1,3 +1,11 @@
+//
+//  AddItemWithStepsSheetController.h
+//  OpenGLEditor
+//
+//  Created by Filip Kunc on 9/20/09.
+//  For license see LICENSE.TXT
+//
+
 #import <Cocoa/Cocoa.h>
 
 @protocol AddItemWithStepsProtocol

@@ -3,7 +3,7 @@
 //  Original source - RT3D Engine 2.0
 //
 //  Created by Filip Kunc on 10/18/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #include <fstream>
