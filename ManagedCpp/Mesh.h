@@ -3,7 +3,7 @@
  *  OpenGLEditor
  *
  *  Created by Filip Kunc on 10/23/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
+ *  For license see LICENSE.TXT
  *
  */
 
@@ -22,9 +22,11 @@ using namespace System;
 using namespace System::Drawing;
 using namespace System::Diagnostics;
 
+#include "OpenGLManipulatingModel.h"
+
 namespace ManagedCpp
 {
-	public ref class Mesh
+	public ref class Mesh : OpenGLManipulatingModelMesh
 	{
 	private:
 		vector<Vector3D> *vertices;
@@ -39,7 +41,7 @@ namespace ManagedCpp
 		~Mesh();
 
 		property MeshSelectionMode SelectionMode { MeshSelectionMode get(); void set(MeshSelectionMode value); }
-		property uint Count { uint get(); }
+		virtual property uint Count { uint get(); }
 		property uint VertexCount { uint get(); }
 		property uint TriangleCount { uint get(); }
 		property uint EdgeCount { uint get(); }
@@ -64,7 +66,7 @@ namespace ManagedCpp
 		void DrawFill(Vector3D scale);
 		void DrawWire(Vector3D scale, CocoaBool isSelected);
 		void Draw(Vector3D scale, CocoaBool isSelected);
-		void Draw(uint index, CocoaBool forSelection, ViewMode mode);
+		virtual void Draw(uint index, CocoaBool forSelection, ViewMode mode);
 		void MakeCube();
 		void MakeCylinder(uint steps);
 		void MakeSphere(uint steps);
@@ -91,14 +93,15 @@ namespace ManagedCpp
 		void FlipSelectedTriangles();
 		void FlipAllTriangles();
 		void FlipTriangle(uint index);
-		void DidSelect();
-		void GetSelectionCenter(Vector3D *center, Quaternion *rotation, Vector3D *scale);
-		void MoveSelected(Vector3D offset);
-		void RotateSelected(Quaternion offset);
-		void ScaleSelected(Vector3D offset);
-		CocoaBool IsSelected(uint index);
-		void SetSelected(CocoaBool isSelected, uint index);
-		void CloneSelected();
-		void RemoveSelected();
+		virtual void WillSelect();
+		virtual void DidSelect();
+		virtual void GetSelectionCenter(Vector3D *center, Quaternion *rotation, Vector3D *scale);
+		virtual void MoveSelectedBy(Vector3D offset);
+		virtual void RotateSelectedBy(Quaternion offset);
+		virtual void ScaleSelectedBy(Vector3D offset);
+		virtual CocoaBool IsSelected(uint index);
+		virtual void SetSelected(CocoaBool isSelected, uint index);
+		virtual void CloneSelected();
+		virtual void RemoveSelected();
 	};
 }

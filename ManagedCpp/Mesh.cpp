@@ -3,7 +3,7 @@
  *  OpenGLEditor
  *
  *  Created by Filip Kunc on 10/23/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
+ *  For license see LICENSE.TXT
  *
  */
 
@@ -1083,6 +1083,11 @@ namespace ManagedCpp
 		return selected->size();
 	}
 
+	void Mesh::WillSelect()
+	{
+
+	}
+
 	void Mesh::DidSelect()
 	{
 		this->MakeMarkedVertices();
@@ -1114,7 +1119,7 @@ namespace ManagedCpp
 		Trace::WriteLine(String::Format("markedCount = {0}", markedCount));
 	}
 
-	void Mesh::MoveSelected(Vector3D offset)
+	void Mesh::MoveSelectedBy(Vector3D offset)
 	{
 		if (markedVertices->size() != vertices->size())
 		{
@@ -1128,7 +1133,7 @@ namespace ManagedCpp
 		}
 	}
 
-	void Mesh::RotateSelected(Quaternion offset)
+	void Mesh::RotateSelectedBy(Quaternion offset)
 	{
 		if (markedVertices->size() != vertices->size())
 		{
@@ -1142,7 +1147,7 @@ namespace ManagedCpp
 		}
 	}
 
-	void Mesh::ScaleSelected(Vector3D offset)
+	void Mesh::ScaleSelectedBy(Vector3D offset)
 	{
 		if (markedVertices->size() != vertices->size())
 		{
@@ -1199,10 +1204,10 @@ namespace ManagedCpp
 					glPointSize(5.0f);
 					if (isSelected)
 						glColor3f(1, 0, 0);
-						else
-							glColor3f(0, 0, 1);
-							glDisable(GL_LIGHTING);
-							}
+					else
+						glColor3f(0, 0, 1);
+					glDisable(GL_LIGHTING);
+				}
 				glBegin(GL_POINTS);
 				glVertex3f(v.x, v.y, v.z);
 				glEnd();

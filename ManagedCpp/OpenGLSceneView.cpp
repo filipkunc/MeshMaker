@@ -33,8 +33,31 @@ namespace ManagedCpp {
 		cameraMode = CameraModePerspective;
 		viewMode = ViewModeSolid;
 
-		testMesh = gcnew Mesh();
-		testMesh->MakeCube();
+		defaultManipulator = gcnew Manipulator();
+		defaultManipulator->AddWidget(gcnew ManipulatorWidget(AxisX, WidgetLine));
+		defaultManipulator->AddWidget(gcnew ManipulatorWidget(AxisY, WidgetLine));
+		defaultManipulator->AddWidget(gcnew ManipulatorWidget(AxisZ, WidgetLine));
+		
+		translationManipulator = gcnew Manipulator();
+		translationManipulator->AddWidget(gcnew ManipulatorWidget(AxisX, WidgetArrow));
+		translationManipulator->AddWidget(gcnew ManipulatorWidget(AxisY, WidgetArrow));
+		translationManipulator->AddWidget(gcnew ManipulatorWidget(AxisZ, WidgetArrow));
+		translationManipulator->AddWidget(gcnew ManipulatorWidget(AxisX, WidgetPlane));
+		translationManipulator->AddWidget(gcnew ManipulatorWidget(AxisY, WidgetPlane));
+		translationManipulator->AddWidget(gcnew ManipulatorWidget(AxisZ, WidgetPlane));
+
+		rotationManipulator = gcnew Manipulator();
+		rotationManipulator->AddWidget(gcnew ManipulatorWidget(AxisX, WidgetCircle));
+		rotationManipulator->AddWidget(gcnew ManipulatorWidget(AxisY, WidgetCircle));
+		rotationManipulator->AddWidget(gcnew ManipulatorWidget(AxisZ, WidgetCircle));
+		
+		scaleManipulator = gcnew Manipulator();
+		scaleManipulator->AddWidget(gcnew ManipulatorWidget(Center, WidgetCube));
+		scaleManipulator->AddWidget(gcnew ManipulatorWidget(AxisX, WidgetCube));
+		scaleManipulator->AddWidget(gcnew ManipulatorWidget(AxisY, WidgetCube));
+		scaleManipulator->AddWidget(gcnew ManipulatorWidget(AxisZ, WidgetCube));
+
+		currentManipulator = defaultManipulator;
 	}
 	
 	OpenGLSceneView::~OpenGLSceneView()
@@ -46,6 +69,26 @@ namespace ManagedCpp {
 		{
 			delete components;
 		}
+	}
+
+	OpenGLManipulating ^OpenGLSceneView::Displayed::get()
+	{
+		return displayed;
+	}
+
+	void OpenGLSceneView::Displayed::set(OpenGLManipulating ^value)
+	{
+		displayed = value;
+	}
+
+	OpenGLManipulating ^OpenGLSceneView::Manipulated::get()
+	{
+		return manipulated;
+	}
+
+	void OpenGLSceneView::Manipulated::set(OpenGLManipulating ^value)
+	{
+		manipulated = value;
 	}
 
 	void OpenGLSceneView::DrawGrid(int size, int step)
@@ -509,7 +552,7 @@ namespace ManagedCpp {
 			
 		glPushMatrix();
 		glTranslatef(position.x, position.y, position.z);
-		DrawSelectionPlane((PlaneAxis)(PlaneAxisX + index));
+		::DrawSelectionPlane((PlaneAxis)(PlaneAxisX + index));
 		glPopMatrix();
 	}
 
@@ -550,44 +593,44 @@ namespace ManagedCpp {
 
 	#pragma region Translation, Scale, Rotation
 
-	/*- (Vector3D)translationFromPoint:(NSPoint)point
+	Vector3D OpenGLSceneView::GetTranslation(PointF point)
 	{	
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadMatrixf(camera->GetViewMatrix());
 		
-		Vector3D position = [manipulated selectionCenter];
-		int selectedIndex = [currentManipulator selectedIndex];
+		Vector3D position = manipulated->SelectionCenter;
+		int selectedIndex = currentManipulator->SelectedIndex;
 		
 		if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
-			return [self positionFromAxis:(Axis)selectedIndex point:point];
+			return this->GetPositionOnAxis((Axis)selectedIndex, point);
 		if (selectedIndex >= PlaneAxisX && selectedIndex <= PlaneAxisZ)
-			return [self positionFromPlaneAxis:(PlaneAxis)selectedIndex point:point];
+			return this->GetPositionOnPlane((PlaneAxis)selectedIndex, point);
 		
 		return position;
 	}
 
-	- (Vector3D)scaleFromPoint:(NSPoint)point lastPosition:(Vector3D *)lastPosition
+	Vector3D OpenGLSceneView::GetScale(PointF point, Vector3D *lastPosition)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadMatrixf(camera->GetViewMatrix());
 		
-		Vector3D position = [manipulated selectionCenter];
-		int selectedIndex = [currentManipulator selectedIndex];
+		Vector3D position = manipulated->SelectionCenter;
+		int selectedIndex = currentManipulator->SelectedIndex;
 		
 		Vector3D scale = Vector3D();
 		
 		if (selectedIndex >= 0)
 		{
-			ManipulatorWidget *selectedWidget = [currentManipulator widgetAtIndex:selectedIndex];
-			enum Axis selectedAxis = [selectedWidget axis];
+			ManipulatorWidget ^selectedWidget = currentManipulator->GetWidget(selectedIndex);
+			Axis selectedAxis = selectedWidget->ManipAxis;
 			if (selectedAxis >= AxisX && selectedAxis <= AxisZ)
 			{
-				position = [self positionFromRotatedAxis:selectedAxis point:point rotation:[manipulated selectionRotation]];
+				position = this->GetPositionOnRotatedAxis(selectedAxis, point, manipulated->SelectionRotation);
 				scale = position - *lastPosition;
 			}
 			else if (selectedAxis == Center)
 			{
-				position = [self positionFromAxis:AxisY point:point];
+				position = this->GetPositionOnAxis(AxisY, point);
 				scale = position - *lastPosition;
 				scale.x = scale.y;
 				scale.z = scale.y;
@@ -600,7 +643,7 @@ namespace ManagedCpp {
 		return scale;
 	}
 
-	- (Quaternion)rotationFromPoint:(NSPoint)point lastPosition:(Vector3D *)lastPosition
+	Quaternion OpenGLSceneView::GetRotation(PointF point, Vector3D *lastPosition)
 	{	
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadMatrixf(camera->GetViewMatrix());
@@ -609,10 +652,10 @@ namespace ManagedCpp {
 		Vector3D position;
 		float angle;
 		
-		int selectedIndex = [currentManipulator selectedIndex];
+		int selectedIndex = currentManipulator->SelectedIndex;
 		
-		position = [self positionFromPlaneAxis:(PlaneAxis)(selectedIndex + 3) point:point];
-		position -= [manipulated selectionCenter];
+		position = this->GetPositionOnPlane((PlaneAxis)(selectedIndex + 3), point);
+		position -= manipulated->SelectionCenter;
 		
 		switch(selectedIndex)
 		{
@@ -633,7 +676,7 @@ namespace ManagedCpp {
 		
 		*lastPosition = position;
 		return quaternion;
-	}*/
+	}
 
 	#pragma endregion
 }

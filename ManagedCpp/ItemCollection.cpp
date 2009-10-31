@@ -88,6 +88,16 @@ namespace ManagedCpp
 	
 	}
 
+	void ItemCollection::WillSelect()
+	{
+
+	}
+
+	void ItemCollection::DidSelect()
+	{
+
+	}
+
 	void ItemCollection::CloneSelected()
 	{
 		int count = this->Count;
