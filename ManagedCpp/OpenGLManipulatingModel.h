@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 10/25/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #pragma once

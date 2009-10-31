@@ -16,6 +16,7 @@ using namespace System::Diagnostics;
 
 #include "Mesh.h"
 #include "OpenGLManipulating.h"
+#include "Manipulator.h"
 
 namespace ManagedCpp
 {
@@ -47,11 +48,11 @@ namespace ManagedCpp
 		PointF currentPoint;
 		CocoaBool isManipulating;
 		CocoaBool isSelecting;
-		/*Manipulator *defaultManipulator;
-		Manipulator *translationManipulator;
-		Manipulator *rotationManipulator;
-		Manipulator *scaleManipulator;
-		Manipulator *currentManipulator;*/
+		Manipulator ^defaultManipulator;
+		Manipulator ^translationManipulator;
+		Manipulator ^rotationManipulator;
+		Manipulator ^scaleManipulator;
+		Manipulator ^currentManipulator;
 		
 		enum CameraMode cameraMode;
 		enum ViewMode viewMode;
@@ -59,6 +60,10 @@ namespace ManagedCpp
 		Mesh ^testMesh;
 	public:
 		OpenGLSceneView();
+		
+		property OpenGLManipulating ^Displayed { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+		property OpenGLManipulating ^Manipulated { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+
 	protected:
 		~OpenGLSceneView();
 
@@ -105,6 +110,9 @@ namespace ManagedCpp
 		Vector3D GetPositionOnRotatedAxis(Axis axis, PointF point, Quaternion rotation);
 		Vector3D GetPositionOnPlane(PlaneAxis plane, PointF point);
 
+		Vector3D GetTranslation(PointF point);
+		Vector3D GetScale(PointF point, Vector3D *lastPosition);
+		Quaternion GetRotation(PointF point, Vector3D *lastPosition);
 	private:
 #pragma region Windows Form Designer generated code
 		/// <summary>
