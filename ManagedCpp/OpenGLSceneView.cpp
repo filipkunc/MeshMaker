@@ -151,11 +151,11 @@ namespace ManagedCpp {
 			color[3] = 0.2f;
 			glColor4fv(color);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glRecti(lastPoint.X, lastPoint.Y, currentPoint.X, currentPoint.Y);
+			glRecti(lastPoint.X, this->Height - lastPoint.Y, currentPoint.X, this->Height - currentPoint.Y);
 			color[3] = 0.9f;
 			glColor4fv(color);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glRecti(lastPoint.X, lastPoint.Y, currentPoint.X, currentPoint.Y);
+			glRecti(lastPoint.X, this->Height - lastPoint.Y, currentPoint.X, this->Height - currentPoint.Y);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			this->EndOrtho();
 		}
@@ -241,6 +241,36 @@ namespace ManagedCpp {
 		{
 			lastPoint = PointF(e->X, e->Y);
 		}
+		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
+		{
+			lastPoint = PointF(e->X, e->Y);
+	
+			if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
+			{
+				if (currentManipulator == translationManipulator)
+				{
+					*selectionOffset = this->GetTranslation(lastPoint);
+					*selectionOffset -= manipulated->SelectionCenter;
+					isManipulating = YES;
+				}
+				else if (currentManipulator == rotationManipulator)
+				{
+					this->GetRotation(lastPoint, selectionOffset);
+					isManipulating = YES;
+				}
+				else if (currentManipulator == scaleManipulator)
+				{
+					this->GetScale(lastPoint, selectionOffset);
+					isManipulating = YES;
+				}
+				//if (isManipulating)
+				//	[delegate manipulationStarted];
+			}
+			else
+			{
+				isSelecting = YES;
+			}
+		}
 	}
 
 	void OpenGLSceneView::OnMouseMove(MouseEventArgs ^e)
@@ -272,11 +302,83 @@ namespace ManagedCpp {
 			lastPoint = point;
 			this->Invalidate();
 		}
+		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
+		{
+			currentPoint = PointF(e->X, e->Y);
+	
+			if (isManipulating)
+			{
+				lastPoint = currentPoint;
+				if (currentManipulator == translationManipulator)
+				{
+					Vector3D move = this->GetTranslation(currentPoint);
+					move -= *selectionOffset;
+					move -= manipulated->SelectionCenter;
+					manipulated->MoveSelectedBy(move);
+					this->Invalidate();
+				}
+				else if (currentManipulator == rotationManipulator)
+				{
+					Quaternion rotation = this->GetRotation(currentPoint, selectionOffset);
+					manipulated->RotateSelectedBy(rotation);
+					this->Invalidate();
+				}
+				else if (currentManipulator == scaleManipulator)
+				{
+					Vector3D scale = this->GetScale(currentPoint, selectionOffset);
+					manipulated->ScaleSelectedBy(scale);
+					this->Invalidate();
+				}
+			}
+			else if (isSelecting)
+			{
+				this->Invalidate();
+			}
+		}
+		else if (e->Button == System::Windows::Forms::MouseButtons::None)
+		{
+			currentPoint = PointF(e->X, e->Y);
+			if (manipulated->SelectedCount > 0)
+			{
+				if (!isManipulating)
+				{
+					currentManipulator->SelectedIndex = -1;
+					currentManipulator->Position = manipulated->SelectionCenter;
+					this->SelectPoint(currentPoint, currentManipulator, OpenGLSelectionModeAdd);
+					this->Invalidate();
+				}
+			}
+		}
 	}
 
 	void OpenGLSceneView::OnMouseUp(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseUp(e);
+		currentPoint = PointF(e->X, e->Y);
+		if (isManipulating)
+		{
+			//[delegate manipulationEnded];
+			isManipulating = NO;
+		}
+		if (isSelecting)
+		{
+			isSelecting = NO;
+			OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
+			
+			if ((this->ModifierKeys & System::Windows::Forms::Keys::Control) == System::Windows::Forms::Keys::Control)
+				selectionMode = OpenGLSelectionModeInvert;
+			else if ((this->ModifierKeys & System::Windows::Forms::Keys::Shift) == System::Windows::Forms::Keys::Shift)
+				selectionMode = OpenGLSelectionModeAdd;
+			else
+				manipulated->ChangeSelection(NO);
+			
+			RectangleF rect = this->CurrentRect;
+			if (rect.Width > 5.0f && rect.Height > 5.0f)
+				this->SelectRect(rect, manipulated, selectionMode);
+			else
+				this->SelectPoint(currentPoint, manipulated, selectionMode);
+			this->Invalidate();
+		}
 	}
 
 	void OpenGLSceneView::OnMouseWheel(MouseEventArgs ^e)
@@ -288,6 +390,16 @@ namespace ManagedCpp {
 		camera->Zoom(zoom * sensitivity);
 
 		this->Invalidate();
+	}
+
+	RectangleF OpenGLSceneView::CurrentRect::get()
+	{
+		float minX = Min(lastPoint.X, currentPoint.X);
+		float maxX = Max(lastPoint.X, currentPoint.X);
+		float minY = Min(lastPoint.Y, currentPoint.Y);
+		float maxY = Max(lastPoint.Y, currentPoint.Y);
+		
+		return RectangleF(minX, minY, maxX - minX, maxY - minY);
 	}
 
 	#pragma endregion
@@ -403,17 +515,16 @@ namespace ManagedCpp {
 
 	#pragma region Selection
 
-	void OpenGLSceneView::Select(
-		double x, 
-		double y, 
-		double width, 
-		double height,
+	void OpenGLSceneView::SelectBox(
+		RectangleF rect,
 		OpenGLSelecting ^selecting,
 		CocoaBool nearestOnly,
 		OpenGLSelectionMode selectionMode)
 	{
 		if (selecting == nullptr || selecting->SelectableCount <= 0)
 			return;
+
+		rect.Y = this->Height - rect.Y;
 
 		selecting->WillSelect(); // replace with HotChocolate GetDelegate
 
@@ -425,17 +536,18 @@ namespace ManagedCpp {
 		
 		int objectsFound = 0;
 		int viewport[4];
-		unsigned int selectBuffer[1024 * 1024];
+		const unsigned int selectBufferSize = 65535;
+		unsigned int selectBuffer[selectBufferSize];
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glSelectBuffer(1024 * 1024, selectBuffer);
+		glSelectBuffer(selectBufferSize, selectBuffer);
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glRenderMode(GL_SELECT);
 		glLoadIdentity();
-		gluPickMatrix(x, y, width, height, viewport);
+		gluPickMatrix(rect.X, rect.Y, rect.Width, rect.Height, viewport);
 		RectangleF baseRect = this->ClientRectangle;
 		this->ApplyProjection(baseRect);
 		glMatrixMode(GL_MODELVIEW);
@@ -497,26 +609,27 @@ namespace ManagedCpp {
 		}*/
 	}
 
-	void OpenGLSceneView::Select(
+	void OpenGLSceneView::SelectPoint(
 		PointF point, 
 		OpenGLSelecting ^selecting, 
 		OpenGLSelectionMode selectionMode)
 
 	{
-		this->Select(point.X, point.Y, 10.0, 10.0,
+		this->SelectBox(RectangleF(point.X, point.Y, 10.0, 10.0),
 			selecting, YES, selectionMode);
 	}
 
-	void OpenGLSceneView::Select(
+	void OpenGLSceneView::SelectRect(
 		RectangleF rect,
 		OpenGLSelecting ^selecting,
 		OpenGLSelectionMode selectionMode)
 	{
-		this->Select(
-			rect.X + rect.Width / 2,
-			rect.Y + rect.Height / 2,
-			rect.Width,
-			rect.Height,
+		this->SelectBox(
+			RectangleF(
+				rect.X + rect.Width / 2,
+				rect.Y + rect.Height / 2,
+				rect.Width,
+				rect.Height),
 			selecting,
 			NO,
 			selectionMode);
