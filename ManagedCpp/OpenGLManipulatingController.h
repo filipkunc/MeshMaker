@@ -74,7 +74,7 @@ namespace ManagedCpp
 		property OpenGLManipulatingModel ^Model { OpenGLManipulatingModel ^get(); 
 												  void set(OpenGLManipulatingModel ^value); }
 		property int LastSelectedIndex { int get(); }
-	
+		
 		void AddSelectionObserver(Object ^observer);
 		void RemoveSelectionObserver(Object ^observer);
 		float GetSelectionValue(uint index);

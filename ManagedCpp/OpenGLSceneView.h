@@ -63,6 +63,7 @@ namespace ManagedCpp
 		
 		property OpenGLManipulating ^Displayed { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
 		property OpenGLManipulating ^Manipulated { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+		property RectangleF CurrentRect { RectangleF get(); }
 
 	protected:
 		~OpenGLSceneView();
@@ -85,21 +86,18 @@ namespace ManagedCpp
 		void BeginOrtho();
 		void EndOrtho();
 		
-		void Select(
-			double x, 
-			double y, 
-			double width, 
-			double height,
+		void SelectBox(
+			RectangleF rect,
 			OpenGLSelecting ^selecting,
 			CocoaBool nearestOnly,
 			OpenGLSelectionMode selectionMode);
 
-		void Select(
+		void SelectPoint(
 			PointF point, 
 			OpenGLSelecting ^selecting, 
 			OpenGLSelectionMode selectionMode);
 
-		void Select(
+		void SelectRect(
 			RectangleF rect,
 			OpenGLSelecting ^selecting,
 			OpenGLSelectionMode selectionMode);

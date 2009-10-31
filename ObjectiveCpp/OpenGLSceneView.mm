@@ -454,12 +454,12 @@ const float maxDistance = 1000.0f;
 	[self setNeedsDisplay:YES];
 }
 
--(NSRect)currentRect
+- (NSRect)currentRect
 {
-	float minX = MIN(lastPoint.x, currentPoint.x);
-	float maxX = MAX(lastPoint.x, currentPoint.x);
-	float minY = MIN(lastPoint.y, currentPoint.y);
-	float maxY = MAX(lastPoint.y, currentPoint.y);
+	float minX = Min(lastPoint.x, currentPoint.x);
+	float maxX = Max(lastPoint.x, currentPoint.x);
+	float minY = Min(lastPoint.y, currentPoint.y);
+	float maxY = Max(lastPoint.y, currentPoint.y);
 	
 	return NSMakeRect(minX, minY, maxX - minX, maxY - minY);
 }
@@ -517,11 +517,12 @@ const float maxDistance = 1000.0f;
 	
 	int objectsFound = 0;
     int viewport[4];
-	unsigned int selectBuffer[1024 * 1024];
+	const unsigned int selectBufferSize = 1024 * 1024;
+	unsigned int selectBuffer[selectBufferSize];
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glSelectBuffer(1024 * 1024, selectBuffer);
+	glSelectBuffer(selectBufferSize, selectBuffer);
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
