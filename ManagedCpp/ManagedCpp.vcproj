@@ -312,6 +312,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Manipulator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Manipulator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ManipulatorWidget.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ManipulatorWidget.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Mesh.cpp"
 				>
 			</File>

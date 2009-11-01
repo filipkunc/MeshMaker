@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ManagedCpp, Version=1.0.3583.32505, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="ManagedCpp, Version=1.0.3591.40126, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Debug\ManagedCpp.dll</HintPath>
     </Reference>
