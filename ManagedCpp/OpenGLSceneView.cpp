@@ -30,8 +30,8 @@ namespace ManagedCpp {
 
 		lastPoint = PointF(0, 0);
 
-		cameraMode = CameraModePerspective;
-		viewMode = ViewModeSolid;
+		cameraMode = CameraMode::CameraModePerspective;
+		viewMode = ViewMode::ViewModeSolid;
 
 		defaultManipulator = gcnew Manipulator();
 		defaultManipulator->AddWidget(gcnew ManipulatorWidget(AxisX, WidgetLine));
@@ -91,6 +91,93 @@ namespace ManagedCpp {
 		manipulated = value;
 	}
 
+	ManipulatorType OpenGLSceneView::CurrentManipulator::get()
+	{
+		if (currentManipulator == defaultManipulator)
+			return ManipulatorType::ManipulatorTypeDefault;
+		if (currentManipulator == translationManipulator)
+			return ManipulatorType::ManipulatorTypeTranslation;
+		if (currentManipulator == rotationManipulator)
+			return ManipulatorType::ManipulatorTypeRotation;
+		if (currentManipulator == scaleManipulator)
+			return ManipulatorType::ManipulatorTypeScale;
+		return ManipulatorType::ManipulatorTypeDefault;
+	}
+
+	void OpenGLSceneView::CurrentManipulator::set(ManipulatorType value)
+	{
+		switch (value)
+		{
+			case ManipulatorType::ManipulatorTypeDefault:
+				currentManipulator = defaultManipulator;
+				break;
+			case ManipulatorType::ManipulatorTypeTranslation:
+				currentManipulator = translationManipulator;
+				break;
+			case ManipulatorType::ManipulatorTypeRotation:
+				currentManipulator = rotationManipulator;
+				break;
+			case ManipulatorType::ManipulatorTypeScale:
+				currentManipulator = scaleManipulator;
+				break;
+			default:
+				break;
+		}
+		this->Invalidate();
+	}
+
+	CameraMode OpenGLSceneView::CurrentCameraMode::get()
+	{
+		return cameraMode;
+	}
+
+	void OpenGLSceneView::CurrentCameraMode::set(CameraMode value)
+	{	
+		if (cameraMode == CameraMode::CameraModePerspective)
+		{
+			*perspectiveRadians = camera->GetRadians();
+		}
+		cameraMode = value;
+		switch (cameraMode)
+		{
+			case CameraMode::CameraModePerspective:
+				camera->SetRadians(*perspectiveRadians);
+				break;
+			case CameraMode::CameraModeTop:
+				camera->SetRadians(Vector3D(-90.0f * DEG_TO_RAD, 0, 0));
+				break;
+			case CameraMode::CameraModeBottom:
+				camera->SetRadians(Vector3D(90.0f * DEG_TO_RAD, 0, 0));
+				break;
+			case CameraMode::CameraModeLeft:
+				camera->SetRadians(Vector3D(0, -90.0f * DEG_TO_RAD, 0));
+				break;
+			case CameraMode::CameraModeRight:
+				camera->SetRadians(Vector3D(0, 90.0f * DEG_TO_RAD, 0));
+				break;
+			case CameraMode::CameraModeFront:
+				camera->SetRadians(Vector3D(0, 0, 0));
+				break;
+			case CameraMode::CameraModeBack:
+				camera->SetRadians(Vector3D(0, 180.0f * DEG_TO_RAD, 0));
+				break;
+			default:
+				break;
+		}
+		this->Invalidate();
+	}
+
+	ViewMode OpenGLSceneView::CurrentViewMode::get()
+	{
+		return viewMode;
+	}
+
+	void OpenGLSceneView::CurrentViewMode::set(ViewMode value)
+	{
+		viewMode = value;
+		this->Invalidate();
+	}
+
 	void OpenGLSceneView::DrawGrid(int size, int step)
 	{
 		glBegin(GL_LINES);
@@ -137,10 +224,10 @@ namespace ManagedCpp {
 		
 		if (manipulated->SelectedCount > 0)
 		{
-			/*[currentManipulator setPosition:[manipulated selectionCenter]];
-			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
-			[scaleManipulator setRotation:[manipulated selectionRotation]];
-			[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];*/
+			currentManipulator->Position = manipulated->SelectionCenter;
+			currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
+			scaleManipulator->Rotation = manipulated->SelectionRotation;
+			currentManipulator->Draw(camera->GetAxisZ(), manipulated->SelectionCenter);
 		}
 			
 		if (isSelecting)
@@ -182,7 +269,7 @@ namespace ManagedCpp {
 	{
 		float w_h = baseRect.Width / baseRect.Height;
 			
-		if (cameraMode != CameraModePerspective)
+		if (cameraMode != CameraMode::CameraModePerspective)
 		{
 			float x = camera->GetZoom() * w_h;
 			float y = camera->GetZoom(); 
@@ -524,6 +611,8 @@ namespace ManagedCpp {
 		if (selecting == nullptr || selecting->SelectableCount <= 0)
 			return;
 
+		this->BeginGL();
+
 		rect.Y = this->Height - rect.Y;
 
 		selecting->WillSelect(); // replace with HotChocolate GetDelegate
@@ -572,7 +661,10 @@ namespace ManagedCpp {
 		glMatrixMode(GL_MODELVIEW);
 			
 		if (objectsFound <= 0)
+		{
+			this->EndGL();
 			return;
+		}
 		
 		if (nearestOnly)
 		{
@@ -602,6 +694,8 @@ namespace ManagedCpp {
 		}
 
 		selecting->DidSelect();
+
+		this->EndGL();
 		
 		/*if ([aSelecting respondsToSelector:@selector(didSelect)])
 		{

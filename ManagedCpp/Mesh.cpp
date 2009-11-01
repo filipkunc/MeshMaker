@@ -18,7 +18,7 @@ namespace ManagedCpp
 		edges = new vector<Edge>();
 		selected = new vector<CocoaBool>();
 		markedVertices = new vector<CocoaBool>();
-		selectionMode = MeshSelectionModeVertices;
+		selectionMode = MeshSelectionMode::MeshSelectionModeVertices;
 
 		int red = rand() % 50 + 150;
 		int green = rand() % 50 + 150;
@@ -46,21 +46,21 @@ namespace ManagedCpp
 		selected->clear();
 		switch (selectionMode) 
 		{
-			case MeshSelectionModeVertices:
+			case MeshSelectionMode::MeshSelectionModeVertices:
 			{
 				for (uint i = 0; i < vertices->size(); i++)
 				{
 					selected->push_back(NO);
 				}
 			} break;
-			case MeshSelectionModeTriangles:
+			case MeshSelectionMode::MeshSelectionModeTriangles:
 			{
 				for (uint i = 0; i < triangles->size(); i++)
 				{
 					selected->push_back(NO);
 				}
 			} break;
-			case MeshSelectionModeEdges:
+			case MeshSelectionMode::MeshSelectionModeEdges:
 			{
 				this->MakeEdges();
 				for (uint i = 0; i < edges->size(); i++)
@@ -114,14 +114,14 @@ namespace ManagedCpp
 	void Mesh::AddVertex(Vector3D vertex)
 	{
 		vertices->push_back(vertex);
-		if (selectionMode == MeshSelectionModeVertices)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeVertices)
 			selected->push_back(NO);
 	}
 	
 	void Mesh::AddTriangle(Triangle triangle)
 	{
 		triangles->push_back(triangle);
-		if (selectionMode == MeshSelectionModeTriangles)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
 			selected->push_back(NO);
 	}
 	
@@ -156,7 +156,7 @@ namespace ManagedCpp
 		edge.vertexIndices[1] = index2;
 		edges->push_back(edge);
 		
-		if (selectionMode == MeshSelectionModeEdges)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeEdges)
 			selected->push_back(NO);
 	}
 
@@ -212,7 +212,7 @@ namespace ManagedCpp
 		
 		for (uint i = 0; i < triangles->size(); i++)
 		{
-			if (selectionMode == MeshSelectionModeTriangles) 
+			if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles) 
 			{
 				if (selected->at(i))
 				{
@@ -260,7 +260,7 @@ namespace ManagedCpp
 			glColor3f(1, 1, 1);
 		else
 			glColor3f(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f); 
-		if (selectionMode != MeshSelectionModeEdges)
+		if (selectionMode != MeshSelectionMode::MeshSelectionModeEdges)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			this->DrawFill(scale);
@@ -542,7 +542,7 @@ namespace ManagedCpp
 		
 		switch (selectionMode)
 		{
-			case MeshSelectionModeVertices:
+			case MeshSelectionMode::MeshSelectionModeVertices:
 			{
 				for (uint i = 0; i < vertices->size(); i++)
 				{
@@ -550,7 +550,7 @@ namespace ManagedCpp
 						markedVertices->at(i) = YES;
 				}
 			} break;
-			case MeshSelectionModeTriangles:
+			case MeshSelectionMode::MeshSelectionModeTriangles:
 			{
 				for (uint i = 0; i < triangles->size(); i++)
 				{
@@ -560,7 +560,7 @@ namespace ManagedCpp
 					}
 				}
 			} break;
-			case MeshSelectionModeEdges:
+			case MeshSelectionMode::MeshSelectionModeEdges:
 			{
 				for (uint i = 0; i < edges->size(); i++)
 				{
@@ -586,21 +586,21 @@ namespace ManagedCpp
 			}
 		}
 		vertices->erase(vertices->begin() + index);
-		if (selectionMode == MeshSelectionModeVertices)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeVertices)
 			selected->erase(selected->begin() + index);
 	}
 	
 	void Mesh::RemoveTriangle(uint index)
 	{
 		triangles->erase(triangles->begin() + index);
-		if (selectionMode == MeshSelectionModeTriangles)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
 			selected->erase(selected->begin() + index);
 	}
 
 	void Mesh::RemoveEdge(uint index)
 	{
 		edges->erase(edges->begin() + index);
-		if (selectionMode == MeshSelectionModeEdges)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeEdges)
 			selected->erase(selected->begin() + index);
 	}
 	
@@ -1051,7 +1051,7 @@ namespace ManagedCpp
 		
 		switch (selectionMode)
 		{
-			case MeshSelectionModeVertices:
+			case MeshSelectionMode::MeshSelectionModeVertices:
 				this->MergeSelectedVertices();
 				break;
 			default:
@@ -1065,10 +1065,10 @@ namespace ManagedCpp
 	
 		switch (selectionMode)
 		{
-			case MeshSelectionModeEdges:
+			case MeshSelectionMode::MeshSelectionModeEdges:
 				this->SplitSelectedEdges();
 				break;
-			case MeshSelectionModeTriangles:
+			case MeshSelectionMode::MeshSelectionModeTriangles:
 				this->SplitSelectedTriangles();
 				break;
 			default:
@@ -1195,7 +1195,7 @@ namespace ManagedCpp
 	{
 		switch (selectionMode) 
 		{
-			case MeshSelectionModeVertices:
+			case MeshSelectionMode::MeshSelectionModeVertices:
 			{
 				Vector3D v = GetVertex(index);
 				if (!forSelection)
@@ -1212,7 +1212,7 @@ namespace ManagedCpp
 				glVertex3f(v.x, v.y, v.z);
 				glEnd();
 			} break;
-			case MeshSelectionModeTriangles:
+			case MeshSelectionMode::MeshSelectionModeTriangles:
 			{
 				if (forSelection)
 				{
@@ -1226,7 +1226,7 @@ namespace ManagedCpp
 					glEnd();
 				}
 			} break;
-			case MeshSelectionModeEdges:
+			case MeshSelectionMode::MeshSelectionModeEdges:
 			{
 				Edge currentEdge = GetEdge(index);
 				if (!forSelection)
@@ -1256,7 +1256,7 @@ namespace ManagedCpp
 
 	void Mesh::RemoveSelected()
 	{
-		if (selectionMode == MeshSelectionModeTriangles)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
 		{
 			for (int i = 0; i < triangles->size(); i++)
 			{
@@ -1272,7 +1272,7 @@ namespace ManagedCpp
 
 	void Mesh::FlipSelectedTriangles()
 	{
-		if (selectionMode == MeshSelectionModeTriangles)
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
 		{	
 			for (uint i = 0; i < triangles->size(); i++)
 			{
