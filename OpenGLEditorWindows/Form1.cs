@@ -59,7 +59,7 @@ namespace OpenGLEditorWindows
             item.Selected = 1;
             items.AddItem(item);
             itemsController.UpdateSelection();
-            this.Invalidate();
+            openGLSceneView1.Invalidate();
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
@@ -101,6 +101,62 @@ namespace OpenGLEditorWindows
             Item item = new Item();
             item.GetMesh().MakeSphere(5);
             AddItem(item);
+        }
+
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            itemsController.CloneSelected();
+            openGLSceneView1.Invalidate();
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            itemsController.RemoveSelected();
+            openGLSceneView1.Invalidate();
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            itemsController.ChangeSelection(1);
+            openGLSceneView1.Invalidate();
+        }
+
+        private void invertSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            itemsController.InvertSelection();
+            openGLSceneView1.Invalidate();
+        }
+
+        private void mergeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            items.MergeSelectedItems();
+            itemsController.UpdateSelection();
+            openGLSceneView1.Invalidate();
+        }
+
+        private void splitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void mergeVertexPairsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void turnEdgesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

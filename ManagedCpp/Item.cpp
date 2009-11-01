@@ -22,10 +22,11 @@ namespace ManagedCpp
 	
 	Item::Item(Vector3D aPosition, Quaternion aRotation, Vector3D aScale)
 	{
-		Item();
-		*position = aPosition;
-		*rotation = aRotation;
-		*scale = aScale;
+		position = new Vector3D(aPosition);
+		rotation = new Quaternion(aRotation);
+		scale = new Vector3D(aScale);
+		mesh = gcnew Mesh();
+		selected = NO;
 	}
 
 	Item::~Item()
