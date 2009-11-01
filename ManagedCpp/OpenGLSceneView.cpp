@@ -62,6 +62,7 @@ namespace ManagedCpp {
 	
 	OpenGLSceneView::~OpenGLSceneView()
 	{
+		this->EndGL();
 		delete perspectiveRadians;
 		delete selectionOffset;
 		delete camera;
@@ -519,10 +520,8 @@ namespace ManagedCpp {
 		if (!deviceContext || !glRenderingContext)
 			return;
 
-		BeginGL();
 		RenderGL();
 		SwapBuffers(deviceContext);
-        EndGL();
 	}
 
 	void OpenGLSceneView::BeginGL()
@@ -594,8 +593,6 @@ namespace ManagedCpp {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHT0);
-
-        EndGL();
 	}	
 
 	#pragma endregion
@@ -610,8 +607,6 @@ namespace ManagedCpp {
 	{
 		if (selecting == nullptr || selecting->SelectableCount <= 0)
 			return;
-
-		this->BeginGL();
 
 		rect.Y = this->Height - rect.Y;
 
@@ -661,10 +656,7 @@ namespace ManagedCpp {
 		glMatrixMode(GL_MODELVIEW);
 			
 		if (objectsFound <= 0)
-		{
-			this->EndGL();
 			return;
-		}
 		
 		if (nearestOnly)
 		{
@@ -695,8 +687,6 @@ namespace ManagedCpp {
 
 		selecting->DidSelect();
 
-		this->EndGL();
-		
 		/*if ([aSelecting respondsToSelector:@selector(didSelect)])
 		{
 			[selecting didSelect];
@@ -746,7 +736,7 @@ namespace ManagedCpp {
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		winX = point.X;
-		winY = point.Y;
+		winY = this->Height - point.Y;
 		glReadPixels((int)winX, (int)winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 		gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 		

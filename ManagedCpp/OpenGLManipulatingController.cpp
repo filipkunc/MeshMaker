@@ -1,4 +1,4 @@
-//
+﻿//
 //  OpenGLManipulatingController.cpp
 //  OpenGLEditor
 //
@@ -299,103 +299,98 @@ namespace ManagedCpp
 		m = s * r;
 		transformedOffset.Transform(m);
 		
-		
-
-		/*id aModel = model;
-		if ([aModel respondsToSelector:@selector(moveSelectedByOffset:)])
+		if (modelMesh != nullptr)
 		{
-			[model moveSelectedByOffset:transformedOffset];
+			modelMesh->MoveSelectedBy(transformedOffset);
 		}
-		else
+		else if (modelItem != nullptr)
 		{
-			for (int i = 0; i < [model count]; i++)
+			for (int i = 0; i < model->Count; i++)
 			{
-				if ([model isSelectedAtIndex:i])
-					[model moveByOffset:transformedOffset atIndex:i];
+				if (model->IsSelected(i))
+					modelItem->MoveBy(offset, i);
 			}
-		}*/
-			
+		}
+	
 		this->SelectionCenter = *selectionCenter + offset;
 	}
 
 	void OpenGLManipulatingController::RotateSelectedBy(Quaternion offset)
 	{
-		/*id aModel = model;
-		if ([aModel respondsToSelector:@selector(rotateSelectedByOffset:)])
+		if (modelMesh != nullptr)
 		{
 			Vector3D rotationCenter = *selectionCenter;
 			rotationCenter.Transform(modelTransform->Inverse());
-			[model moveSelectedByOffset:-rotationCenter];
-			[model rotateSelectedByOffset:offset];
-			[model moveSelectedByOffset:rotationCenter];
-			[self setSelectionRotation:offset * (*selectionRotation)];
+			modelMesh->MoveSelectedBy(-rotationCenter);
+			modelMesh->RotateSelectedBy(offset);
+			modelMesh->MoveSelectedBy(rotationCenter);
+			this->SelectionRotation = offset * (*selectionRotation);
 		}
-		else
+		else if (modelItem != nullptr)
 		{
-			if ([self selectedCount] > 1)
+			if (this->SelectedCount > 1)
 			{
 				Vector3D rotationCenter = *selectionCenter;
 				rotationCenter.Transform(modelTransform->Inverse());
-				for (int i = 0; i < [model count]; i++)
+				for (int i = 0; i < model->Count; i++)
 				{
-					if ([model isSelectedAtIndex:i])
+					if (model->IsSelected(i))
 					{
-						Vector3D itemPosition = [model positionAtIndex:i];
+						Vector3D itemPosition = modelItem->GetPosition(i);
 						itemPosition -= rotationCenter;
 						itemPosition.Transform(offset);
 						itemPosition += rotationCenter;
-						[model setPosition:itemPosition atIndex:i];
-						[model rotateByOffset:offset atIndex:i];
+						modelItem->SetPosition(itemPosition, i);
+						modelItem->RotateBy(offset, i);
 					}
 				}
-				[self setSelectionRotation:offset * (*selectionRotation)];
+				this->SelectionRotation = offset * (*selectionRotation);
 			}
 			else if (lastSelectedIndex > -1)
 			{
-				[model rotateByOffset:offset atIndex:lastSelectedIndex];
-				[self setSelectionRotation:[model rotationAtIndex:lastSelectedIndex]];
+				modelItem->RotateBy(offset, lastSelectedIndex);
+				this->SelectionRotation = modelItem->GetRotation(lastSelectedIndex);
 			}		
-		}*/
+		}
 	}
 
 	void OpenGLManipulatingController::ScaleSelectedBy(Vector3D offset)
 	{
-		/*id aModel = model;
-		if ([aModel respondsToSelector:@selector(scaleSelectedByOffset:)])
+		if (modelMesh != nullptr)
 		{
 			Vector3D rotationCenter = *selectionCenter;
 			rotationCenter.Transform(modelTransform->Inverse());
-			[model moveSelectedByOffset:-rotationCenter];
-			[model scaleSelectedByOffset:offset + Vector3D(1, 1, 1)];
-			[model moveSelectedByOffset:rotationCenter];
+			modelMesh->MoveSelectedBy(-rotationCenter);
+			modelMesh->ScaleSelectedBy(offset + Vector3D(1, 1, 1));
+			modelMesh->MoveSelectedBy(rotationCenter);
 		}
-		else
+		else if (modelItem != nullptr)
 		{
-			if ([self selectedCount] > 1)
+			if (this->SelectedCount > 1)
 			{
 				Vector3D rotationCenter = *selectionCenter;
 				rotationCenter.Transform(modelTransform->Inverse());
-				for (int i = 0; i < [model count]; i++)
+				for (int i = 0; i < model->Count; i++)
 				{
-					if ([model isSelectedAtIndex:i])
+					if (model->IsSelected(i))
 					{
-						Vector3D itemPosition = [model positionAtIndex:i];
+						Vector3D itemPosition = modelItem->GetPosition(i);
 						itemPosition -= rotationCenter;
 						itemPosition.x *= 1.0f + offset.x;
 						itemPosition.y *= 1.0f + offset.y;
 						itemPosition.z *= 1.0f + offset.z;
 						itemPosition += rotationCenter;
-						[model setPosition:itemPosition atIndex:i];
-						[model scaleByOffset:offset atIndex:i];
+						modelItem->SetPosition(itemPosition, i);
+						modelItem->ScaleBy(offset, i);
 					}
 				}
 			}
 			else if (lastSelectedIndex > -1)
 			{
-				[model scaleByOffset:offset atIndex:lastSelectedIndex];
+				modelItem->ScaleBy(offset, lastSelectedIndex);
 			}
 		}
-		this->SelectionScale = *selectionScale + offset;*/
+		this->SelectionScale = *selectionScale + offset;
 	}
 
 	void OpenGLManipulatingController::Draw(ViewMode mode)
