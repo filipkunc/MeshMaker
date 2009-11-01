@@ -517,7 +517,7 @@ const float maxDistance = 1000.0f;
 	
 	int objectsFound = 0;
     int viewport[4];
-	const unsigned int selectBufferSize = 1024 * 1024;
+	const unsigned int selectBufferSize = 65535;
 	unsigned int selectBuffer[selectBufferSize];
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

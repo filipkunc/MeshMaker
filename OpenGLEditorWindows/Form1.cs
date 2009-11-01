@@ -25,7 +25,8 @@ namespace OpenGLEditorWindows
             items.AddItem(item);
             controller = new OpenGLManipulatingController();
             controller.Model = items;
-
+            openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeTranslation;
+            controller.CurrentManipulator = openGLSceneView1.CurrentManipulator;
             openGLSceneView1.Displayed = openGLSceneView1.Manipulated = controller;
         }
     }

@@ -54,13 +54,16 @@ namespace ManagedCpp
 		Manipulator ^scaleManipulator;
 		Manipulator ^currentManipulator;
 		
-		enum CameraMode cameraMode;
-		enum ViewMode viewMode;
+		CameraMode cameraMode;
+		ViewMode viewMode;
 
 		Mesh ^testMesh;
 	public:
 		OpenGLSceneView();
-		
+
+		property ManipulatorType CurrentManipulator { ManipulatorType get(); void set(ManipulatorType value); }
+		property CameraMode CurrentCameraMode { CameraMode get(); void set(CameraMode value); }
+		property ViewMode CurrentViewMode { ViewMode get(); void set(ViewMode value); }
 		property OpenGLManipulating ^Displayed { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
 		property OpenGLManipulating ^Manipulated { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
 		property RectangleF CurrentRect { RectangleF get(); }

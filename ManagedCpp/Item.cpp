@@ -83,7 +83,7 @@ namespace ManagedCpp
 		Matrix4x4 rotationMatrix;
 		rotation->ToMatrix(rotationMatrix);
 		glMultMatrixf(rotationMatrix);
-		if (mode == ViewModeSolid)
+		if (mode == ViewMode::ViewModeSolid)
 			mesh->Draw(*scale, selected);
 		else
 			mesh->DrawWire(*scale, selected);

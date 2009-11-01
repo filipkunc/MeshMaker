@@ -35,7 +35,7 @@ namespace ManagedCpp
 		vector<CocoaBool> *selected;
 		vector<CocoaBool> *markedVertices;
 		Color color;
-		enum MeshSelectionMode selectionMode;
+		MeshSelectionMode selectionMode;
 	public:
 		Mesh();
 		~Mesh();

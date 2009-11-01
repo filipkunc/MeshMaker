@@ -18,7 +18,7 @@ namespace ManagedCpp
 		selectionScale = new Vector3D(1, 1, 1);
 		selectedCount = 0;
 		lastSelectedIndex = -1;
-		currentManipulator = ManipulatorTypeDefault;
+		currentManipulator = ManipulatorType::ManipulatorTypeDefault;
 		modelTransform = new Matrix4x4();
 		modelPosition = new Vector3D();
 		modelRotation = new Quaternion();
@@ -129,13 +129,13 @@ namespace ManagedCpp
 	{
 		switch (currentManipulator)
 		{
-			case ManipulatorTypeTranslation:
+			case ManipulatorType::ManipulatorTypeTranslation:
 				return (*selectionCenter)[index];
-			case ManipulatorTypeRotation:
+			case ManipulatorType::ManipulatorTypeRotation:
 				return (*selectionEuler)[index] * RAD_TO_DEG;
-			case ManipulatorTypeScale:
+			case ManipulatorType::ManipulatorTypeScale:
 				return (*selectionScale)[index];
-			case ManipulatorTypeDefault:
+			case ManipulatorType::ManipulatorTypeDefault:
 			default:
 				return 0.0f;
 		}
@@ -145,13 +145,13 @@ namespace ManagedCpp
 	{
 		switch (currentManipulator)
 		{
-			case ManipulatorTypeTranslation:
+			case ManipulatorType::ManipulatorTypeTranslation:
 			{
 				Vector3D offset = Vector3D();
 				offset[index] = value - (*selectionCenter)[index];
 				this->MoveSelectedBy(offset);
 			}break;
-			case ManipulatorTypeRotation:
+			case ManipulatorType::ManipulatorTypeRotation:
 			{
 				(*selectionEuler)[index] = value * DEG_TO_RAD;
 				if (selectedCount == 1)
@@ -168,7 +168,7 @@ namespace ManagedCpp
 					this->RotateSelectedBy(offset);
 				}
 			}break;
-			case ManipulatorTypeScale:
+			case ManipulatorType::ManipulatorTypeScale:
 			{
 				if (selectedCount == 1)
 				{
@@ -416,6 +416,7 @@ namespace ManagedCpp
 		{
 			[model willSelect];
 		}*/
+		model->WillSelect();
 	}
 
 	void OpenGLManipulatingController::DidSelect()
@@ -424,8 +425,9 @@ namespace ManagedCpp
 		if ([aModel respondsToSelector:@selector(didSelect)])
 		{
 			[model didSelect];
-		}
-		[self updateSelection];*/
+		}*/
+		model->DidSelect();
+		this->UpdateSelection();
 	}
 
 	uint OpenGLManipulatingController::SelectableCount::get()
@@ -437,7 +439,7 @@ namespace ManagedCpp
 	{
 		glPushMatrix();
 		glMultMatrixf(modelTransform->m);
-		model->Draw(index, YES, ViewModeSolid);
+		model->Draw(index, YES, ViewMode::ViewModeSolid);
 		glPopMatrix();
 	}
 

@@ -9,6 +9,17 @@
 
 #pragma once
 
+// This isn't Pure C++ as I wanted, but I needed enum export for C#.
+// If you find better name than MyEnum that doesn't clash with M$ or Fruit,
+// write me e-mail.
+#ifdef WIN32
+#include <windows.h>
+using namespace System;
+#define MyEnum public enum struct
+#else
+#define MyEnum enum
+#endif
+
 #ifndef uint
 typedef unsigned int uint;
 #endif
@@ -24,14 +35,18 @@ typedef signed char CocoaBool;
 #define NO   ((CocoaBool)0)
 #endif
 
-enum MeshSelectionMode
+#ifdef WIN32
+namespace ManagedCpp {
+#endif
+
+MyEnum MeshSelectionMode
 {
 	MeshSelectionModeVertices = 0,
 	MeshSelectionModeTriangles,
 	MeshSelectionModeEdges
 };
 
-enum ManipulatorType 
+MyEnum ManipulatorType
 {
 	ManipulatorTypeDefault = 0,
 	ManipulatorTypeTranslation = 1, 
@@ -39,22 +54,13 @@ enum ManipulatorType
 	ManipulatorTypeScale = 3
 };
 
-enum ViewMode
+MyEnum ViewMode
 {
 	ViewModeSolid = 0,
 	ViewModeWireframe = 1
 };
 
-enum Widget
-{
-	WidgetLine,
-	WidgetArrow,
-	WidgetPlane,
-	WidgetCircle,
-	WidgetCube,
-};
-
-enum EditMode
+MyEnum EditMode
 {
 	EditModeItems = 0,
 	EditModeVertices = 1,
@@ -62,18 +68,26 @@ enum EditMode
 	EditModeEdges = 3
 };
 
-enum ItemWithSteps
+MyEnum ItemWithSteps
 {
 	ItemWithStepsCylinder = 0,
 	ItemWithStepsSphere = 1
 };
 
-enum OpenGLSelectionMode
+MyEnum CameraMode
 {
-	OpenGLSelectionModeAdd,
-	OpenGLSelectionModeSubtract,
-	OpenGLSelectionModeInvert,
+	CameraModePerspective = 0,
+	CameraModeLeft = 1,
+	CameraModeRight = 2,
+	CameraModeTop = 3,
+	CameraModeBottom = 4,
+	CameraModeFront = 5,
+	CameraModeBack = 6
 };
+
+#ifdef WIN32
+} // namespace ManagedCpp
+#endif 
 
 enum Axis
 {
@@ -90,13 +104,18 @@ enum PlaneAxis
 	PlaneAxisZ = 5,
 };
 
-enum CameraMode
+enum Widget
 {
-	CameraModePerspective = 0,
-	CameraModeLeft = 1,
-	CameraModeRight = 2,
-	CameraModeTop = 3,
-	CameraModeBottom = 4,
-	CameraModeFront = 5,
-	CameraModeBack = 6
+	WidgetLine,
+	WidgetArrow,
+	WidgetPlane,
+	WidgetCircle,
+	WidgetCube,
+};
+
+enum OpenGLSelectionMode
+{
+	OpenGLSelectionModeAdd,
+	OpenGLSelectionModeSubtract,
+	OpenGLSelectionModeInvert,
 };
