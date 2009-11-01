@@ -13,21 +13,94 @@ namespace OpenGLEditorWindows
     public partial class Form1 : Form
     {
         ItemCollection items;
-        OpenGLManipulatingController controller;
+        OpenGLManipulatingController itemsController;
 
         public Form1()
         {
             InitializeComponent();
 
             items = new ItemCollection();
+            itemsController = new OpenGLManipulatingController();
+            itemsController.Model = items;
+            openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault;
+            itemsController.CurrentManipulator = openGLSceneView1.CurrentManipulator;
+            openGLSceneView1.Displayed = openGLSceneView1.Manipulated = itemsController;
+        }
+
+        private void SetManipulator(ManipulatorType manipulator)
+        {
+            openGLSceneView1.CurrentManipulator = manipulator;
+            itemsController.CurrentManipulator = manipulator;
+            openGLSceneView1.Invalidate();
+
+            btnSelect.Checked = btnTranslate.Checked = btnRotate.Checked = btnScale.Checked = false;
+            switch (manipulator)
+            {
+                case ManipulatorType.ManipulatorTypeDefault:
+                    btnSelect.Checked = true;
+                    break;
+                case ManipulatorType.ManipulatorTypeRotation:
+                    btnRotate.Checked = true;
+                    break;
+                case ManipulatorType.ManipulatorTypeScale:
+                    btnScale.Checked = true;
+                    break;
+                case ManipulatorType.ManipulatorTypeTranslation:
+                    btnTranslate.Checked = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void AddItem(Item item)
+        {
+            itemsController.ChangeSelection(0);
+            item.Selected = 1;
+            items.AddItem(item);
+            itemsController.UpdateSelection();
+            this.Invalidate();
+        }
+
+        private void btnSelect_Click(object sender, EventArgs e)
+        {
+            SetManipulator(ManipulatorType.ManipulatorTypeDefault);
+        }
+
+        private void btnTranslate_Click(object sender, EventArgs e)
+        {
+            SetManipulator(ManipulatorType.ManipulatorTypeTranslation);
+        }
+
+        private void btnRotate_Click(object sender, EventArgs e)
+        {
+            SetManipulator(ManipulatorType.ManipulatorTypeRotation);
+        }
+
+        private void btnScale_Click(object sender, EventArgs e)
+        {
+            SetManipulator(ManipulatorType.ManipulatorTypeScale);
+        }
+
+        private void btnAddCube_Click(object sender, EventArgs e)
+        {
             Item item = new Item();
             item.GetMesh().MakeCube();
-            items.AddItem(item);
-            controller = new OpenGLManipulatingController();
-            controller.Model = items;
-            openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeTranslation;
-            controller.CurrentManipulator = openGLSceneView1.CurrentManipulator;
-            openGLSceneView1.Displayed = openGLSceneView1.Manipulated = controller;
+            AddItem(item);
+        }
+
+        private void btnAddCylinder_Click(object sender, EventArgs e)
+        {
+            Item item = new Item();
+            item.GetMesh().MakeCylinder(5);
+            AddItem(item);
+        }
+
+        private void btnAddSphere_Click(object sender, EventArgs e)
+        {
+            Item item = new Item();
+            item.GetMesh().MakeSphere(5);
+            AddItem(item);
         }
     }
 }
