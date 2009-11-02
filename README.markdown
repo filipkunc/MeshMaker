@@ -9,7 +9,7 @@ License for this project is under MIT license. You find it in file "LICENSE.TXT"
 OpenGL Editor is my hobby project. Goal is to create fast and powerful tool for basic low poly modeling on Mac OS X. Project is currently in very early stages and many critical pieces are missing.
 Any ideas, help or wishes is welcome!
 
-**In Downloads section is older video. I need to update it.**
+**In Downloads section is now updated video.**
 
 ### Implemented features
 
