@@ -39,6 +39,7 @@
             this.btnAddCylinder = new System.Windows.Forms.ToolStripButton();
             this.btnAddSphere = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.textBoxX = new System.Windows.Forms.ToolStripTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,6 +61,11 @@
             this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.turnEdgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openGLSceneView1 = new ManagedCpp.OpenGLSceneView();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.textBoxY = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
+            this.textBoxZ = new System.Windows.Forms.ToolStripTextBox();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -75,7 +81,13 @@
             this.btnAddCube,
             this.btnAddCylinder,
             this.btnAddSphere,
-            this.toolStripSeparator5});
+            this.toolStripSeparator5,
+            this.toolStripLabel1,
+            this.textBoxX,
+            this.toolStripLabel2,
+            this.textBoxY,
+            this.toolStripLabel3,
+            this.textBoxZ});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1009, 25);
@@ -163,6 +175,11 @@
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
             this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            // 
+            // textBoxX
+            // 
+            this.textBoxX.Name = "textBoxX";
+            this.textBoxX.Size = new System.Drawing.Size(100, 25);
             // 
             // menuStrip1
             // 
@@ -338,6 +355,34 @@
             this.openGLSceneView1.Size = new System.Drawing.Size(1009, 537);
             this.openGLSceneView1.TabIndex = 3;
             // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(13, 22);
+            this.toolStripLabel1.Text = "X";
+            // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(13, 22);
+            this.toolStripLabel2.Text = "Y";
+            // 
+            // textBoxY
+            // 
+            this.textBoxY.Name = "textBoxY";
+            this.textBoxY.Size = new System.Drawing.Size(100, 25);
+            // 
+            // toolStripLabel3
+            // 
+            this.toolStripLabel3.Name = "toolStripLabel3";
+            this.toolStripLabel3.Size = new System.Drawing.Size(13, 22);
+            this.toolStripLabel3.Text = "Z";
+            // 
+            // textBoxZ
+            // 
+            this.textBoxZ.Name = "textBoxZ";
+            this.textBoxZ.Size = new System.Drawing.Size(100, 25);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -391,6 +436,12 @@
         private System.Windows.Forms.ToolStripMenuItem mergeVertexPairsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem turnEdgesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripTextBox textBoxX;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripTextBox textBoxY;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel3;
+        private System.Windows.Forms.ToolStripTextBox textBoxZ;
     }
 }
 

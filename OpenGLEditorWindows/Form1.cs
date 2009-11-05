@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ManagedCpp;
+using HotChocolate;
+using HotChocolate.Bindings;
 
 namespace OpenGLEditorWindows
 {
@@ -19,12 +21,19 @@ namespace OpenGLEditorWindows
         {
             InitializeComponent();
 
+            if (this.DesignMode)
+                return;
+
             items = new ItemCollection();
             itemsController = new OpenGLManipulatingController();
             itemsController.Model = items;
             openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault;
             itemsController.CurrentManipulator = openGLSceneView1.CurrentManipulator;
             openGLSceneView1.Displayed = openGLSceneView1.Manipulated = itemsController;
+
+            textBoxX.TextBox.BindString<float>("Text", itemsController, "SelectionX");
+            textBoxY.TextBox.BindString<float>("Text", itemsController, "SelectionY");
+            textBoxZ.TextBox.BindString<float>("Text", itemsController, "SelectionZ");
         }
 
         private void SetManipulator(ManipulatorType manipulator)

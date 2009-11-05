@@ -16,6 +16,8 @@
 #include "OpenGLManipulating.h"
 #include "OpenGLManipulatingModel.h"
 
+using namespace HotChocolate::Bindings;
+
 namespace ManagedCpp
 {
 	public ref class OpenGLManipulatingController : OpenGLManipulating
@@ -36,6 +38,10 @@ namespace ManagedCpp
 		Vector3D *modelPosition;
 		Quaternion *modelRotation;
 		Vector3D *modelScale;
+
+		PropertyObserver<float> ^observerSelectionX;
+		PropertyObserver<float> ^observerSelectionY;
+		PropertyObserver<float> ^observerSelectionZ;
 	public:
 		OpenGLManipulatingController();
 		~OpenGLManipulatingController();
@@ -75,8 +81,6 @@ namespace ManagedCpp
 												  void set(OpenGLManipulatingModel ^value); }
 		property int LastSelectedIndex { int get(); }
 		
-		void AddSelectionObserver(Object ^observer);
-		void RemoveSelectionObserver(Object ^observer);
 		float GetSelectionValue(uint index);
 		void SetSelectionValue(float value, uint index);
 		void WillChangeSelection();

@@ -26,6 +26,11 @@ namespace ManagedCpp
 		model = nullptr;
 		modelMesh = nullptr;
 		modelItem = nullptr;
+		
+		ModelObserver ^observer = BindingsExtensions::Observe(this);
+		observerSelectionX = observer->CreateOrGetObserver<float>("SelectionX");
+		observerSelectionY = observer->CreateOrGetObserver<float>("SelectionY");
+		observerSelectionZ = observer->CreateOrGetObserver<float>("SelectionZ");
 	}
 
 	OpenGLManipulatingController::~OpenGLManipulatingController()
@@ -41,6 +46,11 @@ namespace ManagedCpp
 		model = nullptr;
 		modelMesh = nullptr;
 		modelItem = nullptr;
+		observerSelectionX = nullptr;
+		observerSelectionY = nullptr;
+		observerSelectionZ = nullptr;
+
+		BindingsExtensions::ClearAll(this);
 	}
 
 	ManipulatorType OpenGLManipulatingController::CurrentManipulator::get()
@@ -83,16 +93,6 @@ namespace ManagedCpp
 		*modelRotation = rotation;
 		*modelScale = scale;
 		modelTransform->TranslateRotateScale(position, rotation, scale);
-	}
-
-	void OpenGLManipulatingController::AddSelectionObserver(Object ^observer)
-	{
-
-	}
-
-	void OpenGLManipulatingController::RemoveSelectionObserver(Object ^observer)
-	{
-		
 	}
 
 	float OpenGLManipulatingController::SelectionX::get()
@@ -239,12 +239,16 @@ namespace ManagedCpp
 
 	void OpenGLManipulatingController::WillChangeSelection()
 	{
-
+		observerSelectionX->RaiseWillChange();
+		observerSelectionY->RaiseWillChange();
+		observerSelectionZ->RaiseWillChange();
 	}
 	
 	void OpenGLManipulatingController::DidChangeSelection()
 	{
-
+		observerSelectionX->RaiseDidChange();
+		observerSelectionY->RaiseDidChange();
+		observerSelectionZ->RaiseDidChange();
 	}
 
 	Vector3D OpenGLManipulatingController::SelectionCenter::get()
