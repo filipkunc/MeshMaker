@@ -12,6 +12,8 @@
 #include "MathCore/MathDeclaration.h"
 #include "Enums.h"
 
+void DrawCube(float size);
+void DrawSphere(float radius, int lats, int longs);
 void DrawCone(float width, float height, float offset);
 void DrawLine(float size);
 void DrawArrow(float size);

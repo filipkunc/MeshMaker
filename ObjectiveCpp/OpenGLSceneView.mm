@@ -7,7 +7,8 @@
 //
 
 
-#import <GLUT/glut.h>
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
 #import "OpenGLSceneView.h"
 
 const float perspectiveAngle = 45.0f;

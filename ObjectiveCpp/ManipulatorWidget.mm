@@ -57,7 +57,7 @@
 	}
 	else
 	{
-		alpha = 1.0f;
+		alpha = 0.8f;
 		angle = 90.0f;
 	}
 	if (isSelected)
@@ -89,7 +89,7 @@
 			break;
 		case Center:
 			if (!isSelected && !isGray)
-				glColor4f(0.5f, 0.5f, 0.5f, 0.4f);
+				glColor4f(1, 1, 1, 0.4f);
 			DrawCenterCube(size);
 			break;
 		default:

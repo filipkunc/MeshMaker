@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import <GLUT/glut.h>
+#import <OpenGL/gl.h>
 #import "ItemCollection.h"
 
 @implementation ItemCollection

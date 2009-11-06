@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import <GLUT/glut.h>
+#import <OpenGL/gl.h>
 #import "Manipulator.h"
 
 @implementation Manipulator
@@ -97,7 +97,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		glutSolidSphere(size * 0.7f, 20, 20);
+		DrawSphere(size * 0.7f, 20, 20);
 		glPopMatrix();
 		
 		glDisable(GL_BLEND);
