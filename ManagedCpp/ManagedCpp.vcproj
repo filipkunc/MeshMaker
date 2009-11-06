@@ -180,7 +180,7 @@
 			MinFrameworkVersion="131072"
 		/>
 		<AssemblyReference
-			RelativePath="..\Debug\HotChocolate.dll"
+			RelativePath="..\Dependencies\HotChocolate.dll"
 			AssemblyName="HotChocolate, Version=1.0.0.0, processorArchitecture=MSIL"
 			MinFrameworkVersion="196613"
 		/>

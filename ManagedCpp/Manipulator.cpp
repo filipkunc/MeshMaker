@@ -7,7 +7,8 @@
 //
 
 #include <stdlib.h>
-#include <GLUT/glut.h>
+#include <windows.h>
+#include <GL/gl.h>
 #include "Manipulator.h"
 
 
@@ -111,7 +112,7 @@ namespace ManagedCpp
 			glPushMatrix();
 			glTranslatef(position->x, position->y, position->z);
 			glMultMatrixf(rotationMatrix);
-			glutSolidSphere(size * 0.7f, 20, 20);
+			DrawSphere(size * 0.7f, 20, 20);
 			glPopMatrix();
 			
 			glDisable(GL_BLEND);

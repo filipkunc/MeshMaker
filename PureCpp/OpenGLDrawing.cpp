@@ -8,14 +8,85 @@
  */
 
 #include "OpenGLDrawing.h"
+#ifdef WIN32
+#include <GL/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
 
-// GLUT for Windows can be downloaded from http://www.xmission.com/~nate/glut.html
-// On Mac OS X is default GLUT installation
-#include <GLUT/glut.h>
+void DrawCube(float size)
+{
+	static uint indices[36] =
+	{
+		0, 1, 2,
+		3, 2, 1,
+		4, 0, 6,
+		6, 0, 2,
+		5, 1, 4,
+		4, 1, 0,
+		7, 3, 1,
+		7, 1, 5,
+		5, 4, 7,
+		7, 4, 6,
+		7, 2, 3,
+		7, 6, 2
+	};	
+	
+	static float vertices[8 * 3] =
+	{	
+		 1,  1,  1,
+		-1,  1,  1,
+		 1, -1,  1,
+		-1, -1,  1,
+		 1,  1, -1,
+		-1,  1, -1,
+		 1, -1, -1,
+		-1, -1, -1
+	};
+	
+	size *= 0.5f;
+	
+	glPushMatrix();
+	glScalef(size, size, size);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, indices);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	
+	glPopMatrix();
+}
+
+void DrawSphere(float radius, int lats, int longs) 
+{
+	for (int i = 1; i <= lats; i++) 
+	{
+		float lat0 = FLOAT_PI * (-0.5f + (float)(i - 1) / (float)lats);
+		float z0  = radius * sinf(lat0);
+		float zr0 =  radius * cosf(lat0);
+		
+		float lat1 = FLOAT_PI * (-0.5f + (float)i / (float)lats);
+		float z1 = radius * sinf(lat1);
+		float zr1 = radius * cosf(lat1);
+		
+		glBegin(GL_QUAD_STRIP);
+		for (int j = 0; j <= longs; j++) 
+		{
+			float lng = 2 * FLOAT_PI * (float)(j - 1) / (float)longs;
+			float x = cosf(lng);
+			float y = sinf(lng);
+			glNormal3f(x * zr1, y * zr1, z1);
+			glVertex3f(x * zr1, y * zr1, z1);
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(x * zr0, y * zr0, z0);
+		}
+		glEnd();
+	}
+}
 
 void DrawCone(float width, float height, float offset)
 {
-    glBegin(GL_TRIANGLE_FAN);
+	glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0, offset + height, 0);
     float x, z;
     for (float rads = 0.0f; rads < FLOAT_PI * 2.0f; rads += 0.1f)
@@ -59,7 +130,7 @@ void DrawCubeArrow(float size)
 {
 	glPushMatrix();
 	glTranslatef(0, size, 0);
-	glutSolidCube(size * 0.08f);
+	DrawCube(size * 0.08f);
 	glPopMatrix();
 	
 	glLineWidth(1.5f);
@@ -75,7 +146,7 @@ void DrawCenterCube(float size)
 	glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	glutSolidCube(size * 0.2f);
+	DrawCube(size * 0.2f);
 	
 	glDisable(GL_BLEND);
 }
