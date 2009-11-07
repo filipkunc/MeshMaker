@@ -78,5 +78,6 @@ using namespace std;
 - (void)flipSelectedTriangles;
 - (void)flipAllTriangles;
 - (void)flipTriangleAtIndex:(uint)index;
+- (void)cloneSelectedTriangles;
 
 @end
