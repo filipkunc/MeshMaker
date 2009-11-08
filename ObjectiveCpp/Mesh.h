@@ -75,9 +75,10 @@ using namespace std;
 - (void)mergeVertexPairs;
 - (void)mergeSelected;
 - (void)splitSelected;
+- (void)flipSelected;
 - (void)flipSelectedTriangles;
 - (void)flipAllTriangles;
 - (void)flipTriangleAtIndex:(uint)index;
-- (void)cloneSelectedTriangles;
+- (void)extrudeSelectedTriangles;
 
 @end

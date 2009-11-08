@@ -1256,10 +1256,9 @@
 	}
 }
 
-- (void)cloneSelectedTriangles
+- (void)extrudeSelectedTriangles
 {
-	// This method doesn't clone the triangles in obvious way
-	// but rather finds all nonShared edges and copies all 
+	// This method finds all nonShared edges and copies all 
 	// vertexIndices in selectedTriangles.
 	// Then it makes quads between new and old edges.
 	
@@ -1341,11 +1340,23 @@
 	delete nonSharedEdges;
 }
 
+- (void)flipSelected
+{
+	if (selectionMode == MeshSelectionModeTriangles)
+	{
+		[self flipSelectedTriangles];
+	}
+	else if (selectionMode == MeshSelectionModeEdges)
+	{
+		[self turnSelectedEdges];
+	}
+}
+
 - (void)cloneSelected
 {
 	if (selectionMode == MeshSelectionModeTriangles)
 	{
-		[self cloneSelectedTriangles];
+		[self extrudeSelectedTriangles];
 	}	
 }
 

@@ -351,6 +351,16 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (IBAction)flipSelected:(id)sender
+{
+	if (manipulated == meshController)
+	{
+		Mesh *mesh = (Mesh *)[meshController model];
+		[mesh flipSelected];
+	}
+	[view setNeedsDisplay:YES];
+}
+
 - (IBAction)cloneSelected:(id)sender
 {
 	[manipulated cloneSelected];
@@ -360,17 +370,6 @@
 - (IBAction)deleteSelected:(id)sender
 {
 	[manipulated removeSelected];
-	[view setNeedsDisplay:YES];
-}
-
-- (IBAction)turnSelectedEdges:(id)sender
-{
-	if (manipulated == meshController)
-	{
-		Mesh *mesh = (Mesh *)[meshController model];
-		if ([mesh selectionMode] == MeshSelectionModeEdges)
-			[mesh turnSelectedEdges];
-	}
 	[view setNeedsDisplay:YES];
 }
 
