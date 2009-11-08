@@ -272,7 +272,12 @@ const float maxDistance = 1000.0f;
 	if ([manipulated selectedCount] > 0)
 	{
 		[currentManipulator setPosition:[manipulated selectionCenter]];
-		[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
+		
+		if (cameraMode == CameraModePerspective)
+			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
+		else
+			[currentManipulator setSize:camera->GetZoom() * 0.15f];
+			
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
 	}

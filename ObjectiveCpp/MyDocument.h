@@ -43,9 +43,9 @@
 - (IBAction)changeViewMode:(id)sender;
 - (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
-- (IBAction)turnSelectedEdges:(id)sender;
 - (IBAction)mergeVertexPairs:(id)sender;
 - (IBAction)cloneSelected:(id)sender;
+- (IBAction)flipSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
