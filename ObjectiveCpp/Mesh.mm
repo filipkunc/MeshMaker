@@ -40,8 +40,8 @@
 		selectionMode = MeshSelectionModeVertices;
 		float hue = (random() % 10) / 10.0f;
 		color = [NSColor colorWithCalibratedHue:hue 
-									 saturation:1.0f
-									 brightness:0.7f 
+									 saturation:0.5f
+									 brightness:0.6f 
 										  alpha:1.0f];
 		[color retain];
 	}
@@ -195,20 +195,14 @@
 
 - (void)drawFillWithScale:(Vector3D)scale
 {	
-	float frontDiffuse[] = { 0.4, 0.4, 0.4, 1 };
+	float frontDiffuse[4] = { 0.4, 0.4, 0.4, 1 };
 	CGFloat components[4];
 	[color getComponents:components];
 	float backDiffuse[4];
-	float selectedDiffuse[4];
+	float selectedDiffuse[4] = { 1.0f, 0.0f, 0.0f, 1 };
 	
 	for (uint i = 0; i < 4; i++)
-	{
 		backDiffuse[i] = components[i];
-		if (i < 3)
-			selectedDiffuse[i] = 1.0f - components[i];
-		else
-			selectedDiffuse[i] = components[i];
-	}
 	
 	glMaterialfv(GL_BACK, GL_DIFFUSE, backDiffuse);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, frontDiffuse);
@@ -1338,6 +1332,8 @@
 		
 	delete vertexIndices;
 	delete nonSharedEdges;
+	
+	[self removeNonUsedVertices]; // slow but sometimes neccessary
 }
 
 - (void)flipSelected
