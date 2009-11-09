@@ -10,6 +10,7 @@
 #import "ItemManipulationState.h"
 #import "MeshManipulationState.h"
 #import "TmdModel.h"
+#import "IndexedItem.h"
 
 @implementation MyDocument
 
@@ -29,6 +30,8 @@
 
 		[itemsController addSelectionObserver:self];
 		[meshController addSelectionObserver:self];
+		
+		manipulationFinished = YES;
     }
     return self;
 }
@@ -200,6 +203,7 @@
 - (void)manipulationStarted
 {
 	NSLog(@"manipulationStarted");
+	manipulationFinished = NO;
 	
 	if (manipulated == itemsController)
 	{
@@ -227,6 +231,8 @@
 - (void)manipulationEnded
 {
 	NSLog(@"manipulationEnded");
+	
+	manipulationFinished = YES;
 }
 
 - (IBAction)addCube:(id)sender
@@ -362,14 +368,96 @@
 }
 
 - (IBAction)cloneSelected:(id)sender
-{
+{	
+	NSLog(@"cloneSelected:");
+		
+	if (manipulated == itemsController)
+	{
+		NSMutableArray *selectedIndices = [[NSMutableArray alloc] init];
+		
+		for (uint i = 0; i < [items count]; i++)
+		{
+			Item *item = [items itemAtIndex:i];
+			if ([item selected])
+				[selectedIndices addObject:[NSNumber numberWithUnsignedInt:i]];
+		}
+		
+		NSUndoManager *undo = [self undoManager];
+		MyDocument *doc = [undo prepareWithInvocationTarget:self];
+		[doc undoCloneSelected:selectedIndices];
+		if (![undo isUndoing])
+			[undo setActionName:@"Clone"];
+	}
+	
 	[manipulated cloneSelected];
+	[view setNeedsDisplay:YES];
+	
+	if (!manipulationFinished)
+		[self manipulationStarted];
+}
+
+- (void)undoCloneSelected:(NSMutableArray *)selectedIndices
+{	
+	NSLog(@"undoCloneSelected:");
+	
+	[items removeSelected];
+	
+	for (NSNumber *number in selectedIndices)
+	{
+		[[items itemAtIndex:[number unsignedIntValue]] setSelected:YES];
+	}
+	
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = (MyDocument *)[undo prepareWithInvocationTarget:self];
+	[doc cloneSelected:self];
+	if (![undo isUndoing])
+		[undo setActionName:@"Clone"];	
+	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
 }
 
 - (IBAction)deleteSelected:(id)sender
 {
+	NSLog(@"deleteSelected:");
+	
+	if (manipulated == itemsController)
+	{
+		NSMutableArray *selectedItems = [[NSMutableArray alloc] init];
+		
+		for (uint i = 0; i < [items count]; i++)
+		{
+			Item *item = [items itemAtIndex:i];
+			if ([item selected])
+				[selectedItems addObject:[[IndexedItem alloc] initWithIndex:i item:item]];
+		}
+		
+		NSUndoManager *undo = [self undoManager];
+		MyDocument *doc = (MyDocument *)[undo prepareWithInvocationTarget:self];
+		[doc undoDeleteSelected:selectedItems];
+		if (![undo isUndoing])
+			[undo setActionName:@"Delete"];	
+	}
+	
 	[manipulated removeSelected];
+	[view setNeedsDisplay:YES];
+}
+
+- (void)undoDeleteSelected:(NSMutableArray *)selectedItems
+{
+	NSLog(@"undoDeleteSelected:");
+	
+	for (IndexedItem *indexedItem in selectedItems)
+	{
+		[items insertItem:[indexedItem item] atIndex:[indexedItem index]];
+	}
+	
+	NSUndoManager *undo = [self undoManager];
+	MyDocument *doc = (MyDocument *)[undo prepareWithInvocationTarget:self];
+	[doc deleteSelected:self];
+	if (![undo isUndoing])
+		[undo setActionName:@"Delete"];
+	
+	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
 }
 
