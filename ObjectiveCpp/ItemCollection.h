@@ -20,6 +20,8 @@
 - (Item *)itemAtIndex:(uint)index;
 - (void)addItem:(Item *)item;
 - (void)removeItem:(Item *)item;
+- (void)removeItemAtIndex:(uint)index;
+- (void)insertItem:(Item *)item atIndex:(uint)index;
 - (void)mergeSelectedItems;
 
 @end

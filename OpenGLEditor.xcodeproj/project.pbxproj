@@ -38,6 +38,7 @@
 		A7C6FEBB1090D539008A55E1 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FEB01090D4FB008A55E1 /* MeshTest.mm */; };
 		A7C6FEBC1090D539008A55E1 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
+		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,8 @@
 		A7C6FEB11090D4FB008A55E1 /* MyDocumentTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentTest.h; sourceTree = "<group>"; };
 		A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
+		A7D7733A10A77DAC0068353E /* IndexedItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedItem.h; sourceTree = "<group>"; };
+		A7D7733B10A77DAC0068353E /* IndexedItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IndexedItem.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -296,6 +299,8 @@
 				A7C6FEA11090D4E3008A55E1 /* OpenGLSceneView.mm */,
 				A7C6FEA21090D4E3008A55E1 /* OpenGLSelecting.h */,
 				A711A9A810986B6D00F02394 /* OpenGLManipulatingModel.h */,
+				A7D7733A10A77DAC0068353E /* IndexedItem.h */,
+				A7D7733B10A77DAC0068353E /* IndexedItem.mm */,
 			);
 			path = ObjectiveCpp;
 			sourceTree = "<group>";
@@ -433,6 +438,7 @@
 				A7C6FEAC1090D4E3008A55E1 /* OpenGLManipulatingController.mm in Sources */,
 				A7C6FEAD1090D4E3008A55E1 /* OpenGLSceneView.mm in Sources */,
 				A7089381109230A1005C254E /* MeshHelpers.cpp in Sources */,
+				A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

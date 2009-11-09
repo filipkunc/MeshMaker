@@ -57,6 +57,16 @@
 	[items removeObject:item];
 }
 
+- (void)removeItemAtIndex:(uint)index
+{
+	[items removeObjectAtIndex:index];
+}
+
+- (void)insertItem:(Item *)item atIndex:(uint)index
+{
+	[items insertObject:item atIndex:index];
+}
+
 - (uint)count
 {
 	return [items count];

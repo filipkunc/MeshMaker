@@ -15,6 +15,7 @@
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate>
 {
 @public // public for unit tests
+	BOOL manipulationFinished;
 	ItemCollection *items;
 	OpenGLManipulatingController *itemsController;
 	OpenGLManipulatingController *meshController;
@@ -45,8 +46,10 @@
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)mergeVertexPairs:(id)sender;
 - (IBAction)cloneSelected:(id)sender;
+- (void)undoCloneSelected:(NSMutableArray *)selectedIndices;
 - (IBAction)flipSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
+- (void)undoDeleteSelected:(NSMutableArray *)selectedItems;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
 - (void)readFromTmd:(NSString *)fileName;
