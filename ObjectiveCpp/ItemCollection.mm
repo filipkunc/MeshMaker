@@ -8,6 +8,7 @@
 
 #import <OpenGL/gl.h>
 #import "ItemCollection.h"
+#import "ItemManipulationState.h"
 
 @implementation ItemCollection
 
@@ -60,6 +61,11 @@
 - (void)removeItemAtIndex:(uint)index
 {
 	[items removeObjectAtIndex:index];
+}
+
+- (void)removeItemsInRange:(NSRange)range
+{
+	[items removeObjectsInRange:range];
 }
 
 - (void)insertItem:(Item *)item atIndex:(uint)index
@@ -215,6 +221,87 @@
 	
 	[newItem setSelected:YES];
 	[self addItem:newItem];
+}
+
+- (NSMutableArray *)currentManipulations
+{
+	NSMutableArray *manipulations = [[NSMutableArray alloc] init];
+	
+	for (uint i = 0; i < [self count]; i++)
+	{
+		Item *item = [self itemAtIndex:i];
+		if ([item selected])
+		{
+			ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
+			[manipulations addObject:itemState];
+		}
+	}
+	
+	return manipulations;
+}
+
+- (void)setCurrentManipulations:(NSMutableArray *)manipulations
+{
+	for (ItemManipulationState *manipulation in manipulations)
+	{
+		Item *item = [self itemAtIndex:[manipulation itemIndex]];
+		[manipulation applyManipulationToItem:item];
+	}
+}
+
+- (NSMutableArray *)currentSelection
+{
+	NSMutableArray *selection = [[NSMutableArray alloc] init];
+	
+	for (uint i = 0; i < [self count]; i++)
+	{
+		Item *item = [self itemAtIndex:i];
+		if ([item selected])
+		{
+			[selection addObject:[NSNumber numberWithUnsignedInt:i]];
+		}
+	}
+	
+	return selection;	
+}
+
+- (void)setCurrentSelection:(NSMutableArray *)selection
+{
+	for (uint i = 0; i < [self count]; i++)
+		[self setSelected:NO atIndex:i];
+	
+	for (NSNumber *number in selection)
+	{
+		[self setSelected:YES atIndex:[number unsignedIntValue]];
+	}
+}
+
+- (NSMutableArray *)currentItems
+{
+	NSMutableArray *anItems = [[NSMutableArray alloc] init];
+	
+	for (uint i = 0; i < [self count]; i++)
+	{
+		Item *item = [self itemAtIndex:i];
+		if ([item selected])
+		{
+			IndexedItem *indexedItem = [[IndexedItem alloc] initWithIndex:i item:item];
+			[anItems addObject:indexedItem];
+		}
+	}
+	
+	return anItems;
+}
+
+- (void)setCurrentItems:(NSMutableArray *)anItems
+{
+	for (uint i = 0; i < [self count]; i++)
+		[self setSelected:NO atIndex:i];
+	
+	for (IndexedItem *indexedItem in anItems)
+	{
+		[self insertItem:[indexedItem item] atIndex:[indexedItem index]];
+	}
 }
 
 @end

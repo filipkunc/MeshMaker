@@ -11,16 +11,22 @@
 #import "OpenGLSelecting.h"
 #import "OpenGLManipulating.h"
 #import "OpenGLManipulatingController.h"
+#import "IndexedItem.h"
 
 @interface ItemCollection : NSObject <OpenGLManipulatingModelItem, NSCoding>
 {
 	NSMutableArray *items;
 }
 
+@property (readwrite, assign) NSMutableArray *currentManipulations;
+@property (readwrite, assign) NSMutableArray *currentSelection;
+@property (readwrite, assign) NSMutableArray *currentItems;
+
 - (Item *)itemAtIndex:(uint)index;
 - (void)addItem:(Item *)item;
 - (void)removeItem:(Item *)item;
 - (void)removeItemAtIndex:(uint)index;
+- (void)removeItemsInRange:(NSRange)range;
 - (void)insertItem:(Item *)item atIndex:(uint)index;
 - (void)mergeSelectedItems;
 
