@@ -26,6 +26,8 @@
 	IBOutlet NSPopUpButton *viewModePopUp;
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum ItemWithSteps itemWithSteps;
+	
+	NSMutableArray *startedManipulations;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -46,12 +48,13 @@
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)mergeVertexPairs:(id)sender;
 - (IBAction)cloneSelected:(id)sender;
-- (void)undoCloneSelected:(NSMutableArray *)selectedIndices;
+- (void)undoCloneSelected:(NSMutableArray *)selection;
 - (IBAction)flipSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
 - (void)readFromTmd:(NSString *)fileName;
+- (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 
 @end

@@ -38,6 +38,7 @@
 	[item setPosition:*position];
 	[item setRotation:*rotation];
 	[item setScale:*scale];
+	[item setSelected:YES];
 }
 
 @end
