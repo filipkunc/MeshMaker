@@ -6,8 +6,15 @@
 //  For license see LICENSE.TXT
 //
 
-#import "MeshTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+#import "Mesh.h"
 
+@interface MeshTest : SenTestCase 
+{
+	Mesh *mesh;
+}
+
+@end
 
 @implementation MeshTest
 

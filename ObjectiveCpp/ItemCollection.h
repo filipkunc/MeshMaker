@@ -29,5 +29,7 @@
 - (void)removeItemsInRange:(NSRange)range;
 - (void)insertItem:(Item *)item atIndex:(uint)index;
 - (void)mergeSelectedItems;
+- (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems;
+- (void)deselectAll;
 
 @end

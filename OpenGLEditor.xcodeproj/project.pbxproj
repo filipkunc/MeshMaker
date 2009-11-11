@@ -114,9 +114,7 @@
 		A7C6FEA01090D4E3008A55E1 /* OpenGLSceneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLSceneView.h; sourceTree = "<group>"; };
 		A7C6FEA11090D4E3008A55E1 /* OpenGLSceneView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLSceneView.mm; sourceTree = "<group>"; };
 		A7C6FEA21090D4E3008A55E1 /* OpenGLSelecting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLSelecting.h; sourceTree = "<group>"; };
-		A7C6FEAF1090D4FB008A55E1 /* MeshTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshTest.h; sourceTree = "<group>"; };
 		A7C6FEB01090D4FB008A55E1 /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
-		A7C6FEB11090D4FB008A55E1 /* MyDocumentTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentTest.h; sourceTree = "<group>"; };
 		A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
 		A7D7733A10A77DAC0068353E /* IndexedItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedItem.h; sourceTree = "<group>"; };
@@ -308,9 +306,7 @@
 		A7C6FEAE1090D4FB008A55E1 /* ObjectiveCppTests */ = {
 			isa = PBXGroup;
 			children = (
-				A7C6FEAF1090D4FB008A55E1 /* MeshTest.h */,
 				A7C6FEB01090D4FB008A55E1 /* MeshTest.mm */,
-				A7C6FEB11090D4FB008A55E1 /* MyDocumentTest.h */,
 				A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */,
 			);
 			path = ObjectiveCppTests;

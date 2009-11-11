@@ -32,7 +32,7 @@
 		[meshController addSelectionObserver:self];
 		
 		manipulationFinished = YES;
-		startedManipulations = nil;
+		oldManipulations = nil;
     }
     return self;
 }
@@ -44,7 +44,7 @@
 	[meshController release];
 	[itemsController release];
 	[items release];
-	[startedManipulations release];
+	[oldManipulations release];
 	[super dealloc];
 }
 
@@ -158,14 +158,14 @@
 	[self didChangeValueForKey:keyPath];
 }
 
-- (void)undoManipulations:(NSMutableArray *)manipulations
+- (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current
 {
-	NSLog(@"applyManipulations:");
-	NSMutableArray *oldManipulations = [items currentManipulations];
-	[items setCurrentManipulations:manipulations];
+	NSLog(@"swapManipulationsWithOld:current:");
+	NSAssert([old count] == [current count], @"old count == current count");
+	[items setCurrentManipulations:old];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Manipulations"];	
-	[document undoManipulations:oldManipulations];
+	[document swapManipulationsWithOld:current current:old];
 	
 	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
@@ -178,7 +178,7 @@
 	
 	if (manipulated == itemsController)
 	{
-		startedManipulations = [items currentManipulations];		
+		oldManipulations = [items currentManipulations];
 	}
 	else if (manipulated == meshController)
 	{
@@ -194,7 +194,8 @@
 	if (manipulated == itemsController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Manipulations"];
-		[document undoManipulations:startedManipulations];
+		[document swapManipulationsWithOld:oldManipulations current:[items currentManipulations]];
+		oldManipulations = nil;
 	}
 	else if (manipulated == meshController)
 	{
@@ -375,6 +376,20 @@
 	}
 }
 
+- (void)redoCloneSelected:(NSMutableArray *)selection
+{
+	NSLog(@"redoCloneSelected:");
+	
+	[items setCurrentSelection:selection];
+	[manipulated cloneSelected];
+	
+	MyDocument *document = [self prepareUndoWithName:@"Clone"];
+	[document undoCloneSelected:selection];
+	
+	[itemsController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
 - (void)undoCloneSelected:(NSMutableArray *)selection
 {	
 	NSLog(@"undoCloneSelected:");
@@ -384,7 +399,7 @@
 	[items setCurrentSelection:selection];
 
 	MyDocument *document = [self prepareUndoWithName:@"Clone"];
-	[document cloneSelected:self];
+	[document redoCloneSelected:selection];
 		
 	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];
@@ -407,15 +422,28 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (void)redoDeleteSelected:(NSMutableArray *)selectedItems
+{
+	NSLog(@"redoDeleteSelected:");
+
+	[items setSelectionFromIndexedItems:selectedItems];
+	[manipulated removeSelected];
+	
+	MyDocument *document = [self prepareUndoWithName:@"Delete"];
+	[document undoDeleteSelected:selectedItems];
+	
+	[itemsController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
 {
 	NSLog(@"undoDeleteSelected:");
 	
-	[itemsController changeSelection:NO];
 	[items setCurrentItems:selectedItems];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
-	[document deleteSelected:self];
+	[document redoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
 	[view setNeedsDisplay:YES];

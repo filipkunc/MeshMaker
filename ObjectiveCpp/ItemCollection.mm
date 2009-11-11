@@ -242,6 +242,8 @@
 
 - (void)setCurrentManipulations:(NSMutableArray *)manipulations
 {
+	[self deselectAll];
+	
 	for (ItemManipulationState *manipulation in manipulations)
 	{
 		Item *item = [self itemAtIndex:[manipulation itemIndex]];
@@ -267,8 +269,7 @@
 
 - (void)setCurrentSelection:(NSMutableArray *)selection
 {
-	for (uint i = 0; i < [self count]; i++)
-		[self setSelected:NO atIndex:i];
+	[self deselectAll];
 	
 	for (NSNumber *number in selection)
 	{
@@ -295,13 +296,28 @@
 
 - (void)setCurrentItems:(NSMutableArray *)anItems
 {
-	for (uint i = 0; i < [self count]; i++)
-		[self setSelected:NO atIndex:i];
+	[self deselectAll];
 	
 	for (IndexedItem *indexedItem in anItems)
 	{
 		[self insertItem:[indexedItem item] atIndex:[indexedItem index]];
 	}
+}
+
+- (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems
+{
+	[self deselectAll];
+	
+	for (IndexedItem *indexedItem in anItems)
+	{
+		[self setSelected:YES atIndex:[indexedItem index]];
+	}
+}
+
+- (void)deselectAll
+{
+	for (uint i = 0; i < [self count]; i++)
+		[self setSelected:NO atIndex:i];
 }
 
 @end
