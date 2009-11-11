@@ -27,12 +27,14 @@
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum ItemWithSteps itemWithSteps;
 	
-	NSMutableArray *startedManipulations;
+	NSMutableArray *oldManipulations;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) float selectionX, selectionY, selectionZ;
 
+- (MyDocument *)prepareUndoWithName:(NSString *)actionName;
+- (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
 - (void)addItem:(Item *)item withName:(NSString *)name;
 - (void)removeItem:(Item *)item withName:(NSString *)name;
 - (IBAction)addCube:(id)sender;
@@ -48,13 +50,14 @@
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)mergeVertexPairs:(id)sender;
 - (IBAction)cloneSelected:(id)sender;
+- (void)redoCloneSelected:(NSMutableArray *)selection;
 - (void)undoCloneSelected:(NSMutableArray *)selection;
 - (IBAction)flipSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
+- (void)redoDeleteSelected:(NSMutableArray *)selectedItems;
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
 - (void)readFromTmd:(NSString *)fileName;
-- (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 
 @end
