@@ -95,6 +95,14 @@ namespace ManagedCpp
 		modelTransform->TranslateRotateScale(position, rotation, scale);
 	}
 
+	void OpenGLManipulatingController::SetTransform(Item ^item)
+	{
+		if (item == nullptr)
+			SetTransform(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
+		else
+			SetTransform(item->Position, item->Rotation, item->Scale);
+	}
+
 	float OpenGLManipulatingController::SelectionX::get()
 	{
 		return GetSelectionValue(0);
