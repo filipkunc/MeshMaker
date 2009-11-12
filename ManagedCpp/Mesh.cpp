@@ -185,19 +185,13 @@ namespace ManagedCpp
 
 	void Mesh::DrawFill(Vector3D scale)
 	{
-		float frontDiffuse[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-		float components[] = { color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f };
+		float frontDiffuse[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
+		float components[4] = { color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f };
 		float backDiffuse[4];
-		float selectedDiffuse[4];
+		float selectedDiffuse[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 		
 		for (uint i = 0; i < 4; i++)
-		{
 			backDiffuse[i] = components[i];
-			if (i < 3)
-				selectedDiffuse[i] = 1.0f - components[i];
-			else
-				selectedDiffuse[i] = components[i];
-		}
 		
 		glMaterialfv(GL_BACK, GL_DIFFUSE, backDiffuse);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, frontDiffuse);
@@ -1249,9 +1243,111 @@ namespace ManagedCpp
 		}
 	}
 
+	void Mesh::ExtrudeSelectedTriangles()
+	{
+		// This method finds all nonShared edges and copies all 
+		// vertexIndices in selectedTriangles.
+		// Then it makes quads between new and old edges.
+		
+		vector<uint> *vertexIndices = new vector<uint>();
+		vector<Edge> *nonSharedEdges = new vector<Edge>();
+		
+		uint triCount = this->TriangleCount;
+		uint vertCount = this->VertexCount;
+		
+		for (uint i = 0; i < triCount; i++)
+		{
+			if (selected->at(i))
+			{
+				this->SetTriangleMarked(NO, i);
+				Triangle &triangle = triangles->at(i);
+				
+				for (uint j = 0; j < 3; j++)
+				{
+					int foundIndex = -1;
+					for (uint k = 0; k < vertexIndices->size(); k++)
+					{
+						if (vertexIndices->at(k) == triangle.vertexIndices[j])
+						{
+							foundIndex = k;
+							break;
+						}
+					}
+									
+					uint &index = triangle.vertexIndices[j];
+								
+					if (foundIndex < 0)
+					{
+						vertexIndices->push_back(index);
+						vertices->push_back(vertices->at(index));
+						markedVertices->push_back(YES);
+						index = vertCount + vertexIndices->size() - 1;
+					}
+					else
+					{
+						index = vertCount + foundIndex;
+					}
+				}
+				
+				for (uint j = 0; j < 3; j++)
+				{
+					Edge edge;
+					edge.vertexIndices[0] = triangle.vertexIndices[j];
+					edge.vertexIndices[1] = triangle.vertexIndices[j + 1 < 3 ? j + 1 : 0];
+
+					CocoaBool foundEdge = NO;
+					for (uint k = 0; k < nonSharedEdges->size(); k++)
+					{
+						if (AreEdgesSame(edge, nonSharedEdges->at(k)))
+						{
+							nonSharedEdges->erase(nonSharedEdges->begin() + k);
+							foundEdge = YES;
+							break;
+						}
+					}
+					
+					if (!foundEdge)
+					{
+						nonSharedEdges->push_back(edge);
+					}
+				}
+			}
+		}
+		
+		for (uint i = 0; i < nonSharedEdges->size(); i++)
+		{
+			Edge edge = nonSharedEdges->at(i);
+			this->AddQuad(
+				edge.vertexIndices[0],
+				vertexIndices->at(edge.vertexIndices[0] - vertCount),
+				vertexIndices->at(edge.vertexIndices[1] - vertCount),
+				edge.vertexIndices[1]);
+		}
+			
+		delete vertexIndices;
+		delete nonSharedEdges;
+		
+		this->RemoveNonUsedVertices(); // slow but sometimes neccessary
+	}
+
+	void Mesh::FlipSelected()
+	{
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
+		{
+			this->FlipSelectedTriangles();
+		}
+		else if (selectionMode == MeshSelectionMode::MeshSelectionModeEdges)
+		{
+			this->TurnSelectedEdges();
+		}
+	}
+
 	void Mesh::CloneSelected()
 	{
-
+		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
+		{
+			this->ExtrudeSelectedTriangles();
+		}
 	}
 
 	void Mesh::RemoveSelected()

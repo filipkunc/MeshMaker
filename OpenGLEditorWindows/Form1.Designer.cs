@@ -39,7 +39,17 @@
             this.btnAddCylinder = new System.Windows.Forms.ToolStripButton();
             this.btnAddSphere = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.dropDownEditMode = new System.Windows.Forms.ToolStripDropDownButton();
+            this.itemsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.verticesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.trianglesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.edgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnSplit = new System.Windows.Forms.ToolStripButton();
+            this.btnMerge = new System.Windows.Forms.ToolStripButton();
             this.textBoxX = new System.Windows.Forms.ToolStripTextBox();
+            this.textBoxY = new System.Windows.Forms.ToolStripTextBox();
+            this.textBoxZ = new System.Windows.Forms.ToolStripTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,11 +71,6 @@
             this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.turnEdgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openGLSceneView1 = new ManagedCpp.OpenGLSceneView();
-            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.textBoxY = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
-            this.textBoxZ = new System.Windows.Forms.ToolStripTextBox();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -82,11 +87,12 @@
             this.btnAddCylinder,
             this.btnAddSphere,
             this.toolStripSeparator5,
-            this.toolStripLabel1,
+            this.dropDownEditMode,
+            this.toolStripSeparator6,
+            this.btnSplit,
+            this.btnMerge,
             this.textBoxX,
-            this.toolStripLabel2,
             this.textBoxY,
-            this.toolStripLabel3,
             this.textBoxZ});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
@@ -176,10 +182,97 @@
             this.toolStripSeparator5.Name = "toolStripSeparator5";
             this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
             // 
+            // dropDownEditMode
+            // 
+            this.dropDownEditMode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.dropDownEditMode.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.itemsToolStripMenuItem,
+            this.verticesToolStripMenuItem,
+            this.trianglesToolStripMenuItem,
+            this.edgesToolStripMenuItem});
+            this.dropDownEditMode.Image = ((System.Drawing.Image)(resources.GetObject("dropDownEditMode.Image")));
+            this.dropDownEditMode.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.dropDownEditMode.Name = "dropDownEditMode";
+            this.dropDownEditMode.Size = new System.Drawing.Size(47, 22);
+            this.dropDownEditMode.Text = "Items";
+            this.dropDownEditMode.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.dropDownEditMode_DropDownItemClicked);
+            // 
+            // itemsToolStripMenuItem
+            // 
+            this.itemsToolStripMenuItem.Name = "itemsToolStripMenuItem";
+            this.itemsToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.itemsToolStripMenuItem.Tag = "0";
+            this.itemsToolStripMenuItem.Text = "Items";
+            // 
+            // verticesToolStripMenuItem
+            // 
+            this.verticesToolStripMenuItem.Name = "verticesToolStripMenuItem";
+            this.verticesToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.verticesToolStripMenuItem.Tag = "1";
+            this.verticesToolStripMenuItem.Text = "Vertices";
+            // 
+            // trianglesToolStripMenuItem
+            // 
+            this.trianglesToolStripMenuItem.Name = "trianglesToolStripMenuItem";
+            this.trianglesToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.trianglesToolStripMenuItem.Tag = "2";
+            this.trianglesToolStripMenuItem.Text = "Triangles";
+            // 
+            // edgesToolStripMenuItem
+            // 
+            this.edgesToolStripMenuItem.Name = "edgesToolStripMenuItem";
+            this.edgesToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.edgesToolStripMenuItem.Tag = "3";
+            this.edgesToolStripMenuItem.Text = "Edges";
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(6, 25);
+            // 
+            // btnSplit
+            // 
+            this.btnSplit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnSplit.Image = ((System.Drawing.Image)(resources.GetObject("btnSplit.Image")));
+            this.btnSplit.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSplit.Name = "btnSplit";
+            this.btnSplit.Size = new System.Drawing.Size(31, 22);
+            this.btnSplit.Text = "Split";
+            this.btnSplit.Click += new System.EventHandler(this.splitToolStripMenuItem_Click);
+            // 
+            // btnMerge
+            // 
+            this.btnMerge.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnMerge.Image = ((System.Drawing.Image)(resources.GetObject("btnMerge.Image")));
+            this.btnMerge.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnMerge.Name = "btnMerge";
+            this.btnMerge.Size = new System.Drawing.Size(41, 22);
+            this.btnMerge.Text = "Merge";
+            this.btnMerge.Click += new System.EventHandler(this.mergeToolStripMenuItem_Click);
+            // 
             // textBoxX
             // 
+            this.textBoxX.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textBoxX.ForeColor = System.Drawing.Color.Red;
+            this.textBoxX.Margin = new System.Windows.Forms.Padding(50, 0, 1, 0);
             this.textBoxX.Name = "textBoxX";
             this.textBoxX.Size = new System.Drawing.Size(100, 25);
+            // 
+            // textBoxY
+            // 
+            this.textBoxY.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textBoxY.ForeColor = System.Drawing.Color.LimeGreen;
+            this.textBoxY.Margin = new System.Windows.Forms.Padding(10, 0, 1, 0);
+            this.textBoxY.Name = "textBoxY";
+            this.textBoxY.Size = new System.Drawing.Size(100, 25);
+            // 
+            // textBoxZ
+            // 
+            this.textBoxZ.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textBoxZ.ForeColor = System.Drawing.Color.Blue;
+            this.textBoxZ.Margin = new System.Windows.Forms.Padding(10, 0, 1, 0);
+            this.textBoxZ.Name = "textBoxZ";
+            this.textBoxZ.Size = new System.Drawing.Size(100, 25);
             // 
             // menuStrip1
             // 
@@ -355,34 +448,6 @@
             this.openGLSceneView1.Size = new System.Drawing.Size(1009, 537);
             this.openGLSceneView1.TabIndex = 3;
             // 
-            // toolStripLabel1
-            // 
-            this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(13, 22);
-            this.toolStripLabel1.Text = "X";
-            // 
-            // toolStripLabel2
-            // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(13, 22);
-            this.toolStripLabel2.Text = "Y";
-            // 
-            // textBoxY
-            // 
-            this.textBoxY.Name = "textBoxY";
-            this.textBoxY.Size = new System.Drawing.Size(100, 25);
-            // 
-            // toolStripLabel3
-            // 
-            this.toolStripLabel3.Name = "toolStripLabel3";
-            this.toolStripLabel3.Size = new System.Drawing.Size(13, 22);
-            this.toolStripLabel3.Text = "Z";
-            // 
-            // textBoxZ
-            // 
-            this.textBoxZ.Name = "textBoxZ";
-            this.textBoxZ.Size = new System.Drawing.Size(100, 25);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -437,11 +502,16 @@
         private System.Windows.Forms.ToolStripMenuItem turnEdgesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripTextBox textBoxX;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripTextBox textBoxY;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel3;
         private System.Windows.Forms.ToolStripTextBox textBoxZ;
+        private System.Windows.Forms.ToolStripDropDownButton dropDownEditMode;
+        private System.Windows.Forms.ToolStripMenuItem itemsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem verticesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem trianglesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem edgesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripButton btnSplit;
+        private System.Windows.Forms.ToolStripButton btnMerge;
     }
 }
 

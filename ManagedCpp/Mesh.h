@@ -90,9 +90,11 @@ namespace ManagedCpp
 		void MergeVertexPairs();
 		void MergeSelected();
 		void SplitSelected();
+		void FlipSelected();
 		void FlipSelectedTriangles();
 		void FlipAllTriangles();
 		void FlipTriangle(uint index);
+		void ExtrudeSelectedTriangles();
 		virtual void WillSelect();
 		virtual void DidSelect();
 		virtual void GetSelectionCenter(Vector3D *center, Quaternion *rotation, Vector3D *scale);

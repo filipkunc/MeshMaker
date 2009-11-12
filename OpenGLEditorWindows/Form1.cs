@@ -16,6 +16,7 @@ namespace OpenGLEditorWindows
     {
         ItemCollection items;
         OpenGLManipulatingController itemsController;
+        OpenGLManipulatingController meshController;
 
         public Form1()
         {
@@ -26,11 +27,13 @@ namespace OpenGLEditorWindows
 
             items = new ItemCollection();
             itemsController = new OpenGLManipulatingController();
+            meshController = new OpenGLManipulatingController();
             itemsController.Model = items;
             openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault;
             itemsController.CurrentManipulator = openGLSceneView1.CurrentManipulator;
             openGLSceneView1.Displayed = openGLSceneView1.Manipulated = itemsController;
 
+            // need fix bindings
             textBoxX.TextBox.BindString<float>("Text", itemsController, "SelectionX");
             textBoxY.TextBox.BindString<float>("Text", itemsController, "SelectionY");
             textBoxZ.TextBox.BindString<float>("Text", itemsController, "SelectionZ");
@@ -39,7 +42,7 @@ namespace OpenGLEditorWindows
         private void SetManipulator(ManipulatorType manipulator)
         {
             openGLSceneView1.CurrentManipulator = manipulator;
-            itemsController.CurrentManipulator = manipulator;
+            Manipulated.CurrentManipulator = manipulator;
             openGLSceneView1.Invalidate();
 
             btnSelect.Checked = btnTranslate.Checked = btnRotate.Checked = btnScale.Checked = false;
@@ -56,6 +59,65 @@ namespace OpenGLEditorWindows
                     break;
                 case ManipulatorType.ManipulatorTypeTranslation:
                     btnTranslate.Checked = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        OpenGLManipulating Manipulated
+        {
+            get { return openGLSceneView1.Manipulated; }
+            set
+            {
+                value.CurrentManipulator = openGLSceneView1.CurrentManipulator;
+                openGLSceneView1.Manipulated = value;
+                openGLSceneView1.Invalidate();
+            }
+        }
+
+        Mesh CurrentMesh
+        {
+            get { return (Mesh)meshController.Model; }
+        }
+
+        private void EditMesh(MeshSelectionMode mode)
+        {
+            int index = itemsController.LastSelectedIndex;
+            if (index > -1)
+            {
+                Item item = items.GetItem((uint)index);
+                item.GetMesh().SelectionMode = mode;
+                meshController.Model = item.GetMesh();
+                meshController.SetTransform(item);
+                Manipulated = meshController;
+            }
+        }
+
+        private void EditItems()
+        {
+            Mesh mesh = (Mesh)meshController.Model;
+            mesh.SelectionMode = MeshSelectionMode.MeshSelectionModeVertices;
+            itemsController.Model = items;
+            itemsController.SetTransform(null);
+            Manipulated = itemsController;
+        }
+
+        private void ChangeEditMode(EditMode editMode)
+        {
+            switch (editMode)
+            {
+                case EditMode.EditModeItems:
+                    EditItems();
+                    break;
+                case EditMode.EditModeTriangles:
+                    EditMesh(MeshSelectionMode.MeshSelectionModeTriangles);
+                    break;
+                case EditMode.EditModeVertices:
+                    EditMesh(MeshSelectionMode.MeshSelectionModeVertices);
+                    break;
+                case EditMode.EditModeEdges:
+                    EditMesh(MeshSelectionMode.MeshSelectionModeEdges);
                     break;
                 default:
                     break;
@@ -101,71 +163,109 @@ namespace OpenGLEditorWindows
         private void btnAddCylinder_Click(object sender, EventArgs e)
         {
             Item item = new Item();
-            item.GetMesh().MakeCylinder(5);
-            AddItem(item);
+            using (AddItemWithStepsDialog dlg = new AddItemWithStepsDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    item.GetMesh().MakeCylinder(dlg.Steps);
+                    AddItem(item);
+                }
+            }
         }
 
         private void btnAddSphere_Click(object sender, EventArgs e)
         {
             Item item = new Item();
-            item.GetMesh().MakeSphere(5);
-            AddItem(item);
+            using (AddItemWithStepsDialog dlg = new AddItemWithStepsDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    item.GetMesh().MakeSphere(dlg.Steps);
+                    AddItem(item);
+                }
+            }
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
-        }
+            MessageBox.Show("Undo is not implemented yet");   
+        }   
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            MessageBox.Show("Redo is not implemented yet");
         }
 
         private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            itemsController.CloneSelected();
+            Manipulated.CloneSelected();
             openGLSceneView1.Invalidate();
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            itemsController.RemoveSelected();
+            Manipulated.RemoveSelected();
             openGLSceneView1.Invalidate();
         }
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            itemsController.ChangeSelection(1);
+            Manipulated.ChangeSelection(1);
             openGLSceneView1.Invalidate();
         }
 
         private void invertSelectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            itemsController.InvertSelection();
+            Manipulated.InvertSelection();
             openGLSceneView1.Invalidate();
         }
 
         private void mergeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            items.MergeSelectedItems();
-            itemsController.UpdateSelection();
+            if (Manipulated == itemsController)
+                items.MergeSelectedItems();
+            else
+                CurrentMesh.MergeSelected();
+                
+            Manipulated.UpdateSelection();
             openGLSceneView1.Invalidate();
         }
 
         private void splitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (Manipulated == meshController)
+                CurrentMesh.SplitSelected();
 
+            Manipulated.UpdateSelection();
+            openGLSceneView1.Invalidate();
         }
 
         private void mergeVertexPairsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            if (Manipulated == meshController)
+            {
+                CurrentMesh.MergeVertexPairs();
+                Manipulated.UpdateSelection();
+                openGLSceneView1.Invalidate();
+            }
         }
 
         private void turnEdgesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (Manipulated == meshController)
+            {
+                CurrentMesh.TurnSelectedEdges();
+                Manipulated.UpdateSelection();
+                openGLSceneView1.Invalidate();
+            }
+        }
 
+        private void dropDownEditMode_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            string tag = e.ClickedItem.Tag.ToString();
+            int parsed = int.Parse(tag);
+            dropDownEditMode.Text = e.ClickedItem.Text;
+            ChangeEditMode((EditMode)parsed);
         }
     }
 }
