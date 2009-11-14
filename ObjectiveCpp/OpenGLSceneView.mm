@@ -376,9 +376,18 @@ const float maxDistance = 1000.0f;
 		
 		NSRect rect = [self currentRect];
 		if (rect.size.width > 5.0f && rect.size.height > 5.0f)
-			[self selectWithRect:[self currentRect] selecting:manipulated selectionMode:selectionMode];
+		{
+			[self selectWithRect:[self currentRect] 
+					   selecting:manipulated 
+						cullFace:NO
+				   selectionMode:selectionMode];
+		}
 		else
-			[self selectWithPoint:currentPoint selecting:manipulated selectionMode:selectionMode];
+		{
+			[self selectWithPoint:currentPoint 
+						selecting:manipulated
+					selectionMode:selectionMode];
+		}
 		[self setNeedsDisplay:YES];
 	}
 }
@@ -510,6 +519,7 @@ const float maxDistance = 1000.0f;
 			 height:(double)height
 		  selecting:(id<OpenGLSelecting>)selecting 
 		nearestOnly:(BOOL)nearestOnly
+		   cullFace:(BOOL)cullFace
 	  selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
 	if (selecting == nil || [selecting selectableCount] <= 0)
@@ -543,12 +553,23 @@ const float maxDistance = 1000.0f;
     glPushName(0);
     glPushMatrix();
     
+	if (cullFace)
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+	}
+	
 	for (int i = 0; i < [selecting selectableCount]; i++)
 	{
 		glLoadName((unsigned int)(i + 1));
 		glPushMatrix();
 		[selecting drawForSelectionAtIndex:i];
 		glPopMatrix();
+	}
+	
+	if (cullFace)
+	{
+		glDisable(GL_CULL_FACE);
 	}
     
 	glPopMatrix();
@@ -604,11 +625,13 @@ const float maxDistance = 1000.0f;
 			   height:10.0
 			selecting:selecting
 		  nearestOnly:YES
+			 cullFace:NO
 		selectionMode:selectionMode];
 }
 
 - (void)selectWithRect:(NSRect)rect
 			 selecting:(id<OpenGLSelecting>)selecting
+			  cullFace:(BOOL)cullFace
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
 	[self selectWithX:rect.origin.x + rect.size.width / 2
@@ -617,6 +640,7 @@ const float maxDistance = 1000.0f;
 			   height:rect.size.height
 			selecting:selecting
 		  nearestOnly:NO
+			 cullFace:cullFace
 		selectionMode:selectionMode];
 }
 

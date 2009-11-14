@@ -62,6 +62,7 @@
 			 height:(double)height
 		  selecting:(id<OpenGLSelecting>)selecting 
 		nearestOnly:(BOOL)nearestOnly
+		   cullFace:(BOOL)cullFace
 		selectionMode:(enum OpenGLSelectionMode)selectionMode;
 
 - (void)selectWithPoint:(NSPoint)point 
@@ -70,6 +71,7 @@
 
 - (void)selectWithRect:(NSRect)rect 
 			 selecting:(id<OpenGLSelecting>)selecting
+			  cullFace:(BOOL)cullFace
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode;
 
 - (Vector3D)positionInSpaceByPoint:(NSPoint)point;
