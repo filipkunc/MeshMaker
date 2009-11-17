@@ -28,11 +28,13 @@
 	enum ItemWithSteps itemWithSteps;
 	
 	NSMutableArray *oldManipulations;
+	//MeshManipulationState *oldMeshManipulation;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) float selectionX, selectionY, selectionZ;
 
+- (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
 - (void)addItem:(Item *)item withName:(NSString *)name;
