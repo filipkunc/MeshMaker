@@ -13,6 +13,8 @@
 @interface MeshManipulationState : NSObject 
 {
 	vector<Vector3D> *vertices;
+	vector<BOOL> *selected;
+	enum MeshSelectionMode selectionMode;
 }
 
 - (id)initWithMesh:(Mesh *)mesh;

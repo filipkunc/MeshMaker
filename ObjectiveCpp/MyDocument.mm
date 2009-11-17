@@ -70,6 +70,13 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (Mesh *)currentMesh
+{
+	if (manipulated == meshController)
+		return (Mesh *)[meshController model];
+	return nil;
+}
+
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName
 {
 	NSUndoManager *undo = [self undoManager];
@@ -257,8 +264,7 @@
 
 - (void)editItems
 {
-	Mesh *mesh = (Mesh *)[meshController model];
-	[mesh setSelectionMode:MeshSelectionModeVertices];
+	[[self currentMesh] setSelectionMode:MeshSelectionModeVertices];
 	[itemsController setModel:items];
 	[itemsController setPosition:Vector3D()
 						rotation:Quaternion()
@@ -313,8 +319,7 @@
 	}
 	else
 	{
-		Mesh *mesh = (Mesh *)[meshController model];
-		[mesh mergeSelected];
+		[[self currentMesh] mergeSelected];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -327,8 +332,7 @@
 	
 	if (manipulated == meshController)
 	{
-		Mesh *mesh = (Mesh *)[meshController model];
-		[mesh splitSelected];
+		[[self currentMesh] splitSelected];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -341,8 +345,7 @@
 	
 	if (manipulated == meshController)
 	{
-		Mesh *mesh = (Mesh *)[meshController model];
-		[mesh flipSelected];
+		[[self currentMesh] flipSelected];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -456,7 +459,7 @@
 	
 	if (manipulated == meshController)
 	{
-		Mesh *mesh = (Mesh *)[meshController model];
+		Mesh *mesh = [self currentMesh];
 		if ([mesh selectionMode] == MeshSelectionModeVertices)
 			[mesh mergeVertexPairs];
 	}
