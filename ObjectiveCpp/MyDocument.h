@@ -11,6 +11,7 @@
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
+#import "MeshManipulationState.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate>
 {
@@ -28,7 +29,7 @@
 	enum ItemWithSteps itemWithSteps;
 	
 	NSMutableArray *oldManipulations;
-	//MeshManipulationState *oldMeshManipulation;
+	MeshManipulationState *oldMeshManipulation;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -37,6 +38,7 @@
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
+- (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current;
 - (void)addItem:(Item *)item withName:(NSString *)name;
 - (void)removeItem:(Item *)item withName:(NSString *)name;
 - (IBAction)addCube:(id)sender;
