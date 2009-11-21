@@ -8,7 +8,6 @@
 
 #import "MyDocument.h"
 #import "ItemManipulationState.h"
-#import "MeshManipulationState.h"
 #import "TmdModel.h"
 #import "IndexedItem.h"
 
@@ -33,6 +32,7 @@
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
+		oldMeshManipulation = nil;
     }
     return self;
 }
@@ -45,6 +45,7 @@
 	[itemsController release];
 	[items release];
 	[oldManipulations release];
+	[oldMeshManipulation release];
 	[super dealloc];
 }
 
@@ -178,6 +179,19 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current
+{
+	NSLog(@"swapMeshManipulationWithOld:current:");
+	
+	[old applyManipulationToMesh:[self currentMesh]];
+	
+	MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
+	[document swapMeshManipulationWithOld:current current:old];
+	
+	[meshController updateSelection];
+	[view setNeedsDisplay:YES];
+}
+
 - (void)manipulationStarted
 {
 	NSLog(@"manipulationStarted");
@@ -189,7 +203,7 @@
 	}
 	else if (manipulated == meshController)
 	{
-		NSLog(@"started on mesh");
+		oldMeshManipulation = [[MeshManipulationState alloc] initWithMesh:[self currentMesh]];
 	}
 }
 
@@ -206,7 +220,10 @@
 	}
 	else if (manipulated == meshController)
 	{
-		NSLog(@"ended on mesh");
+		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
+		[document swapMeshManipulationWithOld:oldMeshManipulation 
+									  current:[[MeshManipulationState alloc] initWithMesh:[self currentMesh]]];
+		oldMeshManipulation = nil;
 	}
 }
 
