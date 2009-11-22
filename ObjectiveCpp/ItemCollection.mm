@@ -251,6 +251,30 @@
 	}
 }
 
+- (MeshManipulationState *)currentMeshManipulation
+{
+	for (uint i = 0; i < [self count]; i++)
+	{
+		Item *item = [self itemAtIndex:i];
+		if ([item selected])
+		{
+			MeshManipulationState *meshState = [[MeshManipulationState alloc] initWithMesh:[item mesh]
+																				 itemIndex:i];
+			return meshState;
+		}
+	}
+	return nil;
+}
+
+- (void)setCurrentMeshManipulation:(MeshManipulationState *)manipulation
+{
+	[self deselectAll];
+	
+	Item *item = [self itemAtIndex:[manipulation itemIndex]];
+	[item setSelected:YES];
+	[manipulation applyManipulationToMesh:[item mesh]];
+}
+
 - (NSMutableArray *)currentSelection
 {
 	NSMutableArray *selection = [[NSMutableArray alloc] init];

@@ -69,6 +69,16 @@
 	[manipulated setCurrentManipulator:[view currentManipulator]];
 	[view setManipulated:value];
 	[view setNeedsDisplay:YES];
+	
+	if (manipulated == itemsController)
+	{
+		[editModePopUp selectItemWithTag:EditModeItems];
+	}
+	else
+	{
+		int meshTag = [[self currentMesh] selectionMode] + 1;
+		[editModePopUp selectItemWithTag:meshTag];
+	}
 }
 
 - (Mesh *)currentMesh
@@ -100,6 +110,7 @@
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
 	[itemsController updateSelection];
+	[self setManipulated:itemsController];
 	[view setNeedsDisplay:YES];
 }
 
@@ -112,6 +123,7 @@
 		
 	[items removeItem:item];
 	[itemsController changeSelection:NO];
+	[self setManipulated:itemsController];
 	[view setNeedsDisplay:YES];
 }
 
@@ -176,6 +188,7 @@
 	[document swapManipulationsWithOld:current current:old];
 	
 	[itemsController updateSelection];
+	[self setManipulated:itemsController];
 	[view setNeedsDisplay:YES];
 }
 
@@ -183,12 +196,14 @@
 {
 	NSLog(@"swapMeshManipulationWithOld:current:");
 	
-	[old applyManipulationToMesh:[self currentMesh]];
+	[items setCurrentMeshManipulation:old];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
 	[document swapMeshManipulationWithOld:current current:old];
-	
+
+	[itemsController updateSelection];
 	[meshController updateSelection];
+	[self setManipulated:meshController];
 	[view setNeedsDisplay:YES];
 }
 
@@ -203,7 +218,7 @@
 	}
 	else if (manipulated == meshController)
 	{
-		oldMeshManipulation = [[MeshManipulationState alloc] initWithMesh:[self currentMesh]];
+		oldMeshManipulation = [items currentMeshManipulation];
 	}
 }
 
@@ -221,8 +236,7 @@
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
-		[document swapMeshManipulationWithOld:oldMeshManipulation 
-									  current:[[MeshManipulationState alloc] initWithMesh:[self currentMesh]]];
+		[document swapMeshManipulationWithOld:oldMeshManipulation current:[items currentMeshManipulation]];
 		oldMeshManipulation = nil;
 	}
 }
@@ -400,6 +414,7 @@
 {
 	NSLog(@"redoCloneSelected:");
 	
+	[self setManipulated:itemsController];
 	[items setCurrentSelection:selection];
 	[manipulated cloneSelected];
 	
@@ -413,7 +428,8 @@
 - (void)undoCloneSelected:(NSMutableArray *)selection
 {	
 	NSLog(@"undoCloneSelected:");
-		
+	
+	[self setManipulated:itemsController];
 	uint clonedCount = [selection count];
 	[items removeItemsInRange:NSMakeRange([items count] - clonedCount, clonedCount)];
 	[items setCurrentSelection:selection];
@@ -446,6 +462,7 @@
 {
 	NSLog(@"redoDeleteSelected:");
 
+	[self setManipulated:itemsController];
 	[items setSelectionFromIndexedItems:selectedItems];
 	[manipulated removeSelected];
 	
@@ -460,6 +477,7 @@
 {
 	NSLog(@"undoDeleteSelected:");
 	
+	[self setManipulated:itemsController];
 	[items setCurrentItems:selectedItems];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
