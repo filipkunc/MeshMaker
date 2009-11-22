@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 11/8/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #import "IndexedItem.h"

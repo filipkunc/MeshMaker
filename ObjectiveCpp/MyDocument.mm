@@ -207,6 +207,38 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (void)swapMeshFullStateWithOld:(MeshFullState *)old 
+						 current:(MeshFullState *)current 
+					  actionName:(NSString *)actionName
+{
+	NSLog(@"swapMeshFullStateWithOld:current:");
+	
+	[items setCurrentMeshFull:old];
+	
+	MyDocument *document = [self prepareUndoWithName:actionName];
+	[document swapMeshFullStateWithOld:current
+							   current:old
+							actionName:actionName];
+	
+	[itemsController updateSelection];
+	[meshController updateSelection];
+	[self setManipulated:meshController];
+	[view setNeedsDisplay:YES];
+}
+
+- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
+{
+	MyDocument *document = [self prepareUndoWithName:actionName];
+	MeshFullState *oldState = [items currentMeshFull];
+	
+	action();
+	
+	MeshFullState *currentState = [items currentMeshFull];
+	[document swapMeshFullStateWithOld:oldState 
+							   current:currentState
+							actionName:actionName];
+}
+
 - (void)manipulationStarted
 {
 	NSLog(@"manipulationStarted");
@@ -345,12 +377,14 @@
 	
 	if (manipulated == itemsController)
 	{
+		// merge on items is not undoable, need fix it
 		[items mergeSelectedItems];
 		[itemsController updateSelection];
 	}
 	else
 	{
-		[[self currentMesh] mergeSelected];
+		[self fullMeshActionWithName:@"Merge" 
+							   block:^ { [[self currentMesh] mergeSelected]; }];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -363,7 +397,8 @@
 	
 	if (manipulated == meshController)
 	{
-		[[self currentMesh] splitSelected];
+		[self fullMeshActionWithName:@"Split"
+							   block:^ { [[self currentMesh] splitSelected]; }];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -376,7 +411,8 @@
 	
 	if (manipulated == meshController)
 	{
-		[[self currentMesh] flipSelected];
+		[self fullMeshActionWithName:@"Flip"
+							   block:^ { [[self currentMesh] flipSelected]; }];
 	}
 	[view setNeedsDisplay:YES];
 }
@@ -399,9 +435,14 @@
 		NSMutableArray *selection = [items currentSelection];
 		MyDocument *document = [self prepareUndoWithName:@"Clone"];
 		[document undoCloneSelected:selection];
+		[manipulated cloneSelected];
 	}
-			
-	[manipulated cloneSelected];
+	else 
+	{
+		[self fullMeshActionWithName:@"Clone"
+							   block:^ { [manipulated cloneSelected]; }];
+	}
+	
 	[view setNeedsDisplay:YES];
 	
 	if (startManipulation)
@@ -452,9 +493,14 @@
 		NSMutableArray *currentItems = [items currentItems];
 		MyDocument *document = [self prepareUndoWithName:@"Delete"];
 		[document undoDeleteSelected:currentItems];
+		[manipulated removeSelected];
+	}
+	else 
+	{
+		[self fullMeshActionWithName:@"Delete"
+							   block:^ { [manipulated removeSelected]; }];
 	}
 	
-	[manipulated removeSelected];
 	[view setNeedsDisplay:YES];
 }
 
@@ -494,9 +540,11 @@
 	
 	if (manipulated == meshController)
 	{
-		Mesh *mesh = [self currentMesh];
-		if ([mesh selectionMode] == MeshSelectionModeVertices)
-			[mesh mergeVertexPairs];
+		if ([[self currentMesh] selectionMode] == MeshSelectionModeVertices)
+		{
+			[self fullMeshActionWithName:@"Merge Vertex Pairs"
+								   block:^ { [[self currentMesh] mergeVertexPairs]; }];
+		}
 	}
 	[view setNeedsDisplay:YES];
 }

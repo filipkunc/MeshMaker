@@ -37,8 +37,12 @@
 
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
+- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
 - (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current;
+- (void)swapMeshFullStateWithOld:(MeshFullState *)old 
+						 current:(MeshFullState *)current 
+					  actionName:(NSString *)actionName;
 - (void)addItem:(Item *)item withName:(NSString *)name;
 - (void)removeItem:(Item *)item withName:(NSString *)name;
 - (IBAction)addCube:(id)sender;

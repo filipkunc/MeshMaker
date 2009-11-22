@@ -275,6 +275,30 @@
 	[manipulation applyManipulationToMesh:[item mesh]];
 }
 
+- (MeshFullState *)currentMeshFull
+{
+	for (uint i = 0; i < [self count]; i++)
+	{
+		Item *item = [self itemAtIndex:i];
+		if ([item selected])
+		{
+			MeshFullState *meshState = [[MeshFullState alloc] initWithMesh:[item mesh]
+																 itemIndex:i];
+			return meshState;
+		}
+	}
+	return nil;
+}
+
+- (void)setCurrentMeshFull:(MeshFullState *)fullState
+{
+	[self deselectAll];
+	
+	Item *item = [self itemAtIndex:[fullState itemIndex]];
+	[item setSelected:YES];
+	[fullState applyFullToMesh:[item mesh]];
+}
+
 - (NSMutableArray *)currentSelection
 {
 	NSMutableArray *selection = [[NSMutableArray alloc] init];
