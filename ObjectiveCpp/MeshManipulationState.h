@@ -12,12 +12,15 @@
 
 @interface MeshManipulationState : NSObject 
 {
+	uint itemIndex;
 	vector<Vector3D> *vertices;
 	vector<BOOL> *selected;
 	enum MeshSelectionMode selectionMode;
 }
 
-- (id)initWithMesh:(Mesh *)mesh;
+@property (readonly, assign) uint itemIndex;
+
+- (id)initWithMesh:(Mesh *)mesh itemIndex:(uint)index;
 - (void)applyManipulationToMesh:(Mesh *)mesh;
 
 @end

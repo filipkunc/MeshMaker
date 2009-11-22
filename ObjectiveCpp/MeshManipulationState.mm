@@ -10,11 +10,14 @@
 
 @implementation MeshManipulationState
 
-- (id)initWithMesh:(Mesh *)mesh
+@synthesize itemIndex;
+
+- (id)initWithMesh:(Mesh *)mesh itemIndex:(uint)index
 {
 	self = [super init];
 	if (self)
 	{
+		itemIndex = index;
 		vertices = new vector<Vector3D>(*mesh->vertices);
 		selected = new vector<BOOL>(*mesh->selected);
 		selectionMode = [mesh selectionMode];
