@@ -9,7 +9,9 @@ License for this project is under MIT license. You find it in file "LICENSE.TXT"
 OpenGL Editor is my hobby project. Goal is to create fast and powerful tool for basic low poly modeling on Mac OS X. Project is currently in very early stages and many critical pieces are missing.
 Any ideas, help or wishes is welcome!
 
-<object width="640" height="505"><param name="movie" value="http://www.youtube.com/v/57d63xcT21Y&hl=en_US&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/57d63xcT21Y&hl=en_US&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="505"></embed></object>
+[Modeling chess tower video on Objective-C++](http://www.youtube.com/watch?v=57d63xcT21Y)
+
+[Modeling chess tower video on C# + C++/CLI](http://www.youtube.com/watch?v=7iddjSQ3Uj8) 
 
 ### Implemented features
 
