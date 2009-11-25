@@ -227,7 +227,7 @@
 
 - (NSMutableArray *)currentManipulations
 {
-	NSMutableArray *manipulations = [[NSMutableArray alloc] init];
+	NSMutableArray *manipulations = [[[NSMutableArray alloc] init] autorelease];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
@@ -263,6 +263,7 @@
 		{
 			MeshManipulationState *meshState = [[MeshManipulationState alloc] initWithMesh:[item mesh]
 																				 itemIndex:i];
+			[meshState autorelease];
 			return meshState;
 		}
 	}
@@ -287,6 +288,7 @@
 		{
 			MeshFullState *meshState = [[MeshFullState alloc] initWithMesh:[item mesh]
 																 itemIndex:i];
+			[meshState autorelease];
 			return meshState;
 		}
 	}
@@ -304,14 +306,16 @@
 
 - (NSMutableArray *)currentSelection
 {
-	NSMutableArray *selection = [[NSMutableArray alloc] init];
+	NSMutableArray *selection = [[[NSMutableArray alloc] init] autorelease];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
 		Item *item = [self itemAtIndex:i];
 		if ([item selected])
 		{
-			[selection addObject:[NSNumber numberWithUnsignedInt:i]];
+			NSNumber *number = [[NSNumber alloc] initWithUnsignedInt:i];
+			[selection addObject:number];
+			[number release];
 		}
 	}
 	
@@ -330,7 +334,7 @@
 
 - (NSMutableArray *)currentItems
 {
-	NSMutableArray *anItems = [[NSMutableArray alloc] init];
+	NSMutableArray *anItems = [[[NSMutableArray alloc] init] autorelease];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
