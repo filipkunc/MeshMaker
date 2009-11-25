@@ -64,28 +64,28 @@ const float maxDistance = 1000.0f;
 		lastPoint = NSMakePoint(0, 0);
 		
 		defaultManipulator = [[Manipulator alloc] init];
-		[defaultManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisX widget:WidgetLine]];
-		[defaultManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisY widget:WidgetLine]];
-		[defaultManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetLine]];
+		[defaultManipulator addWidgetWithAxis:AxisX widget:WidgetLine];
+		[defaultManipulator addWidgetWithAxis:AxisY widget:WidgetLine];
+		[defaultManipulator addWidgetWithAxis:AxisZ widget:WidgetLine];
 		
 		translationManipulator = [[Manipulator alloc] init];
-		[translationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisX widget:WidgetArrow]];
-		[translationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisY widget:WidgetArrow]];
-		[translationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetArrow]];
-		[translationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisX widget:WidgetPlane]];
-		[translationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisY widget:WidgetPlane]];
-		[translationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetPlane]];
+		[translationManipulator addWidgetWithAxis:AxisX widget:WidgetArrow];
+		[translationManipulator addWidgetWithAxis:AxisY widget:WidgetArrow];
+		[translationManipulator addWidgetWithAxis:AxisZ widget:WidgetArrow];
+		[translationManipulator addWidgetWithAxis:AxisX widget:WidgetPlane];
+		[translationManipulator addWidgetWithAxis:AxisY widget:WidgetPlane];
+		[translationManipulator addWidgetWithAxis:AxisZ widget:WidgetPlane];
 		
 		rotationManipulator = [[Manipulator alloc] init];
-		[rotationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisX widget:WidgetCircle]];
-		[rotationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisY widget:WidgetCircle]];
-		[rotationManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetCircle]];
+		[rotationManipulator addWidgetWithAxis:AxisX widget:WidgetCircle];
+		[rotationManipulator addWidgetWithAxis:AxisY widget:WidgetCircle];
+		[rotationManipulator addWidgetWithAxis:AxisZ widget:WidgetCircle];
 		
 		scaleManipulator = [[Manipulator alloc] init];
-		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:Center widget:WidgetCube]];
-		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisX widget:WidgetCube]];
-		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisY widget:WidgetCube]];
-		[scaleManipulator addWidget:[[ManipulatorWidget alloc] initWithAxis:AxisZ widget:WidgetCube]];
+		[scaleManipulator addWidgetWithAxis:Center widget:WidgetCube];
+		[scaleManipulator addWidgetWithAxis:AxisX widget:WidgetCube];
+		[scaleManipulator addWidgetWithAxis:AxisY widget:WidgetCube];
+		[scaleManipulator addWidgetWithAxis:AxisZ widget:WidgetCube];
 				
 		currentManipulator = defaultManipulator;
 		
@@ -93,6 +93,18 @@ const float maxDistance = 1000.0f;
 		viewMode = ViewModeSolid;
 	}
 	return self;
+}
+
+- (void)dealloc
+{
+	delete perspectiveRadians;
+	delete selectionOffset;
+	delete camera;
+	[defaultManipulator release];
+	[translationManipulator release];
+	[rotationManipulator release];
+	[scaleManipulator release];
+	[super dealloc];
 }
 
 - (ManipulatorType)currentManipulator
@@ -180,17 +192,6 @@ const float maxDistance = 1000.0f;
 {
 	viewMode = value;
 	[self setNeedsDisplay:YES];
-}
-
-- (void)dealloc
-{
-	delete perspectiveRadians;
-	delete selectionOffset;
-	delete camera;
-	[defaultManipulator release];
-	[translationManipulator release];
-	[rotationManipulator release];
-	[super dealloc];
 }
 
 - (void)reshape

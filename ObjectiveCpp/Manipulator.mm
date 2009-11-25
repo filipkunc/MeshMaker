@@ -60,6 +60,13 @@
 	[widgets addObject:widget];
 }
 
+- (void)addWidgetWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget
+{
+	ManipulatorWidget *widget = [[ManipulatorWidget alloc] initWithAxis:anAxis widget:aWidget];
+	[widgets addObject:widget];
+	[widget release];
+}
+
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center
 {
 	if ([widgets count] <= 0)
