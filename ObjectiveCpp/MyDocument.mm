@@ -99,14 +99,18 @@
 
 - (void)addItem:(Item *)item withName:(NSString *)name
 {
+	NSLog(@"retainCount = %i", [item retainCount]);
 	NSLog(@"item vertexCount = %i", [[item mesh] vertexCount]);
 	NSLog(@"item triangleCount = %i", [[item mesh] triangleCount]);
 	NSLog(@"adding %@", name);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Add %@", name]];
 	[document removeItem:item withName:name];
-		
+	
 	[items addItem:item];
+	NSLog(@"retainCount = %i", [item retainCount]);
+	//[item release];
+	
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
 	[itemsController updateSelection];
@@ -278,6 +282,7 @@
 	Item *cube = [[Item alloc] init];
 	[[cube mesh] makeCube];
 	[self addItem:cube withName:@"Cube"];
+	[cube release];
 }
 
 - (IBAction)addCylinder:(id)sender
@@ -308,6 +313,7 @@
 		default:
 			break;
 	}
+	[item release];
 }
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode
@@ -617,6 +623,7 @@
 		[itemMesh setSelectionMode:[itemMesh selectionMode]];
 		
 		[newItems addItem:item];
+		[item release];
 	}
 	
 	delete model;

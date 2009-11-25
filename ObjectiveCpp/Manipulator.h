@@ -27,6 +27,7 @@
 @property (readwrite, assign) int selectedIndex;
 
 - (void)addWidget:(ManipulatorWidget *)widget;
+- (void)addWidgetWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget;
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center;
 - (ManipulatorWidget *)widgetAtIndex:(int)index;
 

@@ -147,6 +147,7 @@
 		{
 			Item *newItem = [[self itemAtIndex:i] clone];
 			[items addObject:newItem];
+			[newItem release];
 		}
 	}
 }
@@ -221,6 +222,7 @@
 	
 	[newItem setSelected:YES];
 	[self addItem:newItem];
+	[newItem release];
 }
 
 - (NSMutableArray *)currentManipulations
@@ -234,6 +236,7 @@
 		{
 			ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
 			[manipulations addObject:itemState];
+			[itemState release];
 		}
 	}
 	
@@ -336,6 +339,7 @@
 		{
 			IndexedItem *indexedItem = [[IndexedItem alloc] initWithIndex:i item:item];
 			[anItems addObject:indexedItem];
+			[indexedItem release];
 		}
 	}
 	
