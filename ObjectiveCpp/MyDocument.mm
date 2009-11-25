@@ -250,11 +250,11 @@
 	
 	if (manipulated == itemsController)
 	{
-		oldManipulations = [items currentManipulations];
+		oldManipulations = [[items currentManipulations] retain];
 	}
 	else if (manipulated == meshController)
 	{
-		oldMeshManipulation = [items currentMeshManipulation];
+		oldMeshManipulation = [[items currentMeshManipulation] retain];
 	}
 }
 
@@ -267,12 +267,14 @@
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Manipulations"];
 		[document swapManipulationsWithOld:oldManipulations current:[items currentManipulations]];
+		[oldManipulations release];
 		oldManipulations = nil;
 	}
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
 		[document swapMeshManipulationWithOld:oldMeshManipulation current:[items currentMeshManipulation]];
+		[oldMeshManipulation release];
 		oldMeshManipulation = nil;
 	}
 }
