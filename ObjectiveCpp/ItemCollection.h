@@ -25,6 +25,7 @@
 @property (readwrite, assign) MeshFullState *currentMeshFull;
 @property (readwrite, assign) NSMutableArray *currentSelection;
 @property (readwrite, assign) NSMutableArray *currentItems;
+@property (readwrite, retain) NSMutableArray *allItems;
 
 - (Item *)itemAtIndex:(uint)index;
 - (void)addItem:(Item *)item;

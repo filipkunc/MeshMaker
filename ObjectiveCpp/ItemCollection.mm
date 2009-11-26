@@ -145,7 +145,9 @@
 	{
 		if ([self isSelectedAtIndex:i])
 		{
-			Item *newItem = [[self itemAtIndex:i] clone];
+			Item *oldItem = [self itemAtIndex:i];
+			Item *newItem = [oldItem clone];
+			[oldItem setSelected:NO];
 			[items addObject:newItem];
 			[newItem release];
 		}
@@ -358,6 +360,30 @@
 	{
 		[self insertItem:[indexedItem item] atIndex:[indexedItem index]];
 	}
+}
+
+- (NSMutableArray *)allItems
+{
+	NSMutableArray *anItems = [[[NSMutableArray alloc] init] autorelease];
+	
+	for (uint i = 0; i < [self count]; i++)
+	{
+		Item *clone = [[self itemAtIndex:i] clone];
+		[anItems addObject:clone];
+		[clone release];
+	}
+	
+	return anItems;
+}
+
+- (void)setAllItems:(NSMutableArray *)anItems
+{
+	if (items == anItems)
+		return;
+	
+	[items release];
+	items = anItems;
+	[items retain];
 }
 
 - (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems
