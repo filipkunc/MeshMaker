@@ -165,8 +165,7 @@
 	
 	[[newItem mesh] mergeWithMesh:[self mesh]];
 	
-	[newItem setSelected:YES];
-	[self setSelected:NO];
+	[newItem setSelected:[self selected]];
 	
 	return newItem;
 }

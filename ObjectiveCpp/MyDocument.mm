@@ -211,11 +211,29 @@
 	[view setNeedsDisplay:YES];
 }
 
+- (void)swapAllItemsWithOld:(NSMutableArray *)old
+					current:(NSMutableArray *)current
+				 actionName:(NSString *)actionName
+{
+	NSLog(@"swapAllItemsWithOld:current:actionName:");
+	
+	[items setAllItems:old];
+	
+	MyDocument *document = [self prepareUndoWithName:actionName];
+	[document swapAllItemsWithOld:current
+						  current:old
+					   actionName:actionName];
+	
+	[itemsController updateSelection];
+	[self setManipulated:itemsController];
+	[view setNeedsDisplay:YES];
+}
+
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
 						 current:(MeshFullState *)current 
 					  actionName:(NSString *)actionName
 {
-	NSLog(@"swapMeshFullStateWithOld:current:");
+	NSLog(@"swapMeshFullStateWithOld:current:actionName:");
 	
 	[items setCurrentMeshFull:old];
 	
@@ -228,6 +246,19 @@
 	[meshController updateSelection];
 	[self setManipulated:meshController];
 	[view setNeedsDisplay:YES];
+}
+
+- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
+{
+	MyDocument *document = [self prepareUndoWithName:actionName];
+	NSMutableArray *oldItems = [items allItems];
+	
+	action();
+	
+	NSMutableArray *currentItems = [items allItems];
+	[document swapAllItemsWithOld:oldItems 
+						  current:currentItems
+					   actionName:actionName];	
 }
 
 - (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
@@ -385,15 +416,16 @@
 	
 	if (manipulated == itemsController)
 	{
-		// merge on items is not undoable, need fix it
-		[items mergeSelectedItems];
-		[itemsController updateSelection];
+		[self allItemsActionWithName:@"Merge"
+							   block:^ { [items mergeSelectedItems]; }];
 	}
 	else
 	{
 		[self fullMeshActionWithName:@"Merge" 
 							   block:^ { [[self currentMesh] mergeSelected]; }];
 	}
+	
+	[manipulated updateSelection];
 	[view setNeedsDisplay:YES];
 }
 
@@ -408,6 +440,8 @@
 		[self fullMeshActionWithName:@"Split"
 							   block:^ { [[self currentMesh] splitSelected]; }];
 	}
+	
+	[manipulated updateSelection];
 	[view setNeedsDisplay:YES];
 }
 
@@ -422,6 +456,8 @@
 		[self fullMeshActionWithName:@"Flip"
 							   block:^ { [[self currentMesh] flipSelected]; }];
 	}
+	
+	[manipulated updateSelection];
 	[view setNeedsDisplay:YES];
 }
 
@@ -543,6 +579,8 @@
 
 - (IBAction)mergeVertexPairs:(id)sender
 {
+	NSLog(@"mergeVertexPairs:");
+	
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
