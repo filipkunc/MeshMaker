@@ -396,8 +396,18 @@ const float maxDistance = 1000.0f;
 - (void)mouseDragged:(NSEvent *)e
 {
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	float diffX = currentPoint.x - lastPoint.x;
+	float diffY = currentPoint.y - lastPoint.y;
 	
-	if (isManipulating)
+	if ([e modifierFlags] & NSAlternateKeyMask)
+	{
+		lastPoint = currentPoint;
+		const float sensitivity = 0.005f;
+		camera->RotateLeftRight(diffX * sensitivity);
+		camera->RotateUpDown(-diffY * sensitivity);
+		[self setNeedsDisplay:YES];
+	}
+	else if (isManipulating)
 	{
 		lastPoint = currentPoint;
 		if (currentManipulator == translationManipulator)
@@ -433,16 +443,18 @@ const float maxDistance = 1000.0f;
 }
 
 - (void)otherMouseDragged:(NSEvent *)e
-{	
-	NSPoint point = [self convertPoint:[e locationInWindow] fromView:nil];
-	float diffX = point.x - lastPoint.x;
-	float diffY = point.y - lastPoint.y;
+{
+	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	float diffX = currentPoint.x - lastPoint.x;
+	float diffY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
+		lastPoint = currentPoint;
 		const float sensitivity = 0.005f;
 		camera->RotateLeftRight(diffX * sensitivity);
 		camera->RotateUpDown(-diffY * sensitivity);
+		[self setNeedsDisplay:YES];
 	}
 	else
 	{
@@ -453,11 +465,36 @@ const float maxDistance = 1000.0f;
 		sensitivity = 1.0f / sensitivity;
 		camera->LeftRight(-diffX * camera->GetZoom() * sensitivity);
 		camera->UpDown(diffY * camera->GetZoom() * sensitivity);
+		
+		lastPoint = currentPoint;
+		[self setNeedsDisplay:YES];
 	}
+}
+
+- (void)rightMouseDown:(NSEvent *)e
+{
+	lastPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+}
+
+- (void)rightMouseDragged:(NSEvent *)e
+{	
+	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	float diffX = currentPoint.x - lastPoint.x;
+	float diffY = currentPoint.y - lastPoint.y;
 	
-	lastPoint = point;
-	
-	[self setNeedsDisplay:YES];
+	if ([e modifierFlags] & NSAlternateKeyMask)
+	{
+		NSRect bounds = [self bounds];
+		float w = bounds.size.width;
+		float h = bounds.size.height;
+		float sensitivity = (w + h) / 2.0f;
+		sensitivity = 1.0f / sensitivity;
+		camera->LeftRight(-diffX * camera->GetZoom() * sensitivity);
+		camera->UpDown(diffY * camera->GetZoom() * sensitivity);
+		
+		lastPoint = currentPoint;
+		[self setNeedsDisplay:YES];
+	}
 }
 
 - (void)scrollWheel:(NSEvent *)e
