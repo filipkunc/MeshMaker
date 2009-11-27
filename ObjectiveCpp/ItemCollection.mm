@@ -58,6 +58,11 @@
 	[items removeObject:item];
 }
 
+- (void)removeLastItem
+{
+	[items removeLastObject];
+}
+
 - (void)removeItemAtIndex:(uint)index
 {
 	[items removeObjectAtIndex:index];
