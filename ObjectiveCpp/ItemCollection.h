@@ -30,6 +30,7 @@
 - (Item *)itemAtIndex:(uint)index;
 - (void)addItem:(Item *)item;
 - (void)removeItem:(Item *)item;
+- (void)removeLastItem;
 - (void)removeItemAtIndex:(uint)index;
 - (void)removeItemsInRange:(NSRange)range;
 - (void)insertItem:(Item *)item atIndex:(uint)index;

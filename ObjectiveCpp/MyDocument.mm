@@ -99,7 +99,6 @@
 
 - (void)addItem:(Item *)item withName:(NSString *)name
 {
-	NSLog(@"retainCount = %i", [item retainCount]);
 	NSLog(@"item vertexCount = %i", [[item mesh] vertexCount]);
 	NSLog(@"item triangleCount = %i", [[item mesh] triangleCount]);
 	NSLog(@"adding %@", name);
@@ -108,8 +107,6 @@
 	[document removeItem:item withName:name];
 	
 	[items addItem:item];
-	NSLog(@"retainCount = %i", [item retainCount]);
-	//[item release];
 	
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
@@ -125,7 +122,7 @@
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Remove %@", name]];
 	[document addItem:item withName:name];
 		
-	[items removeItem:item];
+	[items removeLastItem];
 	[itemsController changeSelection:NO];
 	[self setManipulated:itemsController];
 	[view setNeedsDisplay:YES];
@@ -217,7 +214,9 @@
 {
 	NSLog(@"swapAllItemsWithOld:current:actionName:");
 	
+	NSLog(@"items count before set = %i", [items count]);
 	[items setAllItems:old];
+	NSLog(@"items count after set = %i", [items count]);
 	
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapAllItemsWithOld:current
@@ -252,10 +251,12 @@
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	NSMutableArray *oldItems = [items allItems];
+	NSLog(@"oldItems count = %i", [oldItems count]);
 	
 	action();
 	
 	NSMutableArray *currentItems = [items allItems];
+	NSLog(@"currentItems count = %i", [currentItems count]);
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
 					   actionName:actionName];	
