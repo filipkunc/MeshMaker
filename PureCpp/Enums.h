@@ -39,6 +39,13 @@ typedef signed char CocoaBool;
 namespace ManagedCpp {
 #endif
 
+MyEnum MeshType
+{
+	MeshTypeCube = 0,
+	MeshTypeCylinder,
+	MeshTypeSphere
+};
+	
 MyEnum MeshSelectionMode
 {
 	MeshSelectionModeVertices = 0,
@@ -66,12 +73,6 @@ MyEnum EditMode
 	EditModeVertices = 1,
 	EditModeTriangles = 2,
 	EditModeEdges = 3
-};
-
-MyEnum ItemWithSteps
-{
-	ItemWithStepsCylinder = 0,
-	ItemWithStepsSphere = 1
 };
 
 MyEnum CameraMode

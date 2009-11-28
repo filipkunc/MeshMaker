@@ -30,6 +30,7 @@ using namespace std;
 @property (readonly) uint triangleCount;
 @property (readonly) uint edgeCount;
 
++ (NSString *)descriptionOfMeshType:(enum MeshType)type;
 - (Vector3D)vertexAtIndex:(uint)anIndex;
 - (Triangle)triangleAtIndex:(uint)anIndex;
 - (Edge)edgeAtIndex:(uint)anIndex;
@@ -54,6 +55,7 @@ using namespace std;
 - (void)drawFillWithScale:(Vector3D)scale;
 - (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected;
 - (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected;
+- (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps;
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(uint)steps;
 - (void)makeSphereWithSteps:(uint)steps;

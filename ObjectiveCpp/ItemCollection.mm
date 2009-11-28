@@ -161,7 +161,7 @@
 
 - (void)removeSelected
 {
-	for (int i = 0; i < [self count]; i++)
+	for (int i = 0; i < (int)[self count]; i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
@@ -174,9 +174,9 @@
 - (void)mergeSelectedItems
 {
 	Vector3D center = Vector3D();
-	int selectedCount = 0;
+	uint selectedCount = 0;
 	
-	for (int i = 0; i < [items count]; i++)
+	for (uint i = 0; i < [items count]; i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
@@ -201,7 +201,7 @@
 	
 	firstMatrix = firstMatrix.Inverse();
 	
-	for (int i = 0; i < [items count]; i++)
+	for (int i = 0; i < (int)[items count]; i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{

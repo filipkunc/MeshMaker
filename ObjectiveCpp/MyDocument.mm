@@ -97,16 +97,22 @@
 	return document;
 }
 
-- (void)addItem:(Item *)item withName:(NSString *)name
+- (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 {
-	NSLog(@"item vertexCount = %i", [[item mesh] vertexCount]);
-	NSLog(@"item triangleCount = %i", [[item mesh] triangleCount]);
+	Item *item = [[Item alloc] init];
+	Mesh *mesh = [item mesh];
+	[mesh makeMeshWithType:type steps:steps];
+	
+	NSString *name = [Mesh descriptionOfMeshType:type];
 	NSLog(@"adding %@", name);
+	NSLog(@"vertexCount = %i", [mesh vertexCount]);
+	NSLog(@"triangleCount = %i", [mesh triangleCount]);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Add %@", name]];
-	[document removeItem:item withName:name];
+	[document removeItemWithType:type steps:steps];
 	
 	[items addItem:item];
+	[item release];
 	
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
@@ -115,12 +121,13 @@
 	[view setNeedsDisplay:YES];
 }
 
-- (void)removeItem:(Item *)item withName:(NSString *)name
+- (void)removeItemWithType:(enum MeshType)type steps:(uint)steps
 {
+	NSString *name = [Mesh descriptionOfMeshType:type];
 	NSLog(@"removing %@", name);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Remove %@", name]];
-	[document addItem:item withName:name];
+	[document addItemWithType:type steps:steps];
 		
 	[items removeLastItem];
 	[itemsController changeSelection:NO];
@@ -313,41 +320,24 @@
 
 - (IBAction)addCube:(id)sender
 {
-	Item *cube = [[Item alloc] init];
-	[[cube mesh] makeCube];
-	[self addItem:cube withName:@"Cube"];
-	[cube release];
+	[self addItemWithType:MeshTypeCube steps:0];
 }
 
 - (IBAction)addCylinder:(id)sender
 {
-	itemWithSteps = ItemWithStepsCylinder;
+	itemWithSteps = MeshTypeCylinder;
 	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
 - (IBAction)addSphere:(id)sender
 {
-	itemWithSteps = ItemWithStepsSphere;
+	itemWithSteps = MeshTypeSphere;
 	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
 - (void)addItemWithSteps:(uint)steps
 {
-	Item *item = [[Item alloc] init];
-	switch (itemWithSteps)
-	{
-		case ItemWithStepsCylinder:
-			[[item mesh] makeCylinderWithSteps:steps];
-			[self addItem:item withName:@"Cylinder"];
-			break;
-		case ItemWithStepsSphere:
-			[[item mesh] makeSphereWithSteps:steps];
-			[self addItem:item withName:@"Sphere"];
-			break;
-		default:
-			break;
-	}
-	[item release];
+	[self addItemWithType:itemWithSteps steps:steps];
 }
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode

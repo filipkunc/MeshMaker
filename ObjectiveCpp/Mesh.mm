@@ -12,6 +12,21 @@
 
 @synthesize selectionMode;
 
++ (NSString *)descriptionOfMeshType:(enum MeshType)type
+{
+	switch (type)
+	{
+		case MeshTypeCube:
+			return @"Cube";
+		case MeshTypeCylinder:
+			return @"Cylinder";
+		case MeshTypeSphere:
+			return @"Sphere";
+		default:
+			return nil;
+	}
+}
+
 - (uint)vertexCount
 {
 	return vertices->size();
@@ -287,6 +302,25 @@
 	else
 	{
 		[self drawFillWithScale:scale];
+	}
+}
+
+- (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps
+{
+	switch (type) 
+	{
+		case MeshTypeCube:
+			[self makeCube];
+			break;
+		case MeshTypeCylinder:
+			[self makeCylinderWithSteps:steps];
+			break;
+		case MeshTypeSphere:
+			[self makeSphereWithSteps:steps];
+			break;
+		default:
+			NSLog(@"Unknown mesh type: %i", type);
+			break;
 	}
 }
 
@@ -613,7 +647,7 @@
 {
 	NSLog(@"removeDegeneratedTriangles");
 	
-	for (int i = 0; i < triangles->size(); i++)
+	for (int i = 0; i < (int)triangles->size(); i++)
 	{
 		if (IsTriangleDegenerated(triangles->at(i)))
 		{
@@ -641,7 +675,7 @@
 {
 	NSLog(@"removeNonUsedVertices");
 	
-	for (int i = 0; i < vertices->size(); i++)
+	for (int i = 0; i < (int)vertices->size(); i++)
 	{
 		if (![self isVertexUsedAtIndex:i])
 		{
@@ -657,7 +691,7 @@
 	
 	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 	
-	for (int i = 0; i < selected->size(); i++)
+	for (int i = 0; i < (int)selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
@@ -771,14 +805,14 @@
 {
 	NSLog(@"mergeVertexPairs");
 	
-	for (int i = 0; i < selected->size(); i++)
+	for (int i = 0; i < (int)selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
 			Vector3D firstVertex = [self vertexAtIndex:i];
 			float smallestDistance = 10.0f; // maximum distance between vertices in pair
 			int secondIndex = -1;
-			for (int j = i + 1; j < selected->size(); j++)
+			for (int j = i + 1; j < (int)selected->size(); j++)
 			{
 				if (selected->at(j))
 				{
@@ -908,7 +942,7 @@
 	
 	Vector3D triangleVertices[3];
 		
-	for (int i = 0; i < triangles->size(); i++)
+	for (int i = 0; i < (int)triangles->size(); i++)
 	{
 		Triangle triangle = [self triangleAtIndex:i];
 		if (IsEdgeInTriangle(triangle, edge))
@@ -950,7 +984,7 @@
 {
 	NSLog(@"splitSelectedEdges");
 	
-	for (int i = 0; i < selected->size(); i++)
+	for (int i = 0; i < (int)selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
@@ -964,7 +998,7 @@
 {
 	NSLog(@"splitSelectedTriangles");
 	
-	for (int i = 0; i < selected->size(); i++)
+	for (int i = 0; i < (int)selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
@@ -979,11 +1013,11 @@
 	NSLog(@"turnEdgeAtIndex:%i", index);
 	
 	Edge edge = [self edgeAtIndex:index];
-	int counter = 0;
-	int oldTriangleIndices[2];
+	uint counter = 0;
+	uint oldTriangleIndices[2];
 	Triangle oldTriangles[2];
 	
-	for (int i = 0; i < triangles->size(); i++)
+	for (uint i = 0; i < triangles->size(); i++)
 	{
 		Triangle triangle = [self triangleAtIndex:i];
 		if (IsEdgeInTriangle(triangle, edge))
@@ -1037,7 +1071,7 @@
 {
 	NSLog(@"turnSelectedEdges");
 	
-	for (int i = 0; i < selected->size(); i++)
+	for (uint i = 0; i < selected->size(); i++)
 	{
 		if (selected->at(i))
 		{
@@ -1360,7 +1394,7 @@
 {
 	if (selectionMode == MeshSelectionModeTriangles)
 	{
-		for (int i = 0; i < [self triangleCount]; i++)
+		for (int i = 0; i < (int)[self triangleCount]; i++)
 		{
 			if (selected->at(i))
 			{
