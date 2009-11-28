@@ -26,7 +26,7 @@
 	IBOutlet NSPopUpButton *cameraModePopUp;
 	IBOutlet NSPopUpButton *viewModePopUp;
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
-	enum ItemWithSteps itemWithSteps;
+	enum MeshType itemWithSteps;
 	
 	NSMutableArray *oldManipulations;
 	MeshManipulationState *oldMeshManipulation;
@@ -47,8 +47,8 @@
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
 						 current:(MeshFullState *)current 
 					  actionName:(NSString *)actionName;
-- (void)addItem:(Item *)item withName:(NSString *)name;
-- (void)removeItem:(Item *)item withName:(NSString *)name;
+- (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
+- (void)removeItemWithType:(enum MeshType)type steps:(uint)steps;
 - (IBAction)addCube:(id)sender;
 - (IBAction)addCylinder:(id)sender;
 - (IBAction)addSphere:(id)sender;

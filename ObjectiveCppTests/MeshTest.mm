@@ -61,7 +61,7 @@
 	
 	[mesh makeEdges];
 	
-	for (int i = 0; i < [mesh edgeCount]; i++)
+	for (uint i = 0; i < [mesh edgeCount]; i++)
 	{
 		[mesh turnEdgeAtIndex:i];
 		

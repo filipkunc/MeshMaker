@@ -597,9 +597,9 @@ const float maxDistance = 1000.0f;
 		glCullFace(GL_FRONT);
 	}
 	
-	for (int i = 0; i < [selecting selectableCount]; i++)
+	for (uint i = 0; i < [selecting selectableCount]; i++)
 	{
-		glLoadName((unsigned int)(i + 1));
+		glLoadName(i + 1);
 		glPushMatrix();
 		[selecting drawForSelectionAtIndex:i];
 		glPopMatrix();

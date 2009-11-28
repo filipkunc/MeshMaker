@@ -216,7 +216,7 @@
 		*selectionScale = Vector3D(1, 1, 1);
 		selectedCount = 0;
 		lastSelectedIndex = -1;
-		for (int i = 0; i < [model count]; i++)
+		for (uint i = 0; i < [model count]; i++)
 		{
 			if ([model isSelectedAtIndex:i])
 			{
@@ -316,7 +316,7 @@
 	}
 	else if (modelItem != nil)
 	{
-		for (int i = 0; i < [model count]; i++)
+		for (uint i = 0; i < [model count]; i++)
 		{
 			if ([model isSelectedAtIndex:i])
 				[modelItem moveByOffset:transformedOffset atIndex:i];
@@ -343,7 +343,7 @@
 		{
 			Vector3D rotationCenter = *selectionCenter;
 			rotationCenter.Transform(modelTransform->Inverse());
-			for (int i = 0; i < [model count]; i++)
+			for (uint i = 0; i < [model count]; i++)
 			{
 				if ([model isSelectedAtIndex:i])
 				{
@@ -381,7 +381,7 @@
 		{
 			Vector3D rotationCenter = *selectionCenter;
 			rotationCenter.Transform(modelTransform->Inverse());
-			for (int i = 0; i < [model count]; i++)
+			for (uint i = 0; i < [model count]; i++)
 			{
 				if ([model isSelectedAtIndex:i])
 				{
@@ -408,7 +408,7 @@
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
-	for (int i = 0; i < [model count]; i++)
+	for (uint i = 0; i < [model count]; i++)
 	{
 		[model drawAtIndex:i forSelection:NO withMode:mode];
 	}
@@ -469,7 +469,7 @@
 - (void)changeSelection:(BOOL)isSelected
 {
 	[self willSelect];
-	for (int i = 0; i < [model count]; i++)
+	for (uint i = 0; i < [model count]; i++)
 		[model setSelected:isSelected atIndex:i];
 	[self didSelect];
 	[self updateSelection];
@@ -478,7 +478,7 @@
 - (void)invertSelection
 {
 	[self willSelect];
-	for (int i = 0; i < [model count]; i++)
+	for (uint i = 0; i < [model count]; i++)
 		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
 	[self didSelect];
 	[self updateSelection];

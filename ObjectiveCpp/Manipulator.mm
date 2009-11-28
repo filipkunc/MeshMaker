@@ -69,7 +69,9 @@
 
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center
 {
-	if ([widgets count] <= 0)
+	int widgetsCount = (int)[widgets count];
+	
+	if (widgetsCount <= 0)
 		return;
 	
 	Matrix4x4 rotationMatrix;
@@ -88,7 +90,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		for (int i = 0; i < [widgets count]; i++)
+		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
 			[widget drawWithSize:size isSelected:i == selectedIndex isGray:YES];
@@ -120,7 +122,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		for (int i = 0; i < [widgets count]; i++)
+		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
 			[widget drawWithSize:size isSelected:i == selectedIndex isGray:NO];
@@ -134,7 +136,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		for (int i = 0; i < [widgets count]; i++)
+		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
 			[widget drawWithSize:size isSelected:i == selectedIndex isGray:NO];
