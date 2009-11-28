@@ -291,11 +291,11 @@ const float maxDistance = 1000.0f;
 		color[3] = 0.2f;
 		glColor4fv(color);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glRecti(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
+		glRectf(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
 		color[3] = 0.9f;
 		glColor4fv(color);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glRecti(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
+		glRectf(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		[self endOrtho];
 	}

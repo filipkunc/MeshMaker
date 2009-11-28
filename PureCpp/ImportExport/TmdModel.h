@@ -89,7 +89,11 @@ public:
 
 	TmdModel()
 	{
-        sprintf(desc.version, MODEL_VERSION);
+#ifdef WIN32
+        sprintf_s(desc.version, 10, MODEL_VERSION);
+#else
+		snprintf(desc.version, 10, MODEL_VERSION);
+#endif
 		desc.no_meshes = 0;
 		desc.no_materials = 0;
 		a_desc.no_anims = 0;

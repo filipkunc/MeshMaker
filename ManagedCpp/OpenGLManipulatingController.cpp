@@ -217,7 +217,7 @@ namespace ManagedCpp
 			*selectionScale = Vector3D(1, 1, 1);
 			selectedCount = 0;
 			lastSelectedIndex = -1;
-			for (int i = 0; i < model->Count; i++)
+			for (uint i = 0; i < model->Count; i++)
 			{
 				if (model->IsSelected(i))
 				{
@@ -317,7 +317,7 @@ namespace ManagedCpp
 		}
 		else if (modelItem != nullptr)
 		{
-			for (int i = 0; i < model->Count; i++)
+			for (uint i = 0; i < model->Count; i++)
 			{
 				if (model->IsSelected(i))
 					modelItem->MoveBy(offset, i);
@@ -344,7 +344,7 @@ namespace ManagedCpp
 			{
 				Vector3D rotationCenter = *selectionCenter;
 				rotationCenter.Transform(modelTransform->Inverse());
-				for (int i = 0; i < model->Count; i++)
+				for (uint i = 0; i < model->Count; i++)
 				{
 					if (model->IsSelected(i))
 					{
@@ -382,7 +382,7 @@ namespace ManagedCpp
 			{
 				Vector3D rotationCenter = *selectionCenter;
 				rotationCenter.Transform(modelTransform->Inverse());
-				for (int i = 0; i < model->Count; i++)
+				for (uint i = 0; i < model->Count; i++)
 				{
 					if (model->IsSelected(i))
 					{
@@ -409,7 +409,7 @@ namespace ManagedCpp
 	{
 		glPushMatrix();
 		glMultMatrixf(modelTransform->m);
-		for (int i = 0; i < model->Count; i++)
+		for (uint i = 0; i < model->Count; i++)
 		{
 			model->Draw(i, NO, mode);
 		}
@@ -471,7 +471,7 @@ namespace ManagedCpp
 	void OpenGLManipulatingController::ChangeSelection(CocoaBool isSelected)
 	{
 		this->WillSelect();
-		for (int i = 0; i < model->Count; i++)
+		for (uint i = 0; i < model->Count; i++)
 			model->SetSelected(isSelected, i);
 		this->DidSelect();
 		this->UpdateSelection();
@@ -480,7 +480,7 @@ namespace ManagedCpp
 	void OpenGLManipulatingController::InvertSelection()
 	{
 		this->WillSelect();
-		for (int i = 0; i < model->Count; i++)
+		for (uint i = 0; i < model->Count; i++)
 			model->SetSelected(!model->IsSelected(i), i);
 		this->DidSelect();
 		this->UpdateSelection();

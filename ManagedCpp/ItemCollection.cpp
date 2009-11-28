@@ -113,7 +113,7 @@ namespace ManagedCpp
 
 	void ItemCollection::RemoveSelected()
 	{
-		for (int i = 0; i < this->Count; i++)
+		for (int i = 0; i < (int)this->Count; i++)
 		{
 			if (this->IsSelected(i))
 			{
@@ -126,9 +126,9 @@ namespace ManagedCpp
 	void ItemCollection::MergeSelectedItems()
 	{
 		Vector3D center = Vector3D();
-		int selectedCount = 0;
+		uint selectedCount = 0;
 		
-		for (int i = 0; i < this->Count; i++)
+		for (uint i = 0; i < this->Count; i++)
 		{
 			if (this->IsSelected(i))
 			{
@@ -140,7 +140,7 @@ namespace ManagedCpp
 		if (selectedCount < 2)
 			return;
 		
-		center /= selectedCount;
+		center /= (float)selectedCount;
 		
 		Item ^newItem = gcnew Item(center, Quaternion(), Vector3D(1, 1, 1));
 		Mesh ^mesh = newItem->GetMesh();
@@ -153,7 +153,7 @@ namespace ManagedCpp
 										 
 		firstMatrix = firstMatrix.Inverse();
 		
-		for (int i = 0; i < this->Count; i++)
+		for (int i = 0; i < (int)this->Count; i++)
 		{
 			if (this->IsSelected(i))
 			{
