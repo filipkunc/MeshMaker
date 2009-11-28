@@ -239,11 +239,11 @@ namespace ManagedCpp {
 			color[3] = 0.2f;
 			glColor4fv(color);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glRecti(lastPoint.X, this->Height - lastPoint.Y, currentPoint.X, this->Height - currentPoint.Y);
+			glRectf(lastPoint.X, this->Height - lastPoint.Y, currentPoint.X, this->Height - currentPoint.Y);
 			color[3] = 0.9f;
 			glColor4fv(color);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glRecti(lastPoint.X, this->Height - lastPoint.Y, currentPoint.X, this->Height - currentPoint.Y);
+			glRectf(lastPoint.X, this->Height - lastPoint.Y, currentPoint.X, this->Height - currentPoint.Y);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			this->EndOrtho();
 		}
@@ -327,11 +327,11 @@ namespace ManagedCpp {
 		UserControl::OnMouseDown(e);
 		if (e->Button == System::Windows::Forms::MouseButtons::Middle)
 		{
-			lastPoint = PointF(e->X, e->Y);
+			lastPoint = PointF((float)e->X, (float)e->Y);
 		}
 		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
 		{
-			lastPoint = PointF(e->X, e->Y);
+			lastPoint = PointF((float)e->X, (float)e->Y);
 	
 			if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
 			{
@@ -366,7 +366,7 @@ namespace ManagedCpp {
 		UserControl::OnMouseMove(e);
 		if (e->Button == System::Windows::Forms::MouseButtons::Middle)
 		{
-			PointF point = PointF(e->X, e->Y);
+			PointF point = PointF((float)e->X, (float)e->Y);
 			float diffX = point.X - lastPoint.X;
 			float diffY = point.Y - lastPoint.Y;
 			
@@ -392,7 +392,7 @@ namespace ManagedCpp {
 		}
 		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
 		{
-			currentPoint = PointF(e->X, e->Y);
+			currentPoint = PointF((float)e->X, (float)e->Y);
 	
 			if (isManipulating)
 			{
@@ -425,7 +425,7 @@ namespace ManagedCpp {
 		}
 		else if (e->Button == System::Windows::Forms::MouseButtons::None)
 		{
-			currentPoint = PointF(e->X, e->Y);
+			currentPoint = PointF((float)e->X, (float)e->Y);
 			if (manipulated->SelectedCount > 0)
 			{
 				if (!isManipulating)
@@ -442,7 +442,7 @@ namespace ManagedCpp {
 	void OpenGLSceneView::OnMouseUp(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseUp(e);
-		currentPoint = PointF(e->X, e->Y);
+		currentPoint = PointF((float)e->X, (float)e->Y);
 		if (isManipulating)
 		{
 			//[delegate manipulationEnded];
@@ -640,9 +640,9 @@ namespace ManagedCpp {
 		glPushName(0);
 		glPushMatrix();
 	    
-		for (int i = 0; i < selecting->SelectableCount; i++)
+		for (uint i = 0; i < selecting->SelectableCount; i++)
 		{
-			glLoadName((unsigned int)(i + 1));
+			glLoadName(i + 1);
 			glPushMatrix();
 			selecting->DrawForSelection(i);
 			glPopMatrix();

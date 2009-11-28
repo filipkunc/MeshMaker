@@ -602,7 +602,7 @@ namespace ManagedCpp
 	{
 		Trace::WriteLine("RemoveDegeneratedTriangles");
 		
-		for (int i = 0; i < triangles->size(); i++)
+		for (int i = 0; i < (int)triangles->size(); i++)
 		{
 			if (IsTriangleDegenerated(triangles->at(i)))
 			{
@@ -631,7 +631,7 @@ namespace ManagedCpp
 	{
 		Trace::WriteLine("RemoveNonUsedVertices");
 		
-		for (int i = 0; i < vertices->size(); i++)
+		for (int i = 0; i < (int)vertices->size(); i++)
 		{
 			if (!this->IsVertexUsed(i))
 			{
@@ -647,7 +647,7 @@ namespace ManagedCpp
 		
 		Trace::Assert(vertices->size() == selected->size(), "vertices->size() == selected->size()");
 		
-		for (int i = 0; i < selected->size(); i++)
+		for (int i = 0; i < (int)selected->size(); i++)
 		{
 			if (selected->at(i))
 			{
@@ -721,7 +721,7 @@ namespace ManagedCpp
 		if (selectedCount < 2)
 			return;
 		
-		center /= selectedCount;
+		center /= (float)selectedCount;
 		vertices->push_back(center);
 		selected->push_back(NO);
 		
@@ -761,14 +761,14 @@ namespace ManagedCpp
 	{
 		Trace::WriteLine("MergeVertexPairs");
 		
-		for (int i = 0; i < selected->size(); i++)
+		for (int i = 0; i < (int)selected->size(); i++)
 		{
 			if (selected->at(i))
 			{
 				Vector3D firstVertex = GetVertex(i);
 				float smallestDistance = 10.0f; // maximum distance between vertices in pair
 				int secondIndex = -1;
-				for (int j = i + 1; j < selected->size(); j++)
+				for (int j = i + 1; j < (int)selected->size(); j++)
 				{
 					if (selected->at(j))
 					{
@@ -898,7 +898,7 @@ namespace ManagedCpp
 		
 		Vector3D triangleVertices[3];
 		
-		for (int i = 0; i < triangles->size(); i++)
+		for (int i = 0; i < (int)triangles->size(); i++)
 		{
 			Triangle triangle = this->GetTriangle(i);
 			if (IsEdgeInTriangle(triangle, edge))
@@ -940,7 +940,7 @@ namespace ManagedCpp
 	{
 		Trace::WriteLine("SplitSelectedEdges");
 		
-		for (int i = 0; i < selected->size(); i++)
+		for (int i = 0; i < (int)selected->size(); i++)
 		{
 			if (selected->at(i))
 			{
@@ -954,7 +954,7 @@ namespace ManagedCpp
 	{
 		Trace::WriteLine("SplitSelectedTriangles");
 		
-		for (int i = 0; i < selected->size(); i++)
+		for (int i = 0; i < (int)selected->size(); i++)
 		{
 			if (selected->at(i))
 			{
@@ -969,11 +969,11 @@ namespace ManagedCpp
 		Trace::WriteLine(String::Format("TurnEdgeAtIndex:{0}", index));
 		
 		Edge edge = GetEdge(index);
-		int counter = 0;
-		int oldTriangleIndices[2];
+		uint counter = 0;
+		uint oldTriangleIndices[2];
 		Triangle oldTriangles[2];
 		
-		for (int i = 0; i < triangles->size(); i++)
+		for (uint i = 0; i < triangles->size(); i++)
 		{
 			Triangle triangle = GetTriangle(i);
 			if (IsEdgeInTriangle(triangle, edge))
@@ -1027,7 +1027,7 @@ namespace ManagedCpp
 	{
 		Trace::WriteLine("TurnSelectedEdges");
 	
-		for (int i = 0; i < selected->size(); i++)
+		for (uint i = 0; i < selected->size(); i++)
 		{
 			if (selected->at(i))
 			{
@@ -1354,7 +1354,7 @@ namespace ManagedCpp
 	{
 		if (selectionMode == MeshSelectionMode::MeshSelectionModeTriangles)
 		{
-			for (int i = 0; i < triangles->size(); i++)
+			for (int i = 0; i < (int)triangles->size(); i++)
 			{
 				if (selected->at(i))
 				{

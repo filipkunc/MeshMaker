@@ -22,7 +22,7 @@ void TmdModel::Load(const char * file)
 	}
 	fin.read((char *) &desc, sizeof desc);
 #ifdef WIN32
-	if (strcmpi(desc.version, MODEL_VERSION) != 0)
+	if (_strcmpi(desc.version, MODEL_VERSION) != 0)
 #else
 	if (strcasecmp(desc.version, MODEL_VERSION) != 0)
 #endif
@@ -124,7 +124,11 @@ void TmdModel::Destroy()
 		delete [] anims;
 		anims = NULL;
 	}
-	sprintf(desc.version, MODEL_VERSION);
+#ifdef WIN32
+	sprintf_s(desc.version, 10, MODEL_VERSION);
+#else
+	snprintf(desc.version, 10, MODEL_VERSION);
+#endif
 	desc.no_meshes = 0;
 	desc.no_materials = 0;
 	a_desc.no_anims = 0;
