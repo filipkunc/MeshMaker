@@ -13,6 +13,8 @@
 #import <vector>
 using namespace std;
 
+//#define MESH_DRAW_AS_VBO
+
 @interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding>
 {
 @public
@@ -23,6 +25,13 @@ using namespace std;
 	vector<BOOL> *markedVertices;
 	NSColor *color;
 	enum MeshSelectionMode selectionMode;
+
+#ifdef MESH_DRAW_AS_VBO
+	BOOL dataChanged;
+	uint vertexBufferID;
+	uint triangleBufferID;
+#endif
+
 }
 
 @property (readwrite, assign) enum MeshSelectionMode selectionMode; 
@@ -52,6 +61,9 @@ using namespace std;
 - (void)removeVertexAtIndex:(uint)index;
 - (void)removeTriangleAtIndex:(uint)index;
 - (void)removeEdgeAtIndex:(uint)index;
+- (void)drawAsVBOWithScale:(Vector3D)scale;
+- (void)drawAsVertexArrayWithScale:(Vector3D)scale;
+- (void)drawAsCommandsWithScale:(Vector3D)scale;
 - (void)drawFillWithScale:(Vector3D)scale;
 - (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected;
 - (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected;
