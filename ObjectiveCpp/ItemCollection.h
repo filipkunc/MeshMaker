@@ -37,5 +37,6 @@
 - (void)mergeSelectedItems;
 - (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems;
 - (void)deselectAll;
+- (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount;
 
 @end

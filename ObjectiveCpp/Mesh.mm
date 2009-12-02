@@ -59,6 +59,15 @@
 									 brightness:0.6f 
 										  alpha:1.0f];
 		[color retain];
+		
+#ifdef MESH_DRAW_AS_VBO
+		vertexBufferID = 0;
+		triangleBufferID = 0;
+		dataChanged = YES;
+		glGenBuffersARB(1, &vertexBufferID);
+		glGenBuffersARB(1, &triangleBufferID);
+#endif
+		
 	}
 	return self;
 }
@@ -71,6 +80,12 @@
 	delete selected;
 	delete markedVertices;
 	[color release];
+
+#ifdef MESH_DRAW_AS_VBO
+	glDeleteBuffers(1, &vertexBufferID);
+	glDeleteBuffers(1, &triangleBufferID);
+#endif
+	
 	[super dealloc];
 }
 
@@ -185,7 +200,35 @@
 		selected->push_back(NO);
 }
 
-- (void)drawFast
+- (void)drawAsVBOWithScale:(Vector3D)scale
+{
+#ifdef MESH_DRAW_AS_VBO
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertexBufferID);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, triangleBufferID);
+
+	if (dataChanged)
+	{
+		float *vertexPtr = (float *)(&(*vertices)[0]);
+		uint *trianglePtr = (uint *)(&(*triangles)[0]);
+
+		glBufferDataARB(GL_ARRAY_BUFFER_ARB, vertices->size() * sizeof(Vector3D), vertexPtr, GL_DYNAMIC_DRAW_ARB);
+		glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, triangles->size() * sizeof(Triangle), trianglePtr, GL_DYNAMIC_DRAW_ARB);
+				
+		dataChanged = NO;
+	}
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glDrawElements(GL_TRIANGLES, triangles->size() * 3, GL_UNSIGNED_INT, 0);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+	
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+#endif
+}
+
+- (void)drawAsVertexArrayWithScale:(Vector3D)scale
 {
 	// experimental fast drawing
 	
@@ -202,14 +245,12 @@
 	float *vertexPtr = (float *)(&(*vertices)[0]);
 	
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
-	
 	glDrawElements(GL_TRIANGLES, triangles->size() * 3, GL_UNSIGNED_INT, trianglePtr);
-	
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-- (void)drawFillWithScale:(Vector3D)scale
-{	
+- (void)drawAsCommandsWithScale:(Vector3D)scale
+{
 	float frontDiffuse[4] = { 0.4, 0.4, 0.4, 1 };
 	CGFloat components[4];
 	[color getComponents:components];
@@ -270,7 +311,14 @@
 		}
 	}
 	
-	glEnd();
+	glEnd();	
+}
+
+- (void)drawFillWithScale:(Vector3D)scale
+{	
+	//[self drawAsVBOWithScale:scale]; // needs MESH_DRAW_AS_VBO in Mesh.h
+	//[self drawAsVertexArrayWithScale:scale];
+	[self drawAsCommandsWithScale:scale];
 }
 
 - (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected

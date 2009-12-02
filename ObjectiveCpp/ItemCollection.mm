@@ -407,4 +407,16 @@
 		[self setSelected:NO atIndex:i];
 }
 
+- (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount
+{
+	*vertexCount = 0;
+	*triangleCount = 0;
+	for (Item *item in items)
+	{
+		Mesh *mesh = [item mesh];
+		*vertexCount += [mesh vertexCount];
+		*triangleCount += [mesh triangleCount];
+	}
+}
+
 @end
