@@ -17,6 +17,7 @@ namespace OpenGLEditorWindows
         ItemCollection items;
         OpenGLManipulatingController itemsController;
         OpenGLManipulatingController meshController;
+        UndoManager undo;
 
         public Form1()
         {
@@ -28,6 +29,8 @@ namespace OpenGLEditorWindows
             items = new ItemCollection();
             itemsController = new OpenGLManipulatingController();
             meshController = new OpenGLManipulatingController();
+            undo = new UndoManager();
+
             itemsController.Model = items;
             openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault;
             itemsController.CurrentManipulator = openGLSceneView1.CurrentManipulator;
@@ -131,6 +134,19 @@ namespace OpenGLEditorWindows
             items.AddItem(item);
             itemsController.UpdateSelection();
             openGLSceneView1.Invalidate();
+
+            // simple test for undo/redo
+            undo.PrepareUndo(Invocation.Create(this, t => t.UndoAddItem(item)));
+        }
+
+        private void UndoAddItem(Item item)
+        {
+            itemsController.ChangeSelection(0);
+            items.RemoveItem(item);
+            openGLSceneView1.Invalidate();
+
+            // simple test for undo/redo
+            undo.PrepareUndo(Invocation.Create(this, t => t.AddItem(item)));
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
@@ -188,12 +204,12 @@ namespace OpenGLEditorWindows
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Undo is not implemented yet");   
+            undo.Undo();  
         }   
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Redo is not implemented yet");
+            undo.Redo();
         }
 
         private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
