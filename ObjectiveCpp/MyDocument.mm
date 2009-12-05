@@ -53,9 +53,26 @@
 {
 	[editModePopUp selectItemWithTag:0];
 	[viewModePopUp selectItemWithTag:0];
-	[view setManipulated:manipulated];
-	[view setDisplayed:itemsController];
-	[view setDelegate:self];
+	
+	[viewTop setManipulated:manipulated];
+	[viewTop setDisplayed:itemsController];
+	[viewTop setDelegate:self];
+	[viewTop setCameraMode:CameraModeTop];
+	
+	[viewLeft setManipulated:manipulated];
+	[viewLeft setDisplayed:itemsController];
+	[viewLeft setDelegate:self];
+	[viewLeft setCameraMode:CameraModeLeft];
+	
+	[viewFront setManipulated:manipulated];
+	[viewFront setDisplayed:itemsController];
+	[viewFront setDelegate:self];
+	[viewFront setCameraMode:CameraModeFront];
+	
+	[viewPerspective setManipulated:manipulated];
+	[viewPerspective setDisplayed:itemsController];
+	[viewPerspective setDelegate:self];
+	[viewPerspective setCameraMode:CameraModePerspective];
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -66,9 +83,19 @@
 - (void)setManipulated:(id<OpenGLManipulating>)value
 {
 	manipulated = value;
-	[manipulated setCurrentManipulator:[view currentManipulator]];
-	[view setManipulated:value];
-	[view setNeedsDisplay:YES];
+	[manipulated setCurrentManipulator:[viewPerspective currentManipulator]];
+
+	[viewTop setManipulated:value];
+	[viewTop setNeedsDisplay:YES];
+	
+	[viewLeft setManipulated:value];
+	[viewLeft setNeedsDisplay:YES];
+	
+	[viewFront setManipulated:value];
+	[viewFront setNeedsDisplay:YES];
+	
+	[viewPerspective setManipulated:value];
+	[viewPerspective setNeedsDisplay:YES];
 	
 	if (manipulated == itemsController)
 	{
@@ -118,7 +145,6 @@
 	[items setSelected:YES atIndex:[items count] - 1];
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps
@@ -132,7 +158,6 @@
 	[items removeLastItem];
 	[itemsController changeSelection:NO];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (float)selectionX
@@ -197,7 +222,6 @@
 	
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current
@@ -212,7 +236,6 @@
 	[itemsController updateSelection];
 	[meshController updateSelection];
 	[self setManipulated:meshController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)swapAllItemsWithOld:(NSMutableArray *)old
@@ -232,7 +255,6 @@
 	
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
@@ -251,7 +273,6 @@
 	[itemsController updateSelection];
 	[meshController updateSelection];
 	[self setManipulated:meshController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
@@ -389,14 +410,14 @@
 
 - (IBAction)changeCameraMode:(id)sender
 {
-	CameraMode mode = (CameraMode)[[cameraModePopUp selectedItem] tag];
-	[view setCameraMode:mode];
+	//CameraMode mode = (CameraMode)[[cameraModePopUp selectedItem] tag];
+	//[view setCameraMode:mode];
 }
 
 - (IBAction)changeViewMode:(id)sender
 {
-	ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
-	[view setViewMode:mode];
+	//ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
+	//[view setViewMode:mode];
 }
 
 - (IBAction)mergeSelected:(id)sender
@@ -417,7 +438,10 @@
 	}
 	
 	[manipulated updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)splitSelected:(id)sender
@@ -433,7 +457,10 @@
 	}
 	
 	[manipulated updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)flipSelected:(id)sender
@@ -449,7 +476,10 @@
 	}
 	
 	[manipulated updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)cloneSelected:(id)sender
@@ -478,7 +508,10 @@
 							   block:^ { [manipulated cloneSelected]; }];
 	}
 	
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 	
 	if (startManipulation)
 	{
@@ -498,7 +531,10 @@
 	[document undoCloneSelected:selection];
 	
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (void)undoCloneSelected:(NSMutableArray *)selection
@@ -514,7 +550,10 @@
 	[document redoCloneSelected:selection];
 		
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)deleteSelected:(id)sender
@@ -536,7 +575,10 @@
 							   block:^ { [manipulated removeSelected]; }];
 	}
 	
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (void)redoDeleteSelected:(NSMutableArray *)selectedItems
@@ -551,7 +593,10 @@
 	[document undoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
@@ -565,7 +610,10 @@
 	[document redoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)mergeVertexPairs:(id)sender
@@ -583,26 +631,38 @@
 								   block:^ { [[self currentMesh] mergeVertexPairs]; }];
 		}
 	}
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
 	[[self manipulated] setCurrentManipulator:newManipulator];
-	[view setCurrentManipulator:newManipulator];
+	[viewTop setCurrentManipulator:newManipulator];
+	[viewLeft setCurrentManipulator:newManipulator];
+	[viewFront setCurrentManipulator:newManipulator];
+	[viewPerspective setCurrentManipulator:newManipulator];
 }
 
 - (IBAction)selectAll:(id)sender
 {
 	[[self manipulated] changeSelection:YES];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (IBAction)invertSelection:(id)sender
 {
 	[[self manipulated] invertSelection];
-	[view setNeedsDisplay:YES];
+	[viewTop setNeedsDisplay:YES];
+	[viewLeft setNeedsDisplay:YES];
+	[viewFront setNeedsDisplay:YES];
+	[viewPerspective setNeedsDisplay:YES];
 }
 
 - (NSString *)windowNibName

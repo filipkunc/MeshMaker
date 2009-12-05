@@ -21,7 +21,10 @@
 	OpenGLManipulatingController *itemsController;
 	OpenGLManipulatingController *meshController;
 	id<OpenGLManipulating> manipulated;
-	IBOutlet OpenGLSceneView *view;
+	IBOutlet OpenGLSceneView *viewLeft;
+	IBOutlet OpenGLSceneView *viewTop;
+	IBOutlet OpenGLSceneView *viewFront;
+	IBOutlet OpenGLSceneView *viewPerspective;
 	IBOutlet NSPopUpButton *editModePopUp;
 	IBOutlet NSPopUpButton *cameraModePopUp;
 	IBOutlet NSPopUpButton *viewModePopUp;
