@@ -335,6 +335,7 @@ namespace ManagedCpp {
 	
 			if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
 			{
+				BeginGL();
 				if (currentManipulator == translationManipulator)
 				{
 					*selectionOffset = this->GetTranslation(lastPoint);
@@ -351,6 +352,8 @@ namespace ManagedCpp {
 					this->GetScale(lastPoint, selectionOffset);
 					isManipulating = YES;
 				}
+
+				EndGL();
 				//if (isManipulating)
 				//	[delegate manipulationStarted];
 			}
@@ -393,9 +396,9 @@ namespace ManagedCpp {
 		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
 		{
 			currentPoint = PointF((float)e->X, (float)e->Y);
-	
 			if (isManipulating)
 			{
+				BeginGL();
 				lastPoint = currentPoint;
 				if (currentManipulator == translationManipulator)
 				{
@@ -403,20 +406,20 @@ namespace ManagedCpp {
 					move -= *selectionOffset;
 					move -= manipulated->SelectionCenter;
 					manipulated->MoveSelectedBy(move);
-					this->Invalidate();
 				}
 				else if (currentManipulator == rotationManipulator)
 				{
 					Quaternion rotation = this->GetRotation(currentPoint, selectionOffset);
 					manipulated->RotateSelectedBy(rotation);
-					this->Invalidate();
 				}
 				else if (currentManipulator == scaleManipulator)
 				{
 					Vector3D scale = this->GetScale(currentPoint, selectionOffset);
 					manipulated->ScaleSelectedBy(scale);
-					this->Invalidate();
 				}
+
+				EndGL();
+				this->Invalidate();
 			}
 			else if (isSelecting)
 			{
@@ -432,7 +435,9 @@ namespace ManagedCpp {
 				{
 					currentManipulator->SelectedIndex = -1;
 					currentManipulator->Position = manipulated->SelectionCenter;
+					BeginGL();
 					this->SelectPoint(currentPoint, currentManipulator, OpenGLSelectionModeAdd);
+					EndGL();
 					this->Invalidate();
 				}
 			}
@@ -460,11 +465,13 @@ namespace ManagedCpp {
 			else
 				manipulated->ChangeSelection(NO);
 			
+			BeginGL();
 			RectangleF rect = this->CurrentRect;
 			if (rect.Width > 5.0f && rect.Height > 5.0f)
 				this->SelectRect(rect, manipulated, selectionMode);
 			else
 				this->SelectPoint(currentPoint, manipulated, selectionMode);
+			EndGL();
 			this->Invalidate();
 		}
 	}
@@ -520,8 +527,10 @@ namespace ManagedCpp {
 		if (!deviceContext || !glRenderingContext)
 			return;
 
+		BeginGL();
 		RenderGL();
 		SwapBuffers(deviceContext);
+		EndGL();
 	}
 
 	void OpenGLSceneView::BeginGL()

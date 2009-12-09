@@ -31,23 +31,39 @@ namespace OpenGLEditorWindows
             meshController = new OpenGLManipulatingController();
             undo = new UndoManager();
 
-            itemsController.Model = items;
-            openGLSceneView1.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault;
-            itemsController.CurrentManipulator = openGLSceneView1.CurrentManipulator;
-            openGLSceneView1.Displayed = openGLSceneView1.Manipulated = itemsController;
+            openGLSceneViewLeft.CurrentCameraMode = CameraMode.CameraModeLeft;
+            openGLSceneViewTop.CurrentCameraMode = CameraMode.CameraModeTop;
+            openGLSceneViewFront.CurrentCameraMode = CameraMode.CameraModeFront;
+            openGLSceneViewPerspective.CurrentCameraMode = CameraMode.CameraModePerspective;
 
+            itemsController.Model = items;
+
+            OnEachViewDo(view => view.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault);
+            
+            itemsController.CurrentManipulator = openGLSceneViewLeft.CurrentManipulator;
+
+            OnEachViewDo(view => view.Displayed = view.Manipulated = itemsController);
+            
             // need fix bindings
             textBoxX.TextBox.BindString<float>("Text", itemsController, "SelectionX");
             textBoxY.TextBox.BindString<float>("Text", itemsController, "SelectionY");
             textBoxZ.TextBox.BindString<float>("Text", itemsController, "SelectionZ");
         }
 
+        private void OnEachViewDo(Action<OpenGLSceneView> actionOnView)
+        {
+            actionOnView(openGLSceneViewLeft);
+            actionOnView(openGLSceneViewTop);
+            actionOnView(openGLSceneViewFront);
+            actionOnView(openGLSceneViewPerspective);
+        }
+
         private void SetManipulator(ManipulatorType manipulator)
         {
-            openGLSceneView1.CurrentManipulator = manipulator;
+            OnEachViewDo(view => view.CurrentManipulator = manipulator);
             Manipulated.CurrentManipulator = manipulator;
-            openGLSceneView1.Invalidate();
-
+            OnEachViewDo(view => view.Invalidate());
+            
             btnSelect.Checked = btnTranslate.Checked = btnRotate.Checked = btnScale.Checked = false;
             switch (manipulator)
             {
@@ -70,18 +86,19 @@ namespace OpenGLEditorWindows
 
         OpenGLManipulating Manipulated
         {
-            get { return openGLSceneView1.Manipulated; }
+            get { return openGLSceneViewLeft.Manipulated; }
             set
             {
-                value.CurrentManipulator = openGLSceneView1.CurrentManipulator;
-                openGLSceneView1.Manipulated = value;
-                openGLSceneView1.Invalidate();
+                value.CurrentManipulator = openGLSceneViewLeft.CurrentManipulator;
+
+                OnEachViewDo(view => view.Manipulated = value);
+                OnEachViewDo(view => view.Invalidate());
             }
         }
 
         Mesh CurrentMesh
         {
-            get { return (Mesh)meshController.Model; }
+            get { return meshController.Model as Mesh; }
         }
 
         private void EditMesh(MeshSelectionMode mode)
@@ -99,8 +116,10 @@ namespace OpenGLEditorWindows
 
         private void EditItems()
         {
-            Mesh mesh = (Mesh)meshController.Model;
-            mesh.SelectionMode = MeshSelectionMode.MeshSelectionModeVertices;
+            Mesh mesh = CurrentMesh;
+            if (mesh != null)
+                mesh.SelectionMode = MeshSelectionMode.MeshSelectionModeVertices;
+            
             itemsController.Model = items;
             itemsController.SetTransform(null);
             Manipulated = itemsController;
@@ -133,8 +152,8 @@ namespace OpenGLEditorWindows
             item.Selected = 1;
             items.AddItem(item);
             itemsController.UpdateSelection();
-            openGLSceneView1.Invalidate();
-
+            OnEachViewDo(view => view.Invalidate());
+            
             // simple test for undo/redo
             undo.PrepareUndo(Invocation.Create(this, t => t.UndoAddItem(item)));
         }
@@ -143,8 +162,8 @@ namespace OpenGLEditorWindows
         {
             itemsController.ChangeSelection(0);
             items.RemoveItem(item);
-            openGLSceneView1.Invalidate();
-
+            OnEachViewDo(view => view.Invalidate());
+            
             // simple test for undo/redo
             undo.PrepareUndo(Invocation.Create(this, t => t.AddItem(item)));
         }
@@ -215,25 +234,25 @@ namespace OpenGLEditorWindows
         private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Manipulated.CloneSelected();
-            openGLSceneView1.Invalidate();
+            OnEachViewDo(view => view.Invalidate());
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Manipulated.RemoveSelected();
-            openGLSceneView1.Invalidate();
+            OnEachViewDo(view => view.Invalidate());
         }
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Manipulated.ChangeSelection(1);
-            openGLSceneView1.Invalidate();
+            OnEachViewDo(view => view.Invalidate());
         }
 
         private void invertSelectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Manipulated.InvertSelection();
-            openGLSceneView1.Invalidate();
+            OnEachViewDo(view => view.Invalidate());
         }
 
         private void mergeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -242,9 +261,9 @@ namespace OpenGLEditorWindows
                 items.MergeSelectedItems();
             else
                 CurrentMesh.MergeSelected();
-                
+
             Manipulated.UpdateSelection();
-            openGLSceneView1.Invalidate();
+            OnEachViewDo(view => view.Invalidate());
         }
 
         private void splitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -253,7 +272,7 @@ namespace OpenGLEditorWindows
                 CurrentMesh.SplitSelected();
 
             Manipulated.UpdateSelection();
-            openGLSceneView1.Invalidate();
+            OnEachViewDo(view => view.Invalidate());
         }
 
         private void mergeVertexPairsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -262,7 +281,7 @@ namespace OpenGLEditorWindows
             {
                 CurrentMesh.MergeVertexPairs();
                 Manipulated.UpdateSelection();
-                openGLSceneView1.Invalidate();
+                OnEachViewDo(view => view.Invalidate());
             }
         }
 
@@ -272,7 +291,7 @@ namespace OpenGLEditorWindows
             {
                 CurrentMesh.TurnSelectedEdges();
                 Manipulated.UpdateSelection();
-                openGLSceneView1.Invalidate();
+                OnEachViewDo(view => view.Invalidate());
             }
         }
 

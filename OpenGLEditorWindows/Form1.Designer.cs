@@ -70,9 +70,14 @@
             this.splitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.turnEdgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openGLSceneView1 = new ManagedCpp.OpenGLSceneView();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.openGLSceneViewLeft = new ManagedCpp.OpenGLSceneView();
+            this.openGLSceneViewTop = new ManagedCpp.OpenGLSceneView();
+            this.openGLSceneViewFront = new ManagedCpp.OpenGLSceneView();
+            this.openGLSceneViewPerspective = new ManagedCpp.OpenGLSceneView();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -96,7 +101,7 @@
             this.textBoxZ});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1009, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(456, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -193,7 +198,7 @@
             this.dropDownEditMode.Image = ((System.Drawing.Image)(resources.GetObject("dropDownEditMode.Image")));
             this.dropDownEditMode.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.dropDownEditMode.Name = "dropDownEditMode";
-            this.dropDownEditMode.Size = new System.Drawing.Size(47, 22);
+            this.dropDownEditMode.Size = new System.Drawing.Size(47, 17);
             this.dropDownEditMode.Text = "Items";
             this.dropDownEditMode.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.dropDownEditMode_DropDownItemClicked);
             // 
@@ -236,7 +241,7 @@
             this.btnSplit.Image = ((System.Drawing.Image)(resources.GetObject("btnSplit.Image")));
             this.btnSplit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnSplit.Name = "btnSplit";
-            this.btnSplit.Size = new System.Drawing.Size(31, 22);
+            this.btnSplit.Size = new System.Drawing.Size(31, 17);
             this.btnSplit.Text = "Split";
             this.btnSplit.Click += new System.EventHandler(this.splitToolStripMenuItem_Click);
             // 
@@ -246,7 +251,7 @@
             this.btnMerge.Image = ((System.Drawing.Image)(resources.GetObject("btnMerge.Image")));
             this.btnMerge.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnMerge.Name = "btnMerge";
-            this.btnMerge.Size = new System.Drawing.Size(41, 22);
+            this.btnMerge.Size = new System.Drawing.Size(41, 17);
             this.btnMerge.Text = "Merge";
             this.btnMerge.Click += new System.EventHandler(this.mergeToolStripMenuItem_Click);
             // 
@@ -256,7 +261,7 @@
             this.textBoxX.ForeColor = System.Drawing.Color.Red;
             this.textBoxX.Margin = new System.Windows.Forms.Padding(50, 0, 1, 0);
             this.textBoxX.Name = "textBoxX";
-            this.textBoxX.Size = new System.Drawing.Size(100, 25);
+            this.textBoxX.Size = new System.Drawing.Size(100, 21);
             // 
             // textBoxY
             // 
@@ -264,7 +269,7 @@
             this.textBoxY.ForeColor = System.Drawing.Color.LimeGreen;
             this.textBoxY.Margin = new System.Windows.Forms.Padding(10, 0, 1, 0);
             this.textBoxY.Name = "textBoxY";
-            this.textBoxY.Size = new System.Drawing.Size(100, 25);
+            this.textBoxY.Size = new System.Drawing.Size(100, 21);
             // 
             // textBoxZ
             // 
@@ -272,7 +277,7 @@
             this.textBoxZ.ForeColor = System.Drawing.Color.Blue;
             this.textBoxZ.Margin = new System.Windows.Forms.Padding(10, 0, 1, 0);
             this.textBoxZ.Name = "textBoxZ";
-            this.textBoxZ.Size = new System.Drawing.Size(100, 25);
+            this.textBoxZ.Size = new System.Drawing.Size(100, 21);
             // 
             // menuStrip1
             // 
@@ -281,7 +286,7 @@
             this.editToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1009, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(456, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -434,26 +439,66 @@
             this.turnEdgesToolStripMenuItem.Text = "Turn Edges";
             this.turnEdgesToolStripMenuItem.Click += new System.EventHandler(this.turnEdgesToolStripMenuItem_Click);
             // 
-            // openGLSceneView1
+            // tableLayoutPanel1
             // 
-            this.openGLSceneView1.BackColor = System.Drawing.Color.LightGray;
-            this.openGLSceneView1.CurrentCameraMode = ManagedCpp.CameraMode.CameraModePerspective;
-            this.openGLSceneView1.CurrentManipulator = ManagedCpp.ManipulatorType.ManipulatorTypeDefault;
-            this.openGLSceneView1.CurrentViewMode = ManagedCpp.ViewMode.ViewModeSolid;
-            this.openGLSceneView1.Displayed = null;
-            this.openGLSceneView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.openGLSceneView1.Location = new System.Drawing.Point(0, 49);
-            this.openGLSceneView1.Manipulated = null;
-            this.openGLSceneView1.Name = "openGLSceneView1";
-            this.openGLSceneView1.Size = new System.Drawing.Size(1009, 537);
-            this.openGLSceneView1.TabIndex = 3;
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.openGLSceneViewPerspective, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.openGLSceneViewFront, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.openGLSceneViewTop, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.openGLSceneViewLeft, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 49);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(456, 216);
+            this.tableLayoutPanel1.TabIndex = 4;
+            // 
+            // openGLSceneViewLeft
+            // 
+            this.openGLSceneViewLeft.BackColor = System.Drawing.Color.LightGray;
+            this.openGLSceneViewLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.openGLSceneViewLeft.Location = new System.Drawing.Point(3, 3);
+            this.openGLSceneViewLeft.Name = "openGLSceneViewLeft";
+            this.openGLSceneViewLeft.Size = new System.Drawing.Size(222, 102);
+            this.openGLSceneViewLeft.TabIndex = 5;
+            // 
+            // openGLSceneViewTop
+            // 
+            this.openGLSceneViewTop.BackColor = System.Drawing.Color.LightGray;
+            this.openGLSceneViewTop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.openGLSceneViewTop.Location = new System.Drawing.Point(231, 3);
+            this.openGLSceneViewTop.Name = "openGLSceneViewTop";
+            this.openGLSceneViewTop.Size = new System.Drawing.Size(222, 102);
+            this.openGLSceneViewTop.TabIndex = 6;
+            // 
+            // openGLSceneViewFront
+            // 
+            this.openGLSceneViewFront.BackColor = System.Drawing.Color.LightGray;
+            this.openGLSceneViewFront.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.openGLSceneViewFront.Location = new System.Drawing.Point(3, 111);
+            this.openGLSceneViewFront.Name = "openGLSceneViewFront";
+            this.openGLSceneViewFront.Size = new System.Drawing.Size(222, 102);
+            this.openGLSceneViewFront.TabIndex = 7;
+            // 
+            // openGLSceneViewPerspective
+            // 
+            this.openGLSceneViewPerspective.BackColor = System.Drawing.Color.LightGray;
+            this.openGLSceneViewPerspective.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.openGLSceneViewPerspective.Location = new System.Drawing.Point(231, 111);
+            this.openGLSceneViewPerspective.Name = "openGLSceneViewPerspective";
+            this.openGLSceneViewPerspective.Size = new System.Drawing.Size(222, 102);
+            this.openGLSceneViewPerspective.TabIndex = 8;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1009, 586);
-            this.Controls.Add(this.openGLSceneView1);
+            this.ClientSize = new System.Drawing.Size(456, 265);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -463,6 +508,7 @@
             this.toolStrip1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -472,7 +518,6 @@
 
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private ManagedCpp.OpenGLSceneView openGLSceneView1;
         private System.Windows.Forms.ToolStripButton btnSelect;
         private System.Windows.Forms.ToolStripButton btnTranslate;
         private System.Windows.Forms.ToolStripButton btnRotate;
@@ -512,6 +557,11 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripButton btnSplit;
         private System.Windows.Forms.ToolStripButton btnMerge;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private ManagedCpp.OpenGLSceneView openGLSceneViewFront;
+        private ManagedCpp.OpenGLSceneView openGLSceneViewTop;
+        private ManagedCpp.OpenGLSceneView openGLSceneViewLeft;
+        private ManagedCpp.OpenGLSceneView openGLSceneViewPerspective;
     }
 }
 
