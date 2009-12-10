@@ -287,7 +287,7 @@ const float maxDistance = 1000.0f;
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
 	}
-		
+	
 	if (isSelecting)
 	{
 		[self beginOrtho];
@@ -306,13 +306,26 @@ const float maxDistance = 1000.0f;
 	}
 	
 	glEnable(GL_DEPTH_TEST);
-	
-	glFinish();
-	
+		
 	[[self openGLContext] flushBuffer];
 }
 
 #pragma mark Mouse Events
+
+- (void)viewDidMoveToWindow
+{
+	NSUInteger options = NSTrackingMouseMoved |
+						 NSTrackingActiveAlways |
+						 NSTrackingInVisibleRect;
+	
+	NSTrackingArea *trackingArea;
+	trackingArea = [[NSTrackingArea alloc] initWithRect:NSZeroRect
+												options:options 
+												  owner:self
+											   userInfo:nil];
+	[self addTrackingArea:trackingArea];
+	[trackingArea release];
+}
 
 - (void)mouseDown:(NSEvent *)e
 {
@@ -400,7 +413,7 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseDragged:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
 	float diffX = currentPoint.x - lastPoint.x;
 	float diffY = currentPoint.y - lastPoint.y;
 	
@@ -579,6 +592,7 @@ const float maxDistance = 1000.0f;
 	const unsigned int selectBufferSize = 65535;
 	unsigned int selectBuffer[selectBufferSize];
 	
+	[[self openGLContext] makeCurrentContext];
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glSelectBuffer(selectBufferSize, selectBuffer);
@@ -697,9 +711,11 @@ const float maxDistance = 1000.0f;
     float winX, winY, winZ;
     double posX = 0.0, posY = 0.0, posZ = 0.0;
 	
+	[[self openGLContext] makeCurrentContext];
+	
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	[self reshapeViewport];
+	//[self reshapeViewport];
     glGetIntegerv(GL_VIEWPORT, viewport);
 	
     winX = point.x;
