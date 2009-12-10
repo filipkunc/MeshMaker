@@ -226,7 +226,12 @@ namespace ManagedCpp {
 		if (manipulated->SelectedCount > 0)
 		{
 			currentManipulator->Position = manipulated->SelectionCenter;
-			currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
+			
+			if (this->cameraMode == CameraMode::CameraModePerspective)
+				currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
+			else
+				currentManipulator->Size = camera->GetZoom() * 0.15f;
+
 			scaleManipulator->Rotation = manipulated->SelectionRotation;
 			currentManipulator->Draw(camera->GetAxisZ(), manipulated->SelectionCenter);
 		}
