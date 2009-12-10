@@ -282,7 +282,7 @@ const float maxDistance = 1000.0f;
 		if (cameraMode == CameraModePerspective)
 			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
 		else
-			[currentManipulator setSize:camera->GetZoom() * 0.15f];
+			[currentManipulator setSize:camera->GetZoom() * 0.18f];
 			
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
@@ -419,11 +419,14 @@ const float maxDistance = 1000.0f;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
-		lastPoint = currentPoint;
-		const float sensitivity = 0.005f;
-		camera->RotateLeftRight(diffX * sensitivity);
-		camera->RotateUpDown(-diffY * sensitivity);
-		[self setNeedsDisplay:YES];
+		if (cameraMode == CameraModePerspective)
+		{
+			lastPoint = currentPoint;
+			const float sensitivity = 0.005f;
+			camera->RotateLeftRight(diffX * sensitivity);
+			camera->RotateUpDown(-diffY * sensitivity);
+			[self setNeedsDisplay:YES];
+		}
 	}
 	else if (isManipulating)
 	{
@@ -468,11 +471,14 @@ const float maxDistance = 1000.0f;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
-		lastPoint = currentPoint;
-		const float sensitivity = 0.005f;
-		camera->RotateLeftRight(diffX * sensitivity);
-		camera->RotateUpDown(-diffY * sensitivity);
-		[self setNeedsDisplay:YES];
+		if (cameraMode == CameraModePerspective)
+		{
+			lastPoint = currentPoint;
+			const float sensitivity = 0.005f;
+			camera->RotateLeftRight(diffX * sensitivity);
+			camera->RotateUpDown(-diffY * sensitivity);
+			[self setNeedsDisplay:YES];
+		}
 	}
 	else
 	{
