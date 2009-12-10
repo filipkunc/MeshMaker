@@ -196,14 +196,16 @@ const float maxDistance = 1000.0f;
 
 - (void)reshape
 {
+	[super setNeedsDisplay:YES];
+}
+
+- (NSRect)reshapeViewport
+{
 	// Convert up to window space, which is in pixel units.
 	NSRect baseRect = [self convertRectToBase:[self bounds]];
 	// Now the result is glViewport()-compatible.
 	glViewport(0, 0, baseRect.size.width, baseRect.size.height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	[self applyProjectionWithRect:baseRect];
+	return baseRect;
 }
 
 - (void)applyProjectionWithRect:(NSRect)baseRect
@@ -243,12 +245,15 @@ const float maxDistance = 1000.0f;
 }
 
 - (void)drawRect:(NSRect)rect
-{
+{	
 	// Clear the background
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	[self reshape];
+	NSRect baseRect = [self reshapeViewport];
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	[self applyProjectionWithRect:baseRect];	
 	
 	// Set the viewpoint
 	glMatrixMode(GL_MODELVIEW);
@@ -577,13 +582,13 @@ const float maxDistance = 1000.0f;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glSelectBuffer(selectBufferSize, selectBuffer);
+	NSRect baseRect = [self reshapeViewport];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
     glRenderMode(GL_SELECT);
     glLoadIdentity();
     gluPickMatrix(x, y, width, height, viewport);
-	NSRect baseRect = [self convertRectToBase:[self bounds]];
 	[self applyProjectionWithRect:baseRect];
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(camera->GetViewMatrix());
@@ -694,6 +699,7 @@ const float maxDistance = 1000.0f;
 	
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	[self reshapeViewport];
     glGetIntegerv(GL_VIEWPORT, viewport);
 	
     winX = point.x;
