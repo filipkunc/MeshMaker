@@ -26,7 +26,6 @@
 	IBOutlet OpenGLSceneView *viewFront;
 	IBOutlet OpenGLSceneView *viewPerspective;
 	IBOutlet NSPopUpButton *editModePopUp;
-	IBOutlet NSPopUpButton *cameraModePopUp;
 	IBOutlet NSPopUpButton *viewModePopUp;
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum MeshType itemWithSteps;
@@ -38,6 +37,7 @@
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) float selectionX, selectionY, selectionZ;
 
+- (void)onEachViewDoAction:(void (^viewAction)(OpenGLSceneView *view))actionOnView;
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
@@ -58,7 +58,6 @@
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
 - (IBAction)changeEditMode:(id)sender;
-- (IBAction)changeCameraMode:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 - (IBAction)changeViewMode:(id)sender;
 - (IBAction)mergeSelected:(id)sender;
