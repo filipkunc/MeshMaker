@@ -11,7 +11,7 @@
 			<string key="NS.object.0">740</string>
 		</object>
 		<array class="NSMutableArray" key="IBDocument.EditedObjectIDs">
-			<integer value="5"/>
+			<integer value="100286"/>
 		</array>
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1335,19 +1335,19 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">viewTop</string>
-						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="140863197"/>
-					</object>
-					<int key="connectionID">100299</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">viewPerspective</string>
 						<reference key="source" ref="512844837"/>
 						<reference key="destination" ref="572410432"/>
 					</object>
 					<int key="connectionID">100300</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">viewTop</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="140863197"/>
+					</object>
+					<int key="connectionID">100302</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -1823,11 +1823,6 @@
 						<reference key="parent" ref="286367930"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">100293</int>
-						<reference key="object" ref="140863197"/>
-						<reference key="parent" ref="422472787"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">100294</int>
 						<reference key="object" ref="348380786"/>
 						<reference key="parent" ref="1041126834"/>
@@ -1836,6 +1831,11 @@
 						<int key="objectID">100295</int>
 						<reference key="object" ref="464863673"/>
 						<reference key="parent" ref="538660096"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">100301</int>
+						<reference key="object" ref="140863197"/>
+						<reference key="parent" ref="422472787"/>
 					</object>
 				</array>
 			</object>
@@ -1907,12 +1907,12 @@
 				<string key="100290.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100291.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100292.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="100293.CustomClassName">OpenGLSceneView</string>
-				<string key="100293.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100294.CustomClassName">OpenGLSceneView</string>
 				<string key="100294.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100295.CustomClassName">OpenGLSceneView</string>
 				<string key="100295.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="100301.CustomClassName">OpenGLSceneView</string>
+				<string key="100301.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBEditorWindowLastContentRect">{{374, 229}, {597, 382}}</string>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBWindowTemplateEditedContentRect">{{374, 229}, {597, 382}}</string>
@@ -1929,7 +1929,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">100300</int>
+			<int key="maxID">100302</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
