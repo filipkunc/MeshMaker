@@ -81,14 +81,18 @@ namespace ManagedCpp
 		property OpenGLManipulatingModel ^Model { OpenGLManipulatingModel ^get(); 
 												  void set(OpenGLManipulatingModel ^value); }
 		property int LastSelectedIndex { int get(); }
-		
+
+		property PropertyObserver<float> ^ObserverSelectionX { PropertyObserver<float> ^get(); }
+		property PropertyObserver<float> ^ObserverSelectionY { PropertyObserver<float> ^get(); }
+		property PropertyObserver<float> ^ObserverSelectionZ { PropertyObserver<float> ^get(); }
+
 		float GetSelectionValue(uint index);
 		void SetSelectionValue(float value, uint index);
 		void WillChangeSelection();
 		void DidChangeSelection();
 		void SetTransform(Vector3D position, Quaternion rotation, Vector3D scale);
 
-		// needed for C#
+		// needed for C#, can't consume native types
 		void SetTransform(Item ^item);
 	};
 }

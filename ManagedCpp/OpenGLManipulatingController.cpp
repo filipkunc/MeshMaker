@@ -53,6 +53,21 @@ namespace ManagedCpp
 		BindingsExtensions::ClearAll(this);
 	}
 
+	PropertyObserver<float> ^OpenGLManipulatingController::ObserverSelectionX::get()
+	{
+		return observerSelectionX;
+	}
+
+	PropertyObserver<float> ^OpenGLManipulatingController::ObserverSelectionY::get()
+	{
+		return observerSelectionY;
+	}
+
+	PropertyObserver<float> ^OpenGLManipulatingController::ObserverSelectionZ::get()
+	{
+		return observerSelectionZ;
+	}
+
 	ManipulatorType OpenGLManipulatingController::CurrentManipulator::get()
 	{
 		return currentManipulator;
