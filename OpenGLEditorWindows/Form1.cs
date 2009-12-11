@@ -19,6 +19,10 @@ namespace OpenGLEditorWindows
         OpenGLManipulatingController meshController;
         UndoManager undo;
 
+        PropertyObserver<float> observerSelectionX;
+        PropertyObserver<float> observerSelectionY;
+        PropertyObserver<float> observerSelectionZ;
+
         public Form1()
         {
             InitializeComponent();
@@ -39,16 +43,87 @@ namespace OpenGLEditorWindows
             itemsController.Model = items;
 
             OnEachViewDo(view => view.CurrentManipulator = ManipulatorType.ManipulatorTypeDefault);
-            
+
             itemsController.CurrentManipulator = openGLSceneViewLeft.CurrentManipulator;
 
             OnEachViewDo(view => view.Displayed = view.Manipulated = itemsController);
-            
-            // need fix bindings
-            textBoxX.TextBox.BindString<float>("Text", itemsController, "SelectionX");
-            textBoxY.TextBox.BindString<float>("Text", itemsController, "SelectionY");
-            textBoxZ.TextBox.BindString<float>("Text", itemsController, "SelectionZ");
+
+            textBoxX.TextBox.BindString<float>("Text", this, "SelectionX");
+            textBoxY.TextBox.BindString<float>("Text", this, "SelectionY");
+            textBoxZ.TextBox.BindString<float>("Text", this, "SelectionZ");
+
+            BindSelectionXYZ(itemsController);
+            BindSelectionXYZ(meshController);
+
+            observerSelectionX = this.ObserveProperty<float>("SelectionX");
+            observerSelectionY = this.ObserveProperty<float>("SelectionY");
+            observerSelectionZ = this.ObserveProperty<float>("SelectionZ");
         }
+
+        #region Bindings magic
+
+        void BindSelectionXYZ(OpenGLManipulatingController controller)
+        {
+            controller.ObserverSelectionX.WillChange += new EventHandler(ObserverSelectionX_WillChange);
+            controller.ObserverSelectionY.WillChange += new EventHandler(ObserverSelectionY_WillChange);
+            controller.ObserverSelectionZ.WillChange += new EventHandler(ObserverSelectionZ_WillChange);
+            controller.ObserverSelectionX.DidChange += new EventHandler(ObserverSelectionX_DidChange);
+            controller.ObserverSelectionY.DidChange += new EventHandler(ObserverSelectionY_DidChange);
+            controller.ObserverSelectionZ.DidChange += new EventHandler(ObserverSelectionZ_DidChange);
+        }
+
+        void ObserverSelectionX_WillChange(object sender, EventArgs e)
+        {
+            observerSelectionX.RaiseWillChange();  
+        }
+
+        void ObserverSelectionY_WillChange(object sender, EventArgs e)
+        {
+            observerSelectionY.RaiseWillChange();
+        }
+
+        void ObserverSelectionZ_WillChange(object sender, EventArgs e)
+        {
+            observerSelectionZ.RaiseWillChange();
+        }
+
+        void ObserverSelectionX_DidChange(object sender, EventArgs e)
+        {
+            observerSelectionX.RaiseDidChange();
+        }
+
+        void ObserverSelectionY_DidChange(object sender, EventArgs e)
+        {
+            observerSelectionY.RaiseDidChange();
+        }
+
+        void ObserverSelectionZ_DidChange(object sender, EventArgs e)
+        {
+            observerSelectionZ.RaiseDidChange();
+        }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public float SelectionX
+        {
+            get { return Manipulated.SelectionX; }
+            set { Manipulated.SelectionX = value; }
+        }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public float SelectionY
+        {
+            get { return Manipulated.SelectionY; }
+            set { Manipulated.SelectionY = value; }
+        }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public float SelectionZ
+        {
+            get { return Manipulated.SelectionZ; }
+            set { Manipulated.SelectionZ = value; }
+        }
+
+        #endregion
 
         private void OnEachViewDo(Action<OpenGLSceneView> actionOnView)
         {
@@ -84,9 +159,9 @@ namespace OpenGLEditorWindows
             }
         }
 
-        OpenGLManipulating Manipulated
+        OpenGLManipulatingController Manipulated
         {
-            get { return openGLSceneViewLeft.Manipulated; }
+            get { return openGLSceneViewLeft.Manipulated as OpenGLManipulatingController; }
             set
             {
                 value.CurrentManipulator = openGLSceneViewLeft.CurrentManipulator;
