@@ -70,6 +70,9 @@
             this.splitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.turnEdgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.oneViewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fourViewsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openGLSceneViewPerspective = new ManagedCpp.OpenGLSceneView();
             this.openGLSceneViewFront = new ManagedCpp.OpenGLSceneView();
             this.openGLSceneViewTop = new ManagedCpp.OpenGLSceneView();
@@ -293,7 +296,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.viewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(938, 24);
@@ -448,6 +452,31 @@
             this.turnEdgesToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.turnEdgesToolStripMenuItem.Text = "Turn Edges";
             this.turnEdgesToolStripMenuItem.Click += new System.EventHandler(this.turnEdgesToolStripMenuItem_Click);
+            // 
+            // viewToolStripMenuItem
+            // 
+            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.oneViewMenuItem,
+            this.fourViewsMenuItem});
+            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.viewToolStripMenuItem.Text = "View";
+            // 
+            // oneViewMenuItem
+            // 
+            this.oneViewMenuItem.Name = "oneViewMenuItem";
+            this.oneViewMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.oneViewMenuItem.Text = "One View";
+            this.oneViewMenuItem.Click += new System.EventHandler(this.oneViewMenuItem_Click);
+            // 
+            // fourViewsMenuItem
+            // 
+            this.fourViewsMenuItem.Checked = true;
+            this.fourViewsMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.fourViewsMenuItem.Name = "fourViewsMenuItem";
+            this.fourViewsMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.fourViewsMenuItem.Text = "Four Views";
+            this.fourViewsMenuItem.Click += new System.EventHandler(this.fourViewsMenuItem_Click);
             // 
             // openGLSceneViewPerspective
             // 
@@ -624,6 +653,9 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.SplitContainer splitContainer3;
+        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem oneViewMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fourViewsMenuItem;
     }
 }
 
