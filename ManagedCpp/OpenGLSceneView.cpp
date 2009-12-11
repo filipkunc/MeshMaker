@@ -230,7 +230,7 @@ namespace ManagedCpp {
 			if (this->cameraMode == CameraMode::CameraModePerspective)
 				currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
 			else
-				currentManipulator->Size = camera->GetZoom() * 0.15f;
+				currentManipulator->Size = camera->GetZoom() * 0.18f;
 
 			scaleManipulator->Rotation = manipulated->SelectionRotation;
 			currentManipulator->Draw(camera->GetAxisZ(), manipulated->SelectionCenter);
@@ -380,9 +380,12 @@ namespace ManagedCpp {
 			
 			if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
 			{
-				const float sensitivity = 0.005f;
-				camera->RotateLeftRight(diffX * sensitivity);
-				camera->RotateUpDown(diffY * sensitivity);
+				if (this->cameraMode == CameraMode::CameraModePerspective)
+				{
+					const float sensitivity = 0.005f;
+					camera->RotateLeftRight(diffX * sensitivity);
+					camera->RotateUpDown(diffY * sensitivity);
+				}
 			}
 			else
 			{

@@ -302,5 +302,39 @@ namespace OpenGLEditorWindows
             dropDownEditMode.Text = e.ClickedItem.Text;
             ChangeEditMode((EditMode)parsed);
         }
+
+        #region Splitter magic
+
+        bool ignoreSplitterMoved = true;
+
+        private void splitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            if (ignoreSplitterMoved)
+                return;
+
+            splitContainer3.SplitterDistance = e.SplitX;
+            ignoreSplitterMoved = true;
+        }
+
+        private void splitContainer3_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            if (ignoreSplitterMoved)
+                return;
+
+            splitContainer2.SplitterDistance = e.SplitX;
+            ignoreSplitterMoved = true;
+        }
+
+        private void splitContainer2_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        {
+            ignoreSplitterMoved = false;
+        }
+
+        private void splitContainer3_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        {
+            ignoreSplitterMoved = false;
+        }
+
+        #endregion
     }
 }
