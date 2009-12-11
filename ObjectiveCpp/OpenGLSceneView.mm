@@ -196,14 +196,16 @@ const float maxDistance = 1000.0f;
 
 - (void)reshape
 {
+	[super setNeedsDisplay:YES];
+}
+
+- (NSRect)reshapeViewport
+{
 	// Convert up to window space, which is in pixel units.
 	NSRect baseRect = [self convertRectToBase:[self bounds]];
 	// Now the result is glViewport()-compatible.
 	glViewport(0, 0, baseRect.size.width, baseRect.size.height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	[self applyProjectionWithRect:baseRect];
+	return baseRect;
 }
 
 - (void)applyProjectionWithRect:(NSRect)baseRect
@@ -243,12 +245,15 @@ const float maxDistance = 1000.0f;
 }
 
 - (void)drawRect:(NSRect)rect
-{
+{	
 	// Clear the background
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	[self reshape];
+	NSRect baseRect = [self reshapeViewport];
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	[self applyProjectionWithRect:baseRect];	
 	
 	// Set the viewpoint
 	glMatrixMode(GL_MODELVIEW);
@@ -277,12 +282,12 @@ const float maxDistance = 1000.0f;
 		if (cameraMode == CameraModePerspective)
 			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
 		else
-			[currentManipulator setSize:camera->GetZoom() * 0.15f];
+			[currentManipulator setSize:camera->GetZoom() * 0.18f];
 			
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
 	}
-		
+	
 	if (isSelecting)
 	{
 		[self beginOrtho];
@@ -301,13 +306,26 @@ const float maxDistance = 1000.0f;
 	}
 	
 	glEnable(GL_DEPTH_TEST);
-	
-	glFinish();
-	
+		
 	[[self openGLContext] flushBuffer];
 }
 
 #pragma mark Mouse Events
+
+- (void)viewDidMoveToWindow
+{
+	NSUInteger options = NSTrackingMouseMoved |
+						 NSTrackingActiveAlways |
+						 NSTrackingInVisibleRect;
+	
+	NSTrackingArea *trackingArea;
+	trackingArea = [[NSTrackingArea alloc] initWithRect:NSZeroRect
+												options:options 
+												  owner:self
+											   userInfo:nil];
+	[self addTrackingArea:trackingArea];
+	[trackingArea release];
+}
 
 - (void)mouseDown:(NSEvent *)e
 {
@@ -395,17 +413,20 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseDragged:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
 	float diffX = currentPoint.x - lastPoint.x;
 	float diffY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
-		lastPoint = currentPoint;
-		const float sensitivity = 0.005f;
-		camera->RotateLeftRight(diffX * sensitivity);
-		camera->RotateUpDown(-diffY * sensitivity);
-		[self setNeedsDisplay:YES];
+		if (cameraMode == CameraModePerspective)
+		{
+			lastPoint = currentPoint;
+			const float sensitivity = 0.005f;
+			camera->RotateLeftRight(diffX * sensitivity);
+			camera->RotateUpDown(-diffY * sensitivity);
+			[self setNeedsDisplay:YES];
+		}
 	}
 	else if (isManipulating)
 	{
@@ -450,11 +471,14 @@ const float maxDistance = 1000.0f;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
-		lastPoint = currentPoint;
-		const float sensitivity = 0.005f;
-		camera->RotateLeftRight(diffX * sensitivity);
-		camera->RotateUpDown(-diffY * sensitivity);
-		[self setNeedsDisplay:YES];
+		if (cameraMode == CameraModePerspective)
+		{
+			lastPoint = currentPoint;
+			const float sensitivity = 0.005f;
+			camera->RotateLeftRight(diffX * sensitivity);
+			camera->RotateUpDown(-diffY * sensitivity);
+			[self setNeedsDisplay:YES];
+		}
 	}
 	else
 	{
@@ -574,16 +598,17 @@ const float maxDistance = 1000.0f;
 	const unsigned int selectBufferSize = 65535;
 	unsigned int selectBuffer[selectBufferSize];
 	
+	[[self openGLContext] makeCurrentContext];
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glSelectBuffer(selectBufferSize, selectBuffer);
+	NSRect baseRect = [self reshapeViewport];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
     glRenderMode(GL_SELECT);
     glLoadIdentity();
     gluPickMatrix(x, y, width, height, viewport);
-	NSRect baseRect = [self convertRectToBase:[self bounds]];
 	[self applyProjectionWithRect:baseRect];
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(camera->GetViewMatrix());
@@ -692,8 +717,11 @@ const float maxDistance = 1000.0f;
     float winX, winY, winZ;
     double posX = 0.0, posY = 0.0, posZ = 0.0;
 	
+	[[self openGLContext] makeCurrentContext];
+	
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	//[self reshapeViewport];
     glGetIntegerv(GL_VIEWPORT, viewport);
 	
     winX = point.x;

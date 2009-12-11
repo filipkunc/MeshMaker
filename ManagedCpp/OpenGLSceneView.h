@@ -61,11 +61,22 @@ namespace ManagedCpp
 	public:
 		OpenGLSceneView();
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property ManipulatorType CurrentManipulator { ManipulatorType get(); void set(ManipulatorType value); }
+		
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property CameraMode CurrentCameraMode { CameraMode get(); void set(CameraMode value); }
+		
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property ViewMode CurrentViewMode { ViewMode get(); void set(ViewMode value); }
+		
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property OpenGLManipulating ^Displayed { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+		
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property OpenGLManipulating ^Manipulated { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+		
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property RectangleF CurrentRect { RectangleF get(); }
 
 	protected:
