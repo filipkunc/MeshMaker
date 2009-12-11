@@ -411,5 +411,21 @@ namespace OpenGLEditorWindows
         }
 
         #endregion
+
+        private void oneViewMenuItem_Click(object sender, EventArgs e)
+        {
+            splitContainer1.Panel1Collapsed = true;
+            splitContainer3.Panel1Collapsed = true;
+            oneViewMenuItem.Checked = true;
+            fourViewsMenuItem.Checked = false;
+        }
+
+        private void fourViewsMenuItem_Click(object sender, EventArgs e)
+        {
+            splitContainer1.Panel1Collapsed = false;
+            splitContainer3.Panel1Collapsed = false;
+            oneViewMenuItem.Checked = false;
+            fourViewsMenuItem.Checked = true;
+        }
     }
 }
