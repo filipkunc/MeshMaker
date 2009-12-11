@@ -53,9 +53,26 @@
 {
 	[editModePopUp selectItemWithTag:0];
 	[viewModePopUp selectItemWithTag:0];
-	[view setManipulated:manipulated];
-	[view setDisplayed:itemsController];
-	[view setDelegate:self];
+	
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) 
+	{ 
+		[view setManipulated:manipulated]; 
+		[view setDisplayed:itemsController];
+		[view setDelegate:self];
+	}];
+	
+	[viewTop setCameraMode:CameraModeTop];
+	[viewLeft setCameraMode:CameraModeLeft];
+	[viewFront setCameraMode:CameraModeFront];
+	[viewPerspective setCameraMode:CameraModePerspective];
+}
+
+- (void)onEachViewDoAction:(void (^viewAction)(OpenGLSceneView *view))actionOnView
+{
+	actionOnView(viewTop);
+	actionOnView(viewLeft);
+	actionOnView(viewFront);
+	actionOnView(viewPerspective);
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -66,10 +83,14 @@
 - (void)setManipulated:(id<OpenGLManipulating>)value
 {
 	manipulated = value;
-	[manipulated setCurrentManipulator:[view currentManipulator]];
-	[view setManipulated:value];
-	[view setNeedsDisplay:YES];
+	[manipulated setCurrentManipulator:[viewPerspective currentManipulator]];
 	
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) 
+	{ 
+		[view setManipulated:value];
+		[view setNeedsDisplay:YES];
+	}];
+
 	if (manipulated == itemsController)
 	{
 		[editModePopUp selectItemWithTag:EditModeItems];
@@ -118,7 +139,6 @@
 	[items setSelected:YES atIndex:[items count] - 1];
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps
@@ -132,7 +152,6 @@
 	[items removeLastItem];
 	[itemsController changeSelection:NO];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (float)selectionX
@@ -197,7 +216,6 @@
 	
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current
@@ -212,7 +230,6 @@
 	[itemsController updateSelection];
 	[meshController updateSelection];
 	[self setManipulated:meshController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)swapAllItemsWithOld:(NSMutableArray *)old
@@ -232,7 +249,6 @@
 	
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
@@ -251,7 +267,6 @@
 	[itemsController updateSelection];
 	[meshController updateSelection];
 	[self setManipulated:meshController];
-	[view setNeedsDisplay:YES];
 }
 
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
@@ -387,16 +402,10 @@
 	}
 }
 
-- (IBAction)changeCameraMode:(id)sender
-{
-	CameraMode mode = (CameraMode)[[cameraModePopUp selectedItem] tag];
-	[view setCameraMode:mode];
-}
-
 - (IBAction)changeViewMode:(id)sender
 {
 	ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
-	[view setViewMode:mode];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setViewMode:mode]; }];
 }
 
 - (IBAction)mergeSelected:(id)sender
@@ -417,7 +426,7 @@
 	}
 	
 	[manipulated updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)splitSelected:(id)sender
@@ -433,7 +442,7 @@
 	}
 	
 	[manipulated updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)flipSelected:(id)sender
@@ -449,7 +458,7 @@
 	}
 	
 	[manipulated updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [ view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)cloneSelected:(id)sender
@@ -478,7 +487,7 @@
 							   block:^ { [manipulated cloneSelected]; }];
 	}
 	
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 	
 	if (startManipulation)
 	{
@@ -498,7 +507,7 @@
 	[document undoCloneSelected:selection];
 	
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (void)undoCloneSelected:(NSMutableArray *)selection
@@ -514,7 +523,7 @@
 	[document redoCloneSelected:selection];
 		
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)deleteSelected:(id)sender
@@ -536,7 +545,7 @@
 							   block:^ { [manipulated removeSelected]; }];
 	}
 	
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (void)redoDeleteSelected:(NSMutableArray *)selectedItems
@@ -551,7 +560,7 @@
 	[document undoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
@@ -565,7 +574,7 @@
 	[document redoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)mergeVertexPairs:(id)sender
@@ -583,26 +592,26 @@
 								   block:^ { [[self currentMesh] mergeVertexPairs]; }];
 		}
 	}
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
 	[[self manipulated] setCurrentManipulator:newManipulator];
-	[view setCurrentManipulator:newManipulator];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setCurrentManipulator:newManipulator]; }];
 }
 
 - (IBAction)selectAll:(id)sender
 {
 	[[self manipulated] changeSelection:YES];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (IBAction)invertSelection:(id)sender
 {
 	[[self manipulated] invertSelection];
-	[view setNeedsDisplay:YES];
+	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
 }
 
 - (NSString *)windowNibName

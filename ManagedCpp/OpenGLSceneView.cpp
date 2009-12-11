@@ -226,7 +226,12 @@ namespace ManagedCpp {
 		if (manipulated->SelectedCount > 0)
 		{
 			currentManipulator->Position = manipulated->SelectionCenter;
-			currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
+			
+			if (this->cameraMode == CameraMode::CameraModePerspective)
+				currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
+			else
+				currentManipulator->Size = camera->GetZoom() * 0.18f;
+
 			scaleManipulator->Rotation = manipulated->SelectionRotation;
 			currentManipulator->Draw(camera->GetAxisZ(), manipulated->SelectionCenter);
 		}
@@ -335,6 +340,7 @@ namespace ManagedCpp {
 	
 			if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
 			{
+				BeginGL();
 				if (currentManipulator == translationManipulator)
 				{
 					*selectionOffset = this->GetTranslation(lastPoint);
@@ -351,6 +357,8 @@ namespace ManagedCpp {
 					this->GetScale(lastPoint, selectionOffset);
 					isManipulating = YES;
 				}
+
+				EndGL();
 				//if (isManipulating)
 				//	[delegate manipulationStarted];
 			}
@@ -372,9 +380,12 @@ namespace ManagedCpp {
 			
 			if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
 			{
-				const float sensitivity = 0.005f;
-				camera->RotateLeftRight(diffX * sensitivity);
-				camera->RotateUpDown(diffY * sensitivity);
+				if (this->cameraMode == CameraMode::CameraModePerspective)
+				{
+					const float sensitivity = 0.005f;
+					camera->RotateLeftRight(diffX * sensitivity);
+					camera->RotateUpDown(diffY * sensitivity);
+				}
 			}
 			else
 			{
@@ -393,9 +404,9 @@ namespace ManagedCpp {
 		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
 		{
 			currentPoint = PointF((float)e->X, (float)e->Y);
-	
 			if (isManipulating)
 			{
+				BeginGL();
 				lastPoint = currentPoint;
 				if (currentManipulator == translationManipulator)
 				{
@@ -403,20 +414,20 @@ namespace ManagedCpp {
 					move -= *selectionOffset;
 					move -= manipulated->SelectionCenter;
 					manipulated->MoveSelectedBy(move);
-					this->Invalidate();
 				}
 				else if (currentManipulator == rotationManipulator)
 				{
 					Quaternion rotation = this->GetRotation(currentPoint, selectionOffset);
 					manipulated->RotateSelectedBy(rotation);
-					this->Invalidate();
 				}
 				else if (currentManipulator == scaleManipulator)
 				{
 					Vector3D scale = this->GetScale(currentPoint, selectionOffset);
 					manipulated->ScaleSelectedBy(scale);
-					this->Invalidate();
 				}
+
+				EndGL();
+				this->Invalidate();
 			}
 			else if (isSelecting)
 			{
@@ -432,7 +443,9 @@ namespace ManagedCpp {
 				{
 					currentManipulator->SelectedIndex = -1;
 					currentManipulator->Position = manipulated->SelectionCenter;
+					BeginGL();
 					this->SelectPoint(currentPoint, currentManipulator, OpenGLSelectionModeAdd);
+					EndGL();
 					this->Invalidate();
 				}
 			}
@@ -460,11 +473,13 @@ namespace ManagedCpp {
 			else
 				manipulated->ChangeSelection(NO);
 			
+			BeginGL();
 			RectangleF rect = this->CurrentRect;
 			if (rect.Width > 5.0f && rect.Height > 5.0f)
 				this->SelectRect(rect, manipulated, selectionMode);
 			else
 				this->SelectPoint(currentPoint, manipulated, selectionMode);
+			EndGL();
 			this->Invalidate();
 		}
 	}
@@ -520,8 +535,10 @@ namespace ManagedCpp {
 		if (!deviceContext || !glRenderingContext)
 			return;
 
+		BeginGL();
 		RenderGL();
 		SwapBuffers(deviceContext);
+		EndGL();
 	}
 
 	void OpenGLSceneView::BeginGL()
