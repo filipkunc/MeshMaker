@@ -182,7 +182,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\Dependencies\HotChocolate.dll"
-			AssemblyName="HotChocolate, Version=1.0.0.0, processorArchitecture=MSIL"
+			AssemblyName="HotChocolate, Version=1.0.0.0, processorArchitecture=IA64"
 			MinFrameworkVersion="196613"
 		/>
 	</References>
@@ -297,6 +297,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IndexedItem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IndexedItem.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Item.cpp"
 				>
 			</File>
@@ -310,6 +318,14 @@
 			</File>
 			<File
 				RelativePath=".\ItemCollection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ItemManipulationState.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ItemManipulationState.h"
 				>
 			</File>
 			<File
@@ -334,6 +350,22 @@
 			</File>
 			<File
 				RelativePath=".\Mesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshFullState.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshFullState.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshManipulationState.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshManipulationState.h"
 				>
 			</File>
 			<File
