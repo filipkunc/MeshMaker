@@ -1,3 +1,11 @@
+﻿//
+//  ItemCollection.cpp
+//  OpenGLEditor
+//
+//  Created by Filip Kunc on 10/25/09.
+//  For license see LICENSE.TXT
+//
+
 #include "ItemCollection.h"
 
 namespace ManagedCpp
@@ -20,6 +28,11 @@ namespace ManagedCpp
 	void ItemCollection::RemoveItem(Item ^item)
 	{
 		items->Remove(item);
+	}
+
+	void ItemCollection::RemoveRange(int index, int count)
+	{
+		items->RemoveRange(index, count);
 	}
 
 	uint ItemCollection::Count::get()
@@ -181,5 +194,158 @@ namespace ManagedCpp
 		
 		newItem->Selected = YES;
 		this->AddItem(newItem);
+	}
+
+	List<ItemManipulationState ^> ^ItemCollection::CurrentManipulations::get()
+	{
+		List<ItemManipulationState ^> ^manipulations = gcnew List<ItemManipulationState ^>();
+
+		for (uint i = 0; i < this->Count; i++)
+		{
+			Item ^item = this->GetItem(i);
+			if (item->Selected)
+			{
+				ItemManipulationState ^itemState = gcnew ItemManipulationState(item, i);
+				manipulations->Add(itemState);
+			}
+		}
+
+		return manipulations;
+	}
+
+	void ItemCollection::CurrentManipulations::set(List<ItemManipulationState ^> ^manipulations)
+	{
+		this->DeselectAll();
+
+		for each (ItemManipulationState ^manipulation in manipulations)
+		{
+			Item ^item = this->GetItem(manipulation->ItemIndex);
+			manipulation->ApplyManipulationToItem(item);
+		}
+	}
+
+	MeshManipulationState ^ItemCollection::CurrentMeshManipulation::get()
+	{
+		for (uint i = 0; i < this->Count; i++)
+		{
+			Item ^item = this->GetItem(i);
+			if (item->Selected)
+				return gcnew MeshManipulationState(item->GetMesh(), i);
+		}
+		return nullptr;
+	}
+
+	void ItemCollection::CurrentMeshManipulation::set(MeshManipulationState ^manipulation)
+	{
+		this->DeselectAll();
+
+		Item ^item = this->GetItem(manipulation->ItemIndex);
+		item->Selected = YES;
+		manipulation->ApplyManipulationToMesh(item->GetMesh());
+	}
+
+	MeshFullState ^ItemCollection::CurrentMeshFull::get()
+	{
+		for (uint i = 0; i < this->Count; i++)
+		{
+			Item ^item = this->GetItem(i);
+			if (item->Selected)
+				return gcnew MeshFullState(item->GetMesh(), i);
+		}
+		return nullptr;
+	}
+
+	void ItemCollection::CurrentMeshFull::set(MeshFullState ^full)
+	{
+		this->DeselectAll();
+
+		Item ^item = this->GetItem(full->ItemIndex);
+		item->Selected = YES;
+		full->ApplyFullToMesh(item->GetMesh());
+	}
+
+	List<uint> ^ItemCollection::CurrentSelection::get()
+	{
+		List<uint> ^selection = gcnew List<uint>();
+
+		for (uint i = 0; i < this->Count; i++)
+		{
+			Item ^item = this->GetItem(i);
+			if (item->Selected)
+				selection->Add(i);
+		}
+
+		return selection;
+	}
+
+	void ItemCollection::CurrentSelection::set(List<uint> ^selection)
+	{
+		this->DeselectAll();
+
+		for each (uint index in selection)
+		{
+			this->SetSelected(YES, index);
+		}
+	}
+
+	List<IndexedItem ^> ^ItemCollection::CurrentItems::get()
+	{
+		List<IndexedItem ^> ^anItems = gcnew List<IndexedItem ^>();
+
+		for (uint i = 0; i < this->Count; i++)
+		{
+			Item ^item = this->GetItem(i);
+			if (item->Selected)
+			{
+				IndexedItem ^indexedItem = gcnew IndexedItem(i, item);
+				anItems->Add(indexedItem);
+			}
+		}
+		
+		return anItems;
+	}
+
+	void ItemCollection::CurrentItems::set(List<IndexedItem ^> ^anItems)
+	{
+		this->DeselectAll();
+		
+		for each (IndexedItem ^indexedItem in anItems)
+		{
+			items->Insert(indexedItem->Index, indexedItem->GetItem());
+		}
+	}
+
+	List<Item ^> ^ItemCollection::AllItems::get()
+	{
+		List<Item ^> ^anItems = gcnew List<Item ^>();
+		
+		for (uint i = 0; i < this->Count; i++)
+		{
+			Item ^clone = this->GetItem(i)->Clone();
+			anItems->Add(clone);
+		}
+
+		return anItems;
+	}
+
+	void ItemCollection::AllItems::set(List<Item ^> ^anItems)
+	{
+		items = anItems;
+	}
+
+	void ItemCollection::SetSelectionFromIndexedItems(List<IndexedItem ^> ^anItems)
+	{
+		this->DeselectAll();
+		
+		for each(IndexedItem ^indexedItem in anItems)
+		{
+			this->SetSelected(YES, indexedItem->Index);
+		}
+	}
+	
+	void ItemCollection::DeselectAll()
+	{
+		for (uint i = 0; i < this->Count; i++)
+			this->SetSelected(NO, i);
 	}
 }

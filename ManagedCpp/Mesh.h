@@ -28,7 +28,7 @@ namespace ManagedCpp
 {
 	public ref class Mesh : OpenGLManipulatingModelMesh
 	{
-	private:
+	public:
 		vector<Vector3D> *vertices;
 		vector<Triangle> *triangles;
 		vector<Edge> *edges;

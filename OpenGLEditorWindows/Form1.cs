@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using ManagedCpp;
 using HotChocolate;
 using HotChocolate.Bindings;
+using System.Diagnostics;
 
 namespace OpenGLEditorWindows
 {
@@ -22,6 +23,10 @@ namespace OpenGLEditorWindows
         PropertyObserver<float> observerSelectionX;
         PropertyObserver<float> observerSelectionY;
         PropertyObserver<float> observerSelectionZ;
+
+        bool manipulationFinished;
+        List<ItemManipulationState> oldManipulations;
+        MeshManipulationState oldMeshManipulation;
 
         public Form1()
         {
@@ -58,6 +63,10 @@ namespace OpenGLEditorWindows
             observerSelectionX = this.ObserveProperty<float>("SelectionX");
             observerSelectionY = this.ObserveProperty<float>("SelectionY");
             observerSelectionZ = this.ObserveProperty<float>("SelectionZ");
+
+            manipulationFinished = true;
+            oldManipulations = null;
+            oldMeshManipulation = null;
         }
 
         #region Bindings magic
@@ -230,7 +239,7 @@ namespace OpenGLEditorWindows
             OnEachViewDo(view => view.Invalidate());
             
             // simple test for undo/redo
-            undo.PrepareUndo(Invocation.Create(this, t => t.UndoAddItem(item)));
+            undo.PrepareUndo(Invocation.Create(item, UndoAddItem));
         }
 
         private void UndoAddItem(Item item)
@@ -240,7 +249,7 @@ namespace OpenGLEditorWindows
             OnEachViewDo(view => view.Invalidate());
             
             // simple test for undo/redo
-            undo.PrepareUndo(Invocation.Create(this, t => t.AddItem(item)));
+            undo.PrepareUndo(Invocation.Create(item, AddItem));
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
@@ -306,9 +315,175 @@ namespace OpenGLEditorWindows
             undo.Redo();
         }
 
+        void SwapManipulations(List<ItemManipulationState> old,
+            List<ItemManipulationState> current)
+        {
+            Trace.WriteLine("swapManipulationsWithOld:current:");
+            Trace.Assert(old.Count == current.Count, "old.Count == current.Count");
+	        items.CurrentManipulations = old;
+	        
+            undo.PrepareUndo(Invocation.Create(current, old, SwapManipulations));
+
+            itemsController.UpdateSelection();
+            Manipulated = itemsController;
+        }
+
+        void SwapMeshManipulation(MeshManipulationState old,
+            MeshManipulationState current)
+        {
+            Trace.WriteLine("swapMeshManipulationWithOld:current:");
+        	
+            items.CurrentMeshManipulation = old;
+	        
+            undo.PrepareUndo(Invocation.Create(current, old, SwapMeshManipulation));
+	        
+            itemsController.UpdateSelection();
+            meshController.UpdateSelection();
+            Manipulated = meshController;
+        }
+
+        void SwapAllItems(List<Item> old, List<Item> current)
+        {
+	        Trace.WriteLine("swapAllItemsWithOld:current:actionName:");
+        	
+	        Trace.WriteLine(string.Format("items count before set = {0}", items.Count));
+            items.AllItems = old;
+            Trace.WriteLine(string.Format("items count after set = {0}", items.Count));
+
+        	undo.PrepareUndo(Invocation.Create(current, old, SwapAllItems));
+
+	        itemsController.UpdateSelection();
+            Manipulated = itemsController;
+        }
+
+        void SwapMeshFullState(MeshFullState old, MeshFullState current)
+        {
+	        Trace.WriteLine("swapMeshFullStateWithOld:current:actionName:");
+        	
+            items.CurrentMeshFull = old;
+	        
+            undo.PrepareUndo(Invocation.Create(current, old, SwapMeshFullState));
+
+	        itemsController.UpdateSelection();
+            meshController.UpdateSelection();
+            Manipulated = meshController;
+        }
+
+        void AllItemsAction(Action action)
+        {
+            var oldItems = items.AllItems;
+            Trace.WriteLine(string.Format("oldItems count = {0}", oldItems.Count));
+
+            action();
+        	
+            var currentItems = items.AllItems;
+            Trace.WriteLine(string.Format("currentItems count = {0}", currentItems.Count));
+
+            undo.PrepareUndo(Invocation.Create(oldItems, currentItems, SwapAllItems));
+        }
+
+        void FullMeshAction(Action action)
+        {
+            MeshFullState oldState = items.CurrentMeshFull;
+
+            action();
+
+            MeshFullState currentState = items.CurrentMeshFull;
+            undo.PrepareUndo(Invocation.Create(oldState, currentState, SwapMeshFullState));
+        }
+
+        void ManipulationStarted()
+        {
+            Trace.WriteLine("manipulationStarted");
+	        manipulationFinished = false;
+        	
+	        if (Manipulated == itemsController)
+	        {
+                oldManipulations = items.CurrentManipulations;
+            }
+            else if (Manipulated == meshController)
+            {
+                oldMeshManipulation = items.CurrentMeshManipulation;
+            }
+        }
+
+        void ManipulationEnded()
+        {
+            Trace.WriteLine("manipulationEnded");	
+	        manipulationFinished = true;
+        	
+	        if (Manipulated == itemsController)
+	        {
+                undo.PrepareUndo(Invocation.Create(oldManipulations, 
+                    items.CurrentManipulations, SwapManipulations));
+
+		        oldManipulations = null;
+	        }
+	        else if (Manipulated == meshController)
+	        {
+                undo.PrepareUndo(Invocation.Create(oldMeshManipulation,
+                    items.CurrentMeshManipulation, SwapMeshManipulation));
+
+		        oldMeshManipulation = null;
+	        }
+        }
+
         private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("cloneSelected:");
+            if (Manipulated.SelectedCount <= 0)
+	            return;
+        	
+	        bool startManipulation = false;
+	        if (!manipulationFinished)
+	        {
+		        startManipulation = true;
+                ManipulationEnded();
+            }
+
+            if (Manipulated == itemsController)
+            {
+                var selection = items.CurrentSelection;
+                undo.PrepareUndo(Invocation.Create(selection, UndoCloneSelected));
+                Manipulated.CloneSelected();
+            }
+            else
+            {
+                FullMeshAction(() => { Manipulated.CloneSelected(); });
+            }
+        	
+            OnEachViewDo(view => view.Invalidate());
+
+            if (startManipulation)
+            {
+                ManipulationStarted();
+            }
+        }
+
+        void RedoCloneSelected(List<uint> selection)
+        {
+	        Trace.WriteLine("redoCloneSelected:");
+	
+            Manipulated = itemsController;
+            items.CurrentSelection = selection;
             Manipulated.CloneSelected();
+	
+            undo.PrepareUndo(Invocation.Create(selection, UndoCloneSelected));
+            itemsController.UpdateSelection();
+            OnEachViewDo(view => view.Invalidate());
+        }
+
+        void UndoCloneSelected(List<uint> selection)
+        {
+            Trace.WriteLine("undoCloneSelected:");
+
+            Manipulated = itemsController;
+            items.RemoveRange((int)items.Count - selection.Count, selection.Count);
+            items.CurrentSelection = selection;
+
+            undo.PrepareUndo(Invocation.Create(selection, RedoCloneSelected));
+
+            itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
         }
 
