@@ -69,7 +69,7 @@
             this.mergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.turnEdgesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oneViewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fourViewsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,6 +80,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.btnFlip = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -109,6 +110,7 @@
             this.toolStripSeparator6,
             this.btnSplit,
             this.btnMerge,
+            this.btnFlip,
             this.textBoxX,
             this.textBoxY,
             this.textBoxZ});
@@ -290,7 +292,7 @@
             this.textBoxZ.ForeColor = System.Drawing.Color.Blue;
             this.textBoxZ.Margin = new System.Windows.Forms.Padding(10, 0, 1, 0);
             this.textBoxZ.Name = "textBoxZ";
-            this.textBoxZ.Size = new System.Drawing.Size(100, 25);
+            this.textBoxZ.Size = new System.Drawing.Size(100, 21);
             // 
             // menuStrip1
             // 
@@ -325,8 +327,8 @@
             this.toolStripSeparator4,
             this.mergeToolStripMenuItem,
             this.splitToolStripMenuItem,
-            this.mergeVertexPairsToolStripMenuItem,
-            this.turnEdgesToolStripMenuItem});
+            this.flipToolStripMenuItem,
+            this.mergeVertexPairsToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -446,12 +448,12 @@
             this.mergeVertexPairsToolStripMenuItem.Text = "Merge Vertex Pairs";
             this.mergeVertexPairsToolStripMenuItem.Click += new System.EventHandler(this.mergeVertexPairsToolStripMenuItem_Click);
             // 
-            // turnEdgesToolStripMenuItem
+            // flipToolStripMenuItem
             // 
-            this.turnEdgesToolStripMenuItem.Name = "turnEdgesToolStripMenuItem";
-            this.turnEdgesToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
-            this.turnEdgesToolStripMenuItem.Text = "Turn Edges";
-            this.turnEdgesToolStripMenuItem.Click += new System.EventHandler(this.turnEdgesToolStripMenuItem_Click);
+            this.flipToolStripMenuItem.Name = "flipToolStripMenuItem";
+            this.flipToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.flipToolStripMenuItem.Text = "Flip";
+            this.flipToolStripMenuItem.Click += new System.EventHandler(this.flipToolStripMenuItem_Click);
             // 
             // viewToolStripMenuItem
             // 
@@ -465,7 +467,7 @@
             // oneViewMenuItem
             // 
             this.oneViewMenuItem.Name = "oneViewMenuItem";
-            this.oneViewMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.oneViewMenuItem.Size = new System.Drawing.Size(137, 22);
             this.oneViewMenuItem.Text = "One View";
             this.oneViewMenuItem.Click += new System.EventHandler(this.oneViewMenuItem_Click);
             // 
@@ -474,7 +476,7 @@
             this.fourViewsMenuItem.Checked = true;
             this.fourViewsMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.fourViewsMenuItem.Name = "fourViewsMenuItem";
-            this.fourViewsMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.fourViewsMenuItem.Size = new System.Drawing.Size(137, 22);
             this.fourViewsMenuItem.Text = "Four Views";
             this.fourViewsMenuItem.Click += new System.EventHandler(this.fourViewsMenuItem_Click);
             // 
@@ -573,6 +575,16 @@
             this.splitContainer3.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.splitContainer3_SplitterMoving);
             this.splitContainer3.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer3_SplitterMoved);
             // 
+            // btnFlip
+            // 
+            this.btnFlip.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnFlip.Image = ((System.Drawing.Image)(resources.GetObject("btnFlip.Image")));
+            this.btnFlip.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnFlip.Name = "btnFlip";
+            this.btnFlip.Size = new System.Drawing.Size(27, 22);
+            this.btnFlip.Text = "Flip";
+            this.btnFlip.Click += new System.EventHandler(this.flipToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -633,7 +645,7 @@
         private System.Windows.Forms.ToolStripMenuItem mergeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem splitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mergeVertexPairsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem turnEdgesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem flipToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripTextBox textBoxX;
         private System.Windows.Forms.ToolStripTextBox textBoxY;
@@ -656,6 +668,7 @@
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem oneViewMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fourViewsMenuItem;
+        private System.Windows.Forms.ToolStripButton btnFlip;
     }
 }
 
