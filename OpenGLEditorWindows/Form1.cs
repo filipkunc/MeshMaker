@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace OpenGLEditorWindows
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, OpenGLSceneViewDelegate
     {
         ItemCollection items;
         OpenGLManipulatingController itemsController;
@@ -51,7 +51,11 @@ namespace OpenGLEditorWindows
 
             itemsController.CurrentManipulator = openGLSceneViewLeft.CurrentManipulator;
 
-            OnEachViewDo(view => view.Displayed = view.Manipulated = itemsController);
+            OnEachViewDo(view => 
+                {
+                    view.Displayed = view.Manipulated = itemsController;
+                    view.TheDelegate = this;
+                });
 
             textBoxX.TextBox.BindString<float>("Text", this, "SelectionX");
             textBoxY.TextBox.BindString<float>("Text", this, "SelectionY");
@@ -230,26 +234,28 @@ namespace OpenGLEditorWindows
             }
         }
 
-        private void AddItem(Item item)
+        private void AddItem(MeshType type, uint steps)
         {
+            Item item = new Item();
+            item.GetMesh().MakeMesh(type, steps);
+
             itemsController.ChangeSelection(0);
             item.Selected = 1;
             items.AddItem(item);
             itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
-            
-            // simple test for undo/redo
-            undo.PrepareUndo(Invocation.Create(item, UndoAddItem));
+
+            undo.PrepareUndo(Invocation.Create(type, steps, RemoveItem));
         }
 
-        private void UndoAddItem(Item item)
+        private void RemoveItem(MeshType type, uint steps)
         {
             itemsController.ChangeSelection(0);
-            items.RemoveItem(item);
+            items.RemoveAt((int)items.Count - 1);
             OnEachViewDo(view => view.Invalidate());
             
             // simple test for undo/redo
-            undo.PrepareUndo(Invocation.Create(item, AddItem));
+            undo.PrepareUndo(Invocation.Create(type, steps, AddItem));
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
@@ -274,35 +280,28 @@ namespace OpenGLEditorWindows
 
         private void btnAddCube_Click(object sender, EventArgs e)
         {
-            Item item = new Item();
-            item.GetMesh().MakeCube();
-            AddItem(item);
+            AddItem(MeshType.MeshTypeCube, 1);
+        }
+
+        private void AddItemDialog(MeshType type)
+        {
+            using (AddItemWithStepsDialog dlg = new AddItemWithStepsDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    AddItem(type, dlg.Steps);
+                }
+            }
         }
 
         private void btnAddCylinder_Click(object sender, EventArgs e)
         {
-            Item item = new Item();
-            using (AddItemWithStepsDialog dlg = new AddItemWithStepsDialog())
-            {
-                if (dlg.ShowDialog() == DialogResult.OK)
-                {
-                    item.GetMesh().MakeCylinder(dlg.Steps);
-                    AddItem(item);
-                }
-            }
+            AddItemDialog(MeshType.MeshTypeCylinder); 
         }
 
         private void btnAddSphere_Click(object sender, EventArgs e)
         {
-            Item item = new Item();
-            using (AddItemWithStepsDialog dlg = new AddItemWithStepsDialog())
-            {
-                if (dlg.ShowDialog() == DialogResult.OK)
-                {
-                    item.GetMesh().MakeSphere(dlg.Steps);
-                    AddItem(item);
-                }
-            }
+            AddItemDialog(MeshType.MeshTypeSphere);
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -392,7 +391,7 @@ namespace OpenGLEditorWindows
             undo.PrepareUndo(Invocation.Create(oldState, currentState, SwapMeshFullState));
         }
 
-        void ManipulationStarted()
+        public void ManipulationStarted()
         {
             Trace.WriteLine("manipulationStarted");
 	        manipulationFinished = false;
@@ -407,7 +406,7 @@ namespace OpenGLEditorWindows
             }
         }
 
-        void ManipulationEnded()
+        public void ManipulationEnded()
         {
             Trace.WriteLine("manipulationEnded");	
 	        manipulationFinished = true;

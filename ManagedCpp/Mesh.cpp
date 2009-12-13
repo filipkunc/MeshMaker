@@ -278,6 +278,25 @@ namespace ManagedCpp
 			this->DrawFill(scale);
 		}
 	}
+
+	void Mesh::MakeMesh(MeshType type, uint steps)
+	{
+		switch (type)
+		{
+		case MeshType::MeshTypeCube:
+			MakeCube();
+			break;
+		case MeshType::MeshTypeCylinder:
+			MakeCylinder(steps);
+			break;
+		case MeshType::MeshTypeSphere:
+			MakeSphere(steps);
+			break;
+		default:
+			Trace::WriteLine(String::Format("Unknown mesh type:{0}", type));
+			break;
+		}
+	}
 	
 	void Mesh::MakeCube()
 	{

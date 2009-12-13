@@ -31,6 +31,7 @@ namespace ManagedCpp
 		Item ^GetItem(uint index);
 		void AddItem(Item ^item);
 		void RemoveItem(Item ^item);
+		void RemoveAt(int index);
 		void RemoveRange(int index, int count);
 		void MergeSelectedItems();
 
