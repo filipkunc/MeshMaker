@@ -30,6 +30,11 @@ namespace ManagedCpp
 		items->Remove(item);
 	}
 
+	void ItemCollection::RemoveAt(int index)
+	{
+		items->RemoveAt(index);
+	}
+
 	void ItemCollection::RemoveRange(int index, int count)
 	{
 		items->RemoveRange(index, count);

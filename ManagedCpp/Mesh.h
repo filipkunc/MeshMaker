@@ -67,6 +67,7 @@ namespace ManagedCpp
 		void DrawWire(Vector3D scale, CocoaBool isSelected);
 		void Draw(Vector3D scale, CocoaBool isSelected);
 		virtual void Draw(uint index, CocoaBool forSelection, ViewMode mode);
+		void MakeMesh(MeshType type, uint steps);
 		void MakeCube();
 		void MakeCylinder(uint steps);
 		void MakeSphere(uint steps);

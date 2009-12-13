@@ -15,7 +15,7 @@ namespace ManagedCpp {
 
 		displayed = nullptr;
 		manipulated = nullptr;
-		//delegate = nullptr;
+		theDelegate = nullptr;
 
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
@@ -90,6 +90,16 @@ namespace ManagedCpp {
 	void OpenGLSceneView::Manipulated::set(OpenGLManipulating ^value)
 	{
 		manipulated = value;
+	}
+
+	OpenGLSceneViewDelegate ^OpenGLSceneView::TheDelegate::get()
+	{
+		return theDelegate;
+	}
+
+	void OpenGLSceneView::TheDelegate::set(OpenGLSceneViewDelegate ^value)
+	{
+		theDelegate = value;
 	}
 
 	ManipulatorType OpenGLSceneView::CurrentManipulator::get()
@@ -359,8 +369,11 @@ namespace ManagedCpp {
 				}
 
 				EndGL();
-				//if (isManipulating)
-				//	[delegate manipulationStarted];
+				if (isManipulating)
+				{
+					if (theDelegate != nullptr)
+						theDelegate->ManipulationStarted();
+				}	
 			}
 			else
 			{
@@ -458,7 +471,8 @@ namespace ManagedCpp {
 		currentPoint = PointF((float)e->X, (float)e->Y);
 		if (isManipulating)
 		{
-			//[delegate manipulationEnded];
+			if (theDelegate != nullptr)
+				theDelegate->ManipulationEnded();
 			isManipulating = NO;
 		}
 		if (isSelecting)

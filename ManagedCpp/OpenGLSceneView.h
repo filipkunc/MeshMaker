@@ -20,6 +20,12 @@ using namespace System::Diagnostics;
 
 namespace ManagedCpp
 {
+	public interface class OpenGLSceneViewDelegate
+	{
+		void ManipulationStarted();
+		void ManipulationEnded();
+	};
+
 	/// <summary>
 	/// Summary for OpenGLSceneView
 	/// </summary>
@@ -39,7 +45,7 @@ namespace ManagedCpp
 		
 		OpenGLManipulating ^displayed;
 		OpenGLManipulating ^manipulated;
-		//OpenGLSceneViewDelegate
+		OpenGLSceneViewDelegate ^theDelegate;
 		
 		Vector3D *selectionOffset;
 		Camera *camera;
@@ -56,25 +62,50 @@ namespace ManagedCpp
 		
 		CameraMode cameraMode;
 		ViewMode viewMode;
-
-		Mesh ^testMesh;
 	public:
 		OpenGLSceneView();
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
-		property ManipulatorType CurrentManipulator { ManipulatorType get(); void set(ManipulatorType value); }
+		property ManipulatorType CurrentManipulator 
+		{ 
+			ManipulatorType get();
+			void set(ManipulatorType value); 
+		}
 		
 		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
-		property CameraMode CurrentCameraMode { CameraMode get(); void set(CameraMode value); }
+		property CameraMode CurrentCameraMode 
+		{ 
+			CameraMode get(); 
+			void set(CameraMode value); 
+		}
 		
 		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
-		property ViewMode CurrentViewMode { ViewMode get(); void set(ViewMode value); }
+		property ViewMode CurrentViewMode 
+		{ 
+			ViewMode get(); 
+			void set(ViewMode value); 
+		}
 		
 		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
-		property OpenGLManipulating ^Displayed { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+		property OpenGLManipulating ^Displayed 
+		{ 
+			OpenGLManipulating ^get();
+			void set(OpenGLManipulating ^value); 
+		}
 		
 		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
-		property OpenGLManipulating ^Manipulated { OpenGLManipulating ^get(); void set(OpenGLManipulating ^value); }
+		property OpenGLManipulating ^Manipulated 
+		{ 
+			OpenGLManipulating ^get(); 
+			void set(OpenGLManipulating ^value); 
+		}
+
+		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
+		property OpenGLSceneViewDelegate ^TheDelegate 
+		{ 
+			OpenGLSceneViewDelegate ^get();
+			void set(OpenGLSceneViewDelegate ^value); 
+		}
 		
 		[DesignerSerializationVisibility(DesignerSerializationVisibility::Hidden)]
 		property RectangleF CurrentRect { RectangleF get(); }
