@@ -47,6 +47,7 @@
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.btnSplit = new System.Windows.Forms.ToolStripButton();
             this.btnMerge = new System.Windows.Forms.ToolStripButton();
+            this.btnFlip = new System.Windows.Forms.ToolStripButton();
             this.textBoxX = new System.Windows.Forms.ToolStripTextBox();
             this.textBoxY = new System.Windows.Forms.ToolStripTextBox();
             this.textBoxZ = new System.Windows.Forms.ToolStripTextBox();
@@ -68,8 +69,8 @@
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.mergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mergeVertexPairsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oneViewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fourViewsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,7 +81,6 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-            this.btnFlip = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -270,6 +270,16 @@
             this.btnMerge.Text = "Merge";
             this.btnMerge.Click += new System.EventHandler(this.mergeToolStripMenuItem_Click);
             // 
+            // btnFlip
+            // 
+            this.btnFlip.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnFlip.Image = ((System.Drawing.Image)(resources.GetObject("btnFlip.Image")));
+            this.btnFlip.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnFlip.Name = "btnFlip";
+            this.btnFlip.Size = new System.Drawing.Size(27, 22);
+            this.btnFlip.Text = "Flip";
+            this.btnFlip.Click += new System.EventHandler(this.flipToolStripMenuItem_Click);
+            // 
             // textBoxX
             // 
             this.textBoxX.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
@@ -292,7 +302,7 @@
             this.textBoxZ.ForeColor = System.Drawing.Color.Blue;
             this.textBoxZ.Margin = new System.Windows.Forms.Padding(10, 0, 1, 0);
             this.textBoxZ.Name = "textBoxZ";
-            this.textBoxZ.Size = new System.Drawing.Size(100, 21);
+            this.textBoxZ.Size = new System.Drawing.Size(100, 25);
             // 
             // menuStrip1
             // 
@@ -332,6 +342,7 @@
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.editToolStripMenuItem.Text = "Edit";
+            this.editToolStripMenuItem.DropDownOpening += new System.EventHandler(this.editToolStripMenuItem_DropDownOpening);
             // 
             // undoToolStripMenuItem
             // 
@@ -441,19 +452,19 @@
             this.splitToolStripMenuItem.Text = "Split";
             this.splitToolStripMenuItem.Click += new System.EventHandler(this.splitToolStripMenuItem_Click);
             // 
-            // mergeVertexPairsToolStripMenuItem
-            // 
-            this.mergeVertexPairsToolStripMenuItem.Name = "mergeVertexPairsToolStripMenuItem";
-            this.mergeVertexPairsToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
-            this.mergeVertexPairsToolStripMenuItem.Text = "Merge Vertex Pairs";
-            this.mergeVertexPairsToolStripMenuItem.Click += new System.EventHandler(this.mergeVertexPairsToolStripMenuItem_Click);
-            // 
             // flipToolStripMenuItem
             // 
             this.flipToolStripMenuItem.Name = "flipToolStripMenuItem";
             this.flipToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.flipToolStripMenuItem.Text = "Flip";
             this.flipToolStripMenuItem.Click += new System.EventHandler(this.flipToolStripMenuItem_Click);
+            // 
+            // mergeVertexPairsToolStripMenuItem
+            // 
+            this.mergeVertexPairsToolStripMenuItem.Name = "mergeVertexPairsToolStripMenuItem";
+            this.mergeVertexPairsToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.mergeVertexPairsToolStripMenuItem.Text = "Merge Vertex Pairs";
+            this.mergeVertexPairsToolStripMenuItem.Click += new System.EventHandler(this.mergeVertexPairsToolStripMenuItem_Click);
             // 
             // viewToolStripMenuItem
             // 
@@ -574,16 +585,6 @@
             this.splitContainer3.TabIndex = 7;
             this.splitContainer3.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.splitContainer3_SplitterMoving);
             this.splitContainer3.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer3_SplitterMoved);
-            // 
-            // btnFlip
-            // 
-            this.btnFlip.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnFlip.Image = ((System.Drawing.Image)(resources.GetObject("btnFlip.Image")));
-            this.btnFlip.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnFlip.Name = "btnFlip";
-            this.btnFlip.Size = new System.Drawing.Size(27, 22);
-            this.btnFlip.Text = "Flip";
-            this.btnFlip.Click += new System.EventHandler(this.flipToolStripMenuItem_Click);
             // 
             // Form1
             // 
