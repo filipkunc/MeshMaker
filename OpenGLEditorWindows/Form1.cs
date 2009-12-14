@@ -260,7 +260,8 @@ namespace OpenGLEditorWindows
             itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
 
-            undo.PrepareUndo(Invocation.Create(type, steps, RemoveItem));
+            undo.PrepareUndo(string.Format("Add {0}", type.ToDisplayString()),
+                Invocation.Create(type, steps, RemoveItem));
         }
 
         private void RemoveItem(MeshType type, uint steps)
@@ -270,7 +271,8 @@ namespace OpenGLEditorWindows
             OnEachViewDo(view => view.Invalidate());
 
             // simple test for undo/redo
-            undo.PrepareUndo(Invocation.Create(type, steps, AddItem));
+            undo.PrepareUndo(string.Format("Add {0}", type.ToDisplayString()),
+                Invocation.Create(type, steps, AddItem));
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
@@ -336,7 +338,8 @@ namespace OpenGLEditorWindows
             Trace.Assert(old.Count == current.Count, "old.Count == current.Count");
             items.CurrentManipulations = old;
 
-            undo.PrepareUndo(Invocation.Create(current, old, SwapManipulations));
+            undo.PrepareUndo("Manipulations",
+                Invocation.Create(current, old, SwapManipulations));
 
             itemsController.UpdateSelection();
             Manipulated = itemsController;
@@ -349,14 +352,15 @@ namespace OpenGLEditorWindows
 
             items.CurrentMeshManipulation = old;
 
-            undo.PrepareUndo(Invocation.Create(current, old, SwapMeshManipulation));
+            undo.PrepareUndo("Mesh Manipulation",
+                Invocation.Create(current, old, SwapMeshManipulation));
 
             itemsController.UpdateSelection();
             meshController.UpdateSelection();
             Manipulated = meshController;
         }
 
-        void SwapAllItems(List<Item> old, List<Item> current)
+        void SwapAllItems(List<Item> old, List<Item> current, string actionName)
         {
             Trace.WriteLine("swapAllItemsWithOld:current:actionName:");
 
@@ -364,26 +368,28 @@ namespace OpenGLEditorWindows
             items.AllItems = old;
             Trace.WriteLine(string.Format("items count after set = {0}", items.Count));
 
-            undo.PrepareUndo(Invocation.Create(current, old, SwapAllItems));
+            undo.PrepareUndo(actionName,
+                Invocation.Create(current, old, actionName, SwapAllItems));
 
             itemsController.UpdateSelection();
             Manipulated = itemsController;
         }
 
-        void SwapMeshFullState(MeshFullState old, MeshFullState current)
+        void SwapMeshFullState(MeshFullState old, MeshFullState current, string actionName)
         {
             Trace.WriteLine("swapMeshFullStateWithOld:current:actionName:");
 
             items.CurrentMeshFull = old;
 
-            undo.PrepareUndo(Invocation.Create(current, old, SwapMeshFullState));
+            undo.PrepareUndo(actionName,
+                Invocation.Create(current, old, actionName, SwapMeshFullState));
 
             itemsController.UpdateSelection();
             meshController.UpdateSelection();
             Manipulated = meshController;
         }
 
-        void AllItemsAction(Action action)
+        void AllItemsAction(string actionName, Action action)
         {
             var oldItems = items.AllItems;
             Trace.WriteLine(string.Format("oldItems count = {0}", oldItems.Count));
@@ -393,17 +399,19 @@ namespace OpenGLEditorWindows
             var currentItems = items.AllItems;
             Trace.WriteLine(string.Format("currentItems count = {0}", currentItems.Count));
 
-            undo.PrepareUndo(Invocation.Create(oldItems, currentItems, SwapAllItems));
+            undo.PrepareUndo(actionName,
+                Invocation.Create(oldItems, currentItems, actionName, SwapAllItems));
         }
 
-        void FullMeshAction(Action action)
+        void FullMeshAction(string actionName, Action action)
         {
             MeshFullState oldState = items.CurrentMeshFull;
 
             action();
 
             MeshFullState currentState = items.CurrentMeshFull;
-            undo.PrepareUndo(Invocation.Create(oldState, currentState, SwapMeshFullState));
+            undo.PrepareUndo(actionName,
+                Invocation.Create(oldState, currentState, actionName, SwapMeshFullState));
         }
 
         public void ManipulationStarted()
@@ -428,15 +436,17 @@ namespace OpenGLEditorWindows
 
             if (Manipulated == itemsController)
             {
-                undo.PrepareUndo(Invocation.Create(oldManipulations,
-                    items.CurrentManipulations, SwapManipulations));
+                undo.PrepareUndo("Manipulations",
+                    Invocation.Create(oldManipulations,
+                        items.CurrentManipulations, SwapManipulations));
 
                 oldManipulations = null;
             }
             else if (Manipulated == meshController)
             {
-                undo.PrepareUndo(Invocation.Create(oldMeshManipulation,
-                    items.CurrentMeshManipulation, SwapMeshManipulation));
+                undo.PrepareUndo("Mesh Manipulation",
+                    Invocation.Create(oldMeshManipulation,
+                        items.CurrentMeshManipulation, SwapMeshManipulation));
 
                 oldMeshManipulation = null;
             }
@@ -458,12 +468,14 @@ namespace OpenGLEditorWindows
             if (Manipulated == itemsController)
             {
                 var selection = items.CurrentSelection;
-                undo.PrepareUndo(Invocation.Create(selection, UndoCloneSelected));
+                undo.PrepareUndo("Clone",
+                    Invocation.Create(selection, UndoCloneSelected));
+
                 Manipulated.CloneSelected();
             }
             else
             {
-                FullMeshAction(() => { Manipulated.CloneSelected(); });
+                FullMeshAction("Clone", () => Manipulated.CloneSelected());
             }
 
             OnEachViewDo(view => view.Invalidate());
@@ -482,7 +494,9 @@ namespace OpenGLEditorWindows
             items.CurrentSelection = selection;
             Manipulated.CloneSelected();
 
-            undo.PrepareUndo(Invocation.Create(selection, UndoCloneSelected));
+            undo.PrepareUndo("Clone",
+                Invocation.Create(selection, UndoCloneSelected));
+
             itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
         }
@@ -495,7 +509,8 @@ namespace OpenGLEditorWindows
             items.RemoveRange((int)items.Count - selection.Count, selection.Count);
             items.CurrentSelection = selection;
 
-            undo.PrepareUndo(Invocation.Create(selection, RedoCloneSelected));
+            undo.PrepareUndo("Clone",
+                Invocation.Create(selection, RedoCloneSelected));
 
             itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
@@ -510,12 +525,14 @@ namespace OpenGLEditorWindows
             if (Manipulated == itemsController)
             {
                 var currentItems = items.CurrentItems;
-                undo.PrepareUndo(Invocation.Create(currentItems, UndoDeleteSelected));
+                undo.PrepareUndo("Delete",
+                    Invocation.Create(currentItems, UndoDeleteSelected));
+
                 Manipulated.RemoveSelected();
             }
             else
             {
-                FullMeshAction(() => { Manipulated.RemoveSelected(); });
+                FullMeshAction("Delete", () => Manipulated.RemoveSelected());
             }
 
             OnEachViewDo(view => view.Invalidate());
@@ -529,7 +546,8 @@ namespace OpenGLEditorWindows
             items.SetSelectionFromIndexedItems(selectedItems);
             Manipulated.RemoveSelected();
 
-            undo.PrepareUndo(Invocation.Create(selectedItems, UndoDeleteSelected));
+            undo.PrepareUndo("Delete",
+                Invocation.Create(selectedItems, UndoDeleteSelected));
 
             itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
@@ -541,7 +559,8 @@ namespace OpenGLEditorWindows
             Manipulated = itemsController;
             items.CurrentItems = selectedItems;
 
-            undo.PrepareUndo(Invocation.Create(selectedItems, RedoDeleteSelected));
+            undo.PrepareUndo("Delete",
+                Invocation.Create(selectedItems, RedoDeleteSelected));
 
             itemsController.UpdateSelection();
             OnEachViewDo(view => view.Invalidate());
@@ -567,11 +586,11 @@ namespace OpenGLEditorWindows
 
             if (Manipulated == itemsController)
             {
-                AllItemsAction(() => { items.MergeSelectedItems(); });
+                AllItemsAction("Merge", () => items.MergeSelectedItems());
             }
             else
             {
-                FullMeshAction(() => { CurrentMesh.MergeSelected(); });
+                FullMeshAction("Merge", () => CurrentMesh.MergeSelected());
             }
 
             Manipulated.UpdateSelection();
@@ -586,7 +605,7 @@ namespace OpenGLEditorWindows
 
             if (Manipulated == meshController)
             {
-                FullMeshAction(() => { CurrentMesh.SplitSelected(); });
+                FullMeshAction("Split", () => CurrentMesh.SplitSelected());
             }
 
             Manipulated.UpdateSelection();
@@ -601,7 +620,7 @@ namespace OpenGLEditorWindows
 
             if (Manipulated == meshController)
             {
-                FullMeshAction(() => { CurrentMesh.FlipSelected(); });
+                FullMeshAction("Flip", () => CurrentMesh.FlipSelected());
             }
 
             Manipulated.UpdateSelection();
@@ -624,6 +643,18 @@ namespace OpenGLEditorWindows
             int parsed = int.Parse(tag);
             dropDownEditMode.Text = e.ClickedItem.Text;
             ChangeEditMode((EditMode)parsed);
+        }
+
+        private void editToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+        {
+            undoToolStripMenuItem.Text = undo.CanUndo ?
+                "Undo " + undo.UndoName : "Undo";
+
+            redoToolStripMenuItem.Text = undo.CanRedo ?
+                "Redo " + undo.RedoName : "Redo";
+
+            undoToolStripMenuItem.Enabled = undo.CanUndo;
+            redoToolStripMenuItem.Enabled = undo.CanRedo;
         }
 
         #region Splitter magic
