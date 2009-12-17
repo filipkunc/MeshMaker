@@ -7,14 +7,14 @@ namespace HotChocolate
 {
     public class UndoManager
     {
-        Stack<Invocation> undoStack;
-        Stack<Invocation> redoStack;
+        Stack<KeyValuePair<string, Invocation>> undoStack;
+        Stack<KeyValuePair<string, Invocation>> redoStack;
         bool undoing;
 
         public UndoManager()
         {
-            undoStack = new Stack<Invocation>();
-            redoStack = new Stack<Invocation>();
+            undoStack = new Stack<KeyValuePair<string, Invocation>>();
+            redoStack = new Stack<KeyValuePair<string, Invocation>>();
             undoing = false;
         }
 
@@ -28,21 +28,31 @@ namespace HotChocolate
             get { return redoStack.Count > 0; }
         }
 
-        public void PrepareUndo(Invocation invocation)
+        public string UndoName
+        {
+            get { return undoStack.Peek().Key; }
+        }
+
+        public string RedoName
+        {
+            get { return redoStack.Peek().Key; }
+        }
+
+        public void PrepareUndo(string name, Invocation invocation)
         {
             if (undoing)
-                redoStack.Push(invocation);
+                redoStack.Push(new KeyValuePair<string, Invocation>(name, invocation));
             else
-                undoStack.Push(invocation);
+                undoStack.Push(new KeyValuePair<string, Invocation>(name, invocation));
         }
 
         public void Undo()
         {
             if (CanUndo)
             {
-                Invocation invocation = undoStack.Pop();
+                var keyValuePair = undoStack.Pop();
                 undoing = true;
-                invocation.Perform();
+                keyValuePair.Value.Perform();
                 undoing = false;
             }
         }
@@ -51,8 +61,8 @@ namespace HotChocolate
         {
             if (CanRedo)
             {
-                Invocation invocation = redoStack.Pop();
-                invocation.Perform();
+                var keyValuePair = redoStack.Pop();
+                keyValuePair.Value.Perform();
             }
         }
     }
