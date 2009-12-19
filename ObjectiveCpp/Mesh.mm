@@ -1488,7 +1488,7 @@
 
 	if (self)
 	{		
-		unsigned long tempLength = 0;
+		NSUInteger tempLength = 0;
 		
 		const Vector3D *tempVertices = (const Vector3D *)[aDecoder decodeBytesForKey:@"vertices"
 																	  returnedLength:&tempLength];
