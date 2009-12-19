@@ -40,8 +40,6 @@
 		A7C6FEBC1090D539008A55E1 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
-		A7E50BB910D2F02600B8B3F5 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = A7E50BB510D2F02600B8B3F5 /* RBSplitSubview.m */; };
-		A7E50BBA10D2F02600B8B3F5 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = A7E50BB710D2F02600B8B3F5 /* RBSplitView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -124,11 +122,6 @@
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
 		A7D7733A10A77DAC0068353E /* IndexedItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedItem.h; sourceTree = "<group>"; };
 		A7D7733B10A77DAC0068353E /* IndexedItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IndexedItem.mm; sourceTree = "<group>"; };
-		A7E50BB410D2F02600B8B3F5 /* RBSplitSubview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBSplitSubview.h; sourceTree = "<group>"; };
-		A7E50BB510D2F02600B8B3F5 /* RBSplitSubview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBSplitSubview.m; sourceTree = "<group>"; };
-		A7E50BB610D2F02600B8B3F5 /* RBSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBSplitView.h; sourceTree = "<group>"; };
-		A7E50BB710D2F02600B8B3F5 /* RBSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RBSplitView.m; sourceTree = "<group>"; };
-		A7E50BB810D2F02600B8B3F5 /* RBSplitViewPrivateDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBSplitViewPrivateDefines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,7 +189,6 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				A7E50BB310D2F02600B8B3F5 /* RBSplitView */,
 				A7C6FEAE1090D4FB008A55E1 /* ObjectiveCppTests */,
 				A7C6FE8A1090D4E3008A55E1 /* ObjectiveCpp */,
 				A7C6FE601090D4BD008A55E1 /* PureCpp */,
@@ -325,18 +317,6 @@
 			path = ObjectiveCppTests;
 			sourceTree = "<group>";
 		};
-		A7E50BB310D2F02600B8B3F5 /* RBSplitView */ = {
-			isa = PBXGroup;
-			children = (
-				A7E50BB410D2F02600B8B3F5 /* RBSplitSubview.h */,
-				A7E50BB510D2F02600B8B3F5 /* RBSplitSubview.m */,
-				A7E50BB610D2F02600B8B3F5 /* RBSplitView.h */,
-				A7E50BB710D2F02600B8B3F5 /* RBSplitView.m */,
-				A7E50BB810D2F02600B8B3F5 /* RBSplitViewPrivateDefines.h */,
-			);
-			path = RBSplitView;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -461,8 +441,6 @@
 				A7089381109230A1005C254E /* MeshHelpers.cpp in Sources */,
 				A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */,
 				A786AF4C10B9E2EC00D65415 /* MeshFullState.mm in Sources */,
-				A7E50BB910D2F02600B8B3F5 /* RBSplitSubview.m in Sources */,
-				A7E50BBA10D2F02600B8B3F5 /* RBSplitView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -641,7 +619,7 @@
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IBC_PLUGIN_SEARCH_PATHS = RBSplitView;
+				IBC_PLUGIN_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
@@ -662,7 +640,7 @@
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IBC_PLUGIN_SEARCH_PATHS = RBSplitView;
+				IBC_PLUGIN_SEARCH_PATHS = "";
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 				USER_HEADER_SEARCH_PATHS = "";
