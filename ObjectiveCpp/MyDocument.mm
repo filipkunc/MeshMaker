@@ -33,6 +33,8 @@
 		manipulationFinished = YES;
 		oldManipulations = nil;
 		oldMeshManipulation = nil;
+		
+		views = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -46,6 +48,7 @@
 	[items release];
 	[oldManipulations release];
 	[oldMeshManipulation release];
+	[views release];
 	[super dealloc];
 }
 
@@ -54,25 +57,22 @@
 	[editModePopUp selectItemWithTag:0];
 	[viewModePopUp selectItemWithTag:0];
 	
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) 
+	[views addObject:viewTop];
+	[views addObject:viewLeft];
+	[views addObject:viewFront];
+	[views addObject:viewPerspective];
+	
+	for (OpenGLSceneView *view in views)
 	{ 
 		[view setManipulated:manipulated]; 
 		[view setDisplayed:itemsController];
 		[view setDelegate:self];
-	}];
+	};
 	
 	[viewTop setCameraMode:CameraModeTop];
 	[viewLeft setCameraMode:CameraModeLeft];
 	[viewFront setCameraMode:CameraModeFront];
 	[viewPerspective setCameraMode:CameraModePerspective];
-}
-
-- (void)onEachViewDoAction:(void (^viewAction)(OpenGLSceneView *view))actionOnView
-{
-	actionOnView(viewTop);
-	actionOnView(viewLeft);
-	actionOnView(viewFront);
-	actionOnView(viewPerspective);
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -85,11 +85,11 @@
 	manipulated = value;
 	[manipulated setCurrentManipulator:[viewPerspective currentManipulator]];
 	
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) 
+	for (OpenGLSceneView *view in views)
 	{ 
 		[view setManipulated:value];
 		[view setNeedsDisplay:YES];
-	}];
+	};
 
 	if (manipulated == itemsController)
 	{
@@ -269,33 +269,32 @@
 	[self setManipulated:meshController];
 }
 
-- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
+- (void)mergeSelectedItems
 {
-	MyDocument *document = [self prepareUndoWithName:actionName];
+	MyDocument *document = [self prepareUndoWithName:@"Merge"];
 	NSMutableArray *oldItems = [items allItems];
 	NSLog(@"oldItems count = %i", [oldItems count]);
 	
-	action();
+	[items mergeSelectedItems];
 	
 	NSMutableArray *currentItems = [items allItems];
 	NSLog(@"currentItems count = %i", [currentItems count]);
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
-					   actionName:actionName];	
+					   actionName:@"Merge"];	
 }
 
-- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
-{
-	MyDocument *document = [self prepareUndoWithName:actionName];
-	MeshFullState *oldState = [items currentMeshFull];
-	
-	action();
-	
-	MeshFullState *currentState = [items currentMeshFull];
-	[document swapMeshFullStateWithOld:oldState 
-							   current:currentState
-							actionName:actionName];
-}
+// macro magic to simulate block syntax in Objective-C 2.1
+
+#define beginFullMeshActionWithName(name) \
+MyDocument *document = [self prepareUndoWithName:name]; \
+MeshFullState *oldState = [items currentMeshFull];
+
+#define endFullMeshActionWithName(name) \
+MeshFullState *currentState = [items currentMeshFull]; \
+[document swapMeshFullStateWithOld:oldState \
+						   current:currentState \
+						actionName:name];
 
 - (void)manipulationStarted
 {
@@ -405,7 +404,10 @@
 - (IBAction)changeViewMode:(id)sender
 {
 	ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setViewMode:mode]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setViewMode:mode]; 
+	}
 }
 
 - (IBAction)mergeSelected:(id)sender
@@ -416,17 +418,20 @@
 	
 	if (manipulated == itemsController)
 	{
-		[self allItemsActionWithName:@"Merge"
-							   block:^ { [items mergeSelectedItems]; }];
+		[self mergeSelectedItems];
 	}
 	else
 	{
-		[self fullMeshActionWithName:@"Merge" 
-							   block:^ { [[self currentMesh] mergeSelected]; }];
+		beginFullMeshActionWithName(@"Merge")
+		[[self currentMesh] mergeSelected];
+		endFullMeshActionWithName(@"Merge")
 	}
 	
 	[manipulated updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views) 
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (IBAction)splitSelected:(id)sender
@@ -437,12 +442,16 @@
 	
 	if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Split"
-							   block:^ { [[self currentMesh] splitSelected]; }];
+		beginFullMeshActionWithName(@"Split")
+		[[self currentMesh] splitSelected];
+		endFullMeshActionWithName(@"Split")
 	}
 	
 	[manipulated updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (IBAction)flipSelected:(id)sender
@@ -453,12 +462,16 @@
 	
 	if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Flip"
-							   block:^ { [[self currentMesh] flipSelected]; }];
+		beginFullMeshActionWithName(@"Flip")
+		[[self currentMesh] flipSelected];
+		endFullMeshActionWithName(@"Flip")
 	}
 	
 	[manipulated updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [ view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES];
+	}
 }
 
 - (IBAction)cloneSelected:(id)sender
@@ -483,11 +496,15 @@
 	}
 	else 
 	{
-		[self fullMeshActionWithName:@"Clone"
-							   block:^ { [manipulated cloneSelected]; }];
+		beginFullMeshActionWithName(@"Clone")
+		[manipulated cloneSelected];
+		endFullMeshActionWithName(@"Clone")
 	}
 	
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 	
 	if (startManipulation)
 	{
@@ -507,7 +524,10 @@
 	[document undoCloneSelected:selection];
 	
 	[itemsController updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (void)undoCloneSelected:(NSMutableArray *)selection
@@ -523,7 +543,10 @@
 	[document redoCloneSelected:selection];
 		
 	[itemsController updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (IBAction)deleteSelected:(id)sender
@@ -541,11 +564,15 @@
 	}
 	else 
 	{
-		[self fullMeshActionWithName:@"Delete"
-							   block:^ { [manipulated removeSelected]; }];
+		beginFullMeshActionWithName(@"Delete")
+		[manipulated removeSelected];
+		endFullMeshActionWithName(@"Delete")
 	}
 	
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (void)redoDeleteSelected:(NSMutableArray *)selectedItems
@@ -560,7 +587,10 @@
 	[document undoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
@@ -574,7 +604,10 @@
 	[document redoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (IBAction)mergeVertexPairs:(id)sender
@@ -588,30 +621,43 @@
 	{
 		if ([[self currentMesh] selectionMode] == MeshSelectionModeVertices)
 		{
-			[self fullMeshActionWithName:@"Merge Vertex Pairs"
-								   block:^ { [[self currentMesh] mergeVertexPairs]; }];
+			beginFullMeshActionWithName(@"Merge Vertex Pairs")
+			[[self currentMesh] mergeVertexPairs];
+			endFullMeshActionWithName(@"Merge Vertex Pairs")
 		}
 	}
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
 	[[self manipulated] setCurrentManipulator:newManipulator];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setCurrentManipulator:newManipulator]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setCurrentManipulator:newManipulator]; 
+	}
 }
 
 - (IBAction)selectAll:(id)sender
 {
 	[[self manipulated] changeSelection:YES];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (IBAction)invertSelection:(id)sender
 {
 	[[self manipulated] invertSelection];
-	[self onEachViewDoAction:^ (OpenGLSceneView *view) { [view setNeedsDisplay:YES]; }];
+	for (OpenGLSceneView *view in views)
+	{ 
+		[view setNeedsDisplay:YES]; 
+	}
 }
 
 - (NSString *)windowNibName

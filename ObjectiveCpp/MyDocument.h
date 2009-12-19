@@ -30,6 +30,7 @@
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum MeshType itemWithSteps;
 	
+	NSMutableArray *views;
 	NSMutableArray *oldManipulations;
 	MeshManipulationState *oldMeshManipulation;
 }
@@ -37,11 +38,8 @@
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 @property (readwrite, assign) float selectionX, selectionY, selectionZ;
 
-- (void)onEachViewDoAction:(void (^viewAction)(OpenGLSceneView *view))actionOnView;
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
-- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
-- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
 - (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current;
 - (void)swapAllItemsWithOld:(NSMutableArray *)old
@@ -50,6 +48,7 @@
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
 						 current:(MeshFullState *)current 
 					  actionName:(NSString *)actionName;
+- (void)mergeSelectedItems;
 - (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps;
 - (IBAction)addCube:(id)sender;
