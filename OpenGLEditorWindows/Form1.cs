@@ -28,6 +28,9 @@ namespace OpenGLEditorWindows
         List<ItemManipulationState> oldManipulations;
         MeshManipulationState oldMeshManipulation;
 
+        string lastFileName = null;
+        string fileDialogFilter = "Native format (*.model3D)|*.model3D";
+
         public Form1()
         {
             InitializeComponent();
@@ -703,6 +706,75 @@ namespace OpenGLEditorWindows
             splitContainer3.Panel1Collapsed = false;
             oneViewMenuItem.Checked = false;
             fourViewsMenuItem.Checked = true;
+        }
+
+        #endregion
+
+        #region File menu
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            items = new ItemCollection();
+            itemsController.Model = items;
+            itemsController.UpdateSelection();
+            undo.Clear();
+            OnEachViewDo(view => view.Invalidate());
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Filter = fileDialogFilter;
+                dlg.RestoreDirectory = true;
+                if (dlg.ShowDialog() != DialogResult.OK)
+                    return;
+
+                lastFileName = dlg.FileName;
+            }
+
+            items = new ItemCollection();
+            items.ReadFromFile(lastFileName);
+            itemsController.Model = items;
+            itemsController.UpdateSelection();
+            undo.Clear();
+            OnEachViewDo(view => view.Invalidate());
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(lastFileName))
+            {
+                using (SaveFileDialog dlg = new SaveFileDialog())
+                {
+                    dlg.Filter = fileDialogFilter;
+                    dlg.RestoreDirectory = true;
+                    if (dlg.ShowDialog() != DialogResult.OK)
+                        return;
+
+                    lastFileName = dlg.FileName;
+                }
+            }
+            items.WriteToFile(lastFileName);
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Filter = fileDialogFilter;
+                dlg.RestoreDirectory = true;
+                if (dlg.ShowDialog() != DialogResult.OK)
+                    return;
+
+                lastFileName = dlg.FileName;
+            }
+            items.WriteToFile(lastFileName);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
 
         #endregion

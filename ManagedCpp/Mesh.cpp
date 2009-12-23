@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Mesh.cpp
  *  OpenGLEditor
  *
@@ -1412,4 +1412,40 @@ namespace ManagedCpp
 	}
 
 	#pragma endregion
+
+	void Mesh::Decode(ifstream *fin)
+	{
+		uint verticesSize;
+		uint trianglesSize;
+		fin->read((char *)&verticesSize, sizeof(uint));
+		fin->read((char *)&trianglesSize, sizeof(uint));
+
+		for (uint i = 0; i < verticesSize; i++)
+		{
+			Vector3D vertex;
+			fin->read((char *)&vertex, sizeof(Vector3D));
+			vertices->push_back(vertex);
+		}
+
+		for (uint i = 0; i < trianglesSize; i++)
+		{
+			Triangle triangle;
+			fin->read((char *)&triangle, sizeof(Triangle));
+			triangles->push_back(triangle);
+		}
+	}
+
+	void Mesh::Encode(ofstream *fout)
+	{
+		uint size = vertices->size(); 
+		fout->write((char *)&size, sizeof(uint));
+		size = triangles->size();
+		fout->write((char *)&size, sizeof(uint));
+		
+		if (vertices->size() > 0)
+			fout->write((char *)&vertices->at(0), vertices->size() * sizeof(Vector3D));
+		
+		if (triangles->size() > 0)
+			fout->write((char *)&triangles->at(0), triangles->size() * sizeof(Triangle));
+	}
 }

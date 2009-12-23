@@ -14,12 +14,13 @@
 #include "MeshManipulationState.h"
 #include "MeshFullState.h"
 #include "IndexedItem.h"
+#include "CppFileStreaming.h"
 
 using namespace System::Collections::Generic;
 
 namespace ManagedCpp
 {
-	public ref class ItemCollection : OpenGLManipulatingModelItem
+	public ref class ItemCollection : OpenGLManipulatingModelItem, CppFileStreaming
 	{
 	private:
 		List<Item ^> ^items;
@@ -91,5 +92,11 @@ namespace ManagedCpp
 		void SetSelectionFromIndexedItems(List<IndexedItem ^> ^anItems);
 
 		void DeselectAll();
+
+		virtual void Decode(ifstream *fin);
+		virtual void Encode(ofstream *fout);
+
+		bool ReadFromFile(String ^fileName);
+		void WriteToFile(String ^fileName);
 	};
 }

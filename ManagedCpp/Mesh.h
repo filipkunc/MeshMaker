@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Mesh.h
  *  OpenGLEditor
  *
@@ -23,10 +23,11 @@ using namespace System::Drawing;
 using namespace System::Diagnostics;
 
 #include "OpenGLManipulatingModel.h"
+#include "CppFileStreaming.h"
 
 namespace ManagedCpp
 {
-	public ref class Mesh : OpenGLManipulatingModelMesh
+	public ref class Mesh : OpenGLManipulatingModelMesh, CppFileStreaming
 	{
 	public:
 		vector<Vector3D> *vertices;
@@ -106,5 +107,8 @@ namespace ManagedCpp
 		virtual void SetSelected(CocoaBool isSelected, uint index);
 		virtual void CloneSelected();
 		virtual void RemoveSelected();
+
+		virtual void Decode(ifstream *fin);
+		virtual void Encode(ofstream *fout);
 	};
 }

@@ -297,6 +297,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CppFileStreaming.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IndexedItem.cpp"
 				>
 			</File>
@@ -342,6 +346,10 @@
 			</File>
 			<File
 				RelativePath=".\ManipulatorWidget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MarshalHelpers.h"
 				>
 			</File>
 			<File

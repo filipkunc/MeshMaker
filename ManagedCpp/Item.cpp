@@ -121,4 +121,26 @@ namespace ManagedCpp
 	{
 		return mesh;
 	}
+
+	void Item::Decode(ifstream *fin)
+	{
+		fin->read((char *)position, sizeof(Vector3D));
+		fin->read((char *)rotation, sizeof(Quaternion));
+		fin->read((char *)scale, sizeof(Vector3D));
+		CocoaBool stackSelected = selected;
+		fin->read((char *)&stackSelected, sizeof(CocoaBool));
+
+		mesh->Decode(fin);
+	}
+
+	void Item::Encode(ofstream *fout)
+	{
+		fout->write((char *)position, sizeof(Vector3D));
+		fout->write((char *)rotation, sizeof(Quaternion));
+		fout->write((char *)scale, sizeof(Vector3D));
+		CocoaBool stackSelected = selected;
+		fout->write((char *)&stackSelected, sizeof(CocoaBool));
+
+		mesh->Encode(fout);
+	}
 }
