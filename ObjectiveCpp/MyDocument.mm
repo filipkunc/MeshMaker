@@ -673,10 +673,10 @@ MeshFullState *currentState = [items currentMeshFull]; \
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
 }
 
-- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
-{
-	return [NSKeyedArchiver archivedDataWithRootObject:items];
-}
+//- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
+//{
+//	return [NSKeyedArchiver archivedDataWithRootObject:items];
+//}
 
 - (void)readFromTmd:(NSString *)fileName
 {
@@ -721,12 +721,47 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	[self setManipulated:itemsController];
 }
 
+- (BOOL)readFromModel3D:(NSString *)fileName
+{
+	// ugly ASCII encoding, should be Unicode
+	const char *cFileName = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+	ifstream fin;
+	fin.open(cFileName, ios::in | ios::binary);
+	if (fin.is_open())
+	{
+		ItemCollection *newItems = [[ItemCollection alloc] initWithFileStream:&fin];
+		[newItems retain];
+		[items release];
+		items = newItems;
+		[itemsController setModel:items];
+		[itemsController updateSelection];
+		[self setManipulated:itemsController];
+		fin.close();
+		return YES;
+	}
+	fin.close();
+	return NO;
+}
+
+- (void)writeToModel3D:(NSString *)fileName
+{
+	// ugly ASCII encoding, should be Unicode
+	const char *cFileName = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+	ofstream fout;
+	fout.open(cFileName, ios::out | ios::binary);
+	[items encodeWithFileStream:&fout];
+	fout.close();
+}
+
+// these read/write methods are deprecated, I need to use newer methods
+
 - (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)typeName
 {
-	NSLog(@"readFromFile typeName:%@", typeName);
+	NSLog(@"readFromFile:%@ typeName:%@", fileName, typeName);
 	if ([typeName isEqual:@"model3D"])
 	{
-		return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
+		//return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
+		return [self readFromModel3D:fileName];
 	}
 	else if ([typeName isEqual:@"TMD"])
 	{
@@ -736,35 +771,46 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	return NO;
 }
 
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
+- (BOOL)writeToFile:(NSString *)fileName ofType:(NSString *)typeName
 {
-	NSLog(@"readFromData typeName:%@", typeName);
-	ItemCollection *newItems = nil;
-	@try
+	NSLog(@"writeToFile:%@ typeName:%@", fileName, typeName);
+	if ([typeName isEqual:@"model3D"])
 	{
-		newItems = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+		[self writeToModel3D:fileName];
+		return YES;
 	}
-	@catch (NSException *e)
-	{
-		if (outError)
-		{
-			NSDictionary *d = 
-			[NSDictionary dictionaryWithObject:@"The data is corrupted."
-										forKey:NSLocalizedFailureReasonErrorKey];
-			
-			*outError = [NSError errorWithDomain:NSOSStatusErrorDomain 
-											code:unimpErr
-										userInfo:d];
-		}
-		return NO;
-	}
-	[newItems retain];
-	[items release];
-	items = newItems;
-	[itemsController setModel:items];
-	[itemsController updateSelection];
-	[self setManipulated:itemsController];
-	return YES;
+	return NO;
 }
+
+//- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
+//{
+//	NSLog(@"readFromData typeName:%@", typeName);
+//	ItemCollection *newItems = nil;
+//	@try
+//	{
+//		newItems = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+//	}
+//	@catch (NSException *e)
+//	{
+//		if (outError)
+//		{
+//			NSDictionary *d = 
+//			[NSDictionary dictionaryWithObject:@"The data is corrupted."
+//										forKey:NSLocalizedFailureReasonErrorKey];
+//			
+//			*outError = [NSError errorWithDomain:NSOSStatusErrorDomain 
+//											code:unimpErr
+//										userInfo:d];
+//		}
+//		return NO;
+//	}
+//	[newItems retain];
+//	[items release];
+//	items = newItems;
+//	[itemsController setModel:items];
+//	[itemsController updateSelection];
+//	[self setManipulated:itemsController];
+//	return YES;
+//}
 
 @end
