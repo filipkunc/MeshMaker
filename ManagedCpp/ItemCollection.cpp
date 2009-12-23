@@ -7,6 +7,7 @@
 //
 
 #include "ItemCollection.h"
+#include "MarshalHelpers.h"
 
 namespace ManagedCpp
 {
@@ -352,5 +353,57 @@ namespace ManagedCpp
 	{
 		for (uint i = 0; i < this->Count; i++)
 			this->SetSelected(NO, i);
+	}
+
+	void ItemCollection::Decode(ifstream *fin)
+	{
+		uint itemsCount;
+		fin->read((char *)&itemsCount, sizeof(itemsCount));
+		for (uint i = 0; i < itemsCount; i++)
+		{
+			Item ^item = gcnew Item();
+			item->Decode(fin);
+			items->Add(item);
+		}
+	}
+
+	void ItemCollection::Encode(ofstream *fout)
+	{
+		uint itemsCount = items->Count;
+		fout->write((char *)&itemsCount, sizeof(uint));
+		for (uint i = 0; i < itemsCount; i++)
+		{
+			Item ^item = this->GetItem(i);
+			item->Encode(fout);
+		}
+	}
+
+	bool ItemCollection::ReadFromFile(String ^fileName)
+	{
+		string nativeFileName = NativeString(fileName);
+		
+		ifstream fin;
+		fin.open(nativeFileName.c_str(), ios::in | ios::binary);
+
+		if (fin.is_open())
+		{
+			Decode(&fin);
+			fin.close();
+			return true;
+		}
+
+		fin.close();
+		return false;
+	}
+
+	void ItemCollection::WriteToFile(String ^fileName)
+	{
+		string nativeFileName = NativeString(fileName);
+		
+		ofstream fout;
+		fout.open(nativeFileName.c_str(), ios::out | ios::binary);
+
+		Encode(&fout);
+		fout.close();
 	}
 }

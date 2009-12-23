@@ -65,5 +65,12 @@ namespace HotChocolate
                 keyValuePair.Value.Perform();
             }
         }
+
+        public void Clear()
+        {
+            undoStack.Clear();
+            redoStack.Clear();
+            undoing = false;
+        }
     }
 }

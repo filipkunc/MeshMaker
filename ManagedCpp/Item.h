@@ -13,10 +13,11 @@
 #include "../PureCpp/Enums.h"
 #include "../PureCpp/MeshHelpers.h"
 #include "Mesh.h"
+#include "CppFileStreaming.h"
 
 namespace ManagedCpp 
 {
-	public ref class Item
+	public ref class Item : CppFileStreaming
 	{
 	private:
 		Vector3D *position;
@@ -41,5 +42,8 @@ namespace ManagedCpp
 		
 		Item ^ Clone();
 		Mesh ^ GetMesh();
+
+		virtual void Decode(ifstream *fin);
+		virtual void Encode(ofstream *fout);
 	};
 }
