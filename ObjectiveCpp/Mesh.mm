@@ -1485,7 +1485,6 @@
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
 	self = [self init];
-
 	if (self)
 	{		
 		NSUInteger tempLength = 0;
@@ -1512,6 +1511,49 @@
 	// problem with zero size, should be handled in code for Item
 	[aCoder encodeBytes:(uint8_t *)&vertices->at(0) length:vertices->size() * sizeof(Vector3D) forKey:@"vertices"];
 	[aCoder encodeBytes:(uint8_t *)&triangles->at(0) length:triangles->size() * sizeof(Triangle) forKey:@"triangles"];
+}
+
+#pragma mark CppFileStreaming implementation
+
+- (id)initWithFileStream:(ifstream *)fin
+{
+	self = [self init];
+	if (self)
+	{
+		uint verticesSize;
+		uint trianglesSize;
+		fin->read((char *)&verticesSize, sizeof(uint));
+		fin->read((char *)&trianglesSize, sizeof(uint));
+		
+		for (uint i = 0; i < verticesSize; i++)
+		{
+			Vector3D vertex;
+			fin->read((char *)&vertex, sizeof(Vector3D));
+			vertices->push_back(vertex);
+		}
+		
+		for (uint i = 0; i < trianglesSize; i++)
+		{
+			Triangle triangle;
+			fin->read((char *)&triangle, sizeof(Triangle));
+			triangles->push_back(triangle);
+		}
+	}
+	return self;
+}
+
+- (void)encodeWithFileStream:(ofstream *)fout
+{
+	uint size = vertices->size(); 
+	fout->write((char *)&size, sizeof(uint));
+	size = triangles->size();
+	fout->write((char *)&size, sizeof(uint));
+	
+	if (vertices->size() > 0)
+		fout->write((char *)&vertices->at(0), vertices->size() * sizeof(Vector3D));
+	
+	if (triangles->size() > 0)
+		fout->write((char *)&triangles->at(0), triangles->size() * sizeof(Triangle));
 }
 
 @end

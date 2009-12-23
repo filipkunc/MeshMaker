@@ -69,6 +69,8 @@
 	return self;
 }
 
+#pragma mark NSCoding implementation
+
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
 	self = [super init];
@@ -113,8 +115,41 @@
 	[aCoder encodeFloat:scale->z forKey:@"scaleZ"];
 	
 	[aCoder encodeBool:selected forKey:@"selected"];
-
+	
 	[aCoder encodeObject:mesh forKey:@"mesh"];
+}
+
+#pragma mark CppFileStreaming implementation
+
+- (id)initWithFileStream:(ifstream *)fin
+{
+	self = [super init];
+	if (self)
+	{
+		position = new Vector3D();
+		fin->read((char *)position, sizeof(Vector3D));
+		
+		rotation = new Quaternion();
+		fin->read((char *)rotation, sizeof(Quaternion));
+		
+		scale = new Vector3D();
+		fin->read((char *)scale, sizeof(Vector3D));
+		
+		fin->read((char *)&selected, sizeof(BOOL));
+		
+		mesh = [[Mesh alloc] initWithFileStream:fin];
+	}
+	return self;
+}
+
+- (void)encodeWithFileStream:(ofstream *)fout
+{
+	fout->write((char *)position, sizeof(Vector3D));
+	fout->write((char *)rotation, sizeof(Quaternion));
+	fout->write((char *)scale, sizeof(Vector3D));
+	fout->write((char *)&selected, sizeof(BOOL));
+	
+	[mesh encodeWithFileStream:fout];
 }
 
 - (void)dealloc

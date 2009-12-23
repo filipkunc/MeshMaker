@@ -22,6 +22,8 @@
 	return self;
 }
 
+#pragma mark NSCoding implementation
+
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
 	self = [super init];
@@ -35,6 +37,36 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
 	[aCoder encodeObject:items forKey:@"items"];
+}
+
+#pragma mark CppFileStreaming implementation
+
+- (id)initWithFileStream:(ifstream *)fin
+{
+	self = [super init];
+	if (self)
+	{
+		items = [[NSMutableArray alloc] init];
+		uint itemsCount;
+		fin->read((char *)&itemsCount, sizeof(uint));
+		for (uint i = 0; i < itemsCount; i++)
+		{
+			Item *item = [[Item alloc] initWithFileStream:fin];
+			[items addObject:item];
+		}
+	}
+	return self;
+}
+
+- (void)encodeWithFileStream:(ofstream *)fout
+{
+	uint itemsCount = [items count];
+	fout->write((char *)&itemsCount, sizeof(uint));
+	for (uint i = 0; i < itemsCount; i++)
+	{		
+		Item *item = [self itemAtIndex:i];
+		[item encodeWithFileStream:fout];
+	}
 }
 
 - (void)dealloc

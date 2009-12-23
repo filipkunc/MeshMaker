@@ -10,12 +10,13 @@
 #import "MathDeclaration.h"
 #import "OpenGLManipulatingController.h"
 #import "MeshHelpers.h"
+#import "CppFileStreaming.h"
 #import <vector>
 using namespace std;
 
 //#define MESH_DRAW_AS_VBO
 
-@interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding>
+@interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>
 {
 @public
 	vector<Vector3D> *vertices;

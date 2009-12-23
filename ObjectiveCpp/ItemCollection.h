@@ -15,7 +15,7 @@
 #import "MeshManipulationState.h"
 #import "MeshFullState.h"
 
-@interface ItemCollection : NSObject <OpenGLManipulatingModelItem, NSCoding>
+@interface ItemCollection : NSObject <OpenGLManipulatingModelItem, NSCoding, CppFileStreaming>
 {
 	NSMutableArray *items;
 }

@@ -72,5 +72,7 @@
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
 - (void)readFromTmd:(NSString *)fileName;
+- (BOOL)readFromModel3D:(NSString *)fileName;
+- (void)writeToModel3D:(NSString *)fileName;
 
 @end
