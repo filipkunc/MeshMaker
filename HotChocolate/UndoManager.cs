@@ -7,15 +7,27 @@ namespace HotChocolate
 {
     public class UndoManager
     {
-        Stack<KeyValuePair<string, Invocation>> undoStack;
-        Stack<KeyValuePair<string, Invocation>> redoStack;
+        Stack<UndoableAction> undoStack;
+        Stack<UndoableAction> redoStack;
         bool undoing;
+        UndoableAction lastSavedAction;
 
         public UndoManager()
         {
-            undoStack = new Stack<KeyValuePair<string, Invocation>>();
-            redoStack = new Stack<KeyValuePair<string, Invocation>>();
+            undoStack = new Stack<UndoableAction>();
+            redoStack = new Stack<UndoableAction>();
             undoing = false;
+            lastSavedAction = null;
+        }
+
+        public bool NeedsSave
+        {
+            get 
+            {
+                if (CanUndo && lastSavedAction == undoStack.Peek())
+                    return true;
+                return false;
+            }
         }
 
         public bool CanUndo
@@ -30,29 +42,30 @@ namespace HotChocolate
 
         public string UndoName
         {
-            get { return undoStack.Peek().Key; }
+            get { return undoStack.Peek().Name; }
         }
 
         public string RedoName
         {
-            get { return redoStack.Peek().Key; }
+            get { return redoStack.Peek().Name; }
         }
 
         public void PrepareUndo(string name, Invocation invocation)
         {
+            UndoableAction undoableAction = new UndoableAction(name, invocation);
             if (undoing)
-                redoStack.Push(new KeyValuePair<string, Invocation>(name, invocation));
+                redoStack.Push(undoableAction);
             else
-                undoStack.Push(new KeyValuePair<string, Invocation>(name, invocation));
+                undoStack.Push(undoableAction);
         }
 
         public void Undo()
         {
             if (CanUndo)
             {
-                var keyValuePair = undoStack.Pop();
+                var undoableAction = undoStack.Pop();
                 undoing = true;
-                keyValuePair.Value.Perform();
+                undoableAction.Perform();
                 undoing = false;
             }
         }
@@ -61,8 +74,8 @@ namespace HotChocolate
         {
             if (CanRedo)
             {
-                var keyValuePair = redoStack.Pop();
-                keyValuePair.Value.Perform();
+                var undoableAction = redoStack.Pop();
+                undoableAction.Perform();
             }
         }
 
@@ -71,6 +84,14 @@ namespace HotChocolate
             undoStack.Clear();
             redoStack.Clear();
             undoing = false;
+        }
+
+        public void DocumentSaved()
+        {
+            if (CanUndo)
+                lastSavedAction = undoStack.Peek();
+            else
+                lastSavedAction = null;
         }
     }
 }
