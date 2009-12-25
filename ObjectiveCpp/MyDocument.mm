@@ -673,6 +673,8 @@ MeshFullState *currentState = [items currentMeshFull]; \
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
 }
 
+#pragma mark Archivation
+
 //- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
 //{
 //	return [NSKeyedArchiver archivedDataWithRootObject:items];
@@ -812,5 +814,35 @@ MeshFullState *currentState = [items currentMeshFull]; \
 //	[self setManipulated:itemsController];
 //	return YES;
 //}
+
+#pragma mark Splitter sync
+
+// fix for issue four-views works independetly on Mac version
+- (void)splitViewDidResizeSubviews:(NSNotification *)notification
+{
+	NSSplitView *splitView = (NSSplitView *)[notification object];
+	NSView *topSubview0 = (NSView *)[[topSplit subviews] objectAtIndex:0];
+	NSView *topSubview1 = (NSView *)[[topSplit subviews] objectAtIndex:1];
+	
+	NSView *bottomSubview0 = (NSView *)[[bottomSplit subviews] objectAtIndex:0];
+	NSView *bottomSubview1 = (NSView *)[[bottomSplit subviews] objectAtIndex:1];
+	
+	// we are interested only in width change
+	if (fabsf([bottomSubview0 frame].size.width - [topSubview0 frame].size.width) >= 1.0f)
+	{
+		if (splitView == topSplit)
+		{
+			NSLog(@"topSplit");
+			[bottomSubview0 setFrame:[topSubview0 frame]];
+			[bottomSubview1 setFrame:[topSubview1 frame]];
+		}
+		else
+		{
+			NSLog(@"bottomSplit");
+			[topSubview0 setFrame:[bottomSubview0 frame]];
+			[topSubview1 setFrame:[bottomSubview1 frame]];
+		}
+	}
+}
 
 @end

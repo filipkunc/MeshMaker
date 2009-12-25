@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="100347"/>
+			<integer value="100349"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1241,6 +1241,38 @@
 					</object>
 					<int key="connectionID">100353</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">topSplit</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="576154545"/>
+					</object>
+					<int key="connectionID">100354</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">bottomSplit</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="752972658"/>
+					</object>
+					<int key="connectionID">100355</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="576154545"/>
+						<reference key="destination" ref="512844837"/>
+					</object>
+					<int key="connectionID">100356</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="752972658"/>
+						<reference key="destination" ref="512844837"/>
+					</object>
+					<int key="connectionID">100357</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1689,6 +1721,9 @@
 					<string>100340.IBPluginDependency</string>
 					<string>100341.CustomClassName</string>
 					<string>100341.IBPluginDependency</string>
+					<string>100347.IBPluginDependency</string>
+					<string>100348.IBPluginDependency</string>
+					<string>100349.IBPluginDependency</string>
 					<string>5.IBEditorWindowLastContentRect</string>
 					<string>5.IBPluginDependency</string>
 					<string>5.IBWindowTemplateEditedContentRect</string>
@@ -1761,6 +1796,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>OpenGLSceneView</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{300, 226}, {739, 475}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{300, 226}, {739, 475}}</string>
@@ -1790,7 +1828,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">100353</int>
+			<int key="maxID">100357</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1867,8 +1905,10 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addItemWithStepsSheetController</string>
+							<string>bottomSplit</string>
 							<string>editModePopUp</string>
 							<string>manipulated</string>
+							<string>topSplit</string>
 							<string>viewFront</string>
 							<string>viewLeft</string>
 							<string>viewModePopUp</string>
@@ -1878,8 +1918,10 @@
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>AddItemWithStepsSheetController</string>
+							<string>NSSplitView</string>
 							<string>NSPopUpButton</string>
 							<string>id</string>
+							<string>NSSplitView</string>
 							<string>OpenGLSceneView</string>
 							<string>OpenGLSceneView</string>
 							<string>NSPopUpButton</string>

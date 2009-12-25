@@ -33,6 +33,9 @@
 	NSMutableArray *views;
 	NSMutableArray *oldManipulations;
 	MeshManipulationState *oldMeshManipulation;
+	
+	IBOutlet NSSplitView *topSplit;
+	IBOutlet NSSplitView *bottomSplit;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
