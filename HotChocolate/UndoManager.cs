@@ -5,26 +5,28 @@ using System.Text;
 
 namespace HotChocolate
 {
-    public class UndoManager
+    public sealed class UndoManager
     {
         Stack<UndoableAction> undoStack;
         Stack<UndoableAction> redoStack;
         bool undoing;
-        UndoableAction lastSavedAction;
+        int lastUndoStackCount;
+
+        public event EventHandler NeedsSaveChanged;
 
         public UndoManager()
         {
             undoStack = new Stack<UndoableAction>();
             redoStack = new Stack<UndoableAction>();
             undoing = false;
-            lastSavedAction = null;
+            lastUndoStackCount = 0;
         }
 
         public bool NeedsSave
         {
             get 
             {
-                if (CanUndo && lastSavedAction == undoStack.Peek())
+                if (CanUndo && lastUndoStackCount != undoStack.Count)
                     return true;
                 return false;
             }
@@ -57,6 +59,7 @@ namespace HotChocolate
                 redoStack.Push(undoableAction);
             else
                 undoStack.Push(undoableAction);
+            OnNeedsSaveChanged();
         }
 
         public void Undo()
@@ -67,6 +70,7 @@ namespace HotChocolate
                 undoing = true;
                 undoableAction.Perform();
                 undoing = false;
+                OnNeedsSaveChanged();
             }
         }
 
@@ -76,6 +80,7 @@ namespace HotChocolate
             {
                 var undoableAction = redoStack.Pop();
                 undoableAction.Perform();
+                OnNeedsSaveChanged();
             }
         }
 
@@ -84,14 +89,20 @@ namespace HotChocolate
             undoStack.Clear();
             redoStack.Clear();
             undoing = false;
+            lastUndoStackCount = undoStack.Count;
+            OnNeedsSaveChanged();
         }
 
         public void DocumentSaved()
         {
-            if (CanUndo)
-                lastSavedAction = undoStack.Peek();
-            else
-                lastSavedAction = null;
+            lastUndoStackCount = undoStack.Count;
+            OnNeedsSaveChanged();
+        }
+
+        private void OnNeedsSaveChanged()
+        {
+            if (NeedsSaveChanged != null)
+                NeedsSaveChanged(this, EventArgs.Empty);
         }
     }
 }

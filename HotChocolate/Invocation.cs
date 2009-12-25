@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HotChocolate
 {
-    public class Invocation
+    public sealed class Invocation
     {
         object argument;
         Delegate action;
