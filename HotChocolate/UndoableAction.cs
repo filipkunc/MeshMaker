@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HotChocolate
 {
-    public class UndoableAction
+    public sealed class UndoableAction
     {
         string name;
         Invocation invocation;

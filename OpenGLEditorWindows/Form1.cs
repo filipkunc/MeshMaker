@@ -10,6 +10,7 @@ using ManagedCpp;
 using HotChocolate;
 using HotChocolate.Bindings;
 using System.Diagnostics;
+using System.IO;
 
 namespace OpenGLEditorWindows
 {
@@ -74,6 +75,46 @@ namespace OpenGLEditorWindows
             manipulationFinished = true;
             oldManipulations = null;
             oldMeshManipulation = null;
+
+            undo.NeedsSaveChanged += new EventHandler(undo_NeedsSaveChanged);
+            this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
+        }
+
+        void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (undo.NeedsSave)
+            {
+                DialogResult result = MessageBox.Show(
+                    "Do you want to save this document?", 
+                    "Question", 
+                    MessageBoxButtons.YesNoCancel);
+
+                switch (result)
+                {
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        return;
+                    case DialogResult.Yes:
+                        saveToolStripMenuItem_Click(this, EventArgs.Empty);
+                        return;
+                    case DialogResult.No:
+                    default:
+                        return;
+                }
+            }
+        }
+
+        void undo_NeedsSaveChanged(object sender, EventArgs e)
+        {
+            StringBuilder formTitle = new StringBuilder();
+            formTitle.Append("OpenGL Editor - ");
+            if (string.IsNullOrEmpty(lastFileName))
+                formTitle.Append("Untitled");
+            else
+                formTitle.Append(Path.GetFileNameWithoutExtension(lastFileName));
+            if (undo.NeedsSave)
+                formTitle.Append(" *");
+            this.Text = formTitle.ToString();
         }
 
         #region Bindings magic
@@ -756,6 +797,7 @@ namespace OpenGLEditorWindows
                 }
             }
             items.WriteToFile(lastFileName);
+            undo.DocumentSaved();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -770,11 +812,12 @@ namespace OpenGLEditorWindows
                 lastFileName = dlg.FileName;
             }
             items.WriteToFile(lastFileName);
+            undo.DocumentSaved();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            this.Close();
         }
 
         #endregion
