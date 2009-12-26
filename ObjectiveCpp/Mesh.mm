@@ -316,9 +316,16 @@
 
 - (void)drawFillWithScale:(Vector3D)scale
 {	
-	//[self drawAsVBOWithScale:scale]; // needs MESH_DRAW_AS_VBO in Mesh.h
-	//[self drawAsVertexArrayWithScale:scale];
+	// see defines in Mesh.h
+#ifdef GEOMETRY_SHADER_NORMAL_GENERATION
+#ifdef MESH_DRAW_AS_VBO
+	[self drawAsVBOWithScale:scale];
+#else
+	[self drawAsVertexArrayWithScale:scale];
+#endif
+#else
 	[self drawAsCommandsWithScale:scale];
+#endif
 }
 
 - (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected
