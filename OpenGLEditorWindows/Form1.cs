@@ -80,7 +80,7 @@ namespace OpenGLEditorWindows
             this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
         }
 
-        void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        bool IsSaveQuestionCancelled()
         {
             if (undo.NeedsSave)
             {
@@ -92,16 +92,22 @@ namespace OpenGLEditorWindows
                 switch (result)
                 {
                     case DialogResult.Cancel:
-                        e.Cancel = true;
-                        return;
+                        return true;
                     case DialogResult.Yes:
                         saveToolStripMenuItem_Click(this, EventArgs.Empty);
-                        return;
+                        return false;
                     case DialogResult.No:
                     default:
-                        return;
+                        return false;
                 }
             }
+            return false;
+        }
+
+        void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (IsSaveQuestionCancelled())
+                e.Cancel = true;
         }
 
         void undo_NeedsSaveChanged(object sender, EventArgs e)
@@ -755,6 +761,9 @@ namespace OpenGLEditorWindows
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (IsSaveQuestionCancelled())
+                return;
+
             items = new ItemCollection();
             itemsController.Model = items;
             itemsController.UpdateSelection();
@@ -764,6 +773,9 @@ namespace OpenGLEditorWindows
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (IsSaveQuestionCancelled())
+                return;
+
             using (OpenFileDialog dlg = new OpenFileDialog())
             {
                 dlg.Filter = fileDialogFilter;
