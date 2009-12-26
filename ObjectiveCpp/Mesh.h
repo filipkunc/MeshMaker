@@ -14,6 +14,7 @@
 #import <vector>
 using namespace std;
 
+//#define GEOMETRY_SHADER_NORMAL_GENERATION
 //#define MESH_DRAW_AS_VBO
 
 @interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>

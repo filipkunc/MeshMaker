@@ -12,6 +12,8 @@
 #import "OpenGLSelecting.h"
 #import "Manipulator.h"
 #import "OpenGLManipulating.h"
+#import "Shader.h"
+#import "Mesh.h"
 
 @protocol OpenGLSceneViewDelegate
 
@@ -38,9 +40,11 @@
 	Manipulator *rotationManipulator;
 	Manipulator *scaleManipulator;
 	Manipulator *currentManipulator;
-	
 	enum CameraMode cameraMode;
 	enum ViewMode viewMode;
+#ifdef GEOMETRY_SHADER_NORMAL_GENERATION
+	ShaderProgram *shaderProgram;
+#endif
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> displayed;
