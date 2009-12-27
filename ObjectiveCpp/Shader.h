@@ -35,6 +35,8 @@
 - (void)setGeometryInput:(GLenum)input output:(GLenum)output;
 - (void)linkProgram;
 - (void)useProgram;
++ (void)setCurrentShaderProgram:(ShaderProgram *)shaderProgram;
++ (ShaderProgram *)currentShaderProgram;
 + (void)resetProgram;
 
 @end

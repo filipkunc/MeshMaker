@@ -7,6 +7,7 @@
 //
 
 #import "Mesh.h"
+#import "Shader.h"
 
 @implementation Mesh
 
@@ -60,14 +61,9 @@
 										  alpha:1.0f];
 		[color retain];
 		
-#ifdef MESH_DRAW_AS_VBO
-		vertexBufferID = 0;
-		triangleBufferID = 0;
-		dataChanged = YES;
-		glGenBuffersARB(1, &vertexBufferID);
-		glGenBuffersARB(1, &triangleBufferID);
-#endif
-		
+		cachedVertices = NULL;
+		cachedNormals = NULL;
+		cachedColors = NULL;
 	}
 	return self;
 }
@@ -80,12 +76,7 @@
 	delete selected;
 	delete markedVertices;
 	[color release];
-
-#ifdef MESH_DRAW_AS_VBO
-	glDeleteBuffers(1, &vertexBufferID);
-	glDeleteBuffers(1, &triangleBufferID);
-#endif
-	
+	[self resetCache];
 	[super dealloc];
 }
 
@@ -200,137 +191,135 @@
 		selected->push_back(NO);
 }
 
-- (void)drawAsVBOWithScale:(Vector3D)scale
+- (void)resetCache
 {
-#ifdef MESH_DRAW_AS_VBO
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertexBufferID);
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, triangleBufferID);
-
-	if (dataChanged)
+	if (cachedVertices)
 	{
-		float *vertexPtr = (float *)(&(*vertices)[0]);
-		uint *trianglePtr = (uint *)(&(*triangles)[0]);
-
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, vertices->size() * sizeof(Vector3D), vertexPtr, GL_DYNAMIC_DRAW_ARB);
-		glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, triangles->size() * sizeof(Triangle), trianglePtr, GL_DYNAMIC_DRAW_ARB);
-				
-		dataChanged = NO;
+		delete [] cachedVertices;
+		cachedVertices = NULL;
 	}
-	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
-	glDrawElements(GL_TRIANGLES, triangles->size() * 3, GL_UNSIGNED_INT, 0);
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-#endif
+	if (cachedNormals)
+	{
+		delete [] cachedNormals;
+		cachedNormals = NULL;
+	}
+	if (cachedColors)
+	{
+		delete [] cachedColors;
+		cachedColors = NULL;
+	}
+}
+
+- (void)fillCacheWithScale:(Vector3D)scale colorComponents:(CGFloat *)components
+{
+	if (!cachedVertices || !cachedNormals || !cachedColors)
+	{
+		BOOL flip = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+		
+		cachedVertices = new Vector3D[triangles->size() * 3];
+		cachedNormals = new Vector3D[triangles->size() * 3];
+		cachedColors = new Vector3D[triangles->size() * 3];
+		Vector3D triangleVertices[3];
+		
+		for (uint i = 0; i < triangles->size(); i++)
+		{
+			Triangle currentTriangle = [self triangleAtIndex:i];
+			if (flip)
+				currentTriangle = FlipTriangle(currentTriangle);
+			
+			[self getTriangleVertices:triangleVertices fromTriangle:currentTriangle];
+			for (uint j = 0; j < 3; j++)
+			{
+				for (uint k = 0; k < 3; k++)
+				{
+					triangleVertices[j][k] *= scale[k];
+				}
+			}
+			Vector3D n = NormalFromTriangleVertices(triangleVertices);
+			n.Normalize();
+			
+			for (uint j = 0; j < 3; j++)
+			{
+				cachedVertices[i * 3 + j] = triangleVertices[j];
+				cachedNormals[i * 3 + j] = n;
+				for (uint k = 0; k < 3; k++)
+				{
+					cachedColors[i * 3 + j][k] = components[k];
+				}
+			}
+		}
+	}
+}
+
+- (void)updateColorCacheWithComponents:(CGFloat *)components
+{
+	if (selectionMode == MeshSelectionModeTriangles)
+	{	
+		for (uint i = 0; i < triangles->size(); i++)
+		{
+			if ((*selected)[i])
+			{
+				for (uint j = 0; j < 3; j++)
+				{
+					cachedColors[i * 3 + j].x = 0.7f;
+					cachedColors[i * 3 + j].y = 0.0f;
+					cachedColors[i * 3 + j].z = 0.0f;
+				}				
+			}
+			else
+			{
+				for (uint j = 0; j < 3; j++)
+				{
+					for (uint k = 0; k < 3; k++)
+					{
+						cachedColors[i * 3 + j][k] = components[k];
+					}
+				}	
+			}
+		}
+	}
 }
 
 - (void)drawAsVertexArrayWithScale:(Vector3D)scale
 {
-	// experimental fast drawing
-	
-	// Flat lighting is missing due to complexity of generating normals.
-	// Normal must be different for each triangle and distributed on all
-	// three vertices of this triangle.
-	// Problem is that vertices is shared, but normals not.
-	// Another possibility is using shared normals and doing smooth shading.
-	// Each normal will be then averaged on each vertex.
-	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	
-	uint *trianglePtr = (uint *)(&(*triangles)[0]);
-	float *vertexPtr = (float *)(&(*vertices)[0]);
-	
-	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
-	glDrawElements(GL_TRIANGLES, triangles->size() * 3, GL_UNSIGNED_INT, trianglePtr);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-- (void)drawAsCommandsWithScale:(Vector3D)scale
-{
-	float frontDiffuse[4] = { 0.4, 0.4, 0.4, 1 };
 	CGFloat components[4];
 	[color getComponents:components];
-	float backDiffuse[4];
-	float selectedDiffuse[4] = { 1.0f, 0.0f, 0.0f, 1 };
 	
-	for (uint i = 0; i < 4; i++)
-		backDiffuse[i] = components[i];
+	[self fillCacheWithScale:scale colorComponents:components];
+	[self updateColorCacheWithComponents:components];
 	
-	glMaterialfv(GL_BACK, GL_DIFFUSE, backDiffuse);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, frontDiffuse);
+	glPushMatrix();
+	glScalef(scale.x, scale.y, scale.z);
 	
-	Vector3D triangleVertices[3];
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	float *colorPtr = (float *)cachedColors;
+	glColorPointer(3, GL_FLOAT, 0, colorPtr);
 	
-	float *lastDiffuse = frontDiffuse; 
+	float *vertexPtr = (float *)cachedVertices;
+	float *normalPtr = (float *)cachedNormals;
 	
-	BOOL flip = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+	glNormalPointer(GL_FLOAT, 0, normalPtr);
+	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+	glDrawArrays(GL_TRIANGLES, 0, triangles->size() * 3);
 	
-	glBegin(GL_TRIANGLES);
+	glDisableClientState(GL_COLOR_ARRAY);
 	
-	for (uint i = 0; i < triangles->size(); i++)
-	{
-		if (selectionMode == MeshSelectionModeTriangles) 
-		{
-			if (selected->at(i))
-			{
-				if (lastDiffuse == frontDiffuse)
-				{
-					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, selectedDiffuse);
-					lastDiffuse = selectedDiffuse;
-				}
-			}
-			else if (lastDiffuse == selectedDiffuse)
-			{
-				glMaterialfv(GL_BACK, GL_DIFFUSE, backDiffuse);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, frontDiffuse);
-				lastDiffuse = frontDiffuse;
-			}
-		}
-		Triangle currentTriangle = [self triangleAtIndex:i];
-		if (flip)
-			currentTriangle = FlipTriangle(currentTriangle);
-		
-		[self getTriangleVertices:triangleVertices fromTriangle:currentTriangle];
-		for (uint j = 0; j < 3; j++)
-		{
-			for (uint k = 0; k < 3; k++)
-			{
-				triangleVertices[j][k] *= scale[k];
-			}
-		}
-		Vector3D n = NormalFromTriangleVertices(triangleVertices);
-		n.Normalize();
-		for (uint j = 0; j < 3; j++)
-		{
-			glNormal3f(n.x, n.y, n.z);
-			glVertex3f(triangleVertices[j].x, triangleVertices[j].y, triangleVertices[j].z);			
-		}
-	}
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 	
-	glEnd();	
+	glPopMatrix();
 }
 
 - (void)drawFillWithScale:(Vector3D)scale
-{	
+{		
 	// see defines in Mesh.h
-#ifdef GEOMETRY_SHADER_NORMAL_GENERATION
-#ifdef MESH_DRAW_AS_VBO
-	[self drawAsVBOWithScale:scale];
-#else
 	[self drawAsVertexArrayWithScale:scale];
-#endif
-#else
-	[self drawAsCommandsWithScale:scale];
-#endif
 }
 
 - (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected
 {
-	glDisable(GL_LIGHTING);
 	if (isSelected)
 		glColor3f(1, 1, 1);
 	else
@@ -341,7 +330,6 @@
 		[self drawFillWithScale:scale];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	glEnable(GL_LIGHTING);
 }
 
 - (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected
@@ -350,13 +338,17 @@
 	{
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(1.0f, 1.0f);
+		[[ShaderProgram currentShaderProgram] useProgram];
 		[self drawFillWithScale:scale];
+		[ShaderProgram resetProgram];
 		glDisable(GL_POLYGON_OFFSET_FILL);
 		[self drawWireWithScale:scale selected:isSelected];
 	}
 	else
 	{
+		[[ShaderProgram currentShaderProgram] useProgram];
 		[self drawFillWithScale:scale];
+		[ShaderProgram resetProgram];
 	}
 }
 
@@ -573,6 +565,8 @@
 
 - (void)makeEdges
 {
+	[self resetCache];
+	
 	edges->clear();
 	for (uint i = 0; i < triangles->size(); i++)
 	{
@@ -627,6 +621,7 @@
 - (void)makeMarkedVertices
 {
 	NSLog(@"makeMarkedVertices");
+	[self resetCache];
 	
 	markedVertices->resize(vertices->size());
 	for (uint i = 0; i < markedVertices->size(); i++)
@@ -701,6 +696,7 @@
 - (void)removeDegeneratedTriangles
 {
 	NSLog(@"removeDegeneratedTriangles");
+	[self resetCache];
 	
 	for (int i = 0; i < (int)triangles->size(); i++)
 	{
@@ -729,6 +725,7 @@
 - (void)removeNonUsedVertices
 {
 	NSLog(@"removeNonUsedVertices");
+	[self resetCache];
 	
 	for (int i = 0; i < (int)vertices->size(); i++)
 	{
@@ -743,6 +740,7 @@
 - (void)removeSelectedVertices
 {
 	NSLog(@"removeSelectedVertices");
+	[self resetCache];
 	
 	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 	
@@ -847,6 +845,7 @@
 - (void)mergeSelectedVertices
 {
 	NSLog(@"mergeSelectedVertices");
+	[self resetCache];
 	
 	[self fastMergeSelectedVertices];
 	
@@ -859,6 +858,7 @@
 - (void)mergeVertexPairs
 {
 	NSLog(@"mergeVertexPairs");
+	[self resetCache];
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
@@ -897,6 +897,7 @@
 
 - (void)transformWithMatrix:(Matrix4x4)matrix
 {
+	[self resetCache];
 	for (uint i = 0; i < vertices->size(); i++)
 		vertices->at(i).Transform(matrix);
 }
@@ -904,6 +905,7 @@
 - (void)mergeWithMesh:(Mesh *)mesh
 {
 	NSLog(@"mergeWithMesh:");
+	[self resetCache];
 	
 	uint vertexCount = vertices->size();
 	for (uint i = 0; i < mesh->vertices->size(); i++)
@@ -1038,6 +1040,7 @@
 - (void)splitSelectedEdges
 {
 	NSLog(@"splitSelectedEdges");
+	[self resetCache];
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
@@ -1052,6 +1055,7 @@
 - (void)splitSelectedTriangles
 {
 	NSLog(@"splitSelectedTriangles");
+	[self resetCache];
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
@@ -1211,6 +1215,8 @@
 
 - (void)moveSelectedByOffset:(Vector3D)offset
 {
+	[self resetCache];
+	
 	if (markedVertices->size() != vertices->size())
 	{
 		[self makeMarkedVertices];
@@ -1225,6 +1231,8 @@
 
 - (void)rotateSelectedByOffset:(Quaternion)offset
 {
+	[self resetCache];
+	
 	if (markedVertices->size() != vertices->size())
 	{
 		[self makeMarkedVertices];
@@ -1239,6 +1247,8 @@
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
+	[self resetCache];
+	
 	if (markedVertices->size() != vertices->size())
 	{
 		[self makeMarkedVertices];
@@ -1341,6 +1351,8 @@
 
 - (void)extrudeSelectedTriangles
 {
+	[self resetCache];
+	
 	// This method finds all nonShared edges and copies all 
 	// vertexIndices in selectedTriangles.
 	// Then it makes quads between new and old edges.
@@ -1465,6 +1477,7 @@
 {
 	if (selectionMode == MeshSelectionModeTriangles)
 	{	
+		[self resetCache];
 		for (uint i = 0; i < [self triangleCount]; i++)
 		{
 			if (selected->at(i))
@@ -1475,6 +1488,7 @@
 
 - (void)flipAllTriangles
 {
+	[self resetCache];
 	for (uint i = 0; i < [self triangleCount]; i++)
 	{
 		[self flipTriangleAtIndex:i];

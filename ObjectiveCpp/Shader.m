@@ -97,6 +97,8 @@ void ProgramLog(GLuint program)
 
 @end
 
+static ShaderProgram *currentShaderProgram;
+
 @implementation ShaderProgram
 
 - (id)init
@@ -141,6 +143,16 @@ void ProgramLog(GLuint program)
 - (void)useProgram
 {
 	glUseProgram(program);
+}
+
++ (void)setCurrentShaderProgram:(ShaderProgram *)shaderProgram
+{
+	currentShaderProgram = shaderProgram;
+}
+
++ (ShaderProgram *)currentShaderProgram
+{
+	return currentShaderProgram;
 }
 
 + (void)resetProgram
