@@ -93,6 +93,7 @@ const float maxDistance = 1000.0f;
 													  resourceInBundle:@"vertex"]];
 		[shaderProgram attachShader:[[Shader alloc] initWithShaderType:GL_FRAGMENT_SHADER_ARB
 													  resourceInBundle:@"fragment"]];
+		glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
 		[shaderProgram linkProgram];
 	}
 	return self;
@@ -472,17 +473,6 @@ const float maxDistance = 1000.0f;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
-		if (cameraMode == CameraModePerspective)
-		{
-			lastPoint = currentPoint;
-			const float sensitivity = 0.005f;
-			camera->RotateLeftRight(diffX * sensitivity);
-			camera->RotateUpDown(-diffY * sensitivity);
-			[self setNeedsDisplay:YES];
-		}
-	}
-	else
-	{
 		NSRect bounds = [self bounds];
 		float w = bounds.size.width;
 		float h = bounds.size.height;
@@ -504,18 +494,13 @@ const float maxDistance = 1000.0f;
 - (void)rightMouseDragged:(NSEvent *)e
 {	
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
-	float diffX = currentPoint.x - lastPoint.x;
 	float diffY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
-		NSRect bounds = [self bounds];
-		float w = bounds.size.width;
-		float h = bounds.size.height;
-		float sensitivity = (w + h) / 2.0f;
-		sensitivity = 1.0f / sensitivity;
-		camera->LeftRight(-diffX * camera->GetZoom() * sensitivity);
-		camera->UpDown(diffY * camera->GetZoom() * sensitivity);
+		float sensitivity = camera->GetZoom() * 0.02f;
+		
+		camera->Zoom(diffY * sensitivity);
 		
 		lastPoint = currentPoint;
 		[self setNeedsDisplay:YES];
@@ -722,7 +707,6 @@ const float maxDistance = 1000.0f;
 	
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	//[self reshapeViewport];
     glGetIntegerv(GL_VIEWPORT, viewport);
 	
     winX = point.x;
