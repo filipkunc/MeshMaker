@@ -43,12 +43,9 @@ const float maxDistance = 1000.0f;
 		NSOpenGLContext *glcontext = [self openGLContext];
 		[glcontext makeCurrentContext];
 		
-		// Configure the view
-		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-		glShadeModel(GL_SMOOTH);
-		glEnable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_LIGHT0);
+		glDisable(GL_LIGHTING);
+		glShadeModel(GL_SMOOTH);
 		
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
@@ -91,17 +88,12 @@ const float maxDistance = 1000.0f;
 		
 		cameraMode = CameraModePerspective;
 		viewMode = ViewModeSolid;
-#ifdef GEOMETRY_SHADER_NORMAL_GENERATION		
 		shaderProgram = [[ShaderProgram alloc] init];
 		[shaderProgram attachShader:[[Shader alloc] initWithShaderType:GL_VERTEX_SHADER_ARB
 													  resourceInBundle:@"vertex"]];
 		[shaderProgram attachShader:[[Shader alloc] initWithShaderType:GL_FRAGMENT_SHADER_ARB
 													  resourceInBundle:@"fragment"]];
-		[shaderProgram attachShader:[[Shader alloc] initWithShaderType:GL_GEOMETRY_SHADER_EXT
-													  resourceInBundle:@"geometry"]];
-		[shaderProgram setGeometryInput:GL_TRIANGLES output:GL_TRIANGLE_STRIP];
 		[shaderProgram linkProgram];
-#endif		
 	}
 	return self;
 }
@@ -115,9 +107,7 @@ const float maxDistance = 1000.0f;
 	[translationManipulator release];
 	[rotationManipulator release];
 	[scaleManipulator release];
-#ifdef GEOMETRY_SHADER_NORMAL_GENERATION
 	[shaderProgram release];
-#endif
 	[super dealloc];
 }
 
@@ -273,24 +263,16 @@ const float maxDistance = 1000.0f;
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(camera->GetViewMatrix());
 	
-	glDisable(GL_LIGHTING);
 	
 	glColor3f(0.1f, 0.1f, 0.1f);
 	[self drawGridWithSize:10 step:2];
-	
-	glEnable(GL_LIGHTING);
+
+	[ShaderProgram setCurrentShaderProgram:shaderProgram];
 	
 	if (displayed != manipulated)
 		[displayed drawWithMode:viewMode];
-#ifdef GEOMETRY_SHADER_NORMAL_GENERATION
-	[shaderProgram useProgram];
 	[manipulated drawWithMode:viewMode];
-	[ShaderProgram resetProgram];
-#else
-	[manipulated drawWithMode:viewMode];
-#endif
 	
-	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	

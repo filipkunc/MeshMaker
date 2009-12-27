@@ -42,9 +42,7 @@
 	Manipulator *currentManipulator;
 	enum CameraMode cameraMode;
 	enum ViewMode viewMode;
-#ifdef GEOMETRY_SHADER_NORMAL_GENERATION
 	ShaderProgram *shaderProgram;
-#endif
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> displayed;
