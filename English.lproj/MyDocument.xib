@@ -1273,6 +1273,22 @@
 					</object>
 					<int key="connectionID">100357</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">mainSplit</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="298304967"/>
+					</object>
+					<int key="connectionID">100358</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="298304967"/>
+						<reference key="destination" ref="512844837"/>
+					</object>
+					<int key="connectionID">100359</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1828,7 +1844,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">100357</int>
+			<int key="maxID">100359</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1881,9 +1897,11 @@
 							<string>mergeVertexPairs:</string>
 							<string>selectAll:</string>
 							<string>splitSelected:</string>
+							<string>toggleOneViewFourView:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -1907,6 +1925,7 @@
 							<string>addItemWithStepsSheetController</string>
 							<string>bottomSplit</string>
 							<string>editModePopUp</string>
+							<string>mainSplit</string>
 							<string>manipulated</string>
 							<string>topSplit</string>
 							<string>viewFront</string>
@@ -1920,6 +1939,7 @@
 							<string>AddItemWithStepsSheetController</string>
 							<string>NSSplitView</string>
 							<string>NSPopUpButton</string>
+							<string>NSSplitView</string>
 							<string>id</string>
 							<string>NSSplitView</string>
 							<string>OpenGLSceneView</string>

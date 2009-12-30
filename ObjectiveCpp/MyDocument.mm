@@ -35,6 +35,7 @@
 		oldMeshManipulation = nil;
 		
 		views = [[NSMutableArray alloc] init];
+		oneView = NO;
     }
     return self;
 }
@@ -817,10 +818,26 @@ MeshFullState *currentState = [items currentMeshFull]; \
 
 #pragma mark Splitter sync
 
+- (CGFloat)splitView:(NSSplitView *)splitView 
+constrainSplitPosition:(CGFloat)proposedPosition 
+		 ofSubviewAt:(NSInteger)dividerIndex
+{
+	if (oneView)
+		return 0.0f;
+	
+	return proposedPosition;
+}
+
 // fix for issue four-views works independetly on Mac version
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
+	if (oneView)
+		return;
+	
 	NSSplitView *splitView = (NSSplitView *)[notification object];
+	if (splitView == mainSplit)
+		return;
+	
 	NSView *topSubview0 = (NSView *)[[topSplit subviews] objectAtIndex:0];
 	NSView *topSubview1 = (NSView *)[[topSplit subviews] objectAtIndex:1];
 	
@@ -843,6 +860,43 @@ MeshFullState *currentState = [items currentMeshFull]; \
 			[topSubview1 setFrame:[bottomSubview1 frame]];
 		}
 	}
+}
+
+- (void)toggleOneViewFourView:(id)sender
+{
+	NSLog(@"toggleOneViewFourView");
+	
+	if (oneView)
+	{
+		[viewPerspective setCameraMode:CameraModePerspective];
+		NSRect frame = [viewPerspective frame];
+		[[[mainSplit subviews] objectAtIndex:0] setFrame:frame];
+		oneView = NO;
+		return;
+	}
+	
+	NSWindow *window = [viewPerspective window];
+	NSPoint point = [window convertScreenToBase:[NSEvent mouseLocation]];
+	
+	NSView *hittedView = [[[window contentView] superview] hitTest:point];
+		
+	for (OpenGLSceneView *view in views)
+	{
+		if (view == hittedView)
+		{
+			oneView = YES;
+			
+			[[[topSplit subviews] objectAtIndex:0] setFrame:NSZeroRect];
+			[[[bottomSplit subviews] objectAtIndex:0] setFrame:NSZeroRect];
+			[[[mainSplit subviews] objectAtIndex:0] setFrame:NSZeroRect];
+			
+			[viewPerspective setCameraMode:[view cameraMode]];
+			
+			return;
+		}
+	}
+	
+	NSLog(@"No view is under mouse");
 }
 
 @end
