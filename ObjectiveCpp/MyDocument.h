@@ -36,6 +36,9 @@
 	
 	IBOutlet NSSplitView *topSplit;
 	IBOutlet NSSplitView *bottomSplit;
+	IBOutlet NSSplitView *mainSplit;
+	
+	BOOL oneView;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -77,5 +80,6 @@
 - (void)readFromTmd:(NSString *)fileName;
 - (BOOL)readFromModel3D:(NSString *)fileName;
 - (void)writeToModel3D:(NSString *)fileName;
+- (void)toggleOneViewFourView:(id)sender;
 
 @end

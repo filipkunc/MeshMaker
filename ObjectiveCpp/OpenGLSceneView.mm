@@ -333,6 +333,12 @@ const float maxDistance = 1000.0f;
 {
 	lastPoint = [self convertPoint:[e locationInWindow] fromView:nil];
 	
+	if ([e modifierFlags] & NSAlternateKeyMask)
+	{
+		isManipulating = isSelecting = NO;
+		return;
+	}
+	
 	if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
 	{
 		if (currentManipulator == translationManipulator)
