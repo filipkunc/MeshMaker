@@ -676,11 +676,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 
 #pragma mark Archivation
 
-//- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
-//{
-//	return [NSKeyedArchiver archivedDataWithRootObject:items];
-//}
-
 - (void)readFromTmd:(NSString *)fileName
 {
 	TmdModel *model = new TmdModel();
@@ -784,37 +779,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	}
 	return NO;
 }
-
-//- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
-//{
-//	NSLog(@"readFromData typeName:%@", typeName);
-//	ItemCollection *newItems = nil;
-//	@try
-//	{
-//		newItems = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-//	}
-//	@catch (NSException *e)
-//	{
-//		if (outError)
-//		{
-//			NSDictionary *d = 
-//			[NSDictionary dictionaryWithObject:@"The data is corrupted."
-//										forKey:NSLocalizedFailureReasonErrorKey];
-//			
-//			*outError = [NSError errorWithDomain:NSOSStatusErrorDomain 
-//											code:unimpErr
-//										userInfo:d];
-//		}
-//		return NO;
-//	}
-//	[newItems retain];
-//	[items release];
-//	items = newItems;
-//	[itemsController setModel:items];
-//	[itemsController updateSelection];
-//	[self setManipulated:itemsController];
-//	return YES;
-//}
 
 #pragma mark Splitter sync
 

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace HotChocolate
 {
-    public static class Reflections
+    public static class Reflection
     {
         public static TDelegate GetStaticDelegate<TDelegate, TStatic>(string name) where TDelegate : class
         {
