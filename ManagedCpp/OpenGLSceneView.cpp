@@ -340,15 +340,15 @@ namespace ManagedCpp {
 	void OpenGLSceneView::OnMouseDown(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseDown(e);
-		if (e->Button == System::Windows::Forms::MouseButtons::Middle)
+		lastPoint = PointF((float)e->X, (float)e->Y);
+
+		if (e->Button == System::Windows::Forms::MouseButtons::Left)
 		{
-			lastPoint = PointF((float)e->X, (float)e->Y);
-		}
-		else if (e->Button == System::Windows::Forms::MouseButtons::Left)
-		{
-			lastPoint = PointF((float)e->X, (float)e->Y);
-	
-			if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
+			if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
+			{
+				isManipulating = isSelecting = NO;
+			}
+			else if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
 			{
 				BeginGL();
 				if (currentManipulator == translationManipulator)
@@ -385,13 +385,14 @@ namespace ManagedCpp {
 	void OpenGLSceneView::OnMouseMove(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseMove(e);
-		if (e->Button == System::Windows::Forms::MouseButtons::Middle)
+		
+		if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
 		{
 			PointF point = PointF((float)e->X, (float)e->Y);
 			float diffX = point.X - lastPoint.X;
 			float diffY = point.Y - lastPoint.Y;
-			
-			if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
+
+			if (e->Button == System::Windows::Forms::MouseButtons::Left)
 			{
 				if (this->cameraMode == CameraMode::CameraModePerspective)
 				{
@@ -400,7 +401,7 @@ namespace ManagedCpp {
 					camera->RotateUpDown(diffY * sensitivity);
 				}
 			}
-			else
+			else if (e->Button == System::Windows::Forms::MouseButtons::Middle)
 			{
 				RectangleF bounds = this->ClientRectangle;
 				float w = bounds.Width;
@@ -410,7 +411,13 @@ namespace ManagedCpp {
 				camera->LeftRight(-diffX * camera->GetZoom() * sensitivity);
 				camera->UpDown(-diffY * camera->GetZoom() * sensitivity);
 			}
-			
+			else if (e->Button == System::Windows::Forms::MouseButtons::Right)
+			{
+				float sensitivity = camera->GetZoom() * 0.02f;
+
+				camera->Zoom(-diffY * sensitivity);
+			}
+
 			lastPoint = point;
 			this->Invalidate();
 		}

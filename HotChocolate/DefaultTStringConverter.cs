@@ -24,7 +24,7 @@ namespace HotChocolate
             else
             {
                 isEnum = false;
-                parse = Reflections.GetStaticDelegate<ParseDelegate<T>, T>("Parse");
+                parse = Reflection.GetStaticDelegate<ParseDelegate<T>, T>("Parse");
             }
         }
 
