@@ -172,23 +172,23 @@
 
 - (void)setSelectionX:(float)value
 {
-	[self manipulationStarted];
+	[self manipulationStartedInView:nil];
 	[manipulated setSelectionX:value];
-	[self manipulationEnded];
+	[self manipulationEndedInView:nil];
 }
 
 - (void)setSelectionY:(float)value
 {
-	[self manipulationStarted];
+	[self manipulationStartedInView:nil];
 	[manipulated setSelectionY:value];
-	[self manipulationEnded];
+	[self manipulationEndedInView:nil];
 }
 
 - (void)setSelectionZ:(float)value
 {
-	[self manipulationStarted];
+	[self manipulationStartedInView:nil];
 	[manipulated setSelectionZ:value];
-	[self manipulationEnded];
+	[self manipulationEndedInView:nil];
 }
 
 - (void)setNilValueForKey:(NSString *)key
@@ -301,9 +301,9 @@ MeshFullState *currentState = [items currentMeshFull]; \
 						   current:currentState \
 						actionName:name];
 
-- (void)manipulationStarted
+- (void)manipulationStartedInView:(OpenGLSceneView *)view
 {
-	NSLog(@"manipulationStarted");
+	NSLog(@"manipulationStartedInView:");
 	manipulationFinished = NO;
 	
 	if (manipulated == itemsController)
@@ -316,9 +316,9 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	}
 }
 
-- (void)manipulationEnded
+- (void)manipulationEndedInView:(OpenGLSceneView *)view
 {
-	NSLog(@"manipulationEnded");	
+	NSLog(@"manipulationEndedInView:");	
 	manipulationFinished = YES;
 	
 	if (manipulated == itemsController)
@@ -334,6 +334,23 @@ MeshFullState *currentState = [items currentMeshFull]; \
 		[document swapMeshManipulationWithOld:oldMeshManipulation current:[items currentMeshManipulation]];
 		[oldMeshManipulation release];
 		oldMeshManipulation = nil;
+	}
+	
+	for (OpenGLSceneView *v in views)
+	{ 
+		if (v != view)
+			[v setNeedsDisplay:YES]; 
+	}
+}
+
+- (void)selectionChangedInView:(OpenGLSceneView *)view
+{
+	NSLog(@"selectionChangedInView:");
+	
+	for (OpenGLSceneView *v in views)
+	{ 
+		if (v != view)
+			[v setNeedsDisplay:YES]; 
 	}
 }
 
@@ -489,7 +506,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	if (!manipulationFinished)
 	{
 		startManipulation = YES;
-		[self manipulationEnded];
+		[self manipulationEndedInView:nil];
 	}
 	
 	if (manipulated == itemsController)
@@ -513,7 +530,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	
 	if (startManipulation)
 	{
-		[self manipulationStarted];
+		[self manipulationStartedInView:nil];
 	}
 }
 

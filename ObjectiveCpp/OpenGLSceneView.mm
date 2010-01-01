@@ -362,7 +362,7 @@ const float maxDistance = 1000.0f;
 			isManipulating = YES;
 		}
 		if (isManipulating)
-			[delegate manipulationStarted];
+			[delegate manipulationStartedInView:self];
 	}
 	else
 	{
@@ -390,7 +390,7 @@ const float maxDistance = 1000.0f;
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
 	if (isManipulating)
 	{
-		[delegate manipulationEnded];
+		[delegate manipulationEndedInView:self];
 		isManipulating = NO;
 	}
 	if (isSelecting)
@@ -419,6 +419,8 @@ const float maxDistance = 1000.0f;
 						selecting:manipulated
 					selectionMode:selectionMode];
 		}
+		
+		[delegate selectionChangedInView:self];
 		[self setNeedsDisplay:YES];
 	}
 }

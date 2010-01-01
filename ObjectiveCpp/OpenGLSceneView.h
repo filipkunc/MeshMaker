@@ -16,10 +16,13 @@
 #import "ShaderProgram.h"
 #import "Mesh.h"
 
+@class OpenGLSceneView;
+
 @protocol OpenGLSceneViewDelegate
 
-- (void)manipulationStarted;
-- (void)manipulationEnded;
+- (void)manipulationStartedInView:(OpenGLSceneView *)view;
+- (void)manipulationEndedInView:(OpenGLSceneView *)view;
+- (void)selectionChangedInView:(OpenGLSceneView *)view;
 
 @end
 
