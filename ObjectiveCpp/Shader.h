@@ -24,20 +24,3 @@
 		resourceInBundle:(NSString *)resourceInBundle;
 
 @end
-
-@interface ShaderProgram : NSObject
-{
-	GLuint program;
-}
-
-// attachShader sends release to aShader object
-- (void)attachShader:(Shader *)aShader;
-- (void)setGeometryInput:(GLenum)input output:(GLenum)output;
-- (void)linkProgram;
-- (void)useProgram;
-+ (void)setCurrentShaderProgram:(ShaderProgram *)shaderProgram;
-+ (ShaderProgram *)currentShaderProgram;
-+ (void)resetProgram;
-
-@end
-

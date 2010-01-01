@@ -11,6 +11,8 @@
 #import "OpenGLManipulatingController.h"
 #import "MeshHelpers.h"
 #import "CppFileStreaming.h"
+#import "Shader.h"
+#import "ShaderProgram.h"
 #import <vector>
 using namespace std;
 
@@ -36,6 +38,9 @@ using namespace std;
 @property (readonly) uint edgeCount;
 
 + (NSString *)descriptionOfMeshType:(enum MeshType)type;
++ (void)setNormalShader:(ShaderProgram *)shaderProgram;
++ (void)setFlippedShader:(ShaderProgram *)shaderProgram;
+
 - (Vector3D)vertexAtIndex:(uint)anIndex;
 - (Triangle)triangleAtIndex:(uint)anIndex;
 - (Edge)edgeAtIndex:(uint)anIndex;
@@ -57,10 +62,9 @@ using namespace std;
 - (void)removeVertexAtIndex:(uint)index;
 - (void)removeTriangleAtIndex:(uint)index;
 - (void)removeEdgeAtIndex:(uint)index;
-- (void)drawAsVertexArrayWithScale:(Vector3D)scale;
-- (void)drawFillWithScale:(Vector3D)scale;
-- (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected;
-- (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected;
+- (void)drawFill;
+- (void)drawWire;
+- (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected;
 - (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps;
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(uint)steps;
@@ -89,7 +93,8 @@ using namespace std;
 - (void)flipTriangleAtIndex:(uint)index;
 - (void)extrudeSelectedTriangles;
 - (void)resetCache;
-- (void)fillCacheWithScale:(Vector3D)scale colorComponents:(CGFloat *)components;
-- (void)updateColorCacheWithComponents:(CGFloat *)components;
+- (void)fillCache;
+- (void)updateColorCache;
+- (void)useShader:(BOOL)flipped;
 
 @end

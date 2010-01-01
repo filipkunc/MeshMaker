@@ -88,13 +88,15 @@ const float maxDistance = 1000.0f;
 		
 		cameraMode = CameraModePerspective;
 		viewMode = ViewModeSolid;
-		shaderProgram = [[ShaderProgram alloc] init];
-		[shaderProgram attachShader:[[Shader alloc] initWithShaderType:GL_VERTEX_SHADER_ARB
-													  resourceInBundle:@"vertex"]];
-		[shaderProgram attachShader:[[Shader alloc] initWithShaderType:GL_FRAGMENT_SHADER_ARB
-													  resourceInBundle:@"fragment"]];
+		normalShader = [[ShaderProgram alloc] init];
+		[normalShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLighting"];
+		
+		flippedShader = [[ShaderProgram alloc] init];
+		[flippedShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLightingFlipped"];
+
 		glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
-		[shaderProgram linkProgram];
+		[normalShader linkProgram];
+		[flippedShader linkProgram];
 	}
 	return self;
 }
@@ -108,7 +110,8 @@ const float maxDistance = 1000.0f;
 	[translationManipulator release];
 	[rotationManipulator release];
 	[scaleManipulator release];
-	[shaderProgram release];
+	[normalShader release];
+	[flippedShader release];
 	[super dealloc];
 }
 
@@ -268,7 +271,8 @@ const float maxDistance = 1000.0f;
 	glColor3f(0.1f, 0.1f, 0.1f);
 	[self drawGridWithSize:10 step:2];
 
-	[ShaderProgram setCurrentShaderProgram:shaderProgram];
+	[Mesh setNormalShader:normalShader];
+	[Mesh setFlippedShader:flippedShader];
 	
 	if (displayed != manipulated)
 		[displayed drawWithMode:viewMode];
