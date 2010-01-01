@@ -224,10 +224,12 @@
 	NSLog(@"swapMeshManipulationWithOld:current:");
 	
 	[items setCurrentMeshManipulation:old];
+	Item *item = [items itemAtIndex:[old itemIndex]];
+	[meshController setModel:[item mesh]];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
 	[document swapMeshManipulationWithOld:current current:old];
-
+	
 	[itemsController updateSelection];
 	[meshController updateSelection];
 	[self setManipulated:meshController];
@@ -259,6 +261,8 @@
 	NSLog(@"swapMeshFullStateWithOld:current:actionName:");
 	
 	[items setCurrentMeshFull:old];
+	Item *item = [items itemAtIndex:[old itemIndex]];
+	[meshController setModel:[item mesh]];
 	
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapMeshFullStateWithOld:current

@@ -7,7 +7,9 @@
 //
 
 #import "Mesh.h"
-#import "Shader.h"
+
+static ShaderProgram *normalShader;
+static ShaderProgram *flippedShader;
 
 @implementation Mesh
 
@@ -26,6 +28,16 @@
 		default:
 			return nil;
 	}
+}
+
++ (void)setNormalShader:(ShaderProgram *)shaderProgram
+{
+	normalShader = shaderProgram;
+}
+
++ (void)setFlippedShader:(ShaderProgram *)shaderProgram
+{
+	flippedShader = shaderProgram;
 }
 
 - (uint)vertexCount
@@ -210,12 +222,10 @@
 	}
 }
 
-- (void)fillCacheWithScale:(Vector3D)scale colorComponents:(CGFloat *)components
+- (void)fillCache
 {
-	if (!cachedVertices || !cachedNormals || !cachedColors)
-	{
-		BOOL flip = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-		
+	if (!cachedVertices)
+	{		
 		cachedVertices = new Vector3D[triangles->size() * 3];
 		cachedNormals = new Vector3D[triangles->size() * 3];
 		cachedColors = new Vector3D[triangles->size() * 3];
@@ -224,78 +234,64 @@
 		for (uint i = 0; i < triangles->size(); i++)
 		{
 			Triangle currentTriangle = [self triangleAtIndex:i];
-			if (flip)
-				currentTriangle = FlipTriangle(currentTriangle);
-			
 			[self getTriangleVertices:triangleVertices fromTriangle:currentTriangle];
-			for (uint j = 0; j < 3; j++)
-			{
-				for (uint k = 0; k < 3; k++)
-				{
-					triangleVertices[j][k] *= scale[k];
-				}
-			}
+			
 			Vector3D n = NormalFromTriangleVertices(triangleVertices);
-			n.Normalize();
 			
 			for (uint j = 0; j < 3; j++)
 			{
 				cachedVertices[i * 3 + j] = triangleVertices[j];
 				cachedNormals[i * 3 + j] = n;
+			}
+		}
+	}
+}
+
+- (void)updateColorCache
+{
+	CGFloat components[4];
+	[color getComponents:components];
+
+	for (uint i = 0; i < triangles->size(); i++)
+	{
+		if ((*selected)[i])
+		{
+			for (uint j = 0; j < 3; j++)
+			{
+				cachedColors[i * 3 + j].x = 0.7f;
+				cachedColors[i * 3 + j].y = 0.0f;
+				cachedColors[i * 3 + j].z = 0.0f;
+			}				
+		}
+		else
+		{
+			for (uint j = 0; j < 3; j++)
+			{
 				for (uint k = 0; k < 3; k++)
 				{
 					cachedColors[i * 3 + j][k] = components[k];
 				}
-			}
+			}	
 		}
 	}
 }
 
-- (void)updateColorCacheWithComponents:(CGFloat *)components
+- (void)drawFill
 {
+	[self fillCache];
 	if (selectionMode == MeshSelectionModeTriangles)
-	{	
-		for (uint i = 0; i < triangles->size(); i++)
-		{
-			if ((*selected)[i])
-			{
-				for (uint j = 0; j < 3; j++)
-				{
-					cachedColors[i * 3 + j].x = 0.7f;
-					cachedColors[i * 3 + j].y = 0.0f;
-					cachedColors[i * 3 + j].z = 0.0f;
-				}				
-			}
-			else
-			{
-				for (uint j = 0; j < 3; j++)
-				{
-					for (uint k = 0; k < 3; k++)
-					{
-						cachedColors[i * 3 + j][k] = components[k];
-					}
-				}	
-			}
-		}
-	}
-}
-
-- (void)drawAsVertexArrayWithScale:(Vector3D)scale
-{
-	CGFloat components[4];
-	[color getComponents:components];
-	
-	[self fillCacheWithScale:scale colorComponents:components];
-	[self updateColorCacheWithComponents:components];
-	
-	glPushMatrix();
-	glScalef(scale.x, scale.y, scale.z);
-	
+		[self updateColorCache];
+	else
+		glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
+		
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	float *colorPtr = (float *)cachedColors;
-	glColorPointer(3, GL_FLOAT, 0, colorPtr);
+	if (selectionMode == MeshSelectionModeTriangles)
+	{
+		glEnableClientState(GL_COLOR_ARRAY);
+		float *colorPtr = (float *)cachedColors;
+		glColorPointer(3, GL_FLOAT, 0, colorPtr);
+	}
 	
 	float *vertexPtr = (float *)cachedVertices;
 	float *normalPtr = (float *)cachedNormals;
@@ -304,52 +300,62 @@
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
 	glDrawArrays(GL_TRIANGLES, 0, triangles->size() * 3);
 	
-	glDisableClientState(GL_COLOR_ARRAY);
+	if (selectionMode == MeshSelectionModeTriangles)
+		glDisableClientState(GL_COLOR_ARRAY);
 	
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
-	
-	glPopMatrix();
 }
 
-- (void)drawFillWithScale:(Vector3D)scale
-{		
-	// see defines in Mesh.h
-	[self drawAsVertexArrayWithScale:scale];
-}
-
-- (void)drawWireWithScale:(Vector3D)scale selected:(BOOL)isSelected
+- (void)drawWire
 {
-	if (isSelected)
-		glColor3f(1, 1, 1);
-	else
-		glColor3f([color redComponent], [color greenComponent], [color blueComponent]); 
 	if (selectionMode != MeshSelectionModeEdges)
 	{
+		glColor3f([color redComponent] - 0.1f, [color greenComponent] - 0.1f, [color blueComponent] - 0.1f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		[self drawFillWithScale:scale];
+		[self drawFill];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
 
-- (void)drawWithScale:(Vector3D)scale selected:(BOOL)isSelected
-{	
-	if (isSelected)
+- (void)useShader:(BOOL)flipped
+{
+	if (flipped)
+		[flippedShader useProgram];
+	else
+		[normalShader useProgram];
+}
+
+- (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected
+{
+	BOOL flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+	
+	glPushMatrix();
+	glScalef(scale.x, scale.y, scale.z);
+	if (mode == ViewModeWireframe)
 	{
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(1.0f, 1.0f);
-		[[ShaderProgram currentShaderProgram] useProgram];
-		[self drawFillWithScale:scale];
-		[ShaderProgram resetProgram];
-		glDisable(GL_POLYGON_OFFSET_FILL);
-		[self drawWireWithScale:scale selected:isSelected];
+		[self drawWire];
 	}
 	else
 	{
-		[[ShaderProgram currentShaderProgram] useProgram];
-		[self drawFillWithScale:scale];
-		[ShaderProgram resetProgram];
+		if (isSelected)
+		{
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(1.0f, 1.0f);
+			[self useShader:flipped];
+			[self drawFill];
+			[ShaderProgram resetProgram];
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			[self drawWire];
+		}
+		else
+		{
+			[self useShader:flipped];
+			[self drawFill];
+			[ShaderProgram resetProgram];
+		}
 	}
+	glPopMatrix();
 }
 
 - (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps

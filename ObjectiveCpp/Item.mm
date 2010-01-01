@@ -168,10 +168,7 @@
 	Matrix4x4 rotationMatrix;
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
-	if (mode == ViewModeSolid)
-		[mesh drawWithScale:*scale selected:selected];
-	else
-		[mesh drawWireWithScale:*scale selected:selected];
+	[mesh drawWithMode:mode scale:*scale selected:selected];
 	glPopMatrix();
 }
 

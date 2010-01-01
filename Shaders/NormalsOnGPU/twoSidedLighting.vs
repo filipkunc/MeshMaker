@@ -1,5 +1,11 @@
+// twoSidedLighting.vs
+
 void main()
 {	
+	// modified code from tutorial at http://www.lighthouse3d.com/opengl/glsl/index.php?ogldir1
+	// ignores material info, gets color via GL_COLOR_ARRAY in Mesh.mm
+	// added two sided lighting
+	
 	vec3 normal;
 	float NdotL;
 	float BackNdotL;
