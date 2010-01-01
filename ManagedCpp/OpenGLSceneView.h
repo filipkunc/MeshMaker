@@ -20,10 +20,13 @@ using namespace System::Diagnostics;
 
 namespace ManagedCpp
 {
+	ref class OpenGLSceneView;
+
 	public interface class OpenGLSceneViewDelegate
 	{
-		void ManipulationStarted();
-		void ManipulationEnded();
+		void ManipulationStarted(OpenGLSceneView ^view);
+		void ManipulationEnded(OpenGLSceneView ^view);
+		void SelectionChanged(OpenGLSceneView ^view);
 	};
 
 	/// <summary>

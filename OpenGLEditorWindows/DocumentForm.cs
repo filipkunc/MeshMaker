@@ -177,9 +177,9 @@ namespace OpenGLEditorWindows
             get { return Manipulated.SelectionX; }
             set
             {
-                ManipulationStarted();
+                ManipulationStarted(null);
                 Manipulated.SelectionX = value;
-                ManipulationEnded();
+                ManipulationEnded(null);
             }
         }
 
@@ -189,9 +189,9 @@ namespace OpenGLEditorWindows
             get { return Manipulated.SelectionY; }
             set
             {
-                ManipulationStarted();
+                ManipulationStarted(null);
                 Manipulated.SelectionY = value;
-                ManipulationEnded();
+                ManipulationEnded(null);
             }
         }
 
@@ -201,9 +201,9 @@ namespace OpenGLEditorWindows
             get { return Manipulated.SelectionZ; }
             set
             {
-                ManipulationStarted();
+                ManipulationStarted(null);
                 Manipulated.SelectionZ = value;
-                ManipulationEnded();
+                ManipulationEnded(null);
             }
         }
 
@@ -470,7 +470,7 @@ namespace OpenGLEditorWindows
                 Invocation.Create(oldState, currentState, actionName, SwapMeshFullState));
         }
 
-        public void ManipulationStarted()
+        public void ManipulationStarted(OpenGLSceneView view)
         {
             Trace.WriteLine("manipulationStarted");
             manipulationFinished = false;
@@ -485,7 +485,7 @@ namespace OpenGLEditorWindows
             }
         }
 
-        public void ManipulationEnded()
+        public void ManipulationEnded(OpenGLSceneView view)
         {
             Trace.WriteLine("manipulationEnded");
             manipulationFinished = true;
@@ -506,6 +506,13 @@ namespace OpenGLEditorWindows
 
                 oldMeshManipulation = null;
             }
+
+            OnEachViewDo(v => { if (v != view) v.Invalidate(); });
+        }
+
+        public void SelectionChanged(OpenGLSceneView view)
+        {
+            OnEachViewDo(v => { if (v != view) v.Invalidate(); });
         }
 
         private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
@@ -518,7 +525,7 @@ namespace OpenGLEditorWindows
             if (!manipulationFinished)
             {
                 startManipulation = true;
-                ManipulationEnded();
+                ManipulationEnded(null);
             }
 
             if (Manipulated == itemsController)
@@ -538,7 +545,7 @@ namespace OpenGLEditorWindows
 
             if (startManipulation)
             {
-                ManipulationStarted();
+                ManipulationStarted(null);
             }
         }
 

@@ -372,7 +372,7 @@ namespace ManagedCpp {
 				if (isManipulating)
 				{
 					if (theDelegate != nullptr)
-						theDelegate->ManipulationStarted();
+						theDelegate->ManipulationStarted(this);
 				}	
 			}
 			else
@@ -479,7 +479,7 @@ namespace ManagedCpp {
 		if (isManipulating)
 		{
 			if (theDelegate != nullptr)
-				theDelegate->ManipulationEnded();
+				theDelegate->ManipulationEnded(this);
 			isManipulating = NO;
 		}
 		if (isSelecting)
@@ -501,6 +501,8 @@ namespace ManagedCpp {
 			else
 				this->SelectPoint(currentPoint, manipulated, selectionMode);
 			EndGL();
+			if (theDelegate != nullptr)
+				theDelegate->SelectionChanged(this);
 			this->Invalidate();
 		}
 	}
