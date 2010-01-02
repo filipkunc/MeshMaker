@@ -8,14 +8,13 @@ build/*
 profile
 
 # visual studio noise
-Debug/*
-Release/*
-*/Debug/*
-*/Release/*
-*/obj/*
+Debug
+Release
+obj
 *.exe
 *.dll
 *.obj
 *.pdb
 *.ncb
 *.user
+*.suo

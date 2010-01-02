@@ -51,6 +51,9 @@
     <Compile Include="Bindings\PropertyObserver.cs" />
     <Compile Include="Bindings\StringPropertyObserver.cs" />
     <Compile Include="Bindings\TransformPropertyObserver.cs" />
+    <Compile Include="FloatTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Invocation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection.cs" />
