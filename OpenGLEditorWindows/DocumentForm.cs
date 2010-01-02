@@ -62,9 +62,9 @@ namespace OpenGLEditorWindows
                     view.TheDelegate = this;
                 });
 
-            textBoxX.TextBox.BindString<float>("Text", this, "SelectionX");
-            textBoxY.TextBox.BindString<float>("Text", this, "SelectionY");
-            textBoxZ.TextBox.BindString<float>("Text", this, "SelectionZ");
+            textBoxX.Bind<float>("Number", this, "SelectionX");
+            textBoxY.Bind<float>("Number", this, "SelectionY");
+            textBoxZ.Bind<float>("Number", this, "SelectionZ");
 
             BindSelectionXYZ(itemsController);
             BindSelectionXYZ(meshController);
@@ -724,6 +724,11 @@ namespace OpenGLEditorWindows
 
         bool ignoreSplitterMoved = true;
 
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+
+        }
+
         private void splitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
         {
             if (ignoreSplitterMoved)
@@ -751,6 +756,11 @@ namespace OpenGLEditorWindows
         {
             ignoreSplitterMoved = false;
         }
+
+        private void splitContainer1_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        {
+
+        }        
 
         private void toggleOneViewFourViewMenuItem_Click(object sender, EventArgs e)
         {
@@ -887,6 +897,9 @@ namespace OpenGLEditorWindows
                 case Keys.Space:
                     toggleOneViewFourViewMenuItem_Click(this, EventArgs.Empty);
                     break;
+                case Keys.Delete:
+                    deleteToolStripMenuItem_Click(this, EventArgs.Empty);
+                    break;
                 case Keys.Q:
                     manipulatorToolStripMenuItem_DropDownItemClicked(this,
                         new ToolStripItemClickedEventArgs(selectToolStripMenuItem));
@@ -906,6 +919,6 @@ namespace OpenGLEditorWindows
             }
         }
 
-        #endregion
+        #endregion        
     }
 }

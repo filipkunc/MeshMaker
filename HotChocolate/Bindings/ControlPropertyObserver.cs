@@ -14,7 +14,7 @@ namespace HotChocolate.Bindings
         Setter<T> setter;
         bool ignoreChange = false;
 
-        public ControlPropertyObserver(Control target, IPropertyObserver<T> observer, string name)
+        public ControlPropertyObserver(object target, IPropertyObserver<T> observer, string name)
         {
             if (target == null)
                 throw new ArgumentNullException("target");

@@ -52,14 +52,14 @@ namespace HotChocolate.Bindings
             }
         }
 
-        public static void Bind<T>(this Control control, string controlProperty, object model, string modelProperty)
+        public static void Bind<T>(this object control, string controlProperty, object model, string modelProperty)
         {
             var observer = model.ObserveProperty<T>(modelProperty);
             new ControlPropertyObserver<T>(control, observer, controlProperty);
         }
 
         public static void BindTransform<TModel, TView>(
-            this Control control, string controlProperty,
+            this object control, string controlProperty,
             object model, string modelProperty,
             TransformPropertyObserver<TModel, TView> transform)
         {
@@ -68,13 +68,13 @@ namespace HotChocolate.Bindings
             new ControlPropertyObserver<TView>(control, transform, controlProperty);
         }
 
-        public static void BindString<T>(this Control control, string controlProperty, object model, string modelProperty)
+        public static void BindString<T>(this object control, string controlProperty, object model, string modelProperty)
         {
             BindTransform(control, controlProperty, model, modelProperty, new StringPropertyObserver<T>());
         }
 
         public static void BindTransformString<TModel, TTransformed>(
-            this Control control, string controlProperty,
+            this object control, string controlProperty,
             object model, string modelProperty,
             TransformPropertyObserver<TModel, TTransformed> transform)
         {
