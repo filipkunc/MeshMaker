@@ -223,17 +223,23 @@ namespace ManagedCpp {
 		this->DrawGrid(10, 2);
 		
 		glEnable(GL_LIGHTING);
-		
-		if (displayed != manipulated)
-			displayed->Draw(viewMode);
+
+		if (displayed != nullptr)
+		{
+			if (displayed != manipulated)
+				displayed->Draw(viewMode);
+		}
 			
-		manipulated->Draw(viewMode);
+		if (manipulated != nullptr)
+		{
+			manipulated->Draw(viewMode);
+		}
 		
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		
-		if (manipulated->SelectedCount > 0)
+		if (manipulated != nullptr && manipulated->SelectedCount > 0)
 		{
 			currentManipulator->Position = manipulated->SelectionCenter;
 			
@@ -348,7 +354,7 @@ namespace ManagedCpp {
 			{
 				isManipulating = isSelecting = NO;
 			}
-			else if (manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
+			else if (manipulated != nullptr && manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
 			{
 				BeginGL();
 				if (currentManipulator == translationManipulator)
@@ -457,7 +463,7 @@ namespace ManagedCpp {
 		else if (e->Button == System::Windows::Forms::MouseButtons::None)
 		{
 			currentPoint = PointF((float)e->X, (float)e->Y);
-			if (manipulated->SelectedCount > 0)
+			if (manipulated != nullptr && manipulated->SelectedCount > 0)
 			{
 				if (!isManipulating)
 				{
@@ -485,24 +491,27 @@ namespace ManagedCpp {
 		if (isSelecting)
 		{
 			isSelecting = NO;
-			OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
-			
-			if ((this->ModifierKeys & System::Windows::Forms::Keys::Control) == System::Windows::Forms::Keys::Control)
-				selectionMode = OpenGLSelectionModeInvert;
-			else if ((this->ModifierKeys & System::Windows::Forms::Keys::Shift) == System::Windows::Forms::Keys::Shift)
-				selectionMode = OpenGLSelectionModeAdd;
-			else
-				manipulated->ChangeSelection(NO);
-			
-			BeginGL();
-			RectangleF rect = this->CurrentRect;
-			if (rect.Width > 5.0f && rect.Height > 5.0f)
-				this->SelectRect(rect, manipulated, selectionMode);
-			else
-				this->SelectPoint(currentPoint, manipulated, selectionMode);
-			EndGL();
-			if (theDelegate != nullptr)
-				theDelegate->SelectionChanged(this);
+			if (manipulated != nullptr)
+			{
+				OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
+				
+				if ((this->ModifierKeys & System::Windows::Forms::Keys::Control) == System::Windows::Forms::Keys::Control)
+					selectionMode = OpenGLSelectionModeInvert;
+				else if ((this->ModifierKeys & System::Windows::Forms::Keys::Shift) == System::Windows::Forms::Keys::Shift)
+					selectionMode = OpenGLSelectionModeAdd;
+				else
+					manipulated->ChangeSelection(NO);
+				
+				BeginGL();
+				RectangleF rect = this->CurrentRect;
+				if (rect.Width > 5.0f && rect.Height > 5.0f)
+					this->SelectRect(rect, manipulated, selectionMode);
+				else
+					this->SelectPoint(currentPoint, manipulated, selectionMode);
+				EndGL();
+				if (theDelegate != nullptr)
+					theDelegate->SelectionChanged(this);
+			}
 			this->Invalidate();
 		}
 	}

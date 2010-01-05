@@ -59,6 +59,18 @@
     <Compile Include="AddItemWithStepsDialog.Designer.cs">
       <DependentUpon>AddItemWithStepsDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="DockFourViews.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DockFourViews.Designer.cs">
+      <DependentUpon>DockFourViews.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DockPropertyPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DockPropertyPanel.Designer.cs">
+      <DependentUpon>DockPropertyPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="DocumentForm.cs">
       <SubType>Form</SubType>
@@ -70,6 +82,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AddItemWithStepsDialog.resx">
       <DependentUpon>AddItemWithStepsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DockFourViews.resx">
+      <DependentUpon>DockFourViews.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DockPropertyPanel.resx">
+      <DependentUpon>DockPropertyPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DocumentForm.resx">
       <DependentUpon>DocumentForm.cs</DependentUpon>
@@ -98,6 +116,10 @@
     <ProjectReference Include="..\HotChocolate\HotChocolate.csproj">
       <Project>{D69A45F7-FA1E-42CA-8F47-82FC33BF58E0}</Project>
       <Name>HotChocolate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WinFormsUI\WinFormsUI.csproj">
+      <Project>{C75532C4-765B-418E-B09B-46D36B2ABDB1}</Project>
+      <Name>WinFormsUI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
