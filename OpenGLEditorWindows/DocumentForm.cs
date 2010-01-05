@@ -11,6 +11,7 @@ using HotChocolate;
 using HotChocolate.Bindings;
 using System.Diagnostics;
 using System.IO;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace OpenGLEditorWindows
 {
@@ -33,6 +34,15 @@ namespace OpenGLEditorWindows
         string lastFileName = null;
         string fileDialogFilter = "Native format (*.model3D)|*.model3D";
 
+        OpenGLSceneView openGLSceneViewLeft = null;
+        OpenGLSceneView openGLSceneViewTop = null;
+        OpenGLSceneView openGLSceneViewFront = null;
+        OpenGLSceneView openGLSceneViewPerspective = null;
+
+        SplitContainer mainSplit = null;
+        SplitContainer topSplit = null;
+        SplitContainer bottomSplit = null;
+
         public DocumentForm()
         {
             InitializeComponent();
@@ -44,6 +54,23 @@ namespace OpenGLEditorWindows
             itemsController = new OpenGLManipulatingController();
             meshController = new OpenGLManipulatingController();
             undo = new UndoManager();
+
+            DockFourViews fourViewDock = new DockFourViews();
+
+            openGLSceneViewLeft = fourViewDock.openGLSceneViewLeft;
+            openGLSceneViewTop = fourViewDock.openGLSceneViewTop;
+            openGLSceneViewFront = fourViewDock.openGLSceneViewFront;
+            openGLSceneViewPerspective = fourViewDock.openGLSceneViewPerspective;
+
+            mainSplit = fourViewDock.mainSplit;
+            topSplit = fourViewDock.topSplit;
+            bottomSplit = fourViewDock.bottomSplit;
+
+            topSplit.SplitterMoving += new SplitterCancelEventHandler(topSplit_SplitterMoving);
+            bottomSplit.SplitterMoving += new SplitterCancelEventHandler(bottomSplit_SplitterMoving);
+
+            topSplit.SplitterMoved += new SplitterEventHandler(topSplit_SplitterMoved);
+            bottomSplit.SplitterMoved += new SplitterEventHandler(bottomSplit_SplitterMoved);
 
             openGLSceneViewLeft.CurrentCameraMode = CameraMode.CameraModeLeft;
             openGLSceneViewTop.CurrentCameraMode = CameraMode.CameraModeTop;
@@ -84,6 +111,11 @@ namespace OpenGLEditorWindows
             OnEachViewDo(view => views.Add(view));
 
             this.KeyDown += new KeyEventHandler(DocumentForm_KeyDown);
+
+            DockPropertyPanel propertyPanel = new DockPropertyPanel();
+
+            fourViewDock.Show(dockPanel1);
+            propertyPanel.Show(dockPanel1);
         }
 
         bool IsSaveQuestionCancelled()
@@ -724,51 +756,41 @@ namespace OpenGLEditorWindows
 
         bool ignoreSplitterMoved = true;
 
-        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
-        {
-
-        }
-
-        private void splitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
+        private void topSplit_SplitterMoved(object sender, SplitterEventArgs e)
         {
             if (ignoreSplitterMoved)
                 return;
 
-            splitContainer3.SplitterDistance = e.SplitX;
+            bottomSplit.SplitterDistance = e.SplitX;
             ignoreSplitterMoved = true;
         }
 
-        private void splitContainer3_SplitterMoved(object sender, SplitterEventArgs e)
+        private void bottomSplit_SplitterMoved(object sender, SplitterEventArgs e)
         {
             if (ignoreSplitterMoved)
                 return;
 
-            splitContainer2.SplitterDistance = e.SplitX;
+            topSplit.SplitterDistance = e.SplitX;
             ignoreSplitterMoved = true;
         }
 
-        private void splitContainer2_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        private void topSplit_SplitterMoving(object sender, SplitterCancelEventArgs e)
         {
             ignoreSplitterMoved = false;
         }
 
-        private void splitContainer3_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        private void bottomSplit_SplitterMoving(object sender, SplitterCancelEventArgs e)
         {
             ignoreSplitterMoved = false;
         }
-
-        private void splitContainer1_SplitterMoving(object sender, SplitterCancelEventArgs e)
-        {
-
-        }        
 
         private void toggleOneViewFourViewMenuItem_Click(object sender, EventArgs e)
         {
             // one view -> four views
-            if (splitContainer1.Panel1Collapsed)
+            if (mainSplit.Panel1Collapsed)
             {
-                splitContainer1.Panel1Collapsed = false;
-                splitContainer3.Panel1Collapsed = false;
+                mainSplit.Panel1Collapsed = false;
+                bottomSplit.Panel1Collapsed = false;
                 openGLSceneViewPerspective.CurrentCameraMode = CameraMode.CameraModePerspective;
             }
             else // four views -> one view
@@ -780,8 +802,8 @@ namespace OpenGLEditorWindows
                     if (view.ClientRectangle.Contains(clientPoint))
                     {
                         openGLSceneViewPerspective.CurrentCameraMode = view.CurrentCameraMode;
-                        splitContainer1.Panel1Collapsed = true;
-                        splitContainer3.Panel1Collapsed = true;
+                        mainSplit.Panel1Collapsed = true;
+                        bottomSplit.Panel1Collapsed = true;
                         return;
                     }
                 }
@@ -897,9 +919,6 @@ namespace OpenGLEditorWindows
                 case Keys.Space:
                     toggleOneViewFourViewMenuItem_Click(this, EventArgs.Empty);
                     break;
-                case Keys.Delete:
-                    deleteToolStripMenuItem_Click(this, EventArgs.Empty);
-                    break;
                 case Keys.Q:
                     manipulatorToolStripMenuItem_DropDownItemClicked(this,
                         new ToolStripItemClickedEventArgs(selectToolStripMenuItem));
@@ -919,6 +938,6 @@ namespace OpenGLEditorWindows
             }
         }
 
-        #endregion        
+        #endregion
     }
 }
