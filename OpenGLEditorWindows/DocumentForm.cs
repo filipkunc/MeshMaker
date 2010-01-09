@@ -111,11 +111,15 @@ namespace OpenGLEditorWindows
             OnEachViewDo(view => views.Add(view));
 
             this.KeyDown += new KeyEventHandler(DocumentForm_KeyDown);
-
+            
             DockPropertyPanel propertyPanel = new DockPropertyPanel();
-
+            DockHierarchyPanel hierarchyPanel = new DockHierarchyPanel();
+            DockLogPanel logPanel = new DockLogPanel();
+            
             fourViewDock.Show(dockPanel1);
             propertyPanel.Show(dockPanel1);
+            hierarchyPanel.Show(dockPanel1);
+            logPanel.Show(dockPanel1);
         }
 
         bool IsSaveQuestionCancelled()
@@ -937,7 +941,7 @@ namespace OpenGLEditorWindows
                     break;
             }
         }
-
+      
         #endregion
     }
 }
