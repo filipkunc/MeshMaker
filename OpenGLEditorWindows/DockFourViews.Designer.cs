@@ -62,7 +62,6 @@
             this.mainSplit.Panel2.Controls.Add(this.bottomSplit);
             this.mainSplit.Size = new System.Drawing.Size(292, 266);
             this.mainSplit.SplitterDistance = 130;
-            this.mainSplit.SplitterWidth = 1;
             this.mainSplit.TabIndex = 6;
             // 
             // topSplit
@@ -80,7 +79,6 @@
             this.topSplit.Panel2.Controls.Add(this.openGLSceneViewTop);
             this.topSplit.Size = new System.Drawing.Size(292, 130);
             this.topSplit.SplitterDistance = 144;
-            this.topSplit.SplitterWidth = 1;
             this.topSplit.TabIndex = 6;
             // 
             // openGLSceneViewLeft
@@ -98,7 +96,7 @@
             this.openGLSceneViewTop.Dock = System.Windows.Forms.DockStyle.Fill;
             this.openGLSceneViewTop.Location = new System.Drawing.Point(0, 0);
             this.openGLSceneViewTop.Name = "openGLSceneViewTop";
-            this.openGLSceneViewTop.Size = new System.Drawing.Size(147, 130);
+            this.openGLSceneViewTop.Size = new System.Drawing.Size(144, 130);
             this.openGLSceneViewTop.TabIndex = 6;
             // 
             // bottomSplit
@@ -114,9 +112,8 @@
             // bottomSplit.Panel2
             // 
             this.bottomSplit.Panel2.Controls.Add(this.openGLSceneViewPerspective);
-            this.bottomSplit.Size = new System.Drawing.Size(292, 135);
+            this.bottomSplit.Size = new System.Drawing.Size(292, 132);
             this.bottomSplit.SplitterDistance = 144;
-            this.bottomSplit.SplitterWidth = 1;
             this.bottomSplit.TabIndex = 7;
             // 
             // openGLSceneViewFront
@@ -125,7 +122,7 @@
             this.openGLSceneViewFront.Dock = System.Windows.Forms.DockStyle.Fill;
             this.openGLSceneViewFront.Location = new System.Drawing.Point(0, 0);
             this.openGLSceneViewFront.Name = "openGLSceneViewFront";
-            this.openGLSceneViewFront.Size = new System.Drawing.Size(144, 135);
+            this.openGLSceneViewFront.Size = new System.Drawing.Size(144, 132);
             this.openGLSceneViewFront.TabIndex = 7;
             // 
             // openGLSceneViewPerspective
@@ -134,7 +131,7 @@
             this.openGLSceneViewPerspective.Dock = System.Windows.Forms.DockStyle.Fill;
             this.openGLSceneViewPerspective.Location = new System.Drawing.Point(0, 0);
             this.openGLSceneViewPerspective.Name = "openGLSceneViewPerspective";
-            this.openGLSceneViewPerspective.Size = new System.Drawing.Size(147, 135);
+            this.openGLSceneViewPerspective.Size = new System.Drawing.Size(144, 132);
             this.openGLSceneViewPerspective.TabIndex = 8;
             // 
             // DockFourViews
@@ -143,6 +140,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(292, 266);
             this.Controls.Add(this.mainSplit);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.Name = "DockFourViews";
             this.Text = "DockFourViews";
             this.mainSplit.Panel1.ResumeLayout(false);
