@@ -43,6 +43,15 @@ namespace OpenGLEditorWindows
         SplitContainer topSplit = null;
         SplitContainer bottomSplit = null;
 
+        PropertyGrid propertyGrid = null;
+        TextBox logTextBox = null;
+        TreeView sceneGraphTreeView = null;
+
+        DockFourViews fourViewDock = null;
+        DockPropertyPanel propertyPanel = null;
+        DockHierarchyPanel hierarchyPanel = null;
+        DockLogPanel logPanel = null;
+
         public DocumentForm()
         {
             InitializeComponent();
@@ -55,7 +64,10 @@ namespace OpenGLEditorWindows
             meshController = new OpenGLManipulatingController();
             undo = new UndoManager();
 
-            DockFourViews fourViewDock = new DockFourViews();
+            fourViewDock = new DockFourViews();
+            propertyPanel = new DockPropertyPanel();
+            hierarchyPanel = new DockHierarchyPanel();
+            logPanel = new DockLogPanel();
 
             openGLSceneViewLeft = fourViewDock.openGLSceneViewLeft;
             openGLSceneViewTop = fourViewDock.openGLSceneViewTop;
@@ -65,6 +77,10 @@ namespace OpenGLEditorWindows
             mainSplit = fourViewDock.mainSplit;
             topSplit = fourViewDock.topSplit;
             bottomSplit = fourViewDock.bottomSplit;
+
+            logTextBox = logPanel.logTextBox;
+            sceneGraphTreeView = hierarchyPanel.sceneGraphTreeView;
+            propertyGrid = propertyPanel.propertyGrid;
 
             topSplit.SplitterMoving += new SplitterCancelEventHandler(topSplit_SplitterMoving);
             bottomSplit.SplitterMoving += new SplitterCancelEventHandler(bottomSplit_SplitterMoving);
@@ -111,15 +127,19 @@ namespace OpenGLEditorWindows
             OnEachViewDo(view => views.Add(view));
 
             this.KeyDown += new KeyEventHandler(DocumentForm_KeyDown);
-            
-            DockPropertyPanel propertyPanel = new DockPropertyPanel();
-            DockHierarchyPanel hierarchyPanel = new DockHierarchyPanel();
-            DockLogPanel logPanel = new DockLogPanel();
-            
+
             fourViewDock.Show(dockPanel1);
             propertyPanel.Show(dockPanel1);
             hierarchyPanel.Show(dockPanel1);
             logPanel.Show(dockPanel1);
+
+            Manipulated = itemsController;
+            propertyGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid_PropertyValueChanged);
+        }
+
+        void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            OnEachViewDo(view => view.Invalidate());
         }
 
         bool IsSaveQuestionCancelled()
@@ -285,6 +305,7 @@ namespace OpenGLEditorWindows
             set
             {
                 value.CurrentManipulator = openGLSceneViewLeft.CurrentManipulator;
+                propertyGrid.SelectedObject = value;
 
                 OnEachViewDo(view => view.Manipulated = value);
                 OnEachViewDo(view => view.Invalidate());
@@ -543,11 +564,15 @@ namespace OpenGLEditorWindows
                 oldMeshManipulation = null;
             }
 
+            propertyGrid.Refresh();
+
             OnEachViewDo(v => { if (v != view) v.Invalidate(); });
         }
 
         public void SelectionChanged(OpenGLSceneView view)
         {
+            propertyGrid.Refresh();
+            //propertyGrid.SelectedObject = this.items;
             OnEachViewDo(v => { if (v != view) v.Invalidate(); });
         }
 

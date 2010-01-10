@@ -17,6 +17,7 @@
 #include "CppFileStreaming.h"
 
 using namespace System::Collections::Generic;
+using namespace System::ComponentModel;
 
 namespace ManagedCpp
 {
@@ -53,36 +54,42 @@ namespace ManagedCpp
 		virtual void CloneSelected();
 		virtual void RemoveSelected();
 
+		[Browsable(false)]
 		property List<ItemManipulationState ^> ^CurrentManipulations 
 		{ 
 			List<ItemManipulationState ^> ^get();
 			void set(List<ItemManipulationState ^> ^manipulations);
 		}
 
+		[Browsable(false)]
 		property MeshManipulationState ^CurrentMeshManipulation
 		{
 			MeshManipulationState ^get();
 			void set(MeshManipulationState ^manipulation);
 		}
 
+		[Browsable(false)]
 		property MeshFullState ^CurrentMeshFull
 		{
 			MeshFullState ^get();
 			void set(MeshFullState ^full);
 		}
 
+		[Browsable(false)]
 		property List<uint> ^CurrentSelection
 		{
 			List<uint> ^get();
 			void set(List<uint> ^selection);
 		}
 
+		[Browsable(false)]
 		property List<IndexedItem ^> ^CurrentItems
 		{
 			List<IndexedItem ^> ^get();
 			void set(List<IndexedItem ^> ^anItems);
 		}
 
+		[Browsable(false)]
 		property List<Item ^> ^AllItems
 		{
 			List<Item ^> ^get();

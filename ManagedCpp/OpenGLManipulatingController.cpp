@@ -118,39 +118,145 @@ namespace ManagedCpp
 			SetTransform(item->Position, item->Rotation, item->Scale);
 	}
 
+	#pragma region Selection X, Y, Z
+
 	float OpenGLManipulatingController::SelectionX::get()
 	{
-		return GetSelectionValue(0);
+		return GetSelectionValue(0, currentManipulator);
 	}
 
 	float OpenGLManipulatingController::SelectionY::get()
 	{
-		return GetSelectionValue(1);
+		return GetSelectionValue(1, currentManipulator);
 	}
 
 	float OpenGLManipulatingController::SelectionZ::get()
 	{
-		return GetSelectionValue(2);
+		return GetSelectionValue(2, currentManipulator);
 	}
 
 	void OpenGLManipulatingController::SelectionX::set(float value)
 	{
-		SetSelectionValue(value, 0);
+		SetSelectionValue(value, 0, currentManipulator);
 	}
 
 	void OpenGLManipulatingController::SelectionY::set(float value)
 	{
-		SetSelectionValue(value, 1);
+		SetSelectionValue(value, 1, currentManipulator);
 	}
 
 	void OpenGLManipulatingController::SelectionZ::set(float value)
 	{
-		SetSelectionValue(value, 2);
+		SetSelectionValue(value, 2, currentManipulator);
 	}
 
-	float OpenGLManipulatingController::GetSelectionValue(uint index)
+	#pragma endregion
+
+	#pragma region Position X, Y, Z
+
+	float OpenGLManipulatingController::PositionX::get()
 	{
-		switch (currentManipulator)
+		return GetSelectionValue(0, ManipulatorType::ManipulatorTypeTranslation);
+	}
+
+	float OpenGLManipulatingController::PositionY::get()
+	{
+		return GetSelectionValue(1, ManipulatorType::ManipulatorTypeTranslation);
+	}
+
+	float OpenGLManipulatingController::PositionZ::get()
+	{
+		return GetSelectionValue(2, ManipulatorType::ManipulatorTypeTranslation);
+	}
+
+	void OpenGLManipulatingController::PositionX::set(float value)
+	{
+		SetSelectionValue(value, 0, ManipulatorType::ManipulatorTypeTranslation);
+	}
+
+	void OpenGLManipulatingController::PositionY::set(float value)
+	{
+		SetSelectionValue(value, 1, ManipulatorType::ManipulatorTypeTranslation);
+	}
+
+	void OpenGLManipulatingController::PositionZ::set(float value)
+	{
+		SetSelectionValue(value, 2, ManipulatorType::ManipulatorTypeTranslation);
+	}
+
+	#pragma endregion
+
+	#pragma region Rotation X, Y, Z
+
+	float OpenGLManipulatingController::RotationX::get()
+	{
+		return GetSelectionValue(0, ManipulatorType::ManipulatorTypeRotation);
+	}
+
+	float OpenGLManipulatingController::RotationY::get()
+	{
+		return GetSelectionValue(1, ManipulatorType::ManipulatorTypeRotation);
+	}
+
+	float OpenGLManipulatingController::RotationZ::get()
+	{
+		return GetSelectionValue(2, ManipulatorType::ManipulatorTypeRotation);
+	}
+
+	void OpenGLManipulatingController::RotationX::set(float value)
+	{
+		SetSelectionValue(value, 0, ManipulatorType::ManipulatorTypeRotation);
+	}
+
+	void OpenGLManipulatingController::RotationY::set(float value)
+	{
+		SetSelectionValue(value, 1, ManipulatorType::ManipulatorTypeRotation);
+	}
+
+	void OpenGLManipulatingController::RotationZ::set(float value)
+	{
+		SetSelectionValue(value, 2, ManipulatorType::ManipulatorTypeRotation);
+	}
+
+	#pragma endregion
+
+	#pragma region Scale X, Y, Z
+
+	float OpenGLManipulatingController::ScaleX::get()
+	{
+		return GetSelectionValue(0, ManipulatorType::ManipulatorTypeScale);
+	}
+
+	float OpenGLManipulatingController::ScaleY::get()
+	{
+		return GetSelectionValue(1, ManipulatorType::ManipulatorTypeScale);
+	}
+
+	float OpenGLManipulatingController::ScaleZ::get()
+	{
+		return GetSelectionValue(2, ManipulatorType::ManipulatorTypeScale);
+	}
+
+	void OpenGLManipulatingController::ScaleX::set(float value)
+	{
+		SetSelectionValue(value, 0, ManipulatorType::ManipulatorTypeScale);
+	}
+
+	void OpenGLManipulatingController::ScaleY::set(float value)
+	{
+		SetSelectionValue(value, 1, ManipulatorType::ManipulatorTypeScale);
+	}
+
+	void OpenGLManipulatingController::ScaleZ::set(float value)
+	{
+		SetSelectionValue(value, 2, ManipulatorType::ManipulatorTypeScale);
+	}
+
+	#pragma endregion
+
+	float OpenGLManipulatingController::GetSelectionValue(uint index, ManipulatorType manipulatorType)
+	{
+		switch (manipulatorType)
 		{
 			case ManipulatorType::ManipulatorTypeTranslation:
 				return (*selectionCenter)[index];
@@ -164,9 +270,9 @@ namespace ManagedCpp
 		}
 	}
 
-	void OpenGLManipulatingController::SetSelectionValue(float value, uint index)
+	void OpenGLManipulatingController::SetSelectionValue(float value, uint index, ManipulatorType manipulatorType)
 	{
-		switch (currentManipulator)
+		switch (manipulatorType)
 		{
 			case ManipulatorType::ManipulatorTypeTranslation:
 			{

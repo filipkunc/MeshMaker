@@ -15,6 +15,8 @@
 #include "Mesh.h"
 #include "CppFileStreaming.h"
 
+using namespace System::ComponentModel;
+
 namespace ManagedCpp 
 {
 	public ref class Item : CppFileStreaming
@@ -30,9 +32,13 @@ namespace ManagedCpp
 		Item(Vector3D aPosition, Quaternion aRotation, Vector3D aScale);
 		~Item();
 
+		[Browsable(false)]
 		property Vector3D Position { Vector3D get(); void set(Vector3D value); }
+		[Browsable(false)]
 		property Quaternion Rotation { Quaternion get(); void set(Quaternion value); }
+		[Browsable(false)]
 		property Vector3D Scale { Vector3D get(); void set(Vector3D value); }
+		[Browsable(false)]
 		property CocoaBool Selected { CocoaBool get(); void set(CocoaBool value); }
 		
 		void Draw(ViewMode mode);
