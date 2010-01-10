@@ -49,6 +49,7 @@ namespace ManagedCpp
 
 		// OpenGLSelecting
 
+		[Browsable(false)]
 		virtual property uint SelectableCount { uint get(); }
 		virtual void DrawForSelection(uint index);
 		virtual void SelectObject(uint index, OpenGLSelectionMode selectionMode);
@@ -59,14 +60,43 @@ namespace ManagedCpp
 
 		// OpenGLManipulating
 
+		[Browsable(false)]
 		virtual property ManipulatorType CurrentManipulator { ManipulatorType get(); void set(ManipulatorType value); }
+		[Browsable(false)]
 		virtual property Vector3D SelectionCenter { Vector3D get(); void set(Vector3D value); }
+		[Browsable(false)]
 		virtual property Quaternion SelectionRotation { Quaternion get(); void set(Quaternion value); }
+		[Browsable(false)]
 		virtual property Vector3D SelectionScale { Vector3D get(); void set(Vector3D value); }
+		[Browsable(false)]
 		virtual property float SelectionX { float get(); void set(float value); }
+		[Browsable(false)]
 		virtual property float SelectionY { float get(); void set(float value); }
+		[Browsable(false)]
 		virtual property float SelectionZ { float get(); void set(float value); }
+		[Browsable(false)]
 		virtual property uint SelectedCount { uint get(); }
+
+		[Browsable(true)]
+		property float PositionX { float get(); void set(float value); }
+		[Browsable(true)]
+		property float PositionY { float get(); void set(float value); }
+		[Browsable(true)]
+		property float PositionZ { float get(); void set(float value); }
+
+		[Browsable(true)]
+		property float RotationX { float get(); void set(float value); }
+		[Browsable(true)]
+		property float RotationY { float get(); void set(float value); }
+		[Browsable(true)]
+		property float RotationZ { float get(); void set(float value); }
+
+		[Browsable(true)]
+		property float ScaleX { float get(); void set(float value); }
+		[Browsable(true)]
+		property float ScaleY { float get(); void set(float value); }
+		[Browsable(true)]
+		property float ScaleZ { float get(); void set(float value); }
 
 		virtual void MoveSelectedBy(Vector3D offset);
 		virtual void RotateSelectedBy(Quaternion offset);
@@ -78,16 +108,21 @@ namespace ManagedCpp
 		virtual void CloneSelected();
 		virtual void RemoveSelected();
 
+		[Browsable(false)]
 		property OpenGLManipulatingModel ^Model { OpenGLManipulatingModel ^get(); 
 												  void set(OpenGLManipulatingModel ^value); }
+		[Browsable(false)]
 		property int LastSelectedIndex { int get(); }
 
+		[Browsable(false)]
 		property PropertyObserver<float> ^ObserverSelectionX { PropertyObserver<float> ^get(); }
+		[Browsable(false)]
 		property PropertyObserver<float> ^ObserverSelectionY { PropertyObserver<float> ^get(); }
+		[Browsable(false)]
 		property PropertyObserver<float> ^ObserverSelectionZ { PropertyObserver<float> ^get(); }
 
-		float GetSelectionValue(uint index);
-		void SetSelectionValue(float value, uint index);
+		float GetSelectionValue(uint index, ManipulatorType manipulatorType);
+		void SetSelectionValue(float value, uint index, ManipulatorType manipulatorType);
 		void WillChangeSelection();
 		void DidChangeSelection();
 		void SetTransform(Vector3D position, Quaternion rotation, Vector3D scale);
