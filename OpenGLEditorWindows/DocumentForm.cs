@@ -52,6 +52,8 @@ namespace OpenGLEditorWindows
         DockHierarchyPanel hierarchyPanel = null;
         DockLogPanel logPanel = null;
 
+        StringWriter logWriter;
+        
         public DocumentForm()
         {
             InitializeComponent();
@@ -82,6 +84,11 @@ namespace OpenGLEditorWindows
             sceneGraphTreeView = hierarchyPanel.sceneGraphTreeView;
             propertyGrid = propertyPanel.propertyGrid;
 
+            logWriter = new StringWriter();
+            Trace.Listeners.Add(new TextWriterTraceListener(logWriter));
+            
+            logTextBox.Text = logWriter.ToString();
+            
             topSplit.SplitterMoving += new SplitterCancelEventHandler(topSplit_SplitterMoving);
             bottomSplit.SplitterMoving += new SplitterCancelEventHandler(bottomSplit_SplitterMoving);
 
@@ -183,6 +190,9 @@ namespace OpenGLEditorWindows
             if (undo.NeedsSave)
                 formTitle.Append(" *");
             this.Text = formTitle.ToString();
+            logTextBox.Text = logWriter.ToString();
+            logTextBox.Select(logTextBox.Text.Length - 1, 0);
+            logTextBox.ScrollToCaret();
         }
 
         #region Bindings magic
