@@ -50,6 +50,7 @@
 	[oldManipulations release];
 	[oldMeshManipulation release];
 	[views release];
+	[propertyReflector release];
 	[super dealloc];
 }
 
@@ -74,6 +75,10 @@
 	[viewLeft setCameraMode:CameraModeLeft];
 	[viewFront setCameraMode:CameraModeFront];
 	[viewPerspective setCameraMode:CameraModePerspective];
+	
+	
+	propertyReflector = [[PropertyReflector alloc] initWithObject:itemsController 
+														tableView:propertyView];
 }
 
 - (id<OpenGLManipulating>)manipulated

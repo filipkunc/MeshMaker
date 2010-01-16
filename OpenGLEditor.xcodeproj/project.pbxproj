@@ -43,6 +43,8 @@
 		A7C6FEBB1090D539008A55E1 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FEB01090D4FB008A55E1 /* MeshTest.mm */; };
 		A7C6FEBC1090D539008A55E1 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
+		A7D288831101042F0092B9DC /* PropertyReflector.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D288821101042F0092B9DC /* PropertyReflector.m */; };
+		A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D28894110107510092B9DC /* libobjc.A.dylib */; };
 		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
 /* End PBXBuildFile section */
 
@@ -130,6 +132,9 @@
 		A7C6FEB01090D4FB008A55E1 /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
 		A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
+		A7D288811101042F0092B9DC /* PropertyReflector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyReflector.h; sourceTree = "<group>"; };
+		A7D288821101042F0092B9DC /* PropertyReflector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PropertyReflector.m; sourceTree = "<group>"; };
+		A7D28894110107510092B9DC /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A7D7733A10A77DAC0068353E /* IndexedItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedItem.h; sourceTree = "<group>"; };
 		A7D7733B10A77DAC0068353E /* IndexedItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IndexedItem.mm; sourceTree = "<group>"; };
 		A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CppFileStreaming.h; sourceTree = "<group>"; };
@@ -143,6 +148,7 @@
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
 				A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */,
+				A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,6 +168,7 @@
 				A754C4210FF92F9400A48E13 /* GLUT.framework */,
 				A754C41D0FF92F8600A48E13 /* OpenGL.framework */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
+				A7D28894110107510092B9DC /* libobjc.A.dylib */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -338,6 +345,8 @@
 				A7521EB110E678F0003D31E4 /* Shader.m */,
 				A7BB8C9110ED5CC300476385 /* ShaderProgram.h */,
 				A7BB8C9210ED5CC300476385 /* ShaderProgram.m */,
+				A7D288811101042F0092B9DC /* PropertyReflector.h */,
+				A7D288821101042F0092B9DC /* PropertyReflector.m */,
 			);
 			path = ObjectiveCpp;
 			sourceTree = "<group>";
@@ -479,6 +488,7 @@
 				A786AF4C10B9E2EC00D65415 /* MeshFullState.mm in Sources */,
 				A7521EB210E678F0003D31E4 /* Shader.m in Sources */,
 				A7BB8C9310ED5CC300476385 /* ShaderProgram.m in Sources */,
+				A7D288831101042F0092B9DC /* PropertyReflector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

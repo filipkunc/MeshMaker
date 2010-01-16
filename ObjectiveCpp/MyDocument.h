@@ -12,6 +12,7 @@
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
 #import "MeshManipulationState.h"
+#import "PropertyReflector.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate>
 {
@@ -39,6 +40,9 @@
 	IBOutlet NSSplitView *mainSplit;
 	
 	BOOL oneView;
+	
+	PropertyReflector *propertyReflector;
+	IBOutlet NSTableView *propertyView;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
