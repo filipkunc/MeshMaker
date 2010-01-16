@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import </usr/include/objc/runtime.h>
+#import <objc/runtime.h>
 
 // This class uses runtime information to get all properties
 // of any NSObject descendant.
