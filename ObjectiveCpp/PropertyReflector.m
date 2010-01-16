@@ -29,22 +29,31 @@
 		for (int i = propertyCount - 1; i >= 0; i--)
 		{
 			NSString *attributes = [NSString stringWithCString:property_getAttributes(properties[i]) 
-														encoding:NSASCIIStringEncoding];
+													  encoding:NSASCIIStringEncoding];
 			
-			// Hardcoded for simple floats, problems with OpenGLManipulatingController if 
-			// using all properties.
-			// I need to learn more about complex objects and interaction with Obj-C runtime.
-			if ([attributes hasPrefix:@"Tf"])
+			NSString *propertyName = [NSString stringWithCString:property_getName(properties[i]) 
+														encoding:NSASCIIStringEncoding];			
+			
+			NSLog(@"%@:%@", propertyName, attributes);
+			
+			// no references, structs or pointers
+			if (![attributes hasPrefix:@"T@"] && 
+				![attributes hasPrefix:@"T{"] &&
+				![attributes hasPrefix:@"T^"])
 			{
-				NSString *propertyName = [NSString stringWithCString:property_getName(properties[i]) 
-															encoding:NSASCIIStringEncoding];			
-				[cachedPropertyNames addObject:propertyName];
-				
-				// with Key-Value-Observing is simple to add automatic updates of table view
-				[reflectedObject addObserver:self
-								  forKeyPath:propertyName
-									 options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
-									 context:NULL];
+				NSArray *components = [attributes componentsSeparatedByString:@","];
+				NSLog(@"components: %@", components);
+				// ignore readonly
+				if ([components count] < 2 || ![[components objectAtIndex:1] isEqualTo:@"R"])
+				{
+					[cachedPropertyNames addObject:propertyName];
+					
+					// with Key-Value-Observing is simple to add automatic updates of table view
+					[reflectedObject addObserver:self
+									  forKeyPath:propertyName
+										 options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
+										 context:NULL];
+				}
 			}
 		}
 		
@@ -57,6 +66,9 @@
 
 - (void)dealloc
 {
+	for (NSString *propertyName in cachedPropertyNames)
+		[reflectedObject removeObserver:self forKeyPath:propertyName];
+	
 	[reflectedObject release];
 	[cachedPropertyNames release];
 	[tableView release];

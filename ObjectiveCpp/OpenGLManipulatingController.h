@@ -29,7 +29,7 @@
 }
 
 @property (readwrite, assign) id<OpenGLManipulatingModel> model;
-@property (readonly, assign) NSInteger lastSelectedIndex;
+@property (readonly) NSInteger lastSelectedIndex;
 
 - (void)addSelectionObserver:(id)observer;
 - (void)removeSelectionObserver:(id)observer;
