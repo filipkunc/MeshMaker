@@ -299,12 +299,25 @@ const float maxDistance = 1000.0f;
 
 - (void)drawDefaultManipulator
 {
-	[defaultManipulator setPosition:Vector3D(0, 0, 0)];
+	[defaultManipulator setPosition:Vector3D()];
 	if (cameraMode == CameraModePerspective)
-		[defaultManipulator setSize:camera->GetPosition().Distance([defaultManipulator position]) * 0.09f];
+		[defaultManipulator setSize:camera->GetPosition().Distance([defaultManipulator position]) * 0.07f];
 	else
-		[defaultManipulator setSize:camera->GetZoom() * 0.1f];
-	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() center:Vector3D(0, 0, 0)];
+		[defaultManipulator setSize:camera->GetZoom() * 0.08f];
+	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() center:Vector3D()];
+}
+
+- (void)drawOrthoDefaultManipulator
+{
+	[self beginOrtho];
+	glPushMatrix();
+	glTranslatef(18.0f, 18.0f, 0.0f);
+	glMultMatrixf(camera->GetRotationMatrix());
+	[defaultManipulator setPosition:Vector3D()];
+	[defaultManipulator setSize:15.0f];
+	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() center:[defaultManipulator position]];
+	glPopMatrix();
+	[self endOrtho];
 }
 
 - (void)drawCurrentManipulator
@@ -316,7 +329,7 @@ const float maxDistance = 1000.0f;
 		if (cameraMode == CameraModePerspective)
 			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
 		else
-			[currentManipulator setSize:camera->GetZoom() * 0.18f];
+			[currentManipulator setSize:camera->GetZoom() * 0.17f];
 		
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
@@ -360,6 +373,8 @@ const float maxDistance = 1000.0f;
 	
 	[self drawDefaultManipulator];
 	[self drawCurrentManipulator];
+	
+	[self drawOrthoDefaultManipulator];
 	[self drawSelectionRect];
 		
 	glEnable(GL_DEPTH_TEST);
@@ -479,8 +494,8 @@ const float maxDistance = 1000.0f;
 - (void)mouseDragged:(NSEvent *)e
 {
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
-	float diffX = currentPoint.x - lastPoint.x;
-	float diffY = currentPoint.y - lastPoint.y;
+	float deltaX = currentPoint.x - lastPoint.x;
+	float deltaY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
@@ -488,8 +503,8 @@ const float maxDistance = 1000.0f;
 		{
 			lastPoint = currentPoint;
 			const float sensitivity = 0.005f;
-			camera->RotateLeftRight(diffX * sensitivity);
-			camera->RotateUpDown(-diffY * sensitivity);
+			camera->RotateLeftRight(deltaX * sensitivity);
+			camera->RotateUpDown(-deltaY * sensitivity);
 			[self setNeedsDisplay:YES];
 		}
 	}
@@ -531,8 +546,8 @@ const float maxDistance = 1000.0f;
 - (void)otherMouseDragged:(NSEvent *)e
 {
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
-	float diffX = currentPoint.x - lastPoint.x;
-	float diffY = currentPoint.y - lastPoint.y;
+	float deltaX = currentPoint.x - lastPoint.x;
+	float deltaY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
@@ -541,8 +556,8 @@ const float maxDistance = 1000.0f;
 		float h = bounds.size.height;
 		float sensitivity = (w + h) / 2.0f;
 		sensitivity = 1.0f / sensitivity;
-		camera->LeftRight(-diffX * camera->GetZoom() * sensitivity);
-		camera->UpDown(diffY * camera->GetZoom() * sensitivity);
+		camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
+		camera->UpDown(deltaY * camera->GetZoom() * sensitivity);
 		
 		lastPoint = currentPoint;
 		[self setNeedsDisplay:YES];
@@ -557,13 +572,13 @@ const float maxDistance = 1000.0f;
 - (void)rightMouseDragged:(NSEvent *)e
 {	
 	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
-	float diffY = currentPoint.y - lastPoint.y;
+	float deltaY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
 		float sensitivity = camera->GetZoom() * 0.02f;
 		
-		camera->Zoom(diffY * sensitivity);
+		camera->Zoom(deltaY * sensitivity);
 		
 		lastPoint = currentPoint;
 		[self setNeedsDisplay:YES];
@@ -575,7 +590,18 @@ const float maxDistance = 1000.0f;
 	float deltaX = [e deltaX];
 	float deltaY = [e deltaY];
 	
-	if ([e modifierFlags] & NSAlternateKeyMask)
+	if (([e modifierFlags] & (NSAlternateKeyMask | NSControlKeyMask)) == (NSAlternateKeyMask | NSControlKeyMask))
+	{
+		NSRect bounds = [self bounds];
+		float w = bounds.size.width;
+		float h = bounds.size.height;
+		float sensitivity = (w + h) / 2.0f;
+		sensitivity = 1.0f / sensitivity;
+		camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
+		camera->UpDown(-deltaY * camera->GetZoom() * sensitivity);
+		[self setNeedsDisplay:YES];
+	}
+	else if ([e modifierFlags] & NSAlternateKeyMask)
 	{
 		if (cameraMode == CameraModePerspective)
 		{
@@ -612,7 +638,8 @@ const float maxDistance = 1000.0f;
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();			
-	gluOrtho2D(0, rect.size.width, 0, rect.size.height);
+	//gluOrtho2D(0, rect.size.width, 0, rect.size.height);
+	glOrtho(0, rect.size.width, 0, rect.size.height, -1000, 1000);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();			

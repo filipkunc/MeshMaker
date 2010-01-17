@@ -46,6 +46,7 @@ public:
 	Vector3D GetLimitedAxisY() const;
 	Vector3D GetLimitedAxisZ() const;
 	Matrix4x4 GetViewMatrix() const;
+	Matrix4x4 GetRotationMatrix() const;
 	Matrix4x4 GetBillboardMatrix() const;
 	void MoveDirection(const Vector3D & v);
 	void Move(float s);
