@@ -236,51 +236,79 @@ const float maxDistance = 1000.0f;
 	}
 }
 
-- (void)drawGridWithSize:(int)size step:(int)step
+- (void)setupViewportAndCamera
 {
-	glBegin(GL_LINES);
-	for (int x = -size; x <= size; x += step)
-    {
-        glVertex3i(x, 0, -size);
-        glVertex3i(x, 0, size);
-	}
-    for (int z = -size; z <= size; z += step)
-    {
-		glVertex3i(-size, 0, z);
-        glVertex3i(size, 0, z);
-    }
-	glEnd();
-}
-
-- (void)drawRect:(NSRect)rect
-{	
-	// Clear the background
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	NSRect baseRect = [self reshapeViewport];
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	[self applyProjectionWithRect:baseRect];	
 	
-	// Set the viewpoint
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(camera->GetViewMatrix());
-	
-	
-	glColor3f(0.1f, 0.1f, 0.1f);
-	[self drawGridWithSize:10 step:2];
+}
 
+#pragma mark Drawing
+
+- (void)drawGridWithSize:(int)size step:(int)step
+{
+	float dark = 0.1f;
+	float light = 0.4f;
+	
+	glPushMatrix();
+	
+	if (cameraMode == CameraModeFront || cameraMode == CameraModeBack)
+		glRotatef(90.0f, 1, 0, 0);
+	else if (cameraMode == CameraModeLeft || cameraMode == CameraModeRight)
+		glRotatef(90.0f, 0, 0, 1);
+	
+	glBegin(GL_LINES);
+	for (int x = -size; x <= size; x += step)
+    {
+		if (x == 0)
+			glColor3f(dark, dark, dark);
+		else
+			glColor3f(light, light, light);
+		
+        glVertex3i(x, 0, -size);
+        glVertex3i(x, 0, size);
+	}
+    for (int z = -size; z <= size; z += step)
+    {
+		if (z == 0)
+			glColor3f(dark, dark, dark);
+		else
+			glColor3f(light, light, light);
+		
+		glVertex3i(-size, 0, z);
+        glVertex3i(size, 0, z);
+    }
+	glEnd();
+	
+	glPopMatrix();
+}
+
+- (void)drawManipulatedAndDisplayed
+{
 	[Mesh setNormalShader:normalShader];
 	[Mesh setFlippedShader:flippedShader];
 	
 	if (displayed != manipulated)
 		[displayed drawWithMode:viewMode];
 	[manipulated drawWithMode:viewMode];
-	
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	
+}
+
+- (void)drawDefaultManipulator
+{
+	[defaultManipulator setPosition:Vector3D(0, 0, 0)];
+	if (cameraMode == CameraModePerspective)
+		[defaultManipulator setSize:camera->GetPosition().Distance([defaultManipulator position]) * 0.09f];
+	else
+		[defaultManipulator setSize:camera->GetZoom() * 0.1f];
+	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() center:Vector3D(0, 0, 0)];
+}
+
+- (void)drawCurrentManipulator
+{
 	if ([manipulated selectedCount] > 0)
 	{
 		[currentManipulator setPosition:[manipulated selectionCenter]];
@@ -289,11 +317,14 @@ const float maxDistance = 1000.0f;
 			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
 		else
 			[currentManipulator setSize:camera->GetZoom() * 0.18f];
-			
+		
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
 	}
-	
+}
+
+- (void)drawSelectionRect
+{
 	if (isSelecting)
 	{
 		[self beginOrtho];
@@ -309,8 +340,28 @@ const float maxDistance = 1000.0f;
 		glRectf(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		[self endOrtho];
-	}
+	}	
+}
+
+- (void)drawRect:(NSRect)rect
+{	
+	float clearColor = 0.6f;
+	glClearColor(clearColor, clearColor, clearColor, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	[self setupViewportAndCamera];
+	
+	[self drawGridWithSize:10 step:2];
+	
+	[self drawManipulatedAndDisplayed];
+	
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	
+	[self drawDefaultManipulator];
+	[self drawCurrentManipulator];
+	[self drawSelectionRect];
+		
 	glEnable(GL_DEPTH_TEST);
 		
 	[[self openGLContext] flushBuffer];
@@ -521,12 +572,25 @@ const float maxDistance = 1000.0f;
 
 - (void)scrollWheel:(NSEvent *)e
 {	
-	float zoom = [e deltaY];
-	float sensitivity = camera->GetZoom() * 0.02f;
+	float deltaX = [e deltaX];
+	float deltaY = [e deltaY];
 	
-	camera->Zoom(zoom * sensitivity);
-	
-	[self setNeedsDisplay:YES];
+	if ([e modifierFlags] & NSAlternateKeyMask)
+	{
+		if (cameraMode == CameraModePerspective)
+		{
+			const float sensitivity = 0.02f;
+			camera->RotateLeftRight(-deltaX * sensitivity);
+			camera->RotateUpDown(-deltaY * sensitivity);
+			[self setNeedsDisplay:YES];
+		}
+	}
+	else
+	{
+		float sensitivity = camera->GetZoom() * 0.02f;
+		camera->Zoom(deltaY * sensitivity);
+		[self setNeedsDisplay:YES];
+	}
 }
 
 - (NSRect)currentRect
