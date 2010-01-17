@@ -27,6 +27,44 @@
 	return self;
 }
 
+- (id)initWithManipulatorType:(enum ManipulatorType)type
+{
+	self = [self init];
+	if (self)
+	{
+		switch (type)
+		{
+			case ManipulatorTypeDefault:
+				[self addWidgetWithAxis:AxisX widget:WidgetLine];
+				[self addWidgetWithAxis:AxisY widget:WidgetLine];
+				[self addWidgetWithAxis:AxisZ widget:WidgetLine];
+				break;
+			case ManipulatorTypeTranslation:
+				[self addWidgetWithAxis:AxisX widget:WidgetArrow];
+				[self addWidgetWithAxis:AxisY widget:WidgetArrow];
+				[self addWidgetWithAxis:AxisZ widget:WidgetArrow];
+				[self addWidgetWithAxis:AxisX widget:WidgetPlane];
+				[self addWidgetWithAxis:AxisY widget:WidgetPlane];
+				[self addWidgetWithAxis:AxisZ widget:WidgetPlane];
+				break;
+			case ManipulatorTypeRotation:
+				[self addWidgetWithAxis:AxisX widget:WidgetCircle];
+				[self addWidgetWithAxis:AxisY widget:WidgetCircle];
+				[self addWidgetWithAxis:AxisZ widget:WidgetCircle];
+				break;
+			case ManipulatorTypeScale:
+				[self addWidgetWithAxis:Center widget:WidgetCube];
+				[self addWidgetWithAxis:AxisX widget:WidgetCube];
+				[self addWidgetWithAxis:AxisY widget:WidgetCube];
+				[self addWidgetWithAxis:AxisZ widget:WidgetCube];
+				break;
+			default:
+				break;
+		}
+	}
+	return self;
+}
+
 - (void)dealloc
 {
 	[widgets release];
@@ -69,6 +107,11 @@
 
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center
 {
+	[self drawWithAxisZ:axisZ center:center highlightAll:NO];
+}
+
+- (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center highlightAll:(BOOL)higlightAll
+{
 	int widgetsCount = (int)[widgets count];
 	
 	if (widgetsCount <= 0)
@@ -93,7 +136,7 @@
 		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:i == selectedIndex isGray:YES];
+			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:YES];
 		}
 		glPopMatrix();
 		
@@ -125,7 +168,7 @@
 		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:i == selectedIndex isGray:NO];
+			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO];
 		}
 		glPopMatrix();
 		
@@ -139,7 +182,7 @@
 		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:i == selectedIndex isGray:NO];
+			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO];
 		}
 		glPopMatrix();
 	}
