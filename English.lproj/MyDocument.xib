@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="100363"/>
+			<integer value="100347"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -882,7 +882,7 @@
 											<reference key="NSNextResponder" ref="576154545"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrameSize">{277, 230}</string>
+											<string key="NSFrameSize">{270, 232}</string>
 											<reference key="NSSuperview" ref="576154545"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -894,7 +894,7 @@
 											<reference key="NSNextResponder" ref="576154545"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrame">{{278, 0}, {267, 230}}</string>
+											<string key="NSFrame">{{271, 0}, {265, 232}}</string>
 											<reference key="NSSuperview" ref="576154545"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -903,7 +903,7 @@
 											</object>
 										</object>
 									</object>
-									<string key="NSFrameSize">{545, 230}</string>
+									<string key="NSFrameSize">{536, 232}</string>
 									<reference key="NSSuperview" ref="298304967"/>
 									<bool key="NSIsVertical">YES</bool>
 									<int key="NSDividerStyle">2</int>
@@ -917,7 +917,7 @@
 											<reference key="NSNextResponder" ref="752972658"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrameSize">{277, 223}</string>
+											<string key="NSFrameSize">{270, 221}</string>
 											<reference key="NSSuperview" ref="752972658"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -929,7 +929,7 @@
 											<reference key="NSNextResponder" ref="752972658"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrame">{{278, 0}, {267, 223}}</string>
+											<string key="NSFrame">{{271, 0}, {265, 221}}</string>
 											<reference key="NSSuperview" ref="752972658"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -938,13 +938,13 @@
 											</object>
 										</object>
 									</object>
-									<string key="NSFrame">{{0, 231}, {545, 223}}</string>
+									<string key="NSFrame">{{0, 233}, {536, 221}}</string>
 									<reference key="NSSuperview" ref="298304967"/>
 									<bool key="NSIsVertical">YES</bool>
 									<int key="NSDividerStyle">2</int>
 								</object>
 							</object>
-							<string key="NSFrame">{{-9, 21}, {545, 454}}</string>
+							<string key="NSFrame">{{0, 21}, {536, 454}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<int key="NSDividerStyle">2</int>
 						</object>
@@ -1928,8 +1928,8 @@
 						<reference key="object" ref="576154545"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="348380786"/>
 							<reference ref="696335770"/>
+							<reference ref="348380786"/>
 						</object>
 						<reference key="parent" ref="298304967"/>
 					</object>

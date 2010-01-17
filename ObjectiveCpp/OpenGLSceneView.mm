@@ -384,6 +384,11 @@ const float maxDistance = 1000.0f;
 
 #pragma mark Mouse Events
 
+- (NSPoint)locationFromNSEvent:(NSEvent *)e
+{
+	return [self convertPoint:[e locationInWindow] fromView:nil];
+}
+
 - (void)viewDidMoveToWindow
 {
 	NSUInteger options = NSTrackingMouseMoved |
@@ -401,7 +406,7 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseDown:(NSEvent *)e
 {
-	lastPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	lastPoint = [self locationFromNSEvent:e];
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
@@ -438,7 +443,7 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseMoved:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	currentPoint = [self locationFromNSEvent:e];
 	if ([manipulated selectedCount] > 0)
 	{
 		if (!isManipulating)
@@ -453,7 +458,7 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseUp:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	currentPoint = [self locationFromNSEvent:e];
 	if (isManipulating)
 	{
 		[delegate manipulationEndedInView:self];
@@ -493,7 +498,7 @@ const float maxDistance = 1000.0f;
 
 - (void)mouseDragged:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	currentPoint = [self locationFromNSEvent:e];
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
 	
@@ -540,12 +545,12 @@ const float maxDistance = 1000.0f;
 
 - (void)otherMouseDown:(NSEvent *)e
 {
-	lastPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	lastPoint = [self locationFromNSEvent:e];
 }
 
 - (void)otherMouseDragged:(NSEvent *)e
 {
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	currentPoint = [self locationFromNSEvent:e];	
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
 	
@@ -566,12 +571,12 @@ const float maxDistance = 1000.0f;
 
 - (void)rightMouseDown:(NSEvent *)e
 {
-	lastPoint = [self convertPoint:[e locationInWindow] fromView:nil];
+	lastPoint = [self locationFromNSEvent:e];
 }
 
 - (void)rightMouseDragged:(NSEvent *)e
 {	
-	currentPoint = [self convertPoint:[e locationInWindow] fromView:nil];	
+	currentPoint = [self locationFromNSEvent:e];	
 	float deltaY = currentPoint.y - lastPoint.y;
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
