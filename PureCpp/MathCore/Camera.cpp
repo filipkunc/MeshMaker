@@ -199,11 +199,23 @@ Matrix4x4 Camera::GetViewMatrix() const
     q.ToMatrix(rot);
     return (rot * trans);
 }
+
+Matrix4x4 Camera::GetRotationMatrix() const
+{
+	Matrix4x4 rot;
+    Quaternion q_x, q_y, q_z, q;
+    q_x.FromAngleAxis(-radians.x, startAxisX);
+	q_y.FromAngleAxis(-radians.y, startAxisY);
+	q_z.FromAngleAxis(-radians.z, startAxisZ);
+    q = q_z * q_x * q_y;
+    q.ToMatrix(rot);
+    return rot;
+}
 	
 Matrix4x4 Camera::GetBillboardMatrix() const
 {
 	Matrix4x4 rot;
-	Quaternion q_x,q_y,q_z,q;
+	Quaternion q_x, q_y, q_z, q;
 	q_x.FromAngleAxis(radians.x, startAxisX);
     q_y.FromAngleAxis(radians.y, startAxisY);
     q_z.FromAngleAxis(radians.z, startAxisZ);
