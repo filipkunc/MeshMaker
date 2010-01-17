@@ -50,6 +50,7 @@ const float maxDistance = 1000.0f;
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
 		isSelecting = NO;
+		highlightCameraMode = NO;
 		
 		camera = new Camera();
 		camera->SetRadX(-45.0f * DEG_TO_RAD);
@@ -60,29 +61,10 @@ const float maxDistance = 1000.0f;
 		
 		lastPoint = NSMakePoint(0, 0);
 		
-		defaultManipulator = [[Manipulator alloc] init];
-		[defaultManipulator addWidgetWithAxis:AxisX widget:WidgetLine];
-		[defaultManipulator addWidgetWithAxis:AxisY widget:WidgetLine];
-		[defaultManipulator addWidgetWithAxis:AxisZ widget:WidgetLine];
-		
-		translationManipulator = [[Manipulator alloc] init];
-		[translationManipulator addWidgetWithAxis:AxisX widget:WidgetArrow];
-		[translationManipulator addWidgetWithAxis:AxisY widget:WidgetArrow];
-		[translationManipulator addWidgetWithAxis:AxisZ widget:WidgetArrow];
-		[translationManipulator addWidgetWithAxis:AxisX widget:WidgetPlane];
-		[translationManipulator addWidgetWithAxis:AxisY widget:WidgetPlane];
-		[translationManipulator addWidgetWithAxis:AxisZ widget:WidgetPlane];
-		
-		rotationManipulator = [[Manipulator alloc] init];
-		[rotationManipulator addWidgetWithAxis:AxisX widget:WidgetCircle];
-		[rotationManipulator addWidgetWithAxis:AxisY widget:WidgetCircle];
-		[rotationManipulator addWidgetWithAxis:AxisZ widget:WidgetCircle];
-		
-		scaleManipulator = [[Manipulator alloc] init];
-		[scaleManipulator addWidgetWithAxis:Center widget:WidgetCube];
-		[scaleManipulator addWidgetWithAxis:AxisX widget:WidgetCube];
-		[scaleManipulator addWidgetWithAxis:AxisY widget:WidgetCube];
-		[scaleManipulator addWidgetWithAxis:AxisZ widget:WidgetCube];
+		defaultManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeDefault];		
+		translationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeTranslation];
+		rotationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeRotation];		
+		scaleManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeScale];
 				
 		currentManipulator = defaultManipulator;
 		
@@ -315,7 +297,9 @@ const float maxDistance = 1000.0f;
 	glMultMatrixf(camera->GetRotationMatrix());
 	[defaultManipulator setPosition:Vector3D()];
 	[defaultManipulator setSize:15.0f];
-	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() center:[defaultManipulator position]];
+	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() 
+							   center:[defaultManipulator position] 
+						 highlightAll:highlightCameraMode];
 	glPopMatrix();
 	[self endOrtho];
 }
@@ -393,7 +377,8 @@ const float maxDistance = 1000.0f;
 {
 	NSUInteger options = NSTrackingMouseMoved |
 						 NSTrackingActiveAlways |
-						 NSTrackingInVisibleRect;
+						 NSTrackingInVisibleRect | 
+						 NSTrackingMouseEnteredAndExited;
 	
 	NSTrackingArea *trackingArea;
 	trackingArea = [[NSTrackingArea alloc] initWithRect:NSZeroRect
@@ -414,7 +399,33 @@ const float maxDistance = 1000.0f;
 		return;
 	}
 	
-	if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
+	if (highlightCameraMode)
+	{
+		switch (cameraMode)
+		{
+			case CameraModeTop:
+				self.cameraMode = CameraModeBottom;
+				break;
+			case CameraModeBottom:
+				self.cameraMode = CameraModeTop;
+				break;
+			case CameraModeLeft:
+				self.cameraMode = CameraModeRight;
+				break;
+			case CameraModeRight:
+				self.cameraMode = CameraModeLeft;
+				break;
+			case CameraModeFront:
+				self.cameraMode = CameraModeBack;
+				break;
+			case CameraModeBack:
+				self.cameraMode = CameraModeFront;
+				break;
+			default:
+				break;
+		}
+	}
+	else if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
 	{
 		if (currentManipulator == translationManipulator)
 		{
@@ -436,13 +447,19 @@ const float maxDistance = 1000.0f;
 			[delegate manipulationStartedInView:self];
 	}
 	else
-	{
+	{		
 		isSelecting = YES;
 	}
 }
 
+- (NSRect)orthoManipulatorRect
+{
+	return NSMakeRect(3.0f, 3.0f, 30.0f, 30.0f);
+}
+
 - (void)mouseMoved:(NSEvent *)e
 {
+	highlightCameraMode = NO;
 	currentPoint = [self locationFromNSEvent:e];
 	if ([manipulated selectedCount] > 0)
 	{
@@ -454,6 +471,19 @@ const float maxDistance = 1000.0f;
 			[self setNeedsDisplay:YES];
 		}
 	}
+	
+	if ([currentManipulator selectedIndex] < 0)
+	{
+		if (NSPointInRect(currentPoint, [self orthoManipulatorRect]))
+			highlightCameraMode = YES;
+		[self setNeedsDisplay:YES];
+	}
+}
+
+- (void)mouseExited:(NSEvent *)e
+{
+	highlightCameraMode = NO;
+	[self setNeedsDisplay:YES];
 }
 
 - (void)mouseUp:(NSEvent *)e
@@ -643,8 +673,7 @@ const float maxDistance = 1000.0f;
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();			
-	//gluOrtho2D(0, rect.size.width, 0, rect.size.height);
-	glOrtho(0, rect.size.width, 0, rect.size.height, -1000, 1000);
+	glOrtho(0, rect.size.width, 0, rect.size.height, -maxDistance, maxDistance);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();			

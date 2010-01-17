@@ -39,6 +39,7 @@
 	NSPoint currentPoint;
 	BOOL isManipulating;
 	BOOL isSelecting;
+	BOOL highlightCameraMode;
 	Manipulator *defaultManipulator;
 	Manipulator *translationManipulator;
 	Manipulator *rotationManipulator;
@@ -59,6 +60,7 @@
 @property (readwrite, assign) enum ViewMode viewMode;
 
 - (void)drawGridWithSize:(int)size step:(int)step;
+- (NSRect)orthoManipulatorRect;
 - (NSRect)currentRect;
 - (void)beginOrtho;
 - (void)endOrtho;

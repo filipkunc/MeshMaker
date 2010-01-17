@@ -26,9 +26,11 @@
 @property (readwrite, assign) float size;
 @property (readwrite, assign) int selectedIndex;
 
+- (id)initWithManipulatorType:(enum ManipulatorType)type;
 - (void)addWidget:(ManipulatorWidget *)widget;
 - (void)addWidgetWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget;
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center;
+- (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center highlightAll:(BOOL)higlightAll;
 - (ManipulatorWidget *)widgetAtIndex:(int)index;
 
 @end
