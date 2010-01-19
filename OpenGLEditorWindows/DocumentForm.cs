@@ -140,6 +140,9 @@ namespace OpenGLEditorWindows
             hierarchyPanel.Show(dockPanel1);
             logPanel.Show(dockPanel1);
 
+            dockPanel1.DockLeftPortion = 0.15;   // 15 percent of dock space
+            dockPanel1.DockRightPortion = 0.15;  // 25 percent is default
+
             Manipulated = itemsController;
             propertyGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid_PropertyValueChanged);
         }

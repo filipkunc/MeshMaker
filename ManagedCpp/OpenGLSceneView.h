@@ -57,12 +57,12 @@ namespace ManagedCpp
 		PointF currentPoint;
 		CocoaBool isManipulating;
 		CocoaBool isSelecting;
+		CocoaBool highlightCameraMode;
 		Manipulator ^defaultManipulator;
 		Manipulator ^translationManipulator;
 		Manipulator ^rotationManipulator;
 		Manipulator ^scaleManipulator;
 		Manipulator ^currentManipulator;
-		
 		CameraMode cameraMode;
 		ViewMode viewMode;
 	public:
@@ -125,7 +125,12 @@ namespace ManagedCpp
 		virtual void OnMouseUp(MouseEventArgs ^e) override;
 		virtual void OnMouseWheel(MouseEventArgs ^e) override;
 		void DrawGrid(int size, int step);
-		void RenderGL();
+		void DrawManipulatedAndDisplayed();
+		void DrawDefaultManipulator();
+		void DrawOrthoDefaultManipulator();
+		void DrawCurrentManipulator();
+		void DrawSelectionRect();
+		void DrawGL();
 		void BeginGL();
 		void EndGL();
 		void InitializeGL();
