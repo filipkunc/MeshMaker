@@ -77,6 +77,11 @@ namespace ManagedCpp
 
 	void Manipulator::Draw(Vector3D axisZ, Vector3D center)
 	{
+		this->Draw(axisZ, center, NO);
+	}
+
+	void Manipulator::Draw(Vector3D axisZ, Vector3D center, CocoaBool highlightAll)
+	{
 		if (widgets->Count <= 0)
 			return;
 		
@@ -99,7 +104,7 @@ namespace ManagedCpp
 			for (int i = 0; i < widgets->Count; i++)
 			{
 				widget = widgets[i];
-				widget->Draw(size, i == selectedIndex, YES);
+				widget->Draw(size, highlightAll || i == selectedIndex, YES);
 			}
 			glPopMatrix();
 			
@@ -131,7 +136,7 @@ namespace ManagedCpp
 			for (int i = 0; i < widgets->Count; i++)
 			{
 				widget = widgets[i];
-				widget->Draw(size, i == selectedIndex, NO);
+				widget->Draw(size, highlightAll || i == selectedIndex, NO);
 			}
 			glPopMatrix();
 			
@@ -145,7 +150,7 @@ namespace ManagedCpp
 			for (int i = 0; i < widgets->Count; i++)
 			{
 				widget = widgets[i];
-				widget->Draw(size, i == selectedIndex, NO);
+				widget->Draw(size, highlightAll || i == selectedIndex, NO);
 			}
 			glPopMatrix();
 		}

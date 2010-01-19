@@ -47,6 +47,7 @@ namespace ManagedCpp
 
 		void AddWidget(ManipulatorWidget ^widget);
 		void Draw(Vector3D axisZ, Vector3D center);
+		void Draw(Vector3D axisZ, Vector3D center, CocoaBool highlightAll);
 		ManipulatorWidget ^GetWidget(int index);
 	};
 }

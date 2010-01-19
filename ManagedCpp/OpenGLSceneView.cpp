@@ -20,6 +20,7 @@ namespace ManagedCpp {
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
 		isSelecting = NO;
+		highlightCameraMode = NO;
 
 		camera = new Camera();
 		camera->SetRadX(-45.0f * DEG_TO_RAD);
@@ -189,41 +190,48 @@ namespace ManagedCpp {
 		this->Invalidate();
 	}
 
+	#pragma region Drawing
+
 	void OpenGLSceneView::DrawGrid(int size, int step)
 	{
+		float dark = 0.1f;
+		float light = 0.4f;
+		
+		glPushMatrix();
+		
+		if (cameraMode == CameraMode::CameraModeFront || cameraMode == CameraMode::CameraModeBack)
+			glRotatef(90.0f, 1, 0, 0);
+		else if (cameraMode == CameraMode::CameraModeLeft || cameraMode == CameraMode::CameraModeRight)
+			glRotatef(90.0f, 0, 0, 1);
+		
 		glBegin(GL_LINES);
 		for (int x = -size; x <= size; x += step)
 		{
+			if (x == 0)
+				glColor3f(dark, dark, dark);
+			else
+				glColor3f(light, light, light);
+			
 			glVertex3i(x, 0, -size);
 			glVertex3i(x, 0, size);
 		}
 		for (int z = -size; z <= size; z += step)
 		{
+			if (z == 0)
+				glColor3f(dark, dark, dark);
+			else
+				glColor3f(light, light, light);
+			
 			glVertex3i(-size, 0, z);
 			glVertex3i(size, 0, z);
 		}
 		glEnd();
+		
+		glPopMatrix();
 	}
 
-	void OpenGLSceneView::RenderGL()
+	void OpenGLSceneView::DrawManipulatedAndDisplayed()
 	{
-		// Clear the background
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		this->ResizeGL();
-		
-		// Set the viewpoint
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf(camera->GetViewMatrix());
-		
-		glDisable(GL_LIGHTING);
-		
-		glColor3f(0.1f, 0.1f, 0.1f);
-		this->DrawGrid(10, 2);
-		
-		glEnable(GL_LIGHTING);
-
 		if (displayed != nullptr)
 		{
 			if (displayed != manipulated)
@@ -234,11 +242,33 @@ namespace ManagedCpp {
 		{
 			manipulated->Draw(viewMode);
 		}
-		
-		glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		
+	}
+
+	void OpenGLSceneView::DrawDefaultManipulator()
+	{
+		defaultManipulator->Position = Vector3D();
+		if (cameraMode == CameraMode::CameraModePerspective)
+			defaultManipulator->Size = camera->GetPosition().Distance(defaultManipulator->Position) * 0.07f;
+		else
+			defaultManipulator->Size = camera->GetZoom() * 0.08f;
+		defaultManipulator->Draw(camera->GetAxisZ(), Vector3D());
+	}
+
+	void OpenGLSceneView::DrawOrthoDefaultManipulator()
+	{
+		this->BeginOrtho();
+		glPushMatrix();
+		glTranslatef(18.0f, 18.0f, 0.0f);
+		glMultMatrixf(camera->GetRotationMatrix());
+		defaultManipulator->Position = Vector3D();
+		defaultManipulator->Size = 15.0f;
+		defaultManipulator->Draw(camera->GetAxisZ(), defaultManipulator->Position, highlightCameraMode);
+		glPopMatrix();
+		this->EndOrtho();
+	}
+
+	void OpenGLSceneView::DrawCurrentManipulator()
+	{
 		if (manipulated != nullptr && manipulated->SelectedCount > 0)
 		{
 			currentManipulator->Position = manipulated->SelectionCenter;
@@ -246,12 +276,15 @@ namespace ManagedCpp {
 			if (this->cameraMode == CameraMode::CameraModePerspective)
 				currentManipulator->Size = camera->GetPosition().Distance(currentManipulator->Position) * 0.15f;
 			else
-				currentManipulator->Size = camera->GetZoom() * 0.18f;
+				currentManipulator->Size = camera->GetZoom() * 0.17f;
 
 			scaleManipulator->Rotation = manipulated->SelectionRotation;
 			currentManipulator->Draw(camera->GetAxisZ(), manipulated->SelectionCenter);
 		}
-			
+	}
+
+	void OpenGLSceneView::DrawSelectionRect()
+	{
 		if (isSelecting)
 		{
 			this->BeginOrtho();
@@ -268,13 +301,43 @@ namespace ManagedCpp {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			this->EndOrtho();
 		}
+	}
+
+	void OpenGLSceneView::DrawGL()
+	{
+		float clearColor = 0.6f;
+		glClearColor(clearColor, clearColor, clearColor, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		this->ResizeGL();
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(camera->GetViewMatrix());
+		
+		glDisable(GL_LIGHTING);
+		
+		this->DrawGrid(10, 2);
+		
+		glEnable(GL_LIGHTING);
+
+		this->DrawManipulatedAndDisplayed();
+		
+		glDisable(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		
+		this->DrawDefaultManipulator();
+		this->DrawCurrentManipulator();
+
+		this->DrawOrthoDefaultManipulator();
+		this->DrawSelectionRect();
 		
 		glEnable(GL_DEPTH_TEST);
-		
 		glFinish();
-		
 		glFlush();
 	}
+
+	#pragma endregion
 
 	void OpenGLSceneView::ResizeGL()
 	{
@@ -315,8 +378,8 @@ namespace ManagedCpp {
 		glDepthMask(GL_FALSE);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
-		glLoadIdentity();			
-		gluOrtho2D(0, rect.Width, 0, rect.Height);
+		glLoadIdentity();		
+		glOrtho(0, rect.Width, 0, rect.Height, -maxDistance, maxDistance);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();			
@@ -353,6 +416,32 @@ namespace ManagedCpp {
 			if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
 			{
 				isManipulating = isSelecting = NO;
+			}
+			else if (highlightCameraMode)
+			{
+				switch (cameraMode)
+				{
+					case CameraMode::CameraModeTop:
+						this->CurrentCameraMode = CameraMode::CameraModeBottom;
+						break;
+					case CameraMode::CameraModeBottom:
+						this->CurrentCameraMode = CameraMode::CameraModeTop;
+						break;
+					case CameraMode::CameraModeLeft:
+						this->CurrentCameraMode = CameraMode::CameraModeRight;
+						break;
+					case CameraMode::CameraModeRight:
+						this->CurrentCameraMode = CameraMode::CameraModeLeft;
+						break;
+					case CameraMode::CameraModeFront:
+						this->CurrentCameraMode = CameraMode::CameraModeBack;
+						break;
+					case CameraMode::CameraModeBack:
+						this->CurrentCameraMode = CameraMode::CameraModeFront;
+						break;
+					default:
+						break;
+				}
 			}
 			else if (manipulated != nullptr && manipulated->SelectedCount > 0 && currentManipulator->SelectedIndex >= 0)
 			{
@@ -391,6 +480,8 @@ namespace ManagedCpp {
 	void OpenGLSceneView::OnMouseMove(MouseEventArgs ^e)
 	{
 		UserControl::OnMouseMove(e);
+		
+		highlightCameraMode = NO;
 		
 		if ((this->ModifierKeys & System::Windows::Forms::Keys::Alt) == System::Windows::Forms::Keys::Alt)
 		{
@@ -474,6 +565,14 @@ namespace ManagedCpp {
 					EndGL();
 					this->Invalidate();
 				}
+			}
+
+			if (currentManipulator->SelectedIndex < 0)
+			{
+				RectangleF orthoManipulatorRect = RectangleF(3.0f, this->Height - 33.0f, 30.0f, 30.0f);
+				if (orthoManipulatorRect.Contains(currentPoint))
+					highlightCameraMode = YES;
+				this->Invalidate();
 			}
 		}
 	}
@@ -568,7 +667,7 @@ namespace ManagedCpp {
 			return;
 
 		BeginGL();
-		RenderGL();
+		DrawGL();
 		SwapBuffers(deviceContext);
 		EndGL();
 	}
