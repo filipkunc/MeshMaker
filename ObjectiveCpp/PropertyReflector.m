@@ -10,86 +10,113 @@
 
 @implementation PropertyReflector
 
-- (id)initWithObject:(id)anObject tableView:(NSTableView *)aTableView
+- (id)initWithTableView:(NSTableView *)aTableView
 {
 	self = [super init];
 	if (self)
 	{
-		reflectedObject = anObject;
-		[reflectedObject retain];
-		
 		tableView = aTableView;
 		[tableView retain];
 		
-		Class reflectedClass = [reflectedObject class];
-		uint propertyCount = 0U;
-		objc_property_t *properties = class_copyPropertyList(reflectedClass, &propertyCount);
-		
-		cachedPropertyNames = [[NSMutableArray alloc] init];
-		for (int i = propertyCount - 1; i >= 0; i--)
-		{
-			NSString *attributes = [NSString stringWithCString:property_getAttributes(properties[i]) 
-													  encoding:NSASCIIStringEncoding];
-			
-			NSString *propertyName = [NSString stringWithCString:property_getName(properties[i]) 
-														encoding:NSASCIIStringEncoding];			
-			
-			NSLog(@"%@:%@", propertyName, attributes);
-			
-			// no references, structs or pointers
-			if (![attributes hasPrefix:@"T@"] && 
-				![attributes hasPrefix:@"T{"] &&
-				![attributes hasPrefix:@"T^"])
-			{
-				NSArray *components = [attributes componentsSeparatedByString:@","];
-				NSLog(@"components: %@", components);
-				// ignore readonly
-				if ([components count] < 2 || ![[components objectAtIndex:1] isEqualTo:@"R"])
-				{
-					[cachedPropertyNames addObject:propertyName];
-					
-					// with Key-Value-Observing is simple to add automatic updates of table view
-					[reflectedObject addObserver:self
-									  forKeyPath:propertyName
-										 options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
-										 context:NULL];
-				}
-			}
-		}
-		
 		[tableView setDataSource:self];
+		[tableView setDelegate:self];
 		
-		free(properties);
+		cachedProperties = nil;
+		reflectedObject = nil;
 	}
 	return self;
 }
 
-- (void)dealloc
+- (id)reflectedObject
 {
-	for (NSString *propertyName in cachedPropertyNames)
-		[reflectedObject removeObserver:self forKeyPath:propertyName];
+	return reflectedObject;
+}
+
+- (void)setReflectedObject:(id)anObject
+{
+	if (cachedProperties && reflectedObject)
+	{
+		for (CachedProperty *property in cachedProperties)
+			[reflectedObject removeObserver:self forKeyPath:[property name]];
+	}
 	
 	[reflectedObject release];
-	[cachedPropertyNames release];
+	reflectedObject = anObject;
+	[reflectedObject retain];
+	
+	Class reflectedClass = [reflectedObject class];
+	uint propertyCount = 0U;
+	objc_property_t *properties = class_copyPropertyList(reflectedClass, &propertyCount);
+	
+	[cachedProperties release];
+	cachedProperties = [[NSMutableArray alloc] init];
+	for (uint i = 0; i < propertyCount; i++)
+	{
+		NSString *attributes = [NSString stringWithCString:property_getAttributes(properties[i]) 
+												  encoding:NSASCIIStringEncoding];
+		
+		NSString *propertyName = [NSString stringWithCString:property_getName(properties[i]) 
+													encoding:NSASCIIStringEncoding];			
+		
+		NSLog(@"%@:%@", propertyName, attributes);
+		
+		// no references, structs or pointers
+		if (![attributes hasPrefix:@"T@"] && 
+			![attributes hasPrefix:@"T{"] &&
+			![attributes hasPrefix:@"T^"])
+		{
+			NSArray *components = [attributes componentsSeparatedByString:@","];
+			NSLog(@"components: %@", components);
+			// ignore readonly
+			if ([components count] < 2 || ![[components objectAtIndex:1] isEqualTo:@"R"])
+			{
+				unichar type = [attributes characterAtIndex:1];
+				CachedProperty *cachedProperty = [[CachedProperty alloc] initWithName:propertyName
+																				 type:type];
+				[cachedProperties addObject:cachedProperty];
+				
+				// with Key-Value-Observing is simple to add automatic updates of table view
+				[reflectedObject addObserver:self
+								  forKeyPath:propertyName
+									 options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
+									 context:NULL];
+			}
+		}
+	}
+	
+	free(properties);
+	
+	[tableView reloadData];
+}
+
+- (void)dealloc
+{
+	for (CachedProperty *property in cachedProperties)
+		[reflectedObject removeObserver:self forKeyPath:[property name]];
+	
+	[reflectedObject release];
+	[cachedProperties release];
 	[tableView release];
 	[super dealloc];
 }
 
 #pragma mark Property
 
-- (NSString *)propertyNameAtIndex:(int)index
+- (CachedProperty *)propertyAtIndex:(int)index
 {
-	return (NSString *)[cachedPropertyNames objectAtIndex:index];
+	return (CachedProperty *)[cachedProperties objectAtIndex:index];
 }
 
 - (id)propertyValueAtIndex:(int)index
 {
-	return [reflectedObject valueForKey:[self propertyNameAtIndex:index]];
+	CachedProperty *property = [self propertyAtIndex:index];
+	return [reflectedObject valueForKey:[property name]];
 }
 
 - (void)setPropertyValue:(id)value atIndex:(int)index
 {
-	[reflectedObject setValue:value forKey:[self propertyNameAtIndex:index]];
+	CachedProperty *property = [self propertyAtIndex:index];
+	[reflectedObject setValue:value forKey:[property name]];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath 
@@ -107,7 +134,9 @@
 {
 	if ([[aTableColumn identifier] isEqualTo:@"value"])
 		return [self propertyValueAtIndex:rowIndex];
-	return [self propertyNameAtIndex:rowIndex];
+
+	CachedProperty *property = [self propertyAtIndex:rowIndex];
+	return [property name];
 }
 
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject
@@ -122,7 +151,24 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-	return [cachedPropertyNames count];
+	return [cachedProperties count];
+}
+
+#pragma mark TableViewDelegate
+
+- (NSCell *)tableView:(NSTableView *)aTableView 
+dataCellForTableColumn:(NSTableColumn *)aTableColumn 
+				  row:(NSInteger)rowIndex
+{
+	if (!aTableColumn)
+		return nil;
+
+	if ([[aTableColumn identifier] isEqualTo:@"value"])
+	{
+		CachedProperty *property = [self propertyAtIndex:rowIndex];
+		return [property cell];
+	}
+	return nil;
 }
 
 
