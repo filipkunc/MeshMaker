@@ -19,6 +19,7 @@
 		A7521EB210E678F0003D31E4 /* Shader.m in Sources */ = {isa = PBXBuildFile; fileRef = A7521EB110E678F0003D31E4 /* Shader.m */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A754C4220FF92F9400A48E13 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C4210FF92F9400A48E13 /* GLUT.framework */; };
+		A785C66D1107B0C700E42D68 /* CachedProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A785C66C1107B0C700E42D68 /* CachedProperty.m */; };
 		A786AF4C10B9E2EC00D65415 /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A786AF4B10B9E2EC00D65415 /* MeshFullState.mm */; };
 		A7BB8C9310ED5CC300476385 /* ShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = A7BB8C9210ED5CC300476385 /* ShaderProgram.m */; };
 		A7C6FE751090D4BD008A55E1 /* TmdModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */; };
@@ -80,6 +81,8 @@
 		A7521EB110E678F0003D31E4 /* Shader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Shader.m; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A754C4210FF92F9400A48E13 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
+		A785C66B1107B0C700E42D68 /* CachedProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedProperty.h; sourceTree = "<group>"; };
+		A785C66C1107B0C700E42D68 /* CachedProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CachedProperty.m; sourceTree = "<group>"; };
 		A786AF4A10B9E2EC00D65415 /* MeshFullState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshFullState.h; sourceTree = "<group>"; };
 		A786AF4B10B9E2EC00D65415 /* MeshFullState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshFullState.mm; sourceTree = "<group>"; };
 		A7A776EF109348AC0099DB45 /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enums.h; sourceTree = "<group>"; };
@@ -347,6 +350,8 @@
 				A7BB8C9210ED5CC300476385 /* ShaderProgram.m */,
 				A7D288811101042F0092B9DC /* PropertyReflector.h */,
 				A7D288821101042F0092B9DC /* PropertyReflector.m */,
+				A785C66B1107B0C700E42D68 /* CachedProperty.h */,
+				A785C66C1107B0C700E42D68 /* CachedProperty.m */,
 			);
 			path = ObjectiveCpp;
 			sourceTree = "<group>";
@@ -489,6 +494,7 @@
 				A7521EB210E678F0003D31E4 /* Shader.m in Sources */,
 				A7BB8C9310ED5CC300476385 /* ShaderProgram.m in Sources */,
 				A7D288831101042F0092B9DC /* PropertyReflector.m in Sources */,
+				A785C66D1107B0C700E42D68 /* CachedProperty.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

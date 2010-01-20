@@ -77,8 +77,8 @@
 	[viewPerspective setCameraMode:CameraModePerspective];
 	
 	
-	propertyReflector = [[PropertyReflector alloc] initWithObject:itemsController 
-														tableView:propertyView];
+	propertyReflector = [[PropertyReflector alloc] initWithTableView:propertyView];
+	[propertyReflector setReflectedObject:self];
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -139,6 +139,7 @@
 	[document removeItemWithType:type steps:steps];
 	
 	[items addItem:item];
+	[propertyReflector setReflectedObject:item];
 	[item release];
 	
 	[itemsController changeSelection:NO];

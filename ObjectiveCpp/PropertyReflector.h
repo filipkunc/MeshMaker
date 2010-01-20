@@ -8,29 +8,32 @@
 
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
+#import "CachedProperty.h"
 
 // This class uses runtime information to get all properties
 // of any NSObject descendant.
 // I used information from 
 // http://developer.apple.com/mac/library/documentation/cocoa/Conceptual/ObjCRuntimeGuide/
 
-// PropertyReflector implements NSTableViewDataSource for 
+// PropertyReflector implements NSTableViewDataSource and NSTableViewDelegate for 
 // providing similar editation capabilities like .NET PropertyGrid class
 // http://msdn.microsoft.com/en-us/library/system.windows.forms.propertygrid.aspx
 
 #ifdef MAC_OS_X_VERSION_10_6
-@interface PropertyReflector : NSObject <NSTableViewDataSource>
+@interface PropertyReflector : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 #else
 @interface PropertyReflector : NSObject
 #endif
 {
 	id reflectedObject;
-	NSMutableArray *cachedPropertyNames;
+	NSMutableArray *cachedProperties;
 	NSTableView *tableView;
 }
 
-- (id)initWithObject:(id)anObject tableView:(NSTableView *)aTableView;
-- (NSString *)propertyNameAtIndex:(int)index;
+@property (readwrite, retain) id reflectedObject;
+
+- (id)initWithTableView:(NSTableView *)aTableView;
+- (CachedProperty *)propertyAtIndex:(int)index;
 - (id)propertyValueAtIndex:(int)index;
 - (void)setPropertyValue:(id)value atIndex:(int)index;
 
