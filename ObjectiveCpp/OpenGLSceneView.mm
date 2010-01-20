@@ -355,7 +355,9 @@ const float maxDistance = 1000.0f;
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	
-	[self drawDefaultManipulator];
+	// removed it is very disturbing
+	//[self drawDefaultManipulator];
+	
 	[self drawCurrentManipulator];
 	
 	[self drawOrthoDefaultManipulator];
@@ -613,7 +615,7 @@ const float maxDistance = 1000.0f;
 	{
 		float sensitivity = camera->GetZoom() * 0.02f;
 		
-		camera->Zoom(deltaY * sensitivity);
+		camera->Zoom(-deltaY * sensitivity);
 		
 		lastPoint = currentPoint;
 		[self setNeedsDisplay:YES];
@@ -630,7 +632,7 @@ const float maxDistance = 1000.0f;
 		NSRect bounds = [self bounds];
 		float w = bounds.size.width;
 		float h = bounds.size.height;
-		float sensitivity = (w + h) / 2.0f;
+		float sensitivity = (w + h) / 6.0f;
 		sensitivity = 1.0f / sensitivity;
 		camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
 		camera->UpDown(-deltaY * camera->GetZoom() * sensitivity);
