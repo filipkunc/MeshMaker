@@ -326,7 +326,9 @@ namespace ManagedCpp {
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		
-		this->DrawDefaultManipulator();
+		// removed it is very disturbing
+		//this->DrawDefaultManipulator();
+		
 		this->DrawCurrentManipulator();
 
 		this->DrawOrthoDefaultManipulator();
@@ -512,7 +514,7 @@ namespace ManagedCpp {
 			{
 				float sensitivity = camera->GetZoom() * 0.02f;
 
-				camera->Zoom(-diffY * sensitivity);
+				camera->Zoom(diffY * sensitivity);
 			}
 
 			lastPoint = point;
