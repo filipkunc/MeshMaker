@@ -14,7 +14,7 @@
 #import "MeshManipulationState.h"
 #import "PropertyReflector.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;
@@ -46,7 +46,6 @@
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
-@property (readwrite, assign) float selectionX, selectionY, selectionZ;
 
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;

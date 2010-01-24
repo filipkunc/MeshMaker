@@ -27,8 +27,8 @@
 		[itemsController setModel:items];
 		manipulated = itemsController;
 
-		[itemsController addSelectionObserver:self];
-		[meshController addSelectionObserver:self];
+		[itemsController addTransformationObserver:self];
+		[meshController addTransformationObserver:self];
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
@@ -42,8 +42,8 @@
 
 - (void)dealloc
 {
-	[itemsController removeSelectionObserver:self];
-	[meshController removeSelectionObserver:self];
+	[itemsController removeTransformationObserver:self];
+	[meshController removeTransformationObserver:self];
 	[meshController release];
 	[itemsController release];
 	[items release];
@@ -89,7 +89,6 @@
 - (void)setManipulated:(id<OpenGLManipulating>)value
 {
 	manipulated = value;
-	[manipulated setCurrentManipulator:[viewPerspective currentManipulator]];
 	
 	for (OpenGLSceneView *view in views)
 	{ 
@@ -139,7 +138,6 @@
 	[document removeItemWithType:type steps:steps];
 	
 	[items addItem:item];
-	[propertyReflector setReflectedObject:item];
 	[item release];
 	
 	[itemsController changeSelection:NO];
@@ -161,39 +159,111 @@
 	[self setManipulated:itemsController];
 }
 
-- (float)selectionX
+- (float)positionX
 {
-	return [manipulated selectionX];
+	return [manipulated positionX];
 }
 
-- (float)selectionY
+- (float)positionY
 {
-	return [manipulated selectionY];
+	return [manipulated positionY];
 }
 
-- (float)selectionZ
+- (float)positionZ
 {
-	return [manipulated selectionZ];
+	return [manipulated positionZ];
 }
 
-- (void)setSelectionX:(float)value
+- (float)rotationX
+{
+	return [manipulated rotationX];
+}
+
+- (float)rotationY
+{
+	return [manipulated rotationY];
+}
+
+- (float)rotationZ
+{
+	return [manipulated rotationZ];
+}
+
+- (float)scaleX
+{
+	return [manipulated scaleX];
+}
+
+- (float)scaleY
+{
+	return [manipulated scaleY];
+}
+
+- (float)scaleZ
+{
+	return [manipulated scaleZ];
+}
+
+- (void)setPositionX:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setSelectionX:value];
+	[manipulated setPositionX:value];
 	[self manipulationEndedInView:nil];
 }
 
-- (void)setSelectionY:(float)value
+- (void)setPositionY:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setSelectionY:value];
+	[manipulated setPositionY:value];
 	[self manipulationEndedInView:nil];
 }
 
-- (void)setSelectionZ:(float)value
+- (void)setPositionZ:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setSelectionZ:value];
+	[manipulated setPositionZ:value];
+	[self manipulationEndedInView:nil];
+}
+
+- (void)setRotationX:(float)value
+{
+	[self manipulationStartedInView:nil];
+	[manipulated setRotationX:value];
+	[self manipulationEndedInView:nil];
+}
+
+- (void)setRotationY:(float)value
+{
+	[self manipulationStartedInView:nil];
+	[manipulated setRotationY:value];
+	[self manipulationEndedInView:nil];
+}
+
+- (void)setRotationZ:(float)value
+{
+	[self manipulationStartedInView:nil];
+	[manipulated setRotationZ:value];
+	[self manipulationEndedInView:nil];
+}
+
+- (void)setScaleX:(float)value
+{
+	[self manipulationStartedInView:nil];
+	[manipulated setScaleX:value];
+	[self manipulationEndedInView:nil];
+}
+
+- (void)setScaleY:(float)value
+{
+	[self manipulationStartedInView:nil];
+	[manipulated setScaleY:value];
+	[self manipulationEndedInView:nil];
+}
+
+- (void)setScaleZ:(float)value
+{
+	[self manipulationStartedInView:nil];
+	[manipulated setScaleZ:value];
 	[self manipulationEndedInView:nil];
 }
 
@@ -663,7 +733,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
-	[[self manipulated] setCurrentManipulator:newManipulator];
 	for (OpenGLSceneView *view in views)
 	{ 
 		[view setCurrentManipulator:newManipulator]; 

@@ -8,13 +8,20 @@
  */
 #import "OpenGLSelecting.h"
 
-@protocol OpenGLManipulating <OpenGLSelecting>
+// for PropertyReflector
+@protocol OpenGLTransforming
 
-@property (readwrite, assign) enum ManipulatorType currentManipulator;
+@property (readwrite, assign) float positionX, positionY, positionZ;
+@property (readwrite, assign) float rotationX, rotationY, rotationZ;
+@property (readwrite, assign) float scaleX, scaleY, scaleZ;
+
+@end
+
+@protocol OpenGLManipulating <OpenGLSelecting, OpenGLTransforming>
+
 @property (readwrite, assign) Vector3D selectionCenter;
 @property (readwrite, assign) Quaternion selectionRotation;
 @property (readwrite, assign) Vector3D selectionScale;
-@property (readwrite, assign) float selectionX, selectionY, selectionZ;
 @property (readonly) uint selectedCount;
 
 - (void)moveSelectedByOffset:(Vector3D)offset;

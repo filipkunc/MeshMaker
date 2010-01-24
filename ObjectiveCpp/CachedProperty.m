@@ -10,16 +10,17 @@
 
 @implementation CachedProperty
 
-@synthesize name, type;
+@synthesize name, attributes;
 
-- (id)initWithName:(NSString *)aName type:(unichar)aType
+- (id)initWithName:(NSString *)aName attributes:(NSString *)anAttributes
 {
 	self = [super init];
 	if (self)
 	{
 		name = aName;
 		[name retain];
-		type = aType;
+		attributes = anAttributes;
+		[attributes retain];
 	}
 	return self;
 }
@@ -27,13 +28,19 @@
 - (void)dealloc
 {
 	[name release];
+	[attributes release];
 	[super dealloc];
+}
+
+- (unichar)type
+{
+	return [attributes characterAtIndex:1];
 }
 
 // this is highly experimental
 - (NSCell *)cell
 {
-	switch (type)
+	switch ([self type])
 	{
 		case 'c': // BOOL is in runtime same as char
 		{
@@ -45,6 +52,11 @@
 		default:
 			return nil;
 	}
+}
+
+- (NSComparisonResult)compare:(id)otherObject 
+{
+    return [self.name compare:[otherObject name]];
 }
 
 @end
