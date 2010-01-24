@@ -70,9 +70,8 @@
 			// ignore readonly
 			if ([components count] < 2 || ![[components objectAtIndex:1] isEqualTo:@"R"])
 			{
-				unichar type = [attributes characterAtIndex:1];
 				CachedProperty *cachedProperty = [[CachedProperty alloc] initWithName:propertyName
-																				 type:type];
+																		   attributes:attributes];
 				[cachedProperties addObject:cachedProperty];
 				
 				// with Key-Value-Observing is simple to add automatic updates of table view
@@ -83,6 +82,8 @@
 			}
 		}
 	}
+	
+	[cachedProperties sortUsingSelector:@selector(compare:)];
 	
 	free(properties);
 	
@@ -110,7 +111,9 @@
 - (id)propertyValueAtIndex:(int)index
 {
 	CachedProperty *property = [self propertyAtIndex:index];
-	return [reflectedObject valueForKey:[property name]];
+	id value = [reflectedObject valueForKey:[property name]];
+	//NSLog(@"property = %@, value = %@", [property name], value);
+	return value;
 }
 
 - (void)setPropertyValue:(id)value atIndex:(int)index

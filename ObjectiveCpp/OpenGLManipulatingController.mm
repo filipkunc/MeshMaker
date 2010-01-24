@@ -11,7 +11,7 @@
 
 @implementation OpenGLManipulatingController
 
-@synthesize currentManipulator, selectedCount, model, lastSelectedIndex;
+@synthesize selectedCount, model, lastSelectedIndex;
 
 - (id)init
 {
@@ -24,7 +24,6 @@
 		selectionScale = new Vector3D(1, 1, 1);
 		selectedCount = 0;
 		lastSelectedIndex = -1;
-		currentManipulator = ManipulatorTypeDefault;
 		modelTransform = new Matrix4x4();
 		modelPosition = new Vector3D();
 		modelRotation = new Quaternion();
@@ -68,18 +67,34 @@
 			  context:NULL];
 }
 
-- (void)addSelectionObserver:(id)observer
+- (void)addTransformationObserver:(id)observer
 {
-	[self addObserver:observer forKeyPath:@"selectionX"];
-	[self addObserver:observer forKeyPath:@"selectionY"];
-	[self addObserver:observer forKeyPath:@"selectionZ"];
+	[self addObserver:observer forKeyPath:@"positionX"];
+	[self addObserver:observer forKeyPath:@"positionY"];
+	[self addObserver:observer forKeyPath:@"positionZ"];
+	
+	[self addObserver:observer forKeyPath:@"rotationX"];
+	[self addObserver:observer forKeyPath:@"rotationY"];
+	[self addObserver:observer forKeyPath:@"rotationZ"];
+	
+	[self addObserver:observer forKeyPath:@"scaleX"];
+	[self addObserver:observer forKeyPath:@"scaleY"];
+	[self addObserver:observer forKeyPath:@"scaleZ"];
 }
 
-- (void)removeSelectionObserver:(id)observer
+- (void)removeTransformationObserver:(id)observer
 {
-	[self removeObserver:observer forKeyPath:@"selectionX"];
-	[self removeObserver:observer forKeyPath:@"selectionY"];
-	[self removeObserver:observer forKeyPath:@"selectionZ"];
+	[self removeObserver:observer forKeyPath:@"positionX"];
+	[self removeObserver:observer forKeyPath:@"positionY"];
+	[self removeObserver:observer forKeyPath:@"positionZ"];
+	
+	[self removeObserver:observer forKeyPath:@"rotationX"];
+	[self removeObserver:observer forKeyPath:@"rotationY"];
+	[self removeObserver:observer forKeyPath:@"rotationZ"];
+	
+	[self removeObserver:observer forKeyPath:@"scaleX"];
+	[self removeObserver:observer forKeyPath:@"scaleY"];
+	[self removeObserver:observer forKeyPath:@"scaleZ"];
 }
 
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
@@ -90,34 +105,94 @@
 	modelTransform->TranslateRotateScale(aPosition, aRotation, aScale);
 }
 
-- (float)selectionX
+- (float)positionX
 {
-	return [self selectionValueAtIndex:0];
+	return [self transformValueAtIndex:0 withManipulator:ManipulatorTypeTranslation];
 }
 
-- (float)selectionY
+- (float)positionY
 {
-	return [self selectionValueAtIndex:1];
+	return [self transformValueAtIndex:1 withManipulator:ManipulatorTypeTranslation];
 }
 
-- (float)selectionZ
+- (float)positionZ
 {
-	return [self selectionValueAtIndex:2];
+	return [self transformValueAtIndex:2 withManipulator:ManipulatorTypeTranslation];
 }
 
-- (void)setSelectionX:(float)value
+- (float)rotationX
 {
-	[self setSelectionValue:value atIndex:0];
+	return [self transformValueAtIndex:0 withManipulator:ManipulatorTypeRotation];
 }
 
-- (void)setSelectionY:(float)value
+- (float)rotationY
 {
-	[self setSelectionValue:value atIndex:1];
+	return [self transformValueAtIndex:1 withManipulator:ManipulatorTypeRotation];
 }
 
-- (void)setSelectionZ:(float)value
+- (float)rotationZ
 {
-	[self setSelectionValue:value atIndex:2];
+	return [self transformValueAtIndex:2 withManipulator:ManipulatorTypeRotation];
+}
+
+- (float)scaleX
+{
+	return [self transformValueAtIndex:0 withManipulator:ManipulatorTypeScale];
+}
+
+- (float)scaleY
+{
+	return [self transformValueAtIndex:1 withManipulator:ManipulatorTypeScale];
+}
+
+- (float)scaleZ
+{
+	return [self transformValueAtIndex:2 withManipulator:ManipulatorTypeScale];
+}
+
+- (void)setPositionX:(float)value
+{
+	[self setTransformValue:value atIndex:0 withManipulator:ManipulatorTypeTranslation];
+}
+
+- (void)setPositionY:(float)value
+{
+	[self setTransformValue:value atIndex:1 withManipulator:ManipulatorTypeTranslation];
+}
+
+- (void)setPositionZ:(float)value
+{
+	[self setTransformValue:value atIndex:2 withManipulator:ManipulatorTypeTranslation];
+}
+
+- (void)setRotationX:(float)value
+{
+	[self setTransformValue:value atIndex:0 withManipulator:ManipulatorTypeRotation];
+}
+
+- (void)setRotationY:(float)value
+{
+	[self setTransformValue:value atIndex:1 withManipulator:ManipulatorTypeRotation];
+}
+
+- (void)setRotationZ:(float)value
+{
+	[self setTransformValue:value atIndex:2 withManipulator:ManipulatorTypeRotation];
+}
+
+- (void)setScaleX:(float)value
+{
+	[self setTransformValue:value atIndex:0 withManipulator:ManipulatorTypeScale];
+}
+
+- (void)setScaleY:(float)value
+{
+	[self setTransformValue:value atIndex:1 withManipulator:ManipulatorTypeScale];
+}
+
+- (void)setScaleZ:(float)value
+{
+	[self setTransformValue:value atIndex:2 withManipulator:ManipulatorTypeScale];
 }
 
 - (void)setNilValueForKey:(NSString *)key
@@ -125,9 +200,10 @@
 	[self setValue:[NSNumber numberWithFloat:0.0f] forKey:key];
 }
 
-- (float)selectionValueAtIndex:(uint)index
+- (float)transformValueAtIndex:(uint)index
+			   withManipulator:(enum ManipulatorType)manipulatorType
 {
-	switch (currentManipulator)
+	switch (manipulatorType)
 	{
 		case ManipulatorTypeTranslation:
 			return (*selectionCenter)[index];
@@ -141,9 +217,11 @@
 	}
 }
 
-- (void)setSelectionValue:(float)value atIndex:(uint)index
+- (void)setTransformValue:(float)value 
+				  atIndex:(uint)index
+		  withManipulator:(enum ManipulatorType)manipulatorType
 {
-	switch (currentManipulator)
+	switch (manipulatorType)
 	{
 		case ManipulatorTypeTranslation:
 		{
@@ -188,16 +266,9 @@
 	}
 }
 
-- (void)setCurrentManipulator:(enum ManipulatorType)value
-{
-	[self willChangeSelection];
-	currentManipulator = value;
-	[self didChangeSelection];
-}
-
 - (void)updateSelection
 {
-	[self willChangeSelection];
+	[self willChangeTransformation];
 	
 	if (modelMesh != nil)
 	{
@@ -241,21 +312,37 @@
 	}
 	selectionRotation->ToEulerAngles(*selectionEuler);
 	selectionCenter->Transform(*modelTransform);
-	[self didChangeSelection];
+	[self didChangeTransformation];
 }
 
-- (void)willChangeSelection
+- (void)willChangeTransformation
 {
-	[self willChangeValueForKey:@"selectionX"];
-	[self willChangeValueForKey:@"selectionY"];
-	[self willChangeValueForKey:@"selectionZ"];	
+	[self willChangeValueForKey:@"positionX"];
+	[self willChangeValueForKey:@"positionY"];
+	[self willChangeValueForKey:@"positionZ"];	
+	
+	[self willChangeValueForKey:@"rotationX"];
+	[self willChangeValueForKey:@"rotationY"];
+	[self willChangeValueForKey:@"rotationZ"];	
+	
+	[self willChangeValueForKey:@"scaleX"];
+	[self willChangeValueForKey:@"scaleY"];
+	[self willChangeValueForKey:@"scaleZ"];	
 }
 
-- (void)didChangeSelection
+- (void)didChangeTransformation
 {
-	[self didChangeValueForKey:@"selectionX"];
-	[self didChangeValueForKey:@"selectionY"];
-	[self didChangeValueForKey:@"selectionZ"];	
+	[self didChangeValueForKey:@"positionX"];
+	[self didChangeValueForKey:@"positionY"];
+	[self didChangeValueForKey:@"positionZ"];	
+	
+	[self didChangeValueForKey:@"rotationX"];
+	[self didChangeValueForKey:@"rotationY"];
+	[self didChangeValueForKey:@"rotationZ"];	
+	
+	[self didChangeValueForKey:@"scaleX"];
+	[self didChangeValueForKey:@"scaleY"];
+	[self didChangeValueForKey:@"scaleZ"];	
 }
 
 - (Vector3D)selectionCenter
@@ -265,9 +352,9 @@
 
 - (void)setSelectionCenter:(Vector3D)value
 {
-	[self willChangeSelection];
+	[self willChangeTransformation];
 	*selectionCenter = value;
-	[self didChangeSelection];
+	[self didChangeTransformation];
 }
 
 - (Quaternion)selectionRotation
@@ -277,10 +364,10 @@
 
 - (void)setSelectionRotation:(Quaternion)value
 {
-	[self willChangeSelection];
+	[self willChangeTransformation];
 	*selectionRotation = value;
 	selectionRotation->ToEulerAngles(*selectionEuler);
-	[self didChangeSelection];
+	[self didChangeTransformation];
 }
 
 - (Vector3D)selectionScale
@@ -290,9 +377,9 @@
 
 - (void)setSelectionScale:(Vector3D)value
 {
-	[self willChangeSelection];
+	[self willChangeTransformation];
 	*selectionScale = value;
-	[self didChangeSelection];
+	[self didChangeTransformation];
 }
 
 - (void)moveSelectedByOffset:(Vector3D)offset

@@ -20,7 +20,6 @@
 	Vector3D *selectionScale;
 	uint selectedCount;
 	NSInteger lastSelectedIndex;
-	enum ManipulatorType currentManipulator;
 	
 	Matrix4x4 *modelTransform;
 	Vector3D *modelPosition;
@@ -31,12 +30,15 @@
 @property (readwrite, assign) id<OpenGLManipulatingModel> model;
 @property (readonly) NSInteger lastSelectedIndex;
 
-- (void)addSelectionObserver:(id)observer;
-- (void)removeSelectionObserver:(id)observer;
-- (float)selectionValueAtIndex:(uint)index;
-- (void)setSelectionValue:(float)value atIndex:(uint)index;
-- (void)willChangeSelection;
-- (void)didChangeSelection;
+- (void)addTransformationObserver:(id)observer;
+- (void)removeTransformationObserver:(id)observer;
+- (float)transformValueAtIndex:(uint)index
+			   withManipulator:(enum ManipulatorType)manipulatorType;
+- (void)setTransformValue:(float)value
+				  atIndex:(uint)index
+		  withManipulator:(enum ManipulatorType)manipulatorType;
+- (void)willChangeTransformation;
+- (void)didChangeTransformation;
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
 
 @end

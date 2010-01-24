@@ -11,13 +11,14 @@
 @interface CachedProperty : NSObject
 {
 	NSString *name;
-	unichar type;
+	NSString *attributes;
 }
 
 @property (readonly, retain) NSString *name;
-@property (readonly, assign) unichar type;
+@property (readonly, retain) NSString *attributes;
 
-- (id)initWithName:(NSString *)aName type:(unichar)aType;
+- (id)initWithName:(NSString *)aName attributes:(NSString *)anAttributes;
+- (unichar)type;
 - (NSCell *)cell;
 
 @end
