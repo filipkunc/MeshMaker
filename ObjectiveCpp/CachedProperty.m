@@ -42,6 +42,18 @@
 {
 	switch ([self type])
 	{
+		case 'f': // float, 2 fraction digits max
+		{
+			NSNumberFormatter *formatter = [[[NSNumberFormatter alloc] init] autorelease];
+			[formatter setNumberStyle:NSNumberFormatterBehavior10_4];
+			[formatter setAllowsFloats:YES];
+			[formatter setMinimumFractionDigits:0];
+			[formatter setMaximumFractionDigits:2];
+			NSTextFieldCell *textFieldCell = [[[NSTextFieldCell alloc] init] autorelease];
+			[textFieldCell setFormatter:formatter];
+			[textFieldCell setEditable:YES];
+			return textFieldCell;
+		}
 		case 'c': // BOOL is in runtime same as char
 		{
 			NSButtonCell *buttonCell = [[[NSButtonCell alloc] init] autorelease];
