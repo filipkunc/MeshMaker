@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="5"/>
+			<integer value="6"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -38,7 +38,7 @@
 			<object class="NSWindowTemplate" id="275939982">
 				<int key="NSWindowStyleMask">271</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{127, 251}, {739, 475}}</string>
+				<string key="NSWindowRect">{{127, 259}, {739, 467}}</string>
 				<int key="NSWTFlags">1618477056</int>
 				<string key="NSWindowTitle">Window</string>
 				<string key="NSWindowClass">NSWindow</string>
@@ -167,11 +167,9 @@
 								<string key="NSToolbarItemPaletteLabel">View Mode</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSPopUpButton" key="NSToolbarItemView" id="440722997">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSPopUpButtonCell" key="NSCell" id="181969951">
 										<int key="NSCellFlags">-2076049856</int>
@@ -354,11 +352,9 @@
 								<string key="NSToolbarItemPaletteLabel">Edit Mode</string>
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSPopUpButton" key="NSToolbarItemView" id="631661131">
-									<reference key="NSNextResponder"/>
+									<nil key="NSNextResponder"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-									<reference key="NSSuperview"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 										<int key="NSCellFlags">-2076049856</int>
@@ -587,7 +583,7 @@
 											<reference key="NSNextResponder" ref="576154545"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrameSize">{270, 232}</string>
+											<string key="NSFrameSize">{270, 223}</string>
 											<reference key="NSSuperview" ref="576154545"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -599,7 +595,7 @@
 											<reference key="NSNextResponder" ref="576154545"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrame">{{271, 0}, {265, 232}}</string>
+											<string key="NSFrame">{{271, 0}, {265, 223}}</string>
 											<reference key="NSSuperview" ref="576154545"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -608,7 +604,7 @@
 											</object>
 										</object>
 									</object>
-									<string key="NSFrameSize">{536, 232}</string>
+									<string key="NSFrameSize">{536, 223}</string>
 									<reference key="NSSuperview" ref="298304967"/>
 									<bool key="NSIsVertical">YES</bool>
 									<int key="NSDividerStyle">2</int>
@@ -622,7 +618,7 @@
 											<reference key="NSNextResponder" ref="752972658"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrameSize">{270, 221}</string>
+											<string key="NSFrameSize">{270, 223}</string>
 											<reference key="NSSuperview" ref="752972658"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -634,7 +630,7 @@
 											<reference key="NSNextResponder" ref="752972658"/>
 											<int key="NSvFlags">1298</int>
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
-											<string key="NSFrame">{{271, 0}, {265, 221}}</string>
+											<string key="NSFrame">{{271, 0}, {265, 223}}</string>
 											<reference key="NSSuperview" ref="752972658"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
@@ -643,13 +639,13 @@
 											</object>
 										</object>
 									</object>
-									<string key="NSFrame">{{0, 233}, {536, 221}}</string>
+									<string key="NSFrame">{{0, 224}, {536, 223}}</string>
 									<reference key="NSSuperview" ref="298304967"/>
 									<bool key="NSIsVertical">YES</bool>
 									<int key="NSDividerStyle">2</int>
 								</object>
 							</object>
-							<string key="NSFrame">{{0, 21}, {536, 454}}</string>
+							<string key="NSFrame">{{0, 20}, {536, 447}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<int key="NSDividerStyle">2</int>
 						</object>
@@ -666,7 +662,7 @@
 										<object class="NSTableView" id="216385851">
 											<reference key="NSNextResponder" ref="917380545"/>
 											<int key="NSvFlags">256</int>
-											<string key="NSFrameSize">{202, 437}</string>
+											<string key="NSFrameSize">{202, 430}</string>
 											<reference key="NSSuperview" ref="917380545"/>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTableHeaderView" key="NSHeaderView" id="368763200">
@@ -792,7 +788,7 @@
 											<int key="NSTableViewDraggingDestinationStyle">0</int>
 										</object>
 									</object>
-									<string key="NSFrame">{{1, 17}, {202, 437}}</string>
+									<string key="NSFrame">{{1, 17}, {202, 430}}</string>
 									<reference key="NSSuperview" ref="808039076"/>
 									<reference key="NSNextKeyView" ref="216385851"/>
 									<reference key="NSDocView" ref="216385851"/>
@@ -835,7 +831,7 @@
 								</object>
 								<reference ref="167662209"/>
 							</object>
-							<string key="NSFrame">{{536, 21}, {204, 455}}</string>
+							<string key="NSFrame">{{536, 20}, {204, 448}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSNextKeyView" ref="917380545"/>
 							<int key="NSsFlags">562</int>
@@ -847,7 +843,7 @@
 							<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 						</object>
 					</object>
-					<string key="NSFrameSize">{739, 475}</string>
+					<string key="NSFrameSize">{739, 467}</string>
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1280, 778}}</string>
@@ -1569,9 +1565,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{300, 226}, {739, 475}}</string>
+					<string>{{238, 231}, {739, 467}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{300, 226}, {739, 475}}</string>
+					<string>{{238, 231}, {739, 467}}</string>
 					<integer value="1"/>
 					<string>{{201, 387}, {507, 413}}</string>
 					<boolean value="NO"/>
