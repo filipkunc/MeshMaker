@@ -15,10 +15,6 @@
 		A7BBEF8A110A6A790058800D /* CachedProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A7BBEF87110A6A790058800D /* CachedProperty.m */; };
 		A7BBEF8B110A6A790058800D /* PropertyReflector.m in Sources */ = {isa = PBXBuildFile; fileRef = A7BBEF89110A6A790058800D /* PropertyReflector.m */; };
 		A7BBEFB7110A6C3B0058800D /* MyTestObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7BBEFB6110A6C3B0058800D /* MyTestObject.mm */; };
-		A7BBEFF7110A71130058800D /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7BBEFF5110A71130058800D /* Vector3D.cpp */; };
-		A7BBF004110A713F0058800D /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7BBEFFE110A713F0058800D /* Matrix4x4.cpp */; };
-		A7BBF005110A713F0058800D /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7BBF000110A713F0058800D /* Quaternion.cpp */; };
-		A7BBF006110A713F0058800D /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7BBF002110A713F0058800D /* Vector2D.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,16 +36,6 @@
 		A7BBEF89110A6A790058800D /* PropertyReflector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PropertyReflector.m; path = ../ObjectiveCpp/PropertyReflector.m; sourceTree = SOURCE_ROOT; };
 		A7BBEFB5110A6C3B0058800D /* MyTestObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyTestObject.h; sourceTree = "<group>"; };
 		A7BBEFB6110A6C3B0058800D /* MyTestObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyTestObject.mm; sourceTree = "<group>"; };
-		A7BBEFF5110A71130058800D /* Vector3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector3D.cpp; path = ../PureCpp/MathCore/Vector3D.cpp; sourceTree = SOURCE_ROOT; };
-		A7BBEFF6110A71130058800D /* Vector3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector3D.h; path = ../PureCpp/MathCore/Vector3D.h; sourceTree = SOURCE_ROOT; };
-		A7BBEFFC110A713F0058800D /* MathDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathDeclaration.h; path = ../PureCpp/MathCore/MathDeclaration.h; sourceTree = SOURCE_ROOT; };
-		A7BBEFFD110A713F0058800D /* MathForwardDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathForwardDeclaration.h; path = ../PureCpp/MathCore/MathForwardDeclaration.h; sourceTree = SOURCE_ROOT; };
-		A7BBEFFE110A713F0058800D /* Matrix4x4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Matrix4x4.cpp; path = ../PureCpp/MathCore/Matrix4x4.cpp; sourceTree = SOURCE_ROOT; };
-		A7BBEFFF110A713F0058800D /* Matrix4x4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Matrix4x4.h; path = ../PureCpp/MathCore/Matrix4x4.h; sourceTree = SOURCE_ROOT; };
-		A7BBF000110A713F0058800D /* Quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Quaternion.cpp; path = ../PureCpp/MathCore/Quaternion.cpp; sourceTree = SOURCE_ROOT; };
-		A7BBF001110A713F0058800D /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Quaternion.h; path = ../PureCpp/MathCore/Quaternion.h; sourceTree = SOURCE_ROOT; };
-		A7BBF002110A713F0058800D /* Vector2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector2D.cpp; path = ../PureCpp/MathCore/Vector2D.cpp; sourceTree = SOURCE_ROOT; };
-		A7BBF003110A713F0058800D /* Vector2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector2D.h; path = ../PureCpp/MathCore/Vector2D.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,16 +53,6 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				A7BBEFFC110A713F0058800D /* MathDeclaration.h */,
-				A7BBEFFD110A713F0058800D /* MathForwardDeclaration.h */,
-				A7BBEFFE110A713F0058800D /* Matrix4x4.cpp */,
-				A7BBEFFF110A713F0058800D /* Matrix4x4.h */,
-				A7BBF000110A713F0058800D /* Quaternion.cpp */,
-				A7BBF001110A713F0058800D /* Quaternion.h */,
-				A7BBF002110A713F0058800D /* Vector2D.cpp */,
-				A7BBF003110A713F0058800D /* Vector2D.h */,
-				A7BBEFF5110A71130058800D /* Vector3D.cpp */,
-				A7BBEFF6110A71130058800D /* Vector3D.h */,
 				A7BBEF86110A6A790058800D /* CachedProperty.h */,
 				A7BBEF87110A6A790058800D /* CachedProperty.m */,
 				A7BBEF88110A6A790058800D /* PropertyReflector.h */,
@@ -215,10 +191,6 @@
 				A7BBEF8A110A6A790058800D /* CachedProperty.m in Sources */,
 				A7BBEF8B110A6A790058800D /* PropertyReflector.m in Sources */,
 				A7BBEFB7110A6C3B0058800D /* MyTestObject.mm in Sources */,
-				A7BBEFF7110A71130058800D /* Vector3D.cpp in Sources */,
-				A7BBF004110A713F0058800D /* Matrix4x4.cpp in Sources */,
-				A7BBF005110A713F0058800D /* Quaternion.cpp in Sources */,
-				A7BBF006110A713F0058800D /* Vector2D.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,7 +253,13 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
@@ -294,7 +272,13 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
