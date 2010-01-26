@@ -56,6 +56,9 @@
 
 - (void)awakeFromNib
 {
+	// maximizing window on start
+	[[viewPerspective window] performZoom:self];
+	
 	[editModePopUp selectItemWithTag:0];
 	[viewModePopUp selectItemWithTag:0];
 	
