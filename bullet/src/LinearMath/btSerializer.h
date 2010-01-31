@@ -46,6 +46,8 @@ class	btSerializer
 {
 
 public:
+	
+	virtual ~btSerializer() { }
 
 	virtual	const unsigned char*		getBufferPointer() const = 0;
 
