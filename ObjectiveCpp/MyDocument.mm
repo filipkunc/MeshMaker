@@ -11,6 +11,16 @@
 #import "TmdModel.h"
 #import "IndexedItem.h"
 
+#import "btBulletFile.h"
+#import "btBulletWorldImporter.h"
+#import "btDynamicsWorld.h"
+#import "btDiscreteDynamicsWorld.h"
+#import "btDispatcher.h"
+#import "btDefaultCollisionConfiguration.h"
+#import "btDbvtBroadphase.h"
+#import "btSequentialImpulseConstraintSolver.h"
+using namespace bParse;
+
 @implementation MyDocument
 
 - (id)init
@@ -775,6 +785,25 @@ MeshFullState *currentState = [items currentMeshFull]; \
 
 #pragma mark Archivation
 
+- (BOOL)readFromBullet:(NSString *)fileName
+{
+	// from DemoApplication 
+	btDefaultCollisionConfiguration *collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher *dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	btDbvtBroadphase *broadphase = new btDbvtBroadphase();
+	btSequentialImpulseConstraintSolver *solver = new btSequentialImpulseConstraintSolver();
+	btDynamicsWorld *dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	dynamicsWorld->setGravity(btVector3(0, -10, 0));	
+	btBulletWorldImporter *worldImporter = new btBulletWorldImporter(dynamicsWorld);
+	
+	// loading file from ASCII fileName
+	if (worldImporter->loadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
+	{
+		return YES;
+	}
+	return NO;
+}
+
 - (void)readFromTmd:(NSString *)fileName
 {
 	TmdModel *model = new TmdModel();
@@ -864,6 +893,10 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	{
 		[self readFromTmd:fileName];
 		return YES;
+	}
+	else if ([typeName isEqual:@"bullet"])
+	{
+		return [self readFromBullet:fileName];
 	}
 	return NO;
 }
