@@ -167,6 +167,7 @@
 		A7D288831101042F0092B9DC /* PropertyReflector.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D288821101042F0092B9DC /* PropertyReflector.m */; };
 		A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D28894110107510092B9DC /* libobjc.A.dylib */; };
 		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
+		A7DAC286111622CA005381CC /* ExperimentalBulletWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -556,6 +557,8 @@
 		A7D28894110107510092B9DC /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A7D7733A10A77DAC0068353E /* IndexedItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedItem.h; sourceTree = "<group>"; };
 		A7D7733B10A77DAC0068353E /* IndexedItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IndexedItem.mm; sourceTree = "<group>"; };
+		A7DAC284111622CA005381CC /* ExperimentalBulletWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExperimentalBulletWrapper.h; sourceTree = "<group>"; };
+		A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ExperimentalBulletWrapper.mm; sourceTree = "<group>"; };
 		A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CppFileStreaming.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1112,6 +1115,8 @@
 				A7D288821101042F0092B9DC /* PropertyReflector.m */,
 				A785C66B1107B0C700E42D68 /* CachedProperty.h */,
 				A785C66C1107B0C700E42D68 /* CachedProperty.m */,
+				A7DAC284111622CA005381CC /* ExperimentalBulletWrapper.h */,
+				A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */,
 			);
 			path = ObjectiveCpp;
 			sourceTree = "<group>";
@@ -1375,6 +1380,7 @@
 				A72654B41115BC6E005F0682 /* Bullet-C-API.cpp in Sources */,
 				A72654BA1115BC7C005F0682 /* btRaycastVehicle.cpp in Sources */,
 				A72654BB1115BC7C005F0682 /* btWheelInfo.cpp in Sources */,
+				A7DAC286111622CA005381CC /* ExperimentalBulletWrapper.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
