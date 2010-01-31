@@ -11,16 +11,6 @@
 #import "TmdModel.h"
 #import "IndexedItem.h"
 
-#import "btBulletFile.h"
-#import "btBulletWorldImporter.h"
-#import "btDynamicsWorld.h"
-#import "btDiscreteDynamicsWorld.h"
-#import "btDispatcher.h"
-#import "btDefaultCollisionConfiguration.h"
-#import "btDbvtBroadphase.h"
-#import "btSequentialImpulseConstraintSolver.h"
-using namespace bParse;
-
 @implementation MyDocument
 
 - (id)init
@@ -46,6 +36,7 @@ using namespace bParse;
 		
 		views = [[NSMutableArray alloc] init];
 		oneView = NO;
+		bulletWrapper = nil;
     }
     return self;
 }
@@ -61,6 +52,7 @@ using namespace bParse;
 	[oldMeshManipulation release];
 	[views release];
 	[propertyReflector release];
+	[bulletWrapper release];
 	[super dealloc];
 }
 
@@ -777,7 +769,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
     return @"MyDocument";
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *) aController
+- (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
@@ -787,18 +779,15 @@ MeshFullState *currentState = [items currentMeshFull]; \
 
 - (BOOL)readFromBullet:(NSString *)fileName
 {
-	// from DemoApplication 
-	btDefaultCollisionConfiguration *collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher *dispatcher = new	btCollisionDispatcher(collisionConfiguration);
-	btDbvtBroadphase *broadphase = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver *solver = new btSequentialImpulseConstraintSolver();
-	btDynamicsWorld *dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));	
-	btBulletWorldImporter *worldImporter = new btBulletWorldImporter(dynamicsWorld);
-	
-	// loading file from ASCII fileName
-	if (worldImporter->loadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
+	bulletWrapper = [[ExperimentalBulletWrapper alloc] initWithFileName:fileName];
+	if (bulletWrapper)
 	{
+		// this is highly experimental, because bulletWrapper doesn't implement all necessary
+		// functions, so when doing some operations, it can crash whole editor
+		[itemsController setModel:bulletWrapper];
+		[items release];
+		[itemsController updateSelection];
+		[self setManipulated:itemsController];
 		return YES;
 	}
 	return NO;

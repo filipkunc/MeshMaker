@@ -6,13 +6,14 @@
 //  For license see LICENSE.TXT
 //
 
-
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
 #import "MeshManipulationState.h"
 #import "PropertyReflector.h"
+
+#import "ExperimentalBulletWrapper.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming>
 {
@@ -43,6 +44,8 @@
 	
 	PropertyReflector *propertyReflector;
 	IBOutlet NSTableView *propertyView;
+	
+	ExperimentalBulletWrapper *bulletWrapper;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
