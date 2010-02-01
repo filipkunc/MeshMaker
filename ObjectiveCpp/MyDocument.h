@@ -46,6 +46,7 @@
 	IBOutlet NSTableView *propertyView;
 	
 	ExperimentalBulletWrapper *bulletWrapper;
+	NSTimer *simulationTimer;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;

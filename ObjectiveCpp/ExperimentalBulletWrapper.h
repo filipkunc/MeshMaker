@@ -83,6 +83,8 @@ public:
 	ExperimentalDebugDrawImplementation *debugDrawer;
 }
 
+@property (readonly, assign) btDynamicsWorld *dynamicsWorld;
+
 - (id)initWithFileName:(NSString *)fileName;
 - (void)debugDraw;
 

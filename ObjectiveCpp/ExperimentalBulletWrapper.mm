@@ -10,6 +10,8 @@
 
 @implementation ExperimentalBulletWrapper
 
+@synthesize dynamicsWorld;
+
 - (id)initWithFileName:(NSString *)fileName
 {
 	self = [super init];
