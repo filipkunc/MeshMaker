@@ -37,12 +37,29 @@
 		views = [[NSMutableArray alloc] init];
 		oneView = NO;
 		bulletWrapper = nil;
+		simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 / 60.0
+														   target:self
+														 selector:@selector(timerProc)
+														 userInfo:nil
+														  repeats:YES];
+
     }
     return self;
+}
+						   
+- (void)timerProc
+{
+	if (bulletWrapper)
+	{
+		[bulletWrapper dynamicsWorld]->stepSimulation([simulationTimer timeInterval]);
+		for (OpenGLSceneView *view in views)
+			[view setNeedsDisplay:YES];
+	}
 }
 
 - (void)dealloc
 {
+	[simulationTimer release];
 	[itemsController removeTransformationObserver:self];
 	[meshController removeTransformationObserver:self];
 	[meshController release];
