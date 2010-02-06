@@ -32,7 +32,8 @@ namespace OpenGLEditorWindows
         List<OpenGLSceneView> views;
 
         string lastFileName = null;
-        string fileDialogFilter = "Native format (*.model3D)|*.model3D";
+        string fileDialogFilter = "Native format (*.model3D)|*.model3D" +
+                                  "|Bullet (*.bullet)|*.bullet";
 
         OpenGLSceneView openGLSceneViewLeft = null;
         OpenGLSceneView openGLSceneViewTop = null;
@@ -53,6 +54,9 @@ namespace OpenGLEditorWindows
         DockLogPanel logPanel = null;
 
         StringWriter logWriter;
+
+        ExperimentalBulletWrapper bulletWrapper = null;
+        Timer simulationTimer = null;
         
         public DocumentForm()
         {
@@ -145,6 +149,20 @@ namespace OpenGLEditorWindows
 
             Manipulated = itemsController;
             propertyGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid_PropertyValueChanged);
+
+            simulationTimer = new Timer();
+            simulationTimer.Interval = 1000 / 60;
+            simulationTimer.Tick += new EventHandler(simulationTimer_Tick);
+            simulationTimer.Start();
+        }
+
+        void simulationTimer_Tick(object sender, EventArgs e)
+        {
+            if (bulletWrapper != null)
+            {
+                bulletWrapper.StepSimulation(1.0f / 60.0f);
+                OnEachViewDo(view => view.Invalidate());
+            }
         }
 
         void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
@@ -193,9 +211,13 @@ namespace OpenGLEditorWindows
             if (undo.NeedsSave)
                 formTitle.Append(" *");
             this.Text = formTitle.ToString();
+
             logTextBox.Text = logWriter.ToString();
-            logTextBox.Select(logTextBox.Text.Length - 1, 0);
-            logTextBox.ScrollToCaret();
+            if (logTextBox.Text.Length - 1 >= 0)
+            {
+                logTextBox.Select(logTextBox.Text.Length - 1, 0);
+                logTextBox.ScrollToCaret();
+            }
         }
 
         #region Bindings magic
@@ -885,9 +907,18 @@ namespace OpenGLEditorWindows
                 lastFileName = dlg.FileName;
             }
 
-            items = new ItemCollection();
-            items.ReadFromFile(lastFileName);
-            itemsController.Model = items;
+            if (Path.GetExtension(lastFileName) == ".bullet")
+            {
+                bulletWrapper = new ExperimentalBulletWrapper(lastFileName);
+                items = null;
+                itemsController.Model = bulletWrapper;
+            }
+            else
+            {
+                items = new ItemCollection();
+                items.ReadFromFile(lastFileName);
+                itemsController.Model = items;
+            }
             itemsController.UpdateSelection();
             undo.Clear();
             OnEachViewDo(view => view.Invalidate());

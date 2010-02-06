@@ -14,7 +14,6 @@
 #include <GL/glu.h>
 #include "../PureCpp/Enums.h"
 #include "OpenGLManipulatingModel.h"
-//#include "MarshalHelpers.h"
 
 #include "btBulletFile.h"
 #include "Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
@@ -88,7 +87,7 @@ public:
 	btBulletWorldImporter *worldImporter;
 	ExperimentalDebugDrawImplementation *debugDrawer;
 
-	BulletWrapperHelper(const char *fileName)
+	BulletWrapperHelper()
 	{
 		collisionConfiguration = new btDefaultCollisionConfiguration();
 		dispatcher = new btCollisionDispatcher(collisionConfiguration);
@@ -98,12 +97,16 @@ public:
 		dynamicsWorld->setGravity(btVector3(0, -10, 0));	
 		worldImporter = new btBulletWorldImporter(dynamicsWorld);
 		debugDrawer = new ExperimentalDebugDrawImplementation();
+	}
 
+	bool LoadFile(const char *fileName)
+	{
 		if (worldImporter->loadFile(fileName))
 		{
 			dynamicsWorld->setDebugDrawer(debugDrawer);
-			//return true;
+			return true;
 		}
+		return false;
 	}
 
 	~BulletWrapperHelper()
@@ -129,6 +132,7 @@ namespace ManagedCpp
 	public:
 		ExperimentalBulletWrapper(String ^fileName);
 		void DebugDraw();
+		void StepSimulation(btScalar timeStep);
 
 		virtual property uint Count { uint get(); }
 		virtual	CocoaBool IsSelected(uint index);
