@@ -30,15 +30,7 @@ subject to the following restrictions:
 
 #ifndef __SPU__
 
-btHingeConstraint::btHingeConstraint()
-: btTypedConstraint (HINGE_CONSTRAINT_TYPE),
-m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
-m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_useReferenceFrameA(false)
-{
-	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
-}
+
 
 
 
@@ -49,7 +41,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									 m_enableAngularMotor(false),
 									 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 									 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-									 m_useReferenceFrameA(useReferenceFrameA)
+									 m_useReferenceFrameA(useReferenceFrameA),
+									 m_flags(0)
 {
 	m_rbAFrame.getOrigin() = pivotInA;
 	
@@ -98,7 +91,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_useReferenceFrameA(useReferenceFrameA)
+m_useReferenceFrameA(useReferenceFrameA),
+m_flags(0)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -142,7 +136,8 @@ m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_useReferenceFrameA(useReferenceFrameA)
+m_useReferenceFrameA(useReferenceFrameA),
+m_flags(0)
 {
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
@@ -162,7 +157,8 @@ m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useOffsetForConstraintFrame(HINGE_USE_FRAME_OFFSET),
-m_useReferenceFrameA(useReferenceFrameA)
+m_useReferenceFrameA(useReferenceFrameA),
+m_flags(0)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
@@ -633,19 +629,26 @@ void btHingeConstraint::getInfo2Internal(btConstraintInfo2* info, const btTransf
 			powered = 0;
 		}
 		info->m_constraintError[srow] = btScalar(0.0f);
+		btScalar currERP = (m_flags & BT_HINGE_FLAGS_ERP_STOP) ? m_stopERP : info->erp;
 		if(powered)
 		{
-            info->cfm[srow] = btScalar(0.0); 
-			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * info->erp);
+			if(m_flags & BT_HINGE_FLAGS_CFM_NORM)
+			{
+				info->cfm[srow] = m_normalCFM;
+			}
+			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * currERP);
 			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
 			info->m_lowerLimit[srow] = - m_maxMotorImpulse;
 			info->m_upperLimit[srow] =   m_maxMotorImpulse;
 		}
 		if(limit)
 		{
-			k = info->fps * info->erp;
+			k = info->fps * currERP;
 			info->m_constraintError[srow] += k * limit_err;
-			info->cfm[srow] = btScalar(0.0);
+			if(m_flags & BT_HINGE_FLAGS_CFM_STOP)
+			{
+				info->cfm[srow] = m_stopCFM;
+			}
 			if(lostop == histop) 
 			{
 				// limited low and high simultaneously
@@ -1010,19 +1013,26 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 			powered = 0;
 		}
 		info->m_constraintError[srow] = btScalar(0.0f);
+		btScalar currERP = (m_flags & BT_HINGE_FLAGS_ERP_STOP) ? m_stopERP : info->erp;
 		if(powered)
 		{
-            info->cfm[srow] = btScalar(0.0); 
-			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * info->erp);
+			if(m_flags & BT_HINGE_FLAGS_CFM_NORM)
+			{
+				info->cfm[srow] = m_normalCFM;
+			}
+			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * currERP);
 			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
 			info->m_lowerLimit[srow] = - m_maxMotorImpulse;
 			info->m_upperLimit[srow] =   m_maxMotorImpulse;
 		}
 		if(limit)
 		{
-			k = info->fps * info->erp;
+			k = info->fps * currERP;
 			info->m_constraintError[srow] += k * limit_err;
-			info->cfm[srow] = btScalar(0.0);
+			if(m_flags & BT_HINGE_FLAGS_CFM_STOP)
+			{
+				info->cfm[srow] = m_stopCFM;
+			}
 			if(lostop == histop) 
 			{
 				// limited low and high simultaneously
@@ -1074,4 +1084,67 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 		} // if(limit)
 	} // if angular limit or powered
 }
+
+
+///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+///If no axis is provided, it uses the default axis for this constraint.
+void btHingeConstraint::setParam(int num, btScalar value, int axis)
+{
+	if((axis == -1) || (axis == 5))
+	{
+		switch(num)
+		{	
+			case BT_CONSTRAINT_STOP_ERP :
+				m_stopERP = value;
+				m_flags |= BT_HINGE_FLAGS_ERP_STOP;
+				break;
+			case BT_CONSTRAINT_STOP_CFM :
+				m_stopCFM = value;
+				m_flags |= BT_HINGE_FLAGS_CFM_STOP;
+				break;
+			case BT_CONSTRAINT_CFM :
+				m_normalCFM = value;
+				m_flags |= BT_HINGE_FLAGS_CFM_NORM;
+				break;
+			default : 
+				btAssertConstrParams(0);
+		}
+	}
+	else
+	{
+		btAssertConstrParams(0);
+	}
+}
+
+///return the local value of parameter
+btScalar btHingeConstraint::getParam(int num, int axis) const 
+{
+	btScalar retVal = 0;
+	if((axis == -1) || (axis == 5))
+	{
+		switch(num)
+		{	
+			case BT_CONSTRAINT_STOP_ERP :
+				btAssertConstrParams(m_flags & BT_HINGE_FLAGS_ERP_STOP);
+				retVal = m_stopERP;
+				break;
+			case BT_CONSTRAINT_STOP_CFM :
+				btAssertConstrParams(m_flags & BT_HINGE_FLAGS_CFM_STOP);
+				retVal = m_stopCFM;
+				break;
+			case BT_CONSTRAINT_CFM :
+				btAssertConstrParams(m_flags & BT_HINGE_FLAGS_CFM_NORM);
+				retVal = m_normalCFM;
+				break;
+			default : 
+				btAssertConstrParams(0);
+		}
+	}
+	else
+	{
+		btAssertConstrParams(0);
+	}
+	return retVal;
+}
+
 

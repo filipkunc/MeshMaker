@@ -12,10 +12,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#pragma unmanaged
+
 
 #ifndef SIMD___SCALAR_H
 #define SIMD___SCALAR_H
+
+#pragma unmanaged // for C++/CLI
 
 #include <math.h>
 #include <stdlib.h>//size_t for MSVC 6.0
@@ -24,7 +26,7 @@ subject to the following restrictions:
 #include <float.h>
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define BT_BULLET_VERSION 275
+#define BT_BULLET_VERSION 276
 
 inline int	btGetVersion()
 {

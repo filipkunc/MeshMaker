@@ -22,16 +22,7 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
 
-static btRigidBody *s_fixedObject = NULL;
 
-// This is not thread safe.
-// Memory leak is ignored, because it goes away on app exit by the OS.
-static btRigidBody& GetFixed()
-{
-	if (!s_fixedObject)
-		s_fixedObject = new btRigidBody(0, 0, 0);
-	return *s_fixedObject;
-}
 
 btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )
 :m_vehicleRaycaster(raycaster),
@@ -196,7 +187,7 @@ btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
 		wheel.m_raycastInfo.m_contactNormalWS  = rayResults.m_hitNormalInWorld;
 		wheel.m_raycastInfo.m_isInContact = true;
 		
-		wheel.m_raycastInfo.m_groundObject = &GetFixed();///@todo for driving on dynamic/movable objects!;
+		wheel.m_raycastInfo.m_groundObject = &getFixedBody();///@todo for driving on dynamic/movable objects!;
 		//wheel.m_raycastInfo.m_groundObject = object;
 
 

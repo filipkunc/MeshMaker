@@ -345,7 +345,7 @@ void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
 	{
 		btRigidBody* body = m_nonStaticRigidBodies[i];
-		if (body->isActive())
+		if (body->isActive() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 		{
 			body->setGravity(gravity);
 		}
@@ -380,7 +380,7 @@ void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
-	if (!body->isStaticOrKinematicObject())
+	if (!body->isStaticOrKinematicObject() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 	{
 		body->setGravity(m_gravity);
 	}
@@ -405,7 +405,7 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, short group, short mask)
 {
-	if (!body->isStaticOrKinematicObject())
+	if (!body->isStaticOrKinematicObject() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 	{
 		body->setGravity(m_gravity);
 	}
@@ -1025,7 +1025,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				if(drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
 				if(drawLimits)
 				{
-					btTransform tr = pSlider->getCalculatedTransformA();
+					btTransform tr = pSlider->getUseLinearReferenceFrameA() ? pSlider->getCalculatedTransformA() : pSlider->getCalculatedTransformB();
 					btVector3 li_min = tr * btVector3(pSlider->getLowerLinLimit(), 0.f, 0.f);
 					btVector3 li_max = tr * btVector3(pSlider->getUpperLinLimit(), 0.f, 0.f);
 					getDebugDrawer()->drawLine(li_min, li_max, btVector3(0, 0, 0));
@@ -1090,7 +1090,7 @@ void	btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 		{
 			int len = colObj->calculateSerializeBufferSize();
 			btChunk* chunk = serializer->allocate(len,1);
-			const char* structType = colObj->serialize(chunk->m_oldPtr);
+			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,colObj);
 		}
 	}

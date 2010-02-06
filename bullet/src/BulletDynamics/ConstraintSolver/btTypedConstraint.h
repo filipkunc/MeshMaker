@@ -33,6 +33,22 @@ enum btTypedConstraintType
 	CONTACT_CONSTRAINT_TYPE
 };
 
+
+enum btConstraintParams
+{
+	BT_CONSTRAINT_ERP=1,
+	BT_CONSTRAINT_STOP_ERP,
+	BT_CONSTRAINT_CFM,
+	BT_CONSTRAINT_STOP_CFM
+};
+
+#if 1
+	#define btAssertConstrParams(_par) btAssert(_par) 
+#else
+	#define btAssertConstrParams(_par)
+#endif
+
+
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
 class btTypedConstraint : public btTypedObject
 {
@@ -53,13 +69,19 @@ protected:
 	btScalar	m_appliedImpulse;
 	btScalar	m_dbgDrawSize;
 
-	btVector3	m_appliedLinearImpulse;
-	btVector3	m_appliedAngularImpulseA;
-	btVector3	m_appliedAngularImpulseB;
+	///internal method used by the constraint solver, don't use them directly
+	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
+	
+	static btRigidBody& getFixedBody()
+	{
+		static btRigidBody s_fixed(0, 0,0);
+		s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
+		return s_fixed;
+	}	
+
 
 public:
 
-	btTypedConstraint(btTypedConstraintType type);
 	virtual ~btTypedConstraint() {};
 	btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA);
 	btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA,btRigidBody& rbB);
@@ -131,8 +153,6 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep) = 0;
 
-	///internal method used by the constraint solver, don't use them directly
-	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
 	
 	const btRigidBody& getRigidBodyA() const
 	{
@@ -197,44 +217,6 @@ public:
 		return m_appliedImpulse;
 	}
 
-	const btVector3& getAppliedLinearImpulse() const
-	{
-		btAssert(m_needsFeedback);
-		return m_appliedLinearImpulse;
-	}
-
-	btVector3& getAppliedLinearImpulse()
-	{
-		btAssert(m_needsFeedback);
-		return m_appliedLinearImpulse;
-	}
-
-	const btVector3& getAppliedAngularImpulseA() const
-	{
-		btAssert(m_needsFeedback);
-		return m_appliedAngularImpulseA;
-	}
-
-	btVector3& getAppliedAngularImpulseA()
-	{
-		btAssert(m_needsFeedback);
-		return m_appliedAngularImpulseA;
-	}
-
-	const btVector3& getAppliedAngularImpulseB() const
-	{
-		btAssert(m_needsFeedback);
-		return m_appliedAngularImpulseB;
-	}
-
-	btVector3& getAppliedAngularImpulseB()
-	{
-		btAssert(m_needsFeedback);
-		return m_appliedAngularImpulseB;
-	}
-
-	
-
 	btTypedConstraintType getConstraintType () const
 	{
 		return btTypedConstraintType(m_objectType);
@@ -248,6 +230,13 @@ public:
 	{
 		return m_dbgDrawSize;
 	}
+
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///If no axis is provided, it uses the default axis for this constraint.
+	virtual	void	setParam(int num, btScalar value, int axis = -1) = 0;
+
+	///return the local value of parameter
+	virtual	btScalar getParam(int num, int axis = -1) const = 0;
 	
 	virtual	int	calculateSerializeBufferSize() const;
 
@@ -287,10 +276,7 @@ struct	btTypedConstraintData
 {
 	btRigidBodyData		*m_rbA;
 	btRigidBodyData		*m_rbB;
-
-	btVector3FloatData	m_appliedLinearImpulse;
-	btVector3FloatData	m_appliedAngularImpulseA;
-	btVector3FloatData	m_appliedAngularImpulseB;
+	char	*m_name;
 
 	int	m_objectType;
 	int	m_userConstraintType;
@@ -301,7 +287,8 @@ struct	btTypedConstraintData
 	float	m_dbgDrawSize;
 
 	int	m_disableCollisionsBetweenLinkedBodies;
-	char m_pad[4];
+	char	m_pad4[4];
+	
 };
 
 SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const
