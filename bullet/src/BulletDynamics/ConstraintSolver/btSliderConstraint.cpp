@@ -89,9 +89,19 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const
 }
 
 
-static btRigidBody s_fixed(0, 0, 0);
+static btRigidBody *s_fixed = NULL;
+
+// This is not thread safe.
+// Memory leak is ignored, because it goes away on app exit by the OS.
+static btRigidBody& GetFixed()
+{
+	if (!s_fixed)
+		s_fixed = new btRigidBody(0, 0, 0);
+	return *s_fixed;
+}
+
 btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
-        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, s_fixed, rbB),
+        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, GetFixed(), rbB),
 		m_useSolveConstraintObsolete(false),
 		m_frameInB(frameInB),
 		m_useLinearReferenceFrameA(useLinearReferenceFrameB)

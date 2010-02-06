@@ -21,51 +21,60 @@ subject to the following restrictions:
 
 #define NUM_UNITSPHERE_POINTS 42
 
-static btVector3 btUnitSpherePoints[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
+static btVector3 *btUnitSpherePoints = NULL;
+
+// This is not thread safe.
+// Memory leak is ignored, because it goes away on app exit by the OS.
+static btVector3 *GetUnitSpherePoints()
 {
-	btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000)),
-	btVector3(btScalar(0.723608) , btScalar(-0.525725),btScalar(-0.447219)),
-	btVector3(btScalar(-0.276388) , btScalar(-0.850649),btScalar(-0.447219)),
-	btVector3(btScalar(-0.894426) , btScalar(-0.000000),btScalar(-0.447216)),
-	btVector3(btScalar(-0.276388) , btScalar(0.850649),btScalar(-0.447220)),
-	btVector3(btScalar(0.723608) , btScalar(0.525725),btScalar(-0.447219)),
-	btVector3(btScalar(0.276388) , btScalar(-0.850649),btScalar(0.447220)),
-	btVector3(btScalar(-0.723608) , btScalar(-0.525725),btScalar(0.447219)),
-	btVector3(btScalar(-0.723608) , btScalar(0.525725),btScalar(0.447219)),
-	btVector3(btScalar(0.276388) , btScalar(0.850649),btScalar(0.447219)),
-	btVector3(btScalar(0.894426) , btScalar(0.000000),btScalar(0.447216)),
-	btVector3(btScalar(-0.000000) , btScalar(0.000000),btScalar(1.000000)),
-	btVector3(btScalar(0.425323) , btScalar(-0.309011),btScalar(-0.850654)),
-	btVector3(btScalar(-0.162456) , btScalar(-0.499995),btScalar(-0.850654)),
-	btVector3(btScalar(0.262869) , btScalar(-0.809012),btScalar(-0.525738)),
-	btVector3(btScalar(0.425323) , btScalar(0.309011),btScalar(-0.850654)),
-	btVector3(btScalar(0.850648) , btScalar(-0.000000),btScalar(-0.525736)),
-	btVector3(btScalar(-0.525730) , btScalar(-0.000000),btScalar(-0.850652)),
-	btVector3(btScalar(-0.688190) , btScalar(-0.499997),btScalar(-0.525736)),
-	btVector3(btScalar(-0.162456) , btScalar(0.499995),btScalar(-0.850654)),
-	btVector3(btScalar(-0.688190) , btScalar(0.499997),btScalar(-0.525736)),
-	btVector3(btScalar(0.262869) , btScalar(0.809012),btScalar(-0.525738)),
-	btVector3(btScalar(0.951058) , btScalar(0.309013),btScalar(0.000000)),
-	btVector3(btScalar(0.951058) , btScalar(-0.309013),btScalar(0.000000)),
-	btVector3(btScalar(0.587786) , btScalar(-0.809017),btScalar(0.000000)),
-	btVector3(btScalar(0.000000) , btScalar(-1.000000),btScalar(0.000000)),
-	btVector3(btScalar(-0.587786) , btScalar(-0.809017),btScalar(0.000000)),
-	btVector3(btScalar(-0.951058) , btScalar(-0.309013),btScalar(-0.000000)),
-	btVector3(btScalar(-0.951058) , btScalar(0.309013),btScalar(-0.000000)),
-	btVector3(btScalar(-0.587786) , btScalar(0.809017),btScalar(-0.000000)),
-	btVector3(btScalar(-0.000000) , btScalar(1.000000),btScalar(-0.000000)),
-	btVector3(btScalar(0.587786) , btScalar(0.809017),btScalar(-0.000000)),
-	btVector3(btScalar(0.688190) , btScalar(-0.499997),btScalar(0.525736)),
-	btVector3(btScalar(-0.262869) , btScalar(-0.809012),btScalar(0.525738)),
-	btVector3(btScalar(-0.850648) , btScalar(0.000000),btScalar(0.525736)),
-	btVector3(btScalar(-0.262869) , btScalar(0.809012),btScalar(0.525738)),
-	btVector3(btScalar(0.688190) , btScalar(0.499997),btScalar(0.525736)),
-	btVector3(btScalar(0.525730) , btScalar(0.000000),btScalar(0.850652)),
-	btVector3(btScalar(0.162456) , btScalar(-0.499995),btScalar(0.850654)),
-	btVector3(btScalar(-0.425323) , btScalar(-0.309011),btScalar(0.850654)),
-	btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
-	btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
-};
+	if (!btUnitSpherePoints)
+	{
+		btUnitSpherePoints = new btVector3[NUM_UNITSPHERE_POINTS + MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
+		btUnitSpherePoints[0] = btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000));
+		btUnitSpherePoints[1] = btVector3(btScalar(0.723608) , btScalar(-0.525725),btScalar(-0.447219));
+		btUnitSpherePoints[2] = btVector3(btScalar(-0.276388) , btScalar(-0.850649),btScalar(-0.447219));
+		btUnitSpherePoints[3] = btVector3(btScalar(-0.894426) , btScalar(-0.000000),btScalar(-0.447216));
+		btUnitSpherePoints[4] = btVector3(btScalar(-0.276388) , btScalar(0.850649),btScalar(-0.447220));
+		btUnitSpherePoints[5] = btVector3(btScalar(0.723608) , btScalar(0.525725),btScalar(-0.447219));
+		btUnitSpherePoints[6] = btVector3(btScalar(0.276388) , btScalar(-0.850649),btScalar(0.447220));
+		btUnitSpherePoints[7] = btVector3(btScalar(-0.723608) , btScalar(-0.525725),btScalar(0.447219));
+		btUnitSpherePoints[8] = btVector3(btScalar(-0.723608) , btScalar(0.525725),btScalar(0.447219));
+		btUnitSpherePoints[9] = btVector3(btScalar(0.276388) , btScalar(0.850649),btScalar(0.447219));
+		btUnitSpherePoints[10] = btVector3(btScalar(0.894426) , btScalar(0.000000),btScalar(0.447216));
+		btUnitSpherePoints[11] = btVector3(btScalar(-0.000000) , btScalar(0.000000),btScalar(1.000000));
+		btUnitSpherePoints[12] = btVector3(btScalar(0.425323) , btScalar(-0.309011),btScalar(-0.850654));
+		btUnitSpherePoints[13] = btVector3(btScalar(-0.162456) , btScalar(-0.499995),btScalar(-0.850654));
+		btUnitSpherePoints[14] = btVector3(btScalar(0.262869) , btScalar(-0.809012),btScalar(-0.525738));
+		btUnitSpherePoints[15] = btVector3(btScalar(0.425323) , btScalar(0.309011),btScalar(-0.850654));
+		btUnitSpherePoints[16] = btVector3(btScalar(0.850648) , btScalar(-0.000000),btScalar(-0.525736));
+		btUnitSpherePoints[17] = btVector3(btScalar(-0.525730) , btScalar(-0.000000),btScalar(-0.850652));
+		btUnitSpherePoints[18] = btVector3(btScalar(-0.688190) , btScalar(-0.499997),btScalar(-0.525736));
+		btUnitSpherePoints[19] = btVector3(btScalar(-0.162456) , btScalar(0.499995),btScalar(-0.850654));
+		btUnitSpherePoints[20] = btVector3(btScalar(-0.688190) , btScalar(0.499997),btScalar(-0.525736));
+		btUnitSpherePoints[21] = btVector3(btScalar(0.262869) , btScalar(0.809012),btScalar(-0.525738));
+		btUnitSpherePoints[22] = btVector3(btScalar(0.951058) , btScalar(0.309013),btScalar(0.000000));
+		btUnitSpherePoints[23] = btVector3(btScalar(0.951058) , btScalar(-0.309013),btScalar(0.000000));
+		btUnitSpherePoints[24] = btVector3(btScalar(0.587786) , btScalar(-0.809017),btScalar(0.000000));
+		btUnitSpherePoints[25] = btVector3(btScalar(0.000000) , btScalar(-1.000000),btScalar(0.000000));
+		btUnitSpherePoints[26] = btVector3(btScalar(-0.587786) , btScalar(-0.809017),btScalar(0.000000));
+		btUnitSpherePoints[27] = btVector3(btScalar(-0.951058) , btScalar(-0.309013),btScalar(-0.000000));
+		btUnitSpherePoints[28] = btVector3(btScalar(-0.951058) , btScalar(0.309013),btScalar(-0.000000));
+		btUnitSpherePoints[29] = btVector3(btScalar(-0.587786) , btScalar(0.809017),btScalar(-0.000000));
+		btUnitSpherePoints[30] = btVector3(btScalar(-0.000000) , btScalar(1.000000),btScalar(-0.000000));
+		btUnitSpherePoints[31] = btVector3(btScalar(0.587786) , btScalar(0.809017),btScalar(-0.000000));
+		btUnitSpherePoints[32] = btVector3(btScalar(0.688190) , btScalar(-0.499997),btScalar(0.525736));
+		btUnitSpherePoints[33] = btVector3(btScalar(-0.262869) , btScalar(-0.809012),btScalar(0.525738));
+		btUnitSpherePoints[34] = btVector3(btScalar(-0.850648) , btScalar(0.000000),btScalar(0.525736));
+		btUnitSpherePoints[35] = btVector3(btScalar(-0.262869) , btScalar(0.809012),btScalar(0.525738));
+		btUnitSpherePoints[36] = btVector3(btScalar(0.688190) , btScalar(0.499997),btScalar(0.525736));
+		btUnitSpherePoints[37] = btVector3(btScalar(0.525730) , btScalar(0.000000),btScalar(0.850652));
+		btUnitSpherePoints[38] = btVector3(btScalar(0.162456) , btScalar(-0.499995),btScalar(0.850654));
+		btUnitSpherePoints[39] = btVector3(btScalar(-0.425323) , btScalar(-0.309011),btScalar(0.850654));
+		btUnitSpherePoints[40] = btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654));
+		btUnitSpherePoints[41] = btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654));
+	}
+	return btUnitSpherePoints;
+}
 
 btShapeHull::btShapeHull (const btConvexShape* shape)
 {
@@ -93,7 +102,7 @@ btShapeHull::buildHull (btScalar /*margin*/)
 			{
 				btVector3 norm;
 				m_shape->getPreferredPenetrationDirection(i,norm);
-				btUnitSpherePoints[numSampleDirections] = norm;
+				GetUnitSpherePoints()[numSampleDirections] = norm;
 				numSampleDirections++;
 			}
 		}
@@ -103,7 +112,7 @@ btShapeHull::buildHull (btScalar /*margin*/)
 	int i;
 	for (i = 0; i < numSampleDirections; i++)
 	{
-		supportPoints[i] = m_shape->localGetSupportingVertex(btUnitSpherePoints[i]);
+		supportPoints[i] = m_shape->localGetSupportingVertex(GetUnitSpherePoints()[i]);
 	}
 
 	HullDesc hd;

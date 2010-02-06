@@ -53,9 +53,21 @@ m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
 }
 
 
-static btRigidBody s_fixed(0, 0, 0);
+static btRigidBody *s_fixed = NULL;
+
+// This is not thread safe.
+// Memory leak is ignored, because it goes away on app exit by the OS.
+static btRigidBody& GetFixed()
+{
+	if (!s_fixed)
+	{
+		s_fixed = new btRigidBody(0, 0, 0);
+	}
+	return *s_fixed;
+}
+
 btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
-        : btTypedConstraint(D6_CONSTRAINT_TYPE, s_fixed, rbB),
+        : btTypedConstraint(D6_CONSTRAINT_TYPE, GetFixed(), rbB),
 		m_frameInB(frameInB),
 		m_useLinearReferenceFrameA(useLinearReferenceFrameB),
 		m_useSolveConstraintObsolete(false)

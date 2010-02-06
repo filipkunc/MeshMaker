@@ -13,11 +13,19 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "btTypedConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
-static btRigidBody s_fixed(0, 0,0);
+static btRigidBody *s_fixed = NULL;
+
+// This is not thread safe.
+// Memory leak is ignored, because it goes away on app exit by the OS.
+static btRigidBody& GetFixed()
+{
+	if (!s_fixed)
+		s_fixed = new btRigidBody(0, 0, 0);
+	return *s_fixed;
+}
 
 #define DEFAULT_DEBUGDRAW_SIZE btScalar(0.3f)
 
@@ -26,12 +34,12 @@ btTypedConstraint::btTypedConstraint(btTypedConstraintType type)
 m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_needsFeedback(false),
-m_rbA(s_fixed),
-m_rbB(s_fixed),
+m_rbA(GetFixed()),
+m_rbB(GetFixed()),
 m_appliedImpulse(btScalar(0.)),
 m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 {
-	s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
+	GetFixed().setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 }
 btTypedConstraint::btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA)
 :btTypedObject(type),
@@ -39,11 +47,11 @@ m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_needsFeedback(false),
 m_rbA(rbA),
-m_rbB(s_fixed),
+m_rbB(GetFixed()),
 m_appliedImpulse(btScalar(0.)),
 m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 {
-	s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
+	GetFixed().setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 }
 
 
@@ -57,7 +65,7 @@ m_rbB(rbB),
 m_appliedImpulse(btScalar(0.)),
 m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 {
-	s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
+	GetFixed().setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 
 }
 
