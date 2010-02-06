@@ -38,6 +38,10 @@ extern bool gDisableDeactivation;
 #endif //BT_USE_DOUBLE_PRECISION
 
 
+enum	btRigidBodyFlags
+{
+	BT_DISABLE_WORLD_GRAVITY = 1
+};
 
 
 ///The btRigidBody is the main class for rigid body objects. It is derived from btCollisionObject, so it keeps a pointer to a btCollisionShape.
@@ -82,6 +86,10 @@ class btRigidBody  : public btCollisionObject
 
 	//keep track of typed constraints referencing this rigid body
 	btAlignedObjectArray<btTypedConstraint*> m_constraintRefs;
+
+	int				m_rigidbodyFlags;
+	
+	int				m_debugBodyId;
 
 public:
 
@@ -503,12 +511,20 @@ public:
 		return m_constraintRefs.size();
 	}
 
-	int	m_debugBodyId;
+	void	setFlags(int flags)
+	{
+		m_rigidbodyFlags = flags;
+	}
+
+	int getFlags() const
+	{
+		return m_rigidbodyFlags;
+	}
 
 	virtual	int	calculateSerializeBufferSize()	const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer) const;
+	virtual	const char*	serialize(void* dataBuffer,  class btSerializer* serializer) const;
 
 };
 

@@ -20,60 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 
 #define NUM_UNITSPHERE_POINTS 42
-static btVector3	*sPenetrationDirections = NULL;
 
-// This is not thread safe.
-// Memory leak is ignored, because it goes away on app exit by the OS.
-static btVector3 *GetPenetrationDirections()
-{
-	if (!sPenetrationDirections)
-	{
-		sPenetrationDirections = new btVector3[NUM_UNITSPHERE_POINTS + MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
-		sPenetrationDirections[0] = btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000));
-		sPenetrationDirections[1] = btVector3(btScalar(0.723608) , btScalar(-0.525725),btScalar(-0.447219));
-		sPenetrationDirections[2] = btVector3(btScalar(-0.276388) , btScalar(-0.850649),btScalar(-0.447219));
-		sPenetrationDirections[3] = btVector3(btScalar(-0.894426) , btScalar(-0.000000),btScalar(-0.447216));
-		sPenetrationDirections[4] = btVector3(btScalar(-0.276388) , btScalar(0.850649),btScalar(-0.447220));
-		sPenetrationDirections[5] = btVector3(btScalar(0.723608) , btScalar(0.525725),btScalar(-0.447219));
-		sPenetrationDirections[6] = btVector3(btScalar(0.276388) , btScalar(-0.850649),btScalar(0.447220));
-		sPenetrationDirections[7] = btVector3(btScalar(-0.723608) , btScalar(-0.525725),btScalar(0.447219));
-		sPenetrationDirections[8] = btVector3(btScalar(-0.723608) , btScalar(0.525725),btScalar(0.447219));
-		sPenetrationDirections[9] = btVector3(btScalar(0.276388) , btScalar(0.850649),btScalar(0.447219));
-		sPenetrationDirections[10] = btVector3(btScalar(0.894426) , btScalar(0.000000),btScalar(0.447216));
-		sPenetrationDirections[11] = btVector3(btScalar(-0.000000) , btScalar(0.000000),btScalar(1.000000));
-		sPenetrationDirections[12] = btVector3(btScalar(0.425323) , btScalar(-0.309011),btScalar(-0.850654));
-		sPenetrationDirections[13] = btVector3(btScalar(-0.162456) , btScalar(-0.499995),btScalar(-0.850654));
-		sPenetrationDirections[14] = btVector3(btScalar(0.262869) , btScalar(-0.809012),btScalar(-0.525738));
-		sPenetrationDirections[15] = btVector3(btScalar(0.425323) , btScalar(0.309011),btScalar(-0.850654));
-		sPenetrationDirections[16] = btVector3(btScalar(0.850648) , btScalar(-0.000000),btScalar(-0.525736));
-		sPenetrationDirections[17] = btVector3(btScalar(-0.525730) , btScalar(-0.000000),btScalar(-0.850652));
-		sPenetrationDirections[18] = btVector3(btScalar(-0.688190) , btScalar(-0.499997),btScalar(-0.525736));
-		sPenetrationDirections[19] = btVector3(btScalar(-0.162456) , btScalar(0.499995),btScalar(-0.850654));
-		sPenetrationDirections[20] = btVector3(btScalar(-0.688190) , btScalar(0.499997),btScalar(-0.525736));
-		sPenetrationDirections[21] = btVector3(btScalar(0.262869) , btScalar(0.809012),btScalar(-0.525738));
-		sPenetrationDirections[22] = btVector3(btScalar(0.951058) , btScalar(0.309013),btScalar(0.000000));
-		sPenetrationDirections[23] = btVector3(btScalar(0.951058) , btScalar(-0.309013),btScalar(0.000000));
-		sPenetrationDirections[24] = btVector3(btScalar(0.587786) , btScalar(-0.809017),btScalar(0.000000));
-		sPenetrationDirections[25] = btVector3(btScalar(0.000000) , btScalar(-1.000000),btScalar(0.000000));
-		sPenetrationDirections[26] = btVector3(btScalar(-0.587786) , btScalar(-0.809017),btScalar(0.000000));
-		sPenetrationDirections[27] = btVector3(btScalar(-0.951058) , btScalar(-0.309013),btScalar(-0.000000));
-		sPenetrationDirections[28] = btVector3(btScalar(-0.951058) , btScalar(0.309013),btScalar(-0.000000));
-		sPenetrationDirections[29] = btVector3(btScalar(-0.587786) , btScalar(0.809017),btScalar(-0.000000));
-		sPenetrationDirections[30] = btVector3(btScalar(-0.000000) , btScalar(1.000000),btScalar(-0.000000));
-		sPenetrationDirections[31] = btVector3(btScalar(0.587786) , btScalar(0.809017),btScalar(-0.000000));
-		sPenetrationDirections[32] = btVector3(btScalar(0.688190) , btScalar(-0.499997),btScalar(0.525736));
-		sPenetrationDirections[33] = btVector3(btScalar(-0.262869) , btScalar(-0.809012),btScalar(0.525738));
-		sPenetrationDirections[34] = btVector3(btScalar(-0.850648) , btScalar(0.000000),btScalar(0.525736));
-		sPenetrationDirections[35] = btVector3(btScalar(-0.262869) , btScalar(0.809012),btScalar(0.525738));
-		sPenetrationDirections[36] = btVector3(btScalar(0.688190) , btScalar(0.499997),btScalar(0.525736));
-		sPenetrationDirections[37] = btVector3(btScalar(0.525730) , btScalar(0.000000),btScalar(0.850652));
-		sPenetrationDirections[38] = btVector3(btScalar(0.162456) , btScalar(-0.499995),btScalar(0.850654));
-		sPenetrationDirections[39] = btVector3(btScalar(-0.425323) , btScalar(-0.309011),btScalar(0.850654));
-		sPenetrationDirections[40] = btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654));
-		sPenetrationDirections[41] = btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654));
-	}
-	return sPenetrationDirections;
-}
 
 bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& simplexSolver,
 												   const btConvexShape* convexA,const btConvexShape* convexB,
@@ -141,7 +88,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	for (i=0;i<numSampleDirections;i++)
 	{
-		btVector3 norm = GetPenetrationDirections()[i];
+		btVector3 norm = getPenetrationDirections()[i];
 		seperatingAxisInABatch[i] =  (-norm) * transA.getBasis() ;
 		seperatingAxisInBBatch[i] =  norm   * transB.getBasis() ;
 	}
@@ -155,7 +102,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 				btVector3 norm;
 				convexA->getPreferredPenetrationDirection(i,norm);
 				norm  = transA.getBasis() * norm;
-				GetPenetrationDirections()[numSampleDirections] = norm;
+				getPenetrationDirections()[numSampleDirections] = norm;
 				seperatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
 				seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
 				numSampleDirections++;
@@ -172,7 +119,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 				btVector3 norm;
 				convexB->getPreferredPenetrationDirection(i,norm);
 				norm  = transB.getBasis() * norm;
-				GetPenetrationDirections()[numSampleDirections] = norm;
+				getPenetrationDirections()[numSampleDirections] = norm;
 				seperatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
 				seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
 				numSampleDirections++;
@@ -188,7 +135,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	for (i=0;i<numSampleDirections;i++)
 	{
-		btVector3 norm = GetPenetrationDirections()[i];
+		btVector3 norm = getPenetrationDirections()[i];
 		if (check2d)
 		{
 			norm[2] = 0.f;
@@ -236,7 +183,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 				btVector3 norm;
 				convexA->getPreferredPenetrationDirection(i,norm);
 				norm  = transA.getBasis() * norm;
-				GetPenetrationDirections()[numSampleDirections] = norm;
+				getPenetrationDirections()[numSampleDirections] = norm;
 				numSampleDirections++;
 			}
 		}
@@ -251,7 +198,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 				btVector3 norm;
 				convexB->getPreferredPenetrationDirection(i,norm);
 				norm  = transB.getBasis() * norm;
-				GetPenetrationDirections()[numSampleDirections] = norm;
+				getPenetrationDirections()[numSampleDirections] = norm;
 				numSampleDirections++;
 			}
 		}
@@ -260,7 +207,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	for (int i=0;i<numSampleDirections;i++)
 	{
-		const btVector3& norm = GetPenetrationDirections()[i];
+		const btVector3& norm = getPenetrationDirections()[i];
 		seperatingAxisInA = (-norm)* transA.getBasis();
 		seperatingAxisInB = norm* transB.getBasis();
 		pInA = convexA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
@@ -361,5 +308,55 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	return res.m_hasResult;
 }
 
+btVector3*	btMinkowskiPenetrationDepthSolver::getPenetrationDirections()
+{
+	static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
+	{
+	btVector3(btScalar(0.000000) , btScalar(-0.000000),btScalar(-1.000000)),
+	btVector3(btScalar(0.723608) , btScalar(-0.525725),btScalar(-0.447219)),
+	btVector3(btScalar(-0.276388) , btScalar(-0.850649),btScalar(-0.447219)),
+	btVector3(btScalar(-0.894426) , btScalar(-0.000000),btScalar(-0.447216)),
+	btVector3(btScalar(-0.276388) , btScalar(0.850649),btScalar(-0.447220)),
+	btVector3(btScalar(0.723608) , btScalar(0.525725),btScalar(-0.447219)),
+	btVector3(btScalar(0.276388) , btScalar(-0.850649),btScalar(0.447220)),
+	btVector3(btScalar(-0.723608) , btScalar(-0.525725),btScalar(0.447219)),
+	btVector3(btScalar(-0.723608) , btScalar(0.525725),btScalar(0.447219)),
+	btVector3(btScalar(0.276388) , btScalar(0.850649),btScalar(0.447219)),
+	btVector3(btScalar(0.894426) , btScalar(0.000000),btScalar(0.447216)),
+	btVector3(btScalar(-0.000000) , btScalar(0.000000),btScalar(1.000000)),
+	btVector3(btScalar(0.425323) , btScalar(-0.309011),btScalar(-0.850654)),
+	btVector3(btScalar(-0.162456) , btScalar(-0.499995),btScalar(-0.850654)),
+	btVector3(btScalar(0.262869) , btScalar(-0.809012),btScalar(-0.525738)),
+	btVector3(btScalar(0.425323) , btScalar(0.309011),btScalar(-0.850654)),
+	btVector3(btScalar(0.850648) , btScalar(-0.000000),btScalar(-0.525736)),
+	btVector3(btScalar(-0.525730) , btScalar(-0.000000),btScalar(-0.850652)),
+	btVector3(btScalar(-0.688190) , btScalar(-0.499997),btScalar(-0.525736)),
+	btVector3(btScalar(-0.162456) , btScalar(0.499995),btScalar(-0.850654)),
+	btVector3(btScalar(-0.688190) , btScalar(0.499997),btScalar(-0.525736)),
+	btVector3(btScalar(0.262869) , btScalar(0.809012),btScalar(-0.525738)),
+	btVector3(btScalar(0.951058) , btScalar(0.309013),btScalar(0.000000)),
+	btVector3(btScalar(0.951058) , btScalar(-0.309013),btScalar(0.000000)),
+	btVector3(btScalar(0.587786) , btScalar(-0.809017),btScalar(0.000000)),
+	btVector3(btScalar(0.000000) , btScalar(-1.000000),btScalar(0.000000)),
+	btVector3(btScalar(-0.587786) , btScalar(-0.809017),btScalar(0.000000)),
+	btVector3(btScalar(-0.951058) , btScalar(-0.309013),btScalar(-0.000000)),
+	btVector3(btScalar(-0.951058) , btScalar(0.309013),btScalar(-0.000000)),
+	btVector3(btScalar(-0.587786) , btScalar(0.809017),btScalar(-0.000000)),
+	btVector3(btScalar(-0.000000) , btScalar(1.000000),btScalar(-0.000000)),
+	btVector3(btScalar(0.587786) , btScalar(0.809017),btScalar(-0.000000)),
+	btVector3(btScalar(0.688190) , btScalar(-0.499997),btScalar(0.525736)),
+	btVector3(btScalar(-0.262869) , btScalar(-0.809012),btScalar(0.525738)),
+	btVector3(btScalar(-0.850648) , btScalar(0.000000),btScalar(0.525736)),
+	btVector3(btScalar(-0.262869) , btScalar(0.809012),btScalar(0.525738)),
+	btVector3(btScalar(0.688190) , btScalar(0.499997),btScalar(0.525736)),
+	btVector3(btScalar(0.525730) , btScalar(0.000000),btScalar(0.850652)),
+	btVector3(btScalar(0.162456) , btScalar(-0.499995),btScalar(0.850654)),
+	btVector3(btScalar(-0.425323) , btScalar(-0.309011),btScalar(0.850654)),
+	btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
+	btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
+	};
+
+	return sPenetrationDirections;
+}
 
 

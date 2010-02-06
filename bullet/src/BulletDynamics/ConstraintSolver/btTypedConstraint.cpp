@@ -13,45 +13,24 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 #include "btTypedConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "LinearMath/btSerializer.h"
 
-static btRigidBody *s_fixed = NULL;
-
-// This is not thread safe.
-// Memory leak is ignored, because it goes away on app exit by the OS.
-static btRigidBody& GetFixed()
-{
-	if (!s_fixed)
-		s_fixed = new btRigidBody(0, 0, 0);
-	return *s_fixed;
-}
 
 #define DEFAULT_DEBUGDRAW_SIZE btScalar(0.3f)
 
-btTypedConstraint::btTypedConstraint(btTypedConstraintType type)
-:btTypedObject(type),
-m_userConstraintType(-1),
-m_userConstraintId(-1),
-m_needsFeedback(false),
-m_rbA(GetFixed()),
-m_rbB(GetFixed()),
-m_appliedImpulse(btScalar(0.)),
-m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
-{
-	GetFixed().setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
-}
 btTypedConstraint::btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA)
 :btTypedObject(type),
 m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_needsFeedback(false),
 m_rbA(rbA),
-m_rbB(GetFixed()),
+m_rbB(getFixedBody()),
 m_appliedImpulse(btScalar(0.)),
 m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 {
-	GetFixed().setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 }
 
 
@@ -65,8 +44,6 @@ m_rbB(rbB),
 m_appliedImpulse(btScalar(0.)),
 m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 {
-	GetFixed().setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
-
 }
 
 
@@ -128,10 +105,11 @@ const char*	btTypedConstraint::serialize(void* dataBuffer, btSerializer* seriali
 
 	tcd->m_rbA = (btRigidBodyData*)&m_rbA;
 	tcd->m_rbB = (btRigidBodyData*)&m_rbB;
-
-	m_appliedAngularImpulseA.serializeFloat(tcd->m_appliedAngularImpulseA);
-	m_appliedAngularImpulseB.serializeFloat(tcd->m_appliedAngularImpulseB);
-	m_appliedLinearImpulse.serializeFloat(tcd->m_appliedLinearImpulse);
+	tcd->m_name = (char*) serializer->findNameForPointer(this);
+	if (tcd->m_name)
+	{
+		serializer->serializeName(tcd->m_name);
+	}
 
 	tcd->m_objectType = m_objectType;
 	tcd->m_needsFeedback = m_needsFeedback;

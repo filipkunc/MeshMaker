@@ -33,6 +33,14 @@ class btRigidBody;
 #endif //BT_USE_DOUBLE_PRECISION
 
 
+enum btHingeFlags
+{
+	BT_HINGE_FLAGS_CFM_STOP = 1,
+	BT_HINGE_FLAGS_ERP_STOP = 2,
+	BT_HINGE_FLAGS_CFM_NORM = 4
+};
+
+
 /// hinge constraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
 /// axis defines the orientation of the hinge axis
 ATTRIBUTE_ALIGNED16(class) btHingeConstraint : public btTypedConstraint
@@ -74,6 +82,11 @@ public:
 
 	btScalar	m_accMotorImpulse;
 
+	int			m_flags;
+	btScalar	m_normalCFM;
+	btScalar	m_stopCFM;
+	btScalar	m_stopERP;
+
 	
 public:
 
@@ -85,7 +98,6 @@ public:
 
 	btHingeConstraint(btRigidBody& rbA,const btTransform& rbAFrame, bool useReferenceFrameA = false);
 
-	btHingeConstraint();
 
 	virtual void	buildJacobian();
 
@@ -231,6 +243,13 @@ public:
 	// access for UseFrameOffset
 	bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 	void setUseFrameOffset(bool frameOffsetOnOff) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///If no axis is provided, it uses the default axis for this constraint.
+	virtual	void	setParam(int num, btScalar value, int axis = -1);
+	///return the local value of parameter
+	virtual	btScalar getParam(int num, int axis = -1) const;
 
 	virtual	int	calculateSerializeBufferSize() const;
 

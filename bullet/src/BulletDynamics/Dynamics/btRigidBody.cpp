@@ -86,6 +86,8 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
     setDamping(constructionInfo.m_linearDamping, constructionInfo.m_angularDamping);
 	updateInertiaTensor();
 
+	m_rigidbodyFlags = 0;
+
 }
 
 
@@ -323,11 +325,11 @@ int	btRigidBody::calculateSerializeBufferSize()	const
 }
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-const char*	btRigidBody::serialize(void* dataBuffer) const
+const char*	btRigidBody::serialize(void* dataBuffer, class btSerializer* serializer) const
 {
 	btRigidBodyData* rbd = (btRigidBodyData*) dataBuffer;
 
-	btCollisionObject::serialize(&rbd->m_collisionObjectData);
+	btCollisionObject::serialize(&rbd->m_collisionObjectData, serializer);
 
 	m_invInertiaTensorWorld.serialize(rbd->m_invInertiaTensorWorld);
 	m_linearVelocity.serialize(rbd->m_linearVelocity);

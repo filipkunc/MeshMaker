@@ -19,7 +19,10 @@ subject to the following restrictions:
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 #include "btStackAlloc.h"
 #include "btHashMap.h"
+
+#if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
+#endif
 #include <string.h>
 
 
@@ -30,6 +33,20 @@ extern int sBulletDNAlen;
 extern unsigned char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 
+SIMD_FORCE_INLINE	int btStrLen(const char* str) 
+{
+    if (!str) 
+		return(0);
+	int len = 0;
+    
+	while (*str != 0)
+	{
+        str++;
+        len++;
+    }
+
+    return len;
+}
 
 
 class btChunk
@@ -63,6 +80,12 @@ public:
 	
 	virtual	void	finishSerialization() = 0;
 
+	virtual	const char*	findNameForPointer(const void* ptr) const = 0;
+
+	virtual	void	registerNameForPointer(const void* ptr, const char* name) = 0;
+
+	virtual void	serializeName(const char* ptr) = 0;
+
 };
 
 
@@ -95,6 +118,9 @@ class btDefaultSerializer	:	public btSerializer
 
 	
 	btHashMap<btHashPtr,void*>	m_chunkP;
+	
+	btHashMap<btHashPtr,const char*>	m_nameMap;
+
 
 	int					m_totalSize;
 	unsigned char*		m_buffer;
@@ -445,9 +471,44 @@ public:
 			return chunk;
 		}
 
+		virtual	const char*	findNameForPointer(const void* ptr) const
+		{
+			const char*const * namePtr = m_nameMap.find(ptr);
+			if (namePtr && *namePtr)
+				return *namePtr;
+			return 0;
 
-		
+		}
 
+		virtual	void	registerNameForPointer(const void* ptr, const char* name)
+		{
+			m_nameMap.insert(ptr,name);
+		}
+
+		virtual void	serializeName(const char* name)
+		{
+			if (name)
+			{
+				int len = btStrLen(name);
+				if (len)
+				{
+
+					int newLen = len+1;
+					int padding = ((newLen+3)&~3)-newLen;
+					newLen += padding;
+
+					//serialize name string now
+					btChunk* chunk = allocate(sizeof(char),newLen);
+					char* destinationName = (char*)chunk->m_oldPtr;
+					for (int i=0;i<len;i++)
+					{
+						destinationName[i] = name[i];
+					}
+					destinationName[len] = 0;
+					finalizeChunk(chunk,"char",BT_ARRAY_CODE,(void*)name);
+				}
+			}
+		}
 };
 
 

@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
@@ -22,19 +23,6 @@ subject to the following restrictions:
 #include "LinearMath/btDefaultMotionState.h"
 #include "btKinematicCharacterController.h"
 
-static btVector3 *upAxisDirection = NULL;
-
-static btVector3 *GetUpAxisDirection()
-{
-	if (!upAxisDirection)
-	{
-		upAxisDirection = new btVector3[3];
-		upAxisDirection[0] = btVector3(1.0f, 0.0f, 0.0f);
-		upAxisDirection[1] = btVector3(0.0f, 1.0f, 0.0f);
-		upAxisDirection[2] = btVector3(0.0f, 0.0f, 1.0f);
-	}
-	return upAxisDirection;
-}
 
 // static helper method
 static btVector3
@@ -199,13 +187,13 @@ void btKinematicCharacterController::stepUp ( btCollisionWorld* world)
 {
 	// phase 1: up
 	btTransform start, end;
-	m_targetPosition = m_currentPosition + GetUpAxisDirection()[m_upAxis] * m_stepHeight;
+	m_targetPosition = m_currentPosition + getUpAxisDirections()[m_upAxis] * m_stepHeight;
 
 	start.setIdentity ();
 	end.setIdentity ();
 
 	/* FIXME: Handle penetration properly */
-	start.setOrigin (m_currentPosition + GetUpAxisDirection()[m_upAxis] * btScalar(0.1f));
+	start.setOrigin (m_currentPosition + getUpAxisDirections()[m_upAxis] * btScalar(0.1f));
 	end.setOrigin (m_targetPosition);
 
 	btKinematicClosestNotMeConvexResultCallback callback (m_ghostObject);
@@ -365,8 +353,8 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 	btTransform start, end;
 
 	// phase 3: down
-	btVector3 step_drop = GetUpAxisDirection()[m_upAxis] * m_currentStepOffset;
-	btVector3 gravity_drop = GetUpAxisDirection()[m_upAxis] * m_stepHeight; 
+	btVector3 step_drop = getUpAxisDirections()[m_upAxis] * m_currentStepOffset;
+	btVector3 gravity_drop = getUpAxisDirections()[m_upAxis] * m_stepHeight; 
 	m_targetPosition -= (step_drop + gravity_drop);
 
 	start.setIdentity ();
@@ -554,4 +542,12 @@ bool btKinematicCharacterController::onGround () const
 
 void	btKinematicCharacterController::debugDraw(btIDebugDraw* debugDrawer)
 {
+}
+
+
+btVector3* btKinematicCharacterController::getUpAxisDirections()
+{
+	static btVector3 sUpAxisDirection[3] = { btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 1.0f, 0.0f), btVector3(0.0f, 0.0f, 1.0f) };
+	
+	return sUpAxisDirection;
 }
