@@ -13,6 +13,11 @@
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
+		A7009ECA111F17B300E23768 /* GL_ShapeDrawer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7009EC8111F17B300E23768 /* GL_ShapeDrawer.cpp */; };
+		A7009ED8111F183500E23768 /* GLDebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7009ED6111F183500E23768 /* GLDebugFont.cpp */; };
+		A7009EDE111F185600E23768 /* GlutStuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7009EDC111F185600E23768 /* GlutStuff.cpp */; };
+		A7009EE5111F18B900E23768 /* DemoApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7009EE1111F18B900E23768 /* DemoApplication.cpp */; };
+		A7009EE6111F18B900E23768 /* GlutDemoApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7009EE3111F18B900E23768 /* GlutDemoApplication.cpp */; };
 		A7089381109230A1005C254E /* MeshHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7089380109230A1005C254E /* MeshHelpers.cpp */; };
 		A72652E21115A3F4005F0682 /* btAlignedAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A72652C71115A3F4005F0682 /* btAlignedAllocator.cpp */; };
 		A72652E31115A3F4005F0682 /* btConvexHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A72652CA1115A3F4005F0682 /* btConvexHull.cpp */; };
@@ -193,6 +198,16 @@
 		32DBCF750370BD2300C91783 /* OpenGLEditor_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLEditor_Prefix.pch; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* OpenGLEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenGLEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7009EC8111F17B300E23768 /* GL_ShapeDrawer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GL_ShapeDrawer.cpp; path = bullet/Demos/OpenGL/GL_ShapeDrawer.cpp; sourceTree = "<group>"; };
+		A7009EC9111F17B300E23768 /* GL_ShapeDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GL_ShapeDrawer.h; path = bullet/Demos/OpenGL/GL_ShapeDrawer.h; sourceTree = "<group>"; };
+		A7009ED6111F183500E23768 /* GLDebugFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GLDebugFont.cpp; path = bullet/Demos/OpenGL/GLDebugFont.cpp; sourceTree = "<group>"; };
+		A7009ED7111F183500E23768 /* GLDebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLDebugFont.h; path = bullet/Demos/OpenGL/GLDebugFont.h; sourceTree = "<group>"; };
+		A7009EDC111F185600E23768 /* GlutStuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlutStuff.cpp; path = bullet/Demos/OpenGL/GlutStuff.cpp; sourceTree = "<group>"; };
+		A7009EDD111F185600E23768 /* GlutStuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlutStuff.h; path = bullet/Demos/OpenGL/GlutStuff.h; sourceTree = "<group>"; };
+		A7009EE1111F18B900E23768 /* DemoApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DemoApplication.cpp; path = bullet/Demos/OpenGL/DemoApplication.cpp; sourceTree = "<group>"; };
+		A7009EE2111F18B900E23768 /* DemoApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DemoApplication.h; path = bullet/Demos/OpenGL/DemoApplication.h; sourceTree = "<group>"; };
+		A7009EE3111F18B900E23768 /* GlutDemoApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlutDemoApplication.cpp; path = bullet/Demos/OpenGL/GlutDemoApplication.cpp; sourceTree = "<group>"; };
+		A7009EE4111F18B900E23768 /* GlutDemoApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlutDemoApplication.h; path = bullet/Demos/OpenGL/GlutDemoApplication.h; sourceTree = "<group>"; };
 		A708937F109230A1005C254E /* MeshHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshHelpers.h; sourceTree = "<group>"; };
 		A7089380109230A1005C254E /* MeshHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshHelpers.cpp; sourceTree = "<group>"; };
 		A711A9A810986B6D00F02394 /* OpenGLManipulatingModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLManipulatingModel.h; sourceTree = "<group>"; };
@@ -670,9 +685,27 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		A7009EC7111F178D00E23768 /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				A7009EE1111F18B900E23768 /* DemoApplication.cpp */,
+				A7009EE2111F18B900E23768 /* DemoApplication.h */,
+				A7009EE3111F18B900E23768 /* GlutDemoApplication.cpp */,
+				A7009EE4111F18B900E23768 /* GlutDemoApplication.h */,
+				A7009EDC111F185600E23768 /* GlutStuff.cpp */,
+				A7009EDD111F185600E23768 /* GlutStuff.h */,
+				A7009ED6111F183500E23768 /* GLDebugFont.cpp */,
+				A7009ED7111F183500E23768 /* GLDebugFont.h */,
+				A7009EC8111F17B300E23768 /* GL_ShapeDrawer.cpp */,
+				A7009EC9111F17B300E23768 /* GL_ShapeDrawer.h */,
+			);
+			name = OpenGL;
+			sourceTree = "<group>";
+		};
 		A72652A21115A3BB005F0682 /* Bullet */ = {
 			isa = PBXGroup;
 			children = (
+				A7009EC7111F178D00E23768 /* OpenGL */,
 				A72654771115BC3F005F0682 /* BulletDynamics */,
 				A72653461115BA3A005F0682 /* BulletCollision */,
 				A72653401115B5A4005F0682 /* BulletWorldImporter */,
@@ -1381,6 +1414,11 @@
 				A72654BA1115BC7C005F0682 /* btRaycastVehicle.cpp in Sources */,
 				A72654BB1115BC7C005F0682 /* btWheelInfo.cpp in Sources */,
 				A7DAC286111622CA005381CC /* ExperimentalBulletWrapper.mm in Sources */,
+				A7009ECA111F17B300E23768 /* GL_ShapeDrawer.cpp in Sources */,
+				A7009ED8111F183500E23768 /* GLDebugFont.cpp in Sources */,
+				A7009EDE111F185600E23768 /* GlutStuff.cpp in Sources */,
+				A7009EE5111F18B900E23768 /* DemoApplication.cpp in Sources */,
+				A7009EE6111F18B900E23768 /* GlutDemoApplication.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

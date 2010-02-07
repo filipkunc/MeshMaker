@@ -15,9 +15,70 @@ const float perspectiveAngle = 45.0f;
 const float minDistance = 0.2f;
 const float maxDistance = 1000.0f;
 
+NSOpenGLPixelFormat *globalPixelFormat = nil;
+NSOpenGLContext *globalGLContext = nil;
+ShaderProgram *globalNormalShader = nil;
+ShaderProgram *globalFlippedShader = nil;
+
 @implementation OpenGLSceneView
 
 @synthesize manipulated, displayed, delegate;
+
++ (NSOpenGLPixelFormat *)sharedPixelFormat
+{
+	if (!globalPixelFormat)
+	{
+		NSOpenGLPixelFormatAttribute attribs[] = 
+		{
+			NSOpenGLPFAAccelerated,
+			NSOpenGLPFADoubleBuffer,
+			NSOpenGLPFAColorSize,1,
+			NSOpenGLPFADepthSize,1,
+			0};
+		
+		/* Choose a pixel format */
+		globalPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
+	}
+	return globalPixelFormat;
+}
+
++ (NSOpenGLContext *)sharedContext
+{
+	if (!globalGLContext)
+	{
+		globalGLContext = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
+												   shareContext:nil];
+	}
+	return globalGLContext;
+}
+
++ (ShaderProgram *)normalShader
+{
+	if (!globalNormalShader)
+	{
+		globalNormalShader = [[ShaderProgram alloc] init];
+		[globalNormalShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLighting"];
+	}
+	return globalNormalShader;
+}
+
++ (ShaderProgram *)flippedShader
+{
+	if (!globalFlippedShader)
+	{
+		globalFlippedShader = [[ShaderProgram alloc] init];
+		[globalFlippedShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLightingFlipped"];
+	}
+	return globalFlippedShader;
+}
+
++ (void)deinitialize
+{
+	[globalGLContext release];
+	[globalPixelFormat release];
+	[globalNormalShader release];
+	[globalFlippedShader release];
+}
 
 - (void)awakeFromNib
 {
@@ -40,8 +101,12 @@ const float maxDistance = 1000.0f;
 		delegate = nil;
 		
 		// The GL context must be active for these functions to have an effect
-		NSOpenGLContext *glcontext = [self openGLContext];
-		[glcontext makeCurrentContext];
+		[self clearGLContext];
+		NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
+															  shareContext:[OpenGLSceneView sharedContext]];
+		[self setOpenGLContext:context];
+		[context release];
+		[[self openGLContext] makeCurrentContext];
 		
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_LIGHTING);
@@ -70,15 +135,10 @@ const float maxDistance = 1000.0f;
 		
 		cameraMode = CameraModePerspective;
 		viewMode = ViewModeSolid;
-		normalShader = [[ShaderProgram alloc] init];
-		[normalShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLighting"];
 		
-		flippedShader = [[ShaderProgram alloc] init];
-		[flippedShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLightingFlipped"];
-
 		glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
-		[normalShader linkProgram];
-		[flippedShader linkProgram];
+		[[OpenGLSceneView normalShader] linkProgram];
+		[[OpenGLSceneView flippedShader] linkProgram];
 	}
 	return self;
 }
@@ -92,8 +152,6 @@ const float maxDistance = 1000.0f;
 	[translationManipulator release];
 	[rotationManipulator release];
 	[scaleManipulator release];
-	[normalShader release];
-	[flippedShader release];
 	[super dealloc];
 }
 
@@ -271,8 +329,8 @@ const float maxDistance = 1000.0f;
 
 - (void)drawManipulatedAndDisplayed
 {
-	[Mesh setNormalShader:normalShader];
-	[Mesh setFlippedShader:flippedShader];
+	[Mesh setNormalShader:[OpenGLSceneView normalShader]];
+	[Mesh setFlippedShader:[OpenGLSceneView flippedShader]];
 	
 	if (displayed != manipulated)
 		[displayed drawWithMode:viewMode];

@@ -47,9 +47,6 @@
 	Manipulator *currentManipulator;
 	enum CameraMode cameraMode;
 	enum ViewMode viewMode;
-	
-	ShaderProgram *normalShader;
-	ShaderProgram *flippedShader;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> displayed;
