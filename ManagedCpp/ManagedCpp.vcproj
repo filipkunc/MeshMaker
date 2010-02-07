@@ -115,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../bullet;../bullet/src;../bullet/Extras/Serialize/BulletFileLoader"
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
