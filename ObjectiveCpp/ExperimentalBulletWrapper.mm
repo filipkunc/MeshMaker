@@ -25,11 +25,15 @@
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 		dynamicsWorld->setGravity(btVector3(0, -10, 0));	
 		worldImporter = new btBulletWorldImporter(dynamicsWorld);
-		debugDrawer = new ExperimentalDebugDrawImplementation();
+		shapeDrawer = new GL_ShapeDrawer();
+		selection = new vector<BOOL>();
 		
 		if (worldImporter->loadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
 		{
-			dynamicsWorld->setDebugDrawer(debugDrawer);
+			for (int i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
+			{
+				selection->push_back(NO);
+			}
 			return self;
 		}
 		// loading failed
@@ -47,34 +51,99 @@
 	delete solver;
 	delete dynamicsWorld;
 	delete worldImporter;
-	delete debugDrawer;
-	
+	delete selection;
 	[super dealloc];	
-}
-
-- (void)debugDraw
-{
-	dynamicsWorld->debugDrawWorld();
 }
 
 #pragma mark OpenGLManipulatingModel implementation
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
-	if (!forSelection)
+	btScalar m[16];
+	btMatrix3x3	rot;
+	rot.setIdentity();
+	
+	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+	btRigidBody *body = btRigidBody::upcast(colObj);
+	
+	if (body && body->getMotionState())
 	{
-		[self debugDraw];
+		btDefaultMotionState *myMotionState = (btDefaultMotionState *)body->getMotionState();
+		myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
+		rot = myMotionState->m_graphicsWorldTrans.getBasis();
+	}
+	else
+	{
+		colObj->getWorldTransform().getOpenGLMatrix(m);
+		rot = colObj->getWorldTransform().getBasis();
+	}
+	btVector3 wireColor(1.0f, 1.0f, 0.5f); //wants deactivation
+	if (index & 1) 
+		wireColor = btVector3(0.0f, 0.0f, 1.0f);
+	///color differently for active, sleeping, wantsdeactivation states
+	if (colObj->getActivationState() == 1) //active
+	{
+		if (index & 1)
+			wireColor += btVector3(1.0f, 0.0f, 0.0f);
+		else
+			wireColor += btVector3(0.5f, 0.0f, 0.0f);
+	}
+	if (colObj->getActivationState() == 2) //ISLAND_SLEEPING
+	{
+		if (index & 1)
+			wireColor += btVector3(0.0f, 1.0f, 0.0f);
+		else
+			wireColor += btVector3(0.0f, 0.5f, 0.0f);
+	}
+	
+	btVector3 aabbMin,aabbMax;
+	dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin, aabbMax);
+	
+	aabbMin -= btVector3(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
+	aabbMax += btVector3(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
+	
+	shapeDrawer->enableTexture(true);
+	
+	if (!forSelection && [self isSelectedAtIndex:index])
+	{
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1.0f, 1.0f);
+		shapeDrawer->drawOpenGL(m, colObj->getCollisionShape(), wireColor, 0, aabbMin, aabbMax);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		wireColor = btVector3(0.5f, 0.5f, 0.5f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		shapeDrawer->drawOpenGL(m, colObj->getCollisionShape(), wireColor, 0, aabbMin, aabbMax);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	else
+	{
+		shapeDrawer->drawOpenGL(m, colObj->getCollisionShape(), wireColor, 0, aabbMin, aabbMax);
 	}
 }
 
 - (uint)count
 { 
-	return 1U; 
+	return (uint)dynamicsWorld->getNumCollisionObjects();
 }
 
-- (void)removeSelected { }
-- (void)cloneSelected { }
-- (void)setSelected:(BOOL)selected atIndex:(uint)index { }
-- (BOOL)isSelectedAtIndex:(uint)index { return NO; }
+- (void)removeSelected 
+{
+	NSLog(@"removeSelected is not supported");
+}
+
+- (void)cloneSelected
+{
+	NSLog(@"cloneSelected is not supported");
+}
+
+- (void)setSelected:(BOOL)selected atIndex:(uint)index 
+{
+	selection->at(index) = selected;
+}
+
+- (BOOL)isSelectedAtIndex:(uint)index
+{ 
+	return selection->at(index);
+}
 
 @end
