@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib glut32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -1623,6 +1623,50 @@
 				</File>
 				<File
 					RelativePath="..\bullet\src\LinearMath\btVector3.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="OpenGL"
+				>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\DemoApplication.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\DemoApplication.h"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GL_ShapeDrawer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GL_ShapeDrawer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GLDebugFont.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GLDebugFont.h"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GlutDemoApplication.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GlutDemoApplication.h"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GlutStuff.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\bullet\Demos\OpenGL\GlutStuff.h"
 					>
 				</File>
 			</Filter>
