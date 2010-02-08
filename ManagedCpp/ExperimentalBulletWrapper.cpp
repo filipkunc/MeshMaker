@@ -20,12 +20,6 @@ namespace ManagedCpp
 		wrapper->LoadFile(nativeFileName.c_str());
 	}
 
-	void ExperimentalBulletWrapper::DebugDraw()
-	{
-		glDisable(GL_LIGHTING);
-		wrapper->dynamicsWorld->debugDrawWorld();
-	}
-
 	void ExperimentalBulletWrapper::StepSimulation(btScalar timeStep)
 	{
 		wrapper->dynamicsWorld->stepSimulation(timeStep);
@@ -35,25 +29,22 @@ namespace ManagedCpp
 
 	void ExperimentalBulletWrapper::Draw(uint index, CocoaBool forSelection, ViewMode mode)
 	{
-		if (!forSelection)
-		{
-			this->DebugDraw();
-		}
+		wrapper->Draw(index, !forSelection && this->IsSelected(index));
 	}
 
 	uint ExperimentalBulletWrapper::Count::get()
 	{
-		return 1U;
+		return (uint)wrapper->dynamicsWorld->getNumCollisionObjects();
 	}
 
 	CocoaBool ExperimentalBulletWrapper::IsSelected(uint index)
 	{
-		return NO;
+		return wrapper->selection->at(index);
 	}
 
 	void ExperimentalBulletWrapper::SetSelected(CocoaBool selected, uint index)
 	{
-
+		wrapper->selection->at(index) = selected;
 	}
 
 	void ExperimentalBulletWrapper::CloneSelected() { }
