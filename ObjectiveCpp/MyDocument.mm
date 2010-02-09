@@ -37,21 +37,21 @@
 		views = [[NSMutableArray alloc] init];
 		oneView = NO;
 		bulletWrapper = nil;
-		simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 / 60.0
-														   target:self
-														 selector:@selector(timerProc)
-														 userInfo:nil
-														  repeats:YES];
-
+		[NSTimer scheduledTimerWithTimeInterval:1.0 / 60.0
+										 target:self
+									   selector:@selector(timerProc:)
+									   userInfo:nil
+										repeats:YES];
+		simulationRunning = NO;
     }
     return self;
 }
 						   
-- (void)timerProc
+- (void)timerProc:(NSTimer *)theTimer
 {
-	if (bulletWrapper)
+	if (bulletWrapper && simulationRunning)
 	{
-		[bulletWrapper dynamicsWorld]->stepSimulation([simulationTimer timeInterval]);
+		[bulletWrapper dynamicsWorld]->stepSimulation([theTimer timeInterval]);
 		for (OpenGLSceneView *view in views)
 			[view setNeedsDisplay:YES];
 	}
@@ -59,7 +59,6 @@
 
 - (void)dealloc
 {
-	[simulationTimer release];
 	[itemsController removeTransformationObserver:self];
 	[meshController removeTransformationObserver:self];
 	[meshController release];
@@ -999,6 +998,16 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	}
 	
 	NSLog(@"No view is under mouse");
+}
+		 
+- (IBAction)play:(id)sender
+{
+	simulationRunning = YES;
+}
+		 
+- (IBAction)pause:(id)sender
+{
+	simulationRunning = NO;
 }
 
 @end
