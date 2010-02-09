@@ -32,7 +32,8 @@ namespace OpenGLEditorWindows
         List<OpenGLSceneView> views;
 
         string lastFileName = null;
-        string fileDialogFilter = "Native format (*.model3D)|*.model3D" +
+        string fileDialogFilter = "Bullet & Model3D|*.bullet;*.model3D" +
+                                  "|Native format (*.model3D)|*.model3D" +
                                   "|Bullet (*.bullet)|*.bullet";
 
         OpenGLSceneView openGLSceneViewLeft = null;
@@ -57,7 +58,7 @@ namespace OpenGLEditorWindows
 
         ExperimentalBulletWrapper bulletWrapper = null;
         Timer simulationTimer = null;
-        
+
         public DocumentForm()
         {
             InitializeComponent();
@@ -90,9 +91,9 @@ namespace OpenGLEditorWindows
 
             logWriter = new StringWriter();
             Trace.Listeners.Add(new TextWriterTraceListener(logWriter));
-            
+
             logTextBox.Text = logWriter.ToString();
-            
+
             topSplit.SplitterMoving += new SplitterCancelEventHandler(topSplit_SplitterMoving);
             bottomSplit.SplitterMoving += new SplitterCancelEventHandler(bottomSplit_SplitterMoving);
 
@@ -152,8 +153,8 @@ namespace OpenGLEditorWindows
 
             simulationTimer = new Timer();
             simulationTimer.Interval = 1000 / 60;
+            simulationTimer.Enabled = false;
             simulationTimer.Tick += new EventHandler(simulationTimer_Tick);
-            simulationTimer.Start();
         }
 
         void simulationTimer_Tick(object sender, EventArgs e)
@@ -1012,5 +1013,15 @@ namespace OpenGLEditorWindows
         }
       
         #endregion
+
+        private void btnPlay_Click(object sender, EventArgs e)
+        {
+            simulationTimer.Enabled = true;
+        }
+
+        private void btnPause_Click(object sender, EventArgs e)
+        {
+            simulationTimer.Enabled = false;
+        }
     }
 }
