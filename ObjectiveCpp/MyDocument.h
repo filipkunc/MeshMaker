@@ -46,7 +46,7 @@
 	IBOutlet NSTableView *propertyView;
 	
 	ExperimentalBulletWrapper *bulletWrapper;
-	NSTimer *simulationTimer;
+	BOOL simulationRunning;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -88,5 +88,7 @@
 - (BOOL)readFromModel3D:(NSString *)fileName;
 - (void)writeToModel3D:(NSString *)fileName;
 - (void)toggleOneViewFourView:(id)sender;
+- (IBAction)play:(id)sender;
+- (IBAction)pause:(id)sender;
 
 @end
