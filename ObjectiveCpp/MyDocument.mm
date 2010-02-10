@@ -23,12 +23,14 @@
 		items = [[ItemCollection alloc] init];
 		itemsController = [[OpenGLManipulatingController alloc] init];
 		meshController = [[OpenGLManipulatingController alloc] init];
+		bulletController = [[OpenGLManipulatingController alloc] init];
 		
 		[itemsController setModel:items];
 		manipulated = itemsController;
 
 		[itemsController addTransformationObserver:self];
 		[meshController addTransformationObserver:self];
+		[bulletController addTransformationObserver:self];
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
@@ -61,8 +63,10 @@
 {
 	[itemsController removeTransformationObserver:self];
 	[meshController removeTransformationObserver:self];
+	[bulletController removeTransformationObserver:self];
 	[meshController release];
 	[itemsController release];
+	[bulletController release];
 	[items release];
 	[oldManipulations release];
 	[oldMeshManipulation release];
@@ -121,7 +125,7 @@
 	{
 		[editModePopUp selectItemWithTag:EditModeItems];
 	}
-	else
+	else if (manipulated == meshController)
 	{
 		int meshTag = [[self currentMesh] selectionMode] + 1;
 		[editModePopUp selectItemWithTag:meshTag];
@@ -539,7 +543,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	{
 		[self mergeSelectedItems];
 	}
-	else
+	else if (manipulated == meshController)
 	{
 		beginFullMeshActionWithName(@"Merge")
 		[[self currentMesh] mergeSelected];
@@ -613,7 +617,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 		[document undoCloneSelected:selection];
 		[manipulated cloneSelected];
 	}
-	else 
+	else if (manipulated == meshController)
 	{
 		beginFullMeshActionWithName(@"Clone")
 		[manipulated cloneSelected];
@@ -681,7 +685,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 		[document undoDeleteSelected:currentItems];
 		[manipulated removeSelected];
 	}
-	else 
+	else if (manipulated == meshController)
 	{
 		beginFullMeshActionWithName(@"Delete")
 		[manipulated removeSelected];
@@ -800,10 +804,9 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	{
 		// this is highly experimental, because bulletWrapper doesn't implement all necessary
 		// functions, so when doing some operations, it can crash whole editor
-		[itemsController setModel:bulletWrapper];
-		[items release];
-		[itemsController updateSelection];
-		[self setManipulated:itemsController];
+		[bulletController setModel:bulletWrapper];
+		[bulletController updateSelection];
+		[self setManipulated:bulletController];
 		return YES;
 	}
 	return NO;

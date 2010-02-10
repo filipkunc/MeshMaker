@@ -146,4 +146,61 @@
 	return selection->at(index);
 }
 
+#pragma mark OpenGLManipulatingModelItem implementation
+
+- (Vector3D)positionAtIndex:(uint)index
+{
+	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+	btVector3 position = colObj->getWorldTransform().getOrigin();
+	return Vector3D(position);
+}
+
+- (Quaternion)rotationAtIndex:(uint)index
+{
+	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+	btQuaternion rotation = colObj->getWorldTransform().getRotation();
+	return Quaternion(rotation);
+}
+
+- (Vector3D)scaleAtIndex:(uint)index
+{
+	return Vector3D(1, 1, 1); // ignored
+}
+
+- (void)setPosition:(Vector3D)position atIndex:(uint)index
+{
+	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+	colObj->getWorldTransform().setOrigin(btVector3(position.x, position.y, position.z));
+}
+
+- (void)setRotation:(Quaternion)rotation atIndex:(uint)index
+{
+	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+	colObj->getWorldTransform().setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+}
+
+- (void)setScale:(Vector3D)scale atIndex:(uint)index
+{
+	// ignored
+}
+
+- (void)moveByOffset:(Vector3D)offset atIndex:(uint)index
+{
+	Vector3D position = [self positionAtIndex:index];
+	position += offset;
+	[self setPosition:position atIndex:index];
+}
+
+- (void)rotateByOffset:(Quaternion)offset atIndex:(uint)index
+{
+	Quaternion rotation = [self rotationAtIndex:index];
+	rotation = offset * rotation;
+	[self setRotation:rotation atIndex:index];
+}
+
+- (void)scaleByOffset:(Vector3D)offset atIndex:(uint)index
+{
+	// ignored
+}
+
 @end

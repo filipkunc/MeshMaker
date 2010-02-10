@@ -25,7 +25,7 @@ using namespace std;
 #import "GL_ShapeDrawer.h"
 using namespace bParse;
 
-@interface ExperimentalBulletWrapper : NSObject <OpenGLManipulatingModel>
+@interface ExperimentalBulletWrapper : NSObject <OpenGLManipulatingModelItem>
 {
 	btDefaultCollisionConfiguration *collisionConfiguration;
 	btCollisionDispatcher *dispatcher;
