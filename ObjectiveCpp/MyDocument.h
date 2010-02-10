@@ -47,6 +47,7 @@
 	
 	ExperimentalBulletWrapper *bulletWrapper;
 	BOOL simulationRunning;
+	OpenGLManipulatingController *bulletController;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
