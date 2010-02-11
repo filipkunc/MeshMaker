@@ -403,13 +403,15 @@ ShaderProgram *globalFlippedShader = nil;
 	float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_TEXTURE_2D);
 	
 	[self setupViewportAndCamera];
-	
+
 	[self drawGridWithSize:10 step:2];
 	
 	[self drawManipulatedAndDisplayed];
 	
+	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	

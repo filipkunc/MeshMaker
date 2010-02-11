@@ -25,6 +25,37 @@ using namespace std;
 #import "GL_ShapeDrawer.h"
 using namespace bParse;
 
+class Transform
+{
+public:
+	Vector3D position;
+	Quaternion rotation;
+	
+	Transform(const btVector3& position, const btQuaternion& rotation)
+	{
+		this->position = Vector3D(position.x(), position.y(), position.z());
+		this->rotation = Quaternion(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+	}
+	
+	Matrix4x4 ToMatrix()
+	{
+		Matrix4x4 t, r;
+		t.Translate(position);
+		rotation.ToMatrix(r);
+		return t * r;
+	}
+	
+	btVector3 ToBulletVector3()
+	{
+		return btVector3(position.x, position.y, position.z);
+	}
+	
+	btQuaternion ToBulletQuaternion()
+	{
+		return btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+	}
+};
+
 @interface ExperimentalBulletWrapper : NSObject <OpenGLManipulatingModelItem>
 {
 	btDefaultCollisionConfiguration *collisionConfiguration;
@@ -35,6 +66,7 @@ using namespace bParse;
 	btBulletWorldImporter *worldImporter;
 	GL_ShapeDrawer *shapeDrawer;
 	vector<BOOL> *selection;
+	vector<Transform> *transforms;
 }
 
 @property (readonly, assign) btDynamicsWorld *dynamicsWorld;

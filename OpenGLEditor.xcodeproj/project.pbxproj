@@ -150,7 +150,6 @@
 		A7C6FE751090D4BD008A55E1 /* TmdModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */; };
 		A7C6FE761090D4BD008A55E1 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE651090D4BD008A55E1 /* Camera.cpp */; };
 		A7C6FE771090D4BD008A55E1 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE691090D4BD008A55E1 /* Matrix4x4.cpp */; };
-		A7C6FE781090D4BD008A55E1 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE6B1090D4BD008A55E1 /* Plane.cpp */; };
 		A7C6FE791090D4BD008A55E1 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE6D1090D4BD008A55E1 /* Quaternion.cpp */; };
 		A7C6FE7A1090D4BD008A55E1 /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE6F1090D4BD008A55E1 /* Vector2D.cpp */; };
 		A7C6FE7B1090D4BD008A55E1 /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE711090D4BD008A55E1 /* Vector3D.cpp */; };
@@ -530,8 +529,6 @@
 		A7C6FE681090D4BD008A55E1 /* MathForwardDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathForwardDeclaration.h; sourceTree = "<group>"; };
 		A7C6FE691090D4BD008A55E1 /* Matrix4x4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Matrix4x4.cpp; sourceTree = "<group>"; };
 		A7C6FE6A1090D4BD008A55E1 /* Matrix4x4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4x4.h; sourceTree = "<group>"; };
-		A7C6FE6B1090D4BD008A55E1 /* Plane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Plane.cpp; sourceTree = "<group>"; };
-		A7C6FE6C1090D4BD008A55E1 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		A7C6FE6D1090D4BD008A55E1 /* Quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Quaternion.cpp; sourceTree = "<group>"; };
 		A7C6FE6E1090D4BD008A55E1 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
 		A7C6FE6F1090D4BD008A55E1 /* Vector2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vector2D.cpp; sourceTree = "<group>"; };
@@ -1095,8 +1092,6 @@
 				A7C6FE681090D4BD008A55E1 /* MathForwardDeclaration.h */,
 				A7C6FE691090D4BD008A55E1 /* Matrix4x4.cpp */,
 				A7C6FE6A1090D4BD008A55E1 /* Matrix4x4.h */,
-				A7C6FE6B1090D4BD008A55E1 /* Plane.cpp */,
-				A7C6FE6C1090D4BD008A55E1 /* Plane.h */,
 				A7C6FE6D1090D4BD008A55E1 /* Quaternion.cpp */,
 				A7C6FE6E1090D4BD008A55E1 /* Quaternion.h */,
 				A7C6FE6F1090D4BD008A55E1 /* Vector2D.cpp */,
@@ -1270,7 +1265,6 @@
 				A7C6FE751090D4BD008A55E1 /* TmdModel.cpp in Sources */,
 				A7C6FE761090D4BD008A55E1 /* Camera.cpp in Sources */,
 				A7C6FE771090D4BD008A55E1 /* Matrix4x4.cpp in Sources */,
-				A7C6FE781090D4BD008A55E1 /* Plane.cpp in Sources */,
 				A7C6FE791090D4BD008A55E1 /* Quaternion.cpp in Sources */,
 				A7C6FE7A1090D4BD008A55E1 /* Vector2D.cpp in Sources */,
 				A7C6FE7B1090D4BD008A55E1 /* Vector3D.cpp in Sources */,

@@ -27,12 +27,17 @@
 		worldImporter = new btBulletWorldImporter(dynamicsWorld);
 		shapeDrawer = new GL_ShapeDrawer();
 		selection = new vector<BOOL>();
+		transforms = new vector<Transform>();
 		
 		if (worldImporter->loadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
 		{
 			for (int i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
 			{
 				selection->push_back(NO);
+				btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[i];
+				btVector3 pos = colObj->getWorldTransform().getOrigin();
+				btQuaternion quat = colObj->getWorldTransform().getRotation();
+				transforms->push_back(Transform(pos, quat));
 			}
 			return self;
 		}
@@ -52,6 +57,7 @@
 	delete dynamicsWorld;
 	delete worldImporter;
 	delete selection;
+	delete transforms;
 	[super dealloc];	
 }
 
@@ -60,8 +66,6 @@
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
 	btScalar m[16];
-	btMatrix3x3	rot;
-	rot.setIdentity();
 	
 	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
 	btRigidBody *body = btRigidBody::upcast(colObj);
@@ -70,12 +74,10 @@
 	{
 		btDefaultMotionState *myMotionState = (btDefaultMotionState *)body->getMotionState();
 		myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-		rot = myMotionState->m_graphicsWorldTrans.getBasis();
 	}
 	else
 	{
 		colObj->getWorldTransform().getOpenGLMatrix(m);
-		rot = colObj->getWorldTransform().getBasis();
 	}
 	btVector3 wireColor(1.0f, 1.0f, 0.5f); //wants deactivation
 	if (index & 1) 
@@ -150,16 +152,12 @@
 
 - (Vector3D)positionAtIndex:(uint)index
 {
-	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
-	btVector3 position = colObj->getWorldTransform().getOrigin();
-	return Vector3D(position);
+	return transforms->at(index).position;
 }
 
 - (Quaternion)rotationAtIndex:(uint)index
 {
-	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
-	btQuaternion rotation = colObj->getWorldTransform().getRotation();
-	return Quaternion(rotation);
+	return transforms->at(index).rotation;
 }
 
 - (Vector3D)scaleAtIndex:(uint)index
@@ -169,14 +167,24 @@
 
 - (void)setPosition:(Vector3D)position atIndex:(uint)index
 {
+	Transform &transform = transforms->at(index);
+	transform.position = position;
+	//Matrix4x4 m = transform.ToMatrix();
+	
 	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
-	colObj->getWorldTransform().setOrigin(btVector3(position.x, position.y, position.z));
+	//colObj->getWorldTransform().setFromOpenGLMatrix(m.m);
+	colObj->getWorldTransform().setOrigin(transform.ToBulletVector3());
 }
 
 - (void)setRotation:(Quaternion)rotation atIndex:(uint)index
 {
+	Transform &transform = transforms->at(index);
+	transform.rotation = rotation;
+	//Matrix4x4 m = transform.ToMatrix();
+	
 	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
-	colObj->getWorldTransform().setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+	//colObj->getWorldTransform().setFromOpenGLMatrix(m.m);
+	colObj->getWorldTransform().setRotation(transform.ToBulletQuaternion());
 }
 
 - (void)setScale:(Vector3D)scale atIndex:(uint)index
