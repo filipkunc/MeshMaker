@@ -246,14 +246,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\PureCpp\MathCore\Plane.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\PureCpp\MathCore\Plane.h"
-					>
-				</File>
-				<File
 					RelativePath="..\PureCpp\MathCore\Quaternion.cpp"
 					>
 				</File>
