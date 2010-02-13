@@ -58,6 +58,7 @@ namespace OpenGLEditorWindows
 
         ExperimentalBulletWrapper bulletWrapper = null;
         Timer simulationTimer = null;
+        OpenGLManipulatingController bulletController = null;
 
         public DocumentForm()
         {
@@ -69,6 +70,7 @@ namespace OpenGLEditorWindows
             items = new ItemCollection();
             itemsController = new OpenGLManipulatingController();
             meshController = new OpenGLManipulatingController();
+            bulletController = new OpenGLManipulatingController();
             undo = new UndoManager();
 
             fourViewDock = new DockFourViews();
@@ -911,16 +913,17 @@ namespace OpenGLEditorWindows
             if (Path.GetExtension(lastFileName) == ".bullet")
             {
                 bulletWrapper = new ExperimentalBulletWrapper(lastFileName);
-                items = null;
-                itemsController.Model = bulletWrapper;
+                bulletController.Model = bulletWrapper;
+                Manipulated = bulletController;
             }
             else
             {
                 items = new ItemCollection();
                 items.ReadFromFile(lastFileName);
                 itemsController.Model = items;
+                itemsController.UpdateSelection();
             }
-            itemsController.UpdateSelection();
+            
             undo.Clear();
             OnEachViewDo(view => view.Invalidate());
         }
