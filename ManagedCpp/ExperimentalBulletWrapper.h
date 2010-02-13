@@ -27,7 +27,7 @@ using namespace std;
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btDefaultMotionState.h"
-#include "Demos/OpenGL/GL_ShapeDrawer.h"
+#include "../PureCpp/GL_ShapeDrawerClone.h"
 using namespace bParse;
 
 class Transform
