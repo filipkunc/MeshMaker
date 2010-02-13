@@ -38,12 +38,13 @@ inline int	btGetVersion()
 #endif
 
 
-#ifdef WIN32
+#ifdef _WIN32
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 
 			#define SIMD_FORCE_INLINE inline
 			#define ATTRIBUTE_ALIGNED16(a) a
+			#define ATTRIBUTE_ALIGNED64(a) a
 			#define ATTRIBUTE_ALIGNED128(a) a
 		#else
 			//#define BT_HAS_ALIGNED_ALLOCATOR
@@ -54,6 +55,7 @@ inline int	btGetVersion()
 
 			#define SIMD_FORCE_INLINE __forceinline
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+			#define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
 			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
 		#ifdef _XBOX
 			#define BT_USE_VMX128
@@ -63,7 +65,7 @@ inline int	btGetVersion()
  			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 
-#if (defined (WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+#if (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
 			#define BT_USE_SSE
 			#include <emmintrin.h>
 #endif
@@ -89,6 +91,7 @@ inline int	btGetVersion()
 #if defined	(__CELLOS_LV2__)
 		#define SIMD_FORCE_INLINE inline
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
@@ -110,6 +113,7 @@ inline int	btGetVersion()
 
 		#define SIMD_FORCE_INLINE __inline
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
@@ -137,6 +141,7 @@ inline int	btGetVersion()
 	#define SIMD_FORCE_INLINE inline
 ///@todo: check out alignment methods for other platforms/compilers
 	#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+	#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 	#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 	#ifndef assert
 	#include <assert.h>
@@ -158,8 +163,10 @@ inline int	btGetVersion()
 		#define SIMD_FORCE_INLINE inline
 		///@todo: check out alignment methods for other platforms/compilers
 		///#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		///#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
 		///#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#define ATTRIBUTE_ALIGNED16(a) a
+		#define ATTRIBUTE_ALIGNED64(a) a
 		#define ATTRIBUTE_ALIGNED128(a) a
 		#ifndef assert
 		#include <assert.h>
