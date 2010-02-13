@@ -30,6 +30,37 @@ using namespace std;
 #include "Demos/OpenGL/GL_ShapeDrawer.h"
 using namespace bParse;
 
+class Transform
+{
+public:
+	Vector3D position;
+	Quaternion rotation;
+	
+	Transform(const btVector3& position, const btQuaternion& rotation)
+	{
+		this->position = Vector3D(position.x(), position.y(), position.z());
+		this->rotation = Quaternion(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+	}
+	
+	Matrix4x4 ToMatrix()
+	{
+		Matrix4x4 t, r;
+		t.Translate(position);
+		rotation.ToMatrix(r);
+		return t * r;
+	}
+	
+	btVector3 ToBulletVector3()
+	{
+		return btVector3(position.x, position.y, position.z);
+	}
+	
+	btQuaternion ToBulletQuaternion()
+	{
+		return btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+	}
+};
+
 class BulletWrapperHelper
 {
 public:
@@ -41,6 +72,7 @@ public:
 	btBulletWorldImporter *worldImporter;
 	GL_ShapeDrawer *shapeDrawer;
 	vector<CocoaBool> *selection;
+	vector<Transform> *transforms;
 
 	BulletWrapperHelper()
 	{
@@ -53,6 +85,19 @@ public:
 		worldImporter = new btBulletWorldImporter(dynamicsWorld);
 		shapeDrawer = new GL_ShapeDrawer();
 		selection = new vector<CocoaBool>();
+		transforms = new vector<Transform>();
+	}
+
+	~BulletWrapperHelper()
+	{
+		delete collisionConfiguration;
+		delete dispatcher;
+		delete broadphase;
+		delete solver;
+		delete dynamicsWorld;
+		delete worldImporter;
+		delete selection;
+		delete transforms;
 	}
 
 	bool LoadFile(const char *fileName)
@@ -62,6 +107,10 @@ public:
 			for (int i = 0; i < dynamicsWorld->getNumCollisionObjects(); i++)
 			{
 				selection->push_back(NO);
+				btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[i];
+				btVector3 pos = colObj->getWorldTransform().getOrigin();
+				btQuaternion quat = colObj->getWorldTransform().getRotation();
+				transforms->push_back(Transform(pos, quat));
 			}
 			return true;
 		}
@@ -71,8 +120,6 @@ public:
 	void Draw(uint index, bool selected)
 	{
 		btScalar m[16];
-		btMatrix3x3	rot;
-		rot.setIdentity();
 		
 		btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
 		btRigidBody *body = btRigidBody::upcast(colObj);
@@ -81,12 +128,10 @@ public:
 		{
 			btDefaultMotionState *myMotionState = (btDefaultMotionState *)body->getMotionState();
 			myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-			rot = myMotionState->m_graphicsWorldTrans.getBasis();
 		}
 		else
 		{
 			colObj->getWorldTransform().getOpenGLMatrix(m);
-			rot = colObj->getWorldTransform().getBasis();
 		}
 		btVector3 wireColor(1.0f, 1.0f, 0.5f); //wants deactivation
 		if (index & 1) 
@@ -132,16 +177,36 @@ public:
 		}
 	}
 
-	~BulletWrapperHelper()
+	Vector3D GetPosition(uint index)
 	{
-		delete collisionConfiguration;
-		delete dispatcher;
-		delete broadphase;
-		delete solver;
-		delete dynamicsWorld;
-		delete worldImporter;
-		delete shapeDrawer;
-		delete selection;
+		return transforms->at(index).position;
+	}
+
+	void SetPosition(Vector3D position, uint index)
+	{
+		Transform &transform = transforms->at(index);
+		transform.position = position;
+		//Matrix4x4 m = transform.ToMatrix();
+		
+		btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+		//colObj->getWorldTransform().setFromOpenGLMatrix(m.m);
+		colObj->getWorldTransform().setOrigin(transform.ToBulletVector3());
+	}
+
+	Quaternion GetRotation(uint index)
+	{
+		return transforms->at(index).rotation;
+	}
+
+	void SetRotation(Quaternion rotation, uint index)
+	{
+		Transform &transform = transforms->at(index);
+		transform.rotation = rotation;
+		//Matrix4x4 m = transform.ToMatrix();
+		
+		btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
+		//colObj->getWorldTransform().setFromOpenGLMatrix(m.m);
+		colObj->getWorldTransform().setRotation(transform.ToBulletQuaternion());
 	}
 };
 
@@ -149,7 +214,7 @@ public:
 
 namespace ManagedCpp
 {
-	public ref class ExperimentalBulletWrapper : OpenGLManipulatingModel
+	public ref class ExperimentalBulletWrapper : OpenGLManipulatingModelItem
 	{
 	private:
 		BulletWrapperHelper *wrapper;
@@ -167,5 +232,15 @@ namespace ManagedCpp
 		//@optional
 		virtual	void WillSelect();
 		virtual	void DidSelect();
+
+		virtual Vector3D GetPosition(uint index);
+		virtual Quaternion GetRotation(uint index);
+		virtual Vector3D GetScale(uint index);
+		virtual void SetPosition(Vector3D position, uint index);
+		virtual void SetRotation(Quaternion rotation, uint index);
+		virtual void SetScale(Vector3D scale, uint index);
+		virtual void MoveBy(Vector3D offset, uint index);
+		virtual void RotateBy(Quaternion offset, uint index);
+		virtual void ScaleBy(Vector3D offset, uint index);
 	};
 }
