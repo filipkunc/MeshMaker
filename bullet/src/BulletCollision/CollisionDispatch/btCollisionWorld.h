@@ -358,6 +358,34 @@ public:
 		}
 	};
 
+	///ContactResultCallback is used to report contact points
+	struct	ContactResultCallback
+	{
+		short int	m_collisionFilterGroup;
+		short int	m_collisionFilterMask;
+		
+		ContactResultCallback()
+			:m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
+			m_collisionFilterMask(btBroadphaseProxy::AllFilter)
+		{
+		}
+
+		virtual ~ContactResultCallback()
+		{
+		}
+		
+		virtual bool needsCollision(btBroadphaseProxy* proxy0) const
+		{
+			bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+			collides = collides && (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+		}
+
+		virtual	btScalar	addSingleResult(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1) = 0;
+	};
+
+
+
 	int	getNumCollisionObjects() const
 	{
 		return int(m_collisionObjects.size());
@@ -367,9 +395,17 @@ public:
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
 	virtual void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const; 
 
-	// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
-	// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
+	/// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
+	/// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
 	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback,  btScalar allowedCcdPenetration = btScalar(0.)) const;
+
+	///contactTest performs a discrete collision test between colObj against all objects in the btCollisionWorld, and calls the resultCallback.
+	///it reports one or more contact points for every overlapping object (including the one with deepest penetration)
+	void	contactTest(btCollisionObject* colObj, ContactResultCallback& resultCallback);
+
+	///contactTest performs a discrete collision test between two collision objects and calls the resultCallback if overlap if detected.
+	///it reports one or more contact points (including the one with deepest penetration)
+	void	contactPairTest(btCollisionObject* colObjA, btCollisionObject* colObjB, ContactResultCallback& resultCallback);
 
 
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
