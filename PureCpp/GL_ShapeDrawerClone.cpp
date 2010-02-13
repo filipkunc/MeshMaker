@@ -25,12 +25,14 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifdef _WIN32 //needed for glut.h
+#ifdef _WIN32
 #include <windows.h>
-#endif
-
+#include <GL/gl.h>
+#include <GL/glu.h>
+#else // MAC OS X
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+#endif
 
 #include "GL_ShapeDrawerClone.h"
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
