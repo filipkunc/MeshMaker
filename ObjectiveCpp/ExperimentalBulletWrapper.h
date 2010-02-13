@@ -22,7 +22,7 @@ using namespace std;
 #import "btSequentialImpulseConstraintSolver.h"
 #import "btIDebugDraw.h"
 #import "btDefaultMotionState.h"
-#import "GL_ShapeDrawer.h"
+#import "GL_ShapeDrawerClone.h"
 using namespace bParse;
 
 class Transform
