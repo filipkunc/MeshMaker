@@ -837,6 +837,29 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	}
 }
 
+- (void)collapseSplitView:(NSSplitView *)splitView
+{
+	[[[splitView subviews] objectAtIndex:0] setFrame:NSZeroRect];
+	if ([splitView isVertical])
+	{
+		NSRect frame = [[[splitView subviews] objectAtIndex:1] frame];
+		if (frame.size.width < 1.0f)
+		{
+			frame.size.width = 2.0f;
+			[[[splitView subviews] objectAtIndex:1] setFrame:frame];
+		}
+	}
+	else 
+	{
+		NSRect frame = [[[splitView subviews] objectAtIndex:1] frame];
+		if (frame.size.height < 1.0f)
+		{
+			frame.size.height = 2.0f;
+			[[[splitView subviews] objectAtIndex:1] setFrame:frame];
+		}
+	}
+}
+
 - (void)toggleOneViewFourView:(id)sender
 {
 	NSLog(@"toggleOneViewFourView");
@@ -861,12 +884,11 @@ constrainSplitPosition:(CGFloat)proposedPosition
 		{
 			oneView = YES;
 			
-			[[[topSplit subviews] objectAtIndex:0] setFrame:NSZeroRect];
-			[[[bottomSplit subviews] objectAtIndex:0] setFrame:NSZeroRect];
-			[[[mainSplit subviews] objectAtIndex:0] setFrame:NSZeroRect];
-			
+			[self collapseSplitView:topSplit];
+			[self collapseSplitView:bottomSplit];
+			[self collapseSplitView:mainSplit];
+						
 			[viewPerspective setCameraMode:[view cameraMode]];
-			
 			return;
 		}
 	}

@@ -281,8 +281,6 @@ static ShaderProgram *flippedShader;
 	[self fillCache];
 	if (selectionMode == MeshSelectionModeTriangles)
 		[self updateColorCache];
-	else
-		glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
 		
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -311,7 +309,8 @@ static ShaderProgram *flippedShader;
 {
 	if (selectionMode != MeshSelectionModeEdges)
 	{
-		glColor3f([color redComponent] - 0.1f, [color greenComponent] - 0.1f, [color blueComponent] - 0.1f);
+		float c = 0.3f;
+		glColor3f(c, c, c);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		[self drawFill];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -334,7 +333,10 @@ static ShaderProgram *flippedShader;
 	glScalef(scale.x, scale.y, scale.z);
 	if (mode == ViewModeWireframe)
 	{
-		[self drawWire];
+		glColor3f([color redComponent] + 0.2f, [color greenComponent] + 0.2f, [color blueComponent] + 0.2f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		[self drawFill];
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
 	{
@@ -343,6 +345,10 @@ static ShaderProgram *flippedShader;
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
 			[self useShader:flipped];
+			if (selectionMode != MeshSelectionModeTriangles)
+			{
+				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
+			}
 			[self drawFill];
 			[ShaderProgram resetProgram];
 			glDisable(GL_POLYGON_OFFSET_FILL);
@@ -351,6 +357,10 @@ static ShaderProgram *flippedShader;
 		else
 		{
 			[self useShader:flipped];
+			if (selectionMode != MeshSelectionModeTriangles)
+			{
+				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
+			}
 			[self drawFill];
 			[ShaderProgram resetProgram];
 		}
