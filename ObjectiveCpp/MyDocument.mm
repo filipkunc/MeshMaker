@@ -23,14 +23,12 @@
 		items = [[ItemCollection alloc] init];
 		itemsController = [[OpenGLManipulatingController alloc] init];
 		meshController = [[OpenGLManipulatingController alloc] init];
-		bulletController = [[OpenGLManipulatingController alloc] init];
 		
 		[itemsController setModel:items];
 		manipulated = itemsController;
 
 		[itemsController addTransformationObserver:self];
 		[meshController addTransformationObserver:self];
-		[bulletController addTransformationObserver:self];
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
@@ -38,41 +36,21 @@
 		
 		views = [[NSMutableArray alloc] init];
 		oneView = NO;
-		bulletWrapper = nil;
-		[NSTimer scheduledTimerWithTimeInterval:1.0 / 60.0
-										 target:self
-									   selector:@selector(timerProc:)
-									   userInfo:nil
-										repeats:YES];
-		simulationRunning = NO;
     }
     return self;
 }
 						   
-- (void)timerProc:(NSTimer *)theTimer
-{
-	if (bulletWrapper && simulationRunning)
-	{
-		[bulletWrapper dynamicsWorld]->stepSimulation([theTimer timeInterval]);
-		for (OpenGLSceneView *view in views)
-			[view setNeedsDisplay:YES];
-	}
-}
-
 - (void)dealloc
 {
 	[itemsController removeTransformationObserver:self];
 	[meshController removeTransformationObserver:self];
-	[bulletController removeTransformationObserver:self];
 	[meshController release];
 	[itemsController release];
-	[bulletController release];
 	[items release];
 	[oldManipulations release];
 	[oldMeshManipulation release];
 	[views release];
 	[propertyReflector release];
-	[bulletWrapper release];
 	[super dealloc];
 }
 
@@ -797,21 +775,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 
 #pragma mark Archivation
 
-- (BOOL)readFromBullet:(NSString *)fileName
-{
-	bulletWrapper = [[ExperimentalBulletWrapper alloc] initWithFileName:fileName];
-	if (bulletWrapper)
-	{
-		// this is highly experimental, because bulletWrapper doesn't implement all necessary
-		// functions, so when doing some operations, it can crash whole editor
-		[bulletController setModel:bulletWrapper];
-		[bulletController updateSelection];
-		[self setManipulated:bulletController];
-		return YES;
-	}
-	return NO;
-}
-
 - (void)readFromTmd:(NSString *)fileName
 {
 	TmdModel *model = new TmdModel();
@@ -901,10 +864,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	{
 		[self readFromTmd:fileName];
 		return YES;
-	}
-	else if ([typeName isEqual:@"bullet"])
-	{
-		return [self readFromBullet:fileName];
 	}
 	return NO;
 }
@@ -1003,14 +962,4 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	NSLog(@"No view is under mouse");
 }
 		 
-- (IBAction)play:(id)sender
-{
-	simulationRunning = YES;
-}
-		 
-- (IBAction)pause:(id)sender
-{
-	simulationRunning = NO;
-}
-
 @end

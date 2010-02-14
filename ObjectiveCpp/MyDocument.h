@@ -13,8 +13,6 @@
 #import "MeshManipulationState.h"
 #import "PropertyReflector.h"
 
-#import "ExperimentalBulletWrapper.h"
-
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming>
 {
 @public // public for unit tests
@@ -44,10 +42,6 @@
 	
 	PropertyReflector *propertyReflector;
 	IBOutlet NSTableView *propertyView;
-	
-	ExperimentalBulletWrapper *bulletWrapper;
-	BOOL simulationRunning;
-	OpenGLManipulatingController *bulletController;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -89,7 +83,5 @@
 - (BOOL)readFromModel3D:(NSString *)fileName;
 - (void)writeToModel3D:(NSString *)fileName;
 - (void)toggleOneViewFourView:(id)sender;
-- (IBAction)play:(id)sender;
-- (IBAction)pause:(id)sender;
 
 @end
