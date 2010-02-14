@@ -32,9 +32,10 @@ ShaderProgram *globalFlippedShader = nil;
 		{
 			NSOpenGLPFAAccelerated,
 			NSOpenGLPFADoubleBuffer,
-			NSOpenGLPFAColorSize,1,
-			NSOpenGLPFADepthSize,1,
-			0};
+			NSOpenGLPFAColorSize, 1,
+			NSOpenGLPFADepthSize, 1,
+			0 
+		};
 		
 		/* Choose a pixel format */
 		globalPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
