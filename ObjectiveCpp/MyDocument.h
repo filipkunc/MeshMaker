@@ -56,7 +56,8 @@
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
 						 current:(MeshFullState *)current 
 					  actionName:(NSString *)actionName;
-- (void)mergeSelectedItems;
+- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
+- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
 - (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps;
 - (IBAction)addCube:(id)sender;
@@ -79,7 +80,6 @@
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
-- (void)readFromTmd:(NSString *)fileName;
 - (BOOL)readFromModel3D:(NSString *)fileName;
 - (void)writeToModel3D:(NSString *)fileName;
 - (void)toggleOneViewFourView:(id)sender;

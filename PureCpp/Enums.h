@@ -9,51 +9,37 @@
 
 #pragma once
 
-// This isn't Pure C++ as I wanted, but I needed enum export for C#.
-// If you find better name than MyEnum that doesn't clash with M$ or Fruit,
-// write me e-mail.
-#ifdef WIN32
-#include <windows.h>
-using namespace System;
-#define MyEnum public enum struct
-#else
-#define MyEnum enum
-#endif
-
 #ifndef uint
 typedef unsigned int uint;
 #endif
 
-// CocoaBool on Mac
-typedef signed char CocoaBool;
+#ifndef BOOL
+typedef signed char BOOL;
+#endif
 
 #ifndef YES
-#define YES  ((CocoaBool)1)
+#define YES             (BOOL)1
 #endif
 
 #ifndef NO
-#define NO   ((CocoaBool)0)
+#define NO              (BOOL)0
 #endif
 
-#ifdef WIN32
-namespace ManagedCpp {
-#endif
-
-MyEnum MeshType
+enum MeshType
 {
 	MeshTypeCube = 0,
 	MeshTypeCylinder,
 	MeshTypeSphere
 };
 	
-MyEnum MeshSelectionMode
+enum MeshSelectionMode
 {
 	MeshSelectionModeVertices = 0,
 	MeshSelectionModeTriangles,
 	MeshSelectionModeEdges
 };
 
-MyEnum ManipulatorType
+enum ManipulatorType
 {
 	ManipulatorTypeDefault = 0,
 	ManipulatorTypeTranslation = 1, 
@@ -61,13 +47,13 @@ MyEnum ManipulatorType
 	ManipulatorTypeScale = 3
 };
 
-MyEnum ViewMode
+enum ViewMode
 {
 	ViewModeSolid = 0,
 	ViewModeWireframe = 1
 };
 
-MyEnum EditMode
+enum EditMode
 {
 	EditModeItems = 0,
 	EditModeVertices = 1,
@@ -75,7 +61,7 @@ MyEnum EditMode
 	EditModeEdges = 3
 };
 
-MyEnum CameraMode
+enum CameraMode
 {
 	CameraModePerspective = 0,
 	CameraModeLeft = 1,
@@ -85,10 +71,6 @@ MyEnum CameraMode
 	CameraModeFront = 5,
 	CameraModeBack = 6
 };
-
-#ifdef WIN32
-} // namespace ManagedCpp
-#endif 
 
 enum Axis
 {

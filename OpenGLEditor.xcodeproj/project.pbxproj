@@ -21,7 +21,6 @@
 		A785C66D1107B0C700E42D68 /* CachedProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A785C66C1107B0C700E42D68 /* CachedProperty.m */; };
 		A786AF4C10B9E2EC00D65415 /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A786AF4B10B9E2EC00D65415 /* MeshFullState.mm */; };
 		A7BB8C9310ED5CC300476385 /* ShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = A7BB8C9210ED5CC300476385 /* ShaderProgram.m */; };
-		A7C6FE751090D4BD008A55E1 /* TmdModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */; };
 		A7C6FE761090D4BD008A55E1 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE651090D4BD008A55E1 /* Camera.cpp */; };
 		A7C6FE771090D4BD008A55E1 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE691090D4BD008A55E1 /* Matrix4x4.cpp */; };
 		A7C6FE791090D4BD008A55E1 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE6D1090D4BD008A55E1 /* Quaternion.cpp */; };
@@ -87,8 +86,6 @@
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7BB8C9110ED5CC300476385 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
 		A7BB8C9210ED5CC300476385 /* ShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderProgram.m; sourceTree = "<group>"; };
-		A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TmdModel.cpp; sourceTree = "<group>"; };
-		A7C6FE631090D4BD008A55E1 /* TmdModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TmdModel.h; sourceTree = "<group>"; };
 		A7C6FE651090D4BD008A55E1 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		A7C6FE661090D4BD008A55E1 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		A7C6FE671090D4BD008A55E1 /* MathDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathDeclaration.h; sourceTree = "<group>"; };
@@ -263,7 +260,6 @@
 		A7C6FE601090D4BD008A55E1 /* PureCpp */ = {
 			isa = PBXGroup;
 			children = (
-				A7C6FE611090D4BD008A55E1 /* ImportExport */,
 				A7C6FE641090D4BD008A55E1 /* MathCore */,
 				A7C6FE731090D4BD008A55E1 /* OpenGLDrawing.cpp */,
 				A7C6FE741090D4BD008A55E1 /* OpenGLDrawing.h */,
@@ -272,15 +268,6 @@
 				A7A776EF109348AC0099DB45 /* Enums.h */,
 			);
 			path = PureCpp;
-			sourceTree = "<group>";
-		};
-		A7C6FE611090D4BD008A55E1 /* ImportExport */ = {
-			isa = PBXGroup;
-			children = (
-				A7C6FE621090D4BD008A55E1 /* TmdModel.cpp */,
-				A7C6FE631090D4BD008A55E1 /* TmdModel.h */,
-			);
-			path = ImportExport;
 			sourceTree = "<group>";
 		};
 		A7C6FE641090D4BD008A55E1 /* MathCore */ = {
@@ -460,7 +447,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D15AC320486D014006FF6A4 /* main.m in Sources */,
-				A7C6FE751090D4BD008A55E1 /* TmdModel.cpp in Sources */,
 				A7C6FE761090D4BD008A55E1 /* Camera.cpp in Sources */,
 				A7C6FE771090D4BD008A55E1 /* Matrix4x4.cpp in Sources */,
 				A7C6FE791090D4BD008A55E1 /* Quaternion.cpp in Sources */,

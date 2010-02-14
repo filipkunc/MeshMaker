@@ -62,9 +62,9 @@
 	
 	[self groupAction:^ 
 	{ 
-		[document manipulationStarted];
+		[document manipulationStartedInView:nil];
 		[document->itemsController moveSelectedByOffset:Vector3D(0, 5, 0)]; 
-		[document manipulationEnded]; 
+		[document manipulationEndedInView:nil]; 
 	}];
 
 	Item *item = [document->items itemAtIndex:0];
@@ -88,9 +88,9 @@
 	
 	[self groupAction:^ 
 	{ 
-		[document manipulationStarted];
+		[document manipulationStartedInView:nil];
 		[document->itemsController moveSelectedByOffset:Vector3D(0, 5, 0)]; // moves the second cube
-		[document manipulationEnded]; 
+		[document manipulationEndedInView:nil]; 
 	}];
 	
 	[document invertSelection:self];
@@ -99,9 +99,9 @@
 	
 	[self groupAction:^ 
 	{ 
-		[document manipulationStarted];
+		[document manipulationStartedInView:nil];
 		[document->itemsController moveSelectedByOffset:Vector3D(5, 0, 0)]; // moves the first cube
-		[document manipulationEnded]; 
+		[document manipulationEndedInView:nil]; 
 	}];
 	
 	NSLog(@"---- UNDO ----");
@@ -139,9 +139,9 @@
 	
 	[self groupAction:^ 
 	{ 
-		[document manipulationStarted]; 
+		[document manipulationStartedInView:nil]; 
 		[document->itemsController moveSelectedByOffset:Vector3D(5, 0, 0)];
-		[document manipulationEnded]; 
+		[document manipulationEndedInView:nil]; 
 	}];	
 	
 	[document selectAll:self];
@@ -150,9 +150,9 @@
 	
 	[self groupAction:^ 
 	{ 
-		[document manipulationStarted];
+		[document manipulationStartedInView:nil];
 		[document->itemsController moveSelectedByOffset:Vector3D(0, 5, 0)];
-		[document manipulationEnded]; 
+		[document manipulationEndedInView:nil]; 
 	}];
 		
 	NSLog(@"---- UNDO ----");

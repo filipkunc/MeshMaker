@@ -9,7 +9,7 @@
 
 #include "MeshHelpers.h"
 
-CocoaBool IsTriangleDegenerated(Triangle triangle)
+BOOL IsTriangleDegenerated(Triangle triangle)
 {
 	if (triangle.vertexIndices[0] == triangle.vertexIndices[1])
 		return YES;
@@ -21,7 +21,7 @@ CocoaBool IsTriangleDegenerated(Triangle triangle)
 	return NO;
 }
 
-CocoaBool AreEdgesSame(Edge first, Edge second)
+BOOL AreEdgesSame(Edge first, Edge second)
 {
 	if (first.vertexIndices[0] == second.vertexIndices[0] &&
 		first.vertexIndices[1] == second.vertexIndices[1])
@@ -34,7 +34,7 @@ CocoaBool AreEdgesSame(Edge first, Edge second)
 	return NO;
 }
 
-CocoaBool IsIndexInTriangle(Triangle triangle, uint index)
+BOOL IsIndexInTriangle(Triangle triangle, uint index)
 {
 	for (uint i = 0; i < 3; i++)
 	{
@@ -44,7 +44,7 @@ CocoaBool IsIndexInTriangle(Triangle triangle, uint index)
 	return NO;
 }
 
-CocoaBool IsEdgeInTriangle(Triangle triangle, Edge edge)
+BOOL IsEdgeInTriangle(Triangle triangle, Edge edge)
 {
 	if (IsIndexInTriangle(triangle, edge.vertexIndices[0]) &&
 		IsIndexInTriangle(triangle, edge.vertexIndices[1]))

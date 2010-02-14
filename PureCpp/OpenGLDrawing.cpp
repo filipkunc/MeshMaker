@@ -8,11 +8,7 @@
  */
 
 #include "OpenGLDrawing.h"
-#ifdef WIN32
-#include <GL/gl.h>
-#else
 #include <OpenGL/gl.h>
-#endif
 
 void DrawCube(float size)
 {
