@@ -46,6 +46,8 @@
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
+- (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view;
+- (void)setNeedsDisplayOnAllViews;
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
