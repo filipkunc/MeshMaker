@@ -20,10 +20,10 @@ typedef struct {
 	uint vertexIndices[2];
 } Edge;
 
-CocoaBool IsTriangleDegenerated(Triangle triangle);
-CocoaBool AreEdgesSame(Edge a, Edge b);
-CocoaBool IsIndexInTriangle(Triangle triangle, uint index);
-CocoaBool IsEdgeInTriangle(Triangle triangle, Edge edge);
+BOOL IsTriangleDegenerated(Triangle triangle);
+BOOL AreEdgesSame(Edge a, Edge b);
+BOOL IsIndexInTriangle(Triangle triangle, uint index);
+BOOL IsEdgeInTriangle(Triangle triangle, Edge edge);
 uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge);
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3]);
 Triangle MakeTriangle(uint a, uint b, uint c);

@@ -8,7 +8,6 @@
 
 #import "MyDocument.h"
 #import "ItemManipulationState.h"
-#import "TmdModel.h"
 #import "IndexedItem.h"
 
 @implementation MyDocument
@@ -353,32 +352,33 @@
 	[self setManipulated:meshController];
 }
 
-- (void)mergeSelectedItems
+- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
 {
-	MyDocument *document = [self prepareUndoWithName:@"Merge"];
+	MyDocument *document = [self prepareUndoWithName:actionName];
 	NSMutableArray *oldItems = [items allItems];
 	NSLog(@"oldItems count = %i", [oldItems count]);
 	
-	[items mergeSelectedItems];
+	action();
 	
 	NSMutableArray *currentItems = [items allItems];
 	NSLog(@"currentItems count = %i", [currentItems count]);
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
-					   actionName:@"Merge"];	
+					   actionName:actionName];	
 }
 
-// macro magic to simulate block syntax in Objective-C 2.1
-
-#define beginFullMeshActionWithName(name) \
-MyDocument *document = [self prepareUndoWithName:name]; \
-MeshFullState *oldState = [items currentMeshFull];
-
-#define endFullMeshActionWithName(name) \
-MeshFullState *currentState = [items currentMeshFull]; \
-[document swapMeshFullStateWithOld:oldState \
-						   current:currentState \
-						actionName:name];
+- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
+{
+	MyDocument *document = [self prepareUndoWithName:actionName];
+	MeshFullState *oldState = [items currentMeshFull];
+	
+	action();
+	
+	MeshFullState *currentState = [items currentMeshFull];
+	[document swapMeshFullStateWithOld:oldState 
+							   current:currentState
+							actionName:actionName];
+}
 
 - (void)manipulationStartedInView:(OpenGLSceneView *)view
 {
@@ -519,13 +519,11 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	
 	if (manipulated == itemsController)
 	{
-		[self mergeSelectedItems];
+		[self allItemsActionWithName:@"Merge" block:^ { [items mergeSelectedItems]; }];
 	}
 	else if (manipulated == meshController)
 	{
-		beginFullMeshActionWithName(@"Merge")
-		[[self currentMesh] mergeSelected];
-		endFullMeshActionWithName(@"Merge")
+		[self fullMeshActionWithName:@"Merge" block:^ { [[self currentMesh] mergeSelected]; }]; 
 	}
 	
 	[manipulated updateSelection];
@@ -543,9 +541,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	
 	if (manipulated == meshController)
 	{
-		beginFullMeshActionWithName(@"Split")
-		[[self currentMesh] splitSelected];
-		endFullMeshActionWithName(@"Split")
+		[self fullMeshActionWithName:@"Split" block:^ { [[self currentMesh] splitSelected]; }];
 	}
 	
 	[manipulated updateSelection];
@@ -563,9 +559,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	
 	if (manipulated == meshController)
 	{
-		beginFullMeshActionWithName(@"Flip")
-		[[self currentMesh] flipSelected];
-		endFullMeshActionWithName(@"Flip")
+		[self fullMeshActionWithName:@"Flip" block:^ { [[self currentMesh] flipSelected]; }];
 	}
 	
 	[manipulated updateSelection];
@@ -597,9 +591,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	}
 	else if (manipulated == meshController)
 	{
-		beginFullMeshActionWithName(@"Clone")
-		[manipulated cloneSelected];
-		endFullMeshActionWithName(@"Clone")
+		[self fullMeshActionWithName:@"Clone" block:^ { [manipulated cloneSelected]; }];
 	}
 	
 	for (OpenGLSceneView *view in views)
@@ -665,9 +657,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	}
 	else if (manipulated == meshController)
 	{
-		beginFullMeshActionWithName(@"Delete")
-		[manipulated removeSelected];
-		endFullMeshActionWithName(@"Delete")
+		[self fullMeshActionWithName:@"Delete" block:^ { [manipulated removeSelected]; }];
 	}
 	
 	for (OpenGLSceneView *view in views)
@@ -722,9 +712,7 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	{
 		if ([[self currentMesh] selectionMode] == MeshSelectionModeVertices)
 		{
-			beginFullMeshActionWithName(@"Merge Vertex Pairs")
-			[[self currentMesh] mergeVertexPairs];
-			endFullMeshActionWithName(@"Merge Vertex Pairs")
+			[self fullMeshActionWithName:@"Merge Vertex Pairs" block:^ { [[self currentMesh] mergeVertexPairs]; }];
 		}
 	}
 	for (OpenGLSceneView *view in views)
@@ -775,49 +763,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 
 #pragma mark Archivation
 
-- (void)readFromTmd:(NSString *)fileName
-{
-	TmdModel *model = new TmdModel();
-	model->Load([fileName cStringUsingEncoding:NSASCIIStringEncoding]);
-	
-	ItemCollection *newItems = [[ItemCollection alloc] init];
-	for (int i = 0; i < model->desc.no_meshes; i++)
-	{
-		Item *item = [[Item alloc] init];
-		Mesh *itemMesh = [item mesh];
-		
-		mesh &tmdMesh = model->meshes[i];
-		mesh_desc &tmdMeshDesc = model->m_descs[i];
-		
-		itemMesh->vertices->clear();
-		for (int i = 0; i < tmdMeshDesc.no_vertices; i++)
-		{
-			itemMesh->vertices->push_back(tmdMesh.vertices[i]);
-		}
-		
-		itemMesh->triangles->clear();
-		for (int i = 0; i < tmdMeshDesc.no_faces; i++)
-		{
-			face &f = tmdMesh.faces[i];
-			Triangle tri = MakeTriangle(f.vertID[2], f.vertID[1], f.vertID[0]);
-			itemMesh->triangles->push_back(tri);
-		}
-		
-		[itemMesh setSelectionMode:[itemMesh selectionMode]];
-		
-		[newItems addItem:item];
-		[item release];
-	}
-	
-	delete model;
-	
-	[items release];
-	items = newItems;
-	[itemsController setModel:items];
-	[itemsController updateSelection];
-	[self setManipulated:itemsController];
-}
-
 - (BOOL)readFromModel3D:(NSString *)fileName
 {
 	// ugly ASCII encoding, should be Unicode
@@ -859,11 +804,6 @@ MeshFullState *currentState = [items currentMeshFull]; \
 	{
 		//return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
 		return [self readFromModel3D:fileName];
-	}
-	else if ([typeName isEqual:@"TMD"])
-	{
-		[self readFromTmd:fileName];
-		return YES;
 	}
 	return NO;
 }
