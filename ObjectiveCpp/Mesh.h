@@ -62,7 +62,7 @@ using namespace std;
 - (void)removeVertexAtIndex:(uint)index;
 - (void)removeTriangleAtIndex:(uint)index;
 - (void)removeEdgeAtIndex:(uint)index;
-- (void)drawFill;
+- (void)drawFillAsDarker:(BOOL)darker;
 - (void)drawWire;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected;
 - (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps;
@@ -94,7 +94,7 @@ using namespace std;
 - (void)extrudeSelectedTriangles;
 - (void)resetCache;
 - (void)fillCache;
-- (void)updateColorCache;
+- (void)updateColorCacheAsDarker:(BOOL)darker;
 - (void)useShader:(BOOL)flipped;
 
 @end
