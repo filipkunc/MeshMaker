@@ -247,20 +247,31 @@ static ShaderProgram *flippedShader;
 	}
 }
 
-- (void)updateColorCache
+- (void)updateColorCacheAsDarker:(BOOL)darker
 {
 	CGFloat components[4];
 	[color getComponents:components];
-
+	
+	CGFloat selectedComponents[] = { 0.7f, 0.0f, 0.0f };
+	
+	if (darker)
+	{
+		for (uint k = 0; k < 3; k++)
+			components[k] -= 0.2f;
+		
+		selectedComponents[0] -= 0.2f;
+	}
+	
 	for (uint i = 0; i < triangles->size(); i++)
 	{
 		if ((*selected)[i])
 		{
 			for (uint j = 0; j < 3; j++)
 			{
-				cachedColors[i * 3 + j].x = 0.7f;
-				cachedColors[i * 3 + j].y = 0.0f;
-				cachedColors[i * 3 + j].z = 0.0f;
+				for (uint k = 0; k < 3; k++)
+				{
+					cachedColors[i * 3 + j][k] = selectedComponents[k];
+				}
 			}				
 		}
 		else
@@ -276,11 +287,11 @@ static ShaderProgram *flippedShader;
 	}
 }
 
-- (void)drawFill
+- (void)drawFillAsDarker:(BOOL)darker
 {
 	[self fillCache];
 	if (selectionMode == MeshSelectionModeTriangles)
-		[self updateColorCache];
+		[self updateColorCacheAsDarker:darker];
 		
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -309,10 +320,9 @@ static ShaderProgram *flippedShader;
 {
 	if (selectionMode != MeshSelectionModeEdges)
 	{
-		float c = 0.3f;
-		glColor3f(c, c, c);
+		glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		[self drawFill];
+		[self drawFillAsDarker:YES];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
@@ -335,7 +345,7 @@ static ShaderProgram *flippedShader;
 	{
 		glColor3f([color redComponent] + 0.2f, [color greenComponent] + 0.2f, [color blueComponent] + 0.2f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		[self drawFill];
+		[self drawFillAsDarker:YES];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
@@ -349,7 +359,7 @@ static ShaderProgram *flippedShader;
 			{
 				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
 			}
-			[self drawFill];
+			[self drawFillAsDarker:NO];
 			[ShaderProgram resetProgram];
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			[self drawWire];
@@ -361,7 +371,7 @@ static ShaderProgram *flippedShader;
 			{
 				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
 			}
-			[self drawFill];
+			[self drawFillAsDarker:NO];
 			[ShaderProgram resetProgram];
 		}
 	}
@@ -1319,9 +1329,9 @@ static ShaderProgram *flippedShader;
 				BOOL isSelected = selected->at(index);
 				glPointSize(5.0f);
 				if (isSelected)
-					glColor3f(1, 0, 0);
+					glColor3f(1.0f, 0.0f, 0.0f);
 				else
-					glColor3f(0, 0, 1);
+					glColor3f(0.0f, 0.0f, 1.0f);
 				glDisable(GL_LIGHTING);
 			}
 			glBegin(GL_POINTS);
@@ -1349,9 +1359,9 @@ static ShaderProgram *flippedShader;
 			{
 				BOOL isSelected = selected->at(index);
 				if (isSelected)
-					glColor3f(1, 0, 0);
+					glColor3f(0.8f, 0.0f, 0.0f);
 				else
-					glColor3f(1, 1, 1);
+					glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
 				glDisable(GL_LIGHTING);
 			}
 			glBegin(GL_LINES);

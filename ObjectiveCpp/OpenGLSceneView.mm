@@ -595,7 +595,23 @@ ShaderProgram *globalFlippedShader = nil;
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
 	
-	if ([e modifierFlags] & NSAlternateKeyMask)
+	NSUInteger flags = [e modifierFlags];
+	NSUInteger combinedFlags = NSAlternateKeyMask | NSCommandKeyMask;
+	
+	if ((flags & combinedFlags) == combinedFlags)
+	{
+		NSRect bounds = [self bounds];
+		float w = bounds.size.width;
+		float h = bounds.size.height;
+		float sensitivity = (w + h) / 2.0f;
+		sensitivity = 1.0f / sensitivity;
+		camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
+		camera->UpDown(deltaY * camera->GetZoom() * sensitivity);
+		
+		lastPoint = currentPoint;
+		[self setNeedsDisplay:YES];
+	}
+	else if ((flags & NSAlternateKeyMask) == NSAlternateKeyMask)
 	{
 		if (cameraMode == CameraModePerspective)
 		{
