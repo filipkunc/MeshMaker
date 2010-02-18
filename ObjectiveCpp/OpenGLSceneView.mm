@@ -562,9 +562,11 @@ ShaderProgram *globalFlippedShader = nil;
 		isSelecting = NO;
 		OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
 		
-		if ([e modifierFlags] & NSControlKeyMask)
+		NSUInteger flags = [e modifierFlags];
+				
+		if ((flags & NSCommandKeyMask) == NSCommandKeyMask || (flags & NSControlKeyMask) == NSControlKeyMask)
 			selectionMode = OpenGLSelectionModeInvert;
-		else if ([e modifierFlags] & NSShiftKeyMask)
+		else if ((flags & NSShiftKeyMask) == NSShiftKeyMask)
 			selectionMode = OpenGLSelectionModeAdd;
 		else
 			[manipulated changeSelection:NO];
@@ -663,7 +665,7 @@ ShaderProgram *globalFlippedShader = nil;
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
 	
-	if ([e modifierFlags] & NSAlternateKeyMask)
+	if (([e modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
 	{
 		NSRect bounds = [self bounds];
 		float w = bounds.size.width;
@@ -688,7 +690,7 @@ ShaderProgram *globalFlippedShader = nil;
 	currentPoint = [self locationFromNSEvent:e];	
 	float deltaY = currentPoint.y - lastPoint.y;
 	
-	if ([e modifierFlags] & NSAlternateKeyMask)
+	if (([e modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
 	{
 		float sensitivity = camera->GetZoom() * 0.02f;
 		
@@ -704,7 +706,10 @@ ShaderProgram *globalFlippedShader = nil;
 	float deltaX = [e deltaX];
 	float deltaY = [e deltaY];
 	
-	if (([e modifierFlags] & (NSAlternateKeyMask | NSControlKeyMask)) == (NSAlternateKeyMask | NSControlKeyMask))
+	NSUInteger flags = [e modifierFlags];
+	NSUInteger combinedFlags = NSAlternateKeyMask | NSCommandKeyMask;
+	
+	if ((flags & combinedFlags) == combinedFlags)
 	{
 		NSRect bounds = [self bounds];
 		float w = bounds.size.width;
@@ -715,7 +720,7 @@ ShaderProgram *globalFlippedShader = nil;
 		camera->UpDown(-deltaY * camera->GetZoom() * sensitivity);
 		[self setNeedsDisplay:YES];
 	}
-	else if ([e modifierFlags] & NSAlternateKeyMask)
+	else if ((flags & NSAlternateKeyMask) == NSAlternateKeyMask)
 	{
 		if (cameraMode == CameraModePerspective)
 		{

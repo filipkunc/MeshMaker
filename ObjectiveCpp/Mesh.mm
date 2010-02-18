@@ -1603,4 +1603,9 @@ static ShaderProgram *flippedShader;
 		fout->write((char *)&triangles->at(0), triangles->size() * sizeof(Triangle));
 }
 
+- (NSString *)nameAtIndex:(uint)index
+{
+	return nil;
+}
+
 @end
