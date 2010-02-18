@@ -19,6 +19,7 @@
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;
 - (void)cloneSelected;
 - (void)removeSelected;
+- (NSString *)nameAtIndex:(uint)index;
 
 @optional
 

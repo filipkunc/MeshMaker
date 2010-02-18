@@ -33,5 +33,6 @@
 - (void)invertSelection;
 - (void)cloneSelected;
 - (void)removeSelected;
+- (NSString *)nameAtIndex:(uint)index;
 
 @end

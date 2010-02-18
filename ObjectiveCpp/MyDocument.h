@@ -13,7 +13,7 @@
 #import "MeshManipulationState.h"
 #import "PropertyReflector.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;
@@ -42,6 +42,7 @@
 	
 	PropertyReflector *propertyReflector;
 	IBOutlet NSTableView *propertyView;
+	IBOutlet NSTableView *objectView;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;

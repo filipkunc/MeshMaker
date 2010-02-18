@@ -81,6 +81,7 @@
 	
 	propertyReflector = [[PropertyReflector alloc] initWithTableView:propertyView];
 	[propertyReflector setReflectedObject:self];
+	[objectView setDataSource:self];
 }
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view
@@ -895,5 +896,17 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	
 	NSLog(@"No view is under mouse");
 }
-		 
+
+#pragma mark NSTableViewDataSource
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+{
+	return [manipulated selectableCount];
+}
+
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+{
+	return [manipulated nameAtIndex:(uint)row];
+}
+
 @end

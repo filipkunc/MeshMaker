@@ -451,4 +451,9 @@
 	}
 }
 
+- (NSString *)nameAtIndex:(uint)index
+{
+	return [NSString stringWithFormat:@"Item %i", index];
+}
+
 @end
