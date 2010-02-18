@@ -91,6 +91,7 @@
 		if (v != view)
 			[v setNeedsDisplay:YES]; 
 	}
+	[objectView reloadData];
 }
 
 - (void)setNeedsDisplayOnAllViews
@@ -99,6 +100,7 @@
 	{
 		[v setNeedsDisplay:YES];
 	}
+	[objectView reloadData];
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -125,6 +127,8 @@
 		int meshTag = [[self currentMesh] selectionMode] + 1;
 		[editModePopUp selectItemWithTag:meshTag];
 	}
+	
+	[objectView reloadData];
 }
 
 - (Mesh *)currentMesh
@@ -613,7 +617,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Clone"];
 	[document undoCloneSelected:selection];
 	
-	[itemsController updateSelection];
+	[manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
 }
 
@@ -629,7 +633,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Clone"];
 	[document redoCloneSelected:selection];
 		
-	[itemsController updateSelection];
+	[manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
 }
 
