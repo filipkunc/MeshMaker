@@ -1605,7 +1605,17 @@ static ShaderProgram *flippedShader;
 
 - (NSString *)nameAtIndex:(uint)index
 {
-	return nil;
+	switch (selectionMode)
+	{
+		case MeshSelectionModeVertices:
+			return [NSString stringWithFormat:@"Vertex %i", index];
+		case MeshSelectionModeEdges:
+			return [NSString stringWithFormat:@"Edge %i", index];
+		case MeshSelectionModeTriangles:
+			return [NSString stringWithFormat:@"Triangle %i", index];	
+		default:
+			return nil;
+	}
 }
 
 @end
