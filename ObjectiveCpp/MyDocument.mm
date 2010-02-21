@@ -34,7 +34,7 @@
 		oldMeshManipulation = nil;
 		
 		views = [[NSMutableArray alloc] init];
-		oneView = NO;
+		oneView = nil;
     }
     return self;
 }
@@ -865,16 +865,31 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	}
 }
 
+- (void)swapCamerasBetweenFirst:(OpenGLSceneView *)first second:(OpenGLSceneView *)second
+{
+	Camera firstCamera = [first camera];
+	Camera secondCamera = [second camera];
+	CameraMode firstMode = [first cameraMode];
+	CameraMode secondMode = [second cameraMode];
+	[second setCameraMode:firstMode];
+	[first setCameraMode:secondMode];
+	[second setCamera:firstCamera];
+	[first setCamera:secondCamera];
+}
+
 - (void)toggleOneViewFourView:(id)sender
 {
 	NSLog(@"toggleOneViewFourView");
 	
 	if (oneView)
 	{
-		[viewPerspective setCameraMode:CameraModePerspective];
+		if (oneView != viewPerspective)
+		{
+			[self swapCamerasBetweenFirst:oneView second:viewPerspective];
+		}
 		NSRect frame = [viewPerspective frame];
 		[[[mainSplit subviews] objectAtIndex:0] setFrame:frame];
-		oneView = NO;
+		oneView = nil;
 		return;
 	}
 	
@@ -882,18 +897,21 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	NSPoint point = [window convertScreenToBase:[NSEvent mouseLocation]];
 	
 	NSView *hittedView = [[[window contentView] superview] hitTest:point];
-		
+	
 	for (OpenGLSceneView *view in views)
 	{
 		if (view == hittedView)
 		{
-			oneView = YES;
+			oneView = view;
 			
 			[self collapseSplitView:topSplit];
 			[self collapseSplitView:bottomSplit];
 			[self collapseSplitView:mainSplit];
-						
-			[viewPerspective setCameraMode:[view cameraMode]];
+			
+			if (oneView != viewPerspective)
+			{
+				[self swapCamerasBetweenFirst:oneView second:viewPerspective];
+			}
 			return;
 		}
 	}

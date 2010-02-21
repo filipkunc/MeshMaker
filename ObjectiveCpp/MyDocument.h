@@ -37,8 +37,7 @@
 	IBOutlet NSSplitView *topSplit;
 	IBOutlet NSSplitView *bottomSplit;
 	IBOutlet NSSplitView *mainSplit;
-	
-	BOOL oneView;
+	OpenGLSceneView *oneView;
 	
 	PropertyReflector *propertyReflector;
 	IBOutlet NSTableView *propertyView;
