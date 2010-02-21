@@ -55,6 +55,7 @@
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 @property (readwrite, assign) enum CameraMode cameraMode;
 @property (readwrite, assign) enum ViewMode viewMode;
+@property (readwrite, assign) Camera camera;
 
 - (void)drawGridWithSize:(int)size step:(int)step;
 - (NSRect)orthoManipulatorRect;
