@@ -78,10 +78,10 @@
 	[viewFront setCameraMode:CameraModeFront];
 	[viewPerspective setCameraMode:CameraModePerspective];
 	
-	
 	propertyReflector = [[PropertyReflector alloc] initWithTableView:propertyView];
 	[propertyReflector setReflectedObject:self];
 	[objectView setDataSource:self];
+	[objectView setDelegate:self];
 }
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view
@@ -91,7 +91,7 @@
 		if (v != view)
 			[v setNeedsDisplay:YES]; 
 	}
-	[objectView reloadData];
+	[self syncObjectView];
 }
 
 - (void)setNeedsDisplayOnAllViews
@@ -100,7 +100,23 @@
 	{
 		[v setNeedsDisplay:YES];
 	}
+	[self syncObjectView];
+}
+
+- (void)syncObjectView
+{
 	[objectView reloadData];
+	id manipulatedObj = manipulated;
+	if ([manipulatedObj respondsToSelector:@selector(isObjectSelectedAtIndex:)])
+	{
+		NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+		for (uint i = 0; i < [manipulated selectableCount]; i++)
+		{
+			if ([manipulated isObjectSelectedAtIndex:i])
+				[indexSet addIndex:i];
+		}
+		[objectView selectRowIndexes:indexSet byExtendingSelection:NO];
+	}
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -128,7 +144,7 @@
 		[editModePopUp selectItemWithTag:meshTag];
 	}
 	
-	[objectView reloadData];
+	[self syncObjectView];
 }
 
 - (Mesh *)currentMesh
@@ -929,6 +945,28 @@ constrainSplitPosition:(CGFloat)proposedPosition
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
 	return [manipulated nameAtIndex:(uint)row];
+}
+
+#pragma mark NSTableViewDelegate
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+	[manipulated changeSelection:NO];
+	
+	NSIndexSet *indexSet = [objectView selectedRowIndexes];
+	NSUInteger currentIndex = [indexSet firstIndex];
+    while (currentIndex != NSNotFound) 
+	{
+        [manipulated selectObjectAtIndex:currentIndex withMode:OpenGLSelectionModeAdd];
+        currentIndex = [indexSet indexGreaterThanIndex:currentIndex];
+    }
+		
+	[manipulated updateSelection];
+	
+	for (OpenGLSceneView *v in views)
+	{
+		[v setNeedsDisplay:YES];
+	}
 }
 
 @end

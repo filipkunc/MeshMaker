@@ -19,5 +19,6 @@
 @optional
 - (void)willSelect;
 - (void)didSelect;
+- (BOOL)isObjectSelectedAtIndex:(uint)index;
 
 @end

@@ -719,10 +719,7 @@
 											</array>
 											<double key="NSIntercellSpacingWidth">3</double>
 											<double key="NSIntercellSpacingHeight">2</double>
-											<object class="NSColor" key="NSBackgroundColor">
-												<int key="NSColorSpace">3</int>
-												<bytes key="NSWhite">MC43MDQzNzk1NjIAA</bytes>
-											</object>
+											<reference key="NSBackgroundColor" ref="954997792"/>
 											<object class="NSColor" key="NSGridColor" id="708299597">
 												<int key="NSColorSpace">6</int>
 												<string key="NSCatalogName">System</string>
@@ -747,13 +744,7 @@
 									<reference key="NSSuperview" ref="808039076"/>
 									<reference key="NSNextKeyView" ref="216385851"/>
 									<reference key="NSDocView" ref="216385851"/>
-									<object class="NSColor" key="NSBGColor">
-										<int key="NSColorSpace">3</int>
-										<bytes key="NSWhite">MC41AA</bytes>
-										<object class="NSColorSpace" key="NSCustomColorSpace" id="213990876">
-											<int key="NSID">2</int>
-										</object>
-									</object>
+									<reference key="NSBGColor" ref="954997792"/>
 									<int key="NScvFlags">4</int>
 								</object>
 								<object class="NSScroller" id="935290260">
@@ -861,10 +852,7 @@
 											</array>
 											<double key="NSIntercellSpacingWidth">3</double>
 											<double key="NSIntercellSpacingHeight">2</double>
-											<object class="NSColor" key="NSBackgroundColor">
-												<int key="NSColorSpace">3</int>
-												<bytes key="NSWhite">MC43MDQzNzk1NjIAA</bytes>
-											</object>
+											<reference key="NSBackgroundColor" ref="954997792"/>
 											<reference key="NSGridColor" ref="708299597"/>
 											<double key="NSRowHeight">17</double>
 											<int key="NSTvFlags">-566231040</int>
@@ -884,7 +872,9 @@
 									<object class="NSColor" key="NSBGColor">
 										<int key="NSColorSpace">3</int>
 										<bytes key="NSWhite">MC41AA</bytes>
-										<reference key="NSCustomColorSpace" ref="213990876"/>
+										<object class="NSColorSpace" key="NSCustomColorSpace">
+											<int key="NSID">2</int>
+										</object>
 									</object>
 									<int key="NScvFlags">4</int>
 								</object>

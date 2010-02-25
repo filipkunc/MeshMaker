@@ -553,6 +553,11 @@
 	}
 }
 
+- (BOOL)isObjectSelectedAtIndex:(uint)index
+{
+	return [model isSelectedAtIndex:index];
+}
+
 - (void)changeSelection:(BOOL)isSelected
 {
 	[self willSelect];
