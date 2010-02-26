@@ -103,22 +103,6 @@
 	[self syncObjectView];
 }
 
-- (void)syncObjectView
-{
-	[objectView reloadData];
-	id manipulatedObj = manipulated;
-	if ([manipulatedObj respondsToSelector:@selector(isObjectSelectedAtIndex:)])
-	{
-		NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-		for (uint i = 0; i < [manipulated selectableCount]; i++)
-		{
-			if ([manipulated isObjectSelectedAtIndex:i])
-				[indexSet addIndex:i];
-		}
-		[objectView selectRowIndexes:indexSet byExtendingSelection:NO];
-	}
-}
-
 - (id<OpenGLManipulating>)manipulated
 {
 	return manipulated;
@@ -949,9 +933,30 @@ constrainSplitPosition:(CGFloat)proposedPosition
 
 #pragma mark NSTableViewDelegate
 
+- (void)syncObjectView
+{
+	[objectView setDelegate:nil];
+	
+	[objectView reloadData];
+	id manipulatedObj = manipulated;
+	if ([manipulatedObj respondsToSelector:@selector(isObjectSelectedAtIndex:)])
+	{
+		NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+		for (uint i = 0; i < [manipulated selectableCount]; i++)
+		{
+			if ([manipulated isObjectSelectedAtIndex:i])
+				[indexSet addIndex:i];
+		}
+		[objectView selectRowIndexes:indexSet byExtendingSelection:NO];
+	}
+	
+	[objectView setDelegate:self];
+}
+
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
 	[manipulated changeSelection:NO];
+	[manipulated willSelect];
 	
 	NSIndexSet *indexSet = [objectView selectedRowIndexes];
 	NSUInteger currentIndex = [indexSet firstIndex];
@@ -961,7 +966,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
         currentIndex = [indexSet indexGreaterThanIndex:currentIndex];
     }
 		
-	[manipulated updateSelection];
+	[manipulated didSelect];
 	
 	for (OpenGLSceneView *v in views)
 	{
