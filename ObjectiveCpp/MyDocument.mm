@@ -808,7 +808,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	return proposedPosition;
 }
 
-// fix for issue four-views works independetly on Mac version
+// fix for issue four-views works independently on Mac version
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
 	if (oneView)
