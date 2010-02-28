@@ -20,6 +20,8 @@ NSOpenGLContext *globalGLContext = nil;
 ShaderProgram *globalNormalShader = nil;
 ShaderProgram *globalFlippedShader = nil;
 
+GLuint texture = 0;
+
 @implementation OpenGLSceneView
 
 @synthesize manipulated, displayed, delegate;
@@ -112,6 +114,30 @@ ShaderProgram *globalFlippedShader = nil;
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_LIGHTING);
 		glShadeModel(GL_SMOOTH);
+
+		glEnable(GL_TEXTURE_2D);
+		
+		static const GLfloat planex[] = { 1, 0, 0, 0 };
+		static const GLfloat planey[] = { 0, 1, 0, 0 };
+		static const GLfloat planez[] = { 0, 0, 1, 0 };
+		
+		glTexGenfv(GL_S, GL_OBJECT_PLANE, planex);
+		glTexGenfv(GL_T, GL_OBJECT_PLANE, planey);
+		glTexGenfv(GL_T, GL_OBJECT_PLANE, planez);
+		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glEnable(GL_TEXTURE_GEN_R);
+		
+		NSImage *texImg = [NSImage imageNamed:@"checker.png"];
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		NSBitmapImageRep * bitmap = [NSBitmapImageRep imageRepWithData:[texImg TIFFRepresentation]];
+		glTexImage2D(GL_TEXTURE_2D, 0, 4, [texImg size].width, [texImg size].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
@@ -420,14 +446,15 @@ ShaderProgram *globalFlippedShader = nil;
 
 	[self drawGridWithSize:10 step:2];
 	
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(1, 1, 1, 1);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	
 	[self drawManipulatedAndDisplayed];
 	
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	
-	// removed it is very disturbing
-	//[self drawDefaultManipulator];
 	
 	[self drawCurrentManipulator];
 	
@@ -772,7 +799,6 @@ ShaderProgram *globalFlippedShader = nil;
 	glPushMatrix();
 	glLoadIdentity();			
 	glPushMatrix();
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(1, 1, 1, 1);

@@ -20,6 +20,7 @@
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A785C66D1107B0C700E42D68 /* CachedProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A785C66C1107B0C700E42D68 /* CachedProperty.m */; };
 		A786AF4C10B9E2EC00D65415 /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A786AF4B10B9E2EC00D65415 /* MeshFullState.mm */; };
+		A7B6429C113AAA7200CE2868 /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7B6429B113AAA7200CE2868 /* checker.png */; };
 		A7BB8C9310ED5CC300476385 /* ShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = A7BB8C9210ED5CC300476385 /* ShaderProgram.m */; };
 		A7C6FE761090D4BD008A55E1 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE651090D4BD008A55E1 /* Camera.cpp */; };
 		A7C6FE771090D4BD008A55E1 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C6FE691090D4BD008A55E1 /* Matrix4x4.cpp */; };
@@ -44,6 +45,8 @@
 		A7D288831101042F0092B9DC /* PropertyReflector.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D288821101042F0092B9DC /* PropertyReflector.m */; };
 		A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D28894110107510092B9DC /* libobjc.A.dylib */; };
 		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
+		A7DEA4E51139C20000F1B94D /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7DEA4E41139C20000F1B94D /* Quartz.framework */; };
+		A7DEA4E71139C20000F1B94D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7DEA4E61139C20000F1B94D /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +87,7 @@
 		A7A776EF109348AC0099DB45 /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enums.h; sourceTree = "<group>"; };
 		A7A96A4810222EE2003110A1 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		A7B6429B113AAA7200CE2868 /* checker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checker.png; sourceTree = "<group>"; };
 		A7BB8C9110ED5CC300476385 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
 		A7BB8C9210ED5CC300476385 /* ShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderProgram.m; sourceTree = "<group>"; };
 		A7C6FE651090D4BD008A55E1 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
@@ -132,6 +136,8 @@
 		A7D28894110107510092B9DC /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A7D7733A10A77DAC0068353E /* IndexedItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedItem.h; sourceTree = "<group>"; };
 		A7D7733B10A77DAC0068353E /* IndexedItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IndexedItem.mm; sourceTree = "<group>"; };
+		A7DEA4E41139C20000F1B94D /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		A7DEA4E61139C20000F1B94D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CppFileStreaming.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -143,6 +149,8 @@
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
 				A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */,
+				A7DEA4E51139C20000F1B94D /* Quartz.framework in Frameworks */,
+				A7DEA4E71139C20000F1B94D /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +167,8 @@
 		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A7DEA4E41139C20000F1B94D /* Quartz.framework */,
+				A7DEA4E61139C20000F1B94D /* QuartzCore.framework */,
 				A754C41D0FF92F8600A48E13 /* OpenGL.framework */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
 				A7D28894110107510092B9DC /* libobjc.A.dylib */,
@@ -220,6 +230,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A7B6429B113AAA7200CE2868 /* checker.png */,
 				A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */,
 				A7A96A4910222EE2003110A1 /* Tests-Info.plist */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
@@ -413,6 +424,7 @@
 				A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */,
 				A7521E9910E6771D003D31E4 /* twoSidedLighting.vs in Resources */,
 				A74DDBF210EE704300B8CC23 /* twoSidedLightingFlipped.vs in Resources */,
+				A7B6429C113AAA7200CE2868 /* checker.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
