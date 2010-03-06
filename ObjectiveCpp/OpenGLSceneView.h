@@ -15,6 +15,7 @@
 #import "Shader.h"
 #import "ShaderProgram.h"
 #import "Mesh.h"
+#import "TexturePaintView.h"
 
 @class OpenGLSceneView;
 
@@ -47,6 +48,8 @@
 	Manipulator *currentManipulator;
 	enum CameraMode cameraMode;
 	enum ViewMode viewMode;
+	
+	TexturePaintView *texturePaintView;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> displayed;
@@ -56,6 +59,7 @@
 @property (readwrite, assign) enum CameraMode cameraMode;
 @property (readwrite, assign) enum ViewMode viewMode;
 @property (readwrite, assign) Camera camera;
+@property (readwrite, retain) TexturePaintView *texturePaintView;
 
 - (void)drawGridWithSize:(int)size step:(int)step;
 - (NSRect)orthoManipulatorRect;

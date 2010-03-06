@@ -20,11 +20,11 @@ NSOpenGLContext *globalGLContext = nil;
 ShaderProgram *globalNormalShader = nil;
 ShaderProgram *globalFlippedShader = nil;
 
-GLuint texture = 0;
+//GLuint texture = 0;
 
 @implementation OpenGLSceneView
 
-@synthesize manipulated, displayed, delegate;
+@synthesize manipulated, displayed, delegate, texturePaintView;
 
 + (NSOpenGLPixelFormat *)sharedPixelFormat
 {
@@ -131,13 +131,16 @@ GLuint texture = 0;
 		glEnable(GL_TEXTURE_GEN_T);
 		glEnable(GL_TEXTURE_GEN_R);
 		
-		NSImage *texImg = [NSImage imageNamed:@"checker.png"];
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		NSBitmapImageRep * bitmap = [NSBitmapImageRep imageRepWithData:[texImg TIFFRepresentation]];
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, [texImg size].width, [texImg size].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//if (!texture)
+//		{
+//			NSImage *texImg = [NSImage imageNamed:@"checker.png"];
+//			glGenTextures(1, &texture);
+//			glBindTexture(GL_TEXTURE_2D, texture);
+//			NSBitmapImageRep * bitmap = [NSBitmapImageRep imageRepWithData:[texImg TIFFRepresentation]];
+//			glTexImage2D(GL_TEXTURE_2D, 0, 4, [texImg size].width, [texImg size].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//		}
 		
 		selectionOffset = new Vector3D();
 		isManipulating = NO;
@@ -437,6 +440,8 @@ GLuint texture = 0;
 
 - (void)drawRect:(NSRect)rect
 {	
+	[texturePaintView updateTexture];
+	
 	float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -448,7 +453,8 @@ GLuint texture = 0;
 	
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1, 1, 1, 1);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	
+	glBindTexture(GL_TEXTURE_2D, texturePaintView->textureObjectID);	
 	
 	[self drawManipulatedAndDisplayed];
 	

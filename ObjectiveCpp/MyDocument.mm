@@ -71,6 +71,7 @@
 		[view setManipulated:manipulated]; 
 		[view setDisplayed:itemsController];
 		[view setDelegate:self];
+		[view setTexturePaintView:texturePaintView];
 	};
 	
 	[viewTop setCameraMode:CameraModeTop];

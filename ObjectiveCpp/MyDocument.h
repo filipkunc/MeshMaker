@@ -12,6 +12,7 @@
 #import "AddItemWithStepsSheetController.h"
 #import "MeshManipulationState.h"
 #import "PropertyReflector.h"
+#import "TexturePaintView.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate>
 {
@@ -42,6 +43,8 @@
 	PropertyReflector *propertyReflector;
 	IBOutlet NSTableView *propertyView;
 	IBOutlet NSTableView *objectView;
+
+	IBOutlet TexturePaintView *texturePaintView;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
