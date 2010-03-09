@@ -11,13 +11,14 @@
 
 @implementation TexturePaintView
 
+@synthesize delegate;
+
 - (id)initWithFrame:(NSRect)frame 
 {
     self = [super initWithFrame:frame];
     if (self) 
 	{
         // Initialization code here.
-		frameBufferObjectID = 0;
 		textureObjectID = 0;
 		textureWidth = 512;
 		textureHeight = 512;
@@ -25,31 +26,30 @@
 		
 		lastPoint = currentPoint = NSZeroPoint;
 		drawing = NO;
-		rectangles = [[NSMutableArray alloc] init];
-    }
+		
+		changed = NO;
+		
+		canvas = [[NSImage alloc] initWithSize:NSMakeSize(textureWidth, textureHeight)];
+		[canvas lockFocus];
+		[[NSColor whiteColor] setFill];
+		NSRectFill(NSMakeRect(0, 0, textureWidth, textureHeight));
+		[canvas unlockFocus];
+	}
     return self;
+}
+
+- (void)dealloc
+{
+	[canvas release];
+	[super dealloc];
 }
 
 - (void)drawRect:(NSRect)dirtyRect 
 {
-    // Drawing code here.
-	[[NSColor whiteColor] setFill];
-	[[NSColor blackColor] setStroke];
-	
-	for (NSValue *value in rectangles)
-	{
-		[[NSBezierPath bezierPathWithRoundedRect:[value rectValue]
-										 xRadius:4.0f
-										 yRadius:4.0f] stroke];
-	}
-	
-	if (drawing)
-	{
-		[[NSColor blueColor] setStroke];
-		[[NSBezierPath bezierPathWithRoundedRect:[self currentRect]
-										 xRadius:4.0f
-										 yRadius:4.0f] stroke];
-	}
+	[canvas drawInRect:[self bounds]
+			  fromRect:NSMakeRect(0, 0, [canvas size].width, [canvas size].height)
+			 operation:NSCompositeSourceOver
+			  fraction:1.0];
 }
 
 - (NSPoint)locationFromNSEvent:(NSEvent *)e
@@ -76,13 +76,33 @@
 - (void)mouseDragged:(NSEvent *)e
 {
 	currentPoint = [self locationFromNSEvent:e];
+	
+	[canvas lockFocus];
+	
+	[[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setStroke];
+
+	NSBezierPath *bezierPath = [NSBezierPath bezierPath];
+	[bezierPath setLineWidth:50.0f];
+	[bezierPath setLineCapStyle:NSRoundLineCapStyle];
+	
+	[bezierPath moveToPoint:lastPoint];
+	[bezierPath lineToPoint:currentPoint];
+	
+	[bezierPath stroke];
+	
+	[canvas unlockFocus];
+	changed = YES;
+	
+	lastPoint = currentPoint;
+	
 	[self setNeedsDisplay:YES];
+	
+	[delegate canvasHasChanged];
 }
 
 - (void)mouseUp:(NSEvent *)e
 {
 	drawing = NO;
-	[rectangles addObject:[NSValue valueWithRect:[self currentRect]]];
  	[self setNeedsDisplay:YES];						   
 }
 
@@ -94,35 +114,9 @@
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glGenFramebuffersEXT(1, &frameBufferObjectID);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferObjectID);
-	
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureObjectID, 0);
-	
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	
 	initialized = YES;
-}
-
-- (void)renderStuff
-{
-	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);		
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();			
-	glOrtho(0, textureWidth, 0, textureHeight, -1000.0f, 1000.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	glColor3f(0, 0.5f, 0.5f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glRecti(10, 10, 200, 50);
-	
-	glFlush();
+	changed = YES;
 }
 
 - (void)updateTexture
@@ -130,26 +124,17 @@
 	if (!initialized)
 		[self initTexture];
 	
-	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferObjectID);
-//	glViewport(0, 0, textureWidth, textureHeight);
+	if (!changed)
+		return;
 	
-//	[self renderStuff];
-	
-	NSImage *screenshot = [[[NSImage alloc] initWithSize:NSMakeSize(textureWidth, textureHeight)] autorelease];
-	[screenshot lockFocus];
-	[[NSColor whiteColor] setFill];
-	NSRectFill(NSMakeRect(0, 0, textureWidth, textureHeight));
-	[self drawRect: [self frame]];
-	[screenshot unlockFocus];
-	
-	NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[screenshot TIFFRepresentation]];
+	NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[canvas TIFFRepresentation]];
 		
 	glBindTexture(GL_TEXTURE_2D, textureObjectID);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	changed = NO;
 }
 
 @end

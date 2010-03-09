@@ -83,6 +83,12 @@
 	[propertyReflector setReflectedObject:self];
 	[objectView setDataSource:self];
 	[objectView setDelegate:self];
+	[texturePaintView setDelegate:self];
+}
+
+- (void)canvasHasChanged
+{
+	[self setNeedsDisplayOnAllViews];
 }
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view

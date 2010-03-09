@@ -14,7 +14,7 @@
 #import "PropertyReflector.h"
 #import "TexturePaintView.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate, TexturePaintViewDelegate>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;

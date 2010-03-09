@@ -10,10 +10,16 @@
 #import <OpenGL/OpenGL.h>
 #import <OpenGL/glu.h>
 
+@protocol TexturePaintViewDelegate
+
+- (void)canvasHasChanged;
+
+@end
+
+
 @interface TexturePaintView : NSView 
 {
 @public
-	GLuint frameBufferObjectID;
 	GLuint textureObjectID;	
 	GLuint textureWidth;
 	GLuint textureHeight;
@@ -23,12 +29,17 @@
 	NSPoint currentPoint;
 	BOOL drawing;
 	
-	NSMutableArray *rectangles;
+	BOOL changed;
+	
+	NSImage *canvas;
+	
+	IBOutlet id<TexturePaintViewDelegate> delegate;
 }
+
+@property (readwrite, assign) id<TexturePaintViewDelegate> delegate;
 
 - (NSRect)currentRect;
 - (void)initTexture;
-- (void)renderStuff;
 - (void)updateTexture;
 
 @end
