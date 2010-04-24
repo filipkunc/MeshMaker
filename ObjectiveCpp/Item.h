@@ -18,12 +18,14 @@
 	Vector3D *scale;
 	Mesh *mesh;
 	BOOL selected;
+	BOOL visible;
 }
 
 @property (readwrite, assign) Vector3D position;
 @property (readwrite, assign) Quaternion rotation;
 @property (readwrite, assign) Vector3D scale;
 @property (readwrite, assign) BOOL selected;
+@property (readwrite, assign) BOOL visible;
 @property (readonly) Mesh *mesh;
 
 - (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;

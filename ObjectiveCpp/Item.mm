@@ -41,7 +41,7 @@
 	*scale = aScale;
 }
 
-@synthesize selected, mesh;
+@synthesize selected, mesh, visible;
 
 - (id)init
 {
@@ -53,6 +53,7 @@
 		scale = new Vector3D(1, 1, 1);
 		mesh = [[Mesh alloc] init];
 		selected = NO;
+		visible = YES;
 	}
 	return self;
 }
@@ -93,6 +94,7 @@
 		scale->z = [aDecoder decodeFloatForKey:@"scaleZ"];
 		
 		selected = [aDecoder decodeBoolForKey:@"selected"];
+		visible = YES;
 		
 		mesh = [[aDecoder decodeObjectForKey:@"mesh"] retain];
 	}
@@ -136,6 +138,7 @@
 		fin->read((char *)scale, sizeof(Vector3D));
 		
 		fin->read((char *)&selected, sizeof(BOOL));
+		visible = YES;
 		
 		mesh = [[Mesh alloc] initWithFileStream:fin];
 	}
@@ -163,13 +166,16 @@
 
 - (void)drawWithMode:(enum ViewMode)mode
 {
-	glPushMatrix();
-	glTranslatef(position->x, position->y, position->z);
-	Matrix4x4 rotationMatrix;
-	rotation->ToMatrix(rotationMatrix);
-	glMultMatrixf(rotationMatrix);
-	[mesh drawWithMode:mode scale:*scale selected:selected];
-	glPopMatrix();
+	if (visible)
+	{
+		glPushMatrix();
+		glTranslatef(position->x, position->y, position->z);
+		Matrix4x4 rotationMatrix;
+		rotation->ToMatrix(rotationMatrix);
+		glMultMatrixf(rotationMatrix);
+		[mesh drawWithMode:mode scale:*scale selected:selected];
+		glPopMatrix();
+	}
 }
 
 - (void)moveByOffset:(Vector3D)offset
