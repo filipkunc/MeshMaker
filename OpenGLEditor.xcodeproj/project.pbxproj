@@ -608,10 +608,7 @@
 				GCC_PREFIX_HEADER = OpenGLEditor_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/RBSplitView12/build/Release\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = OpenGLEditor;
 			};
 			name = Debug;
@@ -626,10 +623,7 @@
 				GCC_PREFIX_HEADER = OpenGLEditor_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/RBSplitView12/build/Release\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = OpenGLEditor;
 			};
 			name = Release;

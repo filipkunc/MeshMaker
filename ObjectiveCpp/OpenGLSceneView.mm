@@ -255,7 +255,7 @@ ShaderProgram *globalFlippedShader = nil;
 
 - (void)reshape
 {
-	[super setNeedsDisplay:YES];
+	[self setNeedsDisplay:YES];
 }
 
 - (NSRect)reshapeViewport

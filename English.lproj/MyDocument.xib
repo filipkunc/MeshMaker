@@ -2,16 +2,16 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">10C2234</string>
-		<string key="IBDocument.InterfaceBuilderVersion">740</string>
-		<string key="IBDocument.AppKitVersion">1038.25</string>
-		<string key="IBDocument.HIToolboxVersion">458.00</string>
+		<string key="IBDocument.SystemVersion">10D573</string>
+		<string key="IBDocument.InterfaceBuilderVersion">762</string>
+		<string key="IBDocument.AppKitVersion">1038.29</string>
+		<string key="IBDocument.HIToolboxVersion">460.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">740</string>
+			<string key="NS.object.0">762</string>
 		</object>
 		<array class="NSMutableArray" key="IBDocument.EditedObjectIDs">
-			<integer value="6"/>
+			<integer value="100348"/>
 		</array>
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1495,11 +1495,13 @@
 						<int key="objectID">100340</int>
 						<reference key="object" ref="1026874245"/>
 						<reference key="parent" ref="752972658"/>
+						<string key="objectName">front</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100341</int>
 						<reference key="object" ref="344769371"/>
 						<reference key="parent" ref="752972658"/>
+						<string key="objectName">perspective</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100347</int>
@@ -1514,11 +1516,13 @@
 						<int key="objectID">100294</int>
 						<reference key="object" ref="348380786"/>
 						<reference key="parent" ref="576154545"/>
+						<string key="objectName">left</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100339</int>
 						<reference key="object" ref="696335770"/>
 						<reference key="parent" ref="576154545"/>
+						<string key="objectName">top</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100409</int>
@@ -2264,6 +2268,7 @@
 			</array>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
+		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.macosx</string>
 			<integer value="1060" key="NS.object.0"/>
@@ -2271,5 +2276,15 @@
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<string key="IBDocument.LastKnownRelativeProjectPath">../OpenGLEditor.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
+		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
+			<string key="NSAddTemplate">{8, 8}</string>
+			<string key="NSEnterFullScreenTemplate">{16, 15}</string>
+			<string key="NSExitFullScreenTemplate">{16, 15}</string>
+			<string key="NSInfo">{32, 32}</string>
+			<string key="NSMenuCheckmark">{9, 8}</string>
+			<string key="NSMenuMixedState">{7, 2}</string>
+			<string key="NSNetwork">{32, 32}</string>
+			<string key="NSRefreshFreestandingTemplate">{14, 14}</string>
+		</dictionary>
 	</data>
 </archive>
