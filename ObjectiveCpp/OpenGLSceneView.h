@@ -91,6 +91,5 @@
 - (Vector3D)scaleFromPoint:(NSPoint)point lastPosition:(Vector3D *)lastPosition;
 - (Quaternion)rotationFromPoint:(NSPoint)point lastPosition:(Vector3D *)lastPosition;
 - (NSRect)reshapeViewport;
-- (IBAction)redraw:(id)sender;
 
 @end

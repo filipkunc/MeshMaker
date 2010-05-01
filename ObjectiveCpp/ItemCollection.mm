@@ -175,7 +175,7 @@
 	[[self itemAtIndex:index] drawWithMode:mode];
 }
 
-- (void)cloneSelected
+- (void)duplicateSelected
 {
 	int count = [self count];
 	for (int i = 0; i < count; i++)
@@ -183,7 +183,7 @@
 		if ([self isSelectedAtIndex:i])
 		{
 			Item *oldItem = [self itemAtIndex:i];
-			Item *newItem = [oldItem clone];
+			Item *newItem = [oldItem duplicate];
 			[oldItem setSelected:NO];
 			[items addObject:newItem];
 			[newItem release];
@@ -200,6 +200,26 @@
 			[items removeObjectAtIndex:i];
 			i--;
 		}
+	}
+}
+
+- (void)hideSelected
+{
+	for (Item *item in items)
+	{
+		if ([item selected])
+		{
+			[item setSelected:NO];
+			[item setVisible:NO];
+		}
+	}
+}
+
+- (void)unhideAll
+{
+	for	(Item *item in items)
+	{
+		[item setVisible:YES];
 	}
 }
 
@@ -405,9 +425,9 @@
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
-		Item *clone = [[self itemAtIndex:i] clone];
-		[anItems addObject:clone];
-		[clone release];
+		Item *duplicate = [[self itemAtIndex:i] duplicate];
+		[anItems addObject:duplicate];
+		[duplicate release];
 	}
 	
 	return anItems;

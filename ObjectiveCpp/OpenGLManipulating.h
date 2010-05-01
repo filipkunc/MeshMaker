@@ -31,8 +31,10 @@
 - (void)drawWithMode:(enum ViewMode)mode;
 - (void)changeSelection:(BOOL)isSelected;
 - (void)invertSelection;
-- (void)cloneSelected;
+- (void)duplicateSelected;
 - (void)removeSelected;
+- (void)hideSelected;
+- (void)unhideAll;
 - (NSString *)nameAtIndex:(uint)index;
 
 @end

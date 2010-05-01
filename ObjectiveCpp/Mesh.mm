@@ -1475,7 +1475,7 @@ static ShaderProgram *flippedShader;
 	}
 }
 
-- (void)cloneSelected
+- (void)duplicateSelected
 {
 	if (selectionMode == MeshSelectionModeTriangles)
 	{
@@ -1497,6 +1497,16 @@ static ShaderProgram *flippedShader;
 		}
 		[self removeNonUsedVertices]; // still slow, but called once per selection
 	}
+}
+
+- (void)hideSelected
+{
+	// not implemented yet
+}
+
+- (void)unhideAll
+{
+	// not implemented yet
 }
 
 - (void)flipSelectedTriangles

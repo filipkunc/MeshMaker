@@ -573,9 +573,9 @@
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (IBAction)cloneSelected:(id)sender
+- (IBAction)duplicateSelected:(id)sender
 {	
-	NSLog(@"cloneSelected:");
+	NSLog(@"duplicateSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -589,13 +589,13 @@
 	if (manipulated == itemsController)
 	{
 		NSMutableArray *selection = [items currentSelection];
-		MyDocument *document = [self prepareUndoWithName:@"Clone"];
-		[document undoCloneSelected:selection];
-		[manipulated cloneSelected];
+		MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
+		[document undoDuplicateSelected:selection];
+		[manipulated duplicateSelected];
 	}
 	else if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Clone" block:^ { [manipulated cloneSelected]; }];
+		[self fullMeshActionWithName:@"Duplicate" block:^ { [manipulated duplicateSelected]; }];
 	}
 	
 	[self setNeedsDisplayOnAllViews];
@@ -606,32 +606,32 @@
 	}
 }
 
-- (void)redoCloneSelected:(NSMutableArray *)selection
+- (void)redoDuplicateSelected:(NSMutableArray *)selection
 {
-	NSLog(@"redoCloneSelected:");
+	NSLog(@"redoDuplicateSelected:");
 	
 	[self setManipulated:itemsController];
 	[items setCurrentSelection:selection];
-	[manipulated cloneSelected];
+	[manipulated duplicateSelected];
 	
-	MyDocument *document = [self prepareUndoWithName:@"Clone"];
-	[document undoCloneSelected:selection];
+	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
+	[document undoDuplicateSelected:selection];
 	
 	[manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (void)undoCloneSelected:(NSMutableArray *)selection
+- (void)undoDuplicateSelected:(NSMutableArray *)selection
 {	
-	NSLog(@"undoCloneSelected:");
+	NSLog(@"undoDuplicateSelected:");
 	
 	[self setManipulated:itemsController];
-	uint clonedCount = [selection count];
-	[items removeItemsInRange:NSMakeRange([items count] - clonedCount, clonedCount)];
+	uint duplicatedCount = [selection count];
+	[items removeItemsInRange:NSMakeRange([items count] - duplicatedCount, duplicatedCount)];
 	[items setCurrentSelection:selection];
 
-	MyDocument *document = [self prepareUndoWithName:@"Clone"];
-	[document redoCloneSelected:selection];
+	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
+	[document redoDuplicateSelected:selection];
 		
 	[manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
@@ -722,6 +722,18 @@
 - (IBAction)invertSelection:(id)sender
 {
 	[[self manipulated] invertSelection];
+	[self setNeedsDisplayOnAllViews];
+}
+
+- (IBAction)hideSelected:(id)sender
+{
+	[[self manipulated] hideSelected];
+	[self setNeedsDisplayOnAllViews];
+}
+
+- (IBAction)unhideAll:(id)sender
+{
+	[[self manipulated] unhideAll];
 	[self setNeedsDisplayOnAllViews];
 }
 

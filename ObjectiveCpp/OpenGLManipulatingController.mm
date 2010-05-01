@@ -576,9 +576,9 @@
 	[self updateSelection];
 }
 
-- (void)cloneSelected
+- (void)duplicateSelected
 {
-	[model cloneSelected];
+	[model duplicateSelected];
 	[self updateSelection];
 }
 
@@ -586,6 +586,17 @@
 {	
 	[model removeSelected];
 	[self updateSelection];
+}
+
+- (void)hideSelected
+{
+	[model hideSelected];
+	[self updateSelection];
+}
+
+- (void)unhideAll
+{
+	[model unhideAll];
 }
 
 - (NSString *)nameAtIndex:(uint)index
