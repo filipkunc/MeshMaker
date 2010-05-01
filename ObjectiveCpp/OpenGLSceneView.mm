@@ -426,9 +426,6 @@ ShaderProgram *globalFlippedShader = nil;
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	
-	// removed it is very disturbing
-	//[self drawDefaultManipulator];
-	
 	[self drawCurrentManipulator];
 	
 	[self drawOrthoDefaultManipulator];
@@ -1076,11 +1073,6 @@ ShaderProgram *globalFlippedShader = nil;
 	
 	*lastPosition = position;
 	return quaternion;
-}
-
-- (IBAction)redraw:(id)sender
-{
-	[self setNeedsDisplay:YES];
 }
 
 @end

@@ -17,8 +17,10 @@
 - (BOOL)isSelectedAtIndex:(uint)index;
 - (void)setSelected:(BOOL)selected atIndex:(uint)index;
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;
-- (void)cloneSelected;
+- (void)duplicateSelected;
 - (void)removeSelected;
+- (void)hideSelected;
+- (void)unhideAll;
 - (NSString *)nameAtIndex:(uint)index;
 
 @optional

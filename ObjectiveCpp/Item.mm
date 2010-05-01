@@ -193,7 +193,7 @@
 	*scale += offset;
 }
 
-- (Item *)clone
+- (Item *)duplicate
 {
 	Item *newItem = [[Item alloc] init];
 

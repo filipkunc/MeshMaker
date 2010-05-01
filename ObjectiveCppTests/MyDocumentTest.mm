@@ -130,12 +130,12 @@
 	STAssertEquals([[document->items itemAtIndex:1U] position], Vector3D(0, 5, 0), @"second item (0, 5, 0)");
 }
 
-- (void)testUndoItemManipulationCloneDelete
+- (void)testUndoItemManipulationDuplicateDelete
 {
 	[self prepareDocument];
 
 	[self groupAction:^ { [document addCube:self]; }];
-	[self groupAction:^ { [document cloneSelected:self]; }];
+	[self groupAction:^ { [document duplicateSelected:self]; }];
 	
 	[self groupAction:^ 
 	{ 
@@ -146,7 +146,7 @@
 	
 	[document selectAll:self];
 	
-	[self groupAction:^ { [document cloneSelected:self]; }];	
+	[self groupAction:^ { [document duplicateSelected:self]; }];	
 	
 	[self groupAction:^ 
 	{ 
