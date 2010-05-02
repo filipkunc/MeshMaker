@@ -20,7 +20,7 @@
 		itemIndex = index;
 		vertices = new vector<Vector3D>(*mesh->vertices);
 		triangles = new vector<Triangle>(*mesh->triangles);
-		selected = new vector<BOOL>(*mesh->selected);
+		selected = new vector<SelectionInfo>(*mesh->selected);
 		selectionMode = [mesh selectionMode];
 	}
 	return self;

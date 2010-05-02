@@ -14,7 +14,7 @@
 {
 	uint itemIndex;
 	vector<Vector3D> *vertices;
-	vector<BOOL> *selected;
+	vector<SelectionInfo> *selected;
 	enum MeshSelectionMode selectionMode;
 }
 

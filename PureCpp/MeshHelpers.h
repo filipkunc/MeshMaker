@@ -12,13 +12,21 @@
 #include "Enums.h"
 #include "MathCore/MathDeclaration.h"
 
-typedef struct {
+typedef struct 
+{
 	uint vertexIndices[3];
 } Triangle;
 
-typedef struct {
+typedef struct 
+{
 	uint vertexIndices[2];
 } Edge;
+
+typedef struct
+{
+	BOOL selected;
+	BOOL visible;
+} SelectionInfo;
 
 BOOL IsTriangleDegenerated(Triangle triangle);
 BOOL AreEdgesSame(Edge a, Edge b);
