@@ -63,7 +63,7 @@ static ShaderProgram *flippedShader;
 		vertices = new vector<Vector3D>();
 		triangles = new vector<Triangle>();
 		edges = new vector<Edge>();
-		selected = new vector<BOOL>();
+		selected = new vector<SelectionInfo>();
 		markedVertices = new vector<BOOL>();
 		selectionMode = MeshSelectionModeVertices;
 		float hue = (random() % 10) / 10.0f;
@@ -73,6 +73,7 @@ static ShaderProgram *flippedShader;
 										  alpha:1.0f];
 		[color retain];
 		
+		cachedIndices = NULL;
 		cachedVertices = NULL;
 		cachedNormals = NULL;
 		cachedColors = NULL;
@@ -96,20 +97,21 @@ static ShaderProgram *flippedShader;
 {
 	selectionMode = value;
 	selected->clear();
+	[self resetIndexCache];
 	switch (selectionMode) 
 	{
 		case MeshSelectionModeVertices:
 		{
 			for (uint i = 0; i < vertices->size(); i++)
 			{
-				selected->push_back(NO);
+				selected->push_back((SelectionInfo){ NO, YES });
 			}
 		} break;
 		case MeshSelectionModeTriangles:
 		{
 			for (uint i = 0; i < triangles->size(); i++)
 			{
-				selected->push_back(NO);
+				selected->push_back((SelectionInfo){ NO, YES });
 			}
 		} break;
 		case MeshSelectionModeEdges:
@@ -117,7 +119,7 @@ static ShaderProgram *flippedShader;
 			[self makeEdges];
 			for (uint i = 0; i < edges->size(); i++)
 			{
-				selected->push_back(NO);
+				selected->push_back((SelectionInfo){ NO, YES });
 			}
 		} break;
 	}
@@ -152,14 +154,14 @@ static ShaderProgram *flippedShader;
 {
 	vertices->push_back(aVertex);
 	if (selectionMode == MeshSelectionModeVertices)
-		selected->push_back(NO);
+		selected->push_back((SelectionInfo){ NO, YES });
 }
 
 - (void)addTriangle:(Triangle)aTriangle
 {
 	triangles->push_back(aTriangle);
 	if (selectionMode == MeshSelectionModeTriangles)
-		selected->push_back(NO);
+		selected->push_back((SelectionInfo){ NO, YES });
 }
 
 - (void)addTriangleWithIndex1:(uint)index1
@@ -200,11 +202,21 @@ static ShaderProgram *flippedShader;
 	edges->push_back(edge);
 	
 	if (selectionMode == MeshSelectionModeEdges)
-		selected->push_back(NO);
+		selected->push_back((SelectionInfo){ NO, YES });
+}
+
+- (void)resetIndexCache
+{
+	if (cachedIndices)
+	{
+		delete cachedIndices;
+		cachedIndices = NULL;
+	}
 }
 
 - (void)resetCache
 {
+	[self resetIndexCache];
 	if (cachedVertices)
 	{
 		delete [] cachedVertices;
@@ -222,10 +234,34 @@ static ShaderProgram *flippedShader;
 	}
 }
 
+- (void)fillIndexCache
+{
+	if (!cachedIndices && selectionMode == MeshSelectionModeTriangles)
+	{
+		vector<uint> *visibleIndices = new vector<uint>();
+		
+		for (uint i = 0; i < selected->size(); i++)
+		{
+			if ((*selected)[i].visible)
+			{
+				for (uint j = 0; j < 3; j++)
+				{
+					visibleIndices->push_back(i * 3 + j);
+				}
+			}
+		}
+		
+		if (visibleIndices->size() > 0)
+			cachedIndices = visibleIndices;
+		else
+			delete visibleIndices;
+	}
+}
+
 - (void)fillCache
 {
 	if (!cachedVertices)
-	{		
+	{
 		cachedVertices = new Vector3D[triangles->size() * 3];
 		cachedNormals = new Vector3D[triangles->size() * 3];
 		cachedColors = new Vector3D[triangles->size() * 3];
@@ -245,6 +281,7 @@ static ShaderProgram *flippedShader;
 			}
 		}
 	}
+	[self fillIndexCache];
 }
 
 - (void)updateColorCacheAsDarker:(BOOL)darker
@@ -264,7 +301,7 @@ static ShaderProgram *flippedShader;
 	
 	for (uint i = 0; i < triangles->size(); i++)
 	{
-		if ((*selected)[i])
+		if ((*selected)[i].selected)
 		{
 			for (uint j = 0; j < 3; j++)
 			{
@@ -307,7 +344,19 @@ static ShaderProgram *flippedShader;
 	
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
-	glDrawArrays(GL_TRIANGLES, 0, triangles->size() * 3);
+	
+	if (cachedIndices != NULL)
+	{
+		if (cachedIndices->size() > 0)
+		{
+			uint *indexPtr = &(*cachedIndices)[0];
+			glDrawElements(GL_TRIANGLES, cachedIndices->size(), GL_UNSIGNED_INT, indexPtr);
+		}
+	}
+	else
+	{
+		glDrawArrays(GL_TRIANGLES, 0, triangles->size() * 3);
+	}
 	
 	if (selectionMode == MeshSelectionModeTriangles)
 		glDisableClientState(GL_COLOR_ARRAY);
@@ -661,7 +710,7 @@ static ShaderProgram *flippedShader;
 		{
 			for (uint i = 0; i < vertices->size(); i++)
 			{
-				if (selected->at(i))
+				if (selected->at(i).selected)
 					markedVertices->at(i) = YES;
 			}
 		} break;
@@ -669,7 +718,7 @@ static ShaderProgram *flippedShader;
 		{
 			for (uint i = 0; i < triangles->size(); i++)
 			{
-				if (selected->at(i))
+				if (selected->at(i).selected)
 				{
 					[self setTriangleMarked:YES atIndex:i];
 				}
@@ -679,7 +728,7 @@ static ShaderProgram *flippedShader;
 		{
 			for (uint i = 0; i < edges->size(); i++)
 			{
-				if (selected->at(i))
+				if (selected->at(i).selected)
 				{
 					[self setEdgeMarked:YES atIndex:i];
 				}
@@ -772,7 +821,7 @@ static ShaderProgram *flippedShader;
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			[self removeVertexAtIndex:i];
 			i--;
@@ -791,7 +840,7 @@ static ShaderProgram *flippedShader;
 	center /= 2;
 	
 	vertices->push_back(center);
-	selected->push_back(NO);
+	selected->push_back((SelectionInfo){ NO, YES });
 	
 	uint centerIndex = vertices->size() - 1;
 	
@@ -832,7 +881,7 @@ static ShaderProgram *flippedShader;
 	
 	for (uint i = 0; i < selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			selectedCount++;
 			center += vertices->at(i);
@@ -846,13 +895,13 @@ static ShaderProgram *flippedShader;
 	
 	center /= selectedCount;
 	vertices->push_back(center);
-	selected->push_back(NO);
+	selected->push_back((SelectionInfo){ NO, YES });
 	
 	uint centerIndex = vertices->size() - 1;
 	
 	for (uint i = 0; i < selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			for (uint j = 0; j < triangles->size(); j++)
 			{
@@ -888,14 +937,14 @@ static ShaderProgram *flippedShader;
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			Vector3D firstVertex = [self vertexAtIndex:i];
 			float smallestDistance = 10.0f; // maximum distance between vertices in pair
 			int secondIndex = -1;
 			for (int j = i + 1; j < (int)selected->size(); j++)
 			{
-				if (selected->at(j))
+				if (selected->at(j).selected)
 				{
 					Vector3D secondVertex = [self vertexAtIndex:j];
 					float currentDistance = firstVertex.Distance(secondVertex);
@@ -948,7 +997,7 @@ static ShaderProgram *flippedShader;
 	}
 	selected->clear();
 	for (uint i = 0; i < vertices->size(); i++)
-		selected->push_back(NO);
+		selected->push_back((SelectionInfo){ NO, YES });
 }
 
 - (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle
@@ -1070,7 +1119,7 @@ static ShaderProgram *flippedShader;
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			[self splitEdgeAtIndex:i];
 			i--;
@@ -1085,7 +1134,7 @@ static ShaderProgram *flippedShader;
 	
 	for (int i = 0; i < (int)selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			[self splitTriangleAtIndex:i];
 			i--;
@@ -1158,7 +1207,7 @@ static ShaderProgram *flippedShader;
 	
 	for (uint i = 0; i < selected->size(); i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			[self turnEdgeAtIndex:i];
 			
@@ -1294,7 +1343,7 @@ static ShaderProgram *flippedShader;
 
 - (BOOL)isSelectedAtIndex:(uint)index
 {
-	return selected->at(index);
+	return selected->at(index).selected;
 }
 
 - (void)setEdgeMarked:(BOOL)isMarked atIndex:(uint)index
@@ -1314,11 +1363,14 @@ static ShaderProgram *flippedShader;
 
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
 {
-	selected->at(index) = isSelected;
+	selected->at(index).selected = isSelected;
 }
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
+	if (!selected->at(index).visible)
+		return;
+	
 	switch (selectionMode) 
 	{
 		case MeshSelectionModeVertices:
@@ -1326,7 +1378,7 @@ static ShaderProgram *flippedShader;
 			Vector3D v = [self vertexAtIndex:index];
 			if (!forSelection)
 			{
-				BOOL isSelected = selected->at(index);
+				BOOL isSelected = selected->at(index).selected;
 				glPointSize(5.0f);
 				if (isSelected)
 					glColor3f(1.0f, 0.0f, 0.0f);
@@ -1357,7 +1409,7 @@ static ShaderProgram *flippedShader;
 			Edge currentEdge = [self edgeAtIndex:index];
 			if (!forSelection)
 			{
-				BOOL isSelected = selected->at(index);
+				BOOL isSelected = selected->at(index).selected;
 				if (isSelected)
 					glColor3f(0.8f, 0.0f, 0.0f);
 				else
@@ -1391,7 +1443,7 @@ static ShaderProgram *flippedShader;
 	
 	for (uint i = 0; i < triCount; i++)
 	{
-		if (selected->at(i))
+		if (selected->at(i).selected)
 		{
 			[self setTriangleMarked:NO atIndex:i];
 			Triangle &triangle = triangles->at(i);
@@ -1489,7 +1541,7 @@ static ShaderProgram *flippedShader;
 	{
 		for (int i = 0; i < (int)[self triangleCount]; i++)
 		{
-			if (selected->at(i))
+			if (selected->at(i).selected)
 			{
 				[self removeTriangleAtIndex:i];
 				i--;
@@ -1501,12 +1553,52 @@ static ShaderProgram *flippedShader;
 
 - (void)hideSelected
 {
-	// not implemented yet
+	if (selectionMode == MeshSelectionModeEdges)
+	{
+		for (uint i = 0; i < selected->size(); i++)
+		{
+			if ((*selected)[i].selected)
+			{
+				(*selected)[i].visible = NO;
+				(*selected)[i].selected = NO;
+				[self setEdgeMarked:NO atIndex:i];
+			}
+		}
+	}
+	else if (selectionMode == MeshSelectionModeTriangles)
+	{
+		for (uint i = 0; i < selected->size(); i++)
+		{
+			if ((*selected)[i].selected)
+			{
+				(*selected)[i].visible = NO;
+				(*selected)[i].selected = NO;
+				[self setTriangleMarked:NO atIndex:i];
+			}
+		}
+		[self resetIndexCache];
+	}
+	else
+	{
+		for (uint i = 0; i < selected->size(); i++)
+		{
+			if ((*selected)[i].selected)
+			{
+				(*selected)[i].visible = NO;
+				(*selected)[i].selected = NO;
+				markedVertices->at(i) = NO;
+			}
+		}
+	}	
 }
 
 - (void)unhideAll
 {
-	// not implemented yet
+	for (uint i = 0; i < selected->size(); i++)
+	{
+		(*selected)[i].visible = YES;
+	}
+	[self resetIndexCache];
 }
 
 - (void)flipSelectedTriangles
@@ -1516,7 +1608,7 @@ static ShaderProgram *flippedShader;
 		[self resetCache];
 		for (uint i = 0; i < [self triangleCount]; i++)
 		{
-			if (selected->at(i))
+			if (selected->at(i).selected)
 				[self flipTriangleAtIndex:i];
 		}
 	}
