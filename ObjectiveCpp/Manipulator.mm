@@ -23,7 +23,7 @@
 		rotation = new Quaternion();
 		size = 10.0f;
 		selectedIndex = -1;
-	}
+    }
 	return self;
 }
 

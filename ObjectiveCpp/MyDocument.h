@@ -59,8 +59,8 @@
 - (void)swapMeshFullStateWithOld:(MeshFullState *)old 
 						 current:(MeshFullState *)current 
 					  actionName:(NSString *)actionName;
-- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
-- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action;
+- (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action;
+- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^)())action;
 - (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps;
 - (IBAction)addCube:(id)sender;

@@ -8,10 +8,9 @@
 
 #import "OpenGLManipulatingController.h"
 
-
 @implementation OpenGLManipulatingController
 
-@synthesize selectedCount, model, lastSelectedIndex;
+@synthesize selectedCount, lastSelectedIndex;
 
 - (id)init
 {
@@ -43,6 +42,11 @@
 	delete modelRotation;
 	delete modelScale;
 	[super dealloc];
+}
+
+- (id<OpenGLManipulatingModel>)model
+{
+    return model;
 }
 
 - (void)setModel:(id<OpenGLManipulatingModel>)value
