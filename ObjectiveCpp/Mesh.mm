@@ -13,8 +13,6 @@ static ShaderProgram *flippedShader;
 
 @implementation Mesh
 
-@synthesize selectionMode;
-
 + (NSString *)descriptionOfMeshType:(enum MeshType)type
 {
 	switch (type)
@@ -91,6 +89,11 @@ static ShaderProgram *flippedShader;
 	[color release];
 	[self resetCache];
 	[super dealloc];
+}
+
+- (enum MeshSelectionMode)selectionMode
+{
+    return selectionMode;
 }
 
 - (void)setSelectionMode:(enum MeshSelectionMode)value

@@ -374,22 +374,22 @@
 	[self setManipulated:meshController];
 }
 
-- (void)allItemsActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
+- (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	NSMutableArray *oldItems = [items allItems];
-	NSLog(@"oldItems count = %i", [oldItems count]);
+	NSLog(@"oldItems count = %i", (int)[oldItems count]);
 	
 	action();
 	
 	NSMutableArray *currentItems = [items allItems];
-	NSLog(@"currentItems count = %i", [currentItems count]);
+	NSLog(@"currentItems count = %i", (int)[currentItems count]);
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
 					   actionName:actionName];	
 }
 
-- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^blockmethod)())action
+- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	MeshFullState *oldState = [items currentMeshFull];
