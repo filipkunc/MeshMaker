@@ -1,19 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Scheme>
+<Scheme
+   version = "1.1">
    <BuildAction
-      buildConfiguration = "Debug">
-      <BuildableProductReferences>
-         <BuildableProductReference
-            BuildableProductIdentifier = "Tests.octest">
-         </BuildableProductReference>
-      </BuildableProductReferences>
+      parallelizeBuildables = "NO"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A7A96A4710222EE2003110A1"
+               BuildableName = "Tests.octest"
+               BlueprintName = "Tests"
+               ReferencedContainer = "container:OpenGLEditor.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
    </BuildAction>
-   <TestAction>
+   <TestAction
+      buildConfiguration = "Debug">
+      <Testables>
+      </Testables>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.GDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.GDB">
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.GDB"
+      loadSymbolsForSpecifiedModules = "NO"
+      displayScaleIsEnabled = "NO"
+      displayScale = "1.00"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      buildConfiguration = "Debug">
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
+   <ProfileAction
+      displayScaleIsEnabled = "NO"
+      displayScale = "1.00"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      useCustomWorkingDirectory = "NO"
+      buildConfiguration = "Debug">
+   </ProfileAction>
+   <ArchiveAction
+      buildConfiguration = "Release">
+   </ArchiveAction>
 </Scheme>

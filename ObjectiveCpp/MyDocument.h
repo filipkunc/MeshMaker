@@ -11,7 +11,6 @@
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
 #import "MeshManipulationState.h"
-#import "PropertyReflector.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate>
 {
@@ -38,17 +37,12 @@
 	IBOutlet NSSplitView *bottomSplit;
 	IBOutlet NSSplitView *mainSplit;
 	OpenGLSceneView *oneView;
-	
-	PropertyReflector *propertyReflector;
-	IBOutlet NSTableView *propertyView;
-	IBOutlet NSTableView *objectView;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view;
 - (void)setNeedsDisplayOnAllViews;
-- (void)syncObjectView;
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;

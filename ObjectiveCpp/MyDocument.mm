@@ -49,7 +49,6 @@
 	[oldManipulations release];
 	[oldMeshManipulation release];
 	[views release];
-	[propertyReflector release];
 	[super dealloc];
 }
 
@@ -77,11 +76,6 @@
 	[viewLeft setCameraMode:CameraModeLeft];
 	[viewFront setCameraMode:CameraModeFront];
 	[viewPerspective setCameraMode:CameraModePerspective];
-	
-	propertyReflector = [[PropertyReflector alloc] initWithTableView:propertyView];
-	[propertyReflector setReflectedObject:self];
-	[objectView setDataSource:self];
-	[objectView setDelegate:self];
 }
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view
@@ -91,7 +85,6 @@
 		if (v != view)
 			[v setNeedsDisplay:YES]; 
 	}
-	[self syncObjectView];
 }
 
 - (void)setNeedsDisplayOnAllViews
@@ -100,7 +93,6 @@
 	{
 		[v setNeedsDisplay:YES];
 	}
-	[self syncObjectView];
 }
 
 - (id<OpenGLManipulating>)manipulated
@@ -127,8 +119,6 @@
 		int meshTag = [[self currentMesh] selectionMode] + 1;
 		[editModePopUp selectItemWithTag:meshTag];
 	}
-	
-	[self syncObjectView];
 }
 
 - (Mesh *)currentMesh
@@ -929,61 +919,6 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	}
 	
 	NSLog(@"No view is under mouse");
-}
-
-#pragma mark NSTableViewDataSource
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
-	return [manipulated selectableCount];
-}
-
-- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
-	return [manipulated nameAtIndex:(uint)row];
-}
-
-#pragma mark NSTableViewDelegate
-
-- (void)syncObjectView
-{
-	[objectView setDelegate:nil];
-	
-	[objectView reloadData];
-	id manipulatedObj = manipulated;
-	if ([manipulatedObj respondsToSelector:@selector(isObjectSelectedAtIndex:)])
-	{
-		NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-		for (uint i = 0; i < [manipulated selectableCount]; i++)
-		{
-			if ([manipulated isObjectSelectedAtIndex:i])
-				[indexSet addIndex:i];
-		}
-		[objectView selectRowIndexes:indexSet byExtendingSelection:NO];
-	}
-	
-	[objectView setDelegate:self];
-}
-
-- (void)tableViewSelectionDidChange:(NSNotification *)notification
-{
-	[manipulated changeSelection:NO];
-	[manipulated willSelect];
-	
-	NSIndexSet *indexSet = [objectView selectedRowIndexes];
-	NSUInteger currentIndex = [indexSet firstIndex];
-    while (currentIndex != NSNotFound) 
-	{
-        [manipulated selectObjectAtIndex:currentIndex withMode:OpenGLSelectionModeAdd];
-        currentIndex = [indexSet indexGreaterThanIndex:currentIndex];
-    }
-		
-	[manipulated didSelect];
-	
-	for (OpenGLSceneView *v in views)
-	{
-		[v setNeedsDisplay:YES];
-	}
 }
 
 @end
