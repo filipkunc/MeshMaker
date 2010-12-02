@@ -3,6 +3,8 @@ build
 *.pbxuser
 *.mode1v3
 
+xcuserdata
+
 # osx noise
 .DS_Store
 profile
