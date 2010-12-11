@@ -20,6 +20,6 @@
 
 - (id)initWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget;
 - (void)drawCoreWithSize:(float)size;
-- (void)drawWithSize:(float)size isSelected:(BOOL)isSelected isGray:(BOOL)isGray;
+- (void)drawWithSize:(float)size isSelected:(BOOL)isSelected isGray:(BOOL)isGray forSelection:(BOOL)forSelection;
 
 @end

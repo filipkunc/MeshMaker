@@ -338,14 +338,14 @@ ShaderProgram *globalFlippedShader = nil;
 	glPopMatrix();
 }
 
-- (void)drawManipulatedAndDisplayed
+- (void)drawManipulatedAndDisplayedForSelection:(BOOL)forSelection
 {
 	[Mesh setNormalShader:[OpenGLSceneView normalShader]];
 	[Mesh setFlippedShader:[OpenGLSceneView flippedShader]];
 	
 	if (displayed != manipulated)
-		[displayed drawWithMode:viewMode];
-	[manipulated drawWithMode:viewMode];
+		[displayed drawWithMode:viewMode forSelection:forSelection];
+	[manipulated drawWithMode:viewMode forSelection:forSelection];
 }
 
 - (void)drawDefaultManipulator
@@ -420,7 +420,7 @@ ShaderProgram *globalFlippedShader = nil;
 
 	[self drawGridWithSize:10 step:2];
 	
-	[self drawManipulatedAndDisplayed];
+	[self drawManipulatedAndDisplayedForSelection:NO];
 	
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
@@ -789,6 +789,10 @@ ShaderProgram *globalFlippedShader = nil;
 
 #pragma mark Selection
 
+const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height resolution
+
+uint selectedIndices[kMaxSelectedIndicesCount];
+
 - (void)selectWithX:(double)x
 				  y:(double)y
 			  width:(double)width
@@ -806,87 +810,52 @@ ShaderProgram *globalFlippedShader = nil;
 	{
 		[selecting willSelect];
 	}
-	
-	int objectsFound = 0;
-    int viewport[4];
-	const unsigned int selectBufferSize = 65535;
-	unsigned int selectBuffer[selectBufferSize];
-	
-	[[self openGLContext] makeCurrentContext];
+    
+    [[self openGLContext] makeCurrentContext];
+    glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	glSelectBuffer(selectBufferSize, selectBuffer);
-	NSRect baseRect = [self reshapeViewport];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-    glRenderMode(GL_SELECT);
-    glLoadIdentity();
-    gluPickMatrix(x, y, width, height, viewport);
-	[self applyProjectionWithRect:baseRect];
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(camera->GetViewMatrix());
-    glInitNames();
-    glPushName(0);
-    glPushMatrix();
+ 
+    [self setupViewportAndCamera];
     
-	if (cullFace)
-	{
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-	}
-	
-	for (uint i = 0; i < [selecting selectableCount]; i++)
-	{
-		glLoadName(i + 1);
-		glPushMatrix();
-		[selecting drawForSelectionAtIndex:i];
-		glPopMatrix();
-	}
-	
-	if (cullFace)
-	{
-		glDisable(GL_CULL_FACE);
-	}
+    /*glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);*/
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
     
-	glPopMatrix();
+    for (uint i = 0; i < [selecting selectableCount]; i++)
+    {
+        uint colorIndex = i + 1;
+        glColor4ubv((GLubyte *)&colorIndex);
+        [selecting drawForSelectionAtIndex:i];
+    }
+    
 	glFinish();
-    objectsFound = (int)glRenderMode(GL_RENDER);
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-		
-	if (objectsFound <= 0)
-		return;
-	
-	if (nearestOnly)
-	{
-        unsigned int lowestDepth = selectBuffer[1];
-        int selectedIndex = (int)selectBuffer[3];
-        for (int i = 1; i < objectsFound; i++)
+    
+    uint selectedIndicesCount = width * height;
+
+    if (selectedIndicesCount >= kMaxSelectedIndicesCount)
+    {
+        NSLog(@"too big selection rect, selection ignored");
+        return;
+    }
+    
+    if (selectedIndicesCount > 0)
+    {
+    	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
+ 
+        for (uint i = 0; i < selectedIndicesCount; i++)
         {
-            if (selectBuffer[(i * 4) + 1] < lowestDepth)
+            uint selectedIndex = selectedIndices[i];
+            if (selectedIndex > 0 && selectedIndex - 1 < [selecting selectableCount])
             {
-                lowestDepth = selectBuffer[(i * 4) + 1];
-                selectedIndex = (int)selectBuffer[(i * 4) + 3];
+                NSLog(@"selectedIndex = %d", selectedIndex);
+                [selecting selectObjectAtIndex:selectedIndex - 1 withMode:OpenGLSelectionModeAdd];
+                return;
             }
         }
-        selectedIndex--;
-        if (selectedIndex >= 0)
-			[selecting selectObjectAtIndex:selectedIndex withMode:selectionMode];
-	}
-	else
-	{
-		for (int i = 0; i < objectsFound; i++)
-        {
-            int selectedIndex = (int)selectBuffer[(i * 4) + 3];
-            selectedIndex--;
-            if (selectedIndex >= 0)
-				[selecting selectObjectAtIndex:selectedIndex withMode:selectionMode];
-        }
-	}	
-	
-	if ([aSelecting respondsToSelector:@selector(didSelect)])
+    }
+    
+    if ([aSelecting respondsToSelector:@selector(didSelect)])
 	{
 		[selecting didSelect];
 	}
