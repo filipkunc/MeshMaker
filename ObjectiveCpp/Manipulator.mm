@@ -136,7 +136,7 @@
 		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:YES];
+			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:YES forSelection:NO];
 		}
 		glPopMatrix();
 		
@@ -168,7 +168,7 @@
 		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO];
+			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO forSelection:NO];
 		}
 		glPopMatrix();
 		
@@ -182,7 +182,7 @@
 		for (int i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO];
+			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO forSelection:NO];
 		}
 		glPopMatrix();
 	}
@@ -210,7 +210,7 @@
 	Matrix4x4 rotationMatrix;
 	rotation->ToMatrix(rotationMatrix);
 	glMultMatrixf(rotationMatrix);
-	[widget drawWithSize:size isSelected:NO isGray:NO];
+	[widget drawWithSize:size isSelected:NO isGray:NO forSelection:YES];
 	glPopMatrix();
 }
 

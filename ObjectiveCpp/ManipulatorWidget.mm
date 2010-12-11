@@ -47,7 +47,7 @@
 	}
 }
 
-- (void)drawWithSize:(float)size isSelected:(BOOL)isSelected isGray:(BOOL)isGray
+- (void)drawWithSize:(float)size isSelected:(BOOL)isSelected isGray:(BOOL)isGray forSelection:(BOOL)forSelection
 {
 	float alpha, angle;
 	if (widget == WidgetPlane)
@@ -60,14 +60,17 @@
 		alpha = 0.8f;
 		angle = 90.0f;
 	}
-	if (isSelected)
-		glColor4f(1, 1, 0, alpha);
-	else if (isGray)
-		glColor4f(0.3f, 0.3f, 0.3f, 0.8f);
+    if (!forSelection)
+    {
+        if (isSelected)
+            glColor4f(1, 1, 0, alpha);
+        else if (isGray)
+            glColor4f(0.3f, 0.3f, 0.3f, 0.8f);
+    }
 	switch (axis)
 	{
 		case AxisX:
-			if (!isSelected && !isGray)
+			if (!isSelected && !isGray && !forSelection)
 				glColor4f(1, 0, 0, alpha);
 			glPushMatrix();
 			glRotatef(-angle, 0, 0, 1);
@@ -75,12 +78,12 @@
 			glPopMatrix();
 			break;
 		case AxisY:
-			if (!isSelected && !isGray)
+			if (!isSelected && !isGray && !forSelection)
 				glColor4f(0, 1, 0, alpha);
 			[self drawCoreWithSize:size];
 			break;
 		case AxisZ:
-			if (!isSelected && !isGray)
+			if (!isSelected && !isGray && !forSelection)
 				glColor4f(0, 0, 1, alpha);
 			glPushMatrix();
 			glRotatef(angle, 1, 0, 0);
@@ -88,7 +91,7 @@
 			glPopMatrix();
 			break;
 		case Center:
-			if (!isSelected && !isGray)
+			if (!isSelected && !isGray && !forSelection)
 				glColor4f(1, 1, 1, 0.4f);
 			DrawCenterCube(size);
 			break;

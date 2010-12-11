@@ -139,29 +139,19 @@ void DrawCubeArrow(float size)
 
 void DrawCenterCube(float size)
 {
-	glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
 	DrawCube(size * 0.2f);
-	
-	glDisable(GL_BLEND);
 }
 
 void DrawPlane(float size, float sizeOffset)
 {
     size += sizeOffset;
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
     glBegin(GL_QUADS);
     glVertex3f(sizeOffset, 0, sizeOffset);
     glVertex3f(size, 0, sizeOffset);
     glVertex3f(size, 0, size);
     glVertex3f(sizeOffset, 0, size);
     glEnd();
-	
-    glDisable(GL_BLEND);
 }
 
 void DrawPlane(Vector3D a, Vector3D b, float size)
