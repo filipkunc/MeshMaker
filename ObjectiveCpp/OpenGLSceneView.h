@@ -64,10 +64,10 @@
 - (void)endOrtho;
 - (void)applyProjectionWithRect:(NSRect)baseRect;
 
-- (void)selectWithX:(double)x 
-				  y:(double)y
-			  width:(double)width 
-			 height:(double)height
+- (void)selectWithX:(int)x 
+				  y:(int)y
+			  width:(int)width 
+			 height:(int)height
 		  selecting:(id<OpenGLSelecting>)selecting 
 		nearestOnly:(BOOL)nearestOnly
 		   cullFace:(BOOL)cullFace
