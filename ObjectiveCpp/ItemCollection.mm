@@ -172,7 +172,7 @@
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
-	[[self itemAtIndex:index] drawWithMode:mode];
+	[[self itemAtIndex:index] drawWithMode:mode forSelection:forSelection];
 }
 
 - (void)duplicateSelected

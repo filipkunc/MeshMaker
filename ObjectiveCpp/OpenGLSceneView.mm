@@ -793,10 +793,10 @@ const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height re
 
 uint selectedIndices[kMaxSelectedIndicesCount];
 
-- (void)selectWithX:(double)x
-				  y:(double)y
-			  width:(double)width
-			 height:(double)height
+- (void)selectWithX:(int)x
+				  y:(int)y
+			  width:(int)width
+			 height:(int)height
 		  selecting:(id<OpenGLSelecting>)selecting 
 		nearestOnly:(BOOL)nearestOnly
 		   cullFace:(BOOL)cullFace
@@ -817,8 +817,6 @@ uint selectedIndices[kMaxSelectedIndicesCount];
  
     [self setupViewportAndCamera];
     
-    /*glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);*/
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     
@@ -842,17 +840,22 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     if (selectedIndicesCount > 0)
     {
     	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
+        
+        NSMutableIndexSet *uniqueIndices = [NSMutableIndexSet indexSet];
  
         for (uint i = 0; i < selectedIndicesCount; i++)
         {
             uint selectedIndex = selectedIndices[i];
             if (selectedIndex > 0 && selectedIndex - 1 < [selecting selectableCount])
-            {
-                NSLog(@"selectedIndex = %d", selectedIndex);
-                [selecting selectObjectAtIndex:selectedIndex - 1 withMode:OpenGLSelectionModeAdd];
-                return;
-            }
+                [uniqueIndices addIndex:selectedIndex - 1];
         }
+        
+        [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) 
+        {
+            [selecting selectObjectAtIndex:idx withMode:selectionMode];
+            if (nearestOnly)
+                *stop = YES;
+        }];
     }
     
     if ([aSelecting respondsToSelector:@selector(didSelect)])
@@ -865,10 +868,10 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 			  selecting:(id<OpenGLSelecting>)selecting 
 		  selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
-	[self selectWithX:point.x
-					y:point.y
-				width:10.0
-			   height:10.0
+	[self selectWithX:point.x - 5
+					y:point.y - 5
+				width:10
+			   height:10
 			selecting:selecting
 		  nearestOnly:YES
 			 cullFace:NO
@@ -880,8 +883,8 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 			  cullFace:(BOOL)cullFace
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
-	[self selectWithX:rect.origin.x + rect.size.width / 2
-					y:rect.origin.y + rect.size.height / 2 
+	[self selectWithX:rect.origin.x
+					y:rect.origin.y
 				width:rect.size.width
 			   height:rect.size.height
 			selecting:selecting

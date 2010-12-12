@@ -164,7 +164,7 @@
 	[super dealloc];
 }
 
-- (void)drawWithMode:(enum ViewMode)mode
+- (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection
 {
 	if (visible)
 	{
@@ -173,7 +173,7 @@
 		Matrix4x4 rotationMatrix;
 		rotation->ToMatrix(rotationMatrix);
 		glMultMatrixf(rotationMatrix);
-		[mesh drawWithMode:mode scale:*scale selected:selected];
+		[mesh drawWithMode:mode scale:*scale selected:selected forSelection:forSelection];
 		glPopMatrix();
 	}
 }

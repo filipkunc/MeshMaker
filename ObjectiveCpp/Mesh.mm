@@ -327,15 +327,15 @@ static ShaderProgram *flippedShader;
 	}
 }
 
-- (void)drawFillAsDarker:(BOOL)darker
+- (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection
 {
 	[self fillCache];
-	if (selectionMode == MeshSelectionModeTriangles)
+	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
 		[self updateColorCacheAsDarker:darker];
 		
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	if (selectionMode == MeshSelectionModeTriangles)
+	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
 		float *colorPtr = (float *)cachedColors;
@@ -361,7 +361,7 @@ static ShaderProgram *flippedShader;
 		glDrawArrays(GL_TRIANGLES, 0, triangles->size() * 3);
 	}
 	
-	if (selectionMode == MeshSelectionModeTriangles)
+	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
 		glDisableClientState(GL_COLOR_ARRAY);
 	
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -374,7 +374,7 @@ static ShaderProgram *flippedShader;
 	{
 		glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		[self drawFillAsDarker:YES];
+		[self drawFillAsDarker:YES forSelection:NO];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
@@ -387,7 +387,7 @@ static ShaderProgram *flippedShader;
 		[normalShader useProgram];
 }
 
-- (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected
+- (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection
 {
 	BOOL flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
 	
@@ -395,13 +395,18 @@ static ShaderProgram *flippedShader;
 	glScalef(scale.x, scale.y, scale.z);
 	if (mode == ViewModeWireframe)
 	{
-		glColor3f([color redComponent] + 0.2f, [color greenComponent] + 0.2f, [color blueComponent] + 0.2f);
+        if (!forSelection)
+            glColor3f([color redComponent] + 0.2f, [color greenComponent] + 0.2f, [color blueComponent] + 0.2f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		[self drawFillAsDarker:YES];
+		[self drawFillAsDarker:YES forSelection:forSelection];
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	else
+	else if (forSelection)
 	{
+        [self drawFillAsDarker:YES forSelection:forSelection];
+    }
+    else
+    {
 		if (isSelected)
 		{
 			glEnable(GL_POLYGON_OFFSET_FILL);
@@ -411,20 +416,20 @@ static ShaderProgram *flippedShader;
 			{
 				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
 			}
-			[self drawFillAsDarker:NO];
+			[self drawFillAsDarker:NO forSelection:forSelection];
 			[ShaderProgram resetProgram];
 			glDisable(GL_POLYGON_OFFSET_FILL);
 			[self drawWire];
 		}
 		else
 		{
-			[self useShader:flipped];
-			if (selectionMode != MeshSelectionModeTriangles)
-			{
-				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
-			}
-			[self drawFillAsDarker:NO];
-			[ShaderProgram resetProgram];
+            [self useShader:flipped];
+            if (selectionMode != MeshSelectionModeTriangles)
+            {
+                glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
+            }
+            [self drawFillAsDarker:NO forSelection:NO];
+            [ShaderProgram resetProgram];
 		}
 	}
 	glPopMatrix();
