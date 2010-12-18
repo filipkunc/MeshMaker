@@ -27,7 +27,7 @@
 	STAssertEquals([document->items count], 0U, @"items must be empty");	
 }
 
-- (void)groupAction:(void (^blockmethod)())action
+- (void)groupAction:(void (^)())action
 {
 	[[document undoManager] beginUndoGrouping];
 	action();

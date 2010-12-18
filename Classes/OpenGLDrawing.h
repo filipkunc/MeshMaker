@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "MathCore/MathDeclaration.h"
+#include "MathDeclaration.h"
 #include "Enums.h"
 
 void DrawCube(float size);

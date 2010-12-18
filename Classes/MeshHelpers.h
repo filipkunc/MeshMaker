@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Enums.h"
-#include "MathCore/MathDeclaration.h"
+#include "MathDeclaration.h"
 
 typedef struct 
 {
