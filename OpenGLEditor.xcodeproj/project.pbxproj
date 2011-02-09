@@ -46,7 +46,6 @@
 		A746510B12BD1C940030EEB0 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6312BD107800B14CFA /* Quaternion.cpp */; };
 		A746510D12BD1C940030EEB0 /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6912BD107800B14CFA /* Vector2D.cpp */; };
 		A746510F12BD1C940030EEB0 /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
-		A746511212BD1CA60030EEB0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A746511112BD1CA60030EEB0 /* OpenGL.framework */; };
 		A746511312BD1CB30030EEB0 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */; };
 		A746511612BD1CBD0030EEB0 /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5912BD107800B14CFA /* MyDocument.mm */; };
 		A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3C12BD107800B14CFA /* Camera.cpp */; };
@@ -64,6 +63,7 @@
 		A746513612BD1D000030EEB0 /* OpenGLDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.cpp */; };
 		A746513A12BD1D000030EEB0 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 /* End PBXBuildFile section */
 
@@ -140,11 +140,13 @@
 		A7064C9412BD19F400B14CFA /* OpenGLEditor_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenGLEditor_Tests-Info.plist"; sourceTree = "<group>"; };
 		A7064C9512BD19F400B14CFA /* OpenGLEditor_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpenGLEditor_Tests-Prefix.pch"; sourceTree = "<group>"; };
 		A7064C9712BD19F400B14CFA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		A746511112BD1CA60030EEB0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		A726AD3213034D85004A774D /* rapidxml_iterators.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_iterators.hpp; path = Classes/rapidxml_iterators.hpp; sourceTree = "<group>"; };
+		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
+		A726AD3413034D85004A774D /* rapidxml_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_utils.hpp; path = Classes/rapidxml_utils.hpp; sourceTree = "<group>"; };
+		A726AD3513034D85004A774D /* rapidxml.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml.hpp; path = Classes/rapidxml.hpp; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
-		A7D28894110107510092B9DC /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,8 +163,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A746511212BD1CA60030EEB0 /* OpenGL.framework in Frameworks */,
 				A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */,
+				A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,7 +176,6 @@
 			children = (
 				A754C41D0FF92F8600A48E13 /* OpenGL.framework */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
-				A7D28894110107510092B9DC /* libobjc.A.dylib */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -201,7 +202,6 @@
 		2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */ = {
 			isa = PBXGroup;
 			children = (
-				A746511112BD1CA60030EEB0 /* OpenGL.framework */,
 				A7064C8312BD109A00B14CFA /* Tests */,
 				A7521E8A10E675ED003D31E4 /* Shaders */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
@@ -216,6 +216,10 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				A726AD3213034D85004A774D /* rapidxml_iterators.hpp */,
+				A726AD3313034D85004A774D /* rapidxml_print.hpp */,
+				A726AD3413034D85004A774D /* rapidxml_utils.hpp */,
+				A726AD3513034D85004A774D /* rapidxml.hpp */,
 				A7064C3A12BD107800B14CFA /* AddItemWithStepsSheetController.h */,
 				A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */,
 				A7064C3C12BD107800B14CFA /* Camera.cpp */,

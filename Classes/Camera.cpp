@@ -3,7 +3,7 @@
 Camera::Camera()
 {
 	radians = Vector3D(0, 0, 0);
-	minZoom = 1.0f;
+	minZoom = 0.1f;
 	center = Vector3D(0, 0, 0);
 	startPosition = Vector3D(0, 0, 300);
 	position = Vector3D(0, 0, 300);
