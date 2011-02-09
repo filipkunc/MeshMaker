@@ -10,6 +10,29 @@
 #import "ItemManipulationState.h"
 #import "IndexedItem.h"
 
+#import <string>
+#import <sstream>
+#import "rapidxml.hpp"
+
+using namespace std;
+using namespace rapidxml;
+
+template <typename T>
+vector<T> *ReadValues(string s)
+{
+    vector<T> *values = new vector<T>();
+    
+    stringstream ss(s);
+    while (!ss.eof())
+    {
+        T value;
+        ss >> value;
+        values->push_back(value);
+    }
+    
+    return values;
+}
+
 @implementation MyDocument
 
 - (id)init
@@ -742,6 +765,89 @@
 
 #pragma mark Archivation
 
+- (BOOL)readFromCollada:(NSString *)fileName
+{
+    NSString* xmlData = [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:NULL];
+    
+    int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    char *textBuffer = new char [length];
+    memset(textBuffer, 0, length);
+    memcpy(textBuffer, [xmlData UTF8String], length);
+    
+    // Insert code here to initialize your application
+    xml_document< > document;
+    document.parse<0>(textBuffer);
+    
+    xml_node< > *mesh = document.first_node()->first_node("library_geometries")->first_node("geometry")->first_node("mesh");
+    
+    string positionsString = mesh->first_node("source")->first_node("float_array")->value();
+    vector<float> *points = ReadValues<float>(positionsString);
+    
+    xml_node< > *triNode = mesh->first_node("source")->next_sibling("triangles")->first_node();
+    
+    int inputTypesCount = 0;
+    string trianglesString;
+    
+    while (true)
+    {
+        if (strcmp(triNode->name(), "p") == 0)
+        {
+            trianglesString = triNode->value();
+            break;
+        }
+        else
+        {
+            triNode = triNode->next_sibling();
+            inputTypesCount++;
+        }
+    }
+    
+    vector<uint> *triangles = ReadValues<uint>(trianglesString);
+    
+    ItemCollection *newItems = [[ItemCollection alloc] init];
+    [newItems retain];
+    
+    Item *item = [[Item alloc] init];
+    Mesh *itemMesh = [item mesh];
+    
+    itemMesh->vertices->clear();
+    for (uint i = 0; i < points->size(); i += 3)
+    {
+        Vector3D point;
+        for (uint j = 0; j < 3; j++)
+            point[j] = (*points)[i + j];
+
+        itemMesh->vertices->push_back(point);
+    }
+
+    vector<uint> &trianglesRef = *triangles;
+    
+    itemMesh->triangles->clear();
+    for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
+    {
+        uint vertexIdx1 = trianglesRef[i];
+        uint vertexIdx2 = trianglesRef[i + inputTypesCount];
+        uint vertexIdx3 = trianglesRef[i + inputTypesCount * 2];
+        Triangle tri = MakeTriangle(vertexIdx3, vertexIdx2, vertexIdx1);
+        itemMesh->triangles->push_back(tri);
+    }
+
+    [itemMesh setSelectionMode:[itemMesh selectionMode]];    
+    [newItems addItem:item];
+    [item release];
+    [items release];
+    items = newItems;
+    [itemsController setModel:items];
+    [itemsController updateSelection];
+    [self setManipulated:itemsController];
+
+    delete points;
+    delete triangles;
+    delete [] textBuffer;
+    
+    return YES;
+}
+
 - (BOOL)readFromModel3D:(NSString *)fileName
 {
 	// ugly ASCII encoding, should be Unicode
@@ -784,6 +890,10 @@
 		//return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
 		return [self readFromModel3D:fileName];
 	}
+    else if ([typeName isEqualToString:@"Collada"])
+    {
+        return [self readFromCollada:fileName];
+    }
 	return NO;
 }
 
