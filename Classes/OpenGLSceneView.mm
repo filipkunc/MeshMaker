@@ -999,10 +999,10 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 		}
 		else if (selectedAxis == Center)
 		{
-			position = [self positionFromAxis:AxisY point:point];
+			position = [self positionFromPlaneAxis:PlaneAxisY point:point];
 			scale = position - *lastPosition;
-			scale.x = scale.y;
-			scale.z = scale.y;
+            scale.y = scale.x;
+            scale.z = scale.x;
 		}
 		
 		*lastPosition = position;
