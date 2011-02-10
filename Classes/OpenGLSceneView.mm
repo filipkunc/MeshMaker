@@ -12,7 +12,7 @@
 #import "OpenGLSceneView.h"
 
 const float perspectiveAngle = 45.0f;
-const float minDistance = 0.02f;
+const float minDistance = 1.0f;
 const float maxDistance = 1000.0f;
 
 NSOpenGLPixelFormat *globalPixelFormat = nil;
