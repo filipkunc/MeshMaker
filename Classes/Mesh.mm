@@ -417,7 +417,6 @@ static ShaderProgram *flippedShader;
 	
 	vertices->RemoveAll();
 	triangles->RemoveAll();
-    //selected->clear();
 	
 	// back vertices
 	VertexNode node0 = vertices->Add(Vector3D(-1, -1, -1)); // 0
@@ -454,78 +453,83 @@ static ShaderProgram *flippedShader;
 
 - (void)makeCylinderWithSteps:(uint)steps
 {
-	/*NSLog(@"makeCylinderWithSteps:%i", steps);
+	NSLog(@"makeCylinderWithSteps:%i", steps);
 	
 	vertices->RemoveAll();
 	triangles->RemoveAll();
-	//selected->clear();
 	
-	vertices->Add(Vector3D(0, -1, 0)); // 0
- 	vertices->Add(Vector3D(0,  1, 0)); // 1
+	VertexNode node0 = vertices->Add(Vector3D(0, -1, 0)); // 0
+ 	VertexNode node1 = vertices->Add(Vector3D(0,  1, 0)); // 1
 	
-	vertices->Add(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
-	vertices->Add(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
+	VertexNode node2 = vertices->Add(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
+	VertexNode node3 = vertices->Add(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
 		
 	uint max = steps;
 	float step = (FLOAT_PI * 2.0f) / max;
 	float angle = step;
 	for (uint i = 1; i < max; i++)
 	{
-		vertices->Add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
-		vertices->Add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
+		VertexNode last2 = vertices->Add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
+		VertexNode last1 = vertices->Add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
+        
+        VertexNode last3 = last2->Previous();
+        VertexNode last4 = last3->Previous();
 		
 		Triangle2 triangle1, triangle2;
-		triangle1.vertices[0] = vertices->Count() - 3;
-		triangle1.vertices[1] = vertices->Count() - 2;
-		triangle1.vertices[2] = vertices->Count() - 1;
+		triangle1.vertices[0] = last3;// vertices->Count() - 3;
+		triangle1.vertices[1] = last2;// vertices->Count() - 2;
+		triangle1.vertices[2] = last1;// vertices->Count() - 1;
 	
-		triangle2.vertexIndices[0] = vertices->Count() - 2;
-		triangle2.vertexIndices[1] = vertices->Count() - 3;
-		triangle2.vertexIndices[2] = vertices->Count() - 4;
+		triangle2.vertices[0] = last2;// vertices->Count() - 2;
+		triangle2.vertices[1] = last3;// vertices->Count() - 3;
+		triangle2.vertices[2] = last4;// vertices->Count() - 4;
 		
 		triangles->Add(triangle1);
 		triangles->Add(triangle2);
 		
-		Triangle triangle3, triangle4;
-		triangle3.vertexIndices[0] = vertices->Count() - 4;
-		triangle3.vertexIndices[1] = 0;
-		triangle3.vertexIndices[2] = vertices->Count() - 2;
+		Triangle2 triangle3, triangle4;
+		triangle3.vertices[0] = last4;// vertices->Count() - 4;
+		triangle3.vertices[1] = node0;
+		triangle3.vertices[2] = last2;// vertices->Count() - 2;
 		
-		triangle4.vertexIndices[0] = vertices->Count() - 3;
-		triangle4.vertexIndices[1] = vertices->Count() - 1;
-		triangle4.vertexIndices[2] = 1;
+		triangle4.vertices[0] = last3;// vertices->Count() - 3;
+		triangle4.vertices[1] = last1;// vertices->Count() - 1;
+		triangle4.vertices[2] = node1;
 		
 		triangles->Add(triangle3);
 		triangles->Add(triangle4);
 		
 		angle += step;
 	}
+    
+    VertexNode last1 = vertices->Last();
+    VertexNode last2 = last1->Previous();
 	
-	Triangle triangle1, triangle2;
-	triangle1.vertexIndices[0] = 2;
-	triangle1.vertexIndices[1] = 3;
-	triangle1.vertexIndices[2] = vertices->Count() - 1;
+	Triangle2 triangle1, triangle2;
+	triangle1.vertices[0] = node2;
+	triangle1.vertices[1] = node3;
+	triangle1.vertices[2] = last1;// vertices->Count() - 1;
 	
-	triangle2.vertexIndices[0] = vertices->Count() - 1;
-	triangle2.vertexIndices[1] = vertices->Count() - 2;
-	triangle2.vertexIndices[2] = 2;
+	triangle2.vertices[0] = last1;// vertices->Count() - 1;
+	triangle2.vertices[1] = last2;// vertices->Count() - 2;
+	triangle2.vertices[2] = node2;
 	
 	triangles->Add(triangle1);
 	triangles->Add(triangle2);
 	
-	Triangle triangle3, triangle4;
-	triangle3.vertexIndices[0] = 0;
-	triangle3.vertexIndices[1] = 2;
-	triangle3.vertexIndices[2] = vertices->Count() - 2;
+	Triangle2 triangle3, triangle4;
+	triangle3.vertices[0] = node0;
+	triangle3.vertices[1] = node2;
+	triangle3.vertices[2] = last2;// vertices->Count() - 2;
 	
-	triangle4.vertexIndices[0] = 3;
-	triangle4.vertexIndices[1] = 1;
-	triangle4.vertexIndices[2] = vertices->Count() - 1;
+	triangle4.vertices[0] = node3;
+	triangle4.vertices[1] = node1;
+	triangle4.vertices[2] = last1;// vertices->Count() - 1;
 	
 	triangles->Add(triangle3);
 	triangles->Add(triangle4);
 	
-	[self setSelectionMode:[self selectionMode]];*/
+	[self setSelectionMode:[self selectionMode]];
 }
 
 - (void)makeSphereWithSteps:(uint)steps
