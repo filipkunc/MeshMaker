@@ -767,7 +767,7 @@ vector<T> *ReadValues(string s)
 
 - (BOOL)readFromCollada:(NSString *)fileName
 {
-    NSString* xmlData = [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:NULL];
+ /*   NSString* xmlData = [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:NULL];
     
     int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     char *textBuffer = new char [length];
@@ -843,15 +843,14 @@ vector<T> *ReadValues(string s)
 
     delete points;
     delete triangles;
-    delete [] textBuffer;
+    delete [] textBuffer;*/
     
     return YES;
 }
 
 - (BOOL)readFromModel3D:(NSString *)fileName
 {
-	// ugly ASCII encoding, should be Unicode
-	const char *cFileName = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+	const char *cFileName = [fileName cStringUsingEncoding:NSUTF8StringEncoding];
 	ifstream fin;
 	fin.open(cFileName, ios::in | ios::binary);
 	if (fin.is_open())
@@ -872,8 +871,7 @@ vector<T> *ReadValues(string s)
 
 - (void)writeToModel3D:(NSString *)fileName
 {
-	// ugly ASCII encoding, should be Unicode
-	const char *cFileName = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+	const char *cFileName = [fileName cStringUsingEncoding:NSUTF8StringEncoding];
 	ofstream fout;
 	fout.open(cFileName, ios::out | ios::binary);
 	[items encodeWithFileStream:&fout];
