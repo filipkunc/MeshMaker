@@ -73,6 +73,9 @@ static ShaderProgram *flippedShader;
 		cachedVertices = NULL;
 		cachedNormals = NULL;
 		cachedColors = NULL;
+        
+        cachedVertexSelection = new vector<VertexNode>();
+        cachedTriangleSelection = new vector<TriangleNode>();
 	}
 	return self;
 }
@@ -95,6 +98,24 @@ static ShaderProgram *flippedShader;
 {
 	selectionMode = value;
 	[self resetIndexCache];
+    cachedVertexSelection->clear();
+    cachedTriangleSelection->clear();
+    
+    switch (selectionMode)
+    {
+        case MeshSelectionModeVertices:
+        {
+            for (VertexNode node = vertices->Begin(), end = vertices->End(); node != end; node = node->Next())
+                cachedVertexSelection->push_back(node);
+        } break;
+        case MeshSelectionModeTriangles:
+        {
+            for (TriangleNode node = triangles->Begin(), end = triangles->End(); node != end; node = node->Next())
+                cachedTriangleSelection->push_back(node);            
+        } break;            
+        default:
+            break;
+    }
 }
 
 - (void)addVertex:(Vector3D)aVertex
@@ -1173,7 +1194,15 @@ static ShaderProgram *flippedShader;
 
 - (uint)count
 {
-	return 0; //selected->size();	
+    switch (selectionMode)
+    {
+        case MeshSelectionModeVertices:
+            return cachedVertexSelection->size();
+        case MeshSelectionModeTriangles:
+            return cachedTriangleSelection->size();
+        default:
+            return 0;
+    }
 }
 
 - (void)didSelect
@@ -1264,8 +1293,15 @@ static ShaderProgram *flippedShader;
 
 - (BOOL)isSelectedAtIndex:(uint)index
 {
-    return NO;
-	//return selected->at(index).selected;
+    switch (selectionMode)
+    {
+        case MeshSelectionModeVertices:
+            return cachedVertexSelection->at(index)->data.selected;
+        case MeshSelectionModeTriangles:
+            return cachedTriangleSelection->at(index)->data.selected;
+        default:
+            return NO;
+    }
 }
 
 - (void)setEdgeMarked:(BOOL)isMarked atIndex:(uint)index
@@ -1285,68 +1321,83 @@ static ShaderProgram *flippedShader;
 
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
 {
-	//selected->at(index).selected = isSelected;
+    switch (selectionMode)
+    {
+        case MeshSelectionModeVertices:
+            cachedVertexSelection->at(index)->data.selected = isSelected;
+            break;
+        case MeshSelectionModeTriangles:
+            cachedTriangleSelection->at(index)->data.selected = isSelected;
+            break;
+        default:
+            break;
+    }
 }
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
-//	if (!selected->at(index).visible)
-//		return;
-//	
-//	switch (selectionMode) 
-//	{
-//		case MeshSelectionModeVertices:
-//		{
-//			Vector3D v = [self vertexAtIndex:index];
-//			if (!forSelection)
-//			{
-//				BOOL isSelected = selected->at(index).selected;
-//				glPointSize(5.0f);
-//				if (isSelected)
-//					glColor3f(1.0f, 0.0f, 0.0f);
-//				else
-//					glColor3f(0.0f, 0.0f, 1.0f);
-//				glDisable(GL_LIGHTING);
-//			}
-//			glBegin(GL_POINTS);
-//			glVertex3f(v.x, v.y, v.z);
-//			glEnd();
-//		} break;
-//		case MeshSelectionModeTriangles:
-//		{
-//			if (forSelection)
-//			{
-//				Triangle currentTriangle = [self triangleAtIndex:index];
-//				glBegin(GL_TRIANGLES);
-//				for (uint i = 0; i < 3; i++)
-//				{
-//					Vector3D v = [self vertexAtIndex:currentTriangle.vertexIndices[i]];
-//					glVertex3f(v.x, v.y, v.z);
-//				}
-//				glEnd();
-//			}
-//		} break;
-//		case MeshSelectionModeEdges:
-//		{
-//			Edge currentEdge = [self edgeAtIndex:index];
-//			if (!forSelection)
-//			{
-//				BOOL isSelected = selected->at(index).selected;
-//				if (isSelected)
-//					glColor3f(0.8f, 0.0f, 0.0f);
-//				else
-//					glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
-//				glDisable(GL_LIGHTING);
-//			}
-//			glBegin(GL_LINES);
-//			for (uint i = 0; i < 2; i++)
-//			{
-//				Vector3D v = [self vertexAtIndex:currentEdge.vertexIndices[i]];
-//				glVertex3f(v.x, v.y, v.z);
-//			}
-//			glEnd();
-//		} break;
-//	}
+	/*if (!selected->at(index).visible)
+		return;*/
+	
+	switch (selectionMode) 
+	{
+		case MeshSelectionModeVertices:
+		{
+            const Vertex2 &vertex = cachedVertexSelection->at(index)->data;
+			Vector3D v = vertex.position;
+			if (!forSelection)
+			{
+				BOOL isSelected = vertex.selected;
+				glPointSize(5.0f);
+				if (isSelected)
+					glColor3f(1.0f, 0.0f, 0.0f);
+				else
+					glColor3f(0.0f, 0.0f, 1.0f);
+				glDisable(GL_LIGHTING);
+			}
+			glBegin(GL_POINTS);
+			glVertex3f(v.x, v.y, v.z);
+			glEnd();
+		} break;
+		case MeshSelectionModeTriangles:
+		{
+			if (forSelection)
+			{
+				Triangle2 triangle = cachedTriangleSelection->at(index)->data;
+                Vector3D triangleVertices[3];
+                [self getTriangleVertices:triangleVertices fromTriangle:triangle];
+				glBegin(GL_TRIANGLES);
+				for (uint i = 0; i < 3; i++)
+				{
+					Vector3D v = triangleVertices[i];
+					glVertex3f(v.x, v.y, v.z);
+				}
+				glEnd();
+			}
+		} break;
+        default:
+            break;
+		/*case MeshSelectionModeEdges:
+		{
+			Edge currentEdge = [self edgeAtIndex:index];
+			if (!forSelection)
+			{
+				BOOL isSelected = selected->at(index).selected;
+				if (isSelected)
+					glColor3f(0.8f, 0.0f, 0.0f);
+				else
+					glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
+				glDisable(GL_LIGHTING);
+			}
+			glBegin(GL_LINES);
+			for (uint i = 0; i < 2; i++)
+			{
+				Vector3D v = [self vertexAtIndex:currentEdge.vertexIndices[i]];
+				glVertex3f(v.x, v.y, v.z);
+			}
+			glEnd();
+		} break;*/
+	}
 }
 
 - (void)extrudeSelectedTriangles
