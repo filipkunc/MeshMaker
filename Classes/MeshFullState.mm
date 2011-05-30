@@ -17,11 +17,11 @@
 	self = [super init];
 	if (self)
 	{
-		itemIndex = index;
-		vertices = new vector<Vector3D>(*mesh->vertices);
-		triangles = new vector<Triangle>(*mesh->triangles);
-		selected = new vector<SelectionInfo>(*mesh->selected);
-		selectionMode = [mesh selectionMode];
+//		itemIndex = index;
+//		vertices = new vector<Vector3D>(*mesh->vertices);
+//		triangles = new vector<Triangle>(*mesh->triangles);
+//		selected = new vector<SelectionInfo>(*mesh->selected);
+//		selectionMode = [mesh selectionMode];
 	}
 	return self;
 }
@@ -36,13 +36,13 @@
 
 - (void)applyFullToMesh:(Mesh *)mesh
 {
-	*(mesh->vertices) = *vertices;
-	*(mesh->triangles) = *triangles;
-	*(mesh->selected) = *selected;
-	mesh->selectionMode = selectionMode;
-	if (selectionMode == MeshSelectionModeEdges)
-		[mesh makeEdges];
-	[mesh makeMarkedVertices];
+//	*(mesh->vertices) = *vertices;
+//	*(mesh->triangles) = *triangles;
+//	*(mesh->selected) = *selected;
+//	mesh->selectionMode = selectionMode;
+//	if (selectionMode == MeshSelectionModeEdges)
+//		[mesh makeEdges];
+//	[mesh makeMarkedVertices];
 }
 
 @end

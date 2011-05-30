@@ -17,10 +17,10 @@
 	self = [super init];
 	if (self)
 	{
-		itemIndex = index;
-		vertices = new vector<Vector3D>(*mesh->vertices);
-		selected = new vector<SelectionInfo>(*mesh->selected);
-		selectionMode = [mesh selectionMode];
+//		itemIndex = index;
+//		vertices = new vector<Vector3D>(*mesh->vertices);
+//		selected = new vector<SelectionInfo>(*mesh->selected);
+//		selectionMode = [mesh selectionMode];
 	}
 	return self;
 }
@@ -34,10 +34,10 @@
 
 - (void)applyManipulationToMesh:(Mesh *)mesh
 {
-	*(mesh->vertices) = *vertices;
-	*(mesh->selected) = *selected;
-	mesh->selectionMode = selectionMode;
-	[mesh makeMarkedVertices];
+//	*(mesh->vertices) = *vertices;
+//	*(mesh->selected) = *selected;
+//	mesh->selectionMode = selectionMode;
+//	[mesh makeMarkedVertices];
 }
 
 @end

@@ -13,17 +13,39 @@
 #import "CppFileStreaming.h"
 #import "Shader.h"
 #import "ShaderProgram.h"
+#import "FPList.h"
 #import <vector>
 using namespace std;
+
+class Vertex2
+{
+public:
+    Vector3D position;
+    
+    bool selected;
+    
+    Vertex2() { }
+    Vertex2(const Vector3D &v) : position(v) { }
+};
+
+class Triangle2
+{
+public:
+    FPNode<Vertex2> *vertices[3];
+    
+    bool selected;
+    
+    Triangle2() { }
+};
+
+typedef FPNode<Vertex2> *VertexNode;
+typedef FPNode<Triangle2> *TriangleNode;
 
 @interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>
 {
 @public
-	vector<Vector3D> *vertices;
-	vector<Triangle> *triangles;
-	vector<Edge> *edges;
-	vector<SelectionInfo> *selected;
-	vector<BOOL> *markedVertices;
+	FPList<Vertex2> *vertices;
+	FPList<Triangle2> *triangles;
 	NSColor *color;
 	enum MeshSelectionMode selectionMode;
 	
@@ -42,27 +64,18 @@ using namespace std;
 + (void)setNormalShader:(ShaderProgram *)shaderProgram;
 + (void)setFlippedShader:(ShaderProgram *)shaderProgram;
 
-- (Vector3D)vertexAtIndex:(uint)anIndex;
-- (Triangle)triangleAtIndex:(uint)anIndex;
-- (Edge)edgeAtIndex:(uint)anIndex;
-- (BOOL)isVertexMarkedAtIndex:(uint)anIndex;
-- (void)setVertexMarked:(BOOL)isMarked atIndex:(uint)anIndex;
-- (void)setEdgeMarked:(BOOL)isMarked atIndex:(uint)index;
-- (void)setTriangleMarked:(BOOL)isMarked atIndex:(uint)index;
 - (void)addVertex:(Vector3D)aVertex;
-- (void)addTriangle:(Triangle)aTriangle;
-- (void)addTriangleWithIndex1:(uint)index1
-					   index2:(uint)index2
-					   index3:(uint)index3;
-- (void)addQuadWithIndex1:(uint)index1
-				   index2:(uint)index2
-				   index3:(uint)index3 
-				   index4:(uint)index4;
-- (void)addEdgeWithIndex1:(uint)index1
-				   index2:(uint)index2;
-- (void)removeVertexAtIndex:(uint)index;
+- (void)addTriangle:(Triangle2)aTriangle;
+- (void)addTriangleWithNode1:(VertexNode)node1
+					   node2:(VertexNode)node2
+					   node3:(VertexNode)node3;
+- (void)addQuadWithNode1:(VertexNode)node1
+				   node2:(VertexNode)node2
+				   node3:(VertexNode)node3 
+				   node4:(VertexNode)node4;
+/*- (void)removeVertexAtIndex:(uint)index;
 - (void)removeTriangleAtIndex:(uint)index;
-- (void)removeEdgeAtIndex:(uint)index;
+- (void)removeEdgeAtIndex:(uint)index;*/
 - (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection;
 - (void)drawWire;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;
@@ -79,7 +92,7 @@ using namespace std;
 - (void)mergeSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
-- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle)triangle;
+- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle2)triangle;
 - (void)splitTriangleAtIndex:(uint)index;
 - (void)splitEdgeAtIndex:(uint)index;
 - (void)splitSelectedEdges;
