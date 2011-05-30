@@ -24,8 +24,8 @@ public:
     
     bool selected;
     
-    Vertex2() { }
-    Vertex2(const Vector3D &v) : position(v) { }
+    Vertex2() : selected(false) { }
+    Vertex2(const Vector3D &v) : position(v), selected(false) { }
 };
 
 class Triangle2
@@ -35,7 +35,7 @@ public:
     
     bool selected;
     
-    Triangle2() { }
+    Triangle2() : selected(false) { }
 };
 
 typedef FPNode<Vertex2> *VertexNode;
@@ -49,7 +49,10 @@ typedef FPNode<Triangle2> *TriangleNode;
 	NSColor *color;
 	enum MeshSelectionMode selectionMode;
 	
-	vector<uint> *cachedIndices;
+    vector<VertexNode> *cachedVertexSelection;
+    vector<TriangleNode> *cachedTriangleSelection;
+    
+    vector<uint> *cachedIndices;
 	Vector3D *cachedVertices;
 	Vector3D *cachedNormals;
 	Vector3D *cachedColors;
