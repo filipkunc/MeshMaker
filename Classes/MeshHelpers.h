@@ -11,6 +11,8 @@
 
 #include "Enums.h"
 #include "MathDeclaration.h"
+#include <vector>
+using namespace std;
 
 typedef struct 
 {
@@ -36,3 +38,6 @@ uint NonEdgeIndexInTriangle(Triangle triangle, Edge edge);
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3]);
 Triangle MakeTriangle(uint a, uint b, uint c);
 Triangle FlipTriangle(Triangle triangle);
+
+void AddTriangle(vector<Triangle> &triangles, int index1, int index2, int index3);
+void AddQuad(vector<Triangle> &triangles, int index1, int index2, int index3, int index4);

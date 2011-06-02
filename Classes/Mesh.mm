@@ -534,78 +534,99 @@ static ShaderProgram *flippedShader;
 
 - (void)makeSphereWithSteps:(uint)steps
 {
-	NSLog(@"makeSphereWithSteps:%i", steps);
+    NSLog(@"makeSphereWithSteps:%i", steps);
 	
 	vertices->RemoveAll();
 	triangles->RemoveAll();
-	//selected->clear();
-	
-	/*
+		
 	uint max = steps;
-	
-	vertices->push_back(Vector3D(0, 1, 0));
-	vertices->push_back(Vector3D(0, -1, 0));
-	
-	float step = FLOAT_PI / max;
-	
-	for (uint i = 0; i < max; i++)
-	{
-		float beta = i * step * 2.0f;
-		
-		for (uint j = 1; j < max; j++)
-		{
-			float alpha = 0.5f * FLOAT_PI + j * step;
-			float y0 = sinf(alpha);
-			float w0 = cosf(alpha);                
-	
-			float x0 = sinf(beta) * w0;
-			float z0 = cosf(beta) * w0;
-						
-			vertices->push_back(Vector3D(x0, y0, z0));
-						
-			if (i > 0 && j < max - 1)
-			{
-				int index = (i - 1) * (max - 1);
-				[self addQuadWithIndex1:1 + max + j + index
-								 index2:2 + j + index
-								 index3:1 + j + index
-								 index4:max + j + index];
-			}
-		}
-		
-		int index = i * (max - 1);
-		if (i < max - 1)
-		{
-			[self addTriangleWithIndex1:0
-								 index2:2 + index + max - 1
-								 index3:2 + index];
-			
-			[self addTriangleWithIndex1:1
-								 index2:index + max
-								 index3:index + 2 * max - 1];
-		}
-		else 
-		{
-			[self addTriangleWithIndex1:0
-								 index2:2
-								 index3:2 + index];
-			
-			[self addTriangleWithIndex1:1
-								 index2:index + max
-								 index3:max];
-		}
-	}
-	
-	for (uint j = 1; j < max - 1; j++)
-	{
-		int index = (max - 1) * (max - 1);
-		[self addQuadWithIndex1:1 + j + index
-						 index2:1 + j
-						 index3:2 + j
-						 index4:2 + j + index];
-	}
-		
-	[self setSelectionMode:[self selectionMode]];*/
+    
+    vector<VertexNode> tempVertices;
+    vector<Triangle> tempTriangles;
+     
+    tempVertices.push_back(vertices->Add(Vector3D(0, 1, 0)));
+    tempVertices.push_back(vertices->Add(Vector3D(0, -1, 0)));
+     
+    float step = FLOAT_PI / max;
+     
+    for (uint i = 0; i < max; i++)
+    {
+        float beta = i * step * 2.0f;
+     
+        for (uint j = 1; j < max; j++)
+        {
+            float alpha = 0.5f * FLOAT_PI + j * step;
+            float y0 = sinf(alpha);
+            float w0 = cosf(alpha);                
+     
+            float x0 = sinf(beta) * w0;
+            float z0 = cosf(beta) * w0;
+     
+            tempVertices.push_back(vertices->Add(Vector3D(x0, y0, z0)));
+     
+            if (i > 0 && j < max - 1)
+            {
+                int index = (i - 1) * (max - 1);
+                
+                AddQuad(tempTriangles, 
+                        1 + max + j + index, 
+                        2 + j + index,
+                        1 + j + index,
+                        max + j + index);                
+            }
+        }
+     
+        int index = i * (max - 1);
+        if (i < max - 1)
+        {
+            AddTriangle(tempTriangles,
+                        0,
+                        2 + index + max - 1,
+                        2 + index);
+     
+            AddTriangle(tempTriangles,
+                        1,
+                        index + max,
+                        index + 2 * max - 1);
+        }
+        else 
+        {
+            
+            AddTriangle(tempTriangles,
+                        0,
+                        2,
+                        2 + index);
+            
+            AddTriangle(tempTriangles,
+                        1,
+                        index + max,
+                        max);
+        }
+    }
+     
+    for (uint j = 1; j < max - 1; j++)
+    {
+        int index = (max - 1) * (max - 1);
+        AddQuad(tempTriangles,
+                1 + j + index,
+                1 + j,
+                2 + j,
+                2 + j + index);
+    }
+    
+    for (uint i = 0; i < tempTriangles.size(); i++)
+    {
+        Triangle indexTriangle = tempTriangles[i];
+        Triangle2 nodeTriangle;
+        for (int j = 0; j < 3; j++)
+        {
+            VertexNode node = tempVertices.at(indexTriangle.vertexIndices[j]);
+            nodeTriangle.vertices[j] = node;
+        }
+        triangles->Add(nodeTriangle);
+    }    
+     
+    [self setSelectionMode:[self selectionMode]];
 }
 
 - (void)makeEdges
