@@ -59,8 +59,8 @@ static ShaderProgram *flippedShader;
 	self = [super init];
 	if (self)
 	{
-        vertices = new FPList<Vertex2>();
-        triangles = new FPList<Triangle2>();
+        vertices = new FPList<FPNode<Vertex2>, Vertex2>();
+        triangles = new FPList<FPNode<Triangle2>, Triangle2>();
 		selectionMode = MeshSelectionModeVertices;
 		float hue = (random() % 10) / 10.0f;
 		color = [NSColor colorWithCalibratedHue:hue 
@@ -1535,18 +1535,24 @@ static ShaderProgram *flippedShader;
 
 - (void)removeSelected
 {
-	/*if (selectionMode == MeshSelectionModeTriangles)
+	if (selectionMode == MeshSelectionModeTriangles)
 	{
-		for (int i = 0; i < (int)[self triangleCount]; i++)
-		{
-			if (selected->at(i).selected)
-			{
-				[self removeTriangleAtIndex:i];
-				i--;
-			}
-		}
+        for (TriangleNode node = triangles->Begin(), end = triangles->End(); node != end; node = node->Next())
+        {
+            if (node->data.selected)
+            {
+                TriangleNode prev = node->Previous();                
+                if (prev == NULL)
+                    prev = triangles->Begin();
+                
+                triangles->Remove(node);
+                node = prev;
+            }
+        }
+        
 		[self removeNonUsedVertices]; // still slow, but called once per selection
-	}*/
+        [self setSelectionMode:selectionMode];
+	}
 }
 
 - (void)hideSelected
