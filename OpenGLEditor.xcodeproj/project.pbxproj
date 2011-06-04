@@ -24,7 +24,7 @@
 		A7064C7512BD107800B14CFA /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */; };
 		A7064C7612BD107800B14CFA /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5112BD107800B14CFA /* Mesh.mm */; };
 		A7064C7712BD107800B14CFA /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5312BD107800B14CFA /* MeshFullState.mm */; };
-		A7064C7812BD107800B14CFA /* MeshHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.cpp */; };
+		A7064C7812BD107800B14CFA /* MeshHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.mm */; };
 		A7064C7912BD107800B14CFA /* MeshManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5712BD107800B14CFA /* MeshManipulationState.mm */; };
 		A7064C7A12BD107800B14CFA /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5912BD107800B14CFA /* MyDocument.mm */; };
 		A7064C7B12BD107800B14CFA /* OpenGLDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.cpp */; };
@@ -42,7 +42,7 @@
 		A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8412BD109A00B14CFA /* MeshTest.mm */; };
 		A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */; };
 		A746510812BD1C940030EEB0 /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5112BD107800B14CFA /* Mesh.mm */; };
-		A746510912BD1C940030EEB0 /* MeshHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.cpp */; };
+		A746510912BD1C940030EEB0 /* MeshHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.mm */; };
 		A746510B12BD1C940030EEB0 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6312BD107800B14CFA /* Quaternion.cpp */; };
 		A746510D12BD1C940030EEB0 /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6912BD107800B14CFA /* Vector2D.cpp */; };
 		A746510F12BD1C940030EEB0 /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
@@ -106,7 +106,7 @@
 		A7064C5112BD107800B14CFA /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh.mm; path = Classes/Mesh.mm; sourceTree = "<group>"; };
 		A7064C5212BD107800B14CFA /* MeshFullState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshFullState.h; path = Classes/MeshFullState.h; sourceTree = "<group>"; };
 		A7064C5312BD107800B14CFA /* MeshFullState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshFullState.mm; path = Classes/MeshFullState.mm; sourceTree = "<group>"; };
-		A7064C5412BD107800B14CFA /* MeshHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshHelpers.cpp; path = Classes/MeshHelpers.cpp; sourceTree = "<group>"; };
+		A7064C5412BD107800B14CFA /* MeshHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshHelpers.mm; path = Classes/MeshHelpers.mm; sourceTree = "<group>"; };
 		A7064C5512BD107800B14CFA /* MeshHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshHelpers.h; path = Classes/MeshHelpers.h; sourceTree = "<group>"; };
 		A7064C5612BD107800B14CFA /* MeshManipulationState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshManipulationState.h; path = Classes/MeshManipulationState.h; sourceTree = "<group>"; };
 		A7064C5712BD107800B14CFA /* MeshManipulationState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshManipulationState.mm; path = Classes/MeshManipulationState.mm; sourceTree = "<group>"; };
@@ -144,6 +144,7 @@
 		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
 		A726AD3413034D85004A774D /* rapidxml_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_utils.hpp; path = Classes/rapidxml_utils.hpp; sourceTree = "<group>"; };
 		A726AD3513034D85004A774D /* rapidxml.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml.hpp; path = Classes/rapidxml.hpp; sourceTree = "<group>"; };
+		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
@@ -217,6 +218,7 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				A74FBFF5139A74AC00349A4C /* FPNode.h */,
 				A79F521E1394161B00CF7DBE /* FPList.h */,
 				A726AD3213034D85004A774D /* rapidxml_iterators.hpp */,
 				A726AD3313034D85004A774D /* rapidxml_print.hpp */,
@@ -248,7 +250,7 @@
 				A7064C5112BD107800B14CFA /* Mesh.mm */,
 				A7064C5212BD107800B14CFA /* MeshFullState.h */,
 				A7064C5312BD107800B14CFA /* MeshFullState.mm */,
-				A7064C5412BD107800B14CFA /* MeshHelpers.cpp */,
+				A7064C5412BD107800B14CFA /* MeshHelpers.mm */,
 				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
 				A7064C5612BD107800B14CFA /* MeshManipulationState.h */,
 				A7064C5712BD107800B14CFA /* MeshManipulationState.mm */,
@@ -450,7 +452,7 @@
 				A7064C7512BD107800B14CFA /* Matrix4x4.cpp in Sources */,
 				A7064C7612BD107800B14CFA /* Mesh.mm in Sources */,
 				A7064C7712BD107800B14CFA /* MeshFullState.mm in Sources */,
-				A7064C7812BD107800B14CFA /* MeshHelpers.cpp in Sources */,
+				A7064C7812BD107800B14CFA /* MeshHelpers.mm in Sources */,
 				A7064C7912BD107800B14CFA /* MeshManipulationState.mm in Sources */,
 				A7064C7A12BD107800B14CFA /* MyDocument.mm in Sources */,
 				A7064C7B12BD107800B14CFA /* OpenGLDrawing.cpp in Sources */,
@@ -485,7 +487,7 @@
 				A746511612BD1CBD0030EEB0 /* MyDocument.mm in Sources */,
 				A746511312BD1CB30030EEB0 /* Matrix4x4.cpp in Sources */,
 				A746510812BD1C940030EEB0 /* Mesh.mm in Sources */,
-				A746510912BD1C940030EEB0 /* MeshHelpers.cpp in Sources */,
+				A746510912BD1C940030EEB0 /* MeshHelpers.mm in Sources */,
 				A746510B12BD1C940030EEB0 /* Quaternion.cpp in Sources */,
 				A746510D12BD1C940030EEB0 /* Vector2D.cpp in Sources */,
 				A746510F12BD1C940030EEB0 /* Vector3D.cpp in Sources */,

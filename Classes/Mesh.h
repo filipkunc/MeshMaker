@@ -13,39 +13,12 @@
 #import "CppFileStreaming.h"
 #import "Shader.h"
 #import "ShaderProgram.h"
-#import "FPList.h"
-#import <vector>
-using namespace std;
-
-class Vertex2
-{
-public:
-    Vector3D position;
-    
-    bool selected;
-    
-    Vertex2() : selected(false) { }
-    Vertex2(const Vector3D &v) : position(v), selected(false) { }
-};
-
-class Triangle2
-{
-public:
-    FPNode<Vertex2> *vertices[3];
-    
-    bool selected;
-    
-    Triangle2() : selected(false) { }
-};
-
-typedef FPNode<Vertex2> *VertexNode;
-typedef FPNode<Triangle2> *TriangleNode;
 
 @interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>
 {
 @public
-	FPList<Vertex2> *vertices;
-	FPList<Triangle2> *triangles;
+	FPList<FPNode<Vertex2>, Vertex2> *vertices;
+	FPList<FPNode<Triangle2>, Triangle2> *triangles;
 	NSColor *color;
 	enum MeshSelectionMode selectionMode;
 	
@@ -76,9 +49,6 @@ typedef FPNode<Triangle2> *TriangleNode;
 				   node2:(VertexNode)node2
 				   node3:(VertexNode)node3 
 				   node4:(VertexNode)node4;
-/*- (void)removeVertexAtIndex:(uint)index;
-- (void)removeTriangleAtIndex:(uint)index;
-- (void)removeEdgeAtIndex:(uint)index;*/
 - (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection;
 - (void)drawWire;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;

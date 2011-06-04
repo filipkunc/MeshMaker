@@ -6,52 +6,18 @@
 //  For license see LICENSE.TXT
 //
 
-template <class T>
-class FPNode
-{
-private:
-    FPNode *next;
-    FPNode *previous;
-public:
-    T data;
-    
-    FPNode()
-    {
-        next = NULL;
-        previous = NULL;
-    }
-    
-    FPNode(const T &data)
-    {
-        this->data = data;
-        next = NULL;
-        previous = NULL;
-    }
-    
-    ~FPNode()
-    {
-        
-    }
-    
-    FPNode *Next() { return next; }
-    FPNode *Previous() { return previous; }
-    
-    template <class U>
-    friend class FPList;
-};
-
-template <class T>
+template <class TNode, class TData>
 class FPList
 {
 private:
-    FPNode<T> *begin;
-    FPNode<T> *end;
+    TNode *begin;
+    TNode *end;
     int count;
 public:
     FPList()
     {
-        begin = new FPNode<T>();
-        end = new FPNode<T>();
+        begin = new TNode();
+        end = new TNode();
         
         begin->next = end;
         end->previous = begin;
@@ -65,18 +31,18 @@ public:
         delete end;
     }
     
-    FPNode<T> *Begin() { return begin->next; }
-    FPNode<T> *End() { return end; }
+    TNode *Begin() { return begin->next; }
+    TNode *End() { return end; }
     
-    FPNode<T> *First(int n)
+    TNode *First(int n)
     {
-        FPNode<T> *current = begin->next;
+        TNode *current = begin->next;
         
         int i = 0;
         
         while (current != end)
         {
-            FPNode<T> *next = current->next;
+            TNode *next = current->next;
             
             if (i == n)
                 return current;
@@ -87,15 +53,15 @@ public:
         return NULL;
     }
     
-    FPNode<T> *Last(int n)
+    TNode *Last(int n)
     {
-        FPNode<T> *current = end->previous;
+        TNode *current = end->previous;
         
         int i = 0;
         
         while (current != begin)
         {
-            FPNode<T> *next = current->previous;
+            TNode *next = current->previous;
             
             if (i == n)
                 return current;
@@ -106,14 +72,14 @@ public:
         return NULL;
     }    
     
-    FPNode<T> *First()
+    TNode *First()
     {
         if (begin->next != end)
             return begin->next;
         return NULL;
     }
     
-    FPNode<T> *Last()
+    TNode *Last()
     {
         if (end->previous != begin)
             return end->previous;
@@ -125,10 +91,10 @@ public:
         return count;
     }
     
-    void Remove(FPNode<T> *node)
+    void Remove(TNode *node)
     {
-        FPNode<T> *next = node->next;
-        FPNode<T> *previous = node->previous;
+        TNode *next = node->next;
+        TNode *previous = node->previous;
     
         next->previous = previous;
         previous->next = next;
@@ -140,7 +106,7 @@ public:
     
     void RemoveAll()
     {
-        FPNode<T> *current = begin->next;
+        TNode *current = begin->next;
         
         while (current != end)
         {
@@ -154,10 +120,10 @@ public:
         count = 0;
     }
     
-    FPNode<T> *Add(const T &data)
+    TNode *Add(const TData &data)
     {
-        FPNode<T> *newOne = new FPNode<T>(data);
-        FPNode<T> *previous = end->previous;
+        TNode *newOne = new TNode(data);
+        TNode *previous = end->previous;
         newOne->next = end;
         newOne->previous = previous;
         previous->next = newOne;
@@ -166,34 +132,5 @@ public:
         count++;
         
         return newOne;
-    }
-    
-    void Iterate(void (^Iterator)(FPNode<T> *node, bool *stop))
-    {
-        bool stopLoop = NO; 
-        FPNode<T> *current = begin->next;
-        
-        while (current != end)
-        {
-            FPNode<T> *next = current->next;
-            Iterator(current, &stopLoop);
-            if (stopLoop)
-                return;
-            current = next;
-        }        
-    }
-    
-    bool Contains(const T &item)
-    {
-        FPNode<T> *current = begin->next;
-        
-        while (current != end)
-        {
-            if (current->data == item)
-                return true;
-
-            current = current->next;
-        }        
-        return false;
-    }
+    }   
 };
