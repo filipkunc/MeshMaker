@@ -22,8 +22,8 @@
 	NSColor *color;
 	enum MeshSelectionMode selectionMode;
 	
-    vector<VertexNode> *cachedVertexSelection;
-    vector<TriangleNode> *cachedTriangleSelection;
+    vector<VertexNode *> *cachedVertexSelection;
+    vector<TriangleNode *> *cachedTriangleSelection;
     
     vector<uint> *cachedIndices;
 	Vector3D *cachedVertices;
@@ -42,13 +42,13 @@
 
 - (void)addVertex:(Vector3D)aVertex;
 - (void)addTriangle:(Triangle2)aTriangle;
-- (void)addTriangleWithNode1:(VertexNode)node1
-					   node2:(VertexNode)node2
-					   node3:(VertexNode)node3;
-- (void)addQuadWithNode1:(VertexNode)node1
-				   node2:(VertexNode)node2
-				   node3:(VertexNode)node3 
-				   node4:(VertexNode)node4;
+- (void)addTriangleWithNode1:(VertexNode *)node1
+					   node2:(VertexNode *)node2
+					   node3:(VertexNode *)node3;
+- (void)addQuadWithNode1:(VertexNode *)node1
+				   node2:(VertexNode *)node2
+				   node3:(VertexNode *)node3 
+				   node4:(VertexNode *)node4;
 - (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection;
 - (void)drawWire;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;

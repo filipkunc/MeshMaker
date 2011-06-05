@@ -35,8 +35,8 @@ struct SelectionInfo
 class Vertex2;
 class Triangle2;
 
-typedef FPNode<Vertex2> *VertexNode;
-typedef FPNode<Triangle2> *TriangleNode;
+typedef FPNode<Vertex2> VertexNode;
+typedef FPNode<Triangle2> TriangleNode;
 
 class Vertex2
 {
@@ -53,7 +53,7 @@ public:
 class Triangle2
 {
 public:
-    VertexNode vertices[3];
+    VertexNode *vertices[3];
     
     bool selected;
     
@@ -62,7 +62,7 @@ public:
     void AddToVertices();
     void RemoveFromVertices();
     bool IsDegenerated();
-    bool IsVertexInTriangle(VertexNode vertex);
+    bool IsVertexInTriangle(VertexNode *vertex);
     Triangle2 Flip();
 };
 
