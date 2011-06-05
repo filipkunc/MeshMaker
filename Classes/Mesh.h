@@ -17,8 +17,8 @@
 @interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>
 {
 @public
-	FPList<FPNode<Vertex2>, Vertex2> *vertices;
-	FPList<FPNode<Triangle2>, Triangle2> *triangles;
+	FPList<VertexNode, Vertex2> *vertices;
+	FPList<TriangleNode, Triangle2> *triangles;
 	NSColor *color;
 	enum MeshSelectionMode selectionMode;
 	
@@ -65,7 +65,6 @@
 - (void)mergeSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
-- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle2)triangle;
 - (void)splitTriangleAtIndex:(uint)index;
 - (void)splitEdgeAtIndex:(uint)index;
 - (void)splitSelectedEdges;

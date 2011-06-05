@@ -149,6 +149,7 @@
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
+		A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleNodeAndList.h; path = Classes/SimpleNodeAndList.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -220,6 +221,7 @@
 			children = (
 				A74FBFF5139A74AC00349A4C /* FPNode.h */,
 				A79F521E1394161B00CF7DBE /* FPList.h */,
+				A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */,
 				A726AD3213034D85004A774D /* rapidxml_iterators.hpp */,
 				A726AD3313034D85004A774D /* rapidxml_print.hpp */,
 				A726AD3413034D85004A774D /* rapidxml_utils.hpp */,
