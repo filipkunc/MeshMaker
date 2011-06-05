@@ -59,8 +59,8 @@ static ShaderProgram *flippedShader;
 	self = [super init];
 	if (self)
 	{
-        vertices = new FPList<FPNode<Vertex2>, Vertex2>();
-        triangles = new FPList<FPNode<Triangle2>, Triangle2>();
+        vertices = new FPList<VertexNode, Vertex2>();
+        triangles = new FPList<TriangleNode, Triangle2>();
 		selectionMode = MeshSelectionModeVertices;
 		float hue = (random() % 10) / 10.0f;
 		color = [NSColor colorWithCalibratedHue:hue 
@@ -132,10 +132,7 @@ static ShaderProgram *flippedShader;
 					   node2:(VertexNode *)node2
 					   node3:(VertexNode *)node3
 {
-	Triangle2 triangle;
-	triangle.vertices[0] = node1;
-	triangle.vertices[1] = node2;
-	triangle.vertices[2] = node3;
+	Triangle2 triangle(node1, node2, node3);
 	[self addTriangle:triangle];
 }
 
@@ -144,15 +141,8 @@ static ShaderProgram *flippedShader;
 				   node3:(VertexNode *)node3 
 				   node4:(VertexNode *)node4
 {
-	Triangle2 triangle1, triangle2;
-	triangle1.vertices[0] = node1;
-	triangle1.vertices[1] = node2;
-	triangle1.vertices[2] = node3;
-	
-	triangle2.vertices[0] = node1;
-	triangle2.vertices[1] = node3;
-	triangle2.vertices[2] = node4;
-	
+	Triangle2 triangle1(node1, node2, node3);
+    Triangle2 triangle2(node1, node3, node4);
 	[self addTriangle:triangle1];
 	[self addTriangle:triangle2];
 }
@@ -224,7 +214,7 @@ static ShaderProgram *flippedShader;
 		for (TriangleNode *node = triangles->Begin(), *end = triangles->End(); node != end; node = node->Next())
 		{
 			Triangle2 currentTriangle = node->data;
-			[self getTriangleVertices:triangleVertices fromTriangle:currentTriangle];
+            currentTriangle.GetVertexPositions(triangleVertices);
 			
 			Vector3D n = NormalFromTriangleVertices(triangleVertices);
 			
@@ -475,26 +465,14 @@ static ShaderProgram *flippedShader;
         VertexNode *last3 = last2->Previous();
         VertexNode *last4 = last3->Previous();
 		
-		Triangle2 triangle1, triangle2;
-		triangle1.vertices[0] = last3;// vertices->Count() - 3;
-		triangle1.vertices[1] = last2;// vertices->Count() - 2;
-		triangle1.vertices[2] = last1;// vertices->Count() - 1;
-	
-		triangle2.vertices[0] = last2;// vertices->Count() - 2;
-		triangle2.vertices[1] = last3;// vertices->Count() - 3;
-		triangle2.vertices[2] = last4;// vertices->Count() - 4;
+		Triangle2 triangle1(last3, last2, last1);
+        Triangle2 triangle2(last2, last3, last4);
 		
 		triangles->Add(triangle1);
 		triangles->Add(triangle2);
 		
-		Triangle2 triangle3, triangle4;
-		triangle3.vertices[0] = last4;// vertices->Count() - 4;
-		triangle3.vertices[1] = node0;
-		triangle3.vertices[2] = last2;// vertices->Count() - 2;
-		
-		triangle4.vertices[0] = last3;// vertices->Count() - 3;
-		triangle4.vertices[1] = last1;// vertices->Count() - 1;
-		triangle4.vertices[2] = node1;
+		Triangle2 triangle3(last4, node0, last2);
+        Triangle2 triangle4(last3, last1, node1);
 		
 		triangles->Add(triangle3);
 		triangles->Add(triangle4);
@@ -505,26 +483,14 @@ static ShaderProgram *flippedShader;
     VertexNode *last1 = vertices->Last();
     VertexNode *last2 = last1->Previous();
 	
-	Triangle2 triangle1, triangle2;
-	triangle1.vertices[0] = node2;
-	triangle1.vertices[1] = node3;
-	triangle1.vertices[2] = last1;// vertices->Count() - 1;
-	
-	triangle2.vertices[0] = last1;// vertices->Count() - 1;
-	triangle2.vertices[1] = last2;// vertices->Count() - 2;
-	triangle2.vertices[2] = node2;
+	Triangle2 triangle1(node2, node3, last1);
+    Triangle2 triangle2(last1, last2, node2);
 	
 	triangles->Add(triangle1);
 	triangles->Add(triangle2);
 	
-	Triangle2 triangle3, triangle4;
-	triangle3.vertices[0] = node0;
-	triangle3.vertices[1] = node2;
-	triangle3.vertices[2] = last2;// vertices->Count() - 2;
-	
-	triangle4.vertices[0] = node3;
-	triangle4.vertices[1] = node1;
-	triangle4.vertices[2] = last1;// vertices->Count() - 1;
+	Triangle2 triangle3(node0, node2, last2);
+    Triangle2 triangle4(node3, node1, last1);
 	
 	triangles->Add(triangle3);
 	triangles->Add(triangle4);
@@ -614,15 +580,17 @@ static ShaderProgram *flippedShader;
                 2 + j + index);
     }
     
+    VertexNode *triangleVertices[3];
+    
     for (uint i = 0; i < tempTriangles.size(); i++)
     {
         Triangle indexTriangle = tempTriangles[i];
-        Triangle2 nodeTriangle;
-        for (int j = 0; j < 3; j++)
+        for (uint j = 0; j < 3; j++)
         {
             VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
-            nodeTriangle.vertices[j] = node;
+            triangleVertices[j] = node;
         }
+        Triangle2 nodeTriangle(triangleVertices[0], triangleVertices[1], triangleVertices[2]);        
         triangles->Add(nodeTriangle);
     }    
      
@@ -746,33 +714,27 @@ static ShaderProgram *flippedShader;
 	}*/	
 }
 
-- (BOOL)isVertexUsedAtIndex:(uint)index
-{
-	/*for (uint i = 0; i < triangles->size(); i++)
-	{
-		Triangle triangle = triangles->at(i);
-		for (uint j = 0; j < 3; j++)
-		{
-			if (triangle.vertexIndices[j] == index)
-				return YES;
-		}
-	}*/
-	return NO;
-}
-
 - (void)removeNonUsedVertices
 {
 	NSLog(@"removeNonUsedVertices");
 	[self resetCache];
-	/*
-	for (int i = 0; i < (int)vertices->size(); i++)
-	{
-		if (![self isVertexUsedAtIndex:i])
-		{
-			[self removeVertexAtIndex:i];
-			i--;
-		}
-	}*/
+    
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (!node->IsUsed())
+        {
+            vertices->Remove(node);
+        }
+    }
+	
+//	for (int i = 0; i < (int)vertices->size(); i++)
+//	{
+//		if (![self isVertexUsedAtIndex:i])
+//		{
+//			[self removeVertexAtIndex:i];
+//			i--;
+//		}
+//	}
 }
 
 - (void)removeSelectedVertices
@@ -965,14 +927,6 @@ static ShaderProgram *flippedShader;
 	selected->clear();
 	for (uint i = 0; i < vertices->size(); i++)
 		selected->push_back((SelectionInfo){ NO, YES });*/
-}
-
-- (void)getTriangleVertices:(Vector3D *)triangleVertices fromTriangle:(Triangle2)triangle
-{
-	for (uint i = 0; i < 3; i++)
-	{
-		triangleVertices[i] = triangle.vertices[i]->data.position;
-	}
 }
 
 - (void)splitTriangleAtIndex:(uint)index
@@ -1390,7 +1344,7 @@ static ShaderProgram *flippedShader;
 			{
 				Triangle2 triangle = cachedTriangleSelection->at(index)->data;
                 Vector3D triangleVertices[3];
-                [self getTriangleVertices:triangleVertices fromTriangle:triangle];
+                triangle.GetVertexPositions(triangleVertices);
 				glBegin(GL_TRIANGLES);
 				for (uint i = 0; i < 3; i++)
 				{
@@ -1541,12 +1495,8 @@ static ShaderProgram *flippedShader;
         {
             if (node->data.selected)
             {
-                TriangleNode *prev = node->Previous();                
-                if (prev == NULL)
-                    prev = triangles->Begin();
-                
+                node->data.RemoveFromVertices();
                 triangles->Remove(node);
-                node = prev;
             }
         }
         

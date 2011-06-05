@@ -8,14 +8,14 @@
 
 #import "FPList.h"
 
-template <class T>
+template <class TNode, class TData>
 class FPNode
 {
 private:
-    FPNode *next;
-    FPNode *previous;
+    TNode *next;
+    TNode *previous;
 public:
-    T data;
+    TData data;
     
     FPNode()
     {
@@ -23,20 +23,20 @@ public:
         previous = NULL;
     }
     
-    FPNode(const T &data)
+    FPNode(const TData &data)
     {
         this->data = data;
         next = NULL;
         previous = NULL;
     }
     
-    ~FPNode()
+    virtual ~FPNode()
     {
         
     }
     
-    FPNode *Next() { return next; }
-    FPNode *Previous() { return previous; }
+    TNode *Next() { return next; }
+    TNode *Previous() { return previous; }
     
     template <class U, class V>
     friend class FPList;

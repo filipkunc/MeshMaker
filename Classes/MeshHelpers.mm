@@ -9,14 +9,65 @@
 
 #include "MeshHelpers.h"
 
+void VertexNode::AddTriangle(Triangle2 *triangle)
+{
+    triangles.Add(triangle);
+}
+
+void VertexNode::RemoveTriangle(Triangle2 *triangle)
+{
+    for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
+    {
+        if (node->data == triangle)
+        {
+            triangles.Remove(node);
+            break;
+        }
+    }
+}
+
+void VertexNode::RemoveFromTriangles()
+{
+    for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
+    {
+        node->data->RemoveVertex(this);
+        triangles.Remove(node);
+    }
+    
+    triangles.RemoveAll();
+}
+
+Triangle2::Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3)
+{
+    vertices[0] = v1;
+    vertices[1] = v2;
+    vertices[2] = v3;
+    
+    AddToVertices();
+}
+
 void Triangle2::AddToVertices()
 {
-    
+    for (uint i = 0; i < 3; i++)
+        vertices[i]->AddTriangle(this);
 }
 
 void Triangle2::RemoveFromVertices()
 {
-    
+    for (uint i = 0; i < 3; i++)
+        vertices[i]->RemoveTriangle(this);
+}
+
+void Triangle2::RemoveVertex(VertexNode *vertex)
+{
+    for (uint i = 0; i < 3; i++)
+    {
+        if (vertices[i] == vertex)
+        {
+            vertices[i] = NULL;
+            break;
+        }
+    }
 }
 
 bool Triangle2::IsDegenerated()
@@ -39,6 +90,12 @@ bool Triangle2::IsVertexInTriangle(VertexNode *vertex)
 			return true;
 	}
 	return false;
+}
+
+void Triangle2::GetVertexPositions(Vector3D vertexPositions[3])
+{
+    for (uint i = 0; i < 3; i++)
+        vertexPositions[i] = vertices[i]->data.position;
 }
 
 Triangle2 Triangle2::Flip()

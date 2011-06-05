@@ -24,7 +24,7 @@ public:
         count = 0;
     }
     
-    ~FPList()
+    virtual ~FPList()
     {
         RemoveAll();
         delete begin;
@@ -91,7 +91,7 @@ public:
         return count;
     }
     
-    void Remove(TNode *node)
+    void Remove(TNode *&node)
     {
         TNode *next = node->next;
         TNode *previous = node->previous;
@@ -100,6 +100,8 @@ public:
         previous->next = next;
         
         delete node;
+        
+        node = previous;
         
         count--;
     }
@@ -134,3 +136,4 @@ public:
         return newOne;
     }   
 };
+
