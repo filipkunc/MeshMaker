@@ -31,7 +31,7 @@ bool Triangle2::IsDegenerated()
 	return false;
 }
 
-bool Triangle2::IsVertexInTriangle(VertexNode vertex)
+bool Triangle2::IsVertexInTriangle(VertexNode *vertex)
 {
     for (uint i = 0; i < 3; i++)
 	{
