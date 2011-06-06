@@ -97,7 +97,6 @@ static ShaderProgram *flippedShader;
 - (void)setSelectionMode:(enum MeshSelectionMode)value
 {
 	selectionMode = value;
-	[self resetIndexCache];
     cachedVertexSelection->clear();
     cachedTriangleSelection->clear();
     
@@ -111,7 +110,7 @@ static ShaderProgram *flippedShader;
         case MeshSelectionModeTriangles:
         {
             for (TriangleNode *node = triangles->Begin(), *end = triangles->End(); node != end; node = node->Next())
-                cachedTriangleSelection->push_back(node);            
+                cachedTriangleSelection->push_back(node);
         } break;            
         default:
             break;
@@ -176,30 +175,6 @@ static ShaderProgram *flippedShader;
 	}
 }
 
-- (void)fillIndexCache
-{
-//	if (!cachedIndices && selectionMode == MeshSelectionModeTriangles)
-//	{
-//		vector<uint> *visibleIndices = new vector<uint>();
-//		
-//		for (uint i = 0; i < selected->size(); i++)
-//		{
-//			if ((*selected)[i].visible)
-//			{
-//				for (uint j = 0; j < 3; j++)
-//				{
-//					visibleIndices->push_back(i * 3 + j);
-//				}
-//			}
-//		}
-//		
-//		if (visibleIndices->size() > 0)
-//			cachedIndices = visibleIndices;
-//		else
-//			delete visibleIndices;
-//	}
-}
-
 - (void)fillCache
 {
 	if (!cachedVertices)
@@ -227,7 +202,6 @@ static ShaderProgram *flippedShader;
             i++;
 		}
 	}
-	[self fillIndexCache];
 }
 
 - (void)updateColorCacheAsDarker:(BOOL)darker
@@ -652,53 +626,6 @@ static ShaderProgram *flippedShader;
 	NSLog(@"edgeCount:%i", [self edgeCount]);*/
 }
 
-- (void)makeMarkedVertices
-{
-	/*
-    NSLog(@"makeMarkedVertices");
-	[self resetCache];
-	
-	markedVertices->resize(vertices->size());
-	for (uint i = 0; i < markedVertices->size(); i++)
-	{
-		markedVertices->at(i) = NO;
-	}
-	
-	switch (selectionMode)
-	{
-		case MeshSelectionModeVertices:
-		{
-			for (uint i = 0; i < vertices->size(); i++)
-			{
-				if (selected->at(i).selected)
-					markedVertices->at(i) = YES;
-			}
-		} break;
-		case MeshSelectionModeTriangles:
-		{
-			for (uint i = 0; i < triangles->size(); i++)
-			{
-				if (selected->at(i).selected)
-				{
-					[self setTriangleMarked:YES atIndex:i];
-				}
-			}
-		} break;
-		case MeshSelectionModeEdges:
-		{
-			for (uint i = 0; i < edges->size(); i++)
-			{
-				if (selected->at(i).selected)
-				{
-					[self setEdgeMarked:YES atIndex:i];
-				}
-			}
-		} break;
-		default:
-			break;
-	}*/
-}
-
 - (void)removeDegeneratedTriangles
 {
 	NSLog(@"removeDegeneratedTriangles");
@@ -722,36 +649,20 @@ static ShaderProgram *flippedShader;
     for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
     {
         if (!node->IsUsed())
-        {
             vertices->Remove(node);
-        }
     }
-	
-//	for (int i = 0; i < (int)vertices->size(); i++)
-//	{
-//		if (![self isVertexUsedAtIndex:i])
-//		{
-//			[self removeVertexAtIndex:i];
-//			i--;
-//		}
-//	}
 }
 
 - (void)removeSelectedVertices
 {
 	NSLog(@"removeSelectedVertices");
 	[self resetCache];
-	/*
-	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
-	
-	for (int i = 0; i < (int)selected->size(); i++)
-	{
-		if (selected->at(i).selected)
-		{
-			[self removeVertexAtIndex:i];
-			i--;
-		}
-	}*/
+
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (node->data.selected)
+            vertices->Remove(node);
+    }
 }
 
 - (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex
@@ -1186,88 +1097,69 @@ static ShaderProgram *flippedShader;
 
 - (void)didSelect
 {
-	[self makeMarkedVertices];
+    
 }
 
 - (void)getSelectionCenter:(Vector3D *)center 
 				  rotation:(Quaternion *)rotation
 					 scale:(Vector3D *)scale
 {
-	/*if (markedVertices->size() != vertices->size())
-	{
-		[self makeMarkedVertices];
-	}
-	
 	*center = Vector3D();
 	*rotation = Quaternion();
 	*scale = Vector3D(1, 1, 1);
 
-	uint markedCount = 0;
-	for (uint i = 0; i < markedVertices->size(); i++)
-	{
-		if (markedVertices->at(i))
-		{
-			*center += vertices->at(i);
-			markedCount++;
-		}
-	}
-	if (markedCount > 0)
-		*center /= (float)markedCount;
+	uint selectedCount = 0;
+    
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (node->data.selected)
+        {
+            *center += node->data.position;
+            selectedCount++;
+        }
+    }
+	if (selectedCount > 0)
+		*center /= (float)selectedCount;
 	
-	NSLog(@"markedCount = %i", markedCount);*/
+	NSLog(@"selectedCount = %i", selectedCount);
 }
 
 - (void)moveSelectedByOffset:(Vector3D)offset
 {
 	[self resetCache];
-	
-	/*if (markedVertices->size() != vertices->size())
-	{
-		[self makeMarkedVertices];
-	}
-	
-	for (uint i = 0; i < markedVertices->size(); i++)
-	{
-		if (markedVertices->at(i))
-			vertices->at(i) += offset;
-	}*/
+    
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (node->data.selected)
+            node->data.position += offset;
+    }
 }
 
 - (void)rotateSelectedByOffset:(Quaternion)offset
 {
 	[self resetCache];
-	
-	/*if (markedVertices->size() != vertices->size())
-	{
-		[self makeMarkedVertices];
-	}
-	
-	for (uint i = 0; i < markedVertices->size(); i++)
-	{
-		if (markedVertices->at(i))
-			vertices->at(i).Transform(offset);
-	}*/
+    
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (node->data.selected)
+            node->data.position.Transform(offset);
+    }	
 }
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
 	[self resetCache];
-	
-	/*if (markedVertices->size() != vertices->size())
-	{
-		[self makeMarkedVertices];
-	}
-	
-	for (uint i = 0; i < markedVertices->size(); i++)
-	{
-		if (markedVertices->at(i))
-		{
-			Vector3D &v = vertices->at(i);
-			v.x *= offset.x;
+    
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (node->data.selected)
+        {
+            Vector3D &v = node->data.position;
+            v.x *= offset.x;
 			v.y *= offset.y;
 			v.z *= offset.z;
-		}
-	}*/	
+        }
+    }
 }
 
 - (BOOL)isSelectedAtIndex:(uint)index
@@ -1283,21 +1175,6 @@ static ShaderProgram *flippedShader;
     }
 }
 
-- (void)setEdgeMarked:(BOOL)isMarked atIndex:(uint)index
-{
-	/*Edge edge = [self edgeAtIndex:index];
-	markedVertices->at(edge.vertexIndices[0]) = isMarked;
-	markedVertices->at(edge.vertexIndices[1]) = isMarked;*/
-}
-
-- (void)setTriangleMarked:(BOOL)isMarked atIndex:(uint)index
-{
-	/*Triangle triangle = [self triangleAtIndex:index];
-	markedVertices->at(triangle.vertexIndices[0]) = isMarked;
-	markedVertices->at(triangle.vertexIndices[1]) = isMarked;
-	markedVertices->at(triangle.vertexIndices[2]) = isMarked;*/
-}
-
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
 {
     switch (selectionMode)
@@ -1306,8 +1183,12 @@ static ShaderProgram *flippedShader;
             cachedVertexSelection->at(index)->data.selected = isSelected;
             break;
         case MeshSelectionModeTriangles:
-            cachedTriangleSelection->at(index)->data.selected = isSelected;
-            break;
+        {
+            Triangle2 &triangle = cachedTriangleSelection->at(index)->data;
+            triangle.selected = isSelected;
+            for (uint i = 0; i < 3; i++)
+                triangle[i]->data.selected = isSelected;            
+        } break;
         default:
             break;
     }

@@ -57,7 +57,7 @@ public:
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
     virtual ~VertexNode() { }
     
-    bool IsUsed() { return triangles.Count() > 0; }
+    bool IsUsed() const { return triangles.Count() > 0; }
     void AddTriangle(Triangle2 *triangle);
     void RemoveTriangle(Triangle2 *triangle);
     void RemoveFromTriangles();
@@ -73,13 +73,14 @@ public:
     Triangle2() : selected(false) { }
     Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3);
 
+    VertexNode *operator[](int index) const { return vertices[index]; }
     void RemoveVertex(VertexNode *vertex);
     void AddToVertices();
     void RemoveFromVertices();
-    bool IsDegenerated();
-    bool IsVertexInTriangle(VertexNode *vertex);
-    void GetVertexPositions(Vector3D vertexPositions[3]);
-    Triangle2 Flip();
+    bool IsDegenerated() const;
+    bool IsVertexInTriangle(VertexNode *vertex) const;
+    void GetVertexPositions(Vector3D vertexPositions[3]) const;
+    Triangle2 Flip() const;
 };
 
 class TriangleNode : public FPNode<TriangleNode, Triangle2>
