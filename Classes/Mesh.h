@@ -57,7 +57,6 @@
 - (void)makeCylinderWithSteps:(uint)steps;
 - (void)makeSphereWithSteps:(uint)steps;
 - (void)makeEdges;
-- (void)makeMarkedVertices;
 - (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;
 - (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex;
@@ -78,9 +77,7 @@
 - (void)flipAllTriangles;
 - (void)flipTriangleAtIndex:(uint)index;
 - (void)extrudeSelectedTriangles;
-- (void)resetIndexCache;
 - (void)resetCache;
-- (void)fillIndexCache;
 - (void)fillCache;
 - (void)updateColorCacheAsDarker:(BOOL)darker;
 - (void)useShader:(BOOL)flipped;

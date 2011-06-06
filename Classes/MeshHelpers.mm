@@ -37,7 +37,7 @@ void VertexNode::RemoveFromTriangles()
     triangles.RemoveAll();
 }
 
-Triangle2::Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3)
+Triangle2::Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3) : selected(false)
 {
     vertices[0] = v1;
     vertices[1] = v2;
@@ -70,7 +70,7 @@ void Triangle2::RemoveVertex(VertexNode *vertex)
     }
 }
 
-bool Triangle2::IsDegenerated()
+bool Triangle2::IsDegenerated() const
 {
     if (vertices[0] == vertices[1])
 		return true;
@@ -82,7 +82,7 @@ bool Triangle2::IsDegenerated()
 	return false;
 }
 
-bool Triangle2::IsVertexInTriangle(VertexNode *vertex)
+bool Triangle2::IsVertexInTriangle(VertexNode *vertex) const
 {
     for (uint i = 0; i < 3; i++)
 	{
@@ -92,13 +92,13 @@ bool Triangle2::IsVertexInTriangle(VertexNode *vertex)
 	return false;
 }
 
-void Triangle2::GetVertexPositions(Vector3D vertexPositions[3])
+void Triangle2::GetVertexPositions(Vector3D vertexPositions[3]) const
 {
     for (uint i = 0; i < 3; i++)
         vertexPositions[i] = vertices[i]->data.position;
 }
 
-Triangle2 Triangle2::Flip()
+Triangle2 Triangle2::Flip() const
 {
     Triangle2 opposite;
 	opposite.vertices[0] = vertices[2];

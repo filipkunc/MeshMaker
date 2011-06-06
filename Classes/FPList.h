@@ -31,10 +31,10 @@ public:
         delete end;
     }
     
-    TNode *Begin() { return begin->next; }
-    TNode *End() { return end; }
+    TNode *Begin() const { return begin->next; }
+    TNode *End() const { return end; }
     
-    TNode *First(int n)
+    TNode *First(int n) const
     {
         TNode *current = begin->next;
         
@@ -53,7 +53,7 @@ public:
         return NULL;
     }
     
-    TNode *Last(int n)
+    TNode *Last(int n) const
     {
         TNode *current = end->previous;
         
@@ -72,21 +72,21 @@ public:
         return NULL;
     }    
     
-    TNode *First()
+    TNode *First() const
     {
         if (begin->next != end)
             return begin->next;
         return NULL;
     }
     
-    TNode *Last()
+    TNode *Last() const
     {
         if (end->previous != begin)
             return end->previous;
         return NULL;
     }
     
-    int Count()
+    int Count() const
     {
         return count;
     }
