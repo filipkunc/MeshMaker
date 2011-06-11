@@ -37,25 +37,58 @@ void VertexNode::RemoveFromTriangles()
     triangles.RemoveAll();
 }
 
+void VertexNode::ReplaceVertex(VertexNode *newVertex)
+{
+    for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
+    {
+        node->data->ReplaceVertex(this, newVertex);
+    }
+    
+    triangles.RemoveAll();
+}
+
+Triangle2::Triangle2() : selected(false)
+{
+    vertices[0] = NULL;
+    vertices[1] = NULL;
+    vertices[2] = NULL;
+}
+
 Triangle2::Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3) : selected(false)
 {
     vertices[0] = v1;
     vertices[1] = v2;
-    vertices[2] = v3;
-    
-    AddToVertices();
+    vertices[2] = v3;    
 }
 
 void Triangle2::AddToVertices()
 {
     for (uint i = 0; i < 3; i++)
-        vertices[i]->AddTriangle(this);
+    {
+        if (vertices[i])
+            vertices[i]->AddTriangle(this);
+    }
 }
 
 void Triangle2::RemoveFromVertices()
 {
     for (uint i = 0; i < 3; i++)
-        vertices[i]->RemoveTriangle(this);
+    {
+        if (vertices[i])
+        {
+            vertices[i]->RemoveTriangle(this);
+            vertices[i] = NULL;
+        }
+    }
+}
+
+void Triangle2::ReplaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
+{
+    for (uint i = 0; i < 3; i++)
+    {
+        if (vertices[i] == currentVertex)
+            vertices[i] = newVertex;
+    }
 }
 
 void Triangle2::RemoveVertex(VertexNode *vertex)

@@ -6,8 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
+#import "OpenGLDrawing.h"
 
 @interface Shader : NSObject 
 {
@@ -17,6 +16,8 @@
 
 @property (readonly, assign) GLuint shader;
 @property (readonly, assign) GLenum type;
+
+void ShaderLog(GLuint shader);
 
 + (NSString *)fileExtensionForShaderType:(GLenum)aShaderType;
 

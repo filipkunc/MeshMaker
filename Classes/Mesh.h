@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
+#import "OpenGLDrawing.h"
 #import "MathDeclaration.h"
 #import "OpenGLManipulatingController.h"
 #import "MeshHelpers.h"

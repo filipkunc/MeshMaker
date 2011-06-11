@@ -61,6 +61,7 @@ public:
     void AddTriangle(Triangle2 *triangle);
     void RemoveTriangle(Triangle2 *triangle);
     void RemoveFromTriangles();
+    void ReplaceVertex(VertexNode *newVertex);
 };
 
 class Triangle2
@@ -70,10 +71,11 @@ private:
 public:
     bool selected;
     
-    Triangle2() : selected(false) { }
+    Triangle2();
     Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3);
 
     VertexNode *operator[](int index) const { return vertices[index]; }
+    void ReplaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
     void RemoveVertex(VertexNode *vertex);
     void AddToVertices();
     void RemoveFromVertices();
@@ -87,8 +89,14 @@ class TriangleNode : public FPNode<TriangleNode, Triangle2>
 {
 public:
     TriangleNode() : FPNode<TriangleNode, Triangle2>() { }
-    TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle) { }
-    virtual ~TriangleNode() { }
+    TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle)
+    {
+        data.AddToVertices();
+    }
+    virtual ~TriangleNode()
+    {
+        data.RemoveFromVertices();
+    }
 };
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3]);

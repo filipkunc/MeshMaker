@@ -27,12 +27,12 @@
 		A7064C7812BD107800B14CFA /* MeshHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.mm */; };
 		A7064C7912BD107800B14CFA /* MeshManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5712BD107800B14CFA /* MeshManipulationState.mm */; };
 		A7064C7A12BD107800B14CFA /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5912BD107800B14CFA /* MyDocument.mm */; };
-		A7064C7B12BD107800B14CFA /* OpenGLDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.cpp */; };
+		A7064C7B12BD107800B14CFA /* OpenGLDrawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */; };
 		A7064C7C12BD107800B14CFA /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
 		A7064C7D12BD107800B14CFA /* OpenGLSceneView.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6112BD107800B14CFA /* OpenGLSceneView.mm */; };
 		A7064C7E12BD107800B14CFA /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6312BD107800B14CFA /* Quaternion.cpp */; };
-		A7064C7F12BD107800B14CFA /* Shader.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6612BD107800B14CFA /* Shader.m */; };
-		A7064C8012BD107800B14CFA /* ShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6812BD107800B14CFA /* ShaderProgram.m */; };
+		A7064C7F12BD107800B14CFA /* Shader.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6612BD107800B14CFA /* Shader.mm */; };
+		A7064C8012BD107800B14CFA /* ShaderProgram.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6812BD107800B14CFA /* ShaderProgram.mm */; };
 		A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6912BD107800B14CFA /* Vector2D.cpp */; };
 		A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
 		A7064C8A12BD10C200B14CFA /* twoSidedLighting.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */; };
@@ -56,11 +56,11 @@
 		A746512212BD1CEA0030EEB0 /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5312BD107800B14CFA /* MeshFullState.mm */; };
 		A746512412BD1CEA0030EEB0 /* MeshManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5712BD107800B14CFA /* MeshManipulationState.mm */; };
 		A746512612BD1CF60030EEB0 /* OpenGLSceneView.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6112BD107800B14CFA /* OpenGLSceneView.mm */; };
-		A746512912BD1CF60030EEB0 /* Shader.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6612BD107800B14CFA /* Shader.m */; };
-		A746512B12BD1CF60030EEB0 /* ShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6812BD107800B14CFA /* ShaderProgram.m */; };
+		A746512912BD1CF60030EEB0 /* Shader.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6612BD107800B14CFA /* Shader.mm */; };
+		A746512B12BD1CF60030EEB0 /* ShaderProgram.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6812BD107800B14CFA /* ShaderProgram.mm */; };
 		A746513112BD1D000030EEB0 /* Manipulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4912BD107800B14CFA /* Manipulator.mm */; };
 		A746513312BD1D000030EEB0 /* ManipulatorWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4B12BD107800B14CFA /* ManipulatorWidget.mm */; };
-		A746513612BD1D000030EEB0 /* OpenGLDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.cpp */; };
+		A746513612BD1D000030EEB0 /* OpenGLDrawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */; };
 		A746513A12BD1D000030EEB0 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
@@ -112,7 +112,7 @@
 		A7064C5712BD107800B14CFA /* MeshManipulationState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshManipulationState.mm; path = Classes/MeshManipulationState.mm; sourceTree = "<group>"; };
 		A7064C5812BD107800B14CFA /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyDocument.h; path = Classes/MyDocument.h; sourceTree = "<group>"; };
 		A7064C5912BD107800B14CFA /* MyDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MyDocument.mm; path = Classes/MyDocument.mm; sourceTree = "<group>"; };
-		A7064C5A12BD107800B14CFA /* OpenGLDrawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenGLDrawing.cpp; path = Classes/OpenGLDrawing.cpp; sourceTree = "<group>"; };
+		A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenGLDrawing.mm; path = Classes/OpenGLDrawing.mm; sourceTree = "<group>"; };
 		A7064C5B12BD107800B14CFA /* OpenGLDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLDrawing.h; path = Classes/OpenGLDrawing.h; sourceTree = "<group>"; };
 		A7064C5C12BD107800B14CFA /* OpenGLManipulating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLManipulating.h; path = Classes/OpenGLManipulating.h; sourceTree = "<group>"; };
 		A7064C5D12BD107800B14CFA /* OpenGLManipulatingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLManipulatingController.h; path = Classes/OpenGLManipulatingController.h; sourceTree = "<group>"; };
@@ -124,9 +124,9 @@
 		A7064C6312BD107800B14CFA /* Quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Quaternion.cpp; path = Classes/Quaternion.cpp; sourceTree = "<group>"; };
 		A7064C6412BD107800B14CFA /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Quaternion.h; path = Classes/Quaternion.h; sourceTree = "<group>"; };
 		A7064C6512BD107800B14CFA /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shader.h; path = Classes/Shader.h; sourceTree = "<group>"; };
-		A7064C6612BD107800B14CFA /* Shader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Shader.m; path = Classes/Shader.m; sourceTree = "<group>"; };
+		A7064C6612BD107800B14CFA /* Shader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Shader.mm; path = Classes/Shader.mm; sourceTree = "<group>"; };
 		A7064C6712BD107800B14CFA /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShaderProgram.h; path = Classes/ShaderProgram.h; sourceTree = "<group>"; };
-		A7064C6812BD107800B14CFA /* ShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ShaderProgram.m; path = Classes/ShaderProgram.m; sourceTree = "<group>"; };
+		A7064C6812BD107800B14CFA /* ShaderProgram.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ShaderProgram.mm; path = Classes/ShaderProgram.mm; sourceTree = "<group>"; };
 		A7064C6912BD107800B14CFA /* Vector2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector2D.cpp; path = Classes/Vector2D.cpp; sourceTree = "<group>"; };
 		A7064C6A12BD107800B14CFA /* Vector2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector2D.h; path = Classes/Vector2D.h; sourceTree = "<group>"; };
 		A7064C6B12BD107800B14CFA /* Vector3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector3D.cpp; path = Classes/Vector3D.cpp; sourceTree = "<group>"; };
@@ -258,7 +258,7 @@
 				A7064C5712BD107800B14CFA /* MeshManipulationState.mm */,
 				A7064C5812BD107800B14CFA /* MyDocument.h */,
 				A7064C5912BD107800B14CFA /* MyDocument.mm */,
-				A7064C5A12BD107800B14CFA /* OpenGLDrawing.cpp */,
+				A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */,
 				A7064C5B12BD107800B14CFA /* OpenGLDrawing.h */,
 				A7064C5C12BD107800B14CFA /* OpenGLManipulating.h */,
 				A7064C5D12BD107800B14CFA /* OpenGLManipulatingController.h */,
@@ -270,9 +270,9 @@
 				A7064C6312BD107800B14CFA /* Quaternion.cpp */,
 				A7064C6412BD107800B14CFA /* Quaternion.h */,
 				A7064C6512BD107800B14CFA /* Shader.h */,
-				A7064C6612BD107800B14CFA /* Shader.m */,
+				A7064C6612BD107800B14CFA /* Shader.mm */,
 				A7064C6712BD107800B14CFA /* ShaderProgram.h */,
-				A7064C6812BD107800B14CFA /* ShaderProgram.m */,
+				A7064C6812BD107800B14CFA /* ShaderProgram.mm */,
 				A7064C6912BD107800B14CFA /* Vector2D.cpp */,
 				A7064C6A12BD107800B14CFA /* Vector2D.h */,
 				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
@@ -379,6 +379,9 @@
 /* Begin PBXProject section */
 		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "OpenGLEditor" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -457,12 +460,12 @@
 				A7064C7812BD107800B14CFA /* MeshHelpers.mm in Sources */,
 				A7064C7912BD107800B14CFA /* MeshManipulationState.mm in Sources */,
 				A7064C7A12BD107800B14CFA /* MyDocument.mm in Sources */,
-				A7064C7B12BD107800B14CFA /* OpenGLDrawing.cpp in Sources */,
+				A7064C7B12BD107800B14CFA /* OpenGLDrawing.mm in Sources */,
 				A7064C7C12BD107800B14CFA /* OpenGLManipulatingController.mm in Sources */,
 				A7064C7D12BD107800B14CFA /* OpenGLSceneView.mm in Sources */,
 				A7064C7E12BD107800B14CFA /* Quaternion.cpp in Sources */,
-				A7064C7F12BD107800B14CFA /* Shader.m in Sources */,
-				A7064C8012BD107800B14CFA /* ShaderProgram.m in Sources */,
+				A7064C7F12BD107800B14CFA /* Shader.mm in Sources */,
+				A7064C8012BD107800B14CFA /* ShaderProgram.mm in Sources */,
 				A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */,
 				A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */,
 			);
@@ -474,11 +477,11 @@
 			files = (
 				A746513112BD1D000030EEB0 /* Manipulator.mm in Sources */,
 				A746513312BD1D000030EEB0 /* ManipulatorWidget.mm in Sources */,
-				A746513612BD1D000030EEB0 /* OpenGLDrawing.cpp in Sources */,
+				A746513612BD1D000030EEB0 /* OpenGLDrawing.mm in Sources */,
 				A746513A12BD1D000030EEB0 /* OpenGLManipulatingController.mm in Sources */,
 				A746512612BD1CF60030EEB0 /* OpenGLSceneView.mm in Sources */,
-				A746512912BD1CF60030EEB0 /* Shader.m in Sources */,
-				A746512B12BD1CF60030EEB0 /* ShaderProgram.m in Sources */,
+				A746512912BD1CF60030EEB0 /* Shader.mm in Sources */,
+				A746512B12BD1CF60030EEB0 /* ShaderProgram.mm in Sources */,
 				A746512212BD1CEA0030EEB0 /* MeshFullState.mm in Sources */,
 				A746512412BD1CEA0030EEB0 /* MeshManipulationState.mm in Sources */,
 				A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */,
@@ -640,7 +643,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -679,16 +681,16 @@
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBC_PLUGIN_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -702,15 +704,15 @@
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBC_PLUGIN_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;

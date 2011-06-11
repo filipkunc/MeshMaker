@@ -7,7 +7,7 @@
  *
  */
 
-#import <Cocoa/Cocoa.h>
+#import "OpenGLDrawing.h"
 #import "MathDeclaration.h"
 #import "OpenGLManipulating.h"
 

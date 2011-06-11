@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "Shader.h"
 
+void ProgramLog(GLuint program);
+
 @interface ShaderProgram : NSObject
 {
 	GLuint program;

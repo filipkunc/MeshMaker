@@ -9,8 +9,11 @@
 
 #pragma once
 
-#include "MathDeclaration.h"
-#include "Enums.h"
+#import <Cocoa/Cocoa.h>
+#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
+#import "MathDeclaration.h"
+#import "Enums.h"
 
 void DrawCube(float size);
 void DrawSphere(float radius, int lats, int longs);
