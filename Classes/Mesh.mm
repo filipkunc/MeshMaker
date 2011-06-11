@@ -630,15 +630,12 @@ static ShaderProgram *flippedShader;
 {
 	NSLog(@"removeDegeneratedTriangles");
 	[self resetCache];
-	/*
-	for (int i = 0; i < (int)triangles->size(); i++)
-	{
-		if (IsTriangleDegenerated(triangles->at(i)))
-		{
-			[self removeTriangleAtIndex:i];
-			i--;
-		}
-	}*/	
+    
+    for (TriangleNode *node = triangles->Begin(), *end = triangles->End(); node != end; node = node->Next())
+    {
+        if (node->data.IsDegenerated())
+            triangles->Remove(node);
+    }
 }
 
 - (void)removeNonUsedVertices
@@ -710,49 +707,38 @@ static ShaderProgram *flippedShader;
 
 - (void)fastMergeSelectedVertices
 {
-    /*
 	NSLog(@"fastMergeSelectedVertices");
-	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 	
-	uint selectedCount = 0;
 	Vector3D center = Vector3D();
+    
+    SimpleList<VertexNode *> *selectedNodes = new SimpleList<VertexNode *>();
 	
-	for (uint i = 0; i < selected->size(); i++)
-	{
-		if (selected->at(i).selected)
-		{
-			selectedCount++;
-			center += vertices->at(i);
-		}
-	}
-	
-	NSLog(@"selectedCount = %i", selectedCount);
-	
-	if (selectedCount < 2)
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+    {
+        if (node->data.selected)
+        {
+            selectedNodes->Add(node);
+            center += node->data.position;
+        }
+    }
+    
+	if (selectedNodes->Count() < 2)
+    {
+        delete selectedNodes;
 		return;
+    }
 	
-	center /= selectedCount;
-	vertices->push_back(center);
-	selected->push_back((SelectionInfo){ NO, YES });
-	
-	uint centerIndex = vertices->size() - 1;
-	
-	for (uint i = 0; i < selected->size(); i++)
-	{
-		if (selected->at(i).selected)
-		{
-			for (uint j = 0; j < triangles->size(); j++)
-			{
-				for (uint k = 0; k < 3; k++)
-				{
-					if (triangles->at(j).vertexIndices[k] == i)
-						triangles->at(j).vertexIndices[k] = centerIndex;
-				}				
-			}
-		}
-	}
-	
-	[self removeSelectedVertices];*/
+	center /= (float)selectedNodes->Count();
+    
+    VertexNode *centerNode = vertices->Add(center);
+    
+    for (SimpleNode<VertexNode *> *node = selectedNodes->Begin(), *end = selectedNodes->End(); node != end; node = node->Next())
+    {
+        node->data->ReplaceVertex(centerNode);        
+        //vertices->Remove(node->data);        
+    }
+    
+    delete selectedNodes;
 }
 
 - (void)mergeSelectedVertices
@@ -762,8 +748,8 @@ static ShaderProgram *flippedShader;
 	
 	[self fastMergeSelectedVertices];
 	
-	[self removeDegeneratedTriangles];
-	[self removeNonUsedVertices];
+	//[self removeDegeneratedTriangles];
+	//[self removeNonUsedVertices];
 	
 	//NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
 }
@@ -1051,7 +1037,7 @@ static ShaderProgram *flippedShader;
 
 - (void)mergeSelected
 {
-	/*NSLog(@"mergeSelected");
+	NSLog(@"mergeSelected");
 	
 	switch (selectionMode)
 	{
@@ -1060,12 +1046,12 @@ static ShaderProgram *flippedShader;
 			break;
 		default:
 			break;
-	}*/
+	}
 }
 
 - (void)splitSelected
 {
-	/*NSLog(@"splitSelected");
+	NSLog(@"splitSelected");
 	
 	switch (selectionMode)
 	{
@@ -1077,7 +1063,7 @@ static ShaderProgram *flippedShader;
 			break;
 		default:
 			break;
-	}*/
+	}
 }
 
 #pragma mark OpenGLManipulatingModel implementation
@@ -1370,18 +1356,15 @@ static ShaderProgram *flippedShader;
 
 - (void)removeSelected
 {
-	if (selectionMode == MeshSelectionModeTriangles)
+    if (selectionMode == MeshSelectionModeTriangles)
 	{
         for (TriangleNode *node = triangles->Begin(), *end = triangles->End(); node != end; node = node->Next())
         {
             if (node->data.selected)
-            {
-                node->data.RemoveFromVertices();
                 triangles->Remove(node);
-            }
         }
         
-		[self removeNonUsedVertices]; // still slow, but called once per selection
+		[self removeNonUsedVertices];
         [self setSelectionMode:selectionMode];
 	}
 }
