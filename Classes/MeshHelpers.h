@@ -82,7 +82,7 @@ public:
     bool IsDegenerated() const;
     bool IsVertexInTriangle(VertexNode *vertex) const;
     void GetVertexPositions(Vector3D vertexPositions[3]) const;
-    Triangle2 Flip() const;
+    void Flip();
 };
 
 class TriangleNode : public FPNode<TriangleNode, Triangle2>

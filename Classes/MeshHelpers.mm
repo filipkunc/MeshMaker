@@ -19,10 +19,7 @@ void VertexNode::RemoveTriangle(Triangle2 *triangle)
     for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
     {
         if (node->data == triangle)
-        {
             triangles.Remove(node);
-            break;
-        }
     }
 }
 
@@ -31,7 +28,6 @@ void VertexNode::RemoveFromTriangles()
     for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
     {
         node->data->RemoveVertex(this);
-        triangles.Remove(node);
     }
     
     triangles.RemoveAll();
@@ -87,7 +83,11 @@ void Triangle2::ReplaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
     for (uint i = 0; i < 3; i++)
     {
         if (vertices[i] == currentVertex)
+        {
             vertices[i] = newVertex;
+            newVertex->AddTriangle(this);
+            break;
+        }
     }
 }
 
@@ -131,13 +131,9 @@ void Triangle2::GetVertexPositions(Vector3D vertexPositions[3]) const
         vertexPositions[i] = vertices[i]->data.position;
 }
 
-Triangle2 Triangle2::Flip() const
+void Triangle2::Flip()
 {
-    Triangle2 opposite;
-	opposite.vertices[0] = vertices[2];
-	opposite.vertices[1] = vertices[1];
-	opposite.vertices[2] = vertices[0];
-	return opposite;
+    swap(vertices[0], vertices[2]);    
 }
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
