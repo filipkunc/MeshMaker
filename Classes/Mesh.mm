@@ -69,7 +69,6 @@ static ShaderProgram *flippedShader;
 										  alpha:1.0f];
 		[color retain];
 		
-		cachedIndices = NULL;
 		cachedVertices = NULL;
 		cachedNormals = NULL;
 		cachedColors = NULL;
@@ -146,18 +145,8 @@ static ShaderProgram *flippedShader;
 	[self addTriangle:triangle2];
 }
 
-- (void)resetIndexCache
-{
-	if (cachedIndices)
-	{
-		delete cachedIndices;
-		cachedIndices = NULL;
-	}
-}
-
 - (void)resetCache
 {
-	[self resetIndexCache];
 	if (cachedVertices)
 	{
 		delete [] cachedVertices;
@@ -269,18 +258,7 @@ static ShaderProgram *flippedShader;
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
 	
-	if (cachedIndices != NULL)
-	{
-		if (cachedIndices->size() > 0)
-		{
-			uint *indexPtr = &(*cachedIndices)[0];
-			glDrawElements(GL_TRIANGLES, cachedIndices->size(), GL_UNSIGNED_INT, indexPtr);
-		}
-	}
-	else
-	{
-		glDrawArrays(GL_TRIANGLES, 0, triangles->Count() * 3);
-	}
+	glDrawArrays(GL_TRIANGLES, 0, triangles->Count() * 3);
 	
 	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
 		glDisableClientState(GL_COLOR_ARRAY);
@@ -735,7 +713,6 @@ static ShaderProgram *flippedShader;
     for (SimpleNode<VertexNode *> *node = selectedNodes->Begin(), *end = selectedNodes->End(); node != end; node = node->Next())
     {
         node->data->ReplaceVertex(centerNode);        
-        //vertices->Remove(node->data);        
     }
     
     delete selectedNodes;
@@ -746,12 +723,11 @@ static ShaderProgram *flippedShader;
 	NSLog(@"mergeSelectedVertices");
 	[self resetCache];
 	
-	[self fastMergeSelectedVertices];
-	
-	//[self removeDegeneratedTriangles];
-	//[self removeNonUsedVertices];
-	
-	//NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
+    [self fastMergeSelectedVertices];
+    [self removeDegeneratedTriangles];
+    [self removeNonUsedVertices];
+    
+    [self setSelectionMode:selectionMode];
 }
 
 - (void)mergeVertexPairs
@@ -798,8 +774,11 @@ static ShaderProgram *flippedShader;
 - (void)transformWithMatrix:(Matrix4x4)matrix
 {
 	[self resetCache];
-	/*for (uint i = 0; i < vertices->size(); i++)
-		vertices->at(i).Transform(matrix);*/
+    
+    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
+        node->data.position.Transform(matrix);
+    
+    [self setSelectionMode:selectionMode];
 }
 
 - (void)mergeWithMesh:(Mesh *)mesh
@@ -1421,32 +1400,26 @@ static ShaderProgram *flippedShader;
 
 - (void)flipSelectedTriangles
 {
-	/*if (selectionMode == MeshSelectionModeTriangles)
+	if (selectionMode == MeshSelectionModeTriangles)
 	{	
 		[self resetCache];
-		for (uint i = 0; i < [self triangleCount]; i++)
-		{
-			if (selected->at(i).selected)
-				[self flipTriangleAtIndex:i];
-		}
-	}*/
+        for (TriangleNode *node = triangles->Begin(), *end = triangles->End(); node != end; node = node->Next())
+        {
+            if (node->data.selected)
+                node->data.Flip();
+        }
+	}
 }
 
 - (void)flipAllTriangles
 {
 	[self resetCache];
-	for (uint i = 0; i < [self triangleCount]; i++)
-	{
-		[self flipTriangleAtIndex:i];
-	}
+	for (TriangleNode *node = triangles->Begin(), *end = triangles->End(); node != end; node = node->Next())
+    {
+        node->data.Flip();
+    }
 }
 				 
-- (void)flipTriangleAtIndex:(uint)index
-{
-	/*Triangle &triangle = triangles->at(index);
-	triangle = FlipTriangle(triangle);*/
-}
-
 #pragma mark NSCoding implementation
 
 - (id)initWithCoder:(NSCoder *)aDecoder

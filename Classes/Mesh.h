@@ -25,7 +25,6 @@
     vector<VertexNode *> *cachedVertexSelection;
     vector<TriangleNode *> *cachedTriangleSelection;
     
-    vector<uint> *cachedIndices;
 	Vector3D *cachedVertices;
 	Vector3D *cachedNormals;
 	Vector3D *cachedColors;
@@ -75,7 +74,6 @@
 - (void)flipSelected;
 - (void)flipSelectedTriangles;
 - (void)flipAllTriangles;
-- (void)flipTriangleAtIndex:(uint)index;
 - (void)extrudeSelectedTriangles;
 - (void)resetCache;
 - (void)fillCache;
