@@ -16,7 +16,6 @@ private:
 	Vector3D axisX;
 	Vector3D axisY;
 	Vector3D axisZ;
-	bool isLimitAxisY;
 private:
 	void ComputeVectors();
 public:
@@ -40,20 +39,13 @@ public:
 	Vector3D GetAxisX() const;
 	Vector3D GetAxisY() const;
 	Vector3D GetAxisZ() const;
-	bool GetLimitAxisY() const;
-	void SetLimitAxisY(bool value);
-	Vector3D GetLimitedAxisX() const;
-	Vector3D GetLimitedAxisY() const;
-	Vector3D GetLimitedAxisZ() const;
 	Matrix4x4 GetViewMatrix() const;
 	Matrix4x4 GetRotationMatrix() const;
-	Matrix4x4 GetBillboardMatrix() const;
 	void MoveDirection(const Vector3D & v);
 	void Move(float s);
 	void LeftRight(float s);
 	void UpDown(float s);
 	void RotateLeftRight(float radians);
 	void RotateUpDown(float radians);
-	void RotateUpDown(float radians, float minRadians, float maxRadians);
 	void Zoom(float zoom);
 };

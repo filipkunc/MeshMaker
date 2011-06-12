@@ -943,7 +943,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 - (void)collapseSplitView:(NSSplitView *)splitView
 {
 	[[[splitView subviews] objectAtIndex:0] setFrame:NSZeroRect];
-	if ([splitView isVertical])
+	/*if ([splitView isVertical])
 	{
 		NSRect frame = [[[splitView subviews] objectAtIndex:1] frame];
 		if (frame.size.width < 1.0f)
@@ -960,7 +960,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 			frame.size.height = 2.0f;
 			[[[splitView subviews] objectAtIndex:1] setFrame:frame];
 		}
-	}
+	}*/
 }
 
 - (void)swapCamerasBetweenFirst:(OpenGLSceneView *)first second:(OpenGLSceneView *)second
@@ -1002,9 +1002,9 @@ constrainSplitPosition:(CGFloat)proposedPosition
 		{
 			oneView = view;
 			
-			[self collapseSplitView:topSplit];
-			[self collapseSplitView:bottomSplit];
 			[self collapseSplitView:mainSplit];
+            [self collapseSplitView:topSplit];
+			[self collapseSplitView:bottomSplit];			
 			
 			if (oneView != viewPerspective)
 			{
