@@ -66,13 +66,6 @@ vector<T> *ReadValues(string s)
 {
 	[itemsController removeTransformationObserver:self];
 	[meshController removeTransformationObserver:self];
-	[meshController release];
-	[itemsController release];
-	[items release];
-	[oldManipulations release];
-	[oldMeshManipulation release];
-	[views release];
-	[super dealloc];
 }
 
 - (void)awakeFromNib
@@ -175,7 +168,6 @@ vector<T> *ReadValues(string s)
 	[document removeItemWithType:type steps:steps];
 	
 	[items addItem:item];
-	[item release];
 	
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
@@ -422,11 +414,11 @@ vector<T> *ReadValues(string s)
 	
 	if (manipulated == itemsController)
 	{
-		oldManipulations = [[items currentManipulations] retain];
+		oldManipulations = [items currentManipulations];
 	}
 	else if (manipulated == meshController)
 	{
-		oldMeshManipulation = [[items currentMeshManipulation] retain];
+		oldMeshManipulation = [items currentMeshManipulation];
 	}
 }
 
@@ -439,14 +431,12 @@ vector<T> *ReadValues(string s)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Manipulations"];
 		[document swapManipulationsWithOld:oldManipulations current:[items currentManipulations]];
-		[oldManipulations release];
 		oldManipulations = nil;
 	}
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
 		[document swapMeshManipulationWithOld:oldMeshManipulation current:[items currentMeshManipulation]];
-		[oldMeshManipulation release];
 		oldMeshManipulation = nil;
 	}
 	
@@ -856,8 +846,6 @@ vector<T> *ReadValues(string s)
 	if (fin.is_open())
 	{
 		ItemCollection *newItems = [[ItemCollection alloc] initWithFileStream:&fin];
-		[newItems retain];
-		[items release];
 		items = newItems;
 		[itemsController setModel:items];
 		[itemsController updateSelection];

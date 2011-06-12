@@ -29,7 +29,6 @@
 {
 	delete vertices;
 	delete selected;
-	[super dealloc];
 }
 
 - (void)applyManipulationToMesh:(Mesh *)mesh

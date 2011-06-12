@@ -29,7 +29,7 @@
 	self = [super init];
 	if (self)
 	{
-		items = [[aDecoder decodeObjectForKey:@"items"] retain];
+		items = [aDecoder decodeObjectForKey:@"items"];
 	}
 	return self;
 }
@@ -69,11 +69,6 @@
 	}
 }
 
-- (void)dealloc
-{
-	[items release];
-	[super dealloc];
-}
 
 - (Item *)itemAtIndex:(uint)index
 {
@@ -186,7 +181,6 @@
 			Item *newItem = [oldItem duplicate];
 			[oldItem setSelected:NO];
 			[items addObject:newItem];
-			[newItem release];
 		}
 	}
 }
@@ -281,12 +275,11 @@
 	
 	[newItem setSelected:YES];
 	[self addItem:newItem];
-	[newItem release];
 }
 
 - (NSMutableArray *)currentManipulations
 {
-	NSMutableArray *manipulations = [[[NSMutableArray alloc] init] autorelease];
+	NSMutableArray *manipulations = [[NSMutableArray alloc] init];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
@@ -295,7 +288,6 @@
 		{
 			ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
 			[manipulations addObject:itemState];
-			[itemState release];
 		}
 	}
 	
@@ -322,7 +314,6 @@
 		{
 			MeshManipulationState *meshState = [[MeshManipulationState alloc] initWithMesh:[item mesh]
 																				 itemIndex:i];
-			[meshState autorelease];
 			return meshState;
 		}
 	}
@@ -347,7 +338,6 @@
 		{
 			MeshFullState *meshState = [[MeshFullState alloc] initWithMesh:[item mesh]
 																 itemIndex:i];
-			[meshState autorelease];
 			return meshState;
 		}
 	}
@@ -365,7 +355,7 @@
 
 - (NSMutableArray *)currentSelection
 {
-	NSMutableArray *selection = [[[NSMutableArray alloc] init] autorelease];
+	NSMutableArray *selection = [[NSMutableArray alloc] init];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
@@ -374,7 +364,6 @@
 		{
 			NSNumber *number = [[NSNumber alloc] initWithUnsignedInt:i];
 			[selection addObject:number];
-			[number release];
 		}
 	}
 	
@@ -393,7 +382,7 @@
 
 - (NSMutableArray *)currentItems
 {
-	NSMutableArray *anItems = [[[NSMutableArray alloc] init] autorelease];
+	NSMutableArray *anItems = [[NSMutableArray alloc] init];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
@@ -402,7 +391,6 @@
 		{
 			IndexedItem *indexedItem = [[IndexedItem alloc] initWithIndex:i item:item];
 			[anItems addObject:indexedItem];
-			[indexedItem release];
 		}
 	}
 	
@@ -421,13 +409,12 @@
 
 - (NSMutableArray *)allItems
 {
-	NSMutableArray *anItems = [[[NSMutableArray alloc] init] autorelease];
+	NSMutableArray *anItems = [[NSMutableArray alloc] init];
 	
 	for (uint i = 0; i < [self count]; i++)
 	{
 		Item *duplicate = [[self itemAtIndex:i] duplicate];
 		[anItems addObject:duplicate];
-		[duplicate release];
 	}
 	
 	return anItems;
@@ -438,9 +425,7 @@
 	if (items == anItems)
 		return;
 	
-	[items release];
 	items = anItems;
-	[items retain];
 }
 
 - (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems
