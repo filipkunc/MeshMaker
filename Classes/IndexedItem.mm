@@ -19,15 +19,9 @@
 	{
 		index = anIndex;
 		item = anItem;
-		[item retain];
 	}
 	return self;
 }
 
-- (void)dealloc
-{
-	[item release];
-	[super dealloc];
-}
 
 @end

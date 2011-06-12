@@ -33,7 +33,6 @@
 		
         BOOL success = [nib instantiateNibWithOwner:self topLevelObjects:nil];
 		
-		[nib release];
 		
         if (success != YES) 
 		{

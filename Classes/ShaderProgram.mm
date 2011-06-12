@@ -40,7 +40,6 @@ void ProgramLog(GLuint program)
 - (void)dealloc
 {
 	glDeleteProgram(program);
-	[super dealloc];
 }
 
 - (void)attachShaderWithType:(GLenum)type resourceInBundle:(NSString *)resourceInBundle
@@ -52,7 +51,6 @@ void ProgramLog(GLuint program)
 - (void)attachShader:(Shader *)aShader
 {
 	glAttachShader(program, [aShader shader]);
-	[aShader release]; // shader is not needed after this
 }
 
 // GL_TRIANGLES, GL_TRIANGLE_STRIP

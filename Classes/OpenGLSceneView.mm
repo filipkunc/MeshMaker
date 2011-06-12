@@ -75,10 +75,6 @@ ShaderProgram *globalFlippedShader = nil;
 
 + (void)deinitialize
 {
-	[globalGLContext release];
-	[globalPixelFormat release];
-	[globalNormalShader release];
-	[globalFlippedShader release];
 }
 
 - (void)awakeFromNib
@@ -106,7 +102,6 @@ ShaderProgram *globalFlippedShader = nil;
 		NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
 															  shareContext:[OpenGLSceneView sharedContext]];
 		[self setOpenGLContext:context];
-		[context release];
 		[[self openGLContext] makeCurrentContext];
 		
 		glEnable(GL_DEPTH_TEST);
@@ -149,11 +144,6 @@ ShaderProgram *globalFlippedShader = nil;
 	delete perspectiveRadians;
 	delete selectionOffset;
 	delete camera;
-	[defaultManipulator release];
-	[translationManipulator release];
-	[rotationManipulator release];
-	[scaleManipulator release];
-	[super dealloc];
 }
 
 - (ManipulatorType)currentManipulator
@@ -456,7 +446,6 @@ ShaderProgram *globalFlippedShader = nil;
 												  owner:self
 											   userInfo:nil];
 	[self addTrackingArea:trackingArea];
-	[trackingArea release];
 }
 
 - (void)mouseDown:(NSEvent *)e

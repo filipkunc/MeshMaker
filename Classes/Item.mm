@@ -96,7 +96,7 @@
 		selected = [aDecoder decodeBoolForKey:@"selected"];
 		visible = YES;
 		
-		mesh = [[aDecoder decodeObjectForKey:@"mesh"] retain];
+		mesh = [aDecoder decodeObjectForKey:@"mesh"];
 	}
 	return self;
 }
@@ -160,8 +160,6 @@
 	delete position;
 	delete rotation;
 	delete scale;
-	[mesh release];
-	[super dealloc];
 }
 
 - (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection

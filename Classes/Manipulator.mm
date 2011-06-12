@@ -67,10 +67,8 @@
 
 - (void)dealloc
 {
-	[widgets release];
 	delete position;
 	delete rotation;
-	[super dealloc];
 }
 
 - (Vector3D)position
@@ -102,7 +100,6 @@
 {
 	ManipulatorWidget *widget = [[ManipulatorWidget alloc] initWithAxis:anAxis widget:aWidget];
 	[widgets addObject:widget];
-	[widget release];
 }
 
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center

@@ -75,7 +75,6 @@ void ShaderLog(GLuint shader)
 - (void)dealloc
 {
 	glDeleteShader(shader);
-	[super dealloc];
 }
 
 @end

@@ -41,7 +41,6 @@
 	delete modelPosition;
 	delete modelRotation;
 	delete modelScale;
-	[super dealloc];
 }
 
 - (id<OpenGLManipulatingModel>)model

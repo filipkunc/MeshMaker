@@ -28,9 +28,9 @@
 
 @interface OpenGLSceneView : NSOpenGLView 
 {
-	id<OpenGLManipulating> displayed;
-	id<OpenGLManipulating> manipulated;
-	id<OpenGLSceneViewDelegate> delegate;
+	id<OpenGLManipulating> __weak displayed;
+	id<OpenGLManipulating> __weak manipulated;
+	id<OpenGLSceneViewDelegate> __weak delegate;
 	
 	Vector3D *selectionOffset;
 	Camera *camera;
@@ -49,9 +49,9 @@
 	enum ViewMode viewMode;
 }
 
-@property (readwrite, assign) id<OpenGLManipulating> displayed;
-@property (readwrite, assign) id<OpenGLManipulating> manipulated;
-@property (readwrite, assign) id<OpenGLSceneViewDelegate> delegate;
+@property (readwrite, weak) id<OpenGLManipulating> displayed;
+@property (readwrite, weak) id<OpenGLManipulating> manipulated;
+@property (readwrite, weak) id<OpenGLSceneViewDelegate> delegate;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 @property (readwrite, assign) enum CameraMode cameraMode;
 @property (readwrite, assign) enum ViewMode viewMode;

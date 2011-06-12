@@ -67,7 +67,6 @@ static ShaderProgram *flippedShader;
 									 saturation:0.5f
 									 brightness:0.6f 
 										  alpha:1.0f];
-		[color retain];
 		
 		cachedVertices = NULL;
 		cachedNormals = NULL;
@@ -83,9 +82,7 @@ static ShaderProgram *flippedShader;
 {
 	delete vertices;
 	delete triangles;
-	[color release];
 	[self resetCache];
-	[super dealloc];
 }
 
 - (enum MeshSelectionMode)selectionMode

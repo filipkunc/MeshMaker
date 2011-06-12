@@ -30,7 +30,6 @@
 	delete position;
 	delete rotation;
 	delete scale;
-	[super dealloc];
 }
 
 - (void)applyManipulationToItem:(Item *)item

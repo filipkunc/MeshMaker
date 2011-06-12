@@ -31,7 +31,6 @@
 	delete vertices;
 	delete triangles;
 	delete selected;
-	[super dealloc];
 }
 
 - (void)applyFullToMesh:(Mesh *)mesh
