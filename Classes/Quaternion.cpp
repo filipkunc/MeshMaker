@@ -310,3 +310,14 @@ Quaternion Quaternion::Slerp(float s, const Quaternion & q) const
 		c1 * w + c2 * q.w
 	);
 }
+
+void Quaternion::Normalize()
+{
+    float oolength = x * x + y * y + z * z + w * w;
+    oolength = 1.0f / sqrtf(oolength);
+    
+    x *= oolength;
+    y *= oolength;
+    z *= oolength;
+    w *= oolength;
+}

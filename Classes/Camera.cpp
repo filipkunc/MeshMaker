@@ -13,7 +13,6 @@ Camera::Camera()
 	axisX = Vector3D(1, 0, 0);
 	axisY = Vector3D(0, 1, 0);
 	axisZ = Vector3D(0, 0, 1);
-	isLimitAxisY = false;
 }
 
 void Camera::ComputeVectors()
@@ -115,21 +114,6 @@ void Camera::SetPosition(const Vector3D & v)
 {
 	MoveDirection(v - position);
 }
-
-Vector3D Camera::GetAxis(int index) const
-{
-	switch (index)
-	{
-		case 0:
-			return axisX;
-		case 1:
-			return axisY;
-		case 2:
-			return axisZ;
-		default:
-			return Vector3D();
-	}
-}
 	
 Vector3D Camera::GetAxisX() const
 {
@@ -143,47 +127,6 @@ Vector3D Camera::GetAxisY() const
 	
 Vector3D Camera::GetAxisZ() const
 {
-	return axisZ;
-}
-
-bool Camera::GetLimitAxisY() const
-{
-	return isLimitAxisY;
-}
-
-void Camera::SetLimitAxisY(bool value)
-{
-	isLimitAxisY = value;
-}
-
-Vector3D Camera::GetLimitedAxisX() const
-{
-	if (isLimitAxisY)
-	{
-		Vector3D limitedAxisX = axisX;
-		limitedAxisX.y = 0.0f;
-		limitedAxisX.Normalize();
-		return limitedAxisX;
-	}
-	return axisX;
-}
-
-Vector3D Camera::GetLimitedAxisY() const
-{
-	if (isLimitAxisY)
-		return Vector3D(0, 1, 0);
-	return axisY;
-}
-
-Vector3D Camera::GetLimitedAxisZ() const
-{
-	if (isLimitAxisY)
-	{
-		Vector3D limitedAxisZ = axisZ;
-		limitedAxisZ.y = 0.0f;
-		limitedAxisZ.Normalize();
-		return limitedAxisZ;
-	}
 	return axisZ;
 }
 	
@@ -212,18 +155,6 @@ Matrix4x4 Camera::GetRotationMatrix() const
     return rot;
 }
 	
-Matrix4x4 Camera::GetBillboardMatrix() const
-{
-	Matrix4x4 rot;
-	Quaternion q_x, q_y, q_z, q;
-	q_x.FromAngleAxis(radians.x, startAxisX);
-    q_y.FromAngleAxis(radians.y, startAxisY);
-    q_z.FromAngleAxis(radians.z, startAxisZ);
-	q = q_z * q_y * q_x;
-	q.ToMatrix(rot);
-	return rot;
-}
-	
 void Camera::MoveDirection(const Vector3D & v)
 {
 	center += v;
@@ -233,17 +164,17 @@ void Camera::MoveDirection(const Vector3D & v)
 	
 void Camera::Move(float s)
 {
-	MoveDirection(GetLimitedAxisZ() * s);
+	MoveDirection(GetAxisZ() * s);
 }
 	
 void Camera::LeftRight(float s)
 {
-    MoveDirection(GetLimitedAxisX() * s);
+    MoveDirection(GetAxisX() * s);
 }
 	
 void Camera::UpDown(float s)
 {
-	MoveDirection(GetLimitedAxisY() * s);
+	MoveDirection(GetAxisY() * s);
 }
 	
 void Camera::RotateLeftRight(float radians)
@@ -258,14 +189,6 @@ void Camera::RotateUpDown(float radians)
 	ComputeVectors();
 }
 
-void Camera::RotateUpDown(float radians, float minRadians, float maxRadians)
-{
-	this->radians.x -= radians;
-	this->radians.x = Min<float>(this->radians.x, maxRadians);
-	this->radians.x = Max<float>(this->radians.x, minRadians);
-	ComputeVectors();
-}
-	
 void Camera::Zoom(float zoom)
 {
 	float currentZoom = GetZoom();
