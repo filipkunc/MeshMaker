@@ -17,20 +17,17 @@ Camera::Camera()
 
 void Camera::ComputeVectors()
 {
-	Matrix4x4 rotX, rotZ;
-    Quaternion q_x, q_y, q_z;
-    Quaternion q_yx, q_yz;
+	Matrix4x4 rot;
+    Quaternion q_x, q_y;
+    Quaternion q_yx;
     q_x.FromAngleAxis(radians.x, startAxisX);
 	q_y.FromAngleAxis(radians.y, startAxisY);
-	q_z.FromAngleAxis(radians.z, startAxisZ);
     q_yx = q_y * q_x;
-    q_yx.ToMatrix(rotZ);
-    q_yz = q_y * q_z;
-    q_yz.ToMatrix(rotX);
+    q_yx.ToMatrix(rot);
     axisX = startAxisX;
     axisZ = startAxisZ;
-    axisX.Transform(rotX);
-    axisZ.Transform(rotZ);
+    axisX.Transform(rot);
+    axisZ.Transform(rot);
     axisY = axisX.Cross(axisZ);
 
     position = startPosition;
@@ -134,23 +131,17 @@ Matrix4x4 Camera::GetViewMatrix() const
 {
 	Matrix4x4 trans, rot;
     trans.Translate(-position);
-    Quaternion q_x, q_y, q_z, q;
-    q_x.FromAngleAxis(-radians.x, startAxisX);
-	q_y.FromAngleAxis(-radians.y, startAxisY);
-	q_z.FromAngleAxis(-radians.z, startAxisZ);
-    q = q_z * q_x * q_y;
-    q.ToMatrix(rot);
+    rot = GetRotationMatrix();    
     return (rot * trans);
 }
 
 Matrix4x4 Camera::GetRotationMatrix() const
 {
 	Matrix4x4 rot;
-    Quaternion q_x, q_y, q_z, q;
+    Quaternion q_x, q_y, q;
     q_x.FromAngleAxis(-radians.x, startAxisX);
 	q_y.FromAngleAxis(-radians.y, startAxisY);
-	q_z.FromAngleAxis(-radians.z, startAxisZ);
-    q = q_z * q_x * q_y;
+    q = q_x * q_y;
     q.ToMatrix(rot);
     return rot;
 }
