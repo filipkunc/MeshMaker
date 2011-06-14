@@ -114,11 +114,10 @@ ShaderProgram *globalFlippedShader = nil;
 		highlightCameraMode = NO;
 		
 		camera = new Camera();
-		camera->SetRadX(-45.0f * DEG_TO_RAD);
-		camera->SetRadY(45.0f * DEG_TO_RAD);
+		camera->SetRadians(Vector2D(-45.0f * DEG_TO_RAD, 45.0f * DEG_TO_RAD));
 		camera->SetZoom(20.0f);
 		
-		perspectiveRadians = new Vector3D(camera->GetRadians());
+		perspectiveRadians = new Vector2D(camera->GetRadians());
 		
 		lastPoint = NSMakePoint(0, 0);
 		
@@ -209,22 +208,22 @@ ShaderProgram *globalFlippedShader = nil;
 			camera->SetRadians(*perspectiveRadians);
 			break;
 		case CameraModeTop:
-			camera->SetRadians(Vector3D(-90.0f * DEG_TO_RAD, 0, 0));
+			camera->SetRadians(Vector2D(-90.0f * DEG_TO_RAD, 0));
 			break;
 		case CameraModeBottom:
-			camera->SetRadians(Vector3D(90.0f * DEG_TO_RAD, 0, 0));
+			camera->SetRadians(Vector2D(90.0f * DEG_TO_RAD, 0));
 			break;
 		case CameraModeLeft:
-			camera->SetRadians(Vector3D(0, -90.0f * DEG_TO_RAD, 0));
+			camera->SetRadians(Vector2D(0, -90.0f * DEG_TO_RAD));
 			break;
 		case CameraModeRight:
-			camera->SetRadians(Vector3D(0, 90.0f * DEG_TO_RAD, 0));
+			camera->SetRadians(Vector2D(0, 90.0f * DEG_TO_RAD));
 			break;
 		case CameraModeFront:
-			camera->SetRadians(Vector3D(0, 0, 0));
+			camera->SetRadians(Vector2D());
 			break;
 		case CameraModeBack:
-			camera->SetRadians(Vector3D(0, 180.0f * DEG_TO_RAD, 0));
+			camera->SetRadians(Vector2D(0, 180.0f * DEG_TO_RAD));
 			break;
 		default:
 			break;
@@ -353,7 +352,7 @@ ShaderProgram *globalFlippedShader = nil;
 	[self beginOrtho];
 	glPushMatrix();
 	glTranslatef(18.0f, 18.0f, 0.0f);
-	glMultMatrixf(camera->GetRotationMatrix());
+	glMultMatrixf(camera->GetRotationQuaternion().ToMatrix());
 	[defaultManipulator setPosition:Vector3D()];
 	[defaultManipulator setSize:15.0f];
 	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() 
@@ -934,7 +933,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	
 	Vector3D position = [self positionInSpaceByPoint:point];
 	Vector3D result = [manipulated selectionCenter];
-	position.Transform(rotation.Conjugate());
+	position = rotation.Conjugate().ToMatrix().Transform(position);
 	result[axis] = position[axis];
 	return result;
 }

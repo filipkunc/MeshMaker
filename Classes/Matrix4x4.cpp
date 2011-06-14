@@ -34,7 +34,7 @@ void Matrix4x4::TranslateRotateScale(const Vector3D & translate, const Quaternio
 	Matrix4x4 r;
 	Matrix4x4 s;
 	t.Translate(translate);
-	rotate.ToMatrix(r);
+	r = rotate.ToMatrix();
 	s.Scale(scale);
 	*this = t * r * s;
 }
@@ -224,11 +224,6 @@ void Matrix4x4::Translate(const Vector3D & v)
 	m[14] = v.z;
 }
 
-void Matrix4x4::Rotate(const Quaternion & q)
-{
-	q.ToMatrix(*this);
-}
-	
 void Matrix4x4::Rotate(float x, float y, float z)
 {
 	float cr = cosf(x);
@@ -330,6 +325,18 @@ Matrix4x4 Matrix4x4::Transpose() const
 	result.m[9] = this->m[6];
 	return result;
 }
+
+Vector3D Matrix4x4::Transform(const Vector3D & v) const
+{
+    Vector3D t;
+	    
+	t.x = v.x * m[0] + v.y * m[4] + v.z * m[8] + m[12];
+    t.y = v.x * m[1] + v.y * m[5] + v.z * m[9] + m[13];
+    t.z = v.x * m[2] + v.y * m[6] + v.z * m[10] + m[14];
+    
+    return t;
+}
+
 
 float Det2x2(float a1, float a2, float b1, float b2)
 {

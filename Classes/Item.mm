@@ -168,8 +168,7 @@
 	{
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
-		Matrix4x4 rotationMatrix;
-		rotation->ToMatrix(rotationMatrix);
+		Matrix4x4 rotationMatrix = rotation->ToMatrix();
 		glMultMatrixf(rotationMatrix);
 		[mesh drawWithMode:mode scale:*scale selected:selected forSelection:forSelection];
 		glPopMatrix();

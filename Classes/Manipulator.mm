@@ -114,8 +114,7 @@
 	if (widgetsCount <= 0)
 		return;
 	
-	Matrix4x4 rotationMatrix;
-	rotation->ToMatrix(rotationMatrix);
+	Matrix4x4 rotationMatrix = rotation->ToMatrix();
 	
 	ManipulatorWidget *widget = (ManipulatorWidget *)[widgets objectAtIndex:0];
 	if ([widget widget] == WidgetCircle)
@@ -204,8 +203,7 @@
 		return;
 	glPushMatrix();
 	glTranslatef(position->x, position->y, position->z);
-	Matrix4x4 rotationMatrix;
-	rotation->ToMatrix(rotationMatrix);
+	Matrix4x4 rotationMatrix = rotation->ToMatrix();
 	glMultMatrixf(rotationMatrix);
 	[widget drawWithSize:size isSelected:NO isGray:NO forSelection:YES];
 	glPopMatrix();
