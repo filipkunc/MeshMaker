@@ -261,7 +261,7 @@
 			Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
 			Mesh *itemMesh = [item mesh];
 			
-			[itemMesh transformWithMatrix:finalMatrix];
+			[itemMesh transformWithMatrix:&finalMatrix];
 			
 			// mirror detection, some component of scale is negative
 			if (scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f)

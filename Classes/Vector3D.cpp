@@ -187,22 +187,6 @@ Vector3D Vector3D::Lerp(float w, const Vector3D & v) const
 	 return (*this * (1.0f - w) + v * w);
 }
 
-void Vector3D::Transform(const Matrix4x4 & m)
-{
-	Vector3D v(x,y,z);
-         
-	x = v.x * m[0] + v.y * m[4] + v.z * m[8] + m[12];
-    y = v.x * m[1] + v.y * m[5] + v.z * m[9] + m[13];
-    z = v.x * m[2] + v.y * m[6] + v.z * m[10] + m[14];
-}
-
-void Vector3D::Transform(const Quaternion & q)
-{
-	Matrix4x4 m;
-	q.ToMatrix(m);
-	Transform(m);
-}
-
 float Vector3D::GetAngle(const Vector3D & v) const
 {
 	float dot = this->Dot(v);

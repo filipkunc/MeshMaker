@@ -768,12 +768,15 @@ static ShaderProgram *flippedShader;
 	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");*/
 }
 
-- (void)transformWithMatrix:(Matrix4x4)matrix
+- (void)transformWithMatrix:(Matrix4x4 *)matrix
 {
 	[self resetCache];
     
     for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
-        node->data.position.Transform(matrix);
+    {
+        Vector3D &v = node->data.position;
+        v = matrix->Transform(v);
+    }
     
     [self setSelectionMode:selectionMode];
 }
@@ -1086,29 +1089,7 @@ static ShaderProgram *flippedShader;
 	NSLog(@"selectedCount = %i", selectedCount);
 }
 
-- (void)moveSelectedByOffset:(Vector3D)offset
-{
-	[self resetCache];
-    
-    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
-    {
-        if (node->data.selected)
-            node->data.position += offset;
-    }
-}
-
-- (void)rotateSelectedByOffset:(Quaternion)offset
-{
-	[self resetCache];
-    
-    for (VertexNode *node = vertices->Begin(), *end = vertices->End(); node != end; node = node->Next())
-    {
-        if (node->data.selected)
-            node->data.position.Transform(offset);
-    }	
-}
-
-- (void)scaleSelectedByOffset:(Vector3D)offset
+- (void)transformSelectedByMatrix:(Matrix4x4 *)matrix
 {
 	[self resetCache];
     
@@ -1117,9 +1098,7 @@ static ShaderProgram *flippedShader;
         if (node->data.selected)
         {
             Vector3D &v = node->data.position;
-            v.x *= offset.x;
-			v.y *= offset.y;
-			v.z *= offset.z;
+            v = matrix->Transform(v);
         }
     }
 }

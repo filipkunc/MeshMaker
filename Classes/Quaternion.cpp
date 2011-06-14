@@ -38,6 +38,21 @@ Quaternion::Quaternion(float x, float y, float z, float w)
 	this->w = w;
 }
 
+Quaternion::Quaternion(const Vector3D &eulerAngles)
+{
+    FromEulerAngles(eulerAngles);
+}
+
+Quaternion::Quaternion(float radians, const Vector3D &axis)
+{
+    FromAngleAxis(radians, axis);
+}
+
+Quaternion::Quaternion(const Matrix4x4 &m)
+{
+    FromMatrix(m);
+}
+
 Quaternion::operator float *()
 {
 	return &x;
@@ -218,8 +233,9 @@ void Quaternion::FromMatrix(const Matrix4x4 & m)
 	}
 }
 
-void Quaternion::ToMatrix(Matrix4x4 & m) const
+Matrix4x4 Quaternion::ToMatrix() const
 {
+    Matrix4x4 m;
 	float x2 = x * 2.0f;
 	float y2 = y * 2.0f;
 	float z2 = z * 2.0f;
@@ -241,6 +257,7 @@ void Quaternion::ToMatrix(Matrix4x4 & m) const
 	m[2] = xz - wy;
 	m[6] = yz + wx;
 	m[10] = 1 - (xx + yy);
+    return m;
 }
 
 void Quaternion::FromEulerAngles(const Vector3D & v)
@@ -259,8 +276,9 @@ void Quaternion::FromEulerAngles(const Vector3D & v)
     z = c1 * s2 * c3 - s1 * c2 * s3;
 }
 
-void Quaternion::ToEulerAngles(Vector3D & v) const
+Vector3D Quaternion::ToEulerAngles() const
 {
+    Vector3D v;
     float sqw = w * w;
     float sqx = x * x;
     float sqy = y * y;
@@ -272,19 +290,19 @@ void Quaternion::ToEulerAngles(Vector3D & v) const
 		v.y = 2.0f * atan2f(x, w);
         v.z = FLOAT_PI / 2.0f;
         v.x = 0.0f;
-		return;
+		return v;
     }
     if (test < -0.499f * unit) // singularity at south pole
     {
         v.y = -2.0f * atan2f(x, w);
         v.z = -FLOAT_PI / 2.0f;
         v.x = 0;
-        return;
+        return v;
     }
     v.y = atan2f(2.0f * y * w - 2.0f * x * z, sqx - sqy - sqz + sqw);
 	v.z = asinf(2.0f * test / unit);
     v.x = atan2f(2.0f * x * w - 2.0f * y * z, -sqx + sqy - sqz + sqw);
-    return;
+    return v;
 }
 
 Quaternion Quaternion::Slerp(float s, const Quaternion & q) const

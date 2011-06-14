@@ -313,8 +313,8 @@
 			*selectionCenter = Vector3D();
 		}
 	}
-	selectionRotation->ToEulerAngles(*selectionEuler);
-	selectionCenter->Transform(*modelTransform);
+	*selectionEuler = selectionRotation->ToEulerAngles();
+    *selectionCenter = modelTransform->Transform(*selectionCenter);
 	[self didChangeTransformation];
 }
 
@@ -369,7 +369,7 @@
 {
 	[self willChangeTransformation];
 	*selectionRotation = value;
-	selectionRotation->ToEulerAngles(*selectionEuler);
+	*selectionEuler = selectionRotation->ToEulerAngles();
 	[self didChangeTransformation];
 }
 
@@ -387,7 +387,7 @@
 
 - (void)moveSelectedByOffset:(Vector3D)offset
 {	
-	Vector3D transformedOffset = offset;
+	Vector3D transformedOffset;
 	Matrix4x4 m, r, s;
 	Quaternion inverseRotation = modelRotation->Conjugate();
 	
@@ -395,14 +395,16 @@
 	for (int i = 0; i < 3; i++)
 		inverseScale[i] = 1.0f / inverseScale[i];
 	
-	inverseRotation.ToMatrix(r);
+	r = inverseRotation.ToMatrix();
 	s.Scale(inverseScale);
 	m = s * r;
-	transformedOffset.Transform(m);
+	transformedOffset = m.Transform(offset);
 	
 	if (modelMesh != nil)
 	{
-		[modelMesh moveSelectedByOffset:transformedOffset];
+        Matrix4x4 translate;
+        translate.Translate(transformedOffset);        
+		[modelMesh transformSelectedByMatrix:&translate];
 	}
 	else if (modelItem != nil)
 	{
@@ -421,10 +423,16 @@
 	if (modelMesh != nil)
 	{
 		Vector3D rotationCenter = *selectionCenter;
-		rotationCenter.Transform(modelTransform->Inverse());
-		[modelMesh moveSelectedByOffset:-rotationCenter];
-		[modelMesh rotateSelectedByOffset:offset];
-		[modelMesh moveSelectedByOffset:rotationCenter];
+		rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
+        
+        Matrix4x4 t1, t2, r;
+        t1.Translate(-rotationCenter);
+        t2.Translate(rotationCenter);
+        r = offset.ToMatrix();
+        
+        Matrix4x4 m = t2 * r * t1;
+        [modelMesh transformSelectedByMatrix:&m];
+
 		[self setSelectionRotation:offset * (*selectionRotation)];
 	}
 	else if (modelItem != nil)
@@ -432,14 +440,15 @@
 		if ([self selectedCount] > 1)
 		{
 			Vector3D rotationCenter = *selectionCenter;
-			rotationCenter.Transform(modelTransform->Inverse());
+			rotationCenter = modelTransform->Inverse().Transform(rotationCenter);            
+            Matrix4x4 offsetMatrix = offset.ToMatrix();
 			for (uint i = 0; i < [model count]; i++)
 			{
 				if ([model isSelectedAtIndex:i])
 				{
 					Vector3D itemPosition = [modelItem positionAtIndex:i];
 					itemPosition -= rotationCenter;
-					itemPosition.Transform(offset);
+					itemPosition = offsetMatrix.Transform(itemPosition);
 					itemPosition += rotationCenter;
 					[modelItem setPosition:itemPosition atIndex:i];
 					[modelItem rotateByOffset:offset atIndex:i];
@@ -459,18 +468,23 @@
 {
 	if (modelMesh != nil)
 	{
-		Vector3D rotationCenter = *selectionCenter;
-		rotationCenter.Transform(modelTransform->Inverse());
-		[modelMesh moveSelectedByOffset:-rotationCenter];
-		[modelMesh scaleSelectedByOffset:offset + Vector3D(1, 1, 1)];
-		[modelMesh moveSelectedByOffset:rotationCenter];
+        Vector3D rotationCenter = *selectionCenter;
+		rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
+        
+        Matrix4x4 t1, t2, s;
+        t1.Translate(-rotationCenter);
+        t2.Translate(rotationCenter);
+        s.Scale(offset + Vector3D(1, 1, 1));
+        
+        Matrix4x4 m = t2 * s * t1;
+        [modelMesh transformSelectedByMatrix:&m];
 	}
 	else if (modelItem != nil)
 	{
 		if ([self selectedCount] > 1)
 		{
 			Vector3D rotationCenter = *selectionCenter;
-			rotationCenter.Transform(modelTransform->Inverse());
+			rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
 			for (uint i = 0; i < [model count]; i++)
 			{
 				if ([model isSelectedAtIndex:i])

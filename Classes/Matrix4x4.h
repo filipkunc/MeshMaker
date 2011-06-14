@@ -50,7 +50,6 @@ public:
 	void Identity();
 	void Translate(float x, float y, float z);
 	void Translate(const Vector3D & v);
-	void Rotate(const Quaternion & q);
 	void Rotate(float x, float y, float z);
 	void Rotate(const Vector3D & v);
 	void Scale(float uniformScale);
@@ -60,6 +59,7 @@ public:
 
 	Matrix4x4 Inverse() const;
 	Matrix4x4 Transpose() const;
+    Vector3D Transform(const Vector3D &v) const;
 };
 
 float Det2x2(float a1, float a2, float b1, float b2);

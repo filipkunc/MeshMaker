@@ -61,7 +61,7 @@
 - (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex;
 - (void)fastMergeSelectedVertices;
 - (void)mergeSelectedVertices;
-- (void)transformWithMatrix:(Matrix4x4)matrix;
+- (void)transformWithMatrix:(Matrix4x4 *)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
 - (void)splitTriangleAtIndex:(uint)index;
 - (void)splitEdgeAtIndex:(uint)index;

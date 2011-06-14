@@ -36,9 +36,7 @@
 				  rotation:(Quaternion *)rotation
 					 scale:(Vector3D *)scale;
 
-- (void)moveSelectedByOffset:(Vector3D)offset;
-- (void)rotateSelectedByOffset:(Quaternion)offset;
-- (void)scaleSelectedByOffset:(Vector3D)offset;
+- (void)transformSelectedByMatrix:(Matrix4x4 *)matrix;
 
 @end
 

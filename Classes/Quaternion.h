@@ -20,6 +20,9 @@ public:
 	Quaternion(const float *q);
 	Quaternion(const Quaternion &q);
     Quaternion(float x, float y, float z, float w);
+    Quaternion(const Vector3D &eulerAngles);
+    Quaternion(float radians, const Vector3D &axis);
+    Quaternion(const Matrix4x4 &m);
 
     operator float * ();
     operator const float * () const;
@@ -48,13 +51,13 @@ public:
 	Quaternion Conjugate() const;
 
 	void FromAngleAxis(float radians, const Vector3D &axis);
-	void ToAngleAxis(float & radians, Vector3D &axis) const;
+	void ToAngleAxis(float &radians, Vector3D &axis) const;
 
 	void FromMatrix(const Matrix4x4 &m);
-	void ToMatrix(Matrix4x4 &m) const;
+	Matrix4x4 ToMatrix() const;
 
 	void FromEulerAngles(const Vector3D &v);
-	void ToEulerAngles(Vector3D &v) const;
+	Vector3D ToEulerAngles() const;
 
 	Quaternion Slerp(float s, const Quaternion &q) const;
     void Normalize();
