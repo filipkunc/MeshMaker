@@ -6,6 +6,8 @@
 //  Copyright 2011 Filip Kunc. All rights reserved.
 //
 
+#pragma once
+
 #import "FPNode.h"
 
 template <class TData>

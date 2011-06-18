@@ -6,28 +6,30 @@
 //  Copyright 2011 Filip Kunc. All rights reserved.
 //
 
-#import "FPList.h"
+#pragma once
+
+#include "FPList.h"
 
 template <class TNode, class TData>
 class FPNode
 {
 private:
-    TNode *next;
-    TNode *previous;
+    TNode *_next;
+    TNode *_previous;
 public:
     TData data;
     
     FPNode()
     {
-        next = NULL;
-        previous = NULL;
+        _next = NULL;
+        _previous = NULL;
     }
     
     FPNode(const TData &data)
     {
         this->data = data;
-        next = NULL;
-        previous = NULL;
+        _next = NULL;
+        _previous = NULL;
     }
     
     virtual ~FPNode()
@@ -35,9 +37,11 @@ public:
         
     }
     
-    TNode *Next() { return next; }
-    TNode *Previous() { return previous; }
+    TNode *next() { return _next; }
+    TNode *previous() { return _previous; }
     
     template <class U, class V>
     friend class FPList;
 };
+
+

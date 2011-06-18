@@ -6,43 +6,45 @@
 //  For license see LICENSE.TXT
 //
 
+#pragma once
+
 template <class TNode, class TData>
 class FPList
 {
 private:
-    TNode *begin;
-    TNode *end;
-    int count;
+    TNode *_begin;
+    TNode *_end;
+    int _count;
 public:
     FPList()
     {
-        begin = new TNode();
-        end = new TNode();
+        _begin = new TNode();
+        _end = new TNode();
         
-        begin->next = end;
-        end->previous = begin;
-        count = 0;
+        _begin->_next = _end;
+        _end->_previous = _begin;
+        _count = 0;
     }
     
     virtual ~FPList()
     {
-        RemoveAll();
-        delete begin;
-        delete end;
+        removeAll();
+        delete _begin;
+        delete _end;
     }
     
-    TNode *Begin() const { return begin->next; }
-    TNode *End() const { return end; }
+    TNode *begin() { return _begin->_next; }
+    TNode *end() { return _end; }
     
-    TNode *First(int n) const
+    TNode *first(int n) const
     {
-        TNode *current = begin->next;
+        TNode *current = _begin->_next;
         
         int i = 0;
         
-        while (current != end)
+        while (current != _end)
         {
-            TNode *next = current->next;
+            TNode *next = current->_next;
             
             if (i == n)
                 return current;
@@ -53,15 +55,15 @@ public:
         return NULL;
     }
     
-    TNode *Last(int n) const
+    TNode *last(int n) const
     {
-        TNode *current = end->previous;
+        TNode *current = _end->_previous;
         
         int i = 0;
         
-        while (current != begin)
+        while (current != _begin)
         {
-            TNode *next = current->previous;
+            TNode *next = current->_previous;
             
             if (i == n)
                 return current;
@@ -72,66 +74,66 @@ public:
         return NULL;
     }    
     
-    TNode *First() const
+    TNode *first() const
     {
-        if (begin->next != end)
-            return begin->next;
+        if (_begin->_next != _end)
+            return _begin->_next;
         return NULL;
     }
     
-    TNode *Last() const
+    TNode *last() const
     {
-        if (end->previous != begin)
-            return end->previous;
+        if (_end->_previous != _begin)
+            return _end->_previous;
         return NULL;
     }
     
-    int Count() const
+    int count() const
     {
-        return count;
+        return _count;
     }
     
-    void Remove(TNode *&node)
+    void remove(TNode *&node)
     {
-        TNode *next = node->next;
-        TNode *previous = node->previous;
+        TNode *next = node->_next;
+        TNode *previous = node->_previous;
     
-        next->previous = previous;
-        previous->next = next;
+        next->_previous = previous;
+        previous->_next = next;
         
         delete node;
         
         node = previous;
         
-        count--;
+        _count--;
     }
     
-    void RemoveAll()
+    void removeAll()
     {
-        TNode *current = begin->next;
+        TNode *current = _begin->_next;
         
-        while (current != end)
+        while (current != _end)
         {
-            current = current->next;
-            delete current->previous;
+            current = current->_next;
+            delete current->_previous;
         }
         
-        begin->next = end;
-        end->previous = begin;
+        _begin->_next = _end;
+        _end->_previous = _begin;
         
-        count = 0;
+        _count = 0;
     }
     
-    TNode *Add(const TData &data)
+    TNode *add(const TData &data)
     {
         TNode *newOne = new TNode(data);
-        TNode *previous = end->previous;
-        newOne->next = end;
-        newOne->previous = previous;
-        previous->next = newOne;
-        end->previous = newOne;
+        TNode *previous = _end->_previous;
+        newOne->_next = _end;
+        newOne->_previous = previous;
+        previous->_next = newOne;
+        _end->_previous = newOne;
         
-        count++;
+        _count++;
         
         return newOne;
     }   
