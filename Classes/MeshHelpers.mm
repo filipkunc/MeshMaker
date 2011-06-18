@@ -7,40 +7,47 @@
  *
  */
 
-#include "MeshHelpers.h"
+#import "MeshHelpers.h"
 
 void VertexNode::AddTriangle(Triangle2 *triangle)
 {
-    triangles.Add(triangle);
+    triangles.add(triangle);
 }
 
 void VertexNode::RemoveTriangle(Triangle2 *triangle)
 {
-    for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
+    int array[5] =  { 1,2,3,4,5 };
+    for ( int& x : array )
+    {
+        NSLog(@"x = %i", x);
+        x *= 2;
+    }
+    
+    for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
         if (node->data == triangle)
-            triangles.Remove(node);
+            triangles.remove(node);
     }
 }
 
 void VertexNode::RemoveFromTriangles()
 {
-    for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
+    for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
         node->data->RemoveVertex(this);
     }
     
-    triangles.RemoveAll();
+    triangles.removeAll();
 }
 
 void VertexNode::ReplaceVertex(VertexNode *newVertex)
 {
-    for (SimpleNode<Triangle2 *> *node = triangles.Begin(), *end = triangles.End(); node != end; node = node->Next())
+    for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
         node->data->ReplaceVertex(this, newVertex);
     }
     
-    triangles.RemoveAll();
+    triangles.removeAll();
 }
 
 Triangle2::Triangle2() : selected(false)

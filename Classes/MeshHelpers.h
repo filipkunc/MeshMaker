@@ -57,7 +57,7 @@ public:
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
     virtual ~VertexNode() { }
     
-    bool IsUsed() const { return triangles.Count() > 0; }
+    bool IsUsed() const { return triangles.count() > 0; }
     void AddTriangle(Triangle2 *triangle);
     void RemoveTriangle(Triangle2 *triangle);
     void RemoveFromTriangles();

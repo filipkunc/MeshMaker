@@ -38,12 +38,6 @@
 + (NSString *)descriptionOfMeshType:(enum MeshType)type;
 + (void)setNormalShader:(ShaderProgram *)shaderProgram;
 + (void)setFlippedShader:(ShaderProgram *)shaderProgram;
-
-- (void)addVertex:(Vector3D)aVertex;
-- (void)addTriangle:(Triangle2)aTriangle;
-- (void)addTriangleWithNode1:(VertexNode *)node1
-					   node2:(VertexNode *)node2
-					   node3:(VertexNode *)node3;
 - (void)addQuadWithNode1:(VertexNode *)node1
 				   node2:(VertexNode *)node2
 				   node3:(VertexNode *)node3 
