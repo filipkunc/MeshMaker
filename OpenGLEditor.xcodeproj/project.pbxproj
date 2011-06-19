@@ -64,6 +64,7 @@
 		A746513A12BD1D000030EEB0 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A7A4874013AE2ECA00C0C41B /* Mesh2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 /* End PBXBuildFile section */
 
@@ -147,6 +148,8 @@
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
+		A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.cpp; path = Classes/Mesh2.cpp; sourceTree = "<group>"; };
+		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
 		A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleNodeAndList.h; path = Classes/SimpleNodeAndList.h; sourceTree = "<group>"; };
@@ -277,6 +280,8 @@
 				A7064C6A12BD107800B14CFA /* Vector2D.h */,
 				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
 				A7064C6C12BD107800B14CFA /* Vector3D.h */,
+				A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */,
+				A7A4874113AE2EF100C0C41B /* Mesh2.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -468,6 +473,7 @@
 				A7064C8012BD107800B14CFA /* ShaderProgram.mm in Sources */,
 				A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */,
 				A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */,
+				A7A4874013AE2ECA00C0C41B /* Mesh2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
