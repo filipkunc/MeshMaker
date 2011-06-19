@@ -13,21 +13,13 @@
 #import "CppFileStreaming.h"
 #import "Shader.h"
 #import "ShaderProgram.h"
+#import "Mesh2.h"
 
 @interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>
 {
 @public
-	FPList<VertexNode, Vertex2> *vertices;
-	FPList<TriangleNode, Triangle2> *triangles;
-	NSColor *color;
-	enum MeshSelectionMode selectionMode;
-	
-    vector<VertexNode *> *cachedVertexSelection;
-    vector<TriangleNode *> *cachedTriangleSelection;
-    
-	Vector3D *cachedVertices;
-	Vector3D *cachedNormals;
-	Vector3D *cachedColors;
+    NSColor *color;    
+    Mesh2 *mesh;    
 }
 
 @property (readwrite, assign) enum MeshSelectionMode selectionMode; 
@@ -38,10 +30,6 @@
 + (NSString *)descriptionOfMeshType:(enum MeshType)type;
 + (void)setNormalShader:(ShaderProgram *)shaderProgram;
 + (void)setFlippedShader:(ShaderProgram *)shaderProgram;
-- (void)addQuadWithNode1:(VertexNode *)node1
-				   node2:(VertexNode *)node2
-				   node3:(VertexNode *)node3 
-				   node4:(VertexNode *)node4;
 - (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection;
 - (void)drawWire;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;
@@ -69,9 +57,6 @@
 - (void)flipSelectedTriangles;
 - (void)flipAllTriangles;
 - (void)extrudeSelectedTriangles;
-- (void)resetCache;
-- (void)fillCache;
-- (void)updateColorCacheAsDarker:(BOOL)darker;
 - (void)useShader:(BOOL)flipped;
 
 @end

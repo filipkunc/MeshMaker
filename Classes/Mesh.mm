@@ -40,12 +40,12 @@ static ShaderProgram *flippedShader;
 
 - (uint)vertexCount
 {
-	return vertices->count();
+	return mesh->vertices->count();
 }
 
 - (uint)triangleCount
 {
-	return triangles->count();
+	return mesh->triangles->count();
 }
 
 - (uint)edgeCount
@@ -59,187 +59,65 @@ static ShaderProgram *flippedShader;
 	self = [super init];
 	if (self)
 	{
-        vertices = new FPList<VertexNode, Vertex2>();
-        triangles = new FPList<TriangleNode, Triangle2>();
-		selectionMode = MeshSelectionModeVertices;
+        mesh = new Mesh2();
+        mesh->selectionMode = MeshSelectionModeVertices;
+
 		float hue = (random() % 10) / 10.0f;
 		color = [NSColor colorWithCalibratedHue:hue 
 									 saturation:0.5f
 									 brightness:0.6f 
 										  alpha:1.0f];
-		
-		cachedVertices = NULL;
-		cachedNormals = NULL;
-		cachedColors = NULL;
-        
-        cachedVertexSelection = new vector<VertexNode *>();
-        cachedTriangleSelection = new vector<TriangleNode *>();
-	}
+    }
 	return self;
 }
 
 - (void)dealloc
 {
-	delete vertices;
-	delete triangles;
-	[self resetCache];
+	delete mesh;
 }
 
 - (enum MeshSelectionMode)selectionMode
 {
-    return selectionMode;
+    return mesh->selectionMode;
 }
 
 - (void)setSelectionMode:(enum MeshSelectionMode)value
 {
-	selectionMode = value;
-    cachedVertexSelection->clear();
-    cachedTriangleSelection->clear();
-    
-    switch (selectionMode)
-    {
-        case MeshSelectionModeVertices:
-        {
-            for (VertexNode *node = vertices->begin(), *end = vertices->end(); node != end; node = node->next())
-                cachedVertexSelection->push_back(node);
-        } break;
-        case MeshSelectionModeTriangles:
-        {
-            for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-                cachedTriangleSelection->push_back(node);
-        } break;            
-        default:
-            break;
-    }
-}
-
-- (void)addQuadWithNode1:(VertexNode *)node1
-				   node2:(VertexNode *)node2
-				   node3:(VertexNode *)node3 
-				   node4:(VertexNode *)node4
-{
-	Triangle2 triangle1(node1, node2, node3);
-    Triangle2 triangle2(node1, node3, node4);
-  	triangles->add(triangle1);
-    triangles->add(triangle2);
-}
-
-- (void)resetCache
-{
-	if (cachedVertices)
-	{
-		delete [] cachedVertices;
-		cachedVertices = NULL;
-	}
-	if (cachedNormals)
-	{
-		delete [] cachedNormals;
-		cachedNormals = NULL;
-	}
-	if (cachedColors)
-	{
-		delete [] cachedColors;
-		cachedColors = NULL;
-	}
-}
-
-- (void)fillCache
-{
-	if (!cachedVertices)
-	{
-		cachedVertices = new Vector3D[triangles->count() * 3];
-		cachedNormals = new Vector3D[triangles->count() * 3];
-		cachedColors = new Vector3D[triangles->count() * 3];
-		Vector3D triangleVertices[3];
-        
-        uint i = 0;
-		
-		for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-		{
-			Triangle2 currentTriangle = node->data;
-            currentTriangle.GetVertexPositions(triangleVertices);
-			
-			Vector3D n = NormalFromTriangleVertices(triangleVertices);
-			
-			for (uint j = 0; j < 3; j++)
-			{
-				cachedVertices[i * 3 + j] = triangleVertices[j];
-				cachedNormals[i * 3 + j] = n;
-			}
-            
-            i++;
-		}
-	}
-}
-
-- (void)updateColorCacheAsDarker:(BOOL)darker
-{
-	CGFloat components[4];
-	[color getComponents:components];
-	
-	CGFloat selectedComponents[] = { 0.7f, 0.0f, 0.0f };
-	
-	if (darker)
-	{
-		for (uint k = 0; k < 3; k++)
-			components[k] -= 0.2f;
-		
-		selectedComponents[0] -= 0.2f;
-	}
-    
-    uint i = 0;
-	
-    for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-	{
-		if (node->data.selected)
-		{
-			for (uint j = 0; j < 3; j++)
-			{
-				for (uint k = 0; k < 3; k++)
-				{
-					cachedColors[i * 3 + j][k] = selectedComponents[k];
-				}
-			}				
-		}
-		else
-		{
-			for (uint j = 0; j < 3; j++)
-			{
-				for (uint k = 0; k < 3; k++)
-				{
-					cachedColors[i * 3 + j][k] = components[k];
-				}
-			}	
-		}
-        
-        i++;
-	}
+    mesh->setSelectionMode(value);
 }
 
 - (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection
 {
-	[self fillCache];
-	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
-		[self updateColorCacheAsDarker:darker];
+	mesh->fillCache();
+	if (mesh->selectionMode == MeshSelectionModeTriangles && !forSelection)
+    {
+        CGFloat colorComponents[4];
+        [color getComponents:colorComponents];
+        float floatComponents[4];
+        for (int i = 0; i < 4; i++)
+            floatComponents[i] = (float)colorComponents[i];
+        
+        mesh->fillColorCacheAsDarker(floatComponents, darker);
+    }
 		
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
+	if (mesh->selectionMode == MeshSelectionModeTriangles && !forSelection)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
-		float *colorPtr = (float *)cachedColors;
+		float *colorPtr = (float *)mesh->cachedColors;
 		glColorPointer(3, GL_FLOAT, 0, colorPtr);
 	}
 	
-	float *vertexPtr = (float *)cachedVertices;
-	float *normalPtr = (float *)cachedNormals;
+	float *vertexPtr = (float *)mesh->cachedVertices;
+	float *normalPtr = (float *)mesh->cachedNormals;
 	
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
 	
-	glDrawArrays(GL_TRIANGLES, 0, triangles->count() * 3);
+	glDrawArrays(GL_TRIANGLES, 0, mesh->triangles->count() * 3);
 	
-	if (selectionMode == MeshSelectionModeTriangles && !forSelection)
+	if (mesh->selectionMode == MeshSelectionModeTriangles && !forSelection)
 		glDisableClientState(GL_COLOR_ARRAY);
 	
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -248,7 +126,7 @@ static ShaderProgram *flippedShader;
 
 - (void)drawWire
 {
-	if (selectionMode != MeshSelectionModeEdges)
+	if (mesh->selectionMode != MeshSelectionModeEdges)
 	{
 		glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -290,7 +168,7 @@ static ShaderProgram *flippedShader;
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
 			[self useShader:flipped];
-			if (selectionMode != MeshSelectionModeTriangles)
+			if (mesh->selectionMode != MeshSelectionModeTriangles)
 			{
 				glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
 			}
@@ -302,7 +180,7 @@ static ShaderProgram *flippedShader;
 		else
 		{
             [self useShader:flipped];
-            if (selectionMode != MeshSelectionModeTriangles)
+            if (mesh->selectionMode != MeshSelectionModeTriangles)
             {
                 glColor3f([color redComponent], [color greenComponent], [color blueComponent]);
             }
@@ -336,46 +214,13 @@ static ShaderProgram *flippedShader;
 {
 	NSLog(@"makeCube");
 	
-	vertices->removeAll();
-	triangles->removeAll();
-	
-	// back vertices
-	VertexNode *node0 = vertices->add(Vector3D(-1, -1, -1)); // 0
-	VertexNode *node1 = vertices->add(Vector3D( 1, -1, -1)); // 1
-    VertexNode *node2 = vertices->add(Vector3D( 1,  1, -1)); // 2
-	VertexNode *node3 = vertices->add(Vector3D(-1,  1, -1)); // 3
-	
-	// front vertices
-	VertexNode *node4 = vertices->add(Vector3D(-1, -1,  1)); // 4
-	VertexNode *node5 = vertices->add(Vector3D( 1, -1,  1)); // 5
-	VertexNode *node6 = vertices->add(Vector3D( 1,  1,  1)); // 6
-	VertexNode *node7 = vertices->add(Vector3D(-1,  1,  1)); // 7
-	
-	// back triangles
-	[self addQuadWithNode1:node0 node2:node1 node3:node2 node4:node3];
-	
-	// front triangles
-	[self addQuadWithNode1:node7 node2:node6 node3:node5 node4:node4];
-	
-	// bottom triangles
-	[self addQuadWithNode1:node1 node2:node0 node3:node4 node4:node5];
-	
-	// top triangles
-	[self addQuadWithNode1:node3 node2:node2 node3:node6 node4:node7];
-	
-	// left triangles
-	[self addQuadWithNode1:node7 node2:node4 node3:node0 node4:node3];
-	
-	// right triangles
-	[self addQuadWithNode1:node2 node2:node1 node3:node5 node4:node6];
-	
-	[self setSelectionMode:[self selectionMode]];
+	mesh->makeCube();
 }
 
 - (void)makeCylinderWithSteps:(uint)steps
 {
 	NSLog(@"makeCylinderWithSteps:%i", steps);
-	
+	/*
 	vertices->removeAll();
 	triangles->removeAll();
 	
@@ -426,14 +271,14 @@ static ShaderProgram *flippedShader;
 	triangles->add(triangle3);
 	triangles->add(triangle4);
 	
-	[self setSelectionMode:[self selectionMode]];
+	[self setSelectionMode:[self selectionMode]];*/
 }
 
 - (void)makeSphereWithSteps:(uint)steps
 {
     NSLog(@"makeSphereWithSteps:%i", steps);
 	
-	vertices->removeAll();
+	/*vertices->removeAll();
 	triangles->removeAll();
 		
 	uint max = steps;
@@ -525,13 +370,13 @@ static ShaderProgram *flippedShader;
         triangles->add(nodeTriangle);
     }    
      
-    [self setSelectionMode:[self selectionMode]];
+    [self setSelectionMode:[self selectionMode]];*/
 }
 
 - (void)makeEdges
 {
-	[self resetCache];
 	/*
+    [self resetCache];
 	edges->clear();
 	for (uint i = 0; i < triangles->size(); i++)
 	{
@@ -586,37 +431,37 @@ static ShaderProgram *flippedShader;
 - (void)removeDegeneratedTriangles
 {
 	NSLog(@"removeDegeneratedTriangles");
-	[self resetCache];
+	/*[self resetCache];
     
     for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
     {
         if (node->data.IsDegenerated())
             triangles->remove(node);
-    }
+    }*/
 }
 
 - (void)removeNonUsedVertices
 {
 	NSLog(@"removeNonUsedVertices");
-	[self resetCache];
+	/*[self resetCache];
     
     for (VertexNode *node = vertices->begin(), *end = vertices->end(); node != end; node = node->next())
     {
         if (!node->IsUsed())
             vertices->remove(node);
-    }
+    }*/
 }
 
 - (void)removeSelectedVertices
 {
 	NSLog(@"removeSelectedVertices");
-	[self resetCache];
+	/*[self resetCache];
 
     for (VertexNode *node = vertices->begin(), *end = vertices->end(); node != end; node = node->next())
     {
         if (node->data.selected)
             vertices->remove(node);
-    }
+    }*/
 }
 
 - (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex
@@ -666,7 +511,7 @@ static ShaderProgram *flippedShader;
 {
 	NSLog(@"fastMergeSelectedVertices");
 	
-	Vector3D center = Vector3D();
+	/*Vector3D center = Vector3D();
     
     SimpleList<VertexNode *> *selectedNodes = new SimpleList<VertexNode *>();
 	
@@ -694,19 +539,19 @@ static ShaderProgram *flippedShader;
         node->data->ReplaceVertex(centerNode);        
     }
     
-    delete selectedNodes;
+    delete selectedNodes;*/
 }
 
 - (void)mergeSelectedVertices
 {
 	NSLog(@"mergeSelectedVertices");
-	[self resetCache];
+	/*[self resetCache];
 	
     [self fastMergeSelectedVertices];
     [self removeDegeneratedTriangles];
     [self removeNonUsedVertices];
     
-    [self setSelectionMode:selectionMode];
+    [self setSelectionMode:selectionMode];*/
 }
 
 - (void)mergeVertexPairs
@@ -752,7 +597,7 @@ static ShaderProgram *flippedShader;
 
 - (void)transformWithMatrix:(Matrix4x4 *)matrix
 {
-	[self resetCache];
+	/*[self resetCache];
     
     for (VertexNode *node = vertices->begin(), *end = vertices->end(); node != end; node = node->next())
     {
@@ -760,7 +605,7 @@ static ShaderProgram *flippedShader;
         v = matrix->Transform(v);
     }
     
-    [self setSelectionMode:selectionMode];
+    [self setSelectionMode:selectionMode];*/
 }
 
 - (void)mergeWithMesh:(Mesh *)mesh
@@ -1000,7 +845,7 @@ static ShaderProgram *flippedShader;
 {
 	NSLog(@"mergeSelected");
 	
-	switch (selectionMode)
+	switch (mesh->selectionMode)
 	{
 		case MeshSelectionModeVertices:
 			[self mergeSelectedVertices];
@@ -1014,7 +859,7 @@ static ShaderProgram *flippedShader;
 {
 	NSLog(@"splitSelected");
 	
-	switch (selectionMode)
+	switch (mesh->selectionMode)
 	{
 		case MeshSelectionModeEdges:
 			[self splitSelectedEdges];
@@ -1031,12 +876,12 @@ static ShaderProgram *flippedShader;
 
 - (uint)count
 {
-    switch (selectionMode)
+    switch (mesh->selectionMode)
     {
         case MeshSelectionModeVertices:
-            return cachedVertexSelection->size();
+            return mesh->cachedVertexSelection->size();
         case MeshSelectionModeTriangles:
-            return cachedTriangleSelection->size();
+            return mesh->cachedTriangleSelection->size();
         default:
             return 0;
     }
@@ -1051,29 +896,12 @@ static ShaderProgram *flippedShader;
 				  rotation:(Quaternion *)rotation
 					 scale:(Vector3D *)scale
 {
-	*center = Vector3D();
-	*rotation = Quaternion();
-	*scale = Vector3D(1, 1, 1);
-
-	uint selectedCount = 0;
-    
-    for (VertexNode *node = vertices->begin(), *end = vertices->end(); node != end; node = node->next())
-    {
-        if (node->data.selected)
-        {
-            *center += node->data.position;
-            selectedCount++;
-        }
-    }
-	if (selectedCount > 0)
-		*center /= (float)selectedCount;
-	
-	NSLog(@"selectedCount = %i", selectedCount);
+	mesh->getSelectionCenterRotationScale(*center, *rotation, *scale);
 }
 
 - (void)transformSelectedByMatrix:(Matrix4x4 *)matrix
 {
-	[self resetCache];
+	/*[self resetCache];
     
     for (VertexNode *node = vertices->begin(), *end = vertices->end(); node != end; node = node->next())
     {
@@ -1082,17 +910,17 @@ static ShaderProgram *flippedShader;
             Vector3D &v = node->data.position;
             v = matrix->Transform(v);
         }
-    }
+    }*/
 }
 
 - (BOOL)isSelectedAtIndex:(uint)index
 {
-    switch (selectionMode)
+    switch (mesh->selectionMode)
     {
         case MeshSelectionModeVertices:
-            return cachedVertexSelection->at(index)->data.selected;
+            return mesh->cachedVertexSelection->at(index)->data.selected;
         case MeshSelectionModeTriangles:
-            return cachedTriangleSelection->at(index)->data.selected;
+            return mesh->cachedTriangleSelection->at(index)->data.selected;
         default:
             return NO;
     }
@@ -1100,14 +928,14 @@ static ShaderProgram *flippedShader;
 
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
 {
-    switch (selectionMode)
+    switch (mesh->selectionMode)
     {
         case MeshSelectionModeVertices:
-            cachedVertexSelection->at(index)->data.selected = isSelected;
+            mesh->cachedVertexSelection->at(index)->data.selected = isSelected;
             break;
         case MeshSelectionModeTriangles:
         {
-            Triangle2 &triangle = cachedTriangleSelection->at(index)->data;
+            Triangle2 &triangle = mesh->cachedTriangleSelection->at(index)->data;
             triangle.selected = isSelected;
             for (uint i = 0; i < 3; i++)
                 triangle[i]->data.selected = isSelected;            
@@ -1122,11 +950,11 @@ static ShaderProgram *flippedShader;
 	/*if (!selected->at(index).visible)
 		return;*/
 	
-	switch (selectionMode) 
+	switch (mesh->selectionMode) 
 	{
 		case MeshSelectionModeVertices:
 		{
-            const Vertex2 &vertex = cachedVertexSelection->at(index)->data;
+            const Vertex2 &vertex = mesh->cachedVertexSelection->at(index)->data;
 			Vector3D v = vertex.position;
 			if (!forSelection)
 			{
@@ -1146,7 +974,7 @@ static ShaderProgram *flippedShader;
 		{
 			if (forSelection)
 			{
-				Triangle2 triangle = cachedTriangleSelection->at(index)->data;
+				Triangle2 triangle = mesh->cachedTriangleSelection->at(index)->data;
                 Vector3D triangleVertices[3];
                 triangle.GetVertexPositions(triangleVertices);
 				glBegin(GL_TRIANGLES);
@@ -1273,37 +1101,37 @@ static ShaderProgram *flippedShader;
 
 - (void)flipSelected
 {
-	if (selectionMode == MeshSelectionModeTriangles)
+	/*if (selectionMode == MeshSelectionModeTriangles)
 	{
 		[self flipSelectedTriangles];
 	}
 	else if (selectionMode == MeshSelectionModeEdges)
 	{
 		[self turnSelectedEdges];
-	}
+	}*/
 }
 
 - (void)duplicateSelected
 {
-	if (selectionMode == MeshSelectionModeTriangles)
-	{
-		[self extrudeSelectedTriangles];
-	}	
+//	if (selectionMode == MeshSelectionModeTriangles)
+//	{
+//		[self extrudeSelectedTriangles];
+//	}	
 }
 
 - (void)removeSelected
 {
-    if (selectionMode == MeshSelectionModeTriangles)
-	{
-        for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-        {
-            if (node->data.selected)
-                triangles->remove(node);
-        }
-        
-		[self removeNonUsedVertices];
-        [self setSelectionMode:selectionMode];
-	}
+//    if (selectionMode == MeshSelectionModeTriangles)
+//	{
+//        for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
+//        {
+//            if (node->data.selected)
+//                triangles->remove(node);
+//        }
+//        
+//		[self removeNonUsedVertices];
+//        [self setSelectionMode:selectionMode];
+//	}
 }
 
 - (void)hideSelected
@@ -1358,24 +1186,24 @@ static ShaderProgram *flippedShader;
 
 - (void)flipSelectedTriangles
 {
-	if (selectionMode == MeshSelectionModeTriangles)
-	{	
-		[self resetCache];
-        for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-        {
-            if (node->data.selected)
-                node->data.Flip();
-        }
-	}
+//	if (selectionMode == MeshSelectionModeTriangles)
+//	{	
+//		[self resetCache];
+//        for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
+//        {
+//            if (node->data.selected)
+//                node->data.Flip();
+//        }
+//	}
 }
 
 - (void)flipAllTriangles
 {
-	[self resetCache];
-	for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-    {
-        node->data.Flip();
-    }
+//	[self resetCache];
+//	for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
+//    {
+//        node->data.Flip();
+//    }
 }
 				 
 #pragma mark NSCoding implementation
@@ -1456,7 +1284,7 @@ static ShaderProgram *flippedShader;
 
 - (NSString *)nameAtIndex:(uint)index
 {
-	switch (selectionMode)
+	/*switch (selectionMode)
 	{
 		case MeshSelectionModeVertices:
 			return [NSString stringWithFormat:@"Vertex %i", index];
@@ -1466,7 +1294,8 @@ static ShaderProgram *flippedShader;
 			return [NSString stringWithFormat:@"Triangle %i", index];	
 		default:
 			return nil;
-	}
+	}*/
+    return nil;
 }
 
 @end
