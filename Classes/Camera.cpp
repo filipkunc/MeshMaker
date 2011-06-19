@@ -128,9 +128,9 @@ void Camera::RotateUpDown(float radians)
 	ComputeVectors();
 }
 
-void Camera::Zoom(float zoom)
+void Camera::Zoom(float s)
 {
-    this->zoom -= zoom;
+    zoom -= s;
     if (zoom < minZoom)
         zoom = minZoom;
     ComputeVectors();

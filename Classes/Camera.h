@@ -37,5 +37,5 @@ public:
 	void UpDown(float s);
 	void RotateLeftRight(float radians);
 	void RotateUpDown(float radians);
-	void Zoom(float zoom);
+	void Zoom(float s);
 };
