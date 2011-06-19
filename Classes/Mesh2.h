@@ -12,32 +12,59 @@
 
 class Mesh2
 {
-public:
-    FPList<VertexNode, Vertex2> *vertices;
-	FPList<TriangleNode, Triangle2> *triangles;
+private:
+    FPList<VertexNode, Vertex2> *_vertices;
+	FPList<TriangleNode, Triangle2> *_triangles;
     
-    MeshSelectionMode selectionMode;
+    MeshSelectionMode _selectionMode;
 	
-    vector<VertexNode *> *cachedVertexSelection;
-    vector<TriangleNode *> *cachedTriangleSelection;
+    vector<VertexNode *> *_cachedVertexSelection;
+    vector<TriangleNode *> *_cachedTriangleSelection;
     
-	Vector3D *cachedVertices;
-	Vector3D *cachedNormals;
-	Vector3D *cachedColors;
+	Vector3D *_cachedVertices;
+	Vector3D *_cachedNormals;
+	Vector3D *_cachedColors;
+    
+    float _colorComponents[4];
+private:
+    void fastMergeSelectedVertices();
+    void removeDegeneratedTriangles();
+    void removeNonUsedVertices();
+    void mergeSelectedVertices();    
 public:
-    Mesh2();
+    Mesh2(float colorComponents[4]);
     ~Mesh2();
+    
+    int vertexCount() { return _vertices->count(); }
+    int triangleCount() { return _triangles->count(); }
     
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
     
-    MeshSelectionMode getSelectionMode() const { return selectionMode; };
+    MeshSelectionMode selectionMode() const { return _selectionMode; };
     void setSelectionMode(MeshSelectionMode value);
     
+    uint selectedCount() const;
+    bool isSelectedAtIndex(uint index) const;
+    void setSelectedAtIndex(bool selected, uint index);
     void getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale);
+    
+    void transformAll(const Matrix4x4 &matrix);
+    void transformSelected(const Matrix4x4 &matrix);    
+    
+    void mergeSelected();
+
+    // drawing
     
     void resetCache();
     void fillCache();
-    void fillColorCacheAsDarker(float colorComponents[4], bool darker);
+    void fillColorCache(bool darker);
     
-    void makeCube();  
+    void drawFill(bool darker, bool forSelection);
+    void drawWire();
+    void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
+    void drawAtIndex(uint index, bool forSelection, ViewMode mode);
+    
+    // make
+    
+    void makeCube();    
 };

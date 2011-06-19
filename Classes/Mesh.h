@@ -28,21 +28,14 @@
 @property (readonly) uint edgeCount;
 
 + (NSString *)descriptionOfMeshType:(enum MeshType)type;
-+ (void)setNormalShader:(ShaderProgram *)shaderProgram;
-+ (void)setFlippedShader:(ShaderProgram *)shaderProgram;
-- (void)drawFillAsDarker:(BOOL)darker forSelection:(BOOL)forSelection;
-- (void)drawWire;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;
 - (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps;
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(uint)steps;
 - (void)makeSphereWithSteps:(uint)steps;
 - (void)makeEdges;
-- (void)removeDegeneratedTriangles;
 - (void)removeSelectedVertices;
 - (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex;
-- (void)fastMergeSelectedVertices;
-- (void)mergeSelectedVertices;
 - (void)transformWithMatrix:(Matrix4x4 *)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;
 - (void)splitTriangleAtIndex:(uint)index;
@@ -57,6 +50,5 @@
 - (void)flipSelectedTriangles;
 - (void)flipAllTriangles;
 - (void)extrudeSelectedTriangles;
-- (void)useShader:(BOOL)flipped;
 
 @end
