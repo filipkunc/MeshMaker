@@ -56,7 +56,7 @@ void Mesh2::fillCache()
 		for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
 		{
 			Triangle2 currentTriangle = node->data;
-            currentTriangle.GetVertexPositions(triangleVertices);
+            currentTriangle.getVertexPositions(triangleVertices);
 			
 			Vector3D n = NormalFromTriangleVertices(triangleVertices);
 			
@@ -230,7 +230,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 			{
 				Triangle2 triangle = _cachedTriangleSelection->at(index)->data;
                 Vector3D triangleVertices[3];
-                triangle.GetVertexPositions(triangleVertices);
+                triangle.getVertexPositions(triangleVertices);
 				glBegin(GL_TRIANGLES);
 				for (uint i = 0; i < 3; i++)
 				{

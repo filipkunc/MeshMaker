@@ -30,7 +30,13 @@ private:
     void fastMergeSelectedVertices();
     void removeDegeneratedTriangles();
     void removeNonUsedVertices();
-    void mergeSelectedVertices();    
+    void mergeSelectedVertices();
+    void removeSelectedVertices();
+    void removeSelectedTriangles();
+    void splitSelectedTriangles();
+    void splitSelectedEdges();
+    void flipSelectedTriangles();
+    void turnSelectedEdges();
 public:
     Mesh2(float colorComponents[4]);
     ~Mesh2();
@@ -51,7 +57,11 @@ public:
     void transformAll(const Matrix4x4 &matrix);
     void transformSelected(const Matrix4x4 &matrix);    
     
+    void removeSelected();
     void mergeSelected();
+    void splitSelected();
+    void flipSelected();
+    void extrudeSelectedTriangles();
 
     // drawing
     
