@@ -16,13 +16,6 @@ void VertexNode::AddTriangle(Triangle2 *triangle)
 
 void VertexNode::RemoveTriangle(Triangle2 *triangle)
 {
-    int array[5] =  { 1,2,3,4,5 };
-    for ( int& x : array )
-    {
-        NSLog(@"x = %i", x);
-        x *= 2;
-    }
-    
     for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
         if (node->data == triangle)
