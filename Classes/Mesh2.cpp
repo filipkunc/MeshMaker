@@ -136,13 +136,13 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
 void Mesh2::transformAll(const Matrix4x4 &matrix)
 {
     resetCache();
-     
-     for (VertexNode *node = _vertices->begin(), *end = _vertices->end(); node != end; node = node->next())
-     {
-         Vector3D &v = node->data.position;
-         v = matrix.Transform(v);
-     }
-     
+    
+    for (VertexNode *node = _vertices->begin(), *end = _vertices->end(); node != end; node = node->next())
+    {
+        Vector3D &v = node->data.position;
+        v = matrix.Transform(v);
+    }
+    
     setSelectionMode(_selectionMode);
 }
 
@@ -187,7 +187,7 @@ void Mesh2::fastMergeSelectedVertices()
     
     for (SimpleNode<VertexNode *> *node = selectedNodes->begin(), *end = selectedNodes->end(); node != end; node = node->next())
     {
-        node->data->ReplaceVertex(centerNode);        
+        node->data->replaceVertex(centerNode);        
     }
     
     delete selectedNodes;
@@ -199,7 +199,7 @@ void Mesh2::removeDegeneratedTriangles()
     
     for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
     {
-        if (node->data.IsDegenerated())
+        if (node->data.isDegenerated())
             _triangles->remove(node);
     }
 }
@@ -210,7 +210,7 @@ void Mesh2::removeNonUsedVertices()
     
     for (VertexNode *node = _vertices->begin(), *end = _vertices->end(); node != end; node = node->next())
     {
-        if (!node->IsUsed())
+        if (!node->isUsed())
             _vertices->remove(node);
     }
 }
@@ -226,6 +226,52 @@ void Mesh2::mergeSelectedVertices()
     setSelectionMode(_selectionMode);
 }
 
+void Mesh2::removeSelectedVertices()
+{
+    resetCache();
+    
+    for (VertexNode *node = _vertices->begin(), *end = _vertices->end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+            _vertices->remove(node);
+    }
+    
+    removeDegeneratedTriangles();
+    removeNonUsedVertices();
+    
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::removeSelectedTriangles()
+{
+    resetCache();
+    
+    for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+            _triangles->remove(node);
+    }
+    
+    removeNonUsedVertices();
+    
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::removeSelected()
+{
+    switch (_selectionMode)
+    {
+        case MeshSelectionModeTriangles:
+            removeSelectedTriangles();
+            break;
+        case MeshSelectionModeVertices:
+            removeSelectedVertices();
+            break;
+        default:
+            break;
+    }    
+}
+
 void Mesh2::mergeSelected()
 {
     switch (_selectionMode)
@@ -236,4 +282,123 @@ void Mesh2::mergeSelected()
 		default:
 			break;
 	}
+}
+
+void Mesh2::splitSelectedTriangles()
+{
+
+}
+
+void Mesh2::splitSelectedEdges()
+{
+    
+}
+
+void Mesh2::splitSelected()
+{
+    switch (_selectionMode)
+    {
+        case MeshSelectionModeTriangles:
+            splitSelectedTriangles();
+            break;
+        case MeshSelectionModeEdges:
+            splitSelectedEdges();
+            break;
+        default:
+            break;
+    }
+}
+
+void Mesh2::flipSelected()
+{
+        
+}
+
+void Mesh2::extrudeSelectedTriangles()
+{
+    /*
+     [self resetCache];
+     
+     // This method finds all nonShared edges and copies all 
+     // vertexIndices in selectedTriangles.
+     // Then it makes quads between new and old edges.
+     
+     vector<uint> *vertexIndices = new vector<uint>();
+     vector<Edge> *nonSharedEdges = new vector<Edge>();
+     
+     uint triCount = [self triangleCount];
+     uint vertCount = [self vertexCount];
+     
+     for (uint i = 0; i < triCount; i++)
+     {
+     if (selected->at(i).selected)
+     {
+     [self setTriangleMarked:NO atIndex:i];
+     Triangle &triangle = triangles->at(i);
+     
+     for (uint j = 0; j < 3; j++)
+     {
+     int foundIndex = -1;
+     for (uint k = 0; k < vertexIndices->size(); k++)
+     {
+     if (vertexIndices->at(k) == triangle.vertexIndices[j])
+     {
+     foundIndex = k;
+     break;
+     }
+     }
+     
+     uint &index = triangle.vertexIndices[j];
+     
+     if (foundIndex < 0)
+     {
+     vertexIndices->push_back(index);
+     vertices->push_back(vertices->at(index));
+     markedVertices->push_back(YES);
+     index = vertCount + vertexIndices->size() - 1;
+     }
+     else
+     {
+     index = vertCount + foundIndex;
+     }
+     }
+     
+     for (uint j = 0; j < 3; j++)
+     {
+     Edge edge;
+     edge.vertexIndices[0] = triangle.vertexIndices[j];
+     edge.vertexIndices[1] = triangle.vertexIndices[j + 1 < 3 ? j + 1 : 0];
+     
+     BOOL foundEdge = NO;
+     for (uint k = 0; k < nonSharedEdges->size(); k++)
+     {
+     if (AreEdgesSame(edge, nonSharedEdges->at(k)))
+     {
+     nonSharedEdges->erase(nonSharedEdges->begin() + k);
+     foundEdge = YES;
+     break;
+     }
+     }
+     
+     if (!foundEdge)
+     {
+     nonSharedEdges->push_back(edge);
+     }
+     }
+     }
+     }
+     
+     for (uint i = 0; i < nonSharedEdges->size(); i++)
+     {
+     Edge edge = nonSharedEdges->at(i);
+     [self addQuadWithIndex1:edge.vertexIndices[0]
+     index2:vertexIndices->at(edge.vertexIndices[0] - vertCount)
+     index3:vertexIndices->at(edge.vertexIndices[1] - vertCount)
+     index4:edge.vertexIndices[1]];
+     }
+     
+     delete vertexIndices;
+     delete nonSharedEdges;
+     
+     [self removeNonUsedVertices]; // slow but sometimes neccessary*/
 }

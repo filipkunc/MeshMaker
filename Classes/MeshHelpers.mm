@@ -9,12 +9,12 @@
 
 #import "MeshHelpers.h"
 
-void VertexNode::AddTriangle(Triangle2 *triangle)
+void VertexNode::addTriangle(Triangle2 *triangle)
 {
     triangles.add(triangle);
 }
 
-void VertexNode::RemoveTriangle(Triangle2 *triangle)
+void VertexNode::removeTriangle(Triangle2 *triangle)
 {
     for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
@@ -23,21 +23,21 @@ void VertexNode::RemoveTriangle(Triangle2 *triangle)
     }
 }
 
-void VertexNode::RemoveFromTriangles()
+void VertexNode::removeFromTriangles()
 {
     for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
-        node->data->RemoveVertex(this);
+        node->data->removeVertex(this);
     }
     
     triangles.removeAll();
 }
 
-void VertexNode::ReplaceVertex(VertexNode *newVertex)
+void VertexNode::replaceVertex(VertexNode *newVertex)
 {
     for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
     {
-        node->data->ReplaceVertex(this, newVertex);
+        node->data->replaceVertex(this, newVertex);
     }
     
     triangles.removeAll();
@@ -57,41 +57,41 @@ Triangle2::Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3) : selected(
     vertices[2] = v3;    
 }
 
-void Triangle2::AddToVertices()
+void Triangle2::addToVertices()
 {
     for (uint i = 0; i < 3; i++)
     {
         if (vertices[i])
-            vertices[i]->AddTriangle(this);
+            vertices[i]->addTriangle(this);
     }
 }
 
-void Triangle2::RemoveFromVertices()
+void Triangle2::removeFromVertices()
 {
     for (uint i = 0; i < 3; i++)
     {
         if (vertices[i])
         {
-            vertices[i]->RemoveTriangle(this);
+            vertices[i]->removeTriangle(this);
             vertices[i] = NULL;
         }
     }
 }
 
-void Triangle2::ReplaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
+void Triangle2::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 {
     for (uint i = 0; i < 3; i++)
     {
         if (vertices[i] == currentVertex)
         {
             vertices[i] = newVertex;
-            newVertex->AddTriangle(this);
+            newVertex->addTriangle(this);
             break;
         }
     }
 }
 
-void Triangle2::RemoveVertex(VertexNode *vertex)
+void Triangle2::removeVertex(VertexNode *vertex)
 {
     for (uint i = 0; i < 3; i++)
     {
@@ -103,8 +103,11 @@ void Triangle2::RemoveVertex(VertexNode *vertex)
     }
 }
 
-bool Triangle2::IsDegenerated() const
+bool Triangle2::isDegenerated() const
 {
+    if (isVertexInTriangle(NULL))
+        return true;
+    
     if (vertices[0] == vertices[1])
 		return true;
 	if (vertices[0] == vertices[2])
@@ -115,7 +118,7 @@ bool Triangle2::IsDegenerated() const
 	return false;
 }
 
-bool Triangle2::IsVertexInTriangle(VertexNode *vertex) const
+bool Triangle2::isVertexInTriangle(VertexNode *vertex) const
 {
     for (uint i = 0; i < 3; i++)
 	{
@@ -125,13 +128,13 @@ bool Triangle2::IsVertexInTriangle(VertexNode *vertex) const
 	return false;
 }
 
-void Triangle2::GetVertexPositions(Vector3D vertexPositions[3]) const
+void Triangle2::getVertexPositions(Vector3D vertexPositions[3]) const
 {
     for (uint i = 0; i < 3; i++)
         vertexPositions[i] = vertices[i]->data.position;
 }
 
-void Triangle2::Flip()
+void Triangle2::flip()
 {
     swap(vertices[0], vertices[2]);    
 }

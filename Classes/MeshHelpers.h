@@ -55,13 +55,16 @@ private:
 public:
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
-    virtual ~VertexNode() { }
+    virtual ~VertexNode() 
+    {
+        removeFromTriangles();
+    }
     
-    bool IsUsed() const { return triangles.count() > 0; }
-    void AddTriangle(Triangle2 *triangle);
-    void RemoveTriangle(Triangle2 *triangle);
-    void RemoveFromTriangles();
-    void ReplaceVertex(VertexNode *newVertex);
+    bool isUsed() const { return triangles.count() > 0; }
+    void addTriangle(Triangle2 *triangle);
+    void removeTriangle(Triangle2 *triangle);
+    void removeFromTriangles();
+    void replaceVertex(VertexNode *newVertex);
 };
 
 class Triangle2
@@ -75,14 +78,14 @@ public:
     Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3);
 
     VertexNode *operator[](int index) const { return vertices[index]; }
-    void ReplaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
-    void RemoveVertex(VertexNode *vertex);
-    void AddToVertices();
-    void RemoveFromVertices();
-    bool IsDegenerated() const;
-    bool IsVertexInTriangle(VertexNode *vertex) const;
-    void GetVertexPositions(Vector3D vertexPositions[3]) const;
-    void Flip();
+    void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
+    void removeVertex(VertexNode *vertex);
+    void addToVertices();
+    void removeFromVertices();
+    bool isDegenerated() const;
+    bool isVertexInTriangle(VertexNode *vertex) const;
+    void getVertexPositions(Vector3D vertexPositions[3]) const;
+    void flip();
 };
 
 class TriangleNode : public FPNode<TriangleNode, Triangle2>
@@ -91,11 +94,11 @@ public:
     TriangleNode() : FPNode<TriangleNode, Triangle2>() { }
     TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle)
     {
-        data.AddToVertices();
+        data.addToVertices();
     }
     virtual ~TriangleNode()
     {
-        data.RemoveFromVertices();
+        data.removeFromVertices();
     }
 };
 
