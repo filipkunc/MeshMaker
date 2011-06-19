@@ -16,6 +16,8 @@ void ProgramLog(GLuint program);
 	GLuint program;
 }
 
++ (ShaderProgram *)normalShader;
++ (ShaderProgram *)flippedShader;
 - (void)attachShaderWithType:(GLenum)type resourceInBundle:(NSString *)resourceInBundle;
 - (void)attachShader:(Shader *)aShader; // attachShader sends release to aShader object
 - (void)setGeometryInput:(GLenum)input output:(GLenum)output;

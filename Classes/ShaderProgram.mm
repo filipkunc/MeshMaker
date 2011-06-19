@@ -25,7 +25,30 @@ void ProgramLog(GLuint program)
 	}
 }
 
+ShaderProgram *globalNormalShader = nil;
+ShaderProgram *globalFlippedShader = nil;
+
 @implementation ShaderProgram
+
++ (ShaderProgram *)normalShader
+{
+	if (!globalNormalShader)
+	{
+		globalNormalShader = [[ShaderProgram alloc] init];
+		[globalNormalShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLighting"];
+	}
+	return globalNormalShader;
+}
+
++ (ShaderProgram *)flippedShader
+{
+	if (!globalFlippedShader)
+	{
+		globalFlippedShader = [[ShaderProgram alloc] init];
+		[globalFlippedShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLightingFlipped"];
+	}
+	return globalFlippedShader;
+}
 
 - (id)init
 {

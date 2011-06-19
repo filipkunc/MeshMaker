@@ -17,8 +17,6 @@ const float maxDistance = 1000.0f;
 
 NSOpenGLPixelFormat *globalPixelFormat = nil;
 NSOpenGLContext *globalGLContext = nil;
-ShaderProgram *globalNormalShader = nil;
-ShaderProgram *globalFlippedShader = nil;
 
 @implementation OpenGLSceneView
 
@@ -51,26 +49,6 @@ ShaderProgram *globalFlippedShader = nil;
 												   shareContext:nil];
 	}
 	return globalGLContext;
-}
-
-+ (ShaderProgram *)normalShader
-{
-	if (!globalNormalShader)
-	{
-		globalNormalShader = [[ShaderProgram alloc] init];
-		[globalNormalShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLighting"];
-	}
-	return globalNormalShader;
-}
-
-+ (ShaderProgram *)flippedShader
-{
-	if (!globalFlippedShader)
-	{
-		globalFlippedShader = [[ShaderProgram alloc] init];
-		[globalFlippedShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"twoSidedLightingFlipped"];
-	}
-	return globalFlippedShader;
 }
 
 + (void)deinitialize
@@ -132,8 +110,8 @@ ShaderProgram *globalFlippedShader = nil;
 		viewMode = ViewModeSolid;
 		
 		glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
-		[[OpenGLSceneView normalShader] linkProgram];
-		[[OpenGLSceneView flippedShader] linkProgram];
+		[[ShaderProgram normalShader] linkProgram];
+		[[ShaderProgram flippedShader] linkProgram];
 	}
 	return self;
 }
@@ -329,9 +307,6 @@ ShaderProgram *globalFlippedShader = nil;
 
 - (void)drawManipulatedAndDisplayedForSelection:(BOOL)forSelection
 {
-	[Mesh setNormalShader:[OpenGLSceneView normalShader]];
-	[Mesh setFlippedShader:[OpenGLSceneView flippedShader]];
-	
 	if (displayed != manipulated)
 		[displayed drawWithMode:viewMode forSelection:forSelection];
 	[manipulated drawWithMode:viewMode forSelection:forSelection];
