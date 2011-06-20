@@ -160,7 +160,7 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
 	{
         if (!forSelection)
             glColor3f(_colorComponents[0] + 0.2f, _colorComponents[1] + 0.2f, _colorComponents[2] + 0.2f);
-    
+        
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawFill(true, forSelection);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -228,7 +228,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 		{
 			if (forSelection)
 			{
-				Triangle2 triangle = _cachedTriangleSelection->at(index)->data;
+				const Triangle2 &triangle = _cachedTriangleSelection->at(index)->data;
                 Vector3D triangleVertices[3];
                 triangle.getVertexPositions(triangleVertices);
 				glBegin(GL_TRIANGLES);
@@ -240,28 +240,28 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 				glEnd();
 			}
 		} break;
+        case MeshSelectionModeEdges:
+        {
+            const Edge2 &edge = _cachedEdgeSelection->at(index)->data;
+            if (!forSelection)
+            {
+                BOOL isSelected = edge.selected;
+                if (isSelected)
+                    glColor3f(0.8f, 0.0f, 0.0f);
+                else
+                    glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
+                glDisable(GL_LIGHTING);
+            }
+            glBegin(GL_LINES);
+            for (int i = 0; i < 2; i++)
+            {
+                Vector3D v = edge.vertex(i)->data.position;
+                glVertex3f(v.x, v.y, v.z);
+            }
+            glEnd();
+        } break;
         default:
             break;
-            /*case MeshSelectionModeEdges:
-             {
-             Edge currentEdge = [self edgeAtIndex:index];
-             if (!forSelection)
-             {
-             BOOL isSelected = selected->at(index).selected;
-             if (isSelected)
-             glColor3f(0.8f, 0.0f, 0.0f);
-             else
-             glColor3f([color redComponent] - 0.2f, [color greenComponent] - 0.2f, [color blueComponent] - 0.2f);
-             glDisable(GL_LIGHTING);
-             }
-             glBegin(GL_LINES);
-             for (uint i = 0; i < 2; i++)
-             {
-             Vector3D v = [self vertexAtIndex:currentEdge.vertexIndices[i]];
-             glVertex3f(v.x, v.y, v.z);
-             }
-             glEnd();
-             } break;*/
 	}
 }
 

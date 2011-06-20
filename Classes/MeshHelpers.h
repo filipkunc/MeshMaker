@@ -33,9 +33,11 @@ struct SelectionInfo
 
 class Vertex2;
 class Triangle2;
+class Edge2;
 
 class VertexNode;
 class TriangleNode;
+class EdgeNode;
 
 class Vertex2
 {
@@ -51,39 +53,50 @@ public:
 class VertexNode : public FPNode<VertexNode, Vertex2>
 {
 private:
-    SimpleList<Triangle2 *> triangles;
+    SimpleList<Triangle2 *> _triangles;
+    SimpleList<Edge2 *> _edges;
 public:
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
     virtual ~VertexNode() 
-    {
+    { 
         removeFromTriangles();
+        removeFromEdges();
     }
     
-    bool isUsed() const { return triangles.count() > 0; }
+    bool isUsed() const { return _triangles.count() > 0; }
     void addTriangle(Triangle2 *triangle);
     void removeTriangle(Triangle2 *triangle);
     void removeFromTriangles();
+    void addEdge(Edge2 *edge);
+    void removeEdge(Edge2 *edge);
+    void removeFromEdges();
     void replaceVertex(VertexNode *newVertex);
 };
 
 class Triangle2
 {
 private:
-    VertexNode *vertices[3];
+    VertexNode *_vertices[3];
+    EdgeNode *_edges[3];
 public:
     bool selected;
     
     Triangle2();
-    Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3);
+    Triangle2(VertexNode *vertices[3]);
 
-    VertexNode *operator[](int index) const { return vertices[index]; }
+    VertexNode *vertex(int index) const { return _vertices[index]; }
+    EdgeNode *edge(int index) const { return _edges[index]; }
+    
+    void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
+    void setEdge(int index, EdgeNode *value) { _edges[index] = value; }
+    
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
     void removeVertex(VertexNode *vertex);
     void addToVertices();
     void removeFromVertices();
     bool isDegenerated() const;
-    bool isVertexInTriangle(VertexNode *vertex) const;
+    bool containsVertex(const VertexNode *vertex) const;
     void getVertexPositions(Vector3D vertexPositions[3]) const;
     void flip();
 };
@@ -97,6 +110,43 @@ public:
         data.addToVertices();
     }
     virtual ~TriangleNode()
+    {
+        data.removeFromVertices();
+    }
+};
+
+class Edge2
+{
+private:
+    VertexNode *_vertices[2];
+    TriangleNode *_triangles[2];
+public:
+    bool selected;
+    
+    Edge2();
+    Edge2(VertexNode *vertices[2]);
+    
+    bool containsVertex(const VertexNode *vertex) const;
+    
+    VertexNode *vertex(int index) const { return _vertices[index]; }
+    TriangleNode *triangle(int index) const { return _triangles[index]; }
+    
+    void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
+    
+    void addToVertices();
+    void removeFromVertices();
+    void removeVertex(VertexNode *vertex);
+};
+
+class EdgeNode : public FPNode<EdgeNode, Edge2>
+{
+public:
+    EdgeNode() : FPNode<EdgeNode, Edge2>() { }
+    EdgeNode(const Edge2 &edge) : FPNode<EdgeNode, Edge2>(edge)
+    {
+        data.addToVertices(); 
+    }
+    virtual ~EdgeNode()
     {
         data.removeFromVertices();
     }
