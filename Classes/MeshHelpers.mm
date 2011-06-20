@@ -9,14 +9,14 @@
 
 #import "MeshHelpers.h"
 
-void VertexNode::addTriangle(Triangle2 *triangle)
+void VertexNode::addTriangle(TriangleNode *triangle)
 {
     _triangles.add(triangle);
 }
 
-void VertexNode::removeTriangle(Triangle2 *triangle)
+void VertexNode::removeTriangle(TriangleNode *triangle)
 {
-    for (SimpleNode<Triangle2 *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         if (node->data == triangle)
             _triangles.remove(node);
@@ -25,22 +25,22 @@ void VertexNode::removeTriangle(Triangle2 *triangle)
 
 void VertexNode::removeFromTriangles()
 {
-    for (SimpleNode<Triangle2 *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        node->data->removeVertex(this);
+        node->data->data.removeVertex(this);
     }
     
     _triangles.removeAll();
 }
 
-void VertexNode::addEdge(Edge2 *edge)
+void VertexNode::addEdge(EdgeNode *edge)
 {
     _edges.add(edge);
 }
 
-void VertexNode::removeEdge(Edge2 *edge)
+void VertexNode::removeEdge(EdgeNode *edge)
 {
-    for (SimpleNode<Edge2 *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         if (node->data == edge)
             _edges.remove(node);
@@ -49,9 +49,9 @@ void VertexNode::removeEdge(Edge2 *edge)
 
 void VertexNode::removeFromEdges()
 {
-    for (SimpleNode<Edge2 *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        node->data->removeVertex(this);
+        node->data->data.removeVertex(this);
     }
     
     _edges.removeAll();
@@ -59,12 +59,22 @@ void VertexNode::removeFromEdges()
 
 void VertexNode::replaceVertex(VertexNode *newVertex)
 {
-    for (SimpleNode<Triangle2 *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         node->data->replaceVertex(this, newVertex);
     }
     
     _triangles.removeAll();
+}
+
+EdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
+{
+    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        if (node->data->data.containsVertex(otherVertex))
+            return node->data;
+    }
+    return NULL;
 }
 
 Triangle2::Triangle2() : selected(false)
@@ -85,34 +95,34 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
     }
 }
 
-void Triangle2::addToVertices()
+void TriangleNode::addToVertices()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_vertices[i])
-            _vertices[i]->addTriangle(this);
+        if (data._vertices[i])
+            data._vertices[i]->addTriangle(this);
     }
 }
 
-void Triangle2::removeFromVertices()
+void TriangleNode::removeFromVertices()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_vertices[i])
+        if (data._vertices[i])
         {
-            _vertices[i]->removeTriangle(this);
-            _vertices[i] = NULL;
+            data._vertices[i]->removeTriangle(this);
+            data._vertices[i] = NULL;
         }
     }
 }
 
-void Triangle2::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
+void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_vertices[i] == currentVertex)
+        if (data._vertices[i] == currentVertex)
         {
-            _vertices[i] = newVertex;
+            data._vertices[i] = newVertex;
             newVertex->addTriangle(this);
             break;
         }
@@ -195,23 +205,23 @@ bool Edge2::containsVertex(const VertexNode *vertex) const
     return false;
 }
 
-void Edge2::addToVertices()
+void EdgeNode::addToVertices()
 {
     for (int i = 0; i < 2; i++)
     {
-        if (_vertices[i])
-            _vertices[i]->addEdge(this);
+        if (data._vertices[i])
+            data._vertices[i]->addEdge(this);
     }
 }
 
-void Edge2::removeFromVertices()
+void EdgeNode::removeFromVertices()
 {
     for (int i = 0; i < 2; i++)
     {
-        if (_vertices[i])
+        if (data._vertices[i])
         {
-            _vertices[i]->removeEdge(this);
-            _vertices[i] = NULL;
+            data._vertices[i]->removeEdge(this);
+            data._vertices[i] = NULL;
         }
     }
 }

@@ -53,8 +53,8 @@ public:
 class VertexNode : public FPNode<VertexNode, Vertex2>
 {
 private:
-    SimpleList<Triangle2 *> _triangles;
-    SimpleList<Edge2 *> _edges;
+    SimpleList<TriangleNode *> _triangles;
+    SimpleList<EdgeNode *> _edges;
 public:
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
@@ -65,13 +65,14 @@ public:
     }
     
     bool isUsed() const { return _triangles.count() > 0; }
-    void addTriangle(Triangle2 *triangle);
-    void removeTriangle(Triangle2 *triangle);
+    void addTriangle(TriangleNode *triangle);
+    void removeTriangle(TriangleNode *triangle);
     void removeFromTriangles();
-    void addEdge(Edge2 *edge);
-    void removeEdge(Edge2 *edge);
+    void addEdge(EdgeNode *edge);
+    void removeEdge(EdgeNode *edge);
     void removeFromEdges();
     void replaceVertex(VertexNode *newVertex);
+    EdgeNode *sharedEdge(VertexNode *otherVertex);
 };
 
 class Triangle2
@@ -91,14 +92,13 @@ public:
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
     void setEdge(int index, EdgeNode *value) { _edges[index] = value; }
     
-    void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
     void removeVertex(VertexNode *vertex);
-    void addToVertices();
-    void removeFromVertices();
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
     void getVertexPositions(Vector3D vertexPositions[3]) const;
     void flip();
+    
+    friend class TriangleNode;
 };
 
 class TriangleNode : public FPNode<TriangleNode, Triangle2>
@@ -107,12 +107,16 @@ public:
     TriangleNode() : FPNode<TriangleNode, Triangle2>() { }
     TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle)
     {
-        data.addToVertices();
+        addToVertices();
     }
     virtual ~TriangleNode()
     {
-        data.removeFromVertices();
+        removeFromVertices();
     }
+    
+    void addToVertices();
+    void removeFromVertices();
+    void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };
 
 class Edge2
@@ -132,10 +136,9 @@ public:
     TriangleNode *triangle(int index) const { return _triangles[index]; }
     
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
-    
-    void addToVertices();
-    void removeFromVertices();
     void removeVertex(VertexNode *vertex);
+    
+    friend class EdgeNode;
 };
 
 class EdgeNode : public FPNode<EdgeNode, Edge2>
@@ -144,12 +147,15 @@ public:
     EdgeNode() : FPNode<EdgeNode, Edge2>() { }
     EdgeNode(const Edge2 &edge) : FPNode<EdgeNode, Edge2>(edge)
     {
-        data.addToVertices(); 
+        addToVertices();
     }
     virtual ~EdgeNode()
     {
-        data.removeFromVertices();
+        removeFromVertices();
     }
+    
+    void addToVertices();
+    void removeFromVertices();
 };
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3]);
