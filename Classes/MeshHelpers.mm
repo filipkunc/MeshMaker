@@ -11,80 +11,108 @@
 
 void VertexNode::addTriangle(Triangle2 *triangle)
 {
-    triangles.add(triangle);
+    _triangles.add(triangle);
 }
 
 void VertexNode::removeTriangle(Triangle2 *triangle)
 {
-    for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
+    for (SimpleNode<Triangle2 *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         if (node->data == triangle)
-            triangles.remove(node);
+            _triangles.remove(node);
     }
 }
 
 void VertexNode::removeFromTriangles()
 {
-    for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
+    for (SimpleNode<Triangle2 *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         node->data->removeVertex(this);
     }
     
-    triangles.removeAll();
+    _triangles.removeAll();
+}
+
+void VertexNode::addEdge(Edge2 *edge)
+{
+    _edges.add(edge);
+}
+
+void VertexNode::removeEdge(Edge2 *edge)
+{
+    for (SimpleNode<Edge2 *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        if (node->data == edge)
+            _edges.remove(node);
+    }
+}
+
+void VertexNode::removeFromEdges()
+{
+    for (SimpleNode<Edge2 *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        node->data->removeVertex(this);
+    }
+    
+    _edges.removeAll();
 }
 
 void VertexNode::replaceVertex(VertexNode *newVertex)
 {
-    for (SimpleNode<Triangle2 *> *node = triangles.begin(), *end = triangles.end(); node != end; node = node->next())
+    for (SimpleNode<Triangle2 *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         node->data->replaceVertex(this, newVertex);
     }
     
-    triangles.removeAll();
+    _triangles.removeAll();
 }
 
 Triangle2::Triangle2() : selected(false)
 {
-    vertices[0] = NULL;
-    vertices[1] = NULL;
-    vertices[2] = NULL;
+    for (int i = 0; i < 3; i++)
+    {
+        _vertices[i] = NULL;
+        _edges[i] = NULL;
+    }
 }
 
-Triangle2::Triangle2(VertexNode *v1, VertexNode *v2, VertexNode *v3) : selected(false)
+Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
 {
-    vertices[0] = v1;
-    vertices[1] = v2;
-    vertices[2] = v3;    
+    for (int i = 0; i < 3; i++)
+    {
+        _vertices[i] = vertices[i];
+        _edges[i] = NULL;
+    }
 }
 
 void Triangle2::addToVertices()
 {
-    for (uint i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        if (vertices[i])
-            vertices[i]->addTriangle(this);
+        if (_vertices[i])
+            _vertices[i]->addTriangle(this);
     }
 }
 
 void Triangle2::removeFromVertices()
 {
-    for (uint i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        if (vertices[i])
+        if (_vertices[i])
         {
-            vertices[i]->removeTriangle(this);
-            vertices[i] = NULL;
+            _vertices[i]->removeTriangle(this);
+            _vertices[i] = NULL;
         }
     }
 }
 
 void Triangle2::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 {
-    for (uint i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        if (vertices[i] == currentVertex)
+        if (_vertices[i] == currentVertex)
         {
-            vertices[i] = newVertex;
+            _vertices[i] = newVertex;
             newVertex->addTriangle(this);
             break;
         }
@@ -93,11 +121,11 @@ void Triangle2::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 
 void Triangle2::removeVertex(VertexNode *vertex)
 {
-    for (uint i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        if (vertices[i] == vertex)
+        if (_vertices[i] == vertex)
         {
-            vertices[i] = NULL;
+            _vertices[i] = NULL;
             break;
         }
     }
@@ -105,24 +133,24 @@ void Triangle2::removeVertex(VertexNode *vertex)
 
 bool Triangle2::isDegenerated() const
 {
-    if (isVertexInTriangle(NULL))
+    if (containsVertex(NULL))
         return true;
     
-    if (vertices[0] == vertices[1])
+    if (_vertices[0] == _vertices[1])
 		return true;
-	if (vertices[0] == vertices[2])
+	if (_vertices[0] == _vertices[2])
 		return true;
-	if (vertices[1] == vertices[2])
+	if (_vertices[1] == _vertices[2])
 		return true;
 	
 	return false;
 }
 
-bool Triangle2::isVertexInTriangle(VertexNode *vertex) const
+bool Triangle2::containsVertex(const VertexNode *vertex) const
 {
-    for (uint i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
 	{
-		if (vertices[i] == vertex)
+		if (_vertices[i] == vertex)
 			return true;
 	}
 	return false;
@@ -130,13 +158,74 @@ bool Triangle2::isVertexInTriangle(VertexNode *vertex) const
 
 void Triangle2::getVertexPositions(Vector3D vertexPositions[3]) const
 {
-    for (uint i = 0; i < 3; i++)
-        vertexPositions[i] = vertices[i]->data.position;
+    for (int i = 0; i < 3; i++)
+        vertexPositions[i] = _vertices[i]->data.position;
 }
 
 void Triangle2::flip()
 {
-    swap(vertices[0], vertices[2]);    
+    swap(_vertices[0], _vertices[2]);    
+}
+
+Edge2::Edge2() : selected(false)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        _vertices[i] = NULL;
+        _triangles[i] = NULL;
+    }
+}
+
+Edge2::Edge2(VertexNode *vertices[2]) : selected(false)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        _vertices[i] = vertices[i];
+        _triangles[i] = NULL;
+    }
+}
+
+bool Edge2::containsVertex(const VertexNode *vertex) const
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_vertices[i] == vertex)
+            return true;        
+    }
+    return false;
+}
+
+void Edge2::addToVertices()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_vertices[i])
+            _vertices[i]->addEdge(this);
+    }
+}
+
+void Edge2::removeFromVertices()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_vertices[i])
+        {
+            _vertices[i]->removeEdge(this);
+            _vertices[i] = NULL;
+        }
+    }
+}
+
+void Edge2::removeVertex(VertexNode *vertex)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_vertices[i] == vertex)
+        {
+            _vertices[i] = NULL;
+            break;
+        }
+    }
 }
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])

@@ -15,11 +15,13 @@ class Mesh2
 private:
     FPList<VertexNode, Vertex2> *_vertices;
 	FPList<TriangleNode, Triangle2> *_triangles;
+    FPList<EdgeNode, Edge2> *_edges;
     
     MeshSelectionMode _selectionMode;
 	
     vector<VertexNode *> *_cachedVertexSelection;
     vector<TriangleNode *> *_cachedTriangleSelection;
+    vector<EdgeNode *> *_cachedEdgeSelection;
     
 	Vector3D *_cachedVertices;
 	Vector3D *_cachedNormals;
@@ -42,9 +44,7 @@ public:
     ~Mesh2();
     
     int vertexCount() { return _vertices->count(); }
-    int triangleCount() { return _triangles->count(); }
-    
-    void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
+    int triangleCount() { return _triangles->count(); }    
     
     MeshSelectionMode selectionMode() const { return _selectionMode; };
     void setSelectionMode(MeshSelectionMode value);
@@ -76,5 +76,8 @@ public:
     
     // make
     
+    void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
+    EdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
+    void makeEdges();
     void makeCube();    
 };

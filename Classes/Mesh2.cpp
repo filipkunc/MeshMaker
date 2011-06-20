@@ -12,9 +12,11 @@ Mesh2::Mesh2(float colorComponents[4])
 {
     _vertices = new FPList<VertexNode, Vertex2>();
     _triangles = new FPList<TriangleNode, Triangle2>();
+    _edges = new FPList<EdgeNode, Edge2>();
     
     _cachedVertexSelection = new vector<VertexNode *>();
     _cachedTriangleSelection = new vector<TriangleNode *>();
+    _cachedEdgeSelection = new vector<EdgeNode *>();
     
     _cachedVertices = NULL;
     _cachedNormals = NULL;
@@ -33,16 +35,9 @@ Mesh2::~Mesh2()
     
     delete _cachedVertexSelection;
     delete _cachedTriangleSelection;
+    delete _cachedEdgeSelection;
     
     resetCache();
-}
-
-void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
-{
-    Triangle2 triangle1(v1, v2, v3);
-    Triangle2 triangle2(v1, v3, v4);
-  	_triangles->add(triangle1);
-    _triangles->add(triangle2);
 }
 
 void Mesh2::setSelectionMode(MeshSelectionMode value)
@@ -50,6 +45,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
     _selectionMode = value;
     _cachedVertexSelection->clear();
     _cachedTriangleSelection->clear();
+    _cachedEdgeSelection->clear();
     
     switch (_selectionMode)
     {
@@ -62,7 +58,12 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
         {
             for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
                 _cachedTriangleSelection->push_back(node);
-        } break;            
+        } break;
+        case MeshSelectionModeEdges:
+        {
+            for (EdgeNode *node = _edges->begin(), *end = _edges->end(); node != end; node = node->next())
+                _cachedEdgeSelection->push_back(node);
+        } break;
         default:
             break;
     }
@@ -76,6 +77,8 @@ uint Mesh2::selectedCount() const
             return _cachedVertexSelection->size();
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection->size();
+        case MeshSelectionModeEdges:
+            return _cachedEdgeSelection->size();
         default:
             return 0;
     }
@@ -89,6 +92,8 @@ bool Mesh2::isSelectedAtIndex(uint index) const
             return _cachedVertexSelection->at(index)->data.selected;
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection->at(index)->data.selected;
+        case MeshSelectionModeEdges:
+            return _cachedEdgeSelection->at(index)->data.selected;
         default:
             return false;
     }
@@ -105,8 +110,15 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
         {
             Triangle2 &triangle = _cachedTriangleSelection->at(index)->data;
             triangle.selected = selected;
-            for (uint i = 0; i < 3; i++)
-                triangle[i]->data.selected = selected;            
+            for (int i = 0; i < 3; i++)
+                triangle.vertex(i)->data.selected = selected;            
+        } break;
+        case MeshSelectionModeEdges:
+        {
+            Edge2 &edge = _cachedEdgeSelection->at(index)->data;
+            edge.selected = selected;
+            for (int i = 0; i < 2; i++)
+                edge.vertex(i)->data.selected = selected;
         } break;
         default:
             break;
