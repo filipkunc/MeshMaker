@@ -33,7 +33,6 @@
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(uint)steps;
 - (void)makeSphereWithSteps:(uint)steps;
-- (void)makeEdges;
 - (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex;
 - (void)transformWithMatrix:(Matrix4x4 *)matrix;
 - (void)mergeWithMesh:(Mesh *)mesh;

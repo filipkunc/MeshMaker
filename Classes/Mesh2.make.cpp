@@ -8,30 +8,30 @@
 
 #include "Mesh2.h"
 
+void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
+{
+    VertexNode *vertices[3] = { v1, v2, v3 };
+    _triangles->add(vertices);
+}
+
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-    Triangle2 triangle1(vertices1);
-    Triangle2 triangle2(vertices2);
-  	_triangles->add(triangle1);
-    _triangles->add(triangle2);
+  	_triangles->add(vertices1);
+    _triangles->add(vertices2);
 }
 
 EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
 {
-    for (EdgeNode *node = _edges->begin(), *end = _edges->end(); node != end; node = node->next())
+    EdgeNode *sharedEdge = v1->sharedEdge(v2);
+    if (sharedEdge)
     {
-        Edge2 &edge = node->data;
-        
-        if (edge.containsVertex(v1) && edge.containsVertex(v2))
-        {
-            edge.setTriangle(1, triangle);
-            return node;
-        }
+        sharedEdge->data.setTriangle(1, triangle);
+        return sharedEdge;
     }
-
+    
     VertexNode *vertices[2] = { v1, v2 };
     EdgeNode *node = _edges->add(vertices);
     node->data.setTriangle(0, triangle);
@@ -40,6 +40,8 @@ EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *
 
 void Mesh2::makeEdges()
 {
+    _edges->removeAll();
+    
     for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
     {
         Triangle2 &triangle = node->data;
@@ -62,8 +64,7 @@ void Mesh2::makeCube()
 {
     _vertices->removeAll();
 	_triangles->removeAll();
-    _edges->removeAll();
-	
+    
 	// back vertices
 	VertexNode *v0 = _vertices->add(Vector3D(-1, -1, -1));
 	VertexNode *v1 = _vertices->add(Vector3D( 1, -1, -1));
@@ -96,6 +97,149 @@ void Mesh2::makeCube()
     
     makeEdges();
 	
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::makeCylinder(uint steps)
+{
+    _vertices->removeAll();
+    _triangles->removeAll();
+    
+    VertexNode *node0 = _vertices->add(Vector3D(0, -1, 0)); // 0
+    VertexNode *node1 = _vertices->add(Vector3D(0,  1, 0)); // 1
+    
+    VertexNode *node2 = _vertices->add(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
+    VertexNode *node3 = _vertices->add(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
+    
+    uint max = steps;
+    float step = (FLOAT_PI * 2.0f) / max;
+    float angle = step;
+    for (uint i = 1; i < max; i++)
+    {
+        VertexNode *last2 = _vertices->add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
+        VertexNode *last1 = _vertices->add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
+        
+        VertexNode *last3 = last2->previous();
+        VertexNode *last4 = last3->previous();
+        
+        addTriangle(last3, last2, last1);
+        addTriangle(last2, last3, last4);
+        
+        addTriangle(last4, node0, last2);
+        addTriangle(last3, last1, node1);
+        
+        angle += step;
+    }
+    
+    VertexNode *last1 = _vertices->last();
+    VertexNode *last2 = last1->previous();
+    
+    addTriangle(node2, node3, last1);
+    addTriangle(last1, last2, node2);
+    
+    addTriangle(node0, node2, last2);
+    addTriangle(node3, node1, last1);
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::makeSphere(uint steps)
+{
+    _vertices->removeAll();
+    _triangles->removeAll();
+    
+    uint max = steps;
+    
+    vector<VertexNode *> tempVertices;
+    vector<Triangle> tempTriangles;
+    
+    tempVertices.push_back(_vertices->add(Vector3D(0, 1, 0)));
+    tempVertices.push_back(_vertices->add(Vector3D(0, -1, 0)));
+    
+    float step = FLOAT_PI / max;
+    
+    for (uint i = 0; i < max; i++)
+    {
+        float beta = i * step * 2.0f;
+        
+        for (uint j = 1; j < max; j++)
+        {
+            float alpha = 0.5f * FLOAT_PI + j * step;
+            float y0 = sinf(alpha);
+            float w0 = cosf(alpha);                
+            
+            float x0 = sinf(beta) * w0;
+            float z0 = cosf(beta) * w0;
+            
+            tempVertices.push_back(_vertices->add(Vector3D(x0, y0, z0)));
+            
+            if (i > 0 && j < max - 1)
+            {
+                int index = (i - 1) * (max - 1);
+                
+                AddQuad(tempTriangles, 
+                        1 + max + j + index, 
+                        2 + j + index,
+                        1 + j + index,
+                        max + j + index);                
+            }
+        }
+        
+        int index = i * (max - 1);
+        if (i < max - 1)
+        {
+            AddTriangle(tempTriangles,
+                        0,
+                        2 + index + max - 1,
+                        2 + index);
+            
+            AddTriangle(tempTriangles,
+                        1,
+                        index + max,
+                        index + 2 * max - 1);
+        }
+        else 
+        {
+            
+            AddTriangle(tempTriangles,
+                        0,
+                        2,
+                        2 + index);
+            
+            AddTriangle(tempTriangles,
+                        1,
+                        index + max,
+                        max);
+        }
+    }
+    
+    for (uint j = 1; j < max - 1; j++)
+    {
+        int index = (max - 1) * (max - 1);
+        AddQuad(tempTriangles,
+                1 + j + index,
+                1 + j,
+                2 + j,
+                2 + j + index);
+    }
+    
+    VertexNode *triangleVertices[3];
+    
+    for (uint i = 0; i < tempTriangles.size(); i++)
+    {
+        Triangle indexTriangle = tempTriangles[i];
+        for (uint j = 0; j < 3; j++)
+        {
+            VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
+            triangleVertices[j] = node;
+        }
+        _triangles->add(triangleVertices);
+    }    
+    
+    makeEdges();
+    
     setSelectionMode(_selectionMode);
 }
 

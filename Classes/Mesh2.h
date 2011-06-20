@@ -76,8 +76,11 @@ public:
     
     // make
     
+    void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
     EdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
     void makeEdges();
-    void makeCube();    
+    void makeCube();
+    void makeCylinder(uint steps);
+    void makeSphere(uint steps);
 };
