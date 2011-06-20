@@ -30,7 +30,9 @@ private:
     float _colorComponents[4];
 private:
     void fastMergeSelectedVertices();
+    void removeDegeneratedTrianglesAndEdges();
     void removeDegeneratedTriangles();
+    void removeDegeneratedEdges();
     void removeNonUsedVertices();
     void mergeSelectedVertices();
     void removeSelectedVertices();

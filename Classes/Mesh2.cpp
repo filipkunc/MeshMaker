@@ -205,14 +205,27 @@ void Mesh2::fastMergeSelectedVertices()
     delete selectedNodes;
 }
 
+void Mesh2::removeDegeneratedTrianglesAndEdges()
+{
+    removeDegeneratedTriangles();
+    removeDegeneratedEdges();    
+}
+
 void Mesh2::removeDegeneratedTriangles()
 {
-    resetCache();
-    
     for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
     {
         if (node->data.isDegenerated())
             _triangles->remove(node);
+    }
+}
+
+void Mesh2::removeDegeneratedEdges()
+{
+    for (EdgeNode *node = _edges->begin(), *end = _edges->end(); node != end; node = node->next())
+    {
+        if (node->data.isDegenerated())
+            _edges->remove(node);
     }
 }
 
@@ -232,7 +245,7 @@ void Mesh2::mergeSelectedVertices()
     resetCache();
     
     fastMergeSelectedVertices();
-    removeDegeneratedTriangles();
+    removeDegeneratedTrianglesAndEdges();
     removeNonUsedVertices();
     
     setSelectionMode(_selectionMode);
@@ -248,7 +261,7 @@ void Mesh2::removeSelectedVertices()
             _vertices->remove(node);
     }
     
-    removeDegeneratedTriangles();
+    removeDegeneratedTrianglesAndEdges();
     removeNonUsedVertices();
     
     setSelectionMode(_selectionMode);
@@ -264,6 +277,7 @@ void Mesh2::removeSelectedTriangles()
             _triangles->remove(node);
     }
     
+    removeDegeneratedEdges();
     removeNonUsedVertices();
     
     setSelectionMode(_selectionMode);

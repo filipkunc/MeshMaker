@@ -112,10 +112,12 @@ public:
     virtual ~TriangleNode()
     {
         removeFromVertices();
+        removeFromEdges();
     }
     
     void addToVertices();
     void removeFromVertices();
+    void removeFromEdges();
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };
 
@@ -130,6 +132,7 @@ public:
     Edge2();
     Edge2(VertexNode *vertices[2]);
     
+    bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
     
     VertexNode *vertex(int index) const { return _vertices[index]; }
@@ -137,6 +140,7 @@ public:
     
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
     void removeVertex(VertexNode *vertex);
+    void removeTriangle(TriangleNode *triangle);
     
     friend class EdgeNode;
 };
@@ -156,6 +160,7 @@ public:
     
     void addToVertices();
     void removeFromVertices();
+    void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3]);
