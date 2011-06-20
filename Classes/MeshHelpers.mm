@@ -64,7 +64,13 @@ void VertexNode::replaceVertex(VertexNode *newVertex)
         node->data->replaceVertex(this, newVertex);
     }
     
+    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        node->data->replaceVertex(this, newVertex);
+    }
+    
     _triangles.removeAll();
+    _edges.removeAll();
 }
 
 EdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
@@ -112,6 +118,18 @@ void TriangleNode::removeFromVertices()
         {
             data._vertices[i]->removeTriangle(this);
             data._vertices[i] = NULL;
+        }
+    }
+}
+
+void TriangleNode::removeFromEdges()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (data._edges[i])
+        {
+            data._edges[i]->data.removeTriangle(this);
+            data._edges[i] = NULL;
         }
     }
 }
@@ -195,6 +213,20 @@ Edge2::Edge2(VertexNode *vertices[2]) : selected(false)
     }
 }
 
+bool Edge2::isDegenerated() const
+{
+    if (_triangles[0] == NULL && _triangles[1] == NULL)
+        return true;
+    
+    if (containsVertex(NULL))
+        return true;
+        
+    if (_vertices[0] == _vertices[1])
+        return true;
+        
+    return false;    
+}
+
 bool Edge2::containsVertex(const VertexNode *vertex) const
 {
     for (int i = 0; i < 2; i++)
@@ -236,6 +268,31 @@ void Edge2::removeVertex(VertexNode *vertex)
             break;
         }
     }
+}
+
+void Edge2::removeTriangle(TriangleNode *triangle)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_triangles[i] == triangle)
+        {
+            _triangles[i] = NULL;
+            break;
+        }
+    }
+}
+
+void EdgeNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (data._vertices[i] == currentVertex)
+        {
+            data._vertices[i] = newVertex;
+            newVertex->addEdge(this);
+            break;
+        }
+    }   
 }
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
