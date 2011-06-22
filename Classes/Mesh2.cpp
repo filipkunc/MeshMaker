@@ -283,6 +283,22 @@ void Mesh2::removeSelectedTriangles()
     setSelectionMode(_selectionMode);
 }
 
+void Mesh2::removeSelectedEdges()
+{
+    resetCache();
+    
+    for (EdgeNode *node = _edges->begin(), *end = _edges->end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+            _edges->remove(node);
+    }
+    
+    removeDegeneratedTrianglesAndEdges();
+    removeNonUsedVertices();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::removeSelected()
 {
     switch (_selectionMode)
@@ -292,6 +308,9 @@ void Mesh2::removeSelected()
             break;
         case MeshSelectionModeVertices:
             removeSelectedVertices();
+            break;
+        case MeshSelectionModeEdges:
+            removeSelectedEdges();
             break;
         default:
             break;

@@ -159,9 +159,24 @@ void Triangle2::removeVertex(VertexNode *vertex)
     }
 }
 
+void Triangle2::removeEdge(EdgeNode *edge)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_edges[i] == edge)
+        {
+            _edges[i] = NULL;
+            break;
+        }
+    }
+}
+
 bool Triangle2::isDegenerated() const
 {
     if (containsVertex(NULL))
+        return true;
+    
+    if (containsEdge(NULL))
         return true;
     
     if (_vertices[0] == _vertices[1])
@@ -182,6 +197,16 @@ bool Triangle2::containsVertex(const VertexNode *vertex) const
 			return true;
 	}
 	return false;
+}
+
+bool Triangle2::containsEdge(const EdgeNode *edge) const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_edges[i] == edge)
+            return true;
+    }
+    return false;
 }
 
 void Triangle2::getVertexPositions(Vector3D vertexPositions[3]) const
@@ -256,6 +281,18 @@ void EdgeNode::removeFromVertices()
             data._vertices[i] = NULL;
         }
     }
+}
+
+void EdgeNode::removeFromTriangles()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (data._triangles[i])
+        {
+            data._triangles[i]->data.removeEdge(this);
+            data._triangles[i] = NULL;
+        }
+    }    
 }
 
 void Edge2::removeVertex(VertexNode *vertex)
