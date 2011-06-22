@@ -37,6 +37,7 @@ private:
     void mergeSelectedVertices();
     void removeSelectedVertices();
     void removeSelectedTriangles();
+    void removeSelectedEdges();
     void splitSelectedTriangles();
     void splitSelectedEdges();
     void flipSelectedTriangles();

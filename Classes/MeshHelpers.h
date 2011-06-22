@@ -93,8 +93,11 @@ public:
     void setEdge(int index, EdgeNode *value) { _edges[index] = value; }
     
     void removeVertex(VertexNode *vertex);
+    void removeEdge(EdgeNode *edge);
+
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
+    bool containsEdge(const EdgeNode *edge) const;
     void getVertexPositions(Vector3D vertexPositions[3]) const;
     void flip();
     
@@ -156,10 +159,12 @@ public:
     virtual ~EdgeNode()
     {
         removeFromVertices();
+        removeFromTriangles();
     }
     
     void addToVertices();
     void removeFromVertices();
+    void removeFromTriangles();
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };
 
