@@ -331,7 +331,7 @@ void Mesh2::mergeSelected()
 
 void Mesh2::splitSelectedTriangles()
 {
-
+    
 }
 
 void Mesh2::splitSelectedEdges()
@@ -356,94 +356,124 @@ void Mesh2::splitSelected()
 
 void Mesh2::flipSelected()
 {
-        
+    
 }
 
 void Mesh2::extrudeSelectedTriangles()
 {
-    /*
-     [self resetCache];
-     
-     // This method finds all nonShared edges and copies all 
-     // vertexIndices in selectedTriangles.
-     // Then it makes quads between new and old edges.
-     
-     vector<uint> *vertexIndices = new vector<uint>();
-     vector<Edge> *nonSharedEdges = new vector<Edge>();
-     
-     uint triCount = [self triangleCount];
-     uint vertCount = [self vertexCount];
-     
-     for (uint i = 0; i < triCount; i++)
-     {
-     if (selected->at(i).selected)
-     {
-     [self setTriangleMarked:NO atIndex:i];
-     Triangle &triangle = triangles->at(i);
-     
-     for (uint j = 0; j < 3; j++)
-     {
-     int foundIndex = -1;
-     for (uint k = 0; k < vertexIndices->size(); k++)
-     {
-     if (vertexIndices->at(k) == triangle.vertexIndices[j])
-     {
-     foundIndex = k;
-     break;
-     }
-     }
-     
-     uint &index = triangle.vertexIndices[j];
-     
-     if (foundIndex < 0)
-     {
-     vertexIndices->push_back(index);
-     vertices->push_back(vertices->at(index));
-     markedVertices->push_back(YES);
-     index = vertCount + vertexIndices->size() - 1;
-     }
-     else
-     {
-     index = vertCount + foundIndex;
-     }
-     }
-     
-     for (uint j = 0; j < 3; j++)
-     {
-     Edge edge;
-     edge.vertexIndices[0] = triangle.vertexIndices[j];
-     edge.vertexIndices[1] = triangle.vertexIndices[j + 1 < 3 ? j + 1 : 0];
-     
-     BOOL foundEdge = NO;
-     for (uint k = 0; k < nonSharedEdges->size(); k++)
-     {
-     if (AreEdgesSame(edge, nonSharedEdges->at(k)))
-     {
-     nonSharedEdges->erase(nonSharedEdges->begin() + k);
-     foundEdge = YES;
-     break;
-     }
-     }
-     
-     if (!foundEdge)
-     {
-     nonSharedEdges->push_back(edge);
-     }
-     }
-     }
-     }
-     
-     for (uint i = 0; i < nonSharedEdges->size(); i++)
-     {
-     Edge edge = nonSharedEdges->at(i);
-     [self addQuadWithIndex1:edge.vertexIndices[0]
-     index2:vertexIndices->at(edge.vertexIndices[0] - vertCount)
-     index3:vertexIndices->at(edge.vertexIndices[1] - vertCount)
-     index4:edge.vertexIndices[1]];
-     }
-     
-     delete vertexIndices;
-     delete nonSharedEdges;
-     
-     [self removeNonUsedVertices]; // slow but sometimes neccessary*/
+    resetCache();
+    
+    // This method finds all nonShared edges and copies all 
+    // vertexIndices in selectedTriangles.
+    // Then it makes quads between new and old edges.
+    
+    for (EdgeNode *node = _edges->begin(), *end = _edges->end(); node != end; node = node->next())
+    {
+        Edge2 &edge = node->data;
+        
+        if (edge.isNotShared())
+        {
+            VertexNode *old0 = edge.vertex(0);
+            VertexNode *old1 = edge.vertex(1);
+            
+            VertexNode *ex0 = _vertices->add(old0->data.position);
+            //VertexNode *ex1 = _vertices->add(old1->data.position);
+            
+            TriangleNode *selectedTriangle;
+            
+            for (int i = 0; i < 2; i++)
+            {
+                selectedTriangle = edge.triangle(i);
+                if (selectedTriangle != NULL && selectedTriangle->data.selected)
+                    break;
+            }
+            
+            if (selectedTriangle)
+            {
+                old0->removeTriangle(selectedTriangle);
+                selectedTriangle->replaceVertex(old0, ex0);
+            }
+            
+            addTriangle(old0, ex0, old1);
+        }
+    }
+    
+    /*vector<uint> *vertexIndices = new vector<uint>();
+    vector<Edge> *nonSharedEdges = new vector<Edge>();
+    
+    uint triCount = [self triangleCount];
+    uint vertCount = [self vertexCount];
+    
+    for (uint i = 0; i < triCount; i++)
+    {
+        if (selected->at(i).selected)
+        {
+            [self setTriangleMarked:NO atIndex:i];
+            Triangle &triangle = triangles->at(i);
+            
+            for (uint j = 0; j < 3; j++)
+            {
+                int foundIndex = -1;
+                for (uint k = 0; k < vertexIndices->size(); k++)
+                {
+                    if (vertexIndices->at(k) == triangle.vertexIndices[j])
+                    {
+                        foundIndex = k;
+                        break;
+                    }
+                }
+                
+                uint &index = triangle.vertexIndices[j];
+                
+                if (foundIndex < 0)
+                {
+                    vertexIndices->push_back(index);
+                    vertices->push_back(vertices->at(index));
+                    markedVertices->push_back(YES);
+                    index = vertCount + vertexIndices->size() - 1;
+                }
+                else
+                {
+                    index = vertCount + foundIndex;
+                }
+            }
+            
+            for (uint j = 0; j < 3; j++)
+            {
+                Edge edge;
+                edge.vertexIndices[0] = triangle.vertexIndices[j];
+                edge.vertexIndices[1] = triangle.vertexIndices[j + 1 < 3 ? j + 1 : 0];
+                
+                BOOL foundEdge = NO;
+                for (uint k = 0; k < nonSharedEdges->size(); k++)
+                {
+                    if (AreEdgesSame(edge, nonSharedEdges->at(k)))
+                    {
+                        nonSharedEdges->erase(nonSharedEdges->begin() + k);
+                        foundEdge = YES;
+                        break;
+                    }
+                }
+                
+                if (!foundEdge)
+                {
+                    nonSharedEdges->push_back(edge);
+                }
+            }
+        }
+    }
+    
+    for (uint i = 0; i < nonSharedEdges->size(); i++)
+    {
+        Edge edge = nonSharedEdges->at(i);
+        [self addQuadWithIndex1:edge.vertexIndices[0]
+                         index2:vertexIndices->at(edge.vertexIndices[0] - vertCount)
+                         index3:vertexIndices->at(edge.vertexIndices[1] - vertCount)
+                         index4:edge.vertexIndices[1]];
+    }
+    
+    delete vertexIndices;
+    delete nonSharedEdges;
+    
+    [self removeNonUsedVertices]; // slow but sometimes neccessary*/
 }

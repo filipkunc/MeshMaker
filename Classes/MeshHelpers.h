@@ -137,6 +137,7 @@ public:
     
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
+    bool isNotShared() const;
     
     VertexNode *vertex(int index) const { return _vertices[index]; }
     TriangleNode *triangle(int index) const { return _triangles[index]; }
