@@ -332,6 +332,16 @@ void EdgeNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
     }   
 }
 
+bool Edge2::isNotShared() const
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_triangles[i] == NULL || !_triangles[i]->data.selected)
+            return true;
+    }
+    return false;    
+}
+
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
 {
 	// now is same as RedBook (OpenGL Programming Guide)
