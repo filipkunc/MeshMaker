@@ -47,6 +47,11 @@ void VertexNode::removeEdge(EdgeNode *edge)
     }
 }
 
+void VertexNode::removeEdges()
+{
+    _edges.removeAll();
+}
+
 void VertexNode::removeFromEdges()
 {
     for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
@@ -171,6 +176,12 @@ void Triangle2::removeEdge(EdgeNode *edge)
     }
 }
 
+void Triangle2::removeEdges()
+{
+    for (int i = 0; i < 3; i++)
+        _edges[i] = NULL;
+}
+
 bool Triangle2::isDegenerated() const
 {
     if (containsVertex(NULL))
@@ -218,6 +229,25 @@ void Triangle2::getVertexPositions(Vector3D vertexPositions[3]) const
 void Triangle2::flip()
 {
     swap(_vertices[0], _vertices[2]);    
+}
+
+int Triangle2::indexOfVertex(const VertexNode *vertex) const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_vertices[i] == vertex)
+            return i;
+    }
+    return -1;
+}
+
+void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
+{
+    int index1 = indexOfVertex(v1);
+    int index2 = indexOfVertex(v2);
+    
+    if ((index2 == 2 && index1 == 0) || index1 > index2)
+        swap(v1, v2);
 }
 
 Edge2::Edge2() : selected(false)

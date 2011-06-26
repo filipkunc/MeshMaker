@@ -70,6 +70,7 @@ public:
     void removeFromTriangles();
     void addEdge(EdgeNode *edge);
     void removeEdge(EdgeNode *edge);
+    void removeEdges();
     void removeFromEdges();
     void replaceVertex(VertexNode *newVertex);
     EdgeNode *sharedEdge(VertexNode *otherVertex);
@@ -94,12 +95,16 @@ public:
     
     void removeVertex(VertexNode *vertex);
     void removeEdge(EdgeNode *edge);
+    void removeEdges();
 
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
     bool containsEdge(const EdgeNode *edge) const;
     void getVertexPositions(Vector3D vertexPositions[3]) const;
     void flip();
+    
+    int indexOfVertex(const VertexNode *vertex) const;
+    void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
     
     friend class TriangleNode;
 };

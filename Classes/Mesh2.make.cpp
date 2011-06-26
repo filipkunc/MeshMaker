@@ -38,13 +38,35 @@ EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *
     return node;
 }
 
+VertexNode *Mesh2::findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original)
+{
+    for (int i = 0; i < (int)extrudePairs.size(); i++)
+    {
+        if (extrudePairs[i].original == original)
+            return extrudePairs[i].extruded;
+    }
+    
+    VertexNode *extruded = _vertices.add(original->data.position);
+    ExtrudePair extrudePair = { original, extruded };
+    extrudePairs.push_back(extrudePair);
+    
+    return extruded;
+}
+
 void Mesh2::makeEdges()
 {
     _edges.removeAll();
     
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        node->removeEdges();
+    }
+    
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle2 &triangle = node->data;
+        
+        triangle.removeEdges();
         
         VertexNode *v0 = triangle.vertex(0);
         VertexNode *v1 = triangle.vertex(1);
