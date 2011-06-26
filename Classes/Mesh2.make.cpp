@@ -11,7 +11,7 @@
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
     VertexNode *vertices[3] = { v1, v2, v3 };
-    _triangles->add(vertices);
+    _triangles.add(vertices);
 }
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
@@ -19,8 +19,8 @@ void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-  	_triangles->add(vertices1);
-    _triangles->add(vertices2);
+  	_triangles.add(vertices1);
+    _triangles.add(vertices2);
 }
 
 EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
@@ -33,16 +33,16 @@ EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *
     }
     
     VertexNode *vertices[2] = { v1, v2 };
-    EdgeNode *node = _edges->add(vertices);
+    EdgeNode *node = _edges.add(vertices);
     node->data.setTriangle(0, triangle);
     return node;
 }
 
 void Mesh2::makeEdges()
 {
-    _edges->removeAll();
+    _edges.removeAll();
     
-    for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle2 &triangle = node->data;
         
@@ -62,20 +62,20 @@ void Mesh2::makeEdges()
 
 void Mesh2::makeCube()
 {
-    _vertices->removeAll();
-	_triangles->removeAll();
+    _vertices.removeAll();
+	_triangles.removeAll();
     
 	// back vertices
-	VertexNode *v0 = _vertices->add(Vector3D(-1, -1, -1));
-	VertexNode *v1 = _vertices->add(Vector3D( 1, -1, -1));
-    VertexNode *v2 = _vertices->add(Vector3D( 1,  1, -1));
-	VertexNode *v3 = _vertices->add(Vector3D(-1,  1, -1));
+	VertexNode *v0 = _vertices.add(Vector3D(-1, -1, -1));
+	VertexNode *v1 = _vertices.add(Vector3D( 1, -1, -1));
+    VertexNode *v2 = _vertices.add(Vector3D( 1,  1, -1));
+	VertexNode *v3 = _vertices.add(Vector3D(-1,  1, -1));
 	
 	// front vertices
-	VertexNode *v4 = _vertices->add(Vector3D(-1, -1,  1));
-	VertexNode *v5 = _vertices->add(Vector3D( 1, -1,  1));
-	VertexNode *v6 = _vertices->add(Vector3D( 1,  1,  1));
-	VertexNode *v7 = _vertices->add(Vector3D(-1,  1,  1));
+	VertexNode *v4 = _vertices.add(Vector3D(-1, -1,  1));
+	VertexNode *v5 = _vertices.add(Vector3D( 1, -1,  1));
+	VertexNode *v6 = _vertices.add(Vector3D( 1,  1,  1));
+	VertexNode *v7 = _vertices.add(Vector3D(-1,  1,  1));
     
 	// back triangles
     addQuad(v0, v1, v2, v3);
@@ -102,22 +102,22 @@ void Mesh2::makeCube()
 
 void Mesh2::makeCylinder(uint steps)
 {
-    _vertices->removeAll();
-    _triangles->removeAll();
+    _vertices.removeAll();
+    _triangles.removeAll();
     
-    VertexNode *node0 = _vertices->add(Vector3D(0, -1, 0)); // 0
-    VertexNode *node1 = _vertices->add(Vector3D(0,  1, 0)); // 1
+    VertexNode *node0 = _vertices.add(Vector3D(0, -1, 0)); // 0
+    VertexNode *node1 = _vertices.add(Vector3D(0,  1, 0)); // 1
     
-    VertexNode *node2 = _vertices->add(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
-    VertexNode *node3 = _vertices->add(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
+    VertexNode *node2 = _vertices.add(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
+    VertexNode *node3 = _vertices.add(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
     
     uint max = steps;
     float step = (FLOAT_PI * 2.0f) / max;
     float angle = step;
     for (uint i = 1; i < max; i++)
     {
-        VertexNode *last2 = _vertices->add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
-        VertexNode *last1 = _vertices->add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
+        VertexNode *last2 = _vertices.add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
+        VertexNode *last1 = _vertices.add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
         
         VertexNode *last3 = last2->previous();
         VertexNode *last4 = last3->previous();
@@ -131,7 +131,7 @@ void Mesh2::makeCylinder(uint steps)
         angle += step;
     }
     
-    VertexNode *last1 = _vertices->last();
+    VertexNode *last1 = _vertices.last();
     VertexNode *last2 = last1->previous();
     
     addTriangle(node2, node3, last1);
@@ -147,16 +147,16 @@ void Mesh2::makeCylinder(uint steps)
 
 void Mesh2::makeSphere(uint steps)
 {
-    _vertices->removeAll();
-    _triangles->removeAll();
+    _vertices.removeAll();
+    _triangles.removeAll();
     
     uint max = steps;
     
     vector<VertexNode *> tempVertices;
     vector<Triangle> tempTriangles;
     
-    tempVertices.push_back(_vertices->add(Vector3D(0, 1, 0)));
-    tempVertices.push_back(_vertices->add(Vector3D(0, -1, 0)));
+    tempVertices.push_back(_vertices.add(Vector3D(0, 1, 0)));
+    tempVertices.push_back(_vertices.add(Vector3D(0, -1, 0)));
     
     float step = FLOAT_PI / max;
     
@@ -173,7 +173,7 @@ void Mesh2::makeSphere(uint steps)
             float x0 = sinf(beta) * w0;
             float z0 = cosf(beta) * w0;
             
-            tempVertices.push_back(_vertices->add(Vector3D(x0, y0, z0)));
+            tempVertices.push_back(_vertices.add(Vector3D(x0, y0, z0)));
             
             if (i > 0 && j < max - 1)
             {
@@ -235,7 +235,7 @@ void Mesh2::makeSphere(uint steps)
             VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
             triangleVertices[j] = node;
         }
-        _triangles->add(triangleVertices);
+        _triangles.add(triangleVertices);
     }    
     
     makeEdges();
