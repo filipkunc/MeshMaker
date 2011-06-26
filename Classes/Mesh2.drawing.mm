@@ -46,14 +46,14 @@ void Mesh2::fillCache()
 {
     if (!_cachedVertices)
 	{
-		_cachedVertices = new Vector3D[_triangles->count() * 3];
-		_cachedNormals = new Vector3D[_triangles->count() * 3];
-		_cachedColors = new Vector3D[_triangles->count() * 3];
+		_cachedVertices = new Vector3D[_triangles.count() * 3];
+		_cachedNormals = new Vector3D[_triangles.count() * 3];
+		_cachedColors = new Vector3D[_triangles.count() * 3];
 		Vector3D triangleVertices[3];
         
         uint i = 0;
 		
-		for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
+		for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
 		{
 			Triangle2 currentTriangle = node->data;
             currentTriangle.getVertexPositions(triangleVertices);
@@ -91,7 +91,7 @@ void Mesh2::fillColorCache(bool darker)
     
     uint i = 0;
 	
-    for (TriangleNode *node = _triangles->begin(), *end = _triangles->end(); node != end; node = node->next())
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
 	{
 		if (node->data.selected)
 		{
@@ -129,7 +129,7 @@ void Mesh2::drawFill(bool darker, bool forSelection)
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
 	
-	glDrawArrays(GL_TRIANGLES, 0, _triangles->count() * 3);
+	glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
 	
 	if (_selectionMode == MeshSelectionModeTriangles && !forSelection)
 		glDisableClientState(GL_COLOR_ARRAY);
@@ -208,7 +208,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 	{
 		case MeshSelectionModeVertices:
 		{
-            const Vertex2 &vertex = _cachedVertexSelection->at(index)->data;
+            const Vertex2 &vertex = _cachedVertexSelection.at(index)->data;
 			Vector3D v = vertex.position;
 			if (!forSelection)
 			{
@@ -228,7 +228,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 		{
 			if (forSelection)
 			{
-				const Triangle2 &triangle = _cachedTriangleSelection->at(index)->data;
+				const Triangle2 &triangle = _cachedTriangleSelection.at(index)->data;
                 Vector3D triangleVertices[3];
                 triangle.getVertexPositions(triangleVertices);
 				glBegin(GL_TRIANGLES);
@@ -242,7 +242,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 		} break;
         case MeshSelectionModeEdges:
         {
-            const Edge2 &edge = _cachedEdgeSelection->at(index)->data;
+            const Edge2 &edge = _cachedEdgeSelection.at(index)->data;
             if (!forSelection)
             {
                 BOOL isSelected = edge.selected;
