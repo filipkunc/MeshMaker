@@ -10,6 +10,12 @@
 
 #include "MeshHelpers.h"
 
+struct ExtrudePair 
+{
+    VertexNode *original;
+    VertexNode *extruded;
+};
+
 class Mesh2
 {
 private:
@@ -82,6 +88,7 @@ public:
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
     EdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
+    VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
     void makeEdges();
     void makeCube();
     void makeCylinder(uint steps);

@@ -409,7 +409,7 @@ vector<T> *ReadValues(string s)
 
 - (void)manipulationStartedInView:(OpenGLSceneView *)view
 {
-	NSLog(@"manipulationStartedInView:");
+	//NSLog(@"manipulationStartedInView:");
 	manipulationFinished = NO;
 	
 	if (manipulated == itemsController)
@@ -424,7 +424,7 @@ vector<T> *ReadValues(string s)
 
 - (void)manipulationEndedInView:(OpenGLSceneView *)view
 {
-	NSLog(@"manipulationEndedInView:");	
+	//NSLog(@"manipulationEndedInView:");	
 	manipulationFinished = YES;
 	
 	if (manipulated == itemsController)
@@ -445,7 +445,7 @@ vector<T> *ReadValues(string s)
 
 - (void)selectionChangedInView:(OpenGLSceneView *)view
 {
-	NSLog(@"selectionChangedInView:");
+	//NSLog(@"selectionChangedInView:");
 	[self setNeedsDisplayExceptView:view];
 }
 
@@ -529,7 +529,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)mergeSelected:(id)sender
 {
-	NSLog(@"mergeSelected:");
+	//NSLog(@"mergeSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -548,7 +548,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)splitSelected:(id)sender
 {
-	NSLog(@"splitSelected:");
+	//NSLog(@"splitSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -563,7 +563,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)flipSelected:(id)sender
 {
-	NSLog(@"flipSelected:");
+	//NSLog(@"flipSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -578,7 +578,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)duplicateSelected:(id)sender
 {	
-	NSLog(@"duplicateSelected:");
+	//NSLog(@"duplicateSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -611,7 +611,7 @@ vector<T> *ReadValues(string s)
 
 - (void)redoDuplicateSelected:(NSMutableArray *)selection
 {
-	NSLog(@"redoDuplicateSelected:");
+	//NSLog(@"redoDuplicateSelected:");
 	
 	[self setManipulated:itemsController];
 	[items setCurrentSelection:selection];
@@ -626,7 +626,7 @@ vector<T> *ReadValues(string s)
 
 - (void)undoDuplicateSelected:(NSMutableArray *)selection
 {	
-	NSLog(@"undoDuplicateSelected:");
+	//NSLog(@"undoDuplicateSelected:");
 	
 	[self setManipulated:itemsController];
 	uint duplicatedCount = [selection count];
@@ -642,7 +642,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)deleteSelected:(id)sender
 {
-	NSLog(@"deleteSelected:");
+	//NSLog(@"deleteSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -663,7 +663,7 @@ vector<T> *ReadValues(string s)
 
 - (void)redoDeleteSelected:(NSMutableArray *)selectedItems
 {
-	NSLog(@"redoDeleteSelected:");
+	//NSLog(@"redoDeleteSelected:");
 
 	[self setManipulated:itemsController];
 	[items setSelectionFromIndexedItems:selectedItems];
@@ -678,7 +678,7 @@ vector<T> *ReadValues(string s)
 
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
 {
-	NSLog(@"undoDeleteSelected:");
+	//NSLog(@"undoDeleteSelected:");
 	
 	[self setManipulated:itemsController];
 	[items setCurrentItems:selectedItems];
@@ -692,7 +692,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)mergeVertexPairs:(id)sender
 {
-	NSLog(@"mergeVertexPairs:");
+	//NSLog(@"mergeVertexPairs:");
 	
 	if ([manipulated selectedCount] <= 0)
 		return;
@@ -870,7 +870,7 @@ vector<T> *ReadValues(string s)
 
 - (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)typeName
 {
-	NSLog(@"readFromFile:%@ typeName:%@", fileName, typeName);
+	//NSLog(@"readFromFile:%@ typeName:%@", fileName, typeName);
 	if ([typeName isEqual:@"model3D"])
 	{
 		//return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
@@ -885,7 +885,7 @@ vector<T> *ReadValues(string s)
 
 - (BOOL)writeToFile:(NSString *)fileName ofType:(NSString *)typeName
 {
-	NSLog(@"writeToFile:%@ typeName:%@", fileName, typeName);
+	//NSLog(@"writeToFile:%@ typeName:%@", fileName, typeName);
 	if ([typeName isEqual:@"model3D"])
 	{
 		[self writeToModel3D:fileName];
@@ -927,13 +927,13 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	{
 		if (splitView == topSplit)
 		{
-			NSLog(@"topSplit");
+			//NSLog(@"topSplit");
 			[bottomSubview0 setFrame:[topSubview0 frame]];
 			[bottomSubview1 setFrame:[topSubview1 frame]];
 		}
 		else
 		{
-			NSLog(@"bottomSplit");
+			//NSLog(@"bottomSplit");
 			[topSubview0 setFrame:[bottomSubview0 frame]];
 			[topSubview1 setFrame:[bottomSubview1 frame]];
 		}
@@ -977,7 +977,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 
 - (void)toggleOneViewFourView:(id)sender
 {
-	NSLog(@"toggleOneViewFourView");
+	//NSLog(@"toggleOneViewFourView");
 	
 	if (oneView)
 	{
@@ -1014,7 +1014,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 		}
 	}
 	
-	NSLog(@"No view is under mouse");
+	//NSLog(@"No view is under mouse");
 }
 
 @end
