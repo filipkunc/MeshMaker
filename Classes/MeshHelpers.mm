@@ -78,6 +78,18 @@ void VertexNode::replaceVertex(VertexNode *newVertex)
     _edges.removeAll();
 }
 
+void VertexNode::replaceVertexInSelectedTriangles(VertexNode *newVertex)
+{
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (node->data->data.selected)
+        {
+            node->data->replaceVertex(this, newVertex);
+            _triangles.remove(node);
+        }
+    }    
+}
+
 EdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
 {
     for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
@@ -246,7 +258,11 @@ void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
     int index1 = indexOfVertex(v1);
     int index2 = indexOfVertex(v2);
     
-    if ((index2 == 2 && index1 == 0) || index1 > index2)
+    if (index1 == 1 && index2 == 0)
+        swap(v1, v2);
+    else if (index1 == 2 && index2 == 1)
+        swap(v1, v2);
+    else if (index1 == 0 && index2 == 2)
         swap(v1, v2);
 }
 
