@@ -73,6 +73,7 @@ public:
     void removeEdges();
     void removeFromEdges();
     void replaceVertex(VertexNode *newVertex);
+    void replaceVertexInSelectedTriangles(VertexNode *newVertex);
     EdgeNode *sharedEdge(VertexNode *otherVertex);
 };
 
