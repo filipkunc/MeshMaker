@@ -106,6 +106,9 @@ public:
     
     int indexOfVertex(const VertexNode *vertex) const;
     void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
+    VertexNode *vertexNotInEdge(const Edge2 *edge) const;
+    
+    Vector3D computeNormal() const;
     
     friend class TriangleNode;
 };
@@ -151,6 +154,7 @@ public:
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
     void removeVertex(VertexNode *vertex);
     void removeTriangle(TriangleNode *triangle);
+    void turn();
     
     friend class EdgeNode;
 };

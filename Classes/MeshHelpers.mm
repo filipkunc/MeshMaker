@@ -266,6 +266,24 @@ void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
         swap(v1, v2);
 }
 
+VertexNode *Triangle2::vertexNotInEdge(const Edge2 *edge) const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_vertices[i] != edge->vertex(0) &&
+            _vertices[i] != edge->vertex(1))
+            return _vertices[i];
+    }
+    return NULL;
+}
+
+Vector3D Triangle2::computeNormal() const
+{
+    Vector3D u = _vertices[0]->data.position - _vertices[1]->data.position;
+	Vector3D v = _vertices[1]->data.position - _vertices[2]->data.position;
+	return u.Cross(v);
+}
+
 Edge2::Edge2() : selected(false)
 {
     for (int i = 0; i < 2; i++)
@@ -386,6 +404,45 @@ bool Edge2::isNotShared() const
             return true;
     }
     return false;    
+}
+
+void Edge2::turn()
+{
+    if (_triangles[0] == NULL || _triangles[1] == NULL)
+        return;
+    
+    Triangle2 &t0 = _triangles[0]->data;
+    Triangle2 &t1 = _triangles[1]->data;
+    
+    VertexNode *v0 = t0.vertexNotInEdge(this);
+    VertexNode *v1 = t1.vertexNotInEdge(this);
+    
+//    Vector3D t0_normal = t0.computeNormal();
+//    Vector3D t1_normal = t1.computeNormal();
+    
+    _triangles[0]->removeFromVertices();
+    _triangles[1]->removeFromVertices();
+    
+    t0.setVertex(0, v1);
+    t0.setVertex(1, v0);
+    t0.setVertex(2, _vertices[0]);
+    
+    _triangles[0]->addToVertices();
+    
+//    if (t0.computeNormal().Dot(t0_normal) < 0.0f)
+//        t0.flip();
+    
+    t1.setVertex(0, v0);
+    t1.setVertex(1, v1);
+    t1.setVertex(2, _vertices[1]);
+    
+    _triangles[1]->addToVertices();
+    
+//    if (t1.computeNormal().Dot(t1_normal) < 0.0f)
+//        t1.flip();
+    
+    _vertices[0] = v0;
+    _vertices[1] = v1;
 }
 
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
