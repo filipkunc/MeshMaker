@@ -265,3 +265,56 @@ void Mesh2::makeSphere(uint steps)
     setSelectionMode(_selectionMode);
 }
 
+void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Triangle> &triangles)
+{
+    resetCache();
+    _vertices.removeAll();
+    _triangles.removeAll();
+    
+    vector<VertexNode *> tempVertices;
+    
+    for (uint i = 0; i < vertices.size(); i++)
+    {
+        tempVertices.push_back(_vertices.add(vertices[i]));
+    }
+    
+    VertexNode *triangleVertices[3];
+    
+    for (uint i = 0; i < triangles.size(); i++)
+    {
+        Triangle indexTriangle = triangles[i];
+        for (uint j = 0; j < 3; j++)
+        {
+            VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
+            triangleVertices[j] = node;
+        }
+        _triangles.add(triangleVertices);
+    }    
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &triangles)
+{
+    int index = 0;
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        node->index = index;
+        index++;
+        
+        vertices.push_back(node->data.position);
+    }
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle indexTriangle;
+        for (int j = 0; j < 3; j++)
+            indexTriangle.vertexIndices[j] = node->data.vertex(j)->index;
+        
+        triangles.push_back(indexTriangle);
+    }
+}
+

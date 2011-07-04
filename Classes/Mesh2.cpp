@@ -398,6 +398,16 @@ void Mesh2::flipSelected()
     }
 }
 
+void Mesh2::flipAllTriangles()
+{
+    resetCache();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        node->data.flip();
+    }
+}
+
 void Mesh2::extrudeSelectedTriangles()
 {
     resetCache();
@@ -436,4 +446,40 @@ void Mesh2::extrudeSelectedTriangles()
     makeEdges();
     
     setSelectionMode(_selectionMode);
+}
+
+void Mesh2::merge(Mesh2 *mesh)
+{
+    vector<Vector3D> thisVertices;
+    vector<Triangle> thisTriangles;
+    
+    this->toIndexRepresentation(thisVertices, thisTriangles);
+    
+    vector<Vector3D> otherVertices;
+    vector<Triangle> otherTriangles;
+    
+    mesh->toIndexRepresentation(otherVertices, otherTriangles);
+    
+    vector<Vector3D> mergedVertices;
+    vector<Triangle> mergedTriangles;
+    
+    for (uint i = 0; i < thisVertices.size(); i++)
+        mergedVertices.push_back(thisVertices[i]);
+    
+    for (uint i = 0; i < otherVertices.size(); i++)
+        mergedVertices.push_back(otherVertices[i]);
+    
+    for (uint i = 0; i < thisTriangles.size(); i++)
+        mergedTriangles.push_back(thisTriangles[i]);
+    
+    for (uint i = 0; i < otherTriangles.size(); i++)
+    {
+        Triangle triangle = otherTriangles[i];
+        triangle.vertexIndices[0] += thisVertices.size();
+        triangle.vertexIndices[1] += thisVertices.size();
+        triangle.vertexIndices[2] += thisVertices.size();
+        mergedTriangles.push_back(triangle);
+    }
+    
+    this->fromIndexRepresentation(mergedVertices, mergedTriangles);     
 }
