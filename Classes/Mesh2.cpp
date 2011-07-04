@@ -358,9 +358,44 @@ void Mesh2::splitSelected()
     }
 }
 
+void Mesh2::flipSelectedTriangles()
+{
+    resetCache();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+            node->data.flip();
+    }
+}
+
+void Mesh2::turnSelectedEdges()
+{
+    resetCache();
+    
+    for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+            node->data.turn();
+    }
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::flipSelected()
 {
-    
+    switch (_selectionMode) {
+        case MeshSelectionModeTriangles:
+            flipSelectedTriangles();
+            break;
+        case MeshSelectionModeEdges:
+            turnSelectedEdges();
+            break;
+        default:
+            break;
+    }
 }
 
 void Mesh2::extrudeSelectedTriangles()
