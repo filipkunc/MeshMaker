@@ -56,6 +56,8 @@ private:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<EdgeNode *> _edges;
 public:
+    int index;
+    
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
     virtual ~VertexNode() 

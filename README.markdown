@@ -6,7 +6,7 @@ This project is under MIT license. You find it in file "LICENSE.TXT".
 
 ## About
 
-OpenGL Editor is my hobby project. Goal is to create fast and powerful tool for basic low poly modeling on Mac OS X 10.6 Snow Leopard. Project is currently in very early stages and many critical pieces are missing. Any ideas, help or wishes is welcome!
+OpenGL Editor is very basic modeling tool focused on low poly modeling with triangles.
 
 [Modeling chess tower video](http://www.youtube.com/watch?v=57d63xcT21Y)
 

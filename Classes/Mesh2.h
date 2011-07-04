@@ -70,7 +70,10 @@ public:
     void mergeSelected();
     void splitSelected();
     void flipSelected();
+    void flipAllTriangles();
     void extrudeSelectedTriangles();
+    
+    void merge(Mesh2 *mesh);
 
     // drawing
     
@@ -93,4 +96,7 @@ public:
     void makeCube();
     void makeCylinder(uint steps);
     void makeSphere(uint steps);
+    
+    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Triangle> &triangles);
+    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &triangles);
 };

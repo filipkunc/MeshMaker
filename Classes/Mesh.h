@@ -33,16 +33,13 @@
 - (void)makeCube;
 - (void)makeCylinderWithSteps:(uint)steps;
 - (void)makeSphereWithSteps:(uint)steps;
-- (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex;
 - (void)transformWithMatrix:(Matrix4x4 *)matrix;
-- (void)mergeWithMesh:(Mesh *)mesh;
+- (void)mergeWithMesh:(Mesh *)aMesh;
 - (void)splitSelectedEdges;
-- (void)turnSelectedEdges;
 - (void)mergeVertexPairs;
 - (void)mergeSelected;
 - (void)splitSelected;
 - (void)flipSelected;
-- (void)flipSelectedTriangles;
 - (void)flipAllTriangles;
 
 @end

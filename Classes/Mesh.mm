@@ -123,49 +123,6 @@
 	mesh->makeSphere(steps);
 }
 
-- (void)fastMergeVertexFirst:(uint)firstIndex second:(uint)secondIndex
-{
-    /*
-	NSLog(@"fastMergeVertexFirst:%i second:%i", firstIndex, secondIndex);
-	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");
-	
-	Vector3D first = [self vertexAtIndex:firstIndex];
-	Vector3D second = [self vertexAtIndex:secondIndex];
-	Vector3D center = first + second;
-	center /= 2;
-	
-	vertices->push_back(center);
-	selected->push_back((SelectionInfo){ NO, YES });
-	
-	uint centerIndex = vertices->size() - 1;
-	
-	for (uint i = 0; i < triangles->size(); i++)
-	{
-		for (uint j = 0; j < 3; j++)
-		{
-			if (triangles->at(i).vertexIndices[j] == firstIndex ||
-				triangles->at(i).vertexIndices[j] == secondIndex)
-			{
-				triangles->at(i).vertexIndices[j] = centerIndex;
-			}
-		}
-	}
-	
-	// erasing should happen from the back of STL vector 
-	if (firstIndex > secondIndex)
-	{
-		[self removeVertexAtIndex:firstIndex];
-		[self removeVertexAtIndex:secondIndex];
-	}
-	else
-	{
-		[self removeVertexAtIndex:secondIndex];
-		[self removeVertexAtIndex:firstIndex];
-	}
-	
-	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");*/
-}
-
 - (void)mergeVertexPairs
 {
     /*
@@ -212,28 +169,9 @@
     mesh->transformAll(*matrix);
 }
 
-- (void)mergeWithMesh:(Mesh *)mesh
+- (void)mergeWithMesh:(Mesh *)aMesh
 {
-    /*
-	NSLog(@"mergeWithMesh:");
-	[self resetCache];
-	
-	uint vertexCount = vertices->size();
-	for (uint i = 0; i < mesh->vertices->size(); i++)
-	{
-		vertices->push_back(mesh->vertices->at(i));
-	}
-	for (uint i = 0; i < mesh->triangles->size(); i++)
-	{
-		Triangle triangle = mesh->triangles->at(i);
-		triangle.vertexIndices[0] += vertexCount;
-		triangle.vertexIndices[1] += vertexCount;
-		triangle.vertexIndices[2] += vertexCount;
-		triangles->push_back(triangle);
-	}
-	selected->clear();
-	for (uint i = 0; i < vertices->size(); i++)
-		selected->push_back((SelectionInfo){ NO, YES });*/
+    mesh->merge(aMesh->mesh);
 }
 
 - (void)splitTriangleAtIndex:(uint)index
@@ -370,80 +308,6 @@
 	}*/
 }
 
-- (void)turnEdgeAtIndex:(uint)index
-{
-	/*NSLog(@"turnEdgeAtIndex:%i", index);
-	
-	Edge edge = [self edgeAtIndex:index];
-	uint counter = 0;
-	uint oldTriangleIndices[2];
-	Triangle oldTriangles[2];
-	
-	for (uint i = 0; i < triangles->size(); i++)
-	{
-		Triangle triangle = [self triangleAtIndex:i];
-		if (IsEdgeInTriangle(triangle, edge))
-		{
-			oldTriangleIndices[counter] = i;
-			oldTriangles[counter] = triangle;
-			counter++;
-			if (counter == 2)
-			{
-				Edge turned;
-				turned.vertexIndices[0] = NonEdgeIndexInTriangle(oldTriangles[0], edge);
-				turned.vertexIndices[1] = NonEdgeIndexInTriangle(oldTriangles[1], edge);
-				
-				Vector3D triangleVertices[3];
-				
-				[self getTriangleVertices:triangleVertices fromTriangle:oldTriangles[0]];
-				Vector3D oldTriangleNormal1 = NormalFromTriangleVertices(triangleVertices);
-				
-				[self getTriangleVertices:triangleVertices fromTriangle:oldTriangles[1]];
-				Vector3D oldTriangleNormal2 = NormalFromTriangleVertices(triangleVertices);
-				
-				for (int j = 0; j < 2; j++)
-				{
-					Triangle newTriangle = MakeTriangle(edge.vertexIndices[j], 
-														turned.vertexIndices[0], 
-														turned.vertexIndices[1]);
-										
-					[self getTriangleVertices:triangleVertices fromTriangle:newTriangle];
-					Vector3D newTriangleNormal = NormalFromTriangleVertices(triangleVertices);
-					
-					// two dot products, it is working, but not in all cases
-					if (newTriangleNormal.Dot(oldTriangleNormal1) < 0.0f ||
-						newTriangleNormal.Dot(oldTriangleNormal2) < 0.0f)
-					{
-						newTriangle = FlipTriangle(newTriangle);
-						NSLog(@"opposite in turnEdgeAtIndex	");
-					}
-					
-					triangles->at(oldTriangleIndices[j]) = newTriangle;
-				}
-								
-				edges->at(index) = turned;
-				
-				return;
-			}
-		}
-	}*/
-}
-
-- (void)turnSelectedEdges
-{
-	/*NSLog(@"turnSelectedEdges");
-	
-	for (uint i = 0; i < selected->size(); i++)
-	{
-		if (selected->at(i).selected)
-		{
-			[self turnEdgeAtIndex:i];
-			
-			// uncomment this line to deselect after edge turn
-			//selected->at(i) = NO;
-		}
-	}*/
-}
 
 - (void)mergeSelected
 {
@@ -512,6 +376,11 @@
     mesh->flipSelected();
 }
 
+- (void)flipAllTriangles
+{
+    mesh->flipAllTriangles();
+}
+
 - (void)duplicateSelected
 {
 	if (mesh->selectionMode() == MeshSelectionModeTriangles)
@@ -571,28 +440,6 @@
 		(*selected)[i].visible = YES;
 	}
 	[self resetIndexCache];*/
-}
-
-- (void)flipSelectedTriangles
-{
-//	if (selectionMode == MeshSelectionModeTriangles)
-//	{	
-//		[self resetCache];
-//        for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-//        {
-//            if (node->data.selected)
-//                node->data.Flip();
-//        }
-//	}
-}
-
-- (void)flipAllTriangles
-{
-//	[self resetCache];
-//	for (TriangleNode *node = triangles->begin(), *end = triangles->end(); node != end; node = node->next())
-//    {
-//        node->data.Flip();
-//    }
 }
 				 
 #pragma mark NSCoding implementation
