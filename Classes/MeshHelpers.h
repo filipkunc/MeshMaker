@@ -52,7 +52,7 @@ public:
 
 class VertexNode : public FPNode<VertexNode, Vertex2>
 {
-private:
+public:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<EdgeNode *> _edges;
 public:
@@ -142,6 +142,7 @@ private:
     TriangleNode *_triangles[2];
 public:
     bool selected;
+    VertexNode *halfVertex;
     
     Edge2();
     Edge2(VertexNode *vertices[2]);
@@ -157,6 +158,8 @@ public:
     void removeVertex(VertexNode *vertex);
     void removeTriangle(TriangleNode *triangle);
     void turn();
+    
+    VertexNode *opposite(VertexNode *vertex) const;
     
     friend class EdgeNode;
 };

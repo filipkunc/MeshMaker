@@ -318,18 +318,7 @@
 - (void)splitSelected
 {
 	NSLog(@"splitSelected");
-	
-	switch (mesh->selectionMode())
-	{
-		case MeshSelectionModeEdges:
-			[self splitSelectedEdges];
-			break;
-		case MeshSelectionModeTriangles:
-			[self splitSelectedTriangles];
-			break;
-		default:
-			break;
-	}
+	mesh->splitSelected();
 }
 
 #pragma mark OpenGLManipulatingModel implementation

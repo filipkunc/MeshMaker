@@ -333,9 +333,103 @@ void Mesh2::mergeSelected()
 	}
 }
 
+void Mesh2::loopSubdivision()
+{
+    resetCache();
+    
+    VertexNode *vertices[6];
+    
+    FPList<TriangleNode, Triangle2> subdivided;
+    
+    int vertexCount = _vertices.count();
+    
+    for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        Vector3D v1 = node->data.vertex(0)->data.position;
+        Vector3D v2 = node->data.vertex(1)->data.position;
+        
+        Vector3D v3 = node->data.triangle(0)->data.vertexNotInEdge(&node->data)->data.position;
+        Vector3D v4 = node->data.triangle(1)->data.vertexNotInEdge(&node->data)->data.position;
+        
+        Vector3D edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;
+        
+        node->data.halfVertex = _vertices.add(edgeVertex);
+    }
+    
+    vector<Vector3D> tempVertices;
+    
+    int index = 0;
+    
+    for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
+    {
+        node->index = index;
+        index++;
+        
+        float beta, n;
+        
+        n = (float)node->_edges.count();
+        beta = 3.0f + 2.0f * cosf(FLOAT_PI * 2.0f / n);
+        beta = 5.0f / 8.0f - (beta * beta) / 64.0f;
+        
+        Vector3D finalPosition = (1.0f - beta) * node->data.position;
+        
+        float bon = beta / n;
+        
+        for (SimpleNode<EdgeNode *> *edgeNode = node->_edges.begin(), *endEdgeNode = node->_edges.end(); edgeNode != endEdgeNode; edgeNode = edgeNode->next())
+        {
+            Edge2 &edge = edgeNode->data->data;
+            VertexNode *oppositeVertex = edge.opposite(node);
+            
+            finalPosition += oppositeVertex->data.position * bon;
+        }
+        
+        tempVertices.push_back(finalPosition);
+    }
+    
+    index = 0;
+    
+    for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
+    {
+        node->data.position = tempVertices[node->index];
+        index++;
+    }
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            vertices[j] = node->data.vertex(j);
+            vertices[j + 3] = node->data.edge(j)->data.halfVertex;
+        }
+        
+        /*    
+               2
+              /\
+             /  \
+          *5/____\*4
+           /\    /\
+          /  \  /  \
+         /____\/____\
+         0    *3     1
+         
+        */
+        
+        subdivided.add((VertexNode *[3]){ vertices[0], vertices[3], vertices[5] });
+        subdivided.add((VertexNode *[3]){ vertices[3], vertices[1], vertices[4] });
+        subdivided.add((VertexNode *[3]){ vertices[5], vertices[4], vertices[2] });
+        subdivided.add((VertexNode *[3]){ vertices[3], vertices[4], vertices[5] });
+    }
+    
+    _triangles.moveFrom(subdivided);
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::splitSelectedTriangles()
 {
-    
+    loopSubdivision();
 }
 
 void Mesh2::splitSelectedEdges()

@@ -445,6 +445,14 @@ void Edge2::turn()
     _vertices[1] = v1;
 }
 
+VertexNode *Edge2::opposite(VertexNode *vertex) const
+{
+    if (_vertices[0] == vertex)
+        return _vertices[1];
+    
+    return _vertices[0];
+}
+
 Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
 {
 	// now is same as RedBook (OpenGL Programming Guide)
@@ -478,4 +486,3 @@ void AddQuad(vector<Triangle> &triangles, int index1, int index2, int index3, in
     triangles.push_back(triangle1);
     triangles.push_back(triangle2);
 }
-
