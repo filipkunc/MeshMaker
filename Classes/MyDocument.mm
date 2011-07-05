@@ -549,8 +549,8 @@ vector<T> *ReadValues(string s)
 - (IBAction)splitSelected:(id)sender
 {
 	//NSLog(@"splitSelected:");
-	if ([manipulated selectedCount] <= 0)
-		return;
+//	if ([manipulated selectedCount] <= 0)
+//		return;
 	
 	if (manipulated == meshController)
 	{

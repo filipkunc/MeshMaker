@@ -28,9 +28,34 @@ public:
     
     virtual ~FPList()
     {
-        removeAll();
-        delete _begin;
-        delete _end;
+        if (_begin && _end)
+        {
+            removeAll();
+            delete _begin;
+            _begin = NULL;
+            delete _end;
+            _end = NULL;        
+        }
+    }
+    
+    void moveFrom(FPList &other)
+    {
+        if (_begin && _end)
+        {
+            removeAll();
+            delete _begin;
+            _begin = NULL;
+            delete _end;
+            _end = NULL;        
+        }
+        
+        _begin = other._begin;
+        _end = other._end;
+        _count = other._count;
+        
+        other._begin = NULL;
+        other._end = NULL;
+        other._count = -1;
     }
     
     TNode *begin() { return _begin->_next; }

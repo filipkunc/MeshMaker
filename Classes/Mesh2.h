@@ -73,6 +73,8 @@ public:
     void flipAllTriangles();
     void extrudeSelectedTriangles();
     
+    void loopSubdivision();
+    
     void merge(Mesh2 *mesh);
 
     // drawing
