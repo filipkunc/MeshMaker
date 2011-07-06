@@ -429,7 +429,67 @@ void Mesh2::loopSubdivision()
 
 void Mesh2::splitSelectedTriangles()
 {
-    loopSubdivision();
+    resetCache();
+    
+    VertexNode *vertices[6];
+    
+    FPList<TriangleNode, Triangle2> subdivided;
+    
+    for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        node->data.halfVertex = NULL;
+    }
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (!node->data.selected)
+        {
+            subdivided.add(node->data);
+            continue;
+        }
+        
+        for (int j = 0; j < 3; j++)
+        {
+            Edge2 &edge = node->data.edge(j)->data;
+            
+            if (edge.halfVertex == NULL)
+            {
+                Vector3D v1 = edge.vertex(0)->data.position;
+                Vector3D v2 = edge.vertex(1)->data.position;
+                
+                Vector3D edgeVertex = (v1 + v2) / 2.0f;
+                
+                edge.halfVertex = _vertices.add(edgeVertex);
+            }
+            
+            vertices[j] = node->data.vertex(j);
+            vertices[j + 3] = edge.halfVertex;
+        }
+        
+        /*    
+               2
+              /\
+             /  \
+          *5/____\*4
+           /\    /\
+          /  \  /  \
+         /____\/____\
+         0    *3     1
+         
+        */
+        
+        subdivided.add((VertexNode *[3]){ vertices[0], vertices[3], vertices[5] });
+        subdivided.add((VertexNode *[3]){ vertices[3], vertices[1], vertices[4] });
+        subdivided.add((VertexNode *[3]){ vertices[5], vertices[4], vertices[2] });
+        subdivided.add((VertexNode *[3]){ vertices[3], vertices[4], vertices[5] });
+    }
+    
+    _triangles.moveFrom(subdivided);
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+
 }
 
 void Mesh2::splitSelectedEdges()

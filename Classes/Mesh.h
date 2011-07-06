@@ -15,7 +15,7 @@
 #import "ShaderProgram.h"
 #import "Mesh2.h"
 
-@interface Mesh : NSObject <OpenGLManipulatingModelMesh, NSCoding, CppFileStreaming>
+@interface Mesh : NSObject <OpenGLManipulatingModelMesh, CppFileStreaming>
 {
 @public
     NSColor *color;    
@@ -41,5 +41,6 @@
 - (void)splitSelected;
 - (void)flipSelected;
 - (void)flipAllTriangles;
+- (void)loopSubdivision;
 
 @end

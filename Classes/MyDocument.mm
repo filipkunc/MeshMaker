@@ -529,7 +529,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)mergeSelected:(id)sender
 {
-	//NSLog(@"mergeSelected:");
+	NSLog(@"mergeSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -548,9 +548,9 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)splitSelected:(id)sender
 {
-	//NSLog(@"splitSelected:");
-//	if ([manipulated selectedCount] <= 0)
-//		return;
+	NSLog(@"splitSelected:");
+	if ([manipulated selectedCount] <= 0)
+		return;
 	
 	if (manipulated == meshController)
 	{
@@ -757,7 +757,7 @@ vector<T> *ReadValues(string s)
 
 - (BOOL)readFromCollada:(NSString *)fileName
 {
- /*   NSString* xmlData = [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:NULL];
+    NSString* xmlData = [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:NULL];
     
     int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     char *textBuffer = new char [length];
@@ -792,48 +792,46 @@ vector<T> *ReadValues(string s)
         }
     }
     
-    vector<uint> *triangles = ReadValues<uint>(trianglesString);
+    vector<uint> *indices = ReadValues<uint>(trianglesString);
     
     ItemCollection *newItems = [[ItemCollection alloc] init];
-    [newItems retain];
     
     Item *item = [[Item alloc] init];
     Mesh *itemMesh = [item mesh];
     
-    itemMesh->vertices->clear();
+    vector<Vector3D> vertices;
+    vector<Triangle> triangles;
+    
     for (uint i = 0; i < points->size(); i += 3)
     {
         Vector3D point;
         for (uint j = 0; j < 3; j++)
             point[j] = (*points)[i + j];
 
-        itemMesh->vertices->push_back(point);
+        vertices.push_back(point);
     }
 
-    vector<uint> &trianglesRef = *triangles;
+    vector<uint> &trianglesRef = *indices;
     
-    itemMesh->triangles->clear();
     for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
     {
         uint vertexIdx1 = trianglesRef[i];
         uint vertexIdx2 = trianglesRef[i + inputTypesCount];
         uint vertexIdx3 = trianglesRef[i + inputTypesCount * 2];
-        Triangle tri = MakeTriangle(vertexIdx3, vertexIdx2, vertexIdx1);
-        itemMesh->triangles->push_back(tri);
+        AddTriangle(triangles, vertexIdx3, vertexIdx2, vertexIdx1);
     }
 
-    [itemMesh setSelectionMode:[itemMesh selectionMode]];    
+    itemMesh->mesh->fromIndexRepresentation(vertices, triangles);
+    
     [newItems addItem:item];
-    [item release];
-    [items release];
     items = newItems;
     [itemsController setModel:items];
     [itemsController updateSelection];
     [self setManipulated:itemsController];
 
     delete points;
-    delete triangles;
-    delete [] textBuffer;*/
+    delete indices;
+    delete [] textBuffer;
     
     return YES;
 }
