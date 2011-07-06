@@ -160,9 +160,6 @@ vector<T> *ReadValues(string s)
 	[mesh makeMeshWithType:type steps:steps];
 	
 	NSString *name = [Mesh descriptionOfMeshType:type];
-	NSLog(@"adding %@", name);
-	NSLog(@"vertexCount = %i", [mesh vertexCount]);
-	NSLog(@"triangleCount = %i", [mesh triangleCount]);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Add %@", name]];
 	[document removeItemWithType:type steps:steps];
@@ -178,7 +175,6 @@ vector<T> *ReadValues(string s)
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps
 {
 	NSString *name = [Mesh descriptionOfMeshType:type];
-	NSLog(@"removing %@", name);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Remove %@", name]];
 	[document addItemWithType:type steps:steps];
@@ -313,7 +309,6 @@ vector<T> *ReadValues(string s)
 
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current
 {
-	NSLog(@"swapManipulationsWithOld:current:");
 	NSAssert([old count] == [current count], @"old count == current count");
 	[items setCurrentManipulations:old];
 	
@@ -326,8 +321,6 @@ vector<T> *ReadValues(string s)
 
 - (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current
 {
-	NSLog(@"swapMeshManipulationWithOld:current:");
-	
 	[items setCurrentMeshManipulation:old];
 	Item *item = [items itemAtIndex:[old itemIndex]];
 	[meshController setModel:[item mesh]];
@@ -344,12 +337,8 @@ vector<T> *ReadValues(string s)
 					current:(NSMutableArray *)current
 				 actionName:(NSString *)actionName
 {
-	NSLog(@"swapAllItemsWithOld:current:actionName:");
-	
-	NSLog(@"items count before set = %i", [items count]);
 	[items setAllItems:old];
-	NSLog(@"items count after set = %i", [items count]);
-	
+
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapAllItemsWithOld:current
 						  current:old
@@ -363,8 +352,6 @@ vector<T> *ReadValues(string s)
 						 current:(MeshFullState *)current 
 					  actionName:(NSString *)actionName
 {
-	NSLog(@"swapMeshFullStateWithOld:current:actionName:");
-	
 	[items setCurrentMeshFull:old];
 	Item *item = [items itemAtIndex:[old itemIndex]];
 	[meshController setModel:[item mesh]];
@@ -383,12 +370,10 @@ vector<T> *ReadValues(string s)
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	NSMutableArray *oldItems = [items allItems];
-	NSLog(@"oldItems count = %i", (int)[oldItems count]);
-	
+
 	action();
 	
 	NSMutableArray *currentItems = [items allItems];
-	NSLog(@"currentItems count = %i", (int)[currentItems count]);
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
 					   actionName:actionName];	
@@ -409,7 +394,6 @@ vector<T> *ReadValues(string s)
 
 - (void)manipulationStartedInView:(OpenGLSceneView *)view
 {
-	//NSLog(@"manipulationStartedInView:");
 	manipulationFinished = NO;
 	
 	if (manipulated == itemsController)
@@ -424,7 +408,6 @@ vector<T> *ReadValues(string s)
 
 - (void)manipulationEndedInView:(OpenGLSceneView *)view
 {
-	//NSLog(@"manipulationEndedInView:");	
 	manipulationFinished = YES;
 	
 	if (manipulated == itemsController)
@@ -445,7 +428,6 @@ vector<T> *ReadValues(string s)
 
 - (void)selectionChangedInView:(OpenGLSceneView *)view
 {
-	//NSLog(@"selectionChangedInView:");
 	[self setNeedsDisplayExceptView:view];
 }
 
@@ -529,7 +511,6 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)mergeSelected:(id)sender
 {
-	NSLog(@"mergeSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -548,8 +529,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)splitSelected:(id)sender
 {
-	NSLog(@"splitSelected:");
-	if ([manipulated selectedCount] <= 0)
+    if ([manipulated selectedCount] <= 0)
 		return;
 	
 	if (manipulated == meshController)
@@ -563,7 +543,6 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)flipSelected:(id)sender
 {
-	//NSLog(@"flipSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -578,7 +557,6 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)duplicateSelected:(id)sender
 {	
-	//NSLog(@"duplicateSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -611,8 +589,6 @@ vector<T> *ReadValues(string s)
 
 - (void)redoDuplicateSelected:(NSMutableArray *)selection
 {
-	//NSLog(@"redoDuplicateSelected:");
-	
 	[self setManipulated:itemsController];
 	[items setCurrentSelection:selection];
 	[manipulated duplicateSelected];
@@ -626,8 +602,6 @@ vector<T> *ReadValues(string s)
 
 - (void)undoDuplicateSelected:(NSMutableArray *)selection
 {	
-	//NSLog(@"undoDuplicateSelected:");
-	
 	[self setManipulated:itemsController];
 	uint duplicatedCount = [selection count];
 	[items removeItemsInRange:NSMakeRange([items count] - duplicatedCount, duplicatedCount)];
@@ -642,7 +616,6 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)deleteSelected:(id)sender
 {
-	//NSLog(@"deleteSelected:");
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -663,8 +636,6 @@ vector<T> *ReadValues(string s)
 
 - (void)redoDeleteSelected:(NSMutableArray *)selectedItems
 {
-	//NSLog(@"redoDeleteSelected:");
-
 	[self setManipulated:itemsController];
 	[items setSelectionFromIndexedItems:selectedItems];
 	[manipulated removeSelected];
@@ -678,8 +649,6 @@ vector<T> *ReadValues(string s)
 
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
 {
-	//NSLog(@"undoDeleteSelected:");
-	
 	[self setManipulated:itemsController];
 	[items setCurrentItems:selectedItems];
 	
@@ -692,8 +661,6 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)mergeVertexPairs:(id)sender
 {
-	//NSLog(@"mergeVertexPairs:");
-	
 	if ([manipulated selectedCount] <= 0)
 		return;
 	
@@ -704,6 +671,24 @@ vector<T> *ReadValues(string s)
 			[self fullMeshActionWithName:@"Merge Vertex Pairs" block:^ { [[self currentMesh] mergeVertexPairs]; }];
 		}
 	}
+	[self setNeedsDisplayOnAllViews];
+}
+
+- (IBAction)subdivision:(id)sender
+{
+    Mesh *currentMesh;
+    
+    if (manipulated == meshController)
+        currentMesh = [self currentMesh];
+    else
+        currentMesh = [items currentMesh];
+
+    if (currentMesh)
+    {
+        [self fullMeshActionWithName:@"Subdivision" block:^ { [currentMesh loopSubdivision]; }];
+    }
+	
+	[manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
 }
 
@@ -868,22 +853,17 @@ vector<T> *ReadValues(string s)
 
 - (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)typeName
 {
-	//NSLog(@"readFromFile:%@ typeName:%@", fileName, typeName);
 	if ([typeName isEqual:@"model3D"])
-	{
-		//return [self readFromData:[NSData dataWithContentsOfFile:fileName] ofType:typeName error:NULL];
 		return [self readFromModel3D:fileName];
-	}
-    else if ([typeName isEqualToString:@"Collada"])
-    {
+
+    if ([typeName isEqualToString:@"Collada"])
         return [self readFromCollada:fileName];
-    }
-	return NO;
+	
+    return NO;
 }
 
 - (BOOL)writeToFile:(NSString *)fileName ofType:(NSString *)typeName
 {
-	//NSLog(@"writeToFile:%@ typeName:%@", fileName, typeName);
 	if ([typeName isEqual:@"model3D"])
 	{
 		[self writeToModel3D:fileName];
@@ -925,13 +905,11 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	{
 		if (splitView == topSplit)
 		{
-			//NSLog(@"topSplit");
 			[bottomSubview0 setFrame:[topSubview0 frame]];
 			[bottomSubview1 setFrame:[topSubview1 frame]];
 		}
 		else
 		{
-			//NSLog(@"bottomSplit");
 			[topSubview0 setFrame:[bottomSubview0 frame]];
 			[topSubview1 setFrame:[bottomSubview1 frame]];
 		}
@@ -975,8 +953,6 @@ constrainSplitPosition:(CGFloat)proposedPosition
 
 - (void)toggleOneViewFourView:(id)sender
 {
-	//NSLog(@"toggleOneViewFourView");
-	
 	if (oneView)
 	{
 		if (oneView != viewPerspective)
@@ -1010,9 +986,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 			}
 			return;
 		}
-	}
-	
-	//NSLog(@"No view is under mouse");
+	}	
 }
 
 @end

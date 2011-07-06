@@ -104,7 +104,6 @@
 		[document manipulationEndedInView:nil]; 
 	}];
 	
-	NSLog(@"---- UNDO ----");
 	while ([[document undoManager] canUndo])
 	{
 		[[document undoManager] undo];
@@ -115,7 +114,6 @@
 	
 	STAssertEquals([document->items count], 0U, @"items must be empty");	
 	
-	NSLog(@"---- REDO ----");
 	while ([[document undoManager] canRedo]) 
 	{
 		[[document undoManager] redo];
@@ -155,15 +153,13 @@
 		[document manipulationEndedInView:nil]; 
 	}];
 		
-	NSLog(@"---- UNDO ----");
 	while ([[document undoManager] canUndo])
 	{
 		[[document undoManager] undo];
 	}
 	
 	STAssertEquals([document->items count], 0U, @"items must be empty");	
-		
-	NSLog(@"---- REDO ----");
+
 	while ([[document undoManager] canRedo]) 
 	{
 		[[document undoManager] redo];
@@ -184,15 +180,13 @@
 	
 	[self groupAction:^ { [document deleteSelected:self]; }];
 	
-	NSLog(@"---- UNDO ----");
 	while ([[document undoManager] canUndo])
 	{
 		[[document undoManager] undo];
 	}
 	
 	STAssertEquals([document->items count], 0U, @"items must be empty");	
-	
-	NSLog(@"---- REDO ----");
+
 	while ([[document undoManager] canRedo])
 	{
 		[[document undoManager] redo];

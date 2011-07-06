@@ -22,7 +22,6 @@ void ShaderLog(GLuint shader)
 	{
 		infoLog = (GLchar *)malloc(infologLength);
 		glGetShaderInfoLog(shader, infologLength, &charsWritten, infoLog);
-		NSLog(@"shader log: %s",infoLog);
 		free(infoLog);
 	}
 }

@@ -20,7 +20,6 @@ void ProgramLog(GLuint program)
 	{
 		infoLog = (GLchar *)malloc(infologLength);
 		glGetProgramInfoLog(program, infologLength, &charsWritten, infoLog);
-		NSLog(@"program log: %s", infoLog);
 		free(infoLog);
 	}
 }

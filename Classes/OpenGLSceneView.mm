@@ -795,10 +795,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     uint selectedIndicesCount = width * height;
 
     if (selectedIndicesCount >= kMaxSelectedIndicesCount)
-    {
-        NSLog(@"too big selection rect, selection ignored");
         return;
-    }
     
     if (selectedIndicesCount > 0)
     {

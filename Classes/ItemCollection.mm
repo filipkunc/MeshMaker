@@ -461,4 +461,14 @@
 	return [NSString stringWithFormat:@"Item %i", index];
 }
 
+- (Mesh *)currentMesh
+{
+    for (Item *item in items)
+	{
+		if ([item selected])
+			return [item mesh];
+	}
+    return nil;
+}
+
 @end
