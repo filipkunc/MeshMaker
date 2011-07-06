@@ -370,6 +370,11 @@
     mesh->flipAllTriangles();
 }
 
+- (void)loopSubdivision
+{
+    mesh->loopSubdivision();
+}
+
 - (void)duplicateSelected
 {
 	if (mesh->selectionMode() == MeshSelectionModeTriangles)
@@ -431,39 +436,6 @@
 	[self resetIndexCache];*/
 }
 				 
-#pragma mark NSCoding implementation
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-	self = [self init];
-	if (self)
-	{		
-		/*NSUInteger tempLength = 0;
-		
-		const Vector3D *tempVertices = (const Vector3D *)[aDecoder decodeBytesForKey:@"vertices"
-																	  returnedLength:&tempLength];
-		tempLength /= sizeof(Vector3D);
-		
-		for (uint i = 0; i < tempLength; i++)
-			vertices->push_back(tempVertices[i]);
-		
-		const Triangle *tempTriangles = (const Triangle *)[aDecoder decodeBytesForKey:@"triangles"
-																	   returnedLength:&tempLength];
-		tempLength /= sizeof(Triangle);
-		
-		for (uint i = 0; i < tempLength; i++)
-			triangles->push_back(tempTriangles[i]);*/
-	}
-	return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)aCoder
-{
-	// problem with zero size, should be handled in code for Item
-	//[aCoder encodeBytes:(uint8_t *)&vertices->at(0) length:vertices->size() * sizeof(Vector3D) forKey:@"vertices"];
-	//[aCoder encodeBytes:(uint8_t *)&triangles->at(0) length:triangles->size() * sizeof(Triangle) forKey:@"triangles"];
-}
-
 #pragma mark CppFileStreaming implementation
 
 - (id)initWithFileStream:(ifstream *)fin
@@ -471,45 +443,55 @@
 	self = [self init];
 	if (self)
 	{
-		/*uint verticesSize;
+		uint verticesSize;
 		uint trianglesSize;
 		fin->read((char *)&verticesSize, sizeof(uint));
 		fin->read((char *)&trianglesSize, sizeof(uint));
+        
+        vector<Vector3D> vertices;
+        vector<Triangle> triangles;
 		
 		for (uint i = 0; i < verticesSize; i++)
 		{
 			Vector3D vertex;
 			fin->read((char *)&vertex, sizeof(Vector3D));
-			vertices->push_back(vertex);
+			vertices.push_back(vertex);
 		}
 		
 		for (uint i = 0; i < trianglesSize; i++)
 		{
 			Triangle triangle;
 			fin->read((char *)&triangle, sizeof(Triangle));
-			triangles->push_back(triangle);
-		}*/
+			triangles.push_back(triangle);
+		}
+        
+        mesh->fromIndexRepresentation(vertices, triangles);
 	}
 	return self;
 }
 
 - (void)encodeWithFileStream:(ofstream *)fout
 {
-	/*uint size = vertices->size(); 
+    vector<Vector3D> vertices;
+    vector<Triangle> triangles;
+    
+    mesh->toIndexRepresentation(vertices, triangles);
+    
+	uint size = vertices.size();
 	fout->write((char *)&size, sizeof(uint));
-	size = triangles->size();
+	size = triangles.size();
 	fout->write((char *)&size, sizeof(uint));
+    	
+	if (vertices.size() > 0)
+		fout->write((char *)&vertices.at(0), vertices.size() * sizeof(Vector3D));
 	
-	if (vertices->size() > 0)
-		fout->write((char *)&vertices->at(0), vertices->size() * sizeof(Vector3D));
-	
-	if (triangles->size() > 0)
-		fout->write((char *)&triangles->at(0), triangles->size() * sizeof(Triangle));*/
+	if (triangles.size() > 0)
+		fout->write((char *)&triangles.at(0), triangles.size() * sizeof(Triangle));
 }
 
 - (NSString *)nameAtIndex:(uint)index
 {
-	/*switch (selectionMode)
+	switch (mesh->selectionMode())
 	{
 		case MeshSelectionModeVertices:
 			return [NSString stringWithFormat:@"Vertex %i", index];
@@ -519,8 +501,7 @@
 			return [NSString stringWithFormat:@"Triangle %i", index];	
 		default:
 			return nil;
-	}*/
-    return nil;
+	}
 }
 
 @end
