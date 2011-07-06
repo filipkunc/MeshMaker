@@ -38,5 +38,6 @@
 - (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems;
 - (void)deselectAll;
 - (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount;
+- (Mesh *)currentMesh;
 
 @end

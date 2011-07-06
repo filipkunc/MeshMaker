@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
-		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">10H574</string>
-		<string key="IBDocument.InterfaceBuilderVersion">1246</string>
-		<string key="IBDocument.AppKitVersion">1038.35</string>
+		<int key="IBDocument.SystemTarget">1070</int>
+		<string key="IBDocument.SystemVersion">11A511</string>
+		<string key="IBDocument.InterfaceBuilderVersion">1881</string>
+		<string key="IBDocument.AppKitVersion">1138</string>
+		<string key="IBDocument.HIToolboxVersion">566.00</string>
+		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
+			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
+			<string key="NS.object.0">1881</string>
+		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSToolbar</string>
 			<string>NSPopUpButton</string>
@@ -24,7 +29,10 @@
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 		</array>
-		<dictionary class="NSMutableDictionary" key="IBDocument.Metadata"/>
+		<object class="NSMutableDictionary" key="IBDocument.Metadata">
+			<string key="NS.key.0">PluginDependencyRecalculationVersion</string>
+			<integer value="1" key="NS.object.0"/>
+		</object>
 		<array class="NSMutableArray" key="IBDocument.RootObjects" id="580458321">
 			<object class="NSCustomObject" id="512844837">
 				<string key="NSClassName">MyDocument</string>
@@ -144,9 +152,11 @@
 							<string key="NSToolbarItemPaletteLabel">View Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="440722997">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="181969951">
 									<int key="NSCellFlags">-2076049856</int>
@@ -320,6 +330,28 @@
 							<bool key="NSToolbarIsUserRemovable">YES</bool>
 							<int key="NSToolbarItemVisibilityPriority">0</int>
 						</object>
+						<object class="NSToolbarItem" key="D2F0F3F7-D811-4F4F-B320-8CDEF63AD699" id="772056680">
+							<object class="NSMutableString" key="NSToolbarItemIdentifier">
+								<characters key="NS.bytes">D2F0F3F7-D811-4F4F-B320-8CDEF63AD699</characters>
+							</object>
+							<string key="NSToolbarItemLabel">Subdivision</string>
+							<string key="NSToolbarItemPaletteLabel">Subdivision</string>
+							<string key="NSToolbarItemToolTip"/>
+							<nil key="NSToolbarItemView"/>
+							<object class="NSCustomResource" key="NSToolbarItemImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">NSActionTemplate</string>
+							</object>
+							<nil key="NSToolbarItemTarget"/>
+							<nil key="NSToolbarItemAction"/>
+							<string key="NSToolbarItemMinSize">{0, 0}</string>
+							<string key="NSToolbarItemMaxSize">{0, 0}</string>
+							<bool key="NSToolbarItemEnabled">YES</bool>
+							<bool key="NSToolbarItemAutovalidates">YES</bool>
+							<int key="NSToolbarItemTag">-1</int>
+							<bool key="NSToolbarIsUserRemovable">YES</bool>
+							<int key="NSToolbarItemVisibilityPriority">0</int>
+						</object>
 						<object class="NSToolbarItem" key="F4A11C94-A8B0-479D-9BAE-9F509696847E" id="384829746">
 							<object class="NSMutableString" key="NSToolbarItemIdentifier">
 								<characters key="NS.bytes">F4A11C94-A8B0-479D-9BAE-9F509696847E</characters>
@@ -328,9 +360,11 @@
 							<string key="NSToolbarItemPaletteLabel">Edit Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="631661131">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076049856</int>
@@ -496,7 +530,7 @@
 							</object>
 						</object>
 					</dictionary>
-					<array key="NSToolbarIBAllowedItems">
+					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
@@ -511,27 +545,26 @@
 						<reference ref="804788330"/>
 						<reference ref="767646089"/>
 						<reference ref="786968178"/>
+						<reference ref="772056680"/>
 					</array>
 					<array class="NSMutableArray" key="NSToolbarIBDefaultItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
 						<reference ref="534841699"/>
-						<reference ref="786968178"/>
 						<reference ref="474581757"/>
 						<reference ref="169982275"/>
 						<reference ref="257090882"/>
-						<reference ref="786968178"/>
 						<reference ref="231901962"/>
 						<reference ref="384829746"/>
-						<reference ref="786968178"/>
 						<reference ref="345729276"/>
 						<reference ref="441889733"/>
 						<reference ref="804788330"/>
 						<reference ref="767646089"/>
 					</array>
-					<array class="NSMutableArray" key="NSToolbarIBSelectableItems"/>
+					<array key="NSToolbarIBSelectableItems" id="0"/>
 				</object>
+				<nil key="NSUserInterfaceItemIdentifier"/>
 				<string key="NSWindowContentMinSize">{94, 86}</string>
 				<object class="NSView" key="NSWindowView" id="568628114">
 					<reference key="NSNextResponder"/>
@@ -610,6 +643,7 @@
 													<string key="NSFrame">{{499, 0}, {495, 287}}</string>
 													<reference key="NSSuperview" ref="752972658"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView"/>
 													<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 														<object class="NSMutableData" key="NSPixelAttributes">
 															<bytes key="NS.bytes">AAAABQAAAEkAAABgAAAACAAAABgAAAALAAAACAAAAAwAAAAgAAAAAA</bytes>
@@ -640,14 +674,15 @@
 							<int key="NSDividerStyle">3</int>
 						</object>
 					</array>
-					<string key="NSFrame">{{7, 11}, {994, 575}}</string>
+					<string key="NSFrameSize">{994, 575}</string>
 					<reference key="NSSuperview"/>
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="113445383"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
-				<string key="NSMinSize">{94, 163}</string>
-				<string key="NSMaxSize">{1e+13, 1e+13}</string>
+				<string key="NSMinSize">{94, 164}</string>
+				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
+				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
 			<object class="NSCustomObject" id="796877042">
 				<string key="NSClassName">NSApplication</string>
@@ -882,12 +917,20 @@
 					</object>
 					<int key="connectionID">100359</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">subdivision:</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="772056680"/>
+					</object>
+					<int key="connectionID">100423</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
 					<object class="IBObjectRecord">
 						<int key="objectID">0</int>
-						<array key="object" id="0"/>
+						<reference key="object" ref="0"/>
 						<reference key="children" ref="580458321"/>
 						<nil key="parent"/>
 					</object>
@@ -945,6 +988,7 @@
 							<reference ref="474581757"/>
 							<reference ref="257090882"/>
 							<reference ref="231901962"/>
+							<reference ref="772056680"/>
 						</array>
 						<reference key="parent" ref="275939982"/>
 					</object>
@@ -1170,13 +1214,18 @@
 						<reference key="parent" ref="576154545"/>
 						<string key="objectName">top</string>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">100422</int>
+						<reference key="object" ref="772056680"/>
+						<reference key="parent" ref="24235194"/>
+						<string key="objectName">Toolbar Item - Subdivision</string>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
 				<string key="-1.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="-2.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="-3.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="100022.IBEditorWindowLastContentRect">{{349, 677}, {617, 0}}</string>
 				<string key="100022.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100025.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100027.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1191,7 +1240,6 @@
 				<string key="100141.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100145.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100146.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="100147.IBEditorWindowLastContentRect">{{810, 469}, {132, 83}}</string>
 				<string key="100147.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100148.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100149.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1203,7 +1251,6 @@
 				<string key="100247.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100248.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100249.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="100250.IBEditorWindowLastContentRect">{{389, 535}, {121, 43}}</string>
 				<string key="100250.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100251.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100259.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1219,19 +1266,16 @@
 				<string key="100348.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100349.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100421.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="5.IBEditorWindowLastContentRect">{{381, 488}, {739, 467}}</string>
+				<string key="100422.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBWindowTemplateEditedContentRect">{{381, 488}, {739, 467}}</string>
-				<integer value="1" key="5.ImportedFromIB2"/>
-				<string key="5.editorWindowContentRectSynchronizationRect">{{201, 387}, {507, 413}}</string>
 				<string key="6.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<integer value="1" key="6.ImportedFromIB2"/>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">100421</int>
+			<int key="maxID">100423</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1242,13 +1286,30 @@
 						<string key="NS.key.0">addItem:</string>
 						<string key="NS.object.0">id</string>
 					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">addItem:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">addItem:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="documentWindow">NSWindow</string>
 						<string key="sheet">NSPanel</string>
 					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="documentWindow">
+							<string key="name">documentWindow</string>
+							<string key="candidateClassName">NSWindow</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="sheet">
+							<string key="name">sheet</string>
+							<string key="candidateClassName">NSPanel</string>
+						</object>
+					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/AddItemWithStepsSheetController.h</string>
+						<string key="minorKey">./Classes/AddItemWithStepsSheetController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -1270,7 +1331,78 @@
 						<string key="mergeVertexPairs:">id</string>
 						<string key="selectAll:">id</string>
 						<string key="splitSelected:">id</string>
+						<string key="subdivision:">id</string>
 						<string key="unhideAll:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="addCube:">
+							<string key="name">addCube:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="addCylinder:">
+							<string key="name">addCylinder:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="addSphere:">
+							<string key="name">addSphere:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="changeEditMode:">
+							<string key="name">changeEditMode:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="changeManipulator:">
+							<string key="name">changeManipulator:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="changeViewMode:">
+							<string key="name">changeViewMode:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="deleteSelected:">
+							<string key="name">deleteSelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="duplicateSelected:">
+							<string key="name">duplicateSelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="flipSelected:">
+							<string key="name">flipSelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="hideSelected:">
+							<string key="name">hideSelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="invertSelection:">
+							<string key="name">invertSelection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="mergeSelected:">
+							<string key="name">mergeSelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="mergeVertexPairs:">
+							<string key="name">mergeVertexPairs:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectAll:">
+							<string key="name">selectAll:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="splitSelected:">
+							<string key="name">splitSelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="subdivision:">
+							<string key="name">subdivision:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="unhideAll:">
+							<string key="name">unhideAll:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="addItemWithStepsSheetController">AddItemWithStepsSheetController</string>
@@ -1284,14 +1416,55 @@
 						<string key="viewPerspective">OpenGLSceneView</string>
 						<string key="viewTop">OpenGLSceneView</string>
 					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="addItemWithStepsSheetController">
+							<string key="name">addItemWithStepsSheetController</string>
+							<string key="candidateClassName">AddItemWithStepsSheetController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="bottomSplit">
+							<string key="name">bottomSplit</string>
+							<string key="candidateClassName">NSSplitView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="editModePopUp">
+							<string key="name">editModePopUp</string>
+							<string key="candidateClassName">NSPopUpButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="mainSplit">
+							<string key="name">mainSplit</string>
+							<string key="candidateClassName">NSSplitView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="topSplit">
+							<string key="name">topSplit</string>
+							<string key="candidateClassName">NSSplitView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="viewFront">
+							<string key="name">viewFront</string>
+							<string key="candidateClassName">OpenGLSceneView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="viewLeft">
+							<string key="name">viewLeft</string>
+							<string key="candidateClassName">OpenGLSceneView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="viewModePopUp">
+							<string key="name">viewModePopUp</string>
+							<string key="candidateClassName">NSPopUpButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="viewPerspective">
+							<string key="name">viewPerspective</string>
+							<string key="candidateClassName">OpenGLSceneView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="viewTop">
+							<string key="name">viewTop</string>
+							<string key="candidateClassName">OpenGLSceneView</string>
+						</object>
+					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/MyDocument.h</string>
+						<string key="minorKey">./Classes/MyDocument.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSDocument</string>
-					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="printDocument:">id</string>
 						<string key="revertDocumentToSaved:">id</string>
@@ -1300,33 +1473,35 @@
 						<string key="saveDocumentAs:">id</string>
 						<string key="saveDocumentTo:">id</string>
 					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="printDocument:">
+							<string key="name">printDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="revertDocumentToSaved:">
+							<string key="name">revertDocumentToSaved:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="runPageLayout:">
+							<string key="name">runPageLayout:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocument:">
+							<string key="name">saveDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocumentAs:">
+							<string key="name">saveDocumentAs:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocumentTo:">
+							<string key="name">saveDocumentTo:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/NSDocument.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSToolbarFlexibleSpaceItem</string>
-					<string key="superclassName">NSToolbarItem</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/NSToolbarFlexibleSpaceItem.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSToolbarSeparatorItem</string>
-					<string key="superclassName">NSToolbarItem</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/NSToolbarSeparatorItem.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSToolbarSpaceItem</string>
-					<string key="superclassName">NSToolbarItem</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/NSToolbarSpaceItem.h</string>
+						<string key="minorKey">./Classes/NSDocument.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -1334,21 +1509,17 @@
 					<string key="superclassName">NSOpenGLView</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./classes-xjh84/OpenGLSceneView.h</string>
+						<string key="minorKey">./Classes/OpenGLSceneView.h</string>
 					</object>
 				</object>
 			</array>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
-		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
-			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.macosx</string>
-			<integer value="1060" key="NS.object.0"/>
-		</object>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
-		<string key="IBDocument.LastKnownRelativeProjectPath">../OpenGLEditor.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
+			<string key="NSActionTemplate">{15, 15}</string>
 			<string key="NSAddTemplate">{8, 8}</string>
 			<string key="NSEnterFullScreenTemplate">{16, 15}</string>
 			<string key="NSExitFullScreenTemplate">{16, 15}</string>

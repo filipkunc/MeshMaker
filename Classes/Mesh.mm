@@ -97,36 +97,28 @@
 			[self makeSphereWithSteps:steps];
 			break;
 		default:
-			NSLog(@"Unknown mesh type: %i", type);
 			break;
 	}
 }
 
 - (void)makeCube
 {
-	NSLog(@"makeCube");
-	
 	mesh->makeCube();
 }
 
 - (void)makeCylinderWithSteps:(uint)steps
 {
-	NSLog(@"makeCylinderWithSteps:%i", steps);
-	
     mesh->makeCylinder(steps);
 }
 
 - (void)makeSphereWithSteps:(uint)steps
 {
-    NSLog(@"makeSphereWithSteps:%i", steps);
-	
 	mesh->makeSphere(steps);
 }
 
 - (void)mergeVertexPairs
 {
     /*
-	NSLog(@"mergeVertexPairs");
 	[self resetCache];
 	
 	for (int i = 0; i < (int)selected->size(); i++)
@@ -174,61 +166,9 @@
     mesh->merge(aMesh->mesh);
 }
 
-- (void)splitTriangleAtIndex:(uint)index
-{
-	/*NSLog(@"splitTriangleAtIndex:%i", index);
-	
-	Triangle triangle = [self triangleAtIndex:index];
-	Vector3D triangleVertices[3];
-	[self getTriangleVertices:triangleVertices fromTriangle:triangle];
-	
-	Vector3D centerVertex = Vector3D();
-	
-	for (uint i = 0; i < 3; i++)
-		centerVertex +=	triangleVertices[i];
-	
-	centerVertex /= 3;
-	
-	vertices->push_back(centerVertex);
-	
-	uint centerVertexIndex = vertices->size() - 1;
-	
-	Vector3D triangleNormal = NormalFromTriangleVertices(triangleVertices);
-		
-	for (uint i = 0; i < 3; i++)
-	{
-		Triangle newTriangle;
-		
-		if (i == 2)
-		{
-			newTriangle = MakeTriangle(triangle.vertexIndices[2], 
-									   triangle.vertexIndices[0], 
-									   centerVertexIndex);
-		}
-		else
-		{
-			newTriangle = MakeTriangle(triangle.vertexIndices[i], 
-									   triangle.vertexIndices[i + 1], 
-									   centerVertexIndex);
-		}
-		
-		[self getTriangleVertices:triangleVertices fromTriangle:newTriangle];
-		
-		Vector3D newTriangleNormal = NormalFromTriangleVertices(triangleVertices);
-		
-		if (triangleNormal.Dot(newTriangleNormal) < 0)
-			newTriangle = FlipTriangle(newTriangle);
-		
-		[self addTriangle:newTriangle];
-	}
-	
-	[self removeTriangleAtIndex:index];*/
-}
-
 - (void)splitEdgeAtIndex:(uint)index
 {
-	/*NSLog(@"splitEdgeAtIndex:%i", index);
-	
+	/*
 	Edge edge = [self edgeAtIndex:index];
 	[self removeEdgeAtIndex:index];
 	Vector3D firstVertex = [self vertexAtIndex:edge.vertexIndices[0]];
@@ -280,7 +220,7 @@
 
 - (void)splitSelectedEdges
 {
-	/*NSLog(@"splitSelectedEdges");
+	/*
 	[self resetCache];
 	
 	for (int i = 0; i < (int)selected->size(); i++)
@@ -293,31 +233,13 @@
 	}*/
 }
 
-- (void)splitSelectedTriangles
-{
-	/*NSLog(@"splitSelectedTriangles");
-	[self resetCache];
-	
-	for (int i = 0; i < (int)selected->size(); i++)
-	{
-		if (selected->at(i).selected)
-		{
-			[self splitTriangleAtIndex:i];
-			i--;
-		}
-	}*/
-}
-
-
 - (void)mergeSelected
 {
-	NSLog(@"mergeSelected");
-    mesh->mergeSelected();
+	mesh->mergeSelected();
 }
 
 - (void)splitSelected
 {
-	NSLog(@"splitSelected");
 	mesh->splitSelected();
 }
 
