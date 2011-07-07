@@ -6,43 +6,25 @@ This project is under MIT license. You find it in file "LICENSE.TXT".
 
 ## About
 
-OpenGL Editor is very basic modeling tool focused on low poly modeling with triangles.
+OpenGL Editor is very basic modeling tool focused on low poly modeling with triangles. 
+Currently Mesh class is being re-implemented in Mesh2 for faster modeling operations and easier
+implementation of advanced features (subdivision, splitting, extrusion, ...).
 
-[Modeling chess tower video](http://www.youtube.com/watch?v=57d63xcT21Y)
+## Screenshots
 
-### Project is now divided into three repos.
+### Chess tower
 
-* [opengl-editor-cocoa](http://github.com/filipkunc/opengl-editor-cocoa/) 
-this git repo aims to be Mac only project for low poly modeling
-* [3d-editor-toolkit](http://code.google.com/p/3d-editor-toolkit/)
-this svn repo aims to be Windows/Mac project for others to be able to create similar editor,
-it will not contain modeling or Bullet stuff
-* [bullet-physics-editor](http://code.google.com/p/bullet-physics-editor/)
-this svn repo aims to be Windows/Mac project to enable editing and working with Bullet files
+Modeled with extrude (⌘D shortcut, same as duplicate).
 
-### Compiling
+<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/chesstower.png" alt="Chess tower" width="902px" height="597px"></img>
 
-Just open OpenGLEditor.xcodeproj in Xcode and build all. 
+### Loop subdivision
 
-### Implemented features
+And same chess tower after four or five Loop subdivision iterations.
 
-* Vertex, Edge, Triangle manipulation (translate, rotate, scale)
-* Edge turning and splitting
-* Vertex and mesh merging
-* Merge vertex pairs (good for mirrored models)
-* Cube, cylinder, sphere primitives
-* Save and load
-* Solid and wireframe view
-* Four views
-* Full undo and redo support, currently unlimited
-* Basic extrusion (⌘C in triangle mode)
+<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
 
-### Future plans
-
-* Issues on GitHub
-* Wiki documentation
-
-### Camera manipulation
+## Camera manipulation
 
 Similar to Maya, Unity. 
 
