@@ -1,8 +1,8 @@
 //
-//  MeshManipulationState.h
+//  MeshState.h
 //  OpenGLEditor
 //
-//  Created by Filip Kunc on 10/17/09.
+//  Created by Filip Kunc on 11/22/09.
 //  For license see LICENSE.TXT
 //
 
@@ -10,17 +10,18 @@
 #import "MathDeclaration.h"
 #import "Mesh.h"
 
-@interface MeshManipulationState : NSObject 
+@interface MeshState : NSObject
 {
 	uint itemIndex;
 	vector<Vector3D> *vertices;
-	vector<SelectionInfo> *selected;
+	vector<Triangle> *triangles;
+	vector<bool> *selection;
 	enum MeshSelectionMode selectionMode;
 }
 
 @property (readonly, assign) uint itemIndex;
 
 - (id)initWithMesh:(Mesh *)mesh itemIndex:(uint)index;
-- (void)applyManipulationToMesh:(Mesh *)mesh;
+- (void)applyToMesh:(Mesh *)mesh;
 
 @end

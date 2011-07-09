@@ -305,38 +305,14 @@
 	}
 }
 
-- (MeshManipulationState *)currentMeshManipulation
+- (MeshState *)currentMeshState
 {
 	for (uint i = 0; i < [self count]; i++)
 	{
 		Item *item = [self itemAtIndex:i];
 		if ([item selected])
 		{
-			MeshManipulationState *meshState = [[MeshManipulationState alloc] initWithMesh:[item mesh]
-																				 itemIndex:i];
-			return meshState;
-		}
-	}
-	return nil;
-}
-
-- (void)setCurrentMeshManipulation:(MeshManipulationState *)manipulation
-{
-	[self deselectAll];
-	
-	Item *item = [self itemAtIndex:[manipulation itemIndex]];
-	[item setSelected:YES];
-	[manipulation applyManipulationToMesh:[item mesh]];
-}
-
-- (MeshFullState *)currentMeshFull
-{
-	for (uint i = 0; i < [self count]; i++)
-	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
-		{
-			MeshFullState *meshState = [[MeshFullState alloc] initWithMesh:[item mesh]
+			MeshState *meshState = [[MeshState alloc] initWithMesh:[item mesh]
 																 itemIndex:i];
 			return meshState;
 		}
@@ -344,13 +320,13 @@
 	return nil;
 }
 
-- (void)setCurrentMeshFull:(MeshFullState *)fullState
+- (void)setCurrentMeshState:(MeshState *)meshState
 {
 	[self deselectAll];
 	
-	Item *item = [self itemAtIndex:[fullState itemIndex]];
+	Item *item = [self itemAtIndex:[meshState itemIndex]];
 	[item setSelected:YES];
-	[fullState applyFullToMesh:[item mesh]];
+	[meshState applyToMesh:[item mesh]];
 }
 
 - (NSMutableArray *)currentSelection

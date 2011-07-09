@@ -23,9 +23,8 @@
 		A7064C7412BD107800B14CFA /* ManipulatorWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4B12BD107800B14CFA /* ManipulatorWidget.mm */; };
 		A7064C7512BD107800B14CFA /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */; };
 		A7064C7612BD107800B14CFA /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5112BD107800B14CFA /* Mesh.mm */; };
-		A7064C7712BD107800B14CFA /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5312BD107800B14CFA /* MeshFullState.mm */; };
+		A7064C7712BD107800B14CFA /* MeshState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5312BD107800B14CFA /* MeshState.mm */; };
 		A7064C7812BD107800B14CFA /* MeshHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.mm */; };
-		A7064C7912BD107800B14CFA /* MeshManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5712BD107800B14CFA /* MeshManipulationState.mm */; };
 		A7064C7A12BD107800B14CFA /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5912BD107800B14CFA /* MyDocument.mm */; };
 		A7064C7B12BD107800B14CFA /* OpenGLDrawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */; };
 		A7064C7C12BD107800B14CFA /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
@@ -53,8 +52,7 @@
 		A746511C12BD1CCD0030EEB0 /* Item.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4312BD107800B14CFA /* Item.mm */; };
 		A746511E12BD1CCD0030EEB0 /* ItemCollection.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4512BD107800B14CFA /* ItemCollection.mm */; };
 		A746512012BD1CCD0030EEB0 /* ItemManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4712BD107800B14CFA /* ItemManipulationState.mm */; };
-		A746512212BD1CEA0030EEB0 /* MeshFullState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5312BD107800B14CFA /* MeshFullState.mm */; };
-		A746512412BD1CEA0030EEB0 /* MeshManipulationState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5712BD107800B14CFA /* MeshManipulationState.mm */; };
+		A746512212BD1CEA0030EEB0 /* MeshState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5312BD107800B14CFA /* MeshState.mm */; };
 		A746512612BD1CF60030EEB0 /* OpenGLSceneView.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6112BD107800B14CFA /* OpenGLSceneView.mm */; };
 		A746512912BD1CF60030EEB0 /* Shader.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6612BD107800B14CFA /* Shader.mm */; };
 		A746512B12BD1CF60030EEB0 /* ShaderProgram.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6812BD107800B14CFA /* ShaderProgram.mm */; };
@@ -107,12 +105,10 @@
 		A7064C4F12BD107800B14CFA /* Matrix4x4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Matrix4x4.h; path = Classes/Matrix4x4.h; sourceTree = "<group>"; };
 		A7064C5012BD107800B14CFA /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh.h; path = Classes/Mesh.h; sourceTree = "<group>"; };
 		A7064C5112BD107800B14CFA /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh.mm; path = Classes/Mesh.mm; sourceTree = "<group>"; };
-		A7064C5212BD107800B14CFA /* MeshFullState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshFullState.h; path = Classes/MeshFullState.h; sourceTree = "<group>"; };
-		A7064C5312BD107800B14CFA /* MeshFullState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshFullState.mm; path = Classes/MeshFullState.mm; sourceTree = "<group>"; };
+		A7064C5212BD107800B14CFA /* MeshState.h */ = {isa = PBXFileReference; fileEncoding = 4; name = MeshState.h; path = Classes/MeshState.h; sourceTree = "<group>"; };
+		A7064C5312BD107800B14CFA /* MeshState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshState.mm; path = Classes/MeshState.mm; sourceTree = "<group>"; };
 		A7064C5412BD107800B14CFA /* MeshHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshHelpers.mm; path = Classes/MeshHelpers.mm; sourceTree = "<group>"; };
 		A7064C5512BD107800B14CFA /* MeshHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshHelpers.h; path = Classes/MeshHelpers.h; sourceTree = "<group>"; };
-		A7064C5612BD107800B14CFA /* MeshManipulationState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshManipulationState.h; path = Classes/MeshManipulationState.h; sourceTree = "<group>"; };
-		A7064C5712BD107800B14CFA /* MeshManipulationState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshManipulationState.mm; path = Classes/MeshManipulationState.mm; sourceTree = "<group>"; };
 		A7064C5812BD107800B14CFA /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyDocument.h; path = Classes/MyDocument.h; sourceTree = "<group>"; };
 		A7064C5912BD107800B14CFA /* MyDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MyDocument.mm; path = Classes/MyDocument.mm; sourceTree = "<group>"; };
 		A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenGLDrawing.mm; path = Classes/OpenGLDrawing.mm; sourceTree = "<group>"; };
@@ -261,12 +257,10 @@
 				A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */,
 				A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */,
 				A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */,
-				A7064C5212BD107800B14CFA /* MeshFullState.h */,
-				A7064C5312BD107800B14CFA /* MeshFullState.mm */,
+				A7064C5212BD107800B14CFA /* MeshState.h */,
+				A7064C5312BD107800B14CFA /* MeshState.mm */,
 				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
 				A7064C5412BD107800B14CFA /* MeshHelpers.mm */,
-				A7064C5612BD107800B14CFA /* MeshManipulationState.h */,
-				A7064C5712BD107800B14CFA /* MeshManipulationState.mm */,
 				A7064C5812BD107800B14CFA /* MyDocument.h */,
 				A7064C5912BD107800B14CFA /* MyDocument.mm */,
 				A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */,
@@ -467,9 +461,8 @@
 				A7064C7412BD107800B14CFA /* ManipulatorWidget.mm in Sources */,
 				A7064C7512BD107800B14CFA /* Matrix4x4.cpp in Sources */,
 				A7064C7612BD107800B14CFA /* Mesh.mm in Sources */,
-				A7064C7712BD107800B14CFA /* MeshFullState.mm in Sources */,
+				A7064C7712BD107800B14CFA /* MeshState.mm in Sources */,
 				A7064C7812BD107800B14CFA /* MeshHelpers.mm in Sources */,
-				A7064C7912BD107800B14CFA /* MeshManipulationState.mm in Sources */,
 				A7064C7A12BD107800B14CFA /* MyDocument.mm in Sources */,
 				A7064C7B12BD107800B14CFA /* OpenGLDrawing.mm in Sources */,
 				A7064C7C12BD107800B14CFA /* OpenGLManipulatingController.mm in Sources */,
@@ -496,8 +489,7 @@
 				A746512612BD1CF60030EEB0 /* OpenGLSceneView.mm in Sources */,
 				A746512912BD1CF60030EEB0 /* Shader.mm in Sources */,
 				A746512B12BD1CF60030EEB0 /* ShaderProgram.mm in Sources */,
-				A746512212BD1CEA0030EEB0 /* MeshFullState.mm in Sources */,
-				A746512412BD1CEA0030EEB0 /* MeshManipulationState.mm in Sources */,
+				A746512212BD1CEA0030EEB0 /* MeshState.mm in Sources */,
 				A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */,
 				A746511A12BD1CCD0030EEB0 /* IndexedItem.mm in Sources */,
 				A746511C12BD1CCD0030EEB0 /* Item.mm in Sources */,

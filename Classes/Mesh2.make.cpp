@@ -318,3 +318,16 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &
     }
 }
 
+void Mesh2::setSelection(const vector<bool> &selection)
+{
+    for (uint i = 0; i < selection.size(); i++)
+        setSelectedAtIndex(selection[i], i);
+}
+
+void Mesh2::getSelection(vector<bool> &selection)
+{
+    selection.clear();
+    for (uint i = 0; i < selectedCount(); i++)
+        selection.push_back(isSelectedAtIndex(i));
+}
+

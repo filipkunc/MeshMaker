@@ -54,7 +54,7 @@ vector<T> *ReadValues(string s)
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
-		oldMeshManipulation = nil;
+		oldMeshState = nil;
 		
 		views = [[NSMutableArray alloc] init];
 		oneView = nil;
@@ -319,20 +319,6 @@ vector<T> *ReadValues(string s)
 	[self setManipulated:itemsController];
 }
 
-- (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current
-{
-	[items setCurrentMeshManipulation:old];
-	Item *item = [items itemAtIndex:[old itemIndex]];
-	[meshController setModel:[item mesh]];
-	
-	MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
-	[document swapMeshManipulationWithOld:current current:old];
-	
-	[itemsController updateSelection];
-	[meshController updateSelection];
-	[self setManipulated:meshController];
-}
-
 - (void)swapAllItemsWithOld:(NSMutableArray *)old
 					current:(NSMutableArray *)current
 				 actionName:(NSString *)actionName
@@ -348,18 +334,18 @@ vector<T> *ReadValues(string s)
 	[self setManipulated:itemsController];
 }
 
-- (void)swapMeshFullStateWithOld:(MeshFullState *)old 
-						 current:(MeshFullState *)current 
-					  actionName:(NSString *)actionName
+- (void)swapMeshStateWithOld:(MeshState *)old 
+					 current:(MeshState *)current 
+				  actionName:(NSString *)actionName
 {
-	[items setCurrentMeshFull:old];
+	[items setCurrentMeshState:old];
 	Item *item = [items itemAtIndex:[old itemIndex]];
 	[meshController setModel:[item mesh]];
 	
 	MyDocument *document = [self prepareUndoWithName:actionName];
-	[document swapMeshFullStateWithOld:current
-							   current:old
-							actionName:actionName];
+	[document swapMeshStateWithOld:current
+						   current:old
+						actionName:actionName];
 	
 	[itemsController updateSelection];
 	[meshController updateSelection];
@@ -379,17 +365,17 @@ vector<T> *ReadValues(string s)
 					   actionName:actionName];	
 }
 
-- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^)())action
+- (void)meshActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
-	MeshFullState *oldState = [items currentMeshFull];
+	MeshState *oldState = [items currentMeshState];
 	
 	action();
 	
-	MeshFullState *currentState = [items currentMeshFull];
-	[document swapMeshFullStateWithOld:oldState 
-							   current:currentState
-							actionName:actionName];
+	MeshState *currentState = [items currentMeshState];
+	[document swapMeshStateWithOld:oldState 
+						   current:currentState
+						actionName:actionName];
 }
 
 - (void)manipulationStartedInView:(OpenGLSceneView *)view
@@ -402,7 +388,7 @@ vector<T> *ReadValues(string s)
 	}
 	else if (manipulated == meshController)
 	{
-		oldMeshManipulation = [items currentMeshManipulation];
+		oldMeshState = [items currentMeshState];
 	}
 }
 
@@ -419,8 +405,8 @@ vector<T> *ReadValues(string s)
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
-		[document swapMeshManipulationWithOld:oldMeshManipulation current:[items currentMeshManipulation]];
-		oldMeshManipulation = nil;
+		[document swapMeshStateWithOld:oldMeshState current:[items currentMeshState] actionName:@"Mesh Manipulation"];
+		oldMeshState = nil;
 	}
 	
 	[self setNeedsDisplayExceptView:view];
@@ -520,7 +506,7 @@ vector<T> *ReadValues(string s)
 	}
 	else if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Merge" block:^ { [[self currentMesh] mergeSelected]; }]; 
+		[self meshActionWithName:@"Merge" block:^ { [[self currentMesh] mergeSelected]; }]; 
 	}
 	
 	[manipulated updateSelection];
@@ -534,7 +520,7 @@ vector<T> *ReadValues(string s)
 	
 	if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Split" block:^ { [[self currentMesh] splitSelected]; }];
+		[self meshActionWithName:@"Split" block:^ { [[self currentMesh] splitSelected]; }];
 	}
 	
 	[manipulated updateSelection];
@@ -548,7 +534,7 @@ vector<T> *ReadValues(string s)
 	
 	if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Flip" block:^ { [[self currentMesh] flipSelected]; }];
+		[self meshActionWithName:@"Flip" block:^ { [[self currentMesh] flipSelected]; }];
 	}
 	
 	[manipulated updateSelection];
@@ -576,7 +562,7 @@ vector<T> *ReadValues(string s)
 	}
 	else if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Duplicate" block:^ { [manipulated duplicateSelected]; }];
+		[self meshActionWithName:@"Duplicate" block:^ { [manipulated duplicateSelected]; }];
 	}
 	
 	[self setNeedsDisplayOnAllViews];
@@ -628,7 +614,7 @@ vector<T> *ReadValues(string s)
 	}
 	else if (manipulated == meshController)
 	{
-		[self fullMeshActionWithName:@"Delete" block:^ { [manipulated removeSelected]; }];
+		[self meshActionWithName:@"Delete" block:^ { [manipulated removeSelected]; }];
 	}
 	
 	[self setNeedsDisplayOnAllViews];
@@ -668,7 +654,7 @@ vector<T> *ReadValues(string s)
 	{
 		if ([[self currentMesh] selectionMode] == MeshSelectionModeVertices)
 		{
-			[self fullMeshActionWithName:@"Merge Vertex Pairs" block:^ { [[self currentMesh] mergeVertexPairs]; }];
+			[self meshActionWithName:@"Merge Vertex Pairs" block:^ { [[self currentMesh] mergeVertexPairs]; }];
 		}
 	}
 	[self setNeedsDisplayOnAllViews];
@@ -685,7 +671,7 @@ vector<T> *ReadValues(string s)
 
     if (currentMesh)
     {
-        [self fullMeshActionWithName:@"Subdivision" block:^ { [currentMesh loopSubdivision]; }];
+        [self meshActionWithName:@"Subdivision" block:^ { [currentMesh loopSubdivision]; }];
     }
 	
 	[manipulated updateSelection];
