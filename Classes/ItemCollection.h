@@ -12,8 +12,7 @@
 #import "OpenGLManipulating.h"
 #import "OpenGLManipulatingController.h"
 #import "IndexedItem.h"
-#import "MeshManipulationState.h"
-#import "MeshFullState.h"
+#import "MeshState.h"
 
 @interface ItemCollection : NSObject <OpenGLManipulatingModelItem, NSCoding, CppFileStreaming>
 {
@@ -21,8 +20,7 @@
 }
 
 @property (readwrite, assign) NSMutableArray *currentManipulations;
-@property (readwrite, assign) MeshManipulationState *currentMeshManipulation;
-@property (readwrite, assign) MeshFullState *currentMeshFull;
+@property (readwrite, assign) MeshState *currentMeshState;
 @property (readwrite, assign) NSMutableArray *currentSelection;
 @property (readwrite, assign) NSMutableArray *currentItems;
 @property (readwrite, retain) NSMutableArray *allItems;

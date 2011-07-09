@@ -10,7 +10,6 @@
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
-#import "MeshManipulationState.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate>
 {
@@ -31,7 +30,7 @@
 	
 	NSMutableArray *views;
 	NSMutableArray *oldManipulations;
-	MeshManipulationState *oldMeshManipulation;
+	MeshState *oldMeshState;
 	
 	IBOutlet NSSplitView *topSplit;
 	IBOutlet NSSplitView *bottomSplit;
@@ -46,15 +45,17 @@
 - (Mesh *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
-- (void)swapMeshManipulationWithOld:(MeshManipulationState *)old current:(MeshManipulationState *)current;
+
 - (void)swapAllItemsWithOld:(NSMutableArray *)old
 					current:(NSMutableArray *)current
 				 actionName:(NSString *)actionName;
-- (void)swapMeshFullStateWithOld:(MeshFullState *)old 
-						 current:(MeshFullState *)current 
-					  actionName:(NSString *)actionName;
+
+- (void)swapMeshStateWithOld:(MeshState *)old 
+					 current:(MeshState *)current 
+				  actionName:(NSString *)actionName;
+
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action;
-- (void)fullMeshActionWithName:(NSString *)actionName block:(void (^)())action;
+- (void)meshActionWithName:(NSString *)actionName block:(void (^)())action;
 - (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps;
 - (IBAction)addCube:(id)sender;

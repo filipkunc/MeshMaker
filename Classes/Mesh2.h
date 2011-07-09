@@ -101,4 +101,7 @@ public:
     
     void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Triangle> &triangles);
     void toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &triangles);
+  
+    void setSelection(const vector<bool> &selection);
+    void getSelection(vector<bool> &selection);
 };

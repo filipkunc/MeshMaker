@@ -11,7 +11,7 @@
 #import "Mesh.h"
 #import "CppFileStreaming.h"
 
-@interface Item : NSObject <NSCoding, CppFileStreaming>
+@interface Item : NSObject <CppFileStreaming>
 {
 	Vector3D *position;
 	Quaternion *rotation;
