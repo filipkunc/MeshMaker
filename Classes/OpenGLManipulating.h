@@ -9,7 +9,7 @@
 #import "OpenGLSelecting.h"
 
 // for PropertyReflector
-@protocol OpenGLTransforming
+@protocol OpenGLTransforming <NSObject>
 
 @property (readwrite, assign) float positionX, positionY, positionZ;
 @property (readwrite, assign) float rotationX, rotationY, rotationZ;
