@@ -394,7 +394,7 @@ NSOpenGLContext *globalGLContext = nil;
 	
 	[self drawOrthoDefaultManipulator];
 	[self drawSelectionRect];
-		
+    	
 	glEnable(GL_DEPTH_TEST);
 		
 	[[self openGLContext] flushBuffer];

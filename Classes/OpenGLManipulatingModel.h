@@ -11,7 +11,7 @@
 #import "MathDeclaration.h"
 #import "OpenGLManipulating.h"
 
-@protocol OpenGLManipulatingModel
+@protocol OpenGLManipulatingModel <NSObject>
 
 - (uint)count;
 - (BOOL)isSelectedAtIndex:(uint)index;

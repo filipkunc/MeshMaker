@@ -10,7 +10,7 @@
 
 #import "Enums.h"
 
-@protocol OpenGLSelecting
+@protocol OpenGLSelecting <NSObject>
 
 - (uint)selectableCount;
 - (void)drawForSelectionAtIndex:(uint)index;

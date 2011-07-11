@@ -105,7 +105,7 @@
 		A7064C4F12BD107800B14CFA /* Matrix4x4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Matrix4x4.h; path = Classes/Matrix4x4.h; sourceTree = "<group>"; };
 		A7064C5012BD107800B14CFA /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh.h; path = Classes/Mesh.h; sourceTree = "<group>"; };
 		A7064C5112BD107800B14CFA /* Mesh.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh.mm; path = Classes/Mesh.mm; sourceTree = "<group>"; };
-		A7064C5212BD107800B14CFA /* MeshState.h */ = {isa = PBXFileReference; fileEncoding = 4; name = MeshState.h; path = Classes/MeshState.h; sourceTree = "<group>"; };
+		A7064C5212BD107800B14CFA /* MeshState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshState.h; path = Classes/MeshState.h; sourceTree = "<group>"; };
 		A7064C5312BD107800B14CFA /* MeshState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshState.mm; path = Classes/MeshState.mm; sourceTree = "<group>"; };
 		A7064C5412BD107800B14CFA /* MeshHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshHelpers.mm; path = Classes/MeshHelpers.mm; sourceTree = "<group>"; };
 		A7064C5512BD107800B14CFA /* MeshHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshHelpers.h; path = Classes/MeshHelpers.h; sourceTree = "<group>"; };

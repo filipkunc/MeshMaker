@@ -22,23 +22,6 @@
 	return self;
 }
 
-#pragma mark NSCoding implementation
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-	self = [super init];
-	if (self)
-	{
-		items = [aDecoder decodeObjectForKey:@"items"];
-	}
-	return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)aCoder
-{
-	[aCoder encodeObject:items forKey:@"items"];
-}
-
 #pragma mark CppFileStreaming implementation
 
 - (id)initWithFileStream:(ifstream *)fin
