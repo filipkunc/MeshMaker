@@ -212,7 +212,6 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 					glColor3f(1.0f, 0.0f, 0.0f);
 				else
 					glColor3f(0.0f, 0.0f, 1.0f);
-				glDisable(GL_LIGHTING);
 			}
 			glBegin(GL_POINTS);
 			glVertex3f(v.x, v.y, v.z);
@@ -244,7 +243,6 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
                     glColor3f(0.8f, 0.0f, 0.0f);
                 else
                     glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
-                glDisable(GL_LIGHTING);
             }
             glBegin(GL_LINES);
             for (int i = 0; i < 2; i++)
@@ -261,11 +259,67 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 
 void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
 {
-    for (int i = 0; i < _vertices.count(); i++)
+    glPointSize(5.0f);
+    
+    if (forSelection)
     {
-        uint colorIndex = i + 1;
-        glColor4ubv((GLubyte *)&colorIndex);
-        drawAtIndex(i, forSelection, viewMode);
+        vector<Vector3D> tempVertices;
+        vector<uint> tempColors;
+        
+        uint colorIndex = 0;
+        
+        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        {
+            colorIndex++;
+            tempColors.push_back(colorIndex);            
+            tempVertices.push_back(node->data.position);            
+        }
+        
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        
+        GLubyte *colorPtr = (GLubyte *)&tempColors[0];
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
+        
+        float *vertexPtr = (float *)&tempVertices[0];        
+        glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+        
+        glDrawArrays(GL_POINTS, 0, tempVertices.size());
+        
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    }
+    else
+    {
+        vector<Vector3D> tempVertices;
+        vector<Vector3D> tempColors;
+        
+        Vector3D selectedColor(1.0f, 0.0f, 0.0f);
+        Vector3D normalColor(0.0f, 0.0f, 1.0f);
+        
+        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        {
+            if (node->data.selected)
+                tempColors.push_back(selectedColor); 
+            else
+                tempColors.push_back(normalColor);
+            
+            tempVertices.push_back(node->data.position);            
+        }
+        
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        
+        float *colorPtr = (float *)&tempColors[0];
+        glColorPointer(3, GL_FLOAT, 0, colorPtr);
+        
+        float *vertexPtr = (float *)&tempVertices[0];        
+        glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+        
+        glDrawArrays(GL_POINTS, 0, tempVertices.size());
+        
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 }
 
