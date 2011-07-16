@@ -20,5 +20,6 @@
 - (void)willSelect;
 - (void)didSelect;
 - (BOOL)isObjectSelectedAtIndex:(uint)index;
+- (void)drawAllForSelection;
 
 @end

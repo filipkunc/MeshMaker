@@ -768,11 +768,8 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	if (selecting == nil || [selecting selectableCount] <= 0)
 		return;
 	
-	id aSelecting = selecting;
-	if ([aSelecting respondsToSelector:@selector(willSelect)])
-	{
+	if ([selecting respondsToSelector:@selector(willSelect)])
 		[selecting willSelect];
-	}
     
     [[self openGLContext] makeCurrentContext];
     glClearColor(0, 0, 0, 0);
@@ -783,11 +780,18 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     
-    for (uint i = 0; i < [selecting selectableCount]; i++)
+    if ([selecting respondsToSelector:@selector(drawAllForSelection)])
     {
-        uint colorIndex = i + 1;
-        glColor4ubv((GLubyte *)&colorIndex);
-        [selecting drawForSelectionAtIndex:i];
+        [selecting drawAllForSelection];
+    }
+    else
+    {
+        for (uint i = 0; i < [selecting selectableCount]; i++)
+        {
+            uint colorIndex = i + 1;
+            glColor4ubv((GLubyte *)&colorIndex);
+            [selecting drawForSelectionAtIndex:i];
+        }
     }
     
 	glFinish();
@@ -818,10 +822,8 @@ uint selectedIndices[kMaxSelectedIndicesCount];
         }];
     }
     
-    if ([aSelecting respondsToSelector:@selector(didSelect)])
-	{
+    if ([selecting respondsToSelector:@selector(didSelect)])
 		[selecting didSelect];
-	}
 }
 
 - (void)selectWithPoint:(NSPoint)point 

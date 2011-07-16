@@ -80,13 +80,20 @@ public:
     // drawing
     
     void resetCache();
+    void resetColorCache();
     void fillCache();
-    void fillColorCache(bool darker);
+    void fillColorCache();
     
-    void drawFill(bool darker, bool forSelection);
+    void drawColoredFill(bool colored);
     void drawWire();
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
+
     void drawAtIndex(uint index, bool forSelection, ViewMode mode);
+    void drawAll(ViewMode mode, bool forSelection);
+    
+    void drawAllVertices(ViewMode mode, bool forSelection);
+    void drawAllTriangles(ViewMode mode, bool forSelection);
+    void drawAllEdges(ViewMode mode, bool forSelection);
     
     // make
     
