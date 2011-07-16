@@ -267,7 +267,7 @@ void Mesh2::makeSphere(uint steps)
 
 void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Triangle> &triangles)
 {
-    resetCache();
+    resetTriangleCache();
     _vertices.removeAll();
     _triangles.removeAll();
     

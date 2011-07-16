@@ -23,7 +23,7 @@ void fillCachedColorsAtIndex(uint index, Vector3D *cachedColors, float component
     }	
 }
 
-void Mesh2::resetCache()
+void Mesh2::resetTriangleCache()
 {
     if (_cachedTriangleVertices)
 	{
@@ -35,10 +35,10 @@ void Mesh2::resetCache()
 		delete [] _cachedTriangleNormals;
 		_cachedTriangleNormals = NULL;
 	}
-	resetColorCache();
+	resetTriangleColorCache();
 }
 
-void Mesh2::resetColorCache()
+void Mesh2::resetTriangleColorCache()
 {
     if (_cachedTriangleColors)
 	{
@@ -47,7 +47,7 @@ void Mesh2::resetColorCache()
 	}
 }
 
-void Mesh2::fillCache()
+void Mesh2::fillTriangleCache()
 {
     if (_cachedTriangleVertices)
         return;
@@ -75,7 +75,7 @@ void Mesh2::fillCache()
     }
 }
 
-void Mesh2::fillColorCache()
+void Mesh2::fillTriangleColorCache()
 {
     if (_cachedTriangleColors)
         return;
@@ -99,9 +99,9 @@ void Mesh2::fillColorCache()
 
 void Mesh2::drawColoredFill(bool colored)
 {
-    fillCache();
+    fillTriangleCache();
 	if (colored)
-        fillColorCache();
+        fillTriangleColorCache();
     
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
