@@ -79,10 +79,10 @@ public:
 
     // drawing
     
-    void resetCache();
-    void resetColorCache();
-    void fillCache();
-    void fillColorCache();
+    void resetTriangleCache();
+    void resetTriangleColorCache();
+    void fillTriangleCache();
+    void fillTriangleColorCache();
     
     void drawColoredFill(bool colored);
     void drawWire();

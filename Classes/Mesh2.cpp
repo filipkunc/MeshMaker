@@ -22,7 +22,7 @@ Mesh2::Mesh2(float colorComponents[4])
 
 Mesh2::~Mesh2()
 {
-    resetCache();
+    resetTriangleCache();
 }
 
 void Mesh2::setSelectionMode(MeshSelectionMode value)
@@ -156,7 +156,7 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
 
 void Mesh2::transformAll(const Matrix4x4 &matrix)
 {
-    resetCache();
+    resetTriangleCache();
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -169,7 +169,7 @@ void Mesh2::transformAll(const Matrix4x4 &matrix)
 
 void Mesh2::transformSelected(const Matrix4x4 &matrix)
 {
-    resetCache();
+    resetTriangleCache();
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -235,7 +235,7 @@ void Mesh2::removeDegeneratedEdges()
 
 void Mesh2::removeNonUsedVertices()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -246,7 +246,7 @@ void Mesh2::removeNonUsedVertices()
 
 void Mesh2::mergeSelectedVertices()
 {
-    resetCache();
+    resetTriangleCache();
     
     fastMergeSelectedVertices();
     removeDegeneratedTrianglesAndEdges();
@@ -257,7 +257,7 @@ void Mesh2::mergeSelectedVertices()
 
 void Mesh2::removeSelectedVertices()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -273,7 +273,7 @@ void Mesh2::removeSelectedVertices()
 
 void Mesh2::removeSelectedTriangles()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -289,7 +289,7 @@ void Mesh2::removeSelectedTriangles()
 
 void Mesh2::removeSelectedEdges()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
@@ -335,7 +335,7 @@ void Mesh2::mergeSelected()
 
 void Mesh2::loopSubdivision()
 {
-    resetCache();
+    resetTriangleCache();
     
     VertexNode *vertices[6];
     
@@ -429,7 +429,7 @@ void Mesh2::loopSubdivision()
 
 void Mesh2::splitSelectedTriangles()
 {
-    resetCache();
+    resetTriangleCache();
     
     VertexNode *vertices[6];
     
@@ -514,7 +514,7 @@ void Mesh2::splitSelected()
 
 void Mesh2::flipSelectedTriangles()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -525,7 +525,7 @@ void Mesh2::flipSelectedTriangles()
 
 void Mesh2::turnSelectedEdges()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
@@ -554,7 +554,7 @@ void Mesh2::flipSelected()
 
 void Mesh2::flipAllTriangles()
 {
-    resetCache();
+    resetTriangleCache();
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -564,7 +564,7 @@ void Mesh2::flipAllTriangles()
 
 void Mesh2::extrudeSelectedTriangles()
 {
-    resetCache();
+    resetTriangleCache();
     
     vector<ExtrudePair> extrudePairs;
     
