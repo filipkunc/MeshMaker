@@ -7,6 +7,7 @@
 //
 
 #import "OpenGLManipulatingController.h"
+#import "Mesh.h"
 
 @implementation OpenGLManipulatingController
 
@@ -510,31 +511,35 @@
 
 - (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection
 {
-	glPushMatrix();
-	glMultMatrixf(modelTransform->m);
-	for (uint i = 0; i < [model count]; i++)
-	{
-		[model drawAtIndex:i forSelection:forSelection withMode:mode];
-	}
-	glPopMatrix();
+    if ([model isKindOfClass:[Mesh class]])
+    {
+        glPushMatrix();
+        glMultMatrixf(modelTransform->m);
+        [model drawAllForSelection:forSelection withMode:mode];
+        glPopMatrix();
+    }
+    else
+    {
+        glPushMatrix();
+        glMultMatrixf(modelTransform->m);
+        for (uint i = 0; i < [model count]; i++)
+        {
+            [model drawAtIndex:i forSelection:forSelection withMode:mode];
+        }
+        glPopMatrix();
+    }
 }
 
 - (void)willSelect
 {
-	id aModel = model;
-	if ([aModel respondsToSelector:@selector(willSelect)])
-	{
+	if ([model respondsToSelector:@selector(willSelect)])
 		[model willSelect];
-	}
 }
 
 - (void)didSelect
 {
-	id aModel = model;
-	if ([aModel respondsToSelector:@selector(didSelect)])
-	{
+	if ([model respondsToSelector:@selector(didSelect)])
 		[model didSelect];
-	}
 	[self updateSelection];
 }
 
@@ -549,6 +554,29 @@
 	glMultMatrixf(modelTransform->m);
 	[model drawAtIndex:index forSelection:YES withMode:ViewModeSolid];
 	glPopMatrix();
+}
+
+- (void)drawAllForSelection
+{
+    if ([model respondsToSelector:@selector(drawAllForSelection:withMode:)])
+    {
+        glPushMatrix();
+        glMultMatrixf(modelTransform->m);
+        [model drawAllForSelection:YES withMode:ViewModeSolid];
+        glPopMatrix();
+    }
+    else
+    {
+        glPushMatrix();
+        glMultMatrixf(modelTransform->m);
+        for (uint i = 0; i < [model count]; i++)
+        {
+            uint colorIndex = i + 1;
+            glColor4ubv((GLubyte *)&colorIndex);
+            [model drawAtIndex:i forSelection:YES withMode:ViewModeSolid];
+        }
+        glPopMatrix();        
+    }
 }
 
 - (void)selectObjectAtIndex:(uint)index

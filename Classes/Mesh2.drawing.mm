@@ -35,7 +35,12 @@ void Mesh2::resetCache()
 		delete [] _cachedNormals;
 		_cachedNormals = NULL;
 	}
-	if (_cachedColors)
+	resetColorCache();
+}
+
+void Mesh2::resetColorCache()
+{
+    if (_cachedColors)
 	{
 		delete [] _cachedColors;
 		_cachedColors = NULL;
@@ -44,51 +49,41 @@ void Mesh2::resetCache()
 
 void Mesh2::fillCache()
 {
-    if (!_cachedVertices)
-	{
-		_cachedVertices = new Vector3D[_triangles.count() * 3];
-		_cachedNormals = new Vector3D[_triangles.count() * 3];
-		_cachedColors = new Vector3D[_triangles.count() * 3];
-		Vector3D triangleVertices[3];
+    if (_cachedVertices)
+        return;
+    
+    _cachedVertices = new Vector3D[_triangles.count() * 3];
+    _cachedNormals = new Vector3D[_triangles.count() * 3];
+    Vector3D triangleVertices[3];
+    
+    uint i = 0;
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle2 currentTriangle = node->data;
+        currentTriangle.getVertexPositions(triangleVertices);
         
-        uint i = 0;
-		
-		for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
-		{
-			Triangle2 currentTriangle = node->data;
-            currentTriangle.getVertexPositions(triangleVertices);
-			
-			Vector3D n = NormalFromTriangleVertices(triangleVertices);
-			
-			for (uint j = 0; j < 3; j++)
-			{
-				_cachedVertices[i * 3 + j] = triangleVertices[j];
-				_cachedNormals[i * 3 + j] = n;
-			}
-            
-            i++;
-		}
-	}
+        Vector3D n = NormalFromTriangleVertices(triangleVertices);
+        
+        for (uint j = 0; j < 3; j++)
+        {
+            _cachedVertices[i * 3 + j] = triangleVertices[j];
+            _cachedNormals[i * 3 + j] = n;
+        }
+        
+        i++;
+    }
 }
 
-void Mesh2::fillColorCache(bool darker)
+void Mesh2::fillColorCache()
 {
-    float darkerComponents[3];
+    if (_cachedColors)
+        return;
+    
+    _cachedColors = new Vector3D[_triangles.count() * 3];    
+    
     float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
 	
-	if (darker)
-	{
-		for (uint k = 0; k < 3; k++)
-			darkerComponents[k] = _colorComponents[k] -  0.2f;
-		
-		selectedComponents[0] -= 0.2f;
-	}
-    else
-    {
-        for (uint k = 0; k < 3; k++)
-			darkerComponents[k] = _colorComponents[k];
-    }
-    
     uint i = 0;
 	
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -99,24 +94,22 @@ void Mesh2::fillColorCache(bool darker)
 		}
 		else
 		{
-            fillCachedColorsAtIndex(i, _cachedColors, darkerComponents);				
+            fillCachedColorsAtIndex(i, _cachedColors, _colorComponents);				
 		}
         
         i++;
 	}
 }
 
-void Mesh2::drawFill(bool darker, bool forSelection)
+void Mesh2::drawColoredFill(bool colored)
 {
     fillCache();
-	if (_selectionMode == MeshSelectionModeTriangles && !forSelection)
-    {
-        fillColorCache(darker);
-    }
+	if (colored)
+        fillColorCache();
     
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	if (_selectionMode == MeshSelectionModeTriangles && !forSelection)
+	if (colored)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
 		float *colorPtr = (float *)_cachedColors;
@@ -131,7 +124,7 @@ void Mesh2::drawFill(bool darker, bool forSelection)
 	
 	glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
 	
-	if (_selectionMode == MeshSelectionModeTriangles && !forSelection)
+	if (colored)
 		glDisableClientState(GL_COLOR_ARRAY);
     
     glDisableClientState(GL_NORMAL_ARRAY);
@@ -144,7 +137,7 @@ void Mesh2::drawWire()
     {
         glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        drawFill(true, false);
+        drawColoredFill(false);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
@@ -162,12 +155,12 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             glColor3f(_colorComponents[0] + 0.2f, _colorComponents[1] + 0.2f, _colorComponents[2] + 0.2f);
         
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        drawFill(true, forSelection);
+        drawColoredFill(false);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else if (forSelection)
 	{
-        drawFill(true, forSelection);
+        drawColoredFill(false);
     }
     else
     {
@@ -178,9 +171,13 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             [shader useProgram];
             if (_selectionMode != MeshSelectionModeTriangles)
 			{
-				glColor3f(_colorComponents[0], _colorComponents[1], _colorComponents[2]);
+				glColor3fv(_colorComponents);
+                drawColoredFill(false);
 			}
-            drawFill(false, forSelection);
+            else
+            {
+                drawColoredFill(true);
+            }
 			[ShaderProgram resetProgram];
 			glDisable(GL_POLYGON_OFFSET_FILL);
             drawWire();
@@ -189,10 +186,14 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
 		{
             [shader useProgram];
             if (_selectionMode != MeshSelectionModeTriangles)
+			{
+				glColor3fv(_colorComponents);
+                drawColoredFill(false);
+			}
+            else
             {
-                glColor3f(_colorComponents[0], _colorComponents[1], _colorComponents[2]);
+                drawColoredFill(true);
             }
-            drawFill(false, false);
             [ShaderProgram resetProgram];
 		}
 	}
@@ -201,9 +202,6 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
 
 void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 {
-    /*if (!selected->at(index).visible)
-     return;*/
-    
     switch (_selectionMode) 
 	{
 		case MeshSelectionModeVertices:
@@ -265,4 +263,48 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 	}
 }
 
+void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
+{
+    for (int i = 0; i < _vertices.count(); i++)
+    {
+        uint colorIndex = i + 1;
+        glColor4ubv((GLubyte *)&colorIndex);
+        drawAtIndex(i, forSelection, viewMode);
+    }
+}
 
+void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
+{
+    for (int i = 0; i < _triangles.count(); i++)
+    {
+        uint colorIndex = i + 1;
+        glColor4ubv((GLubyte *)&colorIndex);
+        drawAtIndex(i, forSelection, viewMode);
+    }
+}
+
+void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
+{
+    for (int i = 0; i < _edges.count(); i++)
+    {
+        uint colorIndex = i + 1;
+        glColor4ubv((GLubyte *)&colorIndex);
+        drawAtIndex(i, forSelection, viewMode);
+    }
+}
+
+void Mesh2::drawAll(ViewMode mode, bool forSelection)
+{
+    switch (_selectionMode) 
+	{
+        case MeshSelectionModeVertices:
+            drawAllVertices(mode, forSelection);
+            break;
+        case MeshSelectionModeTriangles:
+            drawAllTriangles(mode, forSelection);
+            break;
+        case MeshSelectionModeEdges:
+            drawAllEdges(mode, forSelection);
+            break;
+    }
+}

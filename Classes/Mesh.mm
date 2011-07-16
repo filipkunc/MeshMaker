@@ -252,7 +252,7 @@
 
 - (void)didSelect
 {
-    
+    mesh->resetColorCache();
 }
 
 - (void)getSelectionCenter:(Vector3D *)center 
@@ -279,7 +279,12 @@
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
-	mesh->drawAtIndex(index, forSelection, mode);
+	//mesh->drawAtIndex(index, forSelection, mode);
+}
+
+- (void)drawAllForSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
+{
+    mesh->drawAll(mode, forSelection);
 }
 
 - (void)flipSelected
