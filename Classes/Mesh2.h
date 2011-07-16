@@ -29,9 +29,9 @@ private:
     vector<TriangleNode *> _cachedTriangleSelection;
     vector<EdgeNode *> _cachedEdgeSelection;
     
-	Vector3D *_cachedVertices;
-	Vector3D *_cachedNormals;
-	Vector3D *_cachedColors;
+	Vector3D *_cachedTriangleVertices;
+	Vector3D *_cachedTriangleNormals;
+	Vector3D *_cachedTriangleColors;
     
     float _colorComponents[4];
 private:

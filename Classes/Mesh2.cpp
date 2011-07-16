@@ -10,9 +10,9 @@
 
 Mesh2::Mesh2(float colorComponents[4])
 {
-    _cachedVertices = NULL;
-    _cachedNormals = NULL;
-    _cachedColors = NULL;
+    _cachedTriangleVertices = NULL;
+    _cachedTriangleNormals = NULL;
+    _cachedTriangleColors = NULL;
     
     _selectionMode = MeshSelectionModeVertices;
     
