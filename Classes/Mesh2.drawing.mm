@@ -25,35 +25,35 @@ void fillCachedColorsAtIndex(uint index, Vector3D *cachedColors, float component
 
 void Mesh2::resetCache()
 {
-    if (_cachedVertices)
+    if (_cachedTriangleVertices)
 	{
-		delete [] _cachedVertices;
-		_cachedVertices = NULL;
+		delete [] _cachedTriangleVertices;
+		_cachedTriangleVertices = NULL;
 	}
-	if (_cachedNormals)
+	if (_cachedTriangleNormals)
 	{
-		delete [] _cachedNormals;
-		_cachedNormals = NULL;
+		delete [] _cachedTriangleNormals;
+		_cachedTriangleNormals = NULL;
 	}
 	resetColorCache();
 }
 
 void Mesh2::resetColorCache()
 {
-    if (_cachedColors)
+    if (_cachedTriangleColors)
 	{
-		delete [] _cachedColors;
-		_cachedColors = NULL;
+		delete [] _cachedTriangleColors;
+		_cachedTriangleColors = NULL;
 	}
 }
 
 void Mesh2::fillCache()
 {
-    if (_cachedVertices)
+    if (_cachedTriangleVertices)
         return;
     
-    _cachedVertices = new Vector3D[_triangles.count() * 3];
-    _cachedNormals = new Vector3D[_triangles.count() * 3];
+    _cachedTriangleVertices = new Vector3D[_triangles.count() * 3];
+    _cachedTriangleNormals = new Vector3D[_triangles.count() * 3];
     Vector3D triangleVertices[3];
     
     uint i = 0;
@@ -67,8 +67,8 @@ void Mesh2::fillCache()
         
         for (uint j = 0; j < 3; j++)
         {
-            _cachedVertices[i * 3 + j] = triangleVertices[j];
-            _cachedNormals[i * 3 + j] = n;
+            _cachedTriangleVertices[i * 3 + j] = triangleVertices[j];
+            _cachedTriangleNormals[i * 3 + j] = n;
         }
         
         i++;
@@ -77,10 +77,10 @@ void Mesh2::fillCache()
 
 void Mesh2::fillColorCache()
 {
-    if (_cachedColors)
+    if (_cachedTriangleColors)
         return;
     
-    _cachedColors = new Vector3D[_triangles.count() * 3];    
+    _cachedTriangleColors = new Vector3D[_triangles.count() * 3];    
     
     float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
 	
@@ -89,13 +89,9 @@ void Mesh2::fillColorCache()
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
 	{
 		if (node->data.selected)
-		{
-            fillCachedColorsAtIndex(i, _cachedColors, selectedComponents);
-		}
+            fillCachedColorsAtIndex(i, _cachedTriangleColors, selectedComponents);
 		else
-		{
-            fillCachedColorsAtIndex(i, _cachedColors, _colorComponents);				
-		}
+            fillCachedColorsAtIndex(i, _cachedTriangleColors, _colorComponents);				
         
         i++;
 	}
@@ -112,12 +108,12 @@ void Mesh2::drawColoredFill(bool colored)
 	if (colored)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
-		float *colorPtr = (float *)_cachedColors;
+		float *colorPtr = (float *)_cachedTriangleColors;
 		glColorPointer(3, GL_FLOAT, 0, colorPtr);
 	}
 	
-	float *vertexPtr = (float *)_cachedVertices;
-	float *normalPtr = (float *)_cachedNormals;
+	float *vertexPtr = (float *)_cachedTriangleVertices;
+	float *normalPtr = (float *)_cachedTriangleNormals;
 	
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
