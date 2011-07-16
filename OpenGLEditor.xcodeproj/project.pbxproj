@@ -38,6 +38,9 @@
 		A7064C8B12BD10C200B14CFA /* twoSidedLightingFlipped.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */; };
 		A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7064C9212BD19F400B14CFA /* Cocoa.framework */; };
 		A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7064C9612BD19F400B14CFA /* InfoPlist.strings */; };
+		A73659A013D228B100F9D7D1 /* CylinderTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599D13D228B100F9D7D1 /* CylinderTemplate.png */; };
+		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
+		A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599F13D228B100F9D7D1 /* SplitTemplate.png */; };
 		A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8412BD109A00B14CFA /* MeshTest.mm */; };
 		A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */; };
 		A746510812BD1C940030EEB0 /* Mesh.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5112BD107800B14CFA /* Mesh.mm */; };
@@ -61,6 +64,12 @@
 		A746513612BD1D000030EEB0 /* OpenGLDrawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */; };
 		A746513A12BD1D000030EEB0 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
+		A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1113CF717500D2A1FC /* CubeTemplate.png */; };
+		A787CC1713CF717500D2A1FC /* ScaleTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1213CF717500D2A1FC /* ScaleTemplate.png */; };
+		A787CC1813CF717500D2A1FC /* SelectTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1313CF717500D2A1FC /* SelectTemplate.png */; };
+		A787CC1913CF717500D2A1FC /* SphereTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1413CF717500D2A1FC /* SphereTemplate.png */; };
+		A787CC1A13CF717500D2A1FC /* TranslateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1513CF717500D2A1FC /* TranslateTemplate.png */; };
 		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A7A4874013AE2ECA00C0C41B /* Mesh2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
@@ -143,8 +152,17 @@
 		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
 		A726AD3413034D85004A774D /* rapidxml_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_utils.hpp; path = Classes/rapidxml_utils.hpp; sourceTree = "<group>"; };
 		A726AD3513034D85004A774D /* rapidxml.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml.hpp; path = Classes/rapidxml.hpp; sourceTree = "<group>"; };
+		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
+		A736599E13D228B100F9D7D1 /* MergeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MergeTemplate.png; sourceTree = "<group>"; };
+		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RotateTemplate.png; sourceTree = "<group>"; };
+		A787CC1113CF717500D2A1FC /* CubeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CubeTemplate.png; sourceTree = "<group>"; };
+		A787CC1213CF717500D2A1FC /* ScaleTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScaleTemplate.png; sourceTree = "<group>"; };
+		A787CC1313CF717500D2A1FC /* SelectTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SelectTemplate.png; sourceTree = "<group>"; };
+		A787CC1413CF717500D2A1FC /* SphereTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SphereTemplate.png; sourceTree = "<group>"; };
+		A787CC1513CF717500D2A1FC /* TranslateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TranslateTemplate.png; sourceTree = "<group>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
 		A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.cpp; path = Classes/Mesh2.cpp; sourceTree = "<group>"; };
 		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
@@ -299,6 +317,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A787CC0C13CF6F0400D2A1FC /* Icons */,
 				A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */,
 				A7A96A4910222EE2003110A1 /* Tests-Info.plist */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
@@ -338,6 +357,22 @@
 				A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */,
 			);
 			path = Shaders;
+			sourceTree = "<group>";
+		};
+		A787CC0C13CF6F0400D2A1FC /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				A736599D13D228B100F9D7D1 /* CylinderTemplate.png */,
+				A736599E13D228B100F9D7D1 /* MergeTemplate.png */,
+				A736599F13D228B100F9D7D1 /* SplitTemplate.png */,
+				A787CC1113CF717500D2A1FC /* CubeTemplate.png */,
+				A787CC1213CF717500D2A1FC /* ScaleTemplate.png */,
+				A787CC1313CF717500D2A1FC /* SelectTemplate.png */,
+				A787CC1413CF717500D2A1FC /* SphereTemplate.png */,
+				A787CC1513CF717500D2A1FC /* TranslateTemplate.png */,
+				A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */,
+			);
+			path = Icons;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -416,6 +451,15 @@
 				A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */,
 				A7064C8A12BD10C200B14CFA /* twoSidedLighting.vs in Resources */,
 				A7064C8B12BD10C200B14CFA /* twoSidedLightingFlipped.vs in Resources */,
+				A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */,
+				A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */,
+				A787CC1713CF717500D2A1FC /* ScaleTemplate.png in Resources */,
+				A787CC1813CF717500D2A1FC /* SelectTemplate.png in Resources */,
+				A787CC1913CF717500D2A1FC /* SphereTemplate.png in Resources */,
+				A787CC1A13CF717500D2A1FC /* TranslateTemplate.png in Resources */,
+				A73659A013D228B100F9D7D1 /* CylinderTemplate.png in Resources */,
+				A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */,
+				A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
