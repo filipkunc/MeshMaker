@@ -14,6 +14,9 @@ Mesh2::Mesh2(float colorComponents[4])
     _cachedTriangleNormals = NULL;
     _cachedTriangleColors = NULL;
     
+    _cachedEdgeVertices = NULL;
+    _cachedEdgeColors = NULL;
+    
     _selectionMode = MeshSelectionModeVertices;
     
     for (int i = 0; i < 4; i++)

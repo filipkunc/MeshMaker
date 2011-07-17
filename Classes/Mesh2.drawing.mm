@@ -35,7 +35,9 @@ void Mesh2::resetTriangleCache()
 		delete [] _cachedTriangleNormals;
 		_cachedTriangleNormals = NULL;
 	}
-	resetTriangleColorCache();
+    
+	resetTriangleColorCache();    
+    resetEdgeCache();
 }
 
 void Mesh2::resetTriangleColorCache()
@@ -45,6 +47,22 @@ void Mesh2::resetTriangleColorCache()
 		delete [] _cachedTriangleColors;
 		_cachedTriangleColors = NULL;
 	}
+    
+    resetEdgeCache();
+}
+
+void Mesh2::resetEdgeCache()
+{
+    if (_cachedEdgeVertices)
+    {
+        delete [] _cachedEdgeVertices;
+        _cachedEdgeVertices = NULL;
+    }
+    if (_cachedEdgeColors)
+    {
+        delete [] _cachedEdgeColors;
+        _cachedEdgeColors = NULL;
+    }
 }
 
 void Mesh2::fillTriangleCache()
@@ -95,6 +113,39 @@ void Mesh2::fillTriangleColorCache()
         
         i++;
 	}
+}
+
+void Mesh2::fillEdgeCache()
+{
+    if (_cachedEdgeVertices)
+        return;
+    
+    _cachedEdgeVertices = new Vector3D[_edges.count() * 2];
+    _cachedEdgeColors = new Vector3D[_edges.count() * 2];
+    
+    Vector3D selectedColor(0.8f, 0.0f, 0.0f);
+    Vector3D normalColor(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
+    
+    int i = 0;
+    
+    for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+        {
+            _cachedEdgeColors[i] = selectedColor;
+            _cachedEdgeColors[i + 1] = selectedColor;
+        }
+        else
+        {
+            _cachedEdgeColors[i] = normalColor;
+            _cachedEdgeColors[i + 1] = normalColor;
+        }
+        
+        _cachedEdgeVertices[i] = node->data.vertex(0)->data.position;
+        _cachedEdgeVertices[i + 1] = node->data.vertex(1)->data.position;
+        
+        i += 2;
+    }
 }
 
 void Mesh2::drawColoredFill(bool colored)
@@ -335,11 +386,50 @@ void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
 
 void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
 {
-    for (int i = 0; i < _edges.count(); i++)
+    fillEdgeCache();
+    
+    if (forSelection)
     {
-        uint colorIndex = i + 1;
-        glColor4ubv((GLubyte *)&colorIndex);
-        drawAtIndex(i, forSelection, viewMode);
+        vector<uint> tempColors;
+        
+        uint colorIndex = 0;
+        
+        for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            colorIndex++;
+            tempColors.push_back(colorIndex);
+            tempColors.push_back(colorIndex);
+        }
+        
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        
+        GLubyte *colorPtr = (GLubyte *)&tempColors[0];
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
+        
+        float *vertexPtr = (float *)_cachedEdgeVertices;        
+        glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+        
+        glDrawArrays(GL_LINES, 0, _edges.count() * 2);
+        
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    }
+    else
+    {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        
+        float *colorPtr = (float *)_cachedEdgeColors;
+        glColorPointer(3, GL_FLOAT, 0, colorPtr);
+        
+        float *vertexPtr = (float *)_cachedEdgeVertices;        
+        glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+        
+        glDrawArrays(GL_LINES, 0, _edges.count() * 2);
+        
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 }
 

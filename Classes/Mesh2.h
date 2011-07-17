@@ -33,6 +33,9 @@ private:
 	Vector3D *_cachedTriangleNormals;
 	Vector3D *_cachedTriangleColors;
     
+    Vector3D *_cachedEdgeVertices;
+    Vector3D *_cachedEdgeColors;
+    
     float _colorComponents[4];
 private:
     void fastMergeSelectedVertices();
@@ -83,6 +86,9 @@ public:
     void resetTriangleColorCache();
     void fillTriangleCache();
     void fillTriangleColorCache();
+    
+    void resetEdgeCache();
+    void fillEdgeCache();
     
     void drawColoredFill(bool colored);
     void drawWire();
