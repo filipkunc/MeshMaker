@@ -255,6 +255,8 @@ void Mesh2::mergeSelectedVertices()
     removeDegeneratedTrianglesAndEdges();
     removeNonUsedVertices();
     
+    makeEdges(); // TODO: Boundary edges causes problems?
+    
     setSelectionMode(_selectionMode);
 }
 
@@ -351,10 +353,20 @@ void Mesh2::loopSubdivision()
         Vector3D v1 = node->data.vertex(0)->data.position;
         Vector3D v2 = node->data.vertex(1)->data.position;
         
-        Vector3D v3 = node->data.triangle(0)->data.vertexNotInEdge(&node->data)->data.position;
-        Vector3D v4 = node->data.triangle(1)->data.vertexNotInEdge(&node->data)->data.position;
+        Vector3D edgeVertex;
         
-        Vector3D edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;
+        // boundary
+        if (node->data.triangle(0) == NULL || node->data.triangle(1) == NULL)
+        {
+            edgeVertex = (v1 + v2) / 2.0f;
+        }
+        else
+        {        
+            Vector3D v3 = node->data.triangle(0)->data.vertexNotInEdge(&node->data)->data.position;
+            Vector3D v4 = node->data.triangle(1)->data.vertexNotInEdge(&node->data)->data.position;
+            
+            edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;           
+        }
         
         node->data.halfVertex = _vertices.add(edgeVertex);
     }
