@@ -552,7 +552,7 @@
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
-	[model drawAtIndex:index forSelection:YES withMode:ViewModeSolid];
+	[model drawAtIndex:index forSelection:YES withMode:ViewModeSolidFlat];
 	glPopMatrix();
 }
 
@@ -562,7 +562,7 @@
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        [model drawAllForSelection:YES withMode:ViewModeSolid];
+        [model drawAllForSelection:YES withMode:ViewModeSolidFlat];
         glPopMatrix();
     }
     else
@@ -573,7 +573,7 @@
         {
             uint colorIndex = i + 1;
             glColor4ubv((GLubyte *)&colorIndex);
-            [model drawAtIndex:i forSelection:YES withMode:ViewModeSolid];
+            [model drawAtIndex:i forSelection:YES withMode:ViewModeSolidFlat];
         }
         glPopMatrix();        
     }

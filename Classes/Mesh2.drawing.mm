@@ -72,21 +72,40 @@ void Mesh2::fillTriangleCache()
     
     _cachedTriangleVertices = new Vector3D[_triangles.count() * 3];
     _cachedTriangleNormals = new Vector3D[_triangles.count() * 3];
-    Vector3D triangleVertices[3];
+    _cachedVertexNormals = new Vector3D[_triangles.count() * 3];
     
-    uint i = 0;
+    int i = 0;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        Triangle2 currentTriangle = node->data;
-        currentTriangle.getVertexPositions(triangleVertices);
+        Triangle2 &currentTriangle = node->data;
         
-        Vector3D n = NormalFromTriangleVertices(triangleVertices);
+        currentTriangle.computeNormal();
+        Vector3D n = currentTriangle.normal;
         
-        for (uint j = 0; j < 3; j++)
+        for (int j = 0; j < 3; j++)
         {
-            _cachedTriangleVertices[i * 3 + j] = triangleVertices[j];
+            _cachedTriangleVertices[i * 3 + j] = currentTriangle.vertex(j)->data.position;
             _cachedTriangleNormals[i * 3 + j] = n;
+        }
+        
+        i++;
+    }
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        node->computeNormal();
+    }
+    
+    i = 0;
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle2 &currentTriangle = node->data;
+        
+        for (int j = 0; j < 3; j++)
+        {
+            _cachedVertexNormals[i * 3 + j] = currentTriangle.vertex(j)->normal;
         }
         
         i++;
@@ -148,7 +167,7 @@ void Mesh2::fillEdgeCache()
     }
 }
 
-void Mesh2::drawColoredFill(bool colored)
+void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
 {
     fillTriangleCache();
 	if (colored)
@@ -164,7 +183,12 @@ void Mesh2::drawColoredFill(bool colored)
 	}
 	
 	float *vertexPtr = (float *)_cachedTriangleVertices;
-	float *normalPtr = (float *)_cachedTriangleNormals;
+	float *normalPtr;
+    
+    if (useVertexNormals)
+        normalPtr = (float *)_cachedVertexNormals;
+    else
+        normalPtr = (float *)_cachedTriangleNormals;
 	
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
@@ -184,7 +208,7 @@ void Mesh2::drawWire()
     {
         glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        drawColoredFill(false);
+        drawColoredFill(false, false);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
@@ -202,12 +226,12 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             glColor3f(_colorComponents[0] + 0.2f, _colorComponents[1] + 0.2f, _colorComponents[2] + 0.2f);
         
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        drawColoredFill(false);
+        drawColoredFill(false, false);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else if (forSelection)
 	{
-        drawColoredFill(false);
+        drawColoredFill(false, false);
     }
     else
     {
@@ -219,11 +243,11 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             if (_selectionMode != MeshSelectionModeTriangles)
 			{
 				glColor3fv(_colorComponents);
-                drawColoredFill(false);
+                drawColoredFill(false, mode == ViewModeSolidGouraud);
 			}
             else
             {
-                drawColoredFill(true);
+                drawColoredFill(true, mode == ViewModeSolidGouraud);
             }
 			[ShaderProgram resetProgram];
 			glDisable(GL_POLYGON_OFFSET_FILL);
@@ -235,11 +259,11 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             if (_selectionMode != MeshSelectionModeTriangles)
 			{
 				glColor3fv(_colorComponents);
-                drawColoredFill(false);
+                drawColoredFill(false, mode == ViewModeSolidGouraud);
 			}
             else
             {
-                drawColoredFill(true);
+                drawColoredFill(true, mode == ViewModeSolidGouraud);
             }
             [ShaderProgram resetProgram];
 		}
@@ -273,12 +297,10 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 			if (forSelection)
 			{
 				const Triangle2 &triangle = _cachedTriangleSelection.at(index)->data;
-                Vector3D triangleVertices[3];
-                triangle.getVertexPositions(triangleVertices);
 				glBegin(GL_TRIANGLES);
 				for (uint i = 0; i < 3; i++)
 				{
-					Vector3D v = triangleVertices[i];
+					Vector3D v = triangle.vertex(i)->data.position;
 					glVertex3f(v.x, v.y, v.z);
 				}
 				glEnd();
