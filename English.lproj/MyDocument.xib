@@ -179,7 +179,7 @@
 									<int key="NSPeriodicInterval">75</int>
 									<object class="NSMenuItem" key="NSMenuItem" id="149067008">
 										<reference key="NSMenu" ref="491414831"/>
-										<string key="NSTitle">Solid</string>
+										<string key="NSTitle">Solid Flat</string>
 										<string key="NSKeyEquiv"/>
 										<int key="NSMnemonicLoc">2147483647</int>
 										<int key="NSState">1</int>
@@ -201,13 +201,24 @@
 											<reference ref="149067008"/>
 											<object class="NSMenuItem" id="966476802">
 												<reference key="NSMenu" ref="491414831"/>
-												<string key="NSTitle">Wireframe</string>
+												<string key="NSTitle">Solid Gouraud</string>
 												<string key="NSKeyEquiv"/>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="431543322"/>
 												<reference key="NSMixedImage" ref="43599695"/>
 												<string key="NSAction">_popUpItemAction:</string>
 												<int key="NSTag">1</int>
+												<reference key="NSTarget" ref="181969951"/>
+											</object>
+											<object class="NSMenuItem" id="664980159">
+												<reference key="NSMenu" ref="491414831"/>
+												<string key="NSTitle">Wireframe</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="431543322"/>
+												<reference key="NSMixedImage" ref="43599695"/>
+												<string key="NSAction">_popUpItemAction:</string>
+												<int key="NSTag">2</int>
 												<reference key="NSTarget" ref="181969951"/>
 											</object>
 										</array>
@@ -1153,6 +1164,7 @@
 						<array class="NSMutableArray" key="children">
 							<reference ref="149067008"/>
 							<reference ref="966476802"/>
+							<reference ref="664980159"/>
 						</array>
 						<reference key="parent" ref="181969951"/>
 					</object>
@@ -1231,6 +1243,11 @@
 						<reference key="parent" ref="24235194"/>
 						<string key="objectName">Toolbar Item - Subdivision</string>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">100424</int>
+						<reference key="object" ref="664980159"/>
+						<reference key="parent" ref="491414831"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -1278,6 +1295,7 @@
 				<string key="100349.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100421.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100422.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="100424.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBWindowTemplateEditedContentRect">{{381, 488}, {739, 467}}</string>
 				<string key="6.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1286,7 +1304,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">100423</int>
+			<int key="maxID">100424</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">

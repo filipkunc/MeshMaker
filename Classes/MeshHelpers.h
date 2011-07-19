@@ -57,6 +57,7 @@ public:
     SimpleList<EdgeNode *> _edges;
 public:
     int index;
+    Vector3D normal;
     
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
@@ -77,6 +78,7 @@ public:
     void replaceVertex(VertexNode *newVertex);
     void replaceVertexInSelectedTriangles(VertexNode *newVertex);
     EdgeNode *sharedEdge(VertexNode *otherVertex);
+    void computeNormal();
 };
 
 class Triangle2
@@ -86,6 +88,7 @@ private:
     EdgeNode *_edges[3];
 public:
     bool selected;
+    Vector3D normal;
     
     Triangle2();
     Triangle2(VertexNode *vertices[3]);
@@ -103,14 +106,13 @@ public:
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
     bool containsEdge(const EdgeNode *edge) const;
-    void getVertexPositions(Vector3D vertexPositions[3]) const;
     void flip();
     
     int indexOfVertex(const VertexNode *vertex) const;
     void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
     VertexNode *vertexNotInEdge(const Edge2 *edge) const;
     
-    Vector3D computeNormal() const;
+    void computeNormal();
     
     friend class TriangleNode;
 };
@@ -183,8 +185,6 @@ public:
     void removeFromTriangles();
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };
-
-Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3]);
 
 void AddTriangle(vector<Triangle> &triangles, int index1, int index2, int index3);
 void AddQuad(vector<Triangle> &triangles, int index1, int index2, int index3, int index4);

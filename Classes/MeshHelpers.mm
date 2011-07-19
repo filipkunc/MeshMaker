@@ -90,6 +90,20 @@ void VertexNode::replaceVertexInSelectedTriangles(VertexNode *newVertex)
     }    
 }
 
+void VertexNode::computeNormal()
+{
+    float count = 0;
+    normal = Vector3D();
+    
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        normal += node->data->data.normal;
+        count++;
+    }
+    
+    normal /= count;
+}
+
 EdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
 {
     for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
@@ -232,12 +246,6 @@ bool Triangle2::containsEdge(const EdgeNode *edge) const
     return false;
 }
 
-void Triangle2::getVertexPositions(Vector3D vertexPositions[3]) const
-{
-    for (int i = 0; i < 3; i++)
-        vertexPositions[i] = _vertices[i]->data.position;
-}
-
 void Triangle2::flip()
 {
     swap(_vertices[0], _vertices[2]);    
@@ -277,11 +285,11 @@ VertexNode *Triangle2::vertexNotInEdge(const Edge2 *edge) const
     return NULL;
 }
 
-Vector3D Triangle2::computeNormal() const
+void Triangle2::computeNormal()
 {
     Vector3D u = _vertices[0]->data.position - _vertices[1]->data.position;
 	Vector3D v = _vertices[1]->data.position - _vertices[2]->data.position;
-	return u.Cross(v);
+	normal = u.Cross(v);    
 }
 
 Edge2::Edge2() : selected(false)
@@ -451,14 +459,6 @@ VertexNode *Edge2::opposite(VertexNode *vertex) const
         return _vertices[1];
     
     return _vertices[0];
-}
-
-Vector3D NormalFromTriangleVertices(Vector3D triangleVertices[3])
-{
-	// now is same as RedBook (OpenGL Programming Guide)
-	Vector3D u = triangleVertices[0] - triangleVertices[1];
-	Vector3D v = triangleVertices[1] - triangleVertices[2];
-	return u.Cross(v);
 }
 
 void AddTriangle(vector<Triangle> &triangles, int index1, int index2, int index3)

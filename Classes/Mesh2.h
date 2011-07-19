@@ -36,6 +36,8 @@ private:
     Vector3D *_cachedEdgeVertices;
     Vector3D *_cachedEdgeColors;
     
+    Vector3D *_cachedVertexNormals;
+    
     float _colorComponents[4];
 private:
     void fastMergeSelectedVertices();
@@ -90,7 +92,7 @@ public:
     void resetEdgeCache();
     void fillEdgeCache();
     
-    void drawColoredFill(bool colored);
+    void drawColoredFill(bool colored, bool useVertexNormals);
     void drawWire();
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
 

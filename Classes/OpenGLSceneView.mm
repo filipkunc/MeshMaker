@@ -107,7 +107,7 @@ NSOpenGLContext *globalGLContext = nil;
 		currentManipulator = defaultManipulator;
 		
 		cameraMode = CameraModePerspective;
-		viewMode = ViewModeSolid;
+		viewMode = ViewModeSolidFlat;
 		
 		glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
 		[[ShaderProgram normalShader] linkProgram];

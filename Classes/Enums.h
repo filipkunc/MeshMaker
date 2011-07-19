@@ -49,8 +49,9 @@ enum ManipulatorType
 
 enum ViewMode
 {
-	ViewModeSolid = 0,
-	ViewModeWireframe = 1
+	ViewModeSolidFlat = 0,
+    ViewModeSolidGouraud = 1,
+	ViewModeWireframe = 2,
 };
 
 enum EditMode
