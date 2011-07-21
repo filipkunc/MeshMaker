@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import <OpenGL/gl.h>
+#import "OpenGLDrawing.h"
 #import "ItemCollection.h"
 #import "ItemManipulationState.h"
 
