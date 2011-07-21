@@ -10,8 +10,9 @@
 #pragma once
 
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
+//#import <OpenGL/gl3.h>
 #import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
 #import "MathDeclaration.h"
 #import "Enums.h"
 

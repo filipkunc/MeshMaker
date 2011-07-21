@@ -7,8 +7,7 @@
 //
 
 
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
+#import "OpenGLDrawing.h"
 #import "OpenGLSceneView.h"
 
 const float perspectiveAngle = 45.0f;
@@ -28,6 +27,7 @@ NSOpenGLContext *globalGLContext = nil;
 	{
 		NSOpenGLPixelFormatAttribute attribs[] = 
 		{
+            //NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 			NSOpenGLPFAAccelerated,
 			NSOpenGLPFADoubleBuffer,
 			NSOpenGLPFAColorSize, 1,
@@ -35,7 +35,6 @@ NSOpenGLContext *globalGLContext = nil;
 			0 
 		};
 		
-		/* Choose a pixel format */
 		globalPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
 	}
 	return globalPixelFormat;
