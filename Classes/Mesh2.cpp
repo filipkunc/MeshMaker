@@ -671,7 +671,7 @@ void Mesh2::computeSoftSelection()
         {
             float sqDistance = center.SqDistance(node->data.position);
             
-            node->selectionWeight = 1.0f / sqDistance;
+            node->selectionWeight = 1.0f / expf(sqDistance);
             
             if (node->selectionWeight < 0.1f)
                 node->selectionWeight = 0.0f;
