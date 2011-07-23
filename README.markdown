@@ -24,6 +24,11 @@ And same chess tower after four or five Loop subdivision iterations.
 
 <img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
 
+## Videos
+
+ * [Chess tower modeling](http://youtu.be/57d63xcT21Y)
+ * [Subdivision and soft selection](http://youtu.be/65whhpqHgO4)
+
 ## Camera manipulation
 
 Similar to Maya, Unity. 
@@ -38,3 +43,10 @@ Editor can be used also only with multitouch trackpad (MacBooks) and keyboard.
 * Pan - Control + Option + Two Fingers
 * Zoom - Two Fingers Zoom
 
+## Selection
+
+ * Normal selection - Left Mouse Button
+ * Select through (selects back faces for example) - Control + Left Mouse Button
+ * Adding to selection - Shift + Left Mouse Button
+ * Inverting selection - Command + Left Mouse Button
+ * Soft selection - global mode in Edit menu
