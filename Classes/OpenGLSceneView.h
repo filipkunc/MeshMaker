@@ -64,14 +64,11 @@
 - (void)endOrtho;
 - (void)applyProjectionWithRect:(NSRect)baseRect;
 
-- (void)selectWithX:(int)x 
-				  y:(int)y
-			  width:(int)width 
-			 height:(int)height
-		  selecting:(id<OpenGLSelecting>)selecting 
-		nearestOnly:(BOOL)nearestOnly
-		   cullFace:(BOOL)cullFace
-		selectionMode:(enum OpenGLSelectionMode)selectionMode;
+- (NSMutableIndexSet *)selectWithX:(int)x 
+                                 y:(int)y
+                             width:(int)width 
+                            height:(int)height
+                         selecting:(id<OpenGLSelecting>)selecting;
 
 - (void)selectWithPoint:(NSPoint)point 
 			  selecting:(id<OpenGLSelecting>)selecting
@@ -79,8 +76,8 @@
 
 - (void)selectWithRect:(NSRect)rect 
 			 selecting:(id<OpenGLSelecting>)selecting
-			  cullFace:(BOOL)cullFace
-		 selectionMode:(enum OpenGLSelectionMode)selectionMode;
+		 selectionMode:(enum OpenGLSelectionMode)selectionMode
+         selectThrough:(BOOL)selectThrough;
 
 - (Vector3D)positionInSpaceByPoint:(NSPoint)point;
 - (void)drawSelectionPlaneWithIndex:(int)index;

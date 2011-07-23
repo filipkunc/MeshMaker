@@ -533,7 +533,7 @@ NSOpenGLContext *globalGLContext = nil;
 		
 		NSUInteger flags = [e modifierFlags];
 				
-		if ((flags & NSCommandKeyMask) == NSCommandKeyMask || (flags & NSControlKeyMask) == NSControlKeyMask)
+		if ((flags & NSCommandKeyMask) == NSCommandKeyMask)
 			selectionMode = OpenGLSelectionModeInvert;
 		else if ((flags & NSShiftKeyMask) == NSShiftKeyMask)
 			selectionMode = OpenGLSelectionModeAdd;
@@ -543,17 +543,17 @@ NSOpenGLContext *globalGLContext = nil;
 		NSRect rect = [self currentRect];
 		if (rect.size.width > 5.0f && rect.size.height > 5.0f)
 		{
-			[self selectWithRect:[self currentRect] 
+            [self selectWithRect:[self currentRect] 
 					   selecting:manipulated 
-						cullFace:NO
-				   selectionMode:selectionMode];
+				   selectionMode:selectionMode
+                   selectThrough:(flags & NSControlKeyMask) == NSControlKeyMask];
 		}
 		else
-		{
-			[self selectWithPoint:currentPoint 
+        {
+        	[self selectWithPoint:currentPoint 
 						selecting:manipulated
 					selectionMode:selectionMode];
-		}
+        }
 		
 		[delegate selectionChangedInView:self];
 		[self setNeedsDisplay:YES];
@@ -755,23 +755,13 @@ const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height re
 
 uint selectedIndices[kMaxSelectedIndicesCount];
 
-- (void)selectWithX:(int)x
-				  y:(int)y
-			  width:(int)width
-			 height:(int)height
-		  selecting:(id<OpenGLSelecting>)selecting 
-		nearestOnly:(BOOL)nearestOnly
-		   cullFace:(BOOL)cullFace
-	  selectionMode:(enum OpenGLSelectionMode)selectionMode
+- (NSMutableIndexSet *)selectWithX:(int)x
+                                 y:(int)y
+                             width:(int)width
+                            height:(int)height
+                         selecting:(id<OpenGLSelecting>)selecting 
 {
-	if (selecting == nil || [selecting selectableCount] <= 0)
-		return;
-	
-	if ([selecting respondsToSelector:@selector(willSelect)])
-		[selecting willSelect];
-    
-    [[self openGLContext] makeCurrentContext];
-    glClearColor(0, 0, 0, 0);
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
     [self setupViewportAndCamera];
@@ -798,7 +788,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     uint selectedIndicesCount = width * height;
 
     if (selectedIndicesCount >= kMaxSelectedIndicesCount)
-        return;
+        return nil;
     
     if (selectedIndicesCount > 0)
     {
@@ -813,45 +803,95 @@ uint selectedIndices[kMaxSelectedIndicesCount];
                 [uniqueIndices addIndex:selectedIndex - 1];
         }
         
-        [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) 
-        {
-            [selecting selectObjectAtIndex:idx withMode:selectionMode];
-            if (nearestOnly)
-                *stop = YES;
-        }];
+        return uniqueIndices;        
     }
-    
-    if ([selecting respondsToSelector:@selector(didSelect)])
-		[selecting didSelect];
+
+    return nil;    
 }
 
 - (void)selectWithPoint:(NSPoint)point 
 			  selecting:(id<OpenGLSelecting>)selecting 
 		  selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
-	[self selectWithX:point.x - 5
-					y:point.y - 5
-				width:10
-			   height:10
-			selecting:selecting
-		  nearestOnly:YES
-			 cullFace:NO
-		selectionMode:selectionMode];
+    if (selecting == nil || [selecting selectableCount] <= 0)
+		return;
+    
+    if ([selecting respondsToSelector:@selector(willSelectThrough:)])
+		[selecting willSelectThrough:NO];
+    
+    [[self openGLContext] makeCurrentContext];    
+    
+	NSMutableIndexSet *uniqueIndices = [self selectWithX:point.x - 5
+                                                       y:point.y - 5
+                                                   width:10
+                                                  height:10
+                                               selecting:selecting];
+    
+    [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) 
+    {
+         [selecting selectObjectAtIndex:idx withMode:selectionMode];
+         *stop = YES;
+    }];
+    
+    if ([selecting respondsToSelector:@selector(didSelect)])
+		[selecting didSelect];
 }
 
 - (void)selectWithRect:(NSRect)rect
 			 selecting:(id<OpenGLSelecting>)selecting
-			  cullFace:(BOOL)cullFace
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
+         selectThrough:(BOOL)selectThrough
 {
-	[self selectWithX:rect.origin.x
-					y:rect.origin.y
-				width:rect.size.width
-			   height:rect.size.height
-			selecting:selecting
-		  nearestOnly:NO
-			 cullFace:cullFace
-		selectionMode:selectionMode];
+    if (selecting == nil || [selecting selectableCount] <= 0)
+		return;
+    
+    if ([selecting respondsToSelector:@selector(willSelectThrough:)])
+		[selecting willSelectThrough:selectThrough];
+    
+    [[self openGLContext] makeCurrentContext];
+    
+    NSMutableIndexSet *uniqueIndices;
+    
+    if ([selecting respondsToSelector:@selector(needsCullFace)] && [selecting needsCullFace])
+    {
+        glCullFace(GL_CCW);
+        glEnable(GL_CULL_FACE);
+        
+        NSMutableIndexSet *uniqueIndices1 = [self selectWithX:rect.origin.x
+                                                            y:rect.origin.y
+                                                        width:rect.size.width
+                                                       height:rect.size.height
+                                                    selecting:selecting];
+        glDisable(GL_CULL_FACE);
+        
+        NSMutableIndexSet *uniqueIndices2 = [self selectWithX:rect.origin.x
+                                                            y:rect.origin.y
+                                                        width:rect.size.width
+                                                       height:rect.size.height
+                                                    selecting:selecting];
+        
+        uniqueIndices = [NSMutableIndexSet indexSet];
+        if (uniqueIndices1 != nil)
+            [uniqueIndices addIndexes:uniqueIndices1];
+        if (uniqueIndices2 != nil)
+            [uniqueIndices addIndexes:uniqueIndices2];
+    }
+    else
+    {
+        uniqueIndices = [self selectWithX:rect.origin.x
+                                        y:rect.origin.y
+                                    width:rect.size.width
+                                   height:rect.size.height
+                                selecting:selecting];
+    }
+    
+    [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) 
+    {
+        [selecting selectObjectAtIndex:idx withMode:selectionMode];
+    }];
+    
+    if ([selecting respondsToSelector:@selector(didSelect)])
+		[selecting didSelect];
 }
 
 #pragma mark Position retrieve

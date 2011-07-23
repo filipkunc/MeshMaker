@@ -11,6 +11,7 @@
 
 #import "Enums.h"
 #import "MathDeclaration.h"
+#import "FPArrayCache.h"
 #import "SimpleNodeAndList.h"
 #import <vector>
 using namespace std;

@@ -250,6 +250,18 @@
     return mesh->selectedCount();
 }
 
+- (void)willSelectThrough:(BOOL)selectThrough
+{
+    Mesh2::setSelectThrough(selectThrough);
+}
+
+- (BOOL)needsCullFace
+{
+    if (mesh->selectionMode() == MeshSelectionModeTriangles && Mesh2::selectThrough())
+        return YES;
+    return NO;
+}
+
 - (void)didSelect
 {
     mesh->resetTriangleColorCache();
