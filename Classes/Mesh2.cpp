@@ -8,6 +8,8 @@
 
 #include "Mesh2.h"
 
+bool Mesh2::_useSoftSelection = false;
+
 Mesh2::Mesh2(float colorComponents[4])
 {
     _cachedTriangleVertices = NULL;
@@ -182,6 +184,11 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
         {
             Vector3D &v = node->data.position;
             v = matrix.Transform(v);
+        }
+        else if (_useSoftSelection && node->selectionWeight > 0.1f)
+        {
+            Vector3D &v = node->data.position;
+            v = v.Lerp(node->selectionWeight, matrix.Transform(v));            
         }
     }
 }
@@ -653,4 +660,36 @@ void Mesh2::merge(Mesh2 *mesh)
     }
     
     this->fromIndexRepresentation(mergedVertices, mergedTriangles);     
+}
+
+void Mesh2::computeSoftSelection()
+{
+    if (!_useSoftSelection)
+        return;
+    
+    Vector3D center;
+    Quaternion rotation;
+    Vector3D scale;
+    
+    getSelectionCenterRotationScale(center, rotation, scale);
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        if (!node->data.selected)
+        {
+            float sqDistance = center.SqDistance(node->data.position);
+            
+            node->selectionWeight = 1.0f / sqDistance;
+            
+            if (node->selectionWeight < 0.1f)
+                node->selectionWeight = 0.0f;
+
+            if (node->selectionWeight > 1.0f)
+                node->selectionWeight = 1.0f;
+        }
+        else
+        {
+            node->selectionWeight = 1.0f;
+        }
+    }
 }

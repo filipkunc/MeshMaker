@@ -39,6 +39,8 @@ private:
     Vector3D *_cachedVertexNormals;
     
     float _colorComponents[4];
+    
+    static bool _useSoftSelection;
 private:
     void fastMergeSelectedVertices();
     void removeDegeneratedTrianglesAndEdges();
@@ -68,6 +70,9 @@ public:
     void setSelectedAtIndex(bool selected, uint index);
     void getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale);
     
+    static bool useSoftSelection() { return _useSoftSelection; }
+    static void setUseSoftSelection(bool value) { _useSoftSelection = value; }
+    
     void transformAll(const Matrix4x4 &matrix);
     void transformSelected(const Matrix4x4 &matrix);    
     
@@ -81,6 +86,8 @@ public:
     void loopSubdivision();
     
     void merge(Mesh2 *mesh);
+    
+    void computeSoftSelection();
 
     // drawing
     

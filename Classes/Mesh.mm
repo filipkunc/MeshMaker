@@ -253,6 +253,7 @@
 - (void)didSelect
 {
     mesh->resetTriangleColorCache();
+    mesh->computeSoftSelection();
 }
 
 - (void)getSelectionCenter:(Vector3D *)center 

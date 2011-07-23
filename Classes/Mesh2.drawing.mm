@@ -341,6 +341,9 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         
         uint colorIndex = 0;
         
+        glColor4ubv((GLubyte *)&colorIndex);
+        drawColoredFill(false, false);
+        
         for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
         {
             colorIndex++;
@@ -374,6 +377,8 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         {
             if (node->data.selected)
                 tempColors.push_back(selectedColor); 
+            else if (_useSoftSelection && node->selectionWeight > 0.0f)
+                tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
             else
                 tempColors.push_back(normalColor);
             
@@ -415,6 +420,9 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         vector<uint> tempColors;
         
         uint colorIndex = 0;
+        
+        glColor4ubv((GLubyte *)&colorIndex);
+        drawColoredFill(false, false);
         
         for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
