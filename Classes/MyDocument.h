@@ -40,6 +40,8 @@
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
 
++ (BOOL)softSelection;
++ (void)setSoftSelection:(BOOL)value;
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view;
 - (void)setNeedsDisplayOnAllViews;
 - (Mesh *)currentMesh;
@@ -84,5 +86,6 @@
 - (void)writeToModel3D:(NSString *)fileName;
 - (void)toggleOneViewFourView:(id)sender;
 - (IBAction)subdivision:(id)sender;
+- (IBAction)softSelection:(id)sender;
 
 @end

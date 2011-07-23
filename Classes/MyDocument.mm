@@ -678,6 +678,23 @@ vector<T> *ReadValues(string s)
 	[self setNeedsDisplayOnAllViews];
 }
 
++ (BOOL)softSelection
+{
+    return Mesh2::useSoftSelection();
+}
+
++ (void)setSoftSelection:(BOOL)value
+{
+    Mesh2::setUseSoftSelection(value);
+}
+
+- (IBAction)softSelection:(id)sender
+{
+    NSMenuItem *menuItem = (NSMenuItem *)sender;
+    [MyDocument setSoftSelection:![MyDocument softSelection]];
+    [menuItem setState:[MyDocument softSelection]];
+}
+
 - (IBAction)changeManipulator:(id)sender
 {
 	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
