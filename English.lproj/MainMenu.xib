@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
 		<string key="IBDocument.SystemVersion">11A511</string>
-		<string key="IBDocument.InterfaceBuilderVersion">1881</string>
+		<string key="IBDocument.InterfaceBuilderVersion">1891</string>
 		<string key="IBDocument.AppKitVersion">1138</string>
 		<string key="IBDocument.HIToolboxVersion">566.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">1881</string>
+			<string key="NS.object.0">1891</string>
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -477,6 +477,24 @@
 									<string key="NSTitle">Merge Vertex Pairs</string>
 									<string key="NSKeyEquiv">!</string>
 									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
+								<object class="NSMenuItem" id="390290735">
+									<reference key="NSMenu" ref="789758025"/>
+									<bool key="NSIsDisabled">YES</bool>
+									<bool key="NSIsSeparator">YES</bool>
+									<string key="NSTitle"/>
+									<string key="NSKeyEquiv"/>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
+								<object class="NSMenuItem" id="728674801">
+									<reference key="NSMenu" ref="789758025"/>
+									<string key="NSTitle">Soft Selection</string>
+									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
@@ -988,6 +1006,14 @@
 					</object>
 					<int key="connectionID">534</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">softSelection:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="728674801"/>
+					</object>
+					<int key="connectionID">539</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1328,6 +1354,8 @@
 							<reference ref="328874776"/>
 							<reference ref="93146506"/>
 							<reference ref="697313994"/>
+							<reference ref="390290735"/>
+							<reference ref="728674801"/>
 						</object>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -1519,6 +1547,16 @@
 						<reference key="object" ref="697313994"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">535</int>
+						<reference key="object" ref="390290735"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">536</int>
+						<reference key="object" ref="728674801"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -1588,6 +1626,8 @@
 					<string>526.IBPluginDependency</string>
 					<string>527.IBPluginDependency</string>
 					<string>533.IBPluginDependency</string>
+					<string>535.IBPluginDependency</string>
+					<string>536.IBPluginDependency</string>
 					<string>56.IBPluginDependency</string>
 					<string>57.IBPluginDependency</string>
 					<string>58.IBPluginDependency</string>
@@ -1678,6 +1718,8 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -1692,7 +1734,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">534</int>
+			<int key="maxID">539</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1769,12 +1811,14 @@
 							<string>mergeSelected:</string>
 							<string>mergeVertexPairs:</string>
 							<string>selectAll:</string>
+							<string>softSelection:</string>
 							<string>splitSelected:</string>
 							<string>subdivision:</string>
 							<string>unhideAll:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -1812,6 +1856,7 @@
 							<string>mergeSelected:</string>
 							<string>mergeVertexPairs:</string>
 							<string>selectAll:</string>
+							<string>softSelection:</string>
 							<string>splitSelected:</string>
 							<string>subdivision:</string>
 							<string>unhideAll:</string>
@@ -1872,6 +1917,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">selectAll:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">softSelection:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -2063,6 +2112,10 @@
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencies">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.macosx</string>
 			<integer value="1050" key="NS.object.0"/>
+		</object>
+		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
+			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.macosx</string>
+			<real value="0.0" key="NS.object.0"/>
 		</object>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.InterfaceBuilder3</string>
