@@ -58,6 +58,7 @@ public:
 public:
     int index;
     Vector3D normal;
+    float selectionWeight;
     
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
