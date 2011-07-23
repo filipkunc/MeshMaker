@@ -29,18 +29,19 @@ private:
     vector<TriangleNode *> _cachedTriangleSelection;
     vector<EdgeNode *> _cachedEdgeSelection;
     
-	Vector3D *_cachedTriangleVertices;
-	Vector3D *_cachedTriangleNormals;
-	Vector3D *_cachedTriangleColors;
+	FPArrayCache<Vector3D> _cachedTriangleVertices;
+	FPArrayCache<Vector3D> _cachedTriangleNormals;
+	FPArrayCache<Vector3D> _cachedTriangleColors;
     
-    Vector3D *_cachedEdgeVertices;
-    Vector3D *_cachedEdgeColors;
+    FPArrayCache<Vector3D> _cachedEdgeVertices;
+    FPArrayCache<Vector3D> _cachedEdgeColors;
     
-    Vector3D *_cachedVertexNormals;
+    FPArrayCache<Vector3D> _cachedVertexNormals;
     
     float _colorComponents[4];
     
     static bool _useSoftSelection;
+    static bool _selectThrough;
 private:
     void fastMergeSelectedVertices();
     void removeDegeneratedTrianglesAndEdges();
@@ -72,6 +73,9 @@ public:
     
     static bool useSoftSelection() { return _useSoftSelection; }
     static void setUseSoftSelection(bool value) { _useSoftSelection = value; }
+    
+    static bool selectThrough() { return _selectThrough; }
+    static void setSelectThrough(bool value) { _selectThrough = value; }
     
     void transformAll(const Matrix4x4 &matrix);
     void transformSelected(const Matrix4x4 &matrix);    

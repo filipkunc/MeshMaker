@@ -25,16 +25,8 @@ void fillCachedColorsAtIndex(uint index, Vector3D *cachedColors, float component
 
 void Mesh2::resetTriangleCache()
 {
-    if (_cachedTriangleVertices)
-	{
-		delete [] _cachedTriangleVertices;
-		_cachedTriangleVertices = NULL;
-	}
-	if (_cachedTriangleNormals)
-	{
-		delete [] _cachedTriangleNormals;
-		_cachedTriangleNormals = NULL;
-	}
+    _cachedTriangleVertices.setValid(false);
+    _cachedTriangleNormals.setValid(false);
     
 	resetTriangleColorCache();    
     resetEdgeCache();
@@ -42,37 +34,25 @@ void Mesh2::resetTriangleCache()
 
 void Mesh2::resetTriangleColorCache()
 {
-    if (_cachedTriangleColors)
-	{
-		delete [] _cachedTriangleColors;
-		_cachedTriangleColors = NULL;
-	}
+    _cachedTriangleColors.setValid(false);
     
     resetEdgeCache();
 }
 
 void Mesh2::resetEdgeCache()
 {
-    if (_cachedEdgeVertices)
-    {
-        delete [] _cachedEdgeVertices;
-        _cachedEdgeVertices = NULL;
-    }
-    if (_cachedEdgeColors)
-    {
-        delete [] _cachedEdgeColors;
-        _cachedEdgeColors = NULL;
-    }
+    _cachedEdgeVertices.setValid(false);
+    _cachedEdgeColors.setValid(false);
 }
 
 void Mesh2::fillTriangleCache()
 {
-    if (_cachedTriangleVertices)
+    if (_cachedTriangleVertices.isValid())
         return;
     
-    _cachedTriangleVertices = new Vector3D[_triangles.count() * 3];
-    _cachedTriangleNormals = new Vector3D[_triangles.count() * 3];
-    _cachedVertexNormals = new Vector3D[_triangles.count() * 3];
+    _cachedTriangleVertices.resize(_triangles.count() * 3);
+    _cachedTriangleNormals.resize(_triangles.count() * 3);
+    _cachedVertexNormals.resize(_triangles.count() * 3);
     
     int i = 0;
     
@@ -110,14 +90,18 @@ void Mesh2::fillTriangleCache()
         
         i++;
     }
+    
+    _cachedTriangleVertices.setValid(true);
+    _cachedTriangleNormals.setValid(true);
+    _cachedVertexNormals.setValid(true);
 }
 
 void Mesh2::fillTriangleColorCache()
 {
-    if (_cachedTriangleColors)
+    if (_cachedTriangleColors.isValid())
         return;
     
-    _cachedTriangleColors = new Vector3D[_triangles.count() * 3];    
+    _cachedTriangleColors.resize(_triangles.count() * 3);
     
     float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
 	
@@ -132,15 +116,17 @@ void Mesh2::fillTriangleColorCache()
         
         i++;
 	}
+    
+    _cachedTriangleColors.setValid(true);
 }
 
 void Mesh2::fillEdgeCache()
 {
-    if (_cachedEdgeVertices)
+    if (_cachedEdgeVertices.isValid())
         return;
     
-    _cachedEdgeVertices = new Vector3D[_edges.count() * 2];
-    _cachedEdgeColors = new Vector3D[_edges.count() * 2];
+    _cachedEdgeVertices.resize(_edges.count() * 2);
+    _cachedEdgeColors.resize(_edges.count() * 2);
     
     Vector3D selectedColor(0.8f, 0.0f, 0.0f);
     Vector3D normalColor(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
@@ -165,6 +151,9 @@ void Mesh2::fillEdgeCache()
         
         i += 2;
     }
+
+    _cachedEdgeVertices.setValid(true);
+    _cachedEdgeColors.setValid(true);
 }
 
 void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
@@ -178,17 +167,17 @@ void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
 	if (colored)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
-		float *colorPtr = (float *)_cachedTriangleColors;
+		float *colorPtr = (float *)&_cachedTriangleColors[0];
 		glColorPointer(3, GL_FLOAT, 0, colorPtr);
 	}
 	
-	float *vertexPtr = (float *)_cachedTriangleVertices;
+	float *vertexPtr = (float *)&_cachedTriangleVertices[0];
 	float *normalPtr;
     
     if (useVertexNormals)
-        normalPtr = (float *)_cachedVertexNormals;
+        normalPtr = (float *)&_cachedVertexNormals[0];
     else
-        normalPtr = (float *)_cachedTriangleNormals;
+        normalPtr = (float *)&_cachedTriangleNormals[0];
 	
 	glNormalPointer(GL_FLOAT, 0, normalPtr);
 	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
@@ -341,8 +330,11 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         
         uint colorIndex = 0;
         
-        glColor4ubv((GLubyte *)&colorIndex);
-        drawColoredFill(false, false);
+        if (!_selectThrough)
+        {
+            glColor4ubv((GLubyte *)&colorIndex);
+            drawColoredFill(false, false);
+        }
         
         for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
         {
@@ -421,8 +413,11 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         
         uint colorIndex = 0;
         
-        glColor4ubv((GLubyte *)&colorIndex);
-        drawColoredFill(false, false);
+        if (!_selectThrough)
+        {
+            glColor4ubv((GLubyte *)&colorIndex);
+            drawColoredFill(false, false);
+        }
         
         for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
@@ -437,7 +432,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         GLubyte *colorPtr = (GLubyte *)&tempColors[0];
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
         
-        float *vertexPtr = (float *)_cachedEdgeVertices;        
+        float *vertexPtr = (float *)&_cachedEdgeVertices[0];
         glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
         
         glDrawArrays(GL_LINES, 0, _edges.count() * 2);
@@ -450,10 +445,10 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         
-        float *colorPtr = (float *)_cachedEdgeColors;
+        float *colorPtr = (float *)&_cachedEdgeColors[0];
         glColorPointer(3, GL_FLOAT, 0, colorPtr);
         
-        float *vertexPtr = (float *)_cachedEdgeVertices;        
+        float *vertexPtr = (float *)&_cachedEdgeVertices[0];
         glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
         
         glDrawArrays(GL_LINES, 0, _edges.count() * 2);

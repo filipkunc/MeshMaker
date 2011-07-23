@@ -9,18 +9,10 @@
 #include "Mesh2.h"
 
 bool Mesh2::_useSoftSelection = false;
+bool Mesh2::_selectThrough = false;
 
 Mesh2::Mesh2(float colorComponents[4])
 {
-    _cachedTriangleVertices = NULL;
-    _cachedTriangleNormals = NULL;
-    _cachedTriangleColors = NULL;
-    
-    _cachedEdgeVertices = NULL;
-    _cachedEdgeColors = NULL;
-    
-    _cachedVertexNormals = NULL;
-    
     _selectionMode = MeshSelectionModeVertices;
     
     for (int i = 0; i < 4; i++)

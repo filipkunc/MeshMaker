@@ -17,9 +17,10 @@
 - (void)selectObjectAtIndex:(uint)index withMode:(enum OpenGLSelectionMode)selectionMode;
 
 @optional
-- (void)willSelect;
+- (void)willSelectThrough:(BOOL)selectThrough;
 - (void)didSelect;
 - (BOOL)isObjectSelectedAtIndex:(uint)index;
 - (void)drawAllForSelection;
+- (BOOL)needsCullFace;
 
 @end

@@ -25,9 +25,10 @@
 
 @optional
 
-- (void)willSelect;
+- (void)willSelectThrough:(BOOL)selectThrough;
 - (void)didSelect;
 - (void)drawAllForSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;
+- (BOOL)needsCullFace;
 
 @end
 

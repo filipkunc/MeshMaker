@@ -168,6 +168,7 @@
 		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
 		A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.drawing.mm; path = Classes/Mesh2.drawing.mm; sourceTree = "<group>"; };
 		A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.make.cpp; path = Classes/Mesh2.make.cpp; sourceTree = "<group>"; };
+		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
 		A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleNodeAndList.h; path = Classes/SimpleNodeAndList.h; sourceTree = "<group>"; };
@@ -240,6 +241,7 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				A7A9695913DB328F0091975A /* FPArrayCache.h */,
 				A74FBFF5139A74AC00349A4C /* FPNode.h */,
 				A79F521E1394161B00CF7DBE /* FPList.h */,
 				A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */,

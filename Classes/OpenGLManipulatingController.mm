@@ -530,10 +530,17 @@
     }
 }
 
-- (void)willSelect
+- (void)willSelectThrough:(BOOL)selectThrough
 {
-	if ([model respondsToSelector:@selector(willSelect)])
-		[model willSelect];
+	if ([model respondsToSelector:@selector(willSelectThrough:)])
+		[model willSelectThrough:selectThrough];
+}
+
+- (BOOL)needsCullFace
+{
+    if ([model respondsToSelector:@selector(needsCullFace)])
+        return [model needsCullFace];
+    return NO;
 }
 
 - (void)didSelect
@@ -605,7 +612,7 @@
 
 - (void)changeSelection:(BOOL)isSelected
 {
-	[self willSelect];
+	[self willSelectThrough:NO];
 	for (uint i = 0; i < [model count]; i++)
 		[model setSelected:isSelected atIndex:i];
 	[self didSelect];
@@ -614,7 +621,7 @@
 
 - (void)invertSelection
 {
-	[self willSelect];
+	[self willSelectThrough:NO];
 	for (uint i = 0; i < [model count]; i++)
 		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
 	[self didSelect];
