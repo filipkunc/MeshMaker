@@ -332,8 +332,11 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         
         if (!_selectThrough)
         {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(1.0f, 1.0f);
             glColor4ubv((GLubyte *)&colorIndex);
             drawColoredFill(false, false);
+            glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
         for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
@@ -415,8 +418,11 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         
         if (!_selectThrough)
         {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(1.0f, 1.0f);
             glColor4ubv((GLubyte *)&colorIndex);
             drawColoredFill(false, false);
+            glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
         for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
