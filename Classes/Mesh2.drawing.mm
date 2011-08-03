@@ -104,12 +104,12 @@ void Mesh2::fillTriangleCache()
     if (!_vboGenerated)
     {
         glGenBuffers(1, &_vboID);
-        glBindBuffer(GL_ARRAY_BUFFER, _vboID);
         _vboGenerated = true;
     }
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Mesh2::fillEdgeCache()
@@ -176,6 +176,8 @@ void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
     
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     
 	/*glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -394,6 +396,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             
             tempVertices.push_back(node->data.position);            
         }
+        
         
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
