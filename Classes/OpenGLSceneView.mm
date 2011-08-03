@@ -50,10 +50,6 @@ NSOpenGLContext *globalGLContext = nil;
 	return globalGLContext;
 }
 
-+ (void)deinitialize
-{
-}
-
 - (void)awakeFromNib
 {
 	NSWindow *window = [self window];

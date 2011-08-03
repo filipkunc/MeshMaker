@@ -10,15 +10,15 @@
 #import "OpenGLDrawing.h"
 #import "ShaderProgram.h"
 
-void fillCachedColorsAtIndex(uint index, Vector3D *cachedColors, float components[3]);
+void fillCachedColorsAtIndex(uint index, GLVertex *cachedColors, float components[3]);
 
-void fillCachedColorsAtIndex(uint index, Vector3D *cachedColors, float components[3])
+void fillCachedColorsAtIndex(uint index, GLVertex *cachedColors, float components[3])
 {
     for (uint j = 0; j < 3; j++)
     {
         for (uint k = 0; k < 3; k++)
         {
-            cachedColors[index * 3 + j][k] = components[k];
+            cachedColors[index * 3 + j].color.coords[k] = components[k];
         }
     }	
 }
@@ -26,16 +26,6 @@ void fillCachedColorsAtIndex(uint index, Vector3D *cachedColors, float component
 void Mesh2::resetTriangleCache()
 {
     _cachedTriangleVertices.setValid(false);
-    _cachedTriangleNormals.setValid(false);
-    
-	resetTriangleColorCache();    
-    resetEdgeCache();
-}
-
-void Mesh2::resetTriangleColorCache()
-{
-    _cachedTriangleColors.setValid(false);
-    
     resetEdgeCache();
 }
 
@@ -51,8 +41,6 @@ void Mesh2::fillTriangleCache()
         return;
     
     _cachedTriangleVertices.resize(_triangles.count() * 3);
-    _cachedTriangleNormals.resize(_triangles.count() * 3);
-    _cachedVertexNormals.resize(_triangles.count() * 3);
     
     int i = 0;
     
@@ -65,8 +53,11 @@ void Mesh2::fillTriangleCache()
         
         for (int j = 0; j < 3; j++)
         {
-            _cachedTriangleVertices[i * 3 + j] = currentTriangle.vertex(j)->data.position;
-            _cachedTriangleNormals[i * 3 + j] = n;
+            for (int k = 0; k < 3; k++)
+            {
+                _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data.position[k];
+                _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];
+            }
         }
         
         i++;
@@ -85,39 +76,40 @@ void Mesh2::fillTriangleCache()
         
         for (int j = 0; j < 3; j++)
         {
-            _cachedVertexNormals[i * 3 + j] = currentTriangle.vertex(j)->normal;
+            for (int k = 0; k < 3; k++)
+            {
+                _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = currentTriangle.vertex(j)->normal[k];
+            }
         }
         
         i++;
     }
     
-    _cachedTriangleVertices.setValid(true);
-    _cachedTriangleNormals.setValid(true);
-    _cachedVertexNormals.setValid(true);
-}
-
-void Mesh2::fillTriangleColorCache()
-{
-    if (_cachedTriangleColors.isValid())
-        return;
-    
-    _cachedTriangleColors.resize(_triangles.count() * 3);
-    
     float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
 	
-    uint i = 0;
+    i = 0;
 	
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
 	{
 		if (node->data.selected)
-            fillCachedColorsAtIndex(i, _cachedTriangleColors, selectedComponents);
+            fillCachedColorsAtIndex(i, _cachedTriangleVertices, selectedComponents);
 		else
-            fillCachedColorsAtIndex(i, _cachedTriangleColors, _colorComponents);				
+            fillCachedColorsAtIndex(i, _cachedTriangleVertices, _colorComponents);				
         
         i++;
 	}
     
-    _cachedTriangleColors.setValid(true);
+    _cachedTriangleVertices.setValid(true);
+    
+    if (!_vboGenerated)
+    {
+        glGenBuffers(1, &_vboID);
+        glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+        _vboGenerated = true;
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+    glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
 }
 
 void Mesh2::fillEdgeCache()
@@ -159,28 +151,51 @@ void Mesh2::fillEdgeCache()
 void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
 {
     fillTriangleCache();
-	if (colored)
-        fillTriangleColorCache();
     
-	glEnableClientState(GL_VERTEX_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+    if (colored)
+    {
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(3, GL_FLOAT, sizeof(GLVertex), (void *)offsetof(GLVertex, color));
+    }
+    
+    if (useVertexNormals)
+        glNormalPointer(GL_FLOAT, sizeof(GLVertex), (void *)offsetof(GLVertex, smoothNormal));
+    else
+        glNormalPointer(GL_FLOAT, sizeof(GLVertex), (void *)offsetof(GLVertex, flatNormal));
+    
+    glVertexPointer(3, GL_FLOAT, sizeof(GLVertex), (void *)offsetof(GLVertex, position));
+
+    glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
+
+    if (colored)
+        glDisableClientState(GL_COLOR_ARRAY);
+    
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    
+	/*glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	if (colored)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
-		float *colorPtr = (float *)&_cachedTriangleColors[0];
-		glColorPointer(3, GL_FLOAT, 0, colorPtr);
+		float *colorPtr = (float *)&_cachedTriangleVertices[0].color;
+		glColorPointer(3, GL_FLOAT, sizeof(GLVertex), colorPtr);
 	}
 	
-	float *vertexPtr = (float *)&_cachedTriangleVertices[0];
+	float *vertexPtr = (float *)&_cachedTriangleVertices[0].position;
 	float *normalPtr;
     
     if (useVertexNormals)
-        normalPtr = (float *)&_cachedVertexNormals[0];
+        normalPtr = (float *)&_cachedTriangleVertices[0].smoothNormal;
     else
-        normalPtr = (float *)&_cachedTriangleNormals[0];
+        normalPtr = (float *)&_cachedTriangleVertices[0].flatNormal;
 	
-	glNormalPointer(GL_FLOAT, 0, normalPtr);
-	glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
+	glNormalPointer(GL_FLOAT, sizeof(GLVertex), normalPtr);
+	glVertexPointer(3, GL_FLOAT, sizeof(GLVertex), vertexPtr);
 	
 	glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
 	
@@ -188,7 +203,7 @@ void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
 		glDisableClientState(GL_COLOR_ARRAY);
     
     glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);*/
 }
 
 void Mesh2::drawWire()
@@ -232,11 +247,11 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             if (_selectionMode != MeshSelectionModeTriangles)
 			{
 				glColor3fv(_colorComponents);
-                drawColoredFill(false, mode == ViewModeSolidGouraud);
+                drawColoredFill(false, mode == ViewModeSolidSmooth);
 			}
             else
             {
-                drawColoredFill(true, mode == ViewModeSolidGouraud);
+                drawColoredFill(true, mode == ViewModeSolidSmooth);
             }
 			[ShaderProgram resetProgram];
 			glDisable(GL_POLYGON_OFFSET_FILL);
@@ -248,11 +263,11 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
             if (_selectionMode != MeshSelectionModeTriangles)
 			{
 				glColor3fv(_colorComponents);
-                drawColoredFill(false, mode == ViewModeSolidGouraud);
+                drawColoredFill(false, mode == ViewModeSolidSmooth);
 			}
             else
             {
-                drawColoredFill(true, mode == ViewModeSolidGouraud);
+                drawColoredFill(true, mode == ViewModeSolidSmooth);
             }
             [ShaderProgram resetProgram];
 		}

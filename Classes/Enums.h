@@ -50,7 +50,7 @@ enum ManipulatorType
 enum ViewMode
 {
 	ViewModeSolidFlat = 0,
-    ViewModeSolidGouraud = 1,
+    ViewModeSolidSmooth = 1,
 	ViewModeWireframe = 2,
 };
 

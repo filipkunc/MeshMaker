@@ -264,7 +264,7 @@
 
 - (void)didSelect
 {
-    mesh->resetTriangleColorCache();
+    mesh->resetTriangleCache();
     mesh->computeSoftSelection();
 }
 

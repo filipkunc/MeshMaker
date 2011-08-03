@@ -16,6 +16,26 @@ struct ExtrudePair
     VertexNode *extruded;
 };
 
+enum GLVertexAttribID
+{
+    GLVertexAttribID_Position = 0,
+    GLVertexAttribID_Normal,
+    GLVertexAttribID_Color
+};
+
+struct Point3D
+{
+    float coords[3];
+};
+
+struct GLVertex
+{
+    Point3D position;
+    Point3D flatNormal;
+    Point3D smoothNormal;
+    Point3D color;
+};
+
 class Mesh2
 {
 private:
@@ -29,19 +49,19 @@ private:
     vector<TriangleNode *> _cachedTriangleSelection;
     vector<EdgeNode *> _cachedEdgeSelection;
     
-	FPArrayCache<Vector3D> _cachedTriangleVertices;
-	FPArrayCache<Vector3D> _cachedTriangleNormals;
-	FPArrayCache<Vector3D> _cachedTriangleColors;
+	FPArrayCache<GLVertex> _cachedTriangleVertices;
     
     FPArrayCache<Vector3D> _cachedEdgeVertices;
     FPArrayCache<Vector3D> _cachedEdgeColors;
-    
-    FPArrayCache<Vector3D> _cachedVertexNormals;
     
     float _colorComponents[4];
     
     static bool _useSoftSelection;
     static bool _selectThrough;
+    
+    uint _vboID;
+    bool _vboGenerated;
+    
 private:
     void fastMergeSelectedVertices();
     void removeDegeneratedTrianglesAndEdges();
@@ -96,9 +116,7 @@ public:
     // drawing
     
     void resetTriangleCache();
-    void resetTriangleColorCache();
     void fillTriangleCache();
-    void fillTriangleColorCache();
     
     void resetEdgeCache();
     void fillEdgeCache();

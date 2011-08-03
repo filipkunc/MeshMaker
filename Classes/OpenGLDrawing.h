@@ -9,8 +9,10 @@
 
 #pragma once
 
+#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+
 #import <Cocoa/Cocoa.h>
-//#import <OpenGL/gl3.h>
+#import <OpenGL/gl3.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "MathDeclaration.h"
