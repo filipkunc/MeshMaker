@@ -17,6 +17,9 @@ Mesh2::Mesh2(float colorComponents[4])
     
     for (int i = 0; i < 4; i++)
         _colorComponents[i] = colorComponents[i];
+    
+    _vboID = 0U;
+    _vboGenerated = false;
 }
 
 Mesh2::~Mesh2()
@@ -440,7 +443,7 @@ void Mesh2::loopSubdivision()
     
     makeEdges();
     
-    setSelectionMode(_selectionMode);
+    setSelectionMode(_selectionMode);    
 }
 
 void Mesh2::splitSelectedTriangles()
