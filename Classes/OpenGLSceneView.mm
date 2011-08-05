@@ -1023,7 +1023,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	position = [self positionFromPlaneAxis:(PlaneAxis)(selectedIndex + 3) point:point];
 	position -= [manipulated selectionCenter];
 	
-	switch(selectedIndex)
+	switch (selectedIndex)
     {
 		case AxisX:
 			angle = atan2f(position.y, position.z) - atan2f(lastPosition->y, lastPosition->z);
@@ -1037,7 +1037,6 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 			angle = atan2f(position.x, position.y) - atan2f(lastPosition->x, lastPosition->y);
 			quaternion.FromAngleAxis(-angle, Vector3D(0, 0, 1));
 			break;
-		default: break;
 	}
 	
 	*lastPosition = position;

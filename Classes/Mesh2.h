@@ -28,11 +28,17 @@ struct Point3D
     float coords[3];
 };
 
-struct GLVertex
+struct GLTriangleVertex
 {
     Point3D position;
     Point3D flatNormal;
     Point3D smoothNormal;
+    Point3D color;
+};
+
+struct GLEdgeVertex
+{
+    Point3D position;
     Point3D color;
 };
 
@@ -49,10 +55,8 @@ private:
     vector<TriangleNode *> _cachedTriangleSelection;
     vector<EdgeNode *> _cachedEdgeSelection;
     
-	FPArrayCache<GLVertex> _cachedTriangleVertices;
-    
-    FPArrayCache<Vector3D> _cachedEdgeVertices;
-    FPArrayCache<Vector3D> _cachedEdgeColors;
+	FPArrayCache<GLTriangleVertex> _cachedTriangleVertices;
+    FPArrayCache<GLEdgeVertex> _cachedEdgeVertices;
     
     float _colorComponents[4];
     
@@ -122,7 +126,6 @@ public:
     void fillEdgeCache();
     
     void drawColoredFill(bool colored, bool useVertexNormals);
-    void drawWire();
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
 
     void drawAtIndex(uint index, bool forSelection, ViewMode mode);
