@@ -29,6 +29,8 @@ Mesh2::~Mesh2()
 
 void Mesh2::setSelectionMode(MeshSelectionMode value)
 {
+    resetEdgeCache();
+    
     _selectionMode = value;
     _cachedVertexSelection.clear();
     _cachedTriangleSelection.clear();

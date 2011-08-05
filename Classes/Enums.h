@@ -36,7 +36,8 @@ enum MeshSelectionMode
 {
 	MeshSelectionModeVertices = 0,
 	MeshSelectionModeTriangles,
-	MeshSelectionModeEdges
+	MeshSelectionModeEdges,
+    MeshSelectionModeQuadsTriangles,
 };
 
 enum ManipulatorType
@@ -59,7 +60,8 @@ enum EditMode
 	EditModeItems = 0,
 	EditModeVertices = 1,
 	EditModeTriangles = 2,
-	EditModeEdges = 3
+	EditModeEdges = 3,
+    EditModeQuadsTriangles = 4,
 };
 
 enum CameraMode

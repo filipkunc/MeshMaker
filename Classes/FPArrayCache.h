@@ -14,11 +14,14 @@ class FPArrayCache
 private:
     T *_array;
     int _count;
+    int _capacity;
     bool _isValid;
+    
 public:
     FPArrayCache()
     {
         _count = 0;
+        _capacity = 0;
         _array = NULL;
         _isValid = false;
     }
@@ -35,15 +38,39 @@ public:
     bool isValid() const { return _isValid; }
     void setValid(bool valid) { _isValid = valid; }
 
+    void clear()
+    {
+        _count = 0;
+        _isValid = false;
+    }
+    
+    void trim()
+    {
+        if (_capacity > _count)
+            realloc();
+        _isValid = false;
+    }
+
     void resize(int count) 
     {
-        if (_count != count)
-            _count = count;
+        _count = count;
+        
+        if (_capacity < _count)
+            realloc();            
+        
+        _isValid = false;
+    }    
+private:    
+    void realloc()
+    {
+        _capacity = _count; 
         
         if (_array)
             delete [] _array;
-        _array = new T[_count];
         
-        _isValid = false;
+        if (_count > 0)
+            _array = new T[_count];
+        else
+            _array = NULL;            
     }
 };

@@ -151,6 +151,7 @@ public:
     Edge2();
     Edge2(VertexNode *vertices[2]);
     
+    bool isQuadEdge() const;
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
     bool isNotShared() const;

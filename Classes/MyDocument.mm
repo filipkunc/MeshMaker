@@ -481,8 +481,9 @@ vector<T> *ReadValues(string s)
 		case EditModeEdges:
 			[self editMeshWithMode:MeshSelectionModeEdges];
 			break;
-		default:
-			break;
+        case EditModeQuadsTriangles:
+            [self editMeshWithMode:MeshSelectionModeQuadsTriangles];
+            break;
 	}
 }
 

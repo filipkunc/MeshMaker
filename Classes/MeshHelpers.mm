@@ -310,6 +310,40 @@ Edge2::Edge2(VertexNode *vertices[2]) : selected(false)
     }
 }
 
+bool Edge2::isQuadEdge() const
+{
+    if (_triangles[0] != NULL && _triangles[1] != NULL)
+    {
+        Triangle2 &t0 = _triangles[0]->data;
+        Triangle2 &t1 = _triangles[1]->data;
+        
+        VertexNode *otherVertices[2];
+        otherVertices[0] = t0.vertexNotInEdge(this);
+        otherVertices[1] = t1.vertexNotInEdge(this);
+        
+        float squaredDistanceInEdge = _vertices[0]->data.position.SqDistance(_vertices[1]->data.position);
+        float sqDistances[4];
+        
+        for (int i = 0; i < 2; i++)
+        {
+            sqDistances[i] = otherVertices[i]->data.position.SqDistance(_vertices[0]->data.position);
+            sqDistances[i + 2] = otherVertices[i]->data.position.SqDistance(_vertices[1]->data.position); 
+        }
+        
+        for (int i = 0; i < 4; i++)
+        {
+            if (squaredDistanceInEdge < sqDistances[i])
+                return false;
+            
+            if (fabsf(squaredDistanceInEdge - sqDistances[i]) < FLOAT_EPS)
+                return false;                
+        }
+        
+        return true;
+    }
+    return false;
+}
+
 bool Edge2::isDegenerated() const
 {
     if (_triangles[0] == NULL && _triangles[1] == NULL)
