@@ -35,7 +35,6 @@
 - (void)makeSphereWithSteps:(uint)steps;
 - (void)transformWithMatrix:(Matrix4x4 *)matrix;
 - (void)mergeWithMesh:(Mesh *)aMesh;
-- (void)splitSelectedEdges;
 - (void)mergeVertexPairs;
 - (void)mergeSelected;
 - (void)splitSelected;

@@ -515,7 +515,45 @@ void Mesh2::splitSelectedTriangles()
 
 void Mesh2::splitSelectedEdges()
 {
+    for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        Edge2 &edge = node->data;
+        if (!edge.selected)
+            continue;
+        
+        if (edge.halfVertex == NULL)
+        {
+            Vector3D v1 = edge.vertex(0)->data.position;
+            Vector3D v2 = edge.vertex(1)->data.position;
+            
+            Vector3D edgeVertex = (v1 + v2) / 2.0f;
+            
+            edge.halfVertex = _vertices.add(edgeVertex);
+        }
+        
+        for (int i = 0; i < 2; i++)
+        {
+            TriangleNode *triangleNode = edge.triangle(i);
+            if (triangleNode == NULL)
+                continue;
+            
+            VertexNode *oppositeVertexNode = triangleNode->data.vertexNotInEdge(&edge);
+            
+            VertexNode *original0 = edge.vertex(0);
+            VertexNode *original1 = edge.vertex(1);
+            
+            triangleNode->data.sortVertices(original0, original1);
+            
+            addTriangle(edge.halfVertex, oppositeVertexNode, original0);
+            addTriangle(original1, oppositeVertexNode, edge.halfVertex);
+            
+            _triangles.remove(triangleNode);
+        }
+    }
     
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
 }
 
 void Mesh2::splitSelected()
