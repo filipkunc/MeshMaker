@@ -292,7 +292,7 @@ void Triangle2::computeNormal()
 	normal = u.Cross(v);    
 }
 
-Edge2::Edge2() : selected(false)
+Edge2::Edge2() : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -301,7 +301,7 @@ Edge2::Edge2() : selected(false)
     }
 }
 
-Edge2::Edge2(VertexNode *vertices[2]) : selected(false)
+Edge2::Edge2(VertexNode *vertices[2]) : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
