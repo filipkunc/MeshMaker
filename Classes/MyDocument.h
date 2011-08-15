@@ -11,7 +11,7 @@
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate, NSWindowDelegate>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;
