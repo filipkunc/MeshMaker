@@ -94,6 +94,11 @@ vector<T> *ReadValues(string s)
 	[viewPerspective setCameraMode:CameraModePerspective];
 }
 
+- (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
+{
+    return proposedOptions | NSApplicationPresentationAutoHideToolbar;    
+}
+
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view
 {
 	for (OpenGLSceneView *v in views)
