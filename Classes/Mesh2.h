@@ -28,12 +28,18 @@ struct Point3D
     float coords[3];
 };
 
+struct Point2D 
+{
+    float coords[2];
+};
+
 struct GLTriangleVertex
 {
     Point3D position;
     Point3D flatNormal;
     Point3D smoothNormal;
     Point3D color;
+    Point2D texCoord;
 };
 
 struct GLEdgeVertex
