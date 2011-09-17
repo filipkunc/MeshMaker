@@ -131,7 +131,7 @@ public:
     void resetEdgeCache();
     void fillEdgeCache();
     
-    void drawColoredFill(bool colored, bool useVertexNormals);
+    void drawColoredFill(bool colored, ViewMode mode);
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
 
     void drawAtIndex(uint index, bool forSelection, ViewMode mode);

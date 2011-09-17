@@ -107,7 +107,7 @@ void Mesh2::fillTriangleCache()
                 const Vector3D &n = currentTriangle.vertex(j)->normal;
                 _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
                 if (k < 2)
-                    _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = asinf(p[k]) / FLOAT_PI + 0.5f;
+                    _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = asinf(n[k]) * p[k];
             }
         }
         
@@ -188,7 +188,7 @@ void Mesh2::fillEdgeCache()
     _cachedEdgeVertices.setValid(true);
 }
 
-void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
+void Mesh2::drawColoredFill(bool colored, ViewMode mode)
 {
     fillTriangleCache();
     
@@ -207,14 +207,17 @@ void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
         glColorPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
     }
     
-    if (useVertexNormals)
+    if (mode == ViewModeSolidSmooth)
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, smoothNormal));
     else
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, flatNormal));
     
     glTexCoordPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
     
-    glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
+    if (mode == ViewModeUnwrap)
+        glVertexPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
+    else
+        glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
 
     glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
 
@@ -270,7 +273,7 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
 	}
 	else if (forSelection)
 	{
-        drawColoredFill(false, false);
+        drawColoredFill(false, mode);
     }
     else
     {
@@ -284,11 +287,11 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
         if (_selectionMode != MeshSelectionModeTriangles)
         {
             glColor3fv(_colorComponents);
-            drawColoredFill(false, mode == ViewModeSolidSmooth);
+            drawColoredFill(false, mode);
         }
         else
         {
-            drawColoredFill(true, mode == ViewModeSolidSmooth);
+            drawColoredFill(true, mode);
         }
         //[ShaderProgram resetProgram];
         
@@ -362,7 +365,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 	}
 }
 
-void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
+void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
 {
     glPointSize(5.0f);
     
@@ -378,7 +381,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
             glColor4ubv((GLubyte *)&colorIndex);
-            drawColoredFill(false, false);
+            drawColoredFill(false, mode);
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
@@ -440,17 +443,17 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
     }
 }
 
-void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
+void Mesh2::drawAllTriangles(ViewMode mode, bool forSelection)
 {
     for (int i = 0; i < _triangles.count(); i++)
     {
         uint colorIndex = i + 1;
         glColor4ubv((GLubyte *)&colorIndex);
-        drawAtIndex(i, forSelection, viewMode);
+        drawAtIndex(i, forSelection, mode);
     }
 }
 
-void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
+void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
 {
     fillEdgeCache();
     
@@ -465,7 +468,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
             glColor4ubv((GLubyte *)&colorIndex);
-            drawColoredFill(false, false);
+            drawColoredFill(false, mode);
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
