@@ -82,6 +82,23 @@ void Mesh2::makeEdges()
     }
 }
 
+void Mesh2::makePlane()
+{
+    _vertices.removeAll();
+    _triangles.removeAll();
+    
+    VertexNode *v0 = _vertices.add(Vector3D(-1, -1, 0));
+	VertexNode *v1 = _vertices.add(Vector3D( 1, -1, 0));
+    VertexNode *v2 = _vertices.add(Vector3D( 1,  1, 0));
+	VertexNode *v3 = _vertices.add(Vector3D(-1,  1, 0));
+    
+    addQuad(v0, v1, v2, v3);
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::makeCube()
 {
     _vertices.removeAll();

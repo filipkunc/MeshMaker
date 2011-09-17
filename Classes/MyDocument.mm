@@ -422,6 +422,11 @@ vector<T> *ReadValues(string s)
 	[self setNeedsDisplayExceptView:view];
 }
 
+- (IBAction)addPlane:(id)sender
+{
+    [self addItemWithType:MeshTypePlane steps:0];
+}
+
 - (IBAction)addCube:(id)sender
 {
 	[self addItemWithType:MeshTypeCube steps:0];

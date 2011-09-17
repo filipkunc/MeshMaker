@@ -87,33 +87,21 @@
 {
 	switch (type) 
 	{
+        case MeshTypePlane:
+            mesh->makePlane();
+            break;
 		case MeshTypeCube:
-			[self makeCube];
+            mesh->makeCube();
 			break;
 		case MeshTypeCylinder:
-			[self makeCylinderWithSteps:steps];
+            mesh->makeCylinder(steps);
 			break;
 		case MeshTypeSphere:
-			[self makeSphereWithSteps:steps];
+            mesh->makeSphere(steps);
 			break;
 		default:
 			break;
 	}
-}
-
-- (void)makeCube
-{
-	mesh->makeCube();
-}
-
-- (void)makeCylinderWithSteps:(uint)steps
-{
-    mesh->makeCylinder(steps);
-}
-
-- (void)makeSphereWithSteps:(uint)steps
-{
-	mesh->makeSphere(steps);
 }
 
 - (void)mergeVertexPairs

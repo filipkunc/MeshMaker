@@ -142,6 +142,7 @@ public:
     EdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
     VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
     void makeEdges();
+    void makePlane();
     void makeCube();
     void makeCylinder(uint steps);
     void makeSphere(uint steps);

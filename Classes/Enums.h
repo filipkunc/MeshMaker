@@ -27,7 +27,8 @@ typedef signed char BOOL;
 
 enum MeshType
 {
-	MeshTypeCube = 0,
+    MeshTypePlane = 0,
+	MeshTypeCube,
 	MeshTypeCylinder,
 	MeshTypeSphere
 };

@@ -30,9 +30,6 @@
 + (NSString *)descriptionOfMeshType:(enum MeshType)type;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;
 - (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps;
-- (void)makeCube;
-- (void)makeCylinderWithSteps:(uint)steps;
-- (void)makeSphereWithSteps:(uint)steps;
 - (void)transformWithMatrix:(Matrix4x4 *)matrix;
 - (void)mergeWithMesh:(Mesh *)aMesh;
 - (void)mergeVertexPairs;
