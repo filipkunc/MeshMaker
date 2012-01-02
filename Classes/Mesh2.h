@@ -48,6 +48,7 @@ private:
     FPList<VertexNode, Vertex2> _vertices;
 	FPList<TriangleNode, Triangle2> _triangles;
     FPList<EdgeNode, Edge2> _edges;
+    FPList<TextureCoordinateNode, TextureCoordinate> _textureCoordinates;
     
     MeshSelectionMode _selectionMode;
 	

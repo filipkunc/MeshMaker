@@ -35,10 +35,47 @@ struct SelectionInfo
 class Vertex2;
 class Triangle2;
 class Edge2;
+class TextureCoordinate;
 
 class VertexNode;
 class TriangleNode;
 class EdgeNode;
+class TextureCoordinateNode;
+
+class TextureCoordinate
+{
+public:
+    Vector2D position;
+    
+    bool selected;
+    
+    TextureCoordinate() : selected(false) { }
+    TextureCoordinate(const Vector2D &v) : position(v), selected(false) { }
+};
+
+class TextureCoordinateNode : public FPNode<TextureCoordinateNode, TextureCoordinate>
+{
+public:
+    SimpleList<TriangleNode *> _triangles;
+    SimpleList<EdgeNode *> _edges;
+public:
+    TextureCoordinateNode() : FPNode<TextureCoordinateNode, TextureCoordinate>() { }
+    TextureCoordinateNode(const TextureCoordinate &textureCoordinate) : FPNode<TextureCoordinateNode, TextureCoordinate>(textureCoordinate) { } 
+    virtual ~TextureCoordinateNode() 
+    { 
+        removeFromTriangles();
+        removeFromEdges();
+    }
+    
+    bool isUsed() const { return _triangles.count() > 0; }
+    void addTriangle(TriangleNode *triangle);
+    void removeTriangle(TriangleNode *triangle);
+    void removeFromTriangles();
+    void addEdge(EdgeNode *edge);
+    void removeEdge(EdgeNode *edge);
+    void removeEdges();
+    void removeFromEdges();   
+};
 
 class Vertex2
 {
@@ -88,12 +125,14 @@ class Triangle2
 private:
     VertexNode *_vertices[3];
     EdgeNode *_edges[3];
+    TextureCoordinateNode *_textureCoordinates[3];
 public:
     bool selected;
     Vector3D normal;
     
     Triangle2();
     Triangle2(VertexNode *vertices[3]);
+    Triangle2(VertexNode *vertices[3], TextureCoordinateNode *texutreCoordinates[3]);
 
     VertexNode *vertex(int index) const { return _vertices[index]; }
     EdgeNode *edge(int index) const { return _edges[index]; }
@@ -102,6 +141,7 @@ public:
     void setEdge(int index, EdgeNode *value) { _edges[index] = value; }
     
     void removeVertex(VertexNode *vertex);
+    void removeTextureCoordinate(TextureCoordinateNode *textureCoordinate);
     void removeEdge(EdgeNode *edge);
     void removeEdges();
 
@@ -144,6 +184,7 @@ class Edge2
 private:
     VertexNode *_vertices[2];
     TriangleNode *_triangles[2];
+    TextureCoordinateNode *_textureCoordinates[2];
 public:
     bool selected;
     VertexNode *halfVertex;
@@ -162,6 +203,7 @@ public:
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
     void removeVertex(VertexNode *vertex);
     void removeTriangle(TriangleNode *triangle);
+    void removeTextureCoordinate(TextureCoordinateNode *textureCoordinate);
     void turn();
     
     VertexNode *opposite(VertexNode *vertex) const;

@@ -9,6 +9,59 @@
 
 #import "MeshHelpers.h"
 
+void TextureCoordinateNode::addTriangle(TriangleNode *triangle)
+{
+    _triangles.add(triangle);
+}
+
+void TextureCoordinateNode::removeTriangle(TriangleNode *triangle)
+{
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (node->data == triangle)
+            _triangles.remove(node);
+    }
+}
+
+void TextureCoordinateNode::removeFromTriangles()
+{
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        node->data->data.removeTextureCoordinate(this);
+    }
+    
+    _triangles.removeAll();
+}
+
+void TextureCoordinateNode::addEdge(EdgeNode *edge)
+{
+    _edges.add(edge);
+}
+
+void TextureCoordinateNode::removeEdge(EdgeNode *edge)
+{
+    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        if (node->data == edge)
+            _edges.remove(node);
+    }
+}
+
+void TextureCoordinateNode::removeEdges()
+{
+    _edges.removeAll();
+}
+
+void TextureCoordinateNode::removeFromEdges()
+{
+    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        node->data->data.removeTextureCoordinate(this);
+    }
+    
+    _edges.removeAll();
+}
+
 void VertexNode::addTriangle(TriangleNode *triangle)
 {
     _triangles.add(triangle);
@@ -120,6 +173,7 @@ Triangle2::Triangle2() : selected(false)
     {
         _vertices[i] = NULL;
         _edges[i] = NULL;
+        _textureCoordinates[i] = NULL;
     }
 }
 
@@ -129,6 +183,17 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
     {
         _vertices[i] = vertices[i];
         _edges[i] = NULL;
+        _textureCoordinates[i] = NULL;
+    }
+}
+
+Triangle2::Triangle2(VertexNode *vertices[3], TextureCoordinateNode *textureCoordinates[3]) : selected(false)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        _vertices[i] = vertices[i];
+        _edges[i] = NULL;
+        _textureCoordinates[i] = textureCoordinates[i];
     }
 }
 
@@ -185,6 +250,18 @@ void Triangle2::removeVertex(VertexNode *vertex)
         if (_vertices[i] == vertex)
         {
             _vertices[i] = NULL;
+            break;
+        }
+    }
+}
+
+void Triangle2::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_textureCoordinates[i] == textureCoordinate)
+        {
+            _textureCoordinates[i] = NULL;
             break;
         }
     }
@@ -408,6 +485,18 @@ void Edge2::removeVertex(VertexNode *vertex)
         if (_vertices[i] == vertex)
         {
             _vertices[i] = NULL;
+            break;
+        }
+    }
+}
+
+void Edge2::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (_textureCoordinates[i] == textureCoordinate)
+        {
+            _textureCoordinates[i] = NULL;
             break;
         }
     }

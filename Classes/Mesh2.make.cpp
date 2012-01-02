@@ -16,11 +16,19 @@ void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
+    TextureCoordinateNode *t1 = _textureCoordinates.add(Vector2D(0, 0));
+    TextureCoordinateNode *t2 = _textureCoordinates.add(Vector2D(0, 1));
+    TextureCoordinateNode *t3 = _textureCoordinates.add(Vector2D(1, 1));
+    TextureCoordinateNode *t4 = _textureCoordinates.add(Vector2D(1, 0));
+    
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-  	_triangles.add(vertices1);
-    _triangles.add(vertices2);
+    TextureCoordinateNode *textureCoordinates1[3] = { t1, t2, t3 };
+    TextureCoordinateNode *textureCoordinates2[3] = { t1, t3, t4 };
+    
+  	_triangles.add(Triangle2(vertices1, textureCoordinates1));
+    _triangles.add(Triangle2(vertices2, textureCoordinates2));
 }
 
 EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
@@ -103,6 +111,7 @@ void Mesh2::makeCube()
 {
     _vertices.removeAll();
 	_triangles.removeAll();
+    _textureCoordinates.removeAll();
     
 	// back vertices
 	VertexNode *v0 = _vertices.add(Vector3D(-1, -1, -1));
