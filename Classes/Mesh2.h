@@ -28,12 +28,18 @@ struct Point3D
     float coords[3];
 };
 
+struct Point2D 
+{
+    float coords[2];
+};
+
 struct GLTriangleVertex
 {
     Point3D position;
     Point3D flatNormal;
     Point3D smoothNormal;
     Point3D color;
+    Point2D texCoord;
 };
 
 struct GLEdgeVertex
@@ -126,7 +132,7 @@ public:
     void resetEdgeCache();
     void fillEdgeCache();
     
-    void drawColoredFill(bool colored, bool useVertexNormals);
+    void drawColoredFill(bool colored, ViewMode mode);
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
 
     void drawAtIndex(uint index, bool forSelection, ViewMode mode);

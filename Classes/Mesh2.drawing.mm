@@ -9,6 +9,27 @@
 #import "Mesh2.h"
 #import "OpenGLDrawing.h"
 #import "ShaderProgram.h"
+#import "FPTexture.h"
+
+FPTexture *checkerTexture = nil;
+
+void loadTextureIfNeeded();
+
+void loadTextureIfNeeded()
+{
+    if (!checkerTexture)
+        checkerTexture = [[FPTexture alloc] initWithFile:@"checker.png" convertToAlpha:NO];    
+}
+
+Point2D makePoint(float x, float y);
+
+Point2D makePoint(float x, float y)
+{
+    Point2D point;
+    point.coords[0] = x;
+    point.coords[1] = y;
+    return point;
+}
 
 void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float components[3]);
 
@@ -43,6 +64,11 @@ void Mesh2::fillTriangleCache()
     
     int i = 0;
     
+    /*Point2D texCoords[3];
+    texCoords[0] = makePoint(0.0f, 1.0f);
+    texCoords[1] = makePoint(1.0f, 0.5f);
+    texCoords[2] = makePoint(1.0f, 0.0f);*/
+    
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle2 &currentTriangle = node->data;
@@ -55,7 +81,7 @@ void Mesh2::fillTriangleCache()
             for (int k = 0; k < 3; k++)
             {
                 _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data.position[k];
-                _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];
+                _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];                
             }
         }
         
@@ -77,7 +103,11 @@ void Mesh2::fillTriangleCache()
         {
             for (int k = 0; k < 3; k++)
             {
-                _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = currentTriangle.vertex(j)->normal[k];
+                const Vector3D &p = currentTriangle.vertex(j)->data.position;
+                const Vector3D &n = currentTriangle.vertex(j)->normal;
+                _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
+                if (k < 2)
+                    _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = asinf(n[k]) * p[k];
             }
         }
         
@@ -158,36 +188,48 @@ void Mesh2::fillEdgeCache()
     _cachedEdgeVertices.setValid(true);
 }
 
-void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
+void Mesh2::drawColoredFill(bool colored, ViewMode mode)
 {
     fillTriangleCache();
+    
+    glEnable(GL_TEXTURE_2D);
+    loadTextureIfNeeded();
+    glBindTexture(GL_TEXTURE_2D, [checkerTexture textureID]);
     
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     
     glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     if (colored)
     {
         glEnableClientState(GL_COLOR_ARRAY);
         glColorPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
     }
     
-    if (useVertexNormals)
+    if (mode == ViewModeSolidSmooth)
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, smoothNormal));
     else
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, flatNormal));
     
-    glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
+    glTexCoordPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
+    
+    if (mode == ViewModeUnwrap)
+        glVertexPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
+    else
+        glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
 
     glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
 
     if (colored)
         glDisableClientState(GL_COLOR_ARRAY);
     
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDisable(GL_TEXTURE_2D);
     
 	/*glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -220,8 +262,8 @@ void Mesh2::drawColoredFill(bool colored, bool useVertexNormals)
 
 void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection)
 {
-	bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-    ShaderProgram *shader = flipped ? [ShaderProgram flippedShader] : [ShaderProgram normalShader];
+	//bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+    //ShaderProgram *shader = flipped ? [ShaderProgram flippedShader] : [ShaderProgram normalShader];
 	
 	glPushMatrix();
 	glScalef(scale.x, scale.y, scale.z);
@@ -231,7 +273,7 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
 	}
 	else if (forSelection)
 	{
-        drawColoredFill(false, false);
+        drawColoredFill(false, mode);
     }
     else
     {
@@ -241,17 +283,17 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
 			glPolygonOffset(1.0f, 1.0f);
         }
         
-        [shader useProgram];
+        //[shader useProgram];
         if (_selectionMode != MeshSelectionModeTriangles)
         {
             glColor3fv(_colorComponents);
-            drawColoredFill(false, mode == ViewModeSolidSmooth);
+            drawColoredFill(false, mode);
         }
         else
         {
-            drawColoredFill(true, mode == ViewModeSolidSmooth);
+            drawColoredFill(true, mode);
         }
-        [ShaderProgram resetProgram];
+        //[ShaderProgram resetProgram];
         
         if (selected)
         {
@@ -323,7 +365,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 	}
 }
 
-void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
+void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
 {
     glPointSize(5.0f);
     
@@ -339,7 +381,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
             glColor4ubv((GLubyte *)&colorIndex);
-            drawColoredFill(false, false);
+            drawColoredFill(false, mode);
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
@@ -401,17 +443,17 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
     }
 }
 
-void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
+void Mesh2::drawAllTriangles(ViewMode mode, bool forSelection)
 {
     for (int i = 0; i < _triangles.count(); i++)
     {
         uint colorIndex = i + 1;
         glColor4ubv((GLubyte *)&colorIndex);
-        drawAtIndex(i, forSelection, viewMode);
+        drawAtIndex(i, forSelection, mode);
     }
 }
 
-void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
+void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
 {
     fillEdgeCache();
     
@@ -426,7 +468,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
             glColor4ubv((GLubyte *)&colorIndex);
-            drawColoredFill(false, false);
+            drawColoredFill(false, mode);
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
