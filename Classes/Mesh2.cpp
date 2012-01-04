@@ -10,6 +10,7 @@
 
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
+bool Mesh2::_isUnwrapped = false;
 
 Mesh2::Mesh2(float colorComponents[4])
 {
@@ -35,6 +36,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
     _cachedVertexSelection.clear();
     _cachedTriangleSelection.clear();
     _cachedEdgeSelection.clear();
+    _cachedTextureCoordinateSelection.clear();
     
     switch (_selectionMode)
     {
@@ -42,11 +44,17 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 _cachedVertexSelection.push_back(node);
+            
+            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+                _cachedTextureCoordinateSelection.push_back(node);            
         } break;
         case MeshSelectionModeTriangles:
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
-                node->data.selected = false;                
+                node->data.selected = false;
+            
+            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+                node->data.selected = false;
             
             for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
             {
@@ -56,13 +64,19 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                 if (triangle.selected)
                 {
                     for (int i = 0; i < 3; i++)
+                    {
                         triangle.vertex(i)->data.selected = true;
+                        triangle.texCoord(i)->data.selected = true;
+                    }
                 }
             }
         } break;
         case MeshSelectionModeEdges:
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+                node->data.selected = false;
+            
+            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
                 node->data.selected = false;
             
             for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
@@ -73,7 +87,10 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                 if (edge.selected)
                 {
                     for (int i = 0; i < 2; i++)
+                    {
                         edge.vertex(i)->data.selected = true;
+                        edge.texCoord(i)->data.selected = true;
+                    }
                 }
             }
         } break;
@@ -87,7 +104,9 @@ uint Mesh2::selectedCount() const
     switch (_selectionMode)
     {
         case MeshSelectionModeVertices:
-            return _cachedVertexSelection.size();
+            if (_isUnwrapped)
+                return _cachedTextureCoordinateSelection.size();
+            return _cachedVertexSelection.size();            
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection.size();
         case MeshSelectionModeEdges:
@@ -102,6 +121,8 @@ bool Mesh2::isSelectedAtIndex(uint index) const
     switch (_selectionMode)
     {
         case MeshSelectionModeVertices:
+            if (_isUnwrapped)
+                return _cachedTextureCoordinateSelection.at(index)->data.selected;
             return _cachedVertexSelection.at(index)->data.selected;
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection.at(index)->data.selected;
@@ -117,21 +138,30 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
     switch (_selectionMode)
     {
         case MeshSelectionModeVertices:
-            _cachedVertexSelection.at(index)->data.selected = selected;
+            if (_isUnwrapped)
+                _cachedTextureCoordinateSelection.at(index)->data.selected = selected;
+            else
+                _cachedVertexSelection.at(index)->data.selected = selected;
             break;
         case MeshSelectionModeTriangles:
         {
             Triangle2 &triangle = _cachedTriangleSelection.at(index)->data;
             triangle.selected = selected;
             for (int i = 0; i < 3; i++)
-                triangle.vertex(i)->data.selected = selected;            
+            {
+                triangle.vertex(i)->data.selected = selected;
+                triangle.texCoord(i)->data.selected = selected;
+            }                
         } break;
         case MeshSelectionModeEdges:
         {
             Edge2 &edge = _cachedEdgeSelection.at(index)->data;
             edge.selected = selected;
             for (int i = 0; i < 2; i++)
+            {
                 edge.vertex(i)->data.selected = selected;
+                edge.texCoord(i)->data.selected = selected;
+            }
         } break;
         default:
             break;
@@ -146,13 +176,28 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
     
 	uint selectedCount = 0;
     
-    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    if (_isUnwrapped)
     {
-        if (node->data.selected)
+        for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
         {
-            center += node->data.position;
-            selectedCount++;
+            if (node->data.selected)
+            {
+                center.x += node->data.position.x;
+                center.y += node->data.position.y;
+                selectedCount++;
+            }
         }
+    }
+    else
+    {
+        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        {
+            if (node->data.selected)
+            {
+                center += node->data.position;
+                selectedCount++;
+            }
+        }        
     }
 	if (selectedCount > 0)
 		center /= (float)selectedCount;
@@ -162,10 +207,22 @@ void Mesh2::transformAll(const Matrix4x4 &matrix)
 {
     resetTriangleCache();
     
-    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    if (_isUnwrapped)
     {
-        Vector3D &v = node->data.position;
-        v = matrix.Transform(v);
+        for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+        {
+            Vector3D v = Vector3D(node->data.position.x, node->data.position.y, 0.0f);
+            v = matrix.Transform(v);
+            node->data.position = Vector2D(v.x, v.y);
+        }
+    }
+    else
+    {
+        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        {
+            Vector3D &v = node->data.position;
+            v = matrix.Transform(v);
+        }
     }
     
     setSelectionMode(_selectionMode);
@@ -175,17 +232,32 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
 {
     resetTriangleCache();
     
-    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    if (_isUnwrapped)
     {
-        if (node->data.selected)
+        for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
         {
-            Vector3D &v = node->data.position;
-            v = matrix.Transform(v);
+            if (node->data.selected)
+            {
+                Vector3D v = Vector3D(node->data.position.x, node->data.position.y, 0.0f);
+                v = matrix.Transform(v);
+                node->data.position = Vector2D(v.x, v.y);
+            }
         }
-        else if (_useSoftSelection && node->selectionWeight > 0.1f)
+    }
+    else
+    {
+        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
         {
-            Vector3D &v = node->data.position;
-            v = v.Lerp(node->selectionWeight, matrix.Transform(v));            
+            if (node->data.selected)
+            {
+                Vector3D &v = node->data.position;
+                v = matrix.Transform(v);
+            }
+            else if (_useSoftSelection && node->selectionWeight > 0.1f)
+            {
+                Vector3D &v = node->data.position;
+                v = v.Lerp(node->selectionWeight, matrix.Transform(v));            
+            }
         }
     }
 }
@@ -599,7 +671,8 @@ void Mesh2::turnSelectedEdges()
 
 void Mesh2::flipSelected()
 {
-    switch (_selectionMode) {
+    switch (_selectionMode) 
+    {
         case MeshSelectionModeTriangles:
             flipSelectedTriangles();
             break;

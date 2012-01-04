@@ -136,6 +136,7 @@ public:
 
     VertexNode *vertex(int index) const { return _vertices[index]; }
     EdgeNode *edge(int index) const { return _edges[index]; }
+    TextureCoordinateNode *texCoord(int index) const { return _textureCoordinates[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
     void setEdge(int index, EdgeNode *value) { _edges[index] = value; }
@@ -199,6 +200,7 @@ public:
     
     VertexNode *vertex(int index) const { return _vertices[index]; }
     TriangleNode *triangle(int index) const { return _triangles[index]; }
+    TextureCoordinateNode *texCoord(int index) const { return _textureCoordinates[index]; }
     
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
     void removeVertex(VertexNode *vertex);

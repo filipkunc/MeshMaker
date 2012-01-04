@@ -64,11 +64,6 @@ void Mesh2::fillTriangleCache()
     
     int i = 0;
     
-    /*Point2D texCoords[3];
-    texCoords[0] = makePoint(0.0f, 1.0f);
-    texCoords[1] = makePoint(1.0f, 0.5f);
-    texCoords[2] = makePoint(1.0f, 0.0f);*/
-    
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle2 &currentTriangle = node->data;
@@ -81,7 +76,7 @@ void Mesh2::fillTriangleCache()
             for (int k = 0; k < 3; k++)
             {
                 _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data.position[k];
-                _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];                
+                _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];   
             }
         }
         
@@ -103,11 +98,11 @@ void Mesh2::fillTriangleCache()
         {
             for (int k = 0; k < 3; k++)
             {
-                const Vector3D &p = currentTriangle.vertex(j)->data.position;
                 const Vector3D &n = currentTriangle.vertex(j)->normal;
+                const Vector2D &t = currentTriangle.texCoord(j)->data.position;
                 _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
                 if (k < 2)
-                    _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = asinf(n[k]) * p[k];
+                    _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = t[k];
             }
         }
         
@@ -277,29 +272,44 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
     }
     else
     {
-		if (selected)
-		{
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(1.0f, 1.0f);
-        }
-        
-        //[shader useProgram];
-        if (_selectionMode != MeshSelectionModeTriangles)
+        if (_isUnwrapped)
         {
-            glColor3fv(_colorComponents);
-            drawColoredFill(false, mode);
+            if (_selectionMode != MeshSelectionModeTriangles)
+            {
+                glColor3fv(_colorComponents);
+                drawColoredFill(false, mode);
+            }
+            else
+            {
+                drawColoredFill(true, mode);
+            }
         }
         else
         {
-            drawColoredFill(true, mode);
+            if (selected)
+            {
+                glEnable(GL_POLYGON_OFFSET_FILL);
+                glPolygonOffset(1.0f, 1.0f);
+            }
+            
+            //[shader useProgram];
+            if (_selectionMode != MeshSelectionModeTriangles)
+            {
+                glColor3fv(_colorComponents);
+                drawColoredFill(false, mode);
+            }
+            else
+            {
+                drawColoredFill(true, mode);
+            }
+            //[ShaderProgram resetProgram];
+            
+            if (selected)
+            {
+                glDisable(GL_POLYGON_OFFSET_FILL);
+                drawAllEdges(mode, forSelection);
+            }
         }
-        //[ShaderProgram resetProgram];
-        
-        if (selected)
-        {
-			glDisable(GL_POLYGON_OFFSET_FILL);
-            drawAllEdges(mode, forSelection);
-		}
 	}
 	glPopMatrix();
 }
@@ -310,13 +320,25 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 	{
 		case MeshSelectionModeVertices:
 		{
-            const Vertex2 &vertex = _cachedVertexSelection.at(index)->data;
-			Vector3D v = vertex.position;
+            bool selected;
+            Vector3D v;
+            
+            if (_isUnwrapped)
+            {
+                const TextureCoordinate &texCoord = _cachedTextureCoordinateSelection.at(index)->data;
+                selected = texCoord.selected;
+                v = Vector3D(texCoord.position.x, texCoord.position.y, 0.0f);
+            }
+            else
+            {
+                const Vertex2 &vertex = _cachedVertexSelection.at(index)->data;
+                v = vertex.position;
+            }
+            
 			if (!forSelection)
 			{
-				BOOL isSelected = vertex.selected;
 				glPointSize(5.0f);
-				if (isSelected)
+				if (selected)
 					glColor3f(1.0f, 0.0f, 0.0f);
 				else
 					glColor3f(0.0f, 0.0f, 1.0f);
@@ -376,7 +398,7 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
         
         uint colorIndex = 0;
         
-        if (!_selectThrough)
+        if (!_selectThrough && !_isUnwrapped)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
@@ -385,11 +407,23 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
-        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        if (_isUnwrapped)
         {
-            colorIndex++;
-            tempColors.push_back(colorIndex);            
-            tempVertices.push_back(node->data.position);            
+            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+            {
+                colorIndex++;
+                tempColors.push_back(colorIndex);
+                tempVertices.push_back(Vector3D(node->data.position.x, node->data.position.y, 0.0f));
+            }
+        }
+        else
+        {
+            for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+            {
+                colorIndex++;
+                tempColors.push_back(colorIndex);            
+                tempVertices.push_back(node->data.position);            
+            }
         }
         
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -414,18 +448,32 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
         Vector3D selectedColor(1.0f, 0.0f, 0.0f);
         Vector3D normalColor(0.0f, 0.0f, 1.0f);
         
-        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        if (_isUnwrapped)
         {
-            if (node->data.selected)
-                tempColors.push_back(selectedColor); 
-            else if (_useSoftSelection && node->selectionWeight > 0.0f)
-                tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
-            else
-                tempColors.push_back(normalColor);
-            
-            tempVertices.push_back(node->data.position);            
+            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+            {
+                if (node->data.selected)
+                    tempColors.push_back(selectedColor);
+                else
+                    tempColors.push_back(normalColor);
+                
+                tempVertices.push_back(Vector3D(node->data.position.x, node->data.position.y, 0.0f));
+            }
         }
-        
+        else
+        {
+            for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+            {
+                if (node->data.selected)
+                    tempColors.push_back(selectedColor); 
+                else if (_useSoftSelection && node->selectionWeight > 0.0f)
+                    tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
+                else
+                    tempColors.push_back(normalColor);
+                
+                tempVertices.push_back(node->data.position);            
+            }
+        }
         
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);

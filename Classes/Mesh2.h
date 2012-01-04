@@ -61,6 +61,7 @@ private:
     vector<VertexNode *> _cachedVertexSelection;
     vector<TriangleNode *> _cachedTriangleSelection;
     vector<EdgeNode *> _cachedEdgeSelection;
+    vector<TextureCoordinateNode *> _cachedTextureCoordinateSelection;
     
 	FPArrayCache<GLTriangleVertex> _cachedTriangleVertices;
     FPArrayCache<GLEdgeVertex> _cachedEdgeVertices;
@@ -69,6 +70,7 @@ private:
     
     static bool _useSoftSelection;
     static bool _selectThrough;
+    static bool _isUnwrapped;
     
     uint _vboID;
     bool _vboGenerated;
@@ -107,6 +109,9 @@ public:
     
     static bool selectThrough() { return _selectThrough; }
     static void setSelectThrough(bool value) { _selectThrough = value; }
+    
+    static bool isUnwrapped() { return _isUnwrapped; }
+    static void setUnwrapped(bool value) { _isUnwrapped = value; }
     
     void transformAll(const Matrix4x4 &matrix);
     void transformSelected(const Matrix4x4 &matrix);    

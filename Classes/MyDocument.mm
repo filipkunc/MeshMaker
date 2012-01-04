@@ -502,7 +502,12 @@ vector<T> *ReadValues(string s)
 	ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
 	for (OpenGLSceneView *view in views)
 	{ 
-		[view setViewMode:mode]; 
+        if (mode == ViewModeUnwrap)
+            Mesh2::setUnwrapped(true);
+        else
+            Mesh2::setUnwrapped(false);
+        
+		[view setViewMode:mode];
 	}
 }
 

@@ -14,12 +14,21 @@ void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
     _triangles.add(vertices);
 }
 
+static Vector2D quadOffset = Vector2D(0, 0);
+
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
-    TextureCoordinateNode *t1 = _textureCoordinates.add(Vector2D(0, 0));
-    TextureCoordinateNode *t2 = _textureCoordinates.add(Vector2D(0, 1));
-    TextureCoordinateNode *t3 = _textureCoordinates.add(Vector2D(1, 1));
-    TextureCoordinateNode *t4 = _textureCoordinates.add(Vector2D(1, 0));
+    TextureCoordinateNode *t1 = _textureCoordinates.add(Vector2D(0, 0) + quadOffset);
+    TextureCoordinateNode *t2 = _textureCoordinates.add(Vector2D(0, 1) + quadOffset);
+    TextureCoordinateNode *t3 = _textureCoordinates.add(Vector2D(1, 1) + quadOffset);
+    TextureCoordinateNode *t4 = _textureCoordinates.add(Vector2D(1, 0) + quadOffset);
+    
+    quadOffset.x+=2;
+    if (fmodf(quadOffset.x, 6.0f) == 0.0f)
+    {
+        quadOffset.y-=2;
+        quadOffset.x = 0.0f;
+    }
     
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
