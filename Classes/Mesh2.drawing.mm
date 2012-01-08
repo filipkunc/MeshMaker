@@ -148,7 +148,7 @@ void Mesh2::fillEdgeCache()
     
     int i = 0;
     
-    for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         if (_selectionMode == MeshSelectionModeQuadsTriangles && node->data.isQuadEdge())
             continue;
@@ -354,7 +354,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 		} break;
         case MeshSelectionModeEdges:
         {
-            const Edge2 &edge = _cachedEdgeSelection.at(index)->data;
+            const VertexEdge &edge = _cachedEdgeSelection.at(index)->data;
             if (!forSelection)
             {
                 BOOL isSelected = edge.selected;
@@ -511,7 +511,7 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
-        for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             colorIndex++;
             tempColors.push_back(colorIndex);

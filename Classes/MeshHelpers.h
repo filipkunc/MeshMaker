@@ -34,12 +34,12 @@ struct SelectionInfo
 
 class Vertex2;
 class Triangle2;
-class Edge2;
+class VertexEdge;
 class TextureCoordinate;
 
 class VertexNode;
 class TriangleNode;
-class EdgeNode;
+class VertexEdgeNode;
 class TextureCoordinateNode;
 
 class TextureCoordinate
@@ -57,7 +57,7 @@ class TextureCoordinateNode : public FPNode<TextureCoordinateNode, TextureCoordi
 {
 public:
     SimpleList<TriangleNode *> _triangles;
-    SimpleList<EdgeNode *> _edges;
+    SimpleList<VertexEdgeNode *> _edges;
 public:
     TextureCoordinateNode() : FPNode<TextureCoordinateNode, TextureCoordinate>() { }
     TextureCoordinateNode(const TextureCoordinate &textureCoordinate) : FPNode<TextureCoordinateNode, TextureCoordinate>(textureCoordinate) { } 
@@ -71,8 +71,8 @@ public:
     void addTriangle(TriangleNode *triangle);
     void removeTriangle(TriangleNode *triangle);
     void removeFromTriangles();
-    void addEdge(EdgeNode *edge);
-    void removeEdge(EdgeNode *edge);
+    void addEdge(VertexEdgeNode *edge);
+    void removeEdge(VertexEdgeNode *edge);
     void removeEdges();
     void removeFromEdges();   
 };
@@ -92,7 +92,7 @@ class VertexNode : public FPNode<VertexNode, Vertex2>
 {
 public:
     SimpleList<TriangleNode *> _triangles;
-    SimpleList<EdgeNode *> _edges;
+    SimpleList<VertexEdgeNode *> _edges;
 public:
     int index;
     Vector3D normal;
@@ -110,13 +110,13 @@ public:
     void addTriangle(TriangleNode *triangle);
     void removeTriangle(TriangleNode *triangle);
     void removeFromTriangles();
-    void addEdge(EdgeNode *edge);
-    void removeEdge(EdgeNode *edge);
+    void addEdge(VertexEdgeNode *edge);
+    void removeEdge(VertexEdgeNode *edge);
     void removeEdges();
     void removeFromEdges();
     void replaceVertex(VertexNode *newVertex);
     void replaceVertexInSelectedTriangles(VertexNode *newVertex);
-    EdgeNode *sharedEdge(VertexNode *otherVertex);
+    VertexEdgeNode *sharedEdge(VertexNode *otherVertex);
     void computeNormal();
 };
 
@@ -124,7 +124,7 @@ class Triangle2
 {
 private:
     VertexNode *_vertices[3];
-    EdgeNode *_edges[3];
+    VertexEdgeNode *_edges[3];
     TextureCoordinateNode *_textureCoordinates[3];
 public:
     bool selected;
@@ -135,25 +135,25 @@ public:
     Triangle2(VertexNode *vertices[3], TextureCoordinateNode *texutreCoordinates[3]);
 
     VertexNode *vertex(int index) const { return _vertices[index]; }
-    EdgeNode *edge(int index) const { return _edges[index]; }
+    VertexEdgeNode *edge(int index) const { return _edges[index]; }
     TextureCoordinateNode *texCoord(int index) const { return _textureCoordinates[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
-    void setEdge(int index, EdgeNode *value) { _edges[index] = value; }
+    void setEdge(int index, VertexEdgeNode *value) { _edges[index] = value; }
     
     void removeVertex(VertexNode *vertex);
     void removeTextureCoordinate(TextureCoordinateNode *textureCoordinate);
-    void removeEdge(EdgeNode *edge);
+    void removeEdge(VertexEdgeNode *edge);
     void removeEdges();
 
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
-    bool containsEdge(const EdgeNode *edge) const;
+    bool containsEdge(const VertexEdgeNode *edge) const;
     void flip();
     
     int indexOfVertex(const VertexNode *vertex) const;
     void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
-    VertexNode *vertexNotInEdge(const Edge2 *edge) const;
+    VertexNode *vertexNotInEdge(const VertexEdge *edge) const;
     
     void computeNormal();
     
@@ -180,7 +180,7 @@ public:
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };
 
-class Edge2
+class VertexEdge
 {
 private:
     VertexNode *_vertices[2];
@@ -191,8 +191,8 @@ public:
     VertexNode *halfVertex;
     TextureCoordinateNode *halfTexCoord;
     
-    Edge2();
-    Edge2(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]);
+    VertexEdge();
+    VertexEdge(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]);
     
     bool isQuadEdge() const;
     bool isDegenerated() const;
@@ -211,18 +211,18 @@ public:
     
     VertexNode *opposite(VertexNode *vertex) const;
     
-    friend class EdgeNode;
+    friend class VertexEdgeNode;
 };
 
-class EdgeNode : public FPNode<EdgeNode, Edge2>
+class VertexEdgeNode : public FPNode<VertexEdgeNode, VertexEdge>
 {
 public:
-    EdgeNode() : FPNode<EdgeNode, Edge2>() { }
-    EdgeNode(const Edge2 &edge) : FPNode<EdgeNode, Edge2>(edge)
+    VertexEdgeNode() : FPNode<VertexEdgeNode, VertexEdge>() { }
+    VertexEdgeNode(const VertexEdge &edge) : FPNode<VertexEdgeNode, VertexEdge>(edge)
     {
         addToVertices();
     }
-    virtual ~EdgeNode()
+    virtual ~VertexEdgeNode()
     {
         removeFromVertices();
         removeFromTriangles();

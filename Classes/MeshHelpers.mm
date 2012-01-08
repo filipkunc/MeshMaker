@@ -33,14 +33,14 @@ void TextureCoordinateNode::removeFromTriangles()
     _triangles.removeAll();
 }
 
-void TextureCoordinateNode::addEdge(EdgeNode *edge)
+void TextureCoordinateNode::addEdge(VertexEdgeNode *edge)
 {
     _edges.add(edge);
 }
 
-void TextureCoordinateNode::removeEdge(EdgeNode *edge)
+void TextureCoordinateNode::removeEdge(VertexEdgeNode *edge)
 {
-    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         if (node->data == edge)
             _edges.remove(node);
@@ -54,7 +54,7 @@ void TextureCoordinateNode::removeEdges()
 
 void TextureCoordinateNode::removeFromEdges()
 {
-    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         node->data->data.removeTextureCoordinate(this);
     }
@@ -86,14 +86,14 @@ void VertexNode::removeFromTriangles()
     _triangles.removeAll();
 }
 
-void VertexNode::addEdge(EdgeNode *edge)
+void VertexNode::addEdge(VertexEdgeNode *edge)
 {
     _edges.add(edge);
 }
 
-void VertexNode::removeEdge(EdgeNode *edge)
+void VertexNode::removeEdge(VertexEdgeNode *edge)
 {
-    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         if (node->data == edge)
             _edges.remove(node);
@@ -107,7 +107,7 @@ void VertexNode::removeEdges()
 
 void VertexNode::removeFromEdges()
 {
-    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         node->data->data.removeVertex(this);
     }
@@ -122,7 +122,7 @@ void VertexNode::replaceVertex(VertexNode *newVertex)
         node->data->replaceVertex(this, newVertex);
     }
     
-    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         node->data->replaceVertex(this, newVertex);
     }
@@ -157,9 +157,9 @@ void VertexNode::computeNormal()
     normal /= count;
 }
 
-EdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
+VertexEdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
 {
-    for (SimpleNode<EdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         if (node->data->data.containsVertex(otherVertex))
             return node->data;
@@ -267,7 +267,7 @@ void Triangle2::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate
     }
 }
 
-void Triangle2::removeEdge(EdgeNode *edge)
+void Triangle2::removeEdge(VertexEdgeNode *edge)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -313,7 +313,7 @@ bool Triangle2::containsVertex(const VertexNode *vertex) const
 	return false;
 }
 
-bool Triangle2::containsEdge(const EdgeNode *edge) const
+bool Triangle2::containsEdge(const VertexEdgeNode *edge) const
 {
     for (int i = 0; i < 3; i++)
     {
@@ -351,7 +351,7 @@ void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
         swap(v1, v2);
 }
 
-VertexNode *Triangle2::vertexNotInEdge(const Edge2 *edge) const
+VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 {
     for (int i = 0; i < 3; i++)
     {
@@ -369,7 +369,7 @@ void Triangle2::computeNormal()
 	normal = u.Cross(v);    
 }
 
-Edge2::Edge2() : selected(false), halfVertex(NULL)
+VertexEdge::VertexEdge() : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -379,7 +379,7 @@ Edge2::Edge2() : selected(false), halfVertex(NULL)
     }
 }
 
-Edge2::Edge2(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]) : selected(false), halfVertex(NULL)
+VertexEdge::VertexEdge(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]) : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -389,7 +389,7 @@ Edge2::Edge2(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]) : sel
     }
 }
 
-bool Edge2::isQuadEdge() const
+bool VertexEdge::isQuadEdge() const
 {
     if (_triangles[0] != NULL && _triangles[1] != NULL)
     {
@@ -423,7 +423,7 @@ bool Edge2::isQuadEdge() const
     return false;
 }
 
-bool Edge2::isDegenerated() const
+bool VertexEdge::isDegenerated() const
 {
     if (_triangles[0] == NULL && _triangles[1] == NULL)
         return true;
@@ -437,7 +437,7 @@ bool Edge2::isDegenerated() const
     return false;    
 }
 
-bool Edge2::containsVertex(const VertexNode *vertex) const
+bool VertexEdge::containsVertex(const VertexNode *vertex) const
 {
     for (int i = 0; i < 2; i++)
     {
@@ -447,7 +447,7 @@ bool Edge2::containsVertex(const VertexNode *vertex) const
     return false;
 }
 
-void EdgeNode::addToVertices()
+void VertexEdgeNode::addToVertices()
 {
     for (int i = 0; i < 2; i++)
     {
@@ -456,7 +456,7 @@ void EdgeNode::addToVertices()
     }
 }
 
-void EdgeNode::removeFromVertices()
+void VertexEdgeNode::removeFromVertices()
 {
     for (int i = 0; i < 2; i++)
     {
@@ -468,7 +468,7 @@ void EdgeNode::removeFromVertices()
     }
 }
 
-void EdgeNode::removeFromTriangles()
+void VertexEdgeNode::removeFromTriangles()
 {
     for (int i = 0; i < 2; i++)
     {
@@ -480,7 +480,7 @@ void EdgeNode::removeFromTriangles()
     }    
 }
 
-void Edge2::removeVertex(VertexNode *vertex)
+void VertexEdge::removeVertex(VertexNode *vertex)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -492,7 +492,7 @@ void Edge2::removeVertex(VertexNode *vertex)
     }
 }
 
-void Edge2::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
+void VertexEdge::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -504,7 +504,7 @@ void Edge2::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
     }
 }
 
-void Edge2::removeTriangle(TriangleNode *triangle)
+void VertexEdge::removeTriangle(TriangleNode *triangle)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -516,7 +516,7 @@ void Edge2::removeTriangle(TriangleNode *triangle)
     }
 }
 
-void EdgeNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
+void VertexEdgeNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -529,7 +529,7 @@ void EdgeNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
     }   
 }
 
-bool Edge2::isNotShared() const
+bool VertexEdge::isNotShared() const
 {
     for (int i = 0; i < 2; i++)
     {
@@ -539,7 +539,7 @@ bool Edge2::isNotShared() const
     return false;    
 }
 
-void Edge2::turn()
+void VertexEdge::turn()
 {
     if (_triangles[0] == NULL || _triangles[1] == NULL)
         return;
@@ -578,7 +578,7 @@ void Edge2::turn()
     _vertices[1] = v1;
 }
 
-VertexNode *Edge2::opposite(VertexNode *vertex) const
+VertexNode *VertexEdge::opposite(VertexNode *vertex) const
 {
     if (_vertices[0] == vertex)
         return _vertices[1];
