@@ -18,10 +18,10 @@ static Vector2D quadOffset = Vector2D(0, 0);
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
-    TextureCoordinateNode *t1 = _textureCoordinates.add(Vector2D(0, 0) + quadOffset);
-    TextureCoordinateNode *t2 = _textureCoordinates.add(Vector2D(0, 1) + quadOffset);
-    TextureCoordinateNode *t3 = _textureCoordinates.add(Vector2D(1, 1) + quadOffset);
-    TextureCoordinateNode *t4 = _textureCoordinates.add(Vector2D(1, 0) + quadOffset);
+    TexCoordNode *t1 = _TexCoords.add(Vector2D(0, 0) + quadOffset);
+    TexCoordNode *t2 = _TexCoords.add(Vector2D(0, 1) + quadOffset);
+    TexCoordNode *t3 = _TexCoords.add(Vector2D(1, 1) + quadOffset);
+    TexCoordNode *t4 = _TexCoords.add(Vector2D(1, 0) + quadOffset);
     
     quadOffset.x+=2;
     if (fmodf(quadOffset.x, 6.0f) == 0.0f)
@@ -33,14 +33,14 @@ void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-    TextureCoordinateNode *texCoords1[3] = { t1, t2, t3 };
-    TextureCoordinateNode *texCoords2[3] = { t1, t3, t4 };
+    TexCoordNode *texCoords1[3] = { t1, t2, t3 };
+    TexCoordNode *texCoords2[3] = { t1, t3, t4 };
     
   	_triangles.add(Triangle2(vertices1, texCoords1));
     _triangles.add(Triangle2(vertices2, texCoords2));
 }
 
-VertexEdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TextureCoordinateNode *t1, TextureCoordinateNode *t2, TriangleNode *triangle)
+VertexEdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle)
 {
     VertexEdgeNode *sharedEdge = v1->sharedEdge(v2);
     if (sharedEdge)
@@ -50,7 +50,7 @@ VertexEdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TextureC
     }
     
     VertexNode *vertices[2] = { v1, v2 };
-    TextureCoordinateNode *texCoords[2] = { t1, t2 };
+    TexCoordNode *texCoords[2] = { t1, t2 };
     VertexEdgeNode *node = _edges.add(VertexEdge(vertices, texCoords));
     node->data.setTriangle(0, triangle);
     return node;
@@ -90,9 +90,9 @@ void Mesh2::makeEdges()
         VertexNode *v1 = triangle.vertex(1);
         VertexNode *v2 = triangle.vertex(2);
         
-        TextureCoordinateNode *t0 = triangle.texCoord(0);
-        TextureCoordinateNode *t1 = triangle.texCoord(1);
-        TextureCoordinateNode *t2 = triangle.texCoord(2);
+        TexCoordNode *t0 = triangle.texCoord(0);
+        TexCoordNode *t1 = triangle.texCoord(1);
+        TexCoordNode *t2 = triangle.texCoord(2);
         
         VertexEdgeNode *e0 = findOrCreateEdge(v0, v1, t0, t1, node);
         VertexEdgeNode *e1 = findOrCreateEdge(v1, v2, t1, t2, node);
@@ -125,7 +125,7 @@ void Mesh2::makeCube()
 {
     _vertices.removeAll();
 	_triangles.removeAll();
-    _textureCoordinates.removeAll();
+    _TexCoords.removeAll();
     
 	// back vertices
 	VertexNode *v0 = _vertices.add(Vector3D(-1, -1, -1));

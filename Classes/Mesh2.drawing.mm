@@ -316,7 +316,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
             
             if (_isUnwrapped)
             {
-                const TextureCoordinate &texCoord = _cachedTextureCoordinateSelection.at(index)->data;
+                const TexCoord &texCoord = _cachedTexCoordSelection.at(index)->data;
                 selected = texCoord.selected;
                 v = Vector3D(texCoord.position.x, texCoord.position.y, 0.0f);
             }
@@ -400,7 +400,7 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
         
         if (_isUnwrapped)
         {
-            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
             {
                 colorIndex++;
                 tempColors.push_back(colorIndex);
@@ -441,7 +441,7 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
         
         if (_isUnwrapped)
         {
-            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
             {
                 if (node->data.selected)
                     tempColors.push_back(selectedColor);

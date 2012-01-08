@@ -35,33 +35,33 @@ struct SelectionInfo
 class Vertex2;
 class Triangle2;
 class VertexEdge;
-class TextureCoordinate;
+class TexCoord;
 
 class VertexNode;
 class TriangleNode;
 class VertexEdgeNode;
-class TextureCoordinateNode;
+class TexCoordNode;
 
-class TextureCoordinate
+class TexCoord
 {
 public:
     Vector2D position;
     
     bool selected;
     
-    TextureCoordinate() : selected(false) { }
-    TextureCoordinate(const Vector2D &v) : position(v), selected(false) { }
+    TexCoord() : selected(false) { }
+    TexCoord(const Vector2D &v) : position(v), selected(false) { }
 };
 
-class TextureCoordinateNode : public FPNode<TextureCoordinateNode, TextureCoordinate>
+class TexCoordNode : public FPNode<TexCoordNode, TexCoord>
 {
 public:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<VertexEdgeNode *> _edges;
 public:
-    TextureCoordinateNode() : FPNode<TextureCoordinateNode, TextureCoordinate>() { }
-    TextureCoordinateNode(const TextureCoordinate &textureCoordinate) : FPNode<TextureCoordinateNode, TextureCoordinate>(textureCoordinate) { } 
-    virtual ~TextureCoordinateNode() 
+    TexCoordNode() : FPNode<TexCoordNode, TexCoord>() { }
+    TexCoordNode(const TexCoord &texCoord) : FPNode<TexCoordNode, TexCoord>(texCoord) { } 
+    virtual ~TexCoordNode() 
     { 
         removeFromTriangles();
         removeFromEdges();
@@ -125,24 +125,24 @@ class Triangle2
 private:
     VertexNode *_vertices[3];
     VertexEdgeNode *_edges[3];
-    TextureCoordinateNode *_textureCoordinates[3];
+    TexCoordNode *_TexCoords[3];
 public:
     bool selected;
     Vector3D normal;
     
     Triangle2();
     Triangle2(VertexNode *vertices[3]);
-    Triangle2(VertexNode *vertices[3], TextureCoordinateNode *texutreCoordinates[3]);
+    Triangle2(VertexNode *vertices[3], TexCoordNode *texutreCoordinates[3]);
 
     VertexNode *vertex(int index) const { return _vertices[index]; }
     VertexEdgeNode *edge(int index) const { return _edges[index]; }
-    TextureCoordinateNode *texCoord(int index) const { return _textureCoordinates[index]; }
+    TexCoordNode *texCoord(int index) const { return _TexCoords[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
     void setEdge(int index, VertexEdgeNode *value) { _edges[index] = value; }
     
     void removeVertex(VertexNode *vertex);
-    void removeTextureCoordinate(TextureCoordinateNode *textureCoordinate);
+    void removeTexCoord(TexCoordNode *TexCoord);
     void removeEdge(VertexEdgeNode *edge);
     void removeEdges();
 
@@ -185,14 +185,14 @@ class VertexEdge
 private:
     VertexNode *_vertices[2];
     TriangleNode *_triangles[2];
-    TextureCoordinateNode *_textureCoordinates[2];
+    TexCoordNode *_TexCoords[2];
 public:
     bool selected;
     VertexNode *halfVertex;
-    TextureCoordinateNode *halfTexCoord;
+    TexCoordNode *halfTexCoord;
     
     VertexEdge();
-    VertexEdge(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]);
+    VertexEdge(VertexNode *vertices[2], TexCoordNode *texCoords[2]);
     
     bool isQuadEdge() const;
     bool isDegenerated() const;
@@ -201,12 +201,12 @@ public:
     
     VertexNode *vertex(int index) const { return _vertices[index]; }
     TriangleNode *triangle(int index) const { return _triangles[index]; }
-    TextureCoordinateNode *texCoord(int index) const { return _textureCoordinates[index]; }
+    TexCoordNode *texCoord(int index) const { return _TexCoords[index]; }
     
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
     void removeVertex(VertexNode *vertex);
     void removeTriangle(TriangleNode *triangle);
-    void removeTextureCoordinate(TextureCoordinateNode *textureCoordinate);
+    void removeTexCoord(TexCoordNode *TexCoord);
     void turn();
     
     VertexNode *opposite(VertexNode *vertex) const;

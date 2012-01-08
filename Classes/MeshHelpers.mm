@@ -9,12 +9,12 @@
 
 #import "MeshHelpers.h"
 
-void TextureCoordinateNode::addTriangle(TriangleNode *triangle)
+void TexCoordNode::addTriangle(TriangleNode *triangle)
 {
     _triangles.add(triangle);
 }
 
-void TextureCoordinateNode::removeTriangle(TriangleNode *triangle)
+void TexCoordNode::removeTriangle(TriangleNode *triangle)
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -23,22 +23,22 @@ void TextureCoordinateNode::removeTriangle(TriangleNode *triangle)
     }
 }
 
-void TextureCoordinateNode::removeFromTriangles()
+void TexCoordNode::removeFromTriangles()
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        node->data->data.removeTextureCoordinate(this);
+        node->data->data.removeTexCoord(this);
     }
     
     _triangles.removeAll();
 }
 
-void TextureCoordinateNode::addEdge(VertexEdgeNode *edge)
+void TexCoordNode::addEdge(VertexEdgeNode *edge)
 {
     _edges.add(edge);
 }
 
-void TextureCoordinateNode::removeEdge(VertexEdgeNode *edge)
+void TexCoordNode::removeEdge(VertexEdgeNode *edge)
 {
     for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
@@ -47,16 +47,16 @@ void TextureCoordinateNode::removeEdge(VertexEdgeNode *edge)
     }
 }
 
-void TextureCoordinateNode::removeEdges()
+void TexCoordNode::removeEdges()
 {
     _edges.removeAll();
 }
 
-void TextureCoordinateNode::removeFromEdges()
+void TexCoordNode::removeFromEdges()
 {
     for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        node->data->data.removeTextureCoordinate(this);
+        node->data->data.removeTexCoord(this);
     }
     
     _edges.removeAll();
@@ -173,7 +173,7 @@ Triangle2::Triangle2() : selected(false)
     {
         _vertices[i] = NULL;
         _edges[i] = NULL;
-        _textureCoordinates[i] = NULL;
+        _TexCoords[i] = NULL;
     }
 }
 
@@ -183,17 +183,17 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
     {
         _vertices[i] = vertices[i];
         _edges[i] = NULL;
-        _textureCoordinates[i] = NULL;
+        _TexCoords[i] = NULL;
     }
 }
 
-Triangle2::Triangle2(VertexNode *vertices[3], TextureCoordinateNode *textureCoordinates[3]) : selected(false)
+Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *TexCoords[3]) : selected(false)
 {
     for (int i = 0; i < 3; i++)
     {
         _vertices[i] = vertices[i];
         _edges[i] = NULL;
-        _textureCoordinates[i] = textureCoordinates[i];
+        _TexCoords[i] = TexCoords[i];
     }
 }
 
@@ -255,13 +255,13 @@ void Triangle2::removeVertex(VertexNode *vertex)
     }
 }
 
-void Triangle2::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
+void Triangle2::removeTexCoord(TexCoordNode *TexCoord)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_textureCoordinates[i] == textureCoordinate)
+        if (_TexCoords[i] == TexCoord)
         {
-            _textureCoordinates[i] = NULL;
+            _TexCoords[i] = NULL;
             break;
         }
     }
@@ -374,17 +374,17 @@ VertexEdge::VertexEdge() : selected(false), halfVertex(NULL)
     for (int i = 0; i < 2; i++)
     {
         _vertices[i] = NULL;
-        _textureCoordinates[i] = NULL;
+        _TexCoords[i] = NULL;
         _triangles[i] = NULL;
     }
 }
 
-VertexEdge::VertexEdge(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]) : selected(false), halfVertex(NULL)
+VertexEdge::VertexEdge(VertexNode *vertices[2], TexCoordNode *texCoords[2]) : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
         _vertices[i] = vertices[i];
-        _textureCoordinates[i] = texCoords[i];
+        _TexCoords[i] = texCoords[i];
         _triangles[i] = NULL;
     }
 }
@@ -492,13 +492,13 @@ void VertexEdge::removeVertex(VertexNode *vertex)
     }
 }
 
-void VertexEdge::removeTextureCoordinate(TextureCoordinateNode *textureCoordinate)
+void VertexEdge::removeTexCoord(TexCoordNode *TexCoord)
 {
     for (int i = 0; i < 2; i++)
     {
-        if (_textureCoordinates[i] == textureCoordinate)
+        if (_TexCoords[i] == TexCoord)
         {
-            _textureCoordinates[i] = NULL;
+            _TexCoords[i] = NULL;
             break;
         }
     }

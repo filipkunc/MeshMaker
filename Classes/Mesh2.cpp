@@ -36,7 +36,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
     _cachedVertexSelection.clear();
     _cachedTriangleSelection.clear();
     _cachedEdgeSelection.clear();
-    _cachedTextureCoordinateSelection.clear();
+    _cachedTexCoordSelection.clear();
     
     switch (_selectionMode)
     {
@@ -45,15 +45,15 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 _cachedVertexSelection.push_back(node);
             
-            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
-                _cachedTextureCoordinateSelection.push_back(node);            
+            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+                _cachedTexCoordSelection.push_back(node);            
         } break;
         case MeshSelectionModeTriangles:
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 node->data.selected = false;
             
-            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
                 node->data.selected = false;
             
             for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -76,7 +76,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 node->data.selected = false;
             
-            for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
                 node->data.selected = false;
             
             for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
@@ -105,7 +105,7 @@ uint Mesh2::selectedCount() const
     {
         case MeshSelectionModeVertices:
             if (_isUnwrapped)
-                return _cachedTextureCoordinateSelection.size();
+                return _cachedTexCoordSelection.size();
             return _cachedVertexSelection.size();            
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection.size();
@@ -122,7 +122,7 @@ bool Mesh2::isSelectedAtIndex(uint index) const
     {
         case MeshSelectionModeVertices:
             if (_isUnwrapped)
-                return _cachedTextureCoordinateSelection.at(index)->data.selected;
+                return _cachedTexCoordSelection.at(index)->data.selected;
             return _cachedVertexSelection.at(index)->data.selected;
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection.at(index)->data.selected;
@@ -139,7 +139,7 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
     {
         case MeshSelectionModeVertices:
             if (_isUnwrapped)
-                _cachedTextureCoordinateSelection.at(index)->data.selected = selected;
+                _cachedTexCoordSelection.at(index)->data.selected = selected;
             else
                 _cachedVertexSelection.at(index)->data.selected = selected;
             break;
@@ -178,7 +178,7 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
     
     if (_isUnwrapped)
     {
-        for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+        for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
         {
             if (node->data.selected)
             {
@@ -209,7 +209,7 @@ void Mesh2::transformAll(const Matrix4x4 &matrix)
     
     if (_isUnwrapped)
     {
-        for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+        for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
         {
             Vector3D v = Vector3D(node->data.position.x, node->data.position.y, 0.0f);
             v = matrix.Transform(v);
@@ -234,7 +234,7 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
     
     if (_isUnwrapped)
     {
-        for (TextureCoordinateNode *node = _textureCoordinates.begin(), *end = _textureCoordinates.end(); node != end; node = node->next())
+        for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
         {
             if (node->data.selected)
             {
@@ -445,7 +445,7 @@ void Mesh2::halfEdges()
         edgeTexCoord = (t1 + t2) / 2.0f;
         
         node->data.halfVertex = _vertices.add(edgeVertex);
-        node->data.halfTexCoord = _textureCoordinates.add(edgeTexCoord);
+        node->data.halfTexCoord = _TexCoords.add(edgeTexCoord);
     }
 }
 
@@ -493,7 +493,7 @@ void Mesh2::repositionVertices(int vertexCount)
 void Mesh2::makeSubdividedTriangles()
 {
     VertexNode *vertices[6];
-    TextureCoordinateNode *texCoords[6];
+    TexCoordNode *texCoords[6];
     FPList<TriangleNode, Triangle2> subdivided;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -519,10 +519,10 @@ void Mesh2::makeSubdividedTriangles()
          
          */
         
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TextureCoordinateNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TextureCoordinateNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TextureCoordinateNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TextureCoordinateNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
     }
     
     _triangles.moveFrom(subdivided);

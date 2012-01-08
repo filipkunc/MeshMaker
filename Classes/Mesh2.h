@@ -55,14 +55,14 @@ private:
     FPList<VertexNode, Vertex2> _vertices;
 	FPList<TriangleNode, Triangle2> _triangles;
     FPList<VertexEdgeNode, VertexEdge> _edges;
-    FPList<TextureCoordinateNode, TextureCoordinate> _textureCoordinates;
+    FPList<TexCoordNode, TexCoord> _TexCoords;
     
     MeshSelectionMode _selectionMode;
 	
     vector<VertexNode *> _cachedVertexSelection;
     vector<TriangleNode *> _cachedTriangleSelection;
     vector<VertexEdgeNode *> _cachedEdgeSelection;
-    vector<TextureCoordinateNode *> _cachedTextureCoordinateSelection;
+    vector<TexCoordNode *> _cachedTexCoordSelection;
     
 	FPArrayCache<GLTriangleVertex> _cachedTriangleVertices;
     FPArrayCache<GLEdgeVertex> _cachedEdgeVertices;
@@ -155,7 +155,7 @@ public:
     
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
-    VertexEdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TextureCoordinateNode *t1, TextureCoordinateNode *t2, TriangleNode *triangle);
+    VertexEdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle);
     VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
     void makeEdges();
     void makePlane();
