@@ -75,6 +75,11 @@
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
+		A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684414B9FC200091B657 /* Vertex.cpp */; };
+		A7D0684714B9FCAF0091B657 /* TexCoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684614B9FCAF0091B657 /* TexCoord.cpp */; };
+		A7D0684914B9FD350091B657 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684814B9FD350091B657 /* Triangle.cpp */; };
+		A7D0684B14B9FE500091B657 /* VertexEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684A14B9FE500091B657 /* VertexEdge.cpp */; };
+		A7D0685414BA2A100091B657 /* TexCoordEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */; };
 		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
 /* End PBXBuildFile section */
@@ -173,6 +178,17 @@
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
+		A7D0684414B9FC200091B657 /* Vertex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vertex.cpp; path = Classes/Vertex.cpp; sourceTree = "<group>"; };
+		A7D0684614B9FCAF0091B657 /* TexCoord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TexCoord.cpp; path = Classes/TexCoord.cpp; sourceTree = "<group>"; };
+		A7D0684814B9FD350091B657 /* Triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Triangle.cpp; path = Classes/Triangle.cpp; sourceTree = "<group>"; };
+		A7D0684A14B9FE500091B657 /* VertexEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VertexEdge.cpp; path = Classes/VertexEdge.cpp; sourceTree = "<group>"; };
+		A7D0684C14B9FEC90091B657 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vertex.h; path = Classes/Vertex.h; sourceTree = "<group>"; };
+		A7D0684E14B9FF300091B657 /* MeshForwardDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshForwardDeclaration.h; path = Classes/MeshForwardDeclaration.h; sourceTree = "<group>"; };
+		A7D0684F14B9FFAC0091B657 /* TexCoord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TexCoord.h; path = Classes/TexCoord.h; sourceTree = "<group>"; };
+		A7D0685014B9FFE90091B657 /* Triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Triangle.h; path = Classes/Triangle.h; sourceTree = "<group>"; };
+		A7D0685114BA00340091B657 /* VertexEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VertexEdge.h; path = Classes/VertexEdge.h; sourceTree = "<group>"; };
+		A7D0685214BA008B0091B657 /* TexCoordEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TexCoordEdge.h; path = Classes/TexCoordEdge.h; sourceTree = "<group>"; };
+		A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TexCoordEdge.cpp; path = Classes/TexCoordEdge.cpp; sourceTree = "<group>"; };
 		A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleNodeAndList.h; path = Classes/SimpleNodeAndList.h; sourceTree = "<group>"; };
 		A7FEB1FB13FF002E00473F8D /* FPTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexture.h; path = Classes/FPTexture.h; sourceTree = "<group>"; };
 		A7FEB1FC13FF002E00473F8D /* FPTexture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTexture.mm; path = Classes/FPTexture.mm; sourceTree = "<group>"; };
@@ -286,8 +302,6 @@
 				A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */,
 				A7064C5212BD107800B14CFA /* MeshState.h */,
 				A7064C5312BD107800B14CFA /* MeshState.mm */,
-				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
-				A7064C5412BD107800B14CFA /* MeshHelpers.mm */,
 				A7064C5812BD107800B14CFA /* MyDocument.h */,
 				A7064C5912BD107800B14CFA /* MyDocument.mm */,
 				A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */,
@@ -309,6 +323,19 @@
 				A7064C6A12BD107800B14CFA /* Vector2D.h */,
 				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
 				A7064C6C12BD107800B14CFA /* Vector3D.h */,
+				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
+				A7064C5412BD107800B14CFA /* MeshHelpers.mm */,
+				A7D0684E14B9FF300091B657 /* MeshForwardDeclaration.h */,
+				A7D0684C14B9FEC90091B657 /* Vertex.h */,
+				A7D0684414B9FC200091B657 /* Vertex.cpp */,
+				A7D0684F14B9FFAC0091B657 /* TexCoord.h */,
+				A7D0684614B9FCAF0091B657 /* TexCoord.cpp */,
+				A7D0685014B9FFE90091B657 /* Triangle.h */,
+				A7D0684814B9FD350091B657 /* Triangle.cpp */,
+				A7D0685114BA00340091B657 /* VertexEdge.h */,
+				A7D0684A14B9FE500091B657 /* VertexEdge.cpp */,
+				A7D0685214BA008B0091B657 /* TexCoordEdge.h */,
+				A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -539,6 +566,11 @@
 				A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */,
 				A7A4874713AE4EC300C0C41B /* Mesh2.make.cpp in Sources */,
 				A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */,
+				A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */,
+				A7D0684714B9FCAF0091B657 /* TexCoord.cpp in Sources */,
+				A7D0684914B9FD350091B657 /* Triangle.cpp in Sources */,
+				A7D0684B14B9FE500091B657 /* VertexEdge.cpp in Sources */,
+				A7D0685414BA2A100091B657 /* TexCoordEdge.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
