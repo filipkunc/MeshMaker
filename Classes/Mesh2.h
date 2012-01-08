@@ -46,7 +46,12 @@ struct GLEdgeVertex
 {
     Point3D position;
     Point3D color;
-    Point2D texCoord;
+};
+
+struct GLEdgeTexCoord
+{
+    Point2D position;
+    Point3D color;
 };
 
 class Mesh2
@@ -54,18 +59,22 @@ class Mesh2
 private:
     FPList<VertexNode, Vertex2> _vertices;
 	FPList<TriangleNode, Triangle2> _triangles;
-    FPList<VertexEdgeNode, VertexEdge> _edges;
-    FPList<TexCoordNode, TexCoord> _TexCoords;
+    FPList<TexCoordNode, TexCoord> _texCoords;
+    
+    FPList<VertexEdgeNode, VertexEdge> _vertexEdges;
+    FPList<TexCoordEdgeNode, TexCoordEdge> _texCoordEdges;
     
     MeshSelectionMode _selectionMode;
 	
     vector<VertexNode *> _cachedVertexSelection;
     vector<TriangleNode *> _cachedTriangleSelection;
-    vector<VertexEdgeNode *> _cachedEdgeSelection;
     vector<TexCoordNode *> _cachedTexCoordSelection;
+    vector<VertexEdgeNode *> _cachedVertexEdgeSelection;
+    vector<TexCoordEdgeNode *> _cachedTexCoordEdgeSelection;
     
 	FPArrayCache<GLTriangleVertex> _cachedTriangleVertices;
     FPArrayCache<GLEdgeVertex> _cachedEdgeVertices;
+    FPArrayCache<GLEdgeTexCoord> _cachedEdgeTexCoords;
     
     float _colorComponents[4];
     
@@ -138,8 +147,8 @@ public:
     void resetTriangleCache();
     void fillTriangleCache();
     
-    void resetEdgeCache();
-    void fillEdgeCache();
+    void resetVertexEdgeCache();
+    void fillVertexEdgeCache();
     
     void drawColoredFill(bool colored, ViewMode mode);
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);

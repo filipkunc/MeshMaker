@@ -18,10 +18,10 @@ static Vector2D quadOffset = Vector2D(0, 0);
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
-    TexCoordNode *t1 = _TexCoords.add(Vector2D(0, 0) + quadOffset);
-    TexCoordNode *t2 = _TexCoords.add(Vector2D(0, 1) + quadOffset);
-    TexCoordNode *t3 = _TexCoords.add(Vector2D(1, 1) + quadOffset);
-    TexCoordNode *t4 = _TexCoords.add(Vector2D(1, 0) + quadOffset);
+    TexCoordNode *t1 = _texCoords.add(Vector2D(0, 0) + quadOffset);
+    TexCoordNode *t2 = _texCoords.add(Vector2D(0, 1) + quadOffset);
+    TexCoordNode *t3 = _texCoords.add(Vector2D(1, 1) + quadOffset);
+    TexCoordNode *t4 = _texCoords.add(Vector2D(1, 0) + quadOffset);
     
     quadOffset.x+=2;
     if (fmodf(quadOffset.x, 6.0f) == 0.0f)
@@ -50,8 +50,7 @@ VertexEdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TexCoord
     }
     
     VertexNode *vertices[2] = { v1, v2 };
-    TexCoordNode *texCoords[2] = { t1, t2 };
-    VertexEdgeNode *node = _edges.add(VertexEdge(vertices, texCoords));
+    VertexEdgeNode *node = _vertexEdges.add(vertices);
     node->data.setTriangle(0, triangle);
     return node;
 }
@@ -73,7 +72,7 @@ VertexNode *Mesh2::findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexN
 
 void Mesh2::makeEdges()
 {
-    _edges.removeAll();
+    _vertexEdges.removeAll();
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -125,7 +124,7 @@ void Mesh2::makeCube()
 {
     _vertices.removeAll();
 	_triangles.removeAll();
-    _TexCoords.removeAll();
+    _texCoords.removeAll();
     
 	// back vertices
 	VertexNode *v0 = _vertices.add(Vector3D(-1, -1, -1));

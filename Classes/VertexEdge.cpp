@@ -13,17 +13,15 @@ VertexEdge::VertexEdge() : selected(false), halfVertex(NULL)
     for (int i = 0; i < 2; i++)
     {
         _vertices[i] = NULL;
-        _TexCoords[i] = NULL;
         _triangles[i] = NULL;
     }
 }
 
-VertexEdge::VertexEdge(VertexNode *vertices[2], TexCoordNode *texCoords[2]) : selected(false), halfVertex(NULL)
+VertexEdge::VertexEdge(VertexNode *vertices[2]) : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
         _vertices[i] = vertices[i];
-        _TexCoords[i] = texCoords[i];
         _triangles[i] = NULL;
     }
 }
@@ -131,18 +129,6 @@ void VertexEdge::removeVertex(VertexNode *vertex)
     }
 }
 
-void VertexEdge::removeTexCoord(TexCoordNode *TexCoord)
-{
-    for (int i = 0; i < 2; i++)
-    {
-        if (_TexCoords[i] == TexCoord)
-        {
-            _TexCoords[i] = NULL;
-            break;
-        }
-    }
-}
-
 void VertexEdge::removeTriangle(TriangleNode *triangle)
 {
     for (int i = 0; i < 2; i++)
@@ -192,14 +178,14 @@ void VertexEdge::turn()
     //    Vector3D t0_normal = t0.computeNormal();
     //    Vector3D t1_normal = t1.computeNormal();
     
-    _triangles[0]->removeFromVertices();
-    _triangles[1]->removeFromVertices();
+    _triangles[0]->removeFromVerticesAndTexCoords();
+    _triangles[1]->removeFromVerticesAndTexCoords();
     
     t0.setVertex(0, v1);
     t0.setVertex(1, v0);
     t0.setVertex(2, _vertices[0]);
     
-    _triangles[0]->addToVertices();
+    _triangles[0]->addToVerticesAndTexCoords();
     
     //    if (t0.computeNormal().Dot(t0_normal) < 0.0f)
     //        t0.flip();
@@ -208,7 +194,7 @@ void VertexEdge::turn()
     t1.setVertex(1, v1);
     t1.setVertex(2, _vertices[1]);
     
-    _triangles[1]->addToVertices();
+    _triangles[1]->addToVerticesAndTexCoords();
     
     //    if (t1.computeNormal().Dot(t1_normal) < 0.0f)
     //        t1.flip();

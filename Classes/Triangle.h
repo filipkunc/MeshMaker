@@ -12,25 +12,27 @@ class Triangle2
 {
 private:
     VertexNode *_vertices[3];
-    VertexEdgeNode *_edges[3];
-    TexCoordNode *_TexCoords[3];
+    VertexEdgeNode *_vertexEdges[3];
+    TexCoordNode *_texCoords[3];
+    TexCoordEdgeNode *_texCoordEdges[3];
 public:
     bool selected;
     Vector3D normal;
     
     Triangle2();
     Triangle2(VertexNode *vertices[3]);
-    Triangle2(VertexNode *vertices[3], TexCoordNode *texutreCoordinates[3]);
+    Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]);
     
     VertexNode *vertex(int index) const { return _vertices[index]; }
-    VertexEdgeNode *edge(int index) const { return _edges[index]; }
-    TexCoordNode *texCoord(int index) const { return _TexCoords[index]; }
+    VertexEdgeNode *vertexEdge(int index) const { return _vertexEdges[index]; }
+    TexCoordNode *texCoord(int index) const { return _texCoords[index]; }
+    TexCoordEdgeNode *texCoordEdge(int index) const { return _texCoordEdges[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
-    void setEdge(int index, VertexEdgeNode *value) { _edges[index] = value; }
+    void setEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
     
     void removeVertex(VertexNode *vertex);
-    void removeTexCoord(TexCoordNode *TexCoord);
+    void removeTexCoord(TexCoordNode *texCoord);
     void removeEdge(VertexEdgeNode *edge);
     void removeEdges();
     
@@ -54,16 +56,16 @@ public:
     TriangleNode() : FPNode<TriangleNode, Triangle2>() { }
     TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle)
     {
-        addToVertices();
+        addToVerticesAndTexCoords();
     }
     virtual ~TriangleNode()
     {
-        removeFromVertices();
+        removeFromVerticesAndTexCoords();
         removeFromEdges();
     }
     
-    void addToVertices();
-    void removeFromVertices();
+    void addToVerticesAndTexCoords();
+    void removeFromVerticesAndTexCoords();
     void removeFromEdges();
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
 };

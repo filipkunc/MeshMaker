@@ -32,14 +32,14 @@ void TexCoordNode::removeFromTriangles()
     _triangles.removeAll();
 }
 
-void TexCoordNode::addEdge(VertexEdgeNode *edge)
+void TexCoordNode::addEdge(TexCoordEdgeNode *edge)
 {
     _edges.add(edge);
 }
 
-void TexCoordNode::removeEdge(VertexEdgeNode *edge)
+void TexCoordNode::removeEdge(TexCoordEdgeNode *edge)
 {
-    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         if (node->data == edge)
             _edges.remove(node);
@@ -53,7 +53,7 @@ void TexCoordNode::removeEdges()
 
 void TexCoordNode::removeFromEdges()
 {
-    for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         node->data->data.removeTexCoord(this);
     }

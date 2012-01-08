@@ -13,14 +13,12 @@ class VertexEdge
 private:
     VertexNode *_vertices[2];
     TriangleNode *_triangles[2];
-    TexCoordNode *_TexCoords[2];
 public:
     bool selected;
     VertexNode *halfVertex;
-    TexCoordNode *halfTexCoord;
     
     VertexEdge();
-    VertexEdge(VertexNode *vertices[2], TexCoordNode *texCoords[2]);
+    VertexEdge(VertexNode *vertices[2]);
     
     bool isQuadEdge() const;
     bool isDegenerated() const;
@@ -29,12 +27,10 @@ public:
     
     VertexNode *vertex(int index) const { return _vertices[index]; }
     TriangleNode *triangle(int index) const { return _triangles[index]; }
-    TexCoordNode *texCoord(int index) const { return _TexCoords[index]; }
     
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
     void removeVertex(VertexNode *vertex);
     void removeTriangle(TriangleNode *triangle);
-    void removeTexCoord(TexCoordNode *TexCoord);
     void turn();
     
     VertexNode *opposite(VertexNode *vertex) const;

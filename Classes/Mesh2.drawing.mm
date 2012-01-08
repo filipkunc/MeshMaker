@@ -47,10 +47,10 @@ void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float c
 void Mesh2::resetTriangleCache()
 {
     _cachedTriangleVertices.setValid(false);
-    resetEdgeCache();
+    resetVertexEdgeCache();
 }
 
-void Mesh2::resetEdgeCache()
+void Mesh2::resetVertexEdgeCache()
 {
     _cachedEdgeVertices.setValid(false);
 }
@@ -136,19 +136,19 @@ void Mesh2::fillTriangleCache()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Mesh2::fillEdgeCache()
+void Mesh2::fillVertexEdgeCache()
 {
     if (_cachedEdgeVertices.isValid())
         return;
     
-    _cachedEdgeVertices.resize(_edges.count() * 2);
+    _cachedEdgeVertices.resize(_vertexEdges.count() * 2);
     
     Vector3D selectedColor(0.8f, 0.0f, 0.0f);
     Vector3D normalColor(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
     
     int i = 0;
     
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         if (_selectionMode == MeshSelectionModeQuadsTriangles && node->data.isQuadEdge())
             continue;
@@ -174,11 +174,6 @@ void Mesh2::fillEdgeCache()
         {
             _cachedEdgeVertices[i].position.coords[k] = node->data.vertex(0)->data.position[k];
             _cachedEdgeVertices[i + 1].position.coords[k] = node->data.vertex(1)->data.position[k];
-            if (k < 2)
-            {
-                _cachedEdgeVertices[i].texCoord.coords[k] = node->data.texCoord(0)->data.position[k];
-                _cachedEdgeVertices[i + 1].texCoord.coords[k] = node->data.texCoord(1)->data.position[k];
-            }
         }
         
         i += 2;
@@ -354,7 +349,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode mode)
 		} break;
         case MeshSelectionModeEdges:
         {
-            const VertexEdge &edge = _cachedEdgeSelection.at(index)->data;
+            const VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data;
             if (!forSelection)
             {
                 BOOL isSelected = edge.selected;
@@ -400,7 +395,7 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
         
         if (_isUnwrapped)
         {
-            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
             {
                 colorIndex++;
                 tempColors.push_back(colorIndex);
@@ -441,7 +436,7 @@ void Mesh2::drawAllVertices(ViewMode mode, bool forSelection)
         
         if (_isUnwrapped)
         {
-            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
             {
                 if (node->data.selected)
                     tempColors.push_back(selectedColor);
@@ -494,7 +489,7 @@ void Mesh2::drawAllTriangles(ViewMode mode, bool forSelection)
 
 void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
 {
-    fillEdgeCache();
+    fillVertexEdgeCache();
     
     if (forSelection)
     {
@@ -511,7 +506,7 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
         
-        for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
         {
             colorIndex++;
             tempColors.push_back(colorIndex);
@@ -524,16 +519,8 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
         GLubyte *colorPtr = (GLubyte *)&tempColors[0];
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
         
-        if (_isUnwrapped)
-        {
-            float *vertexPtr = (float *)&_cachedEdgeVertices[0].texCoord;
-            glVertexPointer(2, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
-        }
-        else
-        {
-            float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
-            glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
-        }
+        float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
+        glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
         
         glDrawArrays(GL_LINES, 0, _cachedEdgeVertices.count());
         
@@ -548,16 +535,8 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
         float *colorPtr = (float *)&_cachedEdgeVertices[0].color;
         glColorPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), colorPtr);
         
-        if (_isUnwrapped)
-        {
-            float *vertexPtr = (float *)&_cachedEdgeVertices[0].texCoord;
-            glVertexPointer(2, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
-        }
-        else
-        {
-            float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
-            glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
-        }
+        float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
+        glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
         
         glDrawArrays(GL_LINES, 0, _cachedEdgeVertices.count());
         

@@ -23,7 +23,7 @@ class TexCoordNode : public FPNode<TexCoordNode, TexCoord>
 {
 public:
     SimpleList<TriangleNode *> _triangles;
-    SimpleList<VertexEdgeNode *> _edges;
+    SimpleList<TexCoordEdgeNode *> _edges;
 public:
     TexCoordNode() : FPNode<TexCoordNode, TexCoord>() { }
     TexCoordNode(const TexCoord &texCoord) : FPNode<TexCoordNode, TexCoord>(texCoord) { } 
@@ -37,8 +37,8 @@ public:
     void addTriangle(TriangleNode *triangle);
     void removeTriangle(TriangleNode *triangle);
     void removeFromTriangles();
-    void addEdge(VertexEdgeNode *edge);
-    void removeEdge(VertexEdgeNode *edge);
+    void addEdge(TexCoordEdgeNode *edge);
+    void removeEdge(TexCoordEdgeNode *edge);
     void removeEdges();
     void removeFromEdges();   
 };

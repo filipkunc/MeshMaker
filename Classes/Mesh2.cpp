@@ -30,13 +30,14 @@ Mesh2::~Mesh2()
 
 void Mesh2::setSelectionMode(MeshSelectionMode value)
 {
-    resetEdgeCache();
+    resetVertexEdgeCache();
     
     _selectionMode = value;
     _cachedVertexSelection.clear();
     _cachedTriangleSelection.clear();
-    _cachedEdgeSelection.clear();
+    _cachedVertexEdgeSelection.clear();
     _cachedTexCoordSelection.clear();
+    _cachedTexCoordEdgeSelection.clear();
     
     switch (_selectionMode)
     {
@@ -45,7 +46,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 _cachedVertexSelection.push_back(node);
             
-            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
                 _cachedTexCoordSelection.push_back(node);            
         } break;
         case MeshSelectionModeTriangles:
@@ -53,7 +54,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 node->data.selected = false;
             
-            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
                 node->data.selected = false;
             
             for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -76,21 +77,18 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 node->data.selected = false;
             
-            for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+            for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
                 node->data.selected = false;
             
-            for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+            for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
             {
-                _cachedEdgeSelection.push_back(node);
+                _cachedVertexEdgeSelection.push_back(node);
                 
                 VertexEdge &edge = node->data;
                 if (edge.selected)
                 {
                     for (int i = 0; i < 2; i++)
-                    {
                         edge.vertex(i)->data.selected = true;
-                        edge.texCoord(i)->data.selected = true;
-                    }
                 }
             }
         } break;
@@ -110,7 +108,7 @@ uint Mesh2::selectedCount() const
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection.size();
         case MeshSelectionModeEdges:
-            return _cachedEdgeSelection.size();
+            return _cachedVertexEdgeSelection.size();
         default:
             return 0;
     }
@@ -127,7 +125,7 @@ bool Mesh2::isSelectedAtIndex(uint index) const
         case MeshSelectionModeTriangles:
             return _cachedTriangleSelection.at(index)->data.selected;
         case MeshSelectionModeEdges:
-            return _cachedEdgeSelection.at(index)->data.selected;
+            return _cachedVertexEdgeSelection.at(index)->data.selected;
         default:
             return false;
     }
@@ -155,13 +153,10 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
         } break;
         case MeshSelectionModeEdges:
         {
-            VertexEdge &edge = _cachedEdgeSelection.at(index)->data;
+            VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data;
             edge.selected = selected;
             for (int i = 0; i < 2; i++)
-            {
                 edge.vertex(i)->data.selected = selected;
-                edge.texCoord(i)->data.selected = selected;
-            }
         } break;
         default:
             break;
@@ -178,7 +173,7 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
     
     if (_isUnwrapped)
     {
-        for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+        for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
         {
             if (node->data.selected)
             {
@@ -209,7 +204,7 @@ void Mesh2::transformAll(const Matrix4x4 &matrix)
     
     if (_isUnwrapped)
     {
-        for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+        for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
         {
             Vector3D v = Vector3D(node->data.position.x, node->data.position.y, 0.0f);
             v = matrix.Transform(v);
@@ -234,7 +229,7 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
     
     if (_isUnwrapped)
     {
-        for (TexCoordNode *node = _TexCoords.begin(), *end = _TexCoords.end(); node != end; node = node->next())
+        for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
         {
             if (node->data.selected)
             {
@@ -307,10 +302,10 @@ void Mesh2::removeDegeneratedTriangles()
 
 void Mesh2::removeDegeneratedEdges()
 {
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         if (node->data.isDegenerated())
-            _edges.remove(node);
+            _vertexEdges.remove(node);
     }
 }
 
@@ -374,10 +369,10 @@ void Mesh2::removeSelectedEdges()
 {
     resetTriangleCache();
     
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         if (node->data.selected)
-            _edges.remove(node);
+            _vertexEdges.remove(node);
     }
     
     removeDegeneratedTrianglesAndEdges();
@@ -418,16 +413,12 @@ void Mesh2::mergeSelected()
 
 void Mesh2::halfEdges()
 {
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         Vector3D v1 = node->data.vertex(0)->data.position;
         Vector3D v2 = node->data.vertex(1)->data.position;
         
-        Vector2D t1 = node->data.texCoord(0)->data.position;
-        Vector2D t2 = node->data.texCoord(1)->data.position;
-        
         Vector3D edgeVertex;
-        Vector2D edgeTexCoord;
         
         // boundary
         if (node->data.triangle(0) == NULL || node->data.triangle(1) == NULL)
@@ -442,10 +433,7 @@ void Mesh2::halfEdges()
             edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;           
         }
         
-        edgeTexCoord = (t1 + t2) / 2.0f;
-        
         node->data.halfVertex = _vertices.add(edgeVertex);
-        node->data.halfTexCoord = _TexCoords.add(edgeTexCoord);
     }
 }
 
@@ -493,7 +481,6 @@ void Mesh2::repositionVertices(int vertexCount)
 void Mesh2::makeSubdividedTriangles()
 {
     VertexNode *vertices[6];
-    TexCoordNode *texCoords[6];
     FPList<TriangleNode, Triangle2> subdivided;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -501,10 +488,7 @@ void Mesh2::makeSubdividedTriangles()
         for (int j = 0; j < 3; j++)
         {
             vertices[j] = node->data.vertex(j);
-            vertices[j + 3] = node->data.edge(j)->data.halfVertex;
-            
-            texCoords[j] = node->data.texCoord(j);
-            texCoords[j + 3] = node->data.edge(j)->data.halfTexCoord;
+            vertices[j + 3] = node->data.vertexEdge(j)->data.halfVertex;
         }
         
         /*    
@@ -519,10 +503,10 @@ void Mesh2::makeSubdividedTriangles()
          
          */
         
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
+        /*subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
         subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
         subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));*/
     }
     
     _triangles.moveFrom(subdivided);
@@ -551,7 +535,7 @@ void Mesh2::splitSelectedTriangles()
     
     FPList<TriangleNode, Triangle2> subdivided;
     
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         node->data.halfVertex = NULL;
     }
@@ -566,7 +550,7 @@ void Mesh2::splitSelectedTriangles()
         
         for (int j = 0; j < 3; j++)
         {
-            VertexEdge &edge = node->data.edge(j)->data;
+            VertexEdge &edge = node->data.vertexEdge(j)->data;
             
             if (edge.halfVertex == NULL)
             {
@@ -610,7 +594,7 @@ void Mesh2::splitSelectedTriangles()
 
 void Mesh2::splitSelectedEdges()
 {
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         VertexEdge &edge = node->data;
         if (!edge.selected)
@@ -681,7 +665,7 @@ void Mesh2::turnSelectedEdges()
 {
     resetTriangleCache();
     
-    for (VertexEdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         if (node->data.selected)
             node->data.turn();
@@ -730,7 +714,7 @@ void Mesh2::extrudeSelectedTriangles()
         
         for (int i = 0; i < 3; i++)
         {
-            VertexEdge &edge = node->data.edge(i)->data;
+            VertexEdge &edge = node->data.vertexEdge(i)->data;
             
             if (edge.isNotShared())
             {

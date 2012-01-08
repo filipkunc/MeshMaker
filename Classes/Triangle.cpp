@@ -13,8 +13,9 @@ Triangle2::Triangle2() : selected(false)
     for (int i = 0; i < 3; i++)
     {
         _vertices[i] = NULL;
-        _edges[i] = NULL;
-        _TexCoords[i] = NULL;
+        _vertexEdges[i] = NULL;
+        _texCoords[i] = NULL;
+        _texCoordEdges[i] = NULL;
     }
 }
 
@@ -23,31 +24,39 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
     for (int i = 0; i < 3; i++)
     {
         _vertices[i] = vertices[i];
-        _edges[i] = NULL;
-        _TexCoords[i] = NULL;
+        _vertexEdges[i] = NULL;
+        _texCoords[i] = NULL;
+        _texCoordEdges[i] = NULL;
     }
 }
 
-Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *TexCoords[3]) : selected(false)
+Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : selected(false)
 {
     for (int i = 0; i < 3; i++)
     {
         _vertices[i] = vertices[i];
-        _edges[i] = NULL;
-        _TexCoords[i] = TexCoords[i];
+        _vertexEdges[i] = NULL;
+        _texCoords[i] = texCoords[i];
+        _texCoordEdges[i] = NULL;
     }
 }
 
-void TriangleNode::addToVertices()
+void TriangleNode::addToVerticesAndTexCoords()
 {
     for (int i = 0; i < 3; i++)
     {
         if (data._vertices[i])
             data._vertices[i]->addTriangle(this);
     }
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (data._texCoords[i])
+            data._texCoords[i]->addTriangle(this);
+    }
 }
 
-void TriangleNode::removeFromVertices()
+void TriangleNode::removeFromVerticesAndTexCoords()
 {
     for (int i = 0; i < 3; i++)
     {
@@ -57,16 +66,34 @@ void TriangleNode::removeFromVertices()
             data._vertices[i] = NULL;
         }
     }
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (data._texCoords[i])
+        {
+            data._texCoords[i]->removeTriangle(this);
+            data._texCoords[i] = NULL;
+        }
+    }
 }
 
 void TriangleNode::removeFromEdges()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._edges[i])
+        if (data._vertexEdges[i])
         {
-            data._edges[i]->data.removeTriangle(this);
-            data._edges[i] = NULL;
+            data._vertexEdges[i]->data.removeTriangle(this);
+            data._vertexEdges[i] = NULL;
+        }
+    }
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (data._texCoordEdges[i])
+        {
+            data._texCoordEdges[i]->data.removeTriangle(this);
+            data._texCoordEdges[i] = NULL;
         }
     }
 }
@@ -96,13 +123,13 @@ void Triangle2::removeVertex(VertexNode *vertex)
     }
 }
 
-void Triangle2::removeTexCoord(TexCoordNode *TexCoord)
+void Triangle2::removeTexCoord(TexCoordNode *texCoord)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_TexCoords[i] == TexCoord)
+        if (_texCoords[i] == texCoord)
         {
-            _TexCoords[i] = NULL;
+            _texCoords[i] = NULL;
             break;
         }
     }
@@ -112,9 +139,9 @@ void Triangle2::removeEdge(VertexEdgeNode *edge)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_edges[i] == edge)
+        if (_vertexEdges[i] == edge)
         {
-            _edges[i] = NULL;
+            _vertexEdges[i] = NULL;
             break;
         }
     }
@@ -123,7 +150,7 @@ void Triangle2::removeEdge(VertexEdgeNode *edge)
 void Triangle2::removeEdges()
 {
     for (int i = 0; i < 3; i++)
-        _edges[i] = NULL;
+        _vertexEdges[i] = NULL;
 }
 
 bool Triangle2::isDegenerated() const
@@ -158,7 +185,7 @@ bool Triangle2::containsEdge(const VertexEdgeNode *edge) const
 {
     for (int i = 0; i < 3; i++)
     {
-        if (_edges[i] == edge)
+        if (_vertexEdges[i] == edge)
             return true;
     }
     return false;
