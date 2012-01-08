@@ -416,22 +416,18 @@ void Mesh2::mergeSelected()
 	}
 }
 
-void Mesh2::loopSubdivision()
+void Mesh2::halfEdges()
 {
-    resetTriangleCache();
-    
-    VertexNode *vertices[6];
-    
-    FPList<TriangleNode, Triangle2> subdivided;
-    
-    int vertexCount = _vertices.count();
-    
     for (EdgeNode *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
         Vector3D v1 = node->data.vertex(0)->data.position;
         Vector3D v2 = node->data.vertex(1)->data.position;
         
+        Vector2D t1 = node->data.texCoord(0)->data.position;
+        Vector2D t2 = node->data.texCoord(1)->data.position;
+        
         Vector3D edgeVertex;
+        Vector2D edgeTexCoord;
         
         // boundary
         if (node->data.triangle(0) == NULL || node->data.triangle(1) == NULL)
@@ -446,9 +442,15 @@ void Mesh2::loopSubdivision()
             edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;           
         }
         
+        edgeTexCoord = (t1 + t2) / 2.0f;
+        
         node->data.halfVertex = _vertices.add(edgeVertex);
+        node->data.halfTexCoord = _textureCoordinates.add(edgeTexCoord);
     }
-    
+}
+
+void Mesh2::repositionVertices(int vertexCount)
+{
     vector<Vector3D> tempVertices;
     
     int index = 0;
@@ -486,6 +488,13 @@ void Mesh2::loopSubdivision()
         node->data.position = tempVertices[node->index];
         index++;
     }
+}
+
+void Mesh2::makeSubdividedTriangles()
+{
+    VertexNode *vertices[6];
+    TextureCoordinateNode *texCoords[6];
+    FPList<TriangleNode, Triangle2> subdivided;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -493,6 +502,9 @@ void Mesh2::loopSubdivision()
         {
             vertices[j] = node->data.vertex(j);
             vertices[j + 3] = node->data.edge(j)->data.halfVertex;
+            
+            texCoords[j] = node->data.texCoord(j);
+            texCoords[j + 3] = node->data.edge(j)->data.halfTexCoord;
         }
         
         /*    
@@ -505,15 +517,26 @@ void Mesh2::loopSubdivision()
          /____\/____\
          0    *3     1
          
-        */
+         */
         
-        subdivided.add((VertexNode *[3]){ vertices[0], vertices[3], vertices[5] });
-        subdivided.add((VertexNode *[3]){ vertices[3], vertices[1], vertices[4] });
-        subdivided.add((VertexNode *[3]){ vertices[5], vertices[4], vertices[2] });
-        subdivided.add((VertexNode *[3]){ vertices[3], vertices[4], vertices[5] });
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TextureCoordinateNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TextureCoordinateNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TextureCoordinateNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TextureCoordinateNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
     }
     
     _triangles.moveFrom(subdivided);
+}
+
+void Mesh2::loopSubdivision()
+{
+    resetTriangleCache();        
+    
+    int vertexCount = _vertices.count();
+    
+    halfEdges();
+    repositionVertices(vertexCount);
+    makeSubdividedTriangles();    
     
     makeEdges();
     

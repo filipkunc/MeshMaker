@@ -46,6 +46,7 @@ struct GLEdgeVertex
 {
     Point3D position;
     Point3D color;
+    Point2D texCoord;
 };
 
 class Mesh2
@@ -89,6 +90,9 @@ private:
     void splitSelectedEdges();
     void flipSelectedTriangles();
     void turnSelectedEdges();
+    void halfEdges();
+    void repositionVertices(int vertexCount);
+    void makeSubdividedTriangles();
 public:
     Mesh2(float colorComponents[4]);
     ~Mesh2();
@@ -151,7 +155,7 @@ public:
     
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
-    EdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
+    EdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TextureCoordinateNode *t1, TextureCoordinateNode *t2, TriangleNode *triangle);
     VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
     void makeEdges();
     void makePlane();

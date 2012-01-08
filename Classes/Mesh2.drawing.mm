@@ -174,6 +174,11 @@ void Mesh2::fillEdgeCache()
         {
             _cachedEdgeVertices[i].position.coords[k] = node->data.vertex(0)->data.position[k];
             _cachedEdgeVertices[i + 1].position.coords[k] = node->data.vertex(1)->data.position[k];
+            if (k < 2)
+            {
+                _cachedEdgeVertices[i].texCoord.coords[k] = node->data.texCoord(0)->data.position[k];
+                _cachedEdgeVertices[i + 1].texCoord.coords[k] = node->data.texCoord(1)->data.position[k];
+            }
         }
         
         i += 2;
@@ -257,8 +262,8 @@ void Mesh2::drawColoredFill(bool colored, ViewMode mode)
 
 void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection)
 {
-	//bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-    //ShaderProgram *shader = flipped ? [ShaderProgram flippedShader] : [ShaderProgram normalShader];
+	bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+    ShaderProgram *shader = flipped ? [ShaderProgram flippedShader] : [ShaderProgram normalShader];
 	
 	glPushMatrix();
 	glScalef(scale.x, scale.y, scale.z);
@@ -272,44 +277,30 @@ void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSe
     }
     else
     {
-        if (_isUnwrapped)
+        if (selected)
         {
-            if (_selectionMode != MeshSelectionModeTriangles)
-            {
-                glColor3fv(_colorComponents);
-                drawColoredFill(false, mode);
-            }
-            else
-            {
-                drawColoredFill(true, mode);
-            }
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(1.0f, 1.0f);
+        }
+        
+        [shader useProgram];
+        if (_selectionMode != MeshSelectionModeTriangles)
+        {
+            glColor3fv(_colorComponents);
+            drawColoredFill(false, mode);
         }
         else
         {
-            if (selected)
-            {
-                glEnable(GL_POLYGON_OFFSET_FILL);
-                glPolygonOffset(1.0f, 1.0f);
-            }
-            
-            //[shader useProgram];
-            if (_selectionMode != MeshSelectionModeTriangles)
-            {
-                glColor3fv(_colorComponents);
-                drawColoredFill(false, mode);
-            }
-            else
-            {
-                drawColoredFill(true, mode);
-            }
-            //[ShaderProgram resetProgram];
-            
-            if (selected)
-            {
-                glDisable(GL_POLYGON_OFFSET_FILL);
-                drawAllEdges(mode, forSelection);
-            }
+            drawColoredFill(true, mode);
         }
+        [ShaderProgram resetProgram];
+        
+        if (selected)
+        {
+            glDisable(GL_POLYGON_OFFSET_FILL);
+            drawAllEdges(mode, forSelection);
+        }
+        
 	}
 	glPopMatrix();
 }
@@ -511,7 +502,7 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
         
         uint colorIndex = 0;
         
-        if (!_selectThrough)
+        if (!_selectThrough && !_isUnwrapped)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
@@ -533,8 +524,16 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
         GLubyte *colorPtr = (GLubyte *)&tempColors[0];
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
         
-        float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
-        glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
+        if (_isUnwrapped)
+        {
+            float *vertexPtr = (float *)&_cachedEdgeVertices[0].texCoord;
+            glVertexPointer(2, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
+        }
+        else
+        {
+            float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
+            glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
+        }
         
         glDrawArrays(GL_LINES, 0, _cachedEdgeVertices.count());
         
@@ -549,8 +548,16 @@ void Mesh2::drawAllEdges(ViewMode mode, bool forSelection)
         float *colorPtr = (float *)&_cachedEdgeVertices[0].color;
         glColorPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), colorPtr);
         
-        float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
-        glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
+        if (_isUnwrapped)
+        {
+            float *vertexPtr = (float *)&_cachedEdgeVertices[0].texCoord;
+            glVertexPointer(2, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
+        }
+        else
+        {
+            float *vertexPtr = (float *)&_cachedEdgeVertices[0].position;
+            glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeVertex), vertexPtr);
+        }
         
         glDrawArrays(GL_LINES, 0, _cachedEdgeVertices.count());
         

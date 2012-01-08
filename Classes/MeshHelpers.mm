@@ -374,15 +374,17 @@ Edge2::Edge2() : selected(false), halfVertex(NULL)
     for (int i = 0; i < 2; i++)
     {
         _vertices[i] = NULL;
+        _textureCoordinates[i] = NULL;
         _triangles[i] = NULL;
     }
 }
 
-Edge2::Edge2(VertexNode *vertices[2]) : selected(false), halfVertex(NULL)
+Edge2::Edge2(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]) : selected(false), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
         _vertices[i] = vertices[i];
+        _textureCoordinates[i] = texCoords[i];
         _triangles[i] = NULL;
     }
 }

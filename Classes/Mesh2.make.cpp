@@ -33,14 +33,14 @@ void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-    TextureCoordinateNode *textureCoordinates1[3] = { t1, t2, t3 };
-    TextureCoordinateNode *textureCoordinates2[3] = { t1, t3, t4 };
+    TextureCoordinateNode *texCoords1[3] = { t1, t2, t3 };
+    TextureCoordinateNode *texCoords2[3] = { t1, t3, t4 };
     
-  	_triangles.add(Triangle2(vertices1, textureCoordinates1));
-    _triangles.add(Triangle2(vertices2, textureCoordinates2));
+  	_triangles.add(Triangle2(vertices1, texCoords1));
+    _triangles.add(Triangle2(vertices2, texCoords2));
 }
 
-EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
+EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TextureCoordinateNode *t1, TextureCoordinateNode *t2, TriangleNode *triangle)
 {
     EdgeNode *sharedEdge = v1->sharedEdge(v2);
     if (sharedEdge)
@@ -50,7 +50,8 @@ EdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TriangleNode *
     }
     
     VertexNode *vertices[2] = { v1, v2 };
-    EdgeNode *node = _edges.add(vertices);
+    TextureCoordinateNode *texCoords[2] = { t1, t2 };
+    EdgeNode *node = _edges.add(Edge2(vertices, texCoords));
     node->data.setTriangle(0, triangle);
     return node;
 }
@@ -89,9 +90,13 @@ void Mesh2::makeEdges()
         VertexNode *v1 = triangle.vertex(1);
         VertexNode *v2 = triangle.vertex(2);
         
-        EdgeNode *e0 = findOrCreateEdge(v0, v1, node);
-        EdgeNode *e1 = findOrCreateEdge(v1, v2, node);
-        EdgeNode *e2 = findOrCreateEdge(v2, v0, node);
+        TextureCoordinateNode *t0 = triangle.texCoord(0);
+        TextureCoordinateNode *t1 = triangle.texCoord(1);
+        TextureCoordinateNode *t2 = triangle.texCoord(2);
+        
+        EdgeNode *e0 = findOrCreateEdge(v0, v1, t0, t1, node);
+        EdgeNode *e1 = findOrCreateEdge(v1, v2, t1, t2, node);
+        EdgeNode *e2 = findOrCreateEdge(v2, v0, t2, t0, node);
         
         triangle.setEdge(0, e0);
         triangle.setEdge(1, e1);

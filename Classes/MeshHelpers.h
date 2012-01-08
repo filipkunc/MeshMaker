@@ -189,9 +189,10 @@ private:
 public:
     bool selected;
     VertexNode *halfVertex;
+    TextureCoordinateNode *halfTexCoord;
     
     Edge2();
-    Edge2(VertexNode *vertices[2]);
+    Edge2(VertexNode *vertices[2], TextureCoordinateNode *texCoords[2]);
     
     bool isQuadEdge() const;
     bool isDegenerated() const;

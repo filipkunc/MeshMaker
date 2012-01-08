@@ -166,7 +166,7 @@
 		A787CC1413CF717500D2A1FC /* SphereTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SphereTemplate.png; sourceTree = "<group>"; };
 		A787CC1513CF717500D2A1FC /* TranslateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TranslateTemplate.png; sourceTree = "<group>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
-		A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.cpp; path = Classes/Mesh2.cpp; sourceTree = "<group>"; };
+		A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = Mesh2.cpp; path = Classes/Mesh2.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
 		A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.drawing.mm; path = Classes/Mesh2.drawing.mm; sourceTree = "<group>"; };
 		A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.make.cpp; path = Classes/Mesh2.make.cpp; sourceTree = "<group>"; };

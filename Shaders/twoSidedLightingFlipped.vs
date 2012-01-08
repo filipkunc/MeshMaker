@@ -18,5 +18,7 @@ void main()
 	
 	gl_BackColor = vec4(0.5, 0.5, 0.5, 1.0) * NdotL + vec4(0.3, 0.3, 0.3, 1.0);
 	
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    
 	gl_Position = ftransform();
 }
