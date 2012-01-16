@@ -61,3 +61,13 @@ void TexCoordNode::removeFromEdges()
     _edges.removeAll();
 }
 
+TexCoordEdgeNode *TexCoordNode::sharedEdge(TexCoordNode *otherTexCoord)
+{
+    for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        if (node->data->data.containsTexCoord(otherTexCoord))
+            return node->data;
+    }
+    return NULL;
+}
+

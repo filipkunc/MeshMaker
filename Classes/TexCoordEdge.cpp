@@ -111,16 +111,14 @@ void TexCoordEdgeNode::removeFromTexCoords()
 
 void TexCoordEdgeNode::removeFromTriangles()
 {
-    // TODO: implement removeEdge in triangle
-    
-    /*for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         if (data._triangles[i])
         {
-            data._triangles[i]->data.removeEdge(this);
+            data._triangles[i]->data.removeTexCoordEdge(this);
             data._triangles[i] = NULL;
         }
-    }*/   
+    }   
 }
 
 void TexCoordEdge::removeTexCoord(TexCoordNode *texCoord)

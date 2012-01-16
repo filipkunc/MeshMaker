@@ -29,21 +29,25 @@ public:
     TexCoordEdgeNode *texCoordEdge(int index) const { return _texCoordEdges[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
-    void setEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
+    void setVertexEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
+    void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _texCoordEdges[index] = value; }
     
     void removeVertex(VertexNode *vertex);
     void removeTexCoord(TexCoordNode *texCoord);
-    void removeEdge(VertexEdgeNode *edge);
+    void removeVertexEdge(VertexEdgeNode *edge);
+    void removeTexCoordEdge(TexCoordEdgeNode *edge);
     void removeEdges();
     
     bool isDegenerated() const;
     bool containsVertex(const VertexNode *vertex) const;
-    bool containsEdge(const VertexEdgeNode *edge) const;
+    bool containsVertexEdge(const VertexEdgeNode *edge) const;
+    bool containsTexCoordEdge(const TexCoordEdgeNode *edge) const;
     void flip();
     
     int indexOfVertex(const VertexNode *vertex) const;
     void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
     VertexNode *vertexNotInEdge(const VertexEdge *edge) const;
+    TexCoordEdgeNode *texCoordNotInEdge(const TexCoordEdge *edge) const;
     
     void computeNormal();
     

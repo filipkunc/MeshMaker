@@ -135,7 +135,7 @@ void Triangle2::removeTexCoord(TexCoordNode *texCoord)
     }
 }
 
-void Triangle2::removeEdge(VertexEdgeNode *edge)
+void Triangle2::removeVertexEdge(VertexEdgeNode *edge)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -147,10 +147,25 @@ void Triangle2::removeEdge(VertexEdgeNode *edge)
     }
 }
 
+void Triangle2::removeTexCoordEdge(TexCoordEdgeNode *edge)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_texCoordEdges[i] == edge)
+        {
+            _texCoordEdges[i] = NULL;
+            break;
+        }
+    }
+}
+
 void Triangle2::removeEdges()
 {
     for (int i = 0; i < 3; i++)
+    {
         _vertexEdges[i] = NULL;
+        _texCoordEdges[i] = NULL;
+    }    
 }
 
 bool Triangle2::isDegenerated() const
@@ -158,7 +173,7 @@ bool Triangle2::isDegenerated() const
     if (containsVertex(NULL))
         return true;
     
-    if (containsEdge(NULL))
+    if (containsVertexEdge(NULL))
         return true;
     
     if (_vertices[0] == _vertices[1])
@@ -181,11 +196,21 @@ bool Triangle2::containsVertex(const VertexNode *vertex) const
 	return false;
 }
 
-bool Triangle2::containsEdge(const VertexEdgeNode *edge) const
+bool Triangle2::containsVertexEdge(const VertexEdgeNode *edge) const
 {
     for (int i = 0; i < 3; i++)
     {
         if (_vertexEdges[i] == edge)
+            return true;
+    }
+    return false;
+}
+
+bool Triangle2::containsTexCoordEdge(const TexCoordEdgeNode *edge) const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_texCoordEdges[i] == edge)
             return true;
     }
     return false;

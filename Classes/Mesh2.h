@@ -147,8 +147,8 @@ public:
     void resetTriangleCache();
     void fillTriangleCache();
     
-    void resetVertexEdgeCache();
-    void fillVertexEdgeCache();
+    void resetEdgeCache();
+    void fillEdgeCache();
     
     void drawColoredFill(bool colored, ViewMode mode);
     void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
@@ -164,7 +164,8 @@ public:
     
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
-    VertexEdgeNode *findOrCreateEdge(VertexNode *v1, VertexNode *v2, TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle);
+    VertexEdgeNode *findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
+    TexCoordEdgeNode *findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle);
     VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
     void makeEdges();
     void makePlane();

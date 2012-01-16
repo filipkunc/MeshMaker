@@ -40,7 +40,7 @@ void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *
     _triangles.add(Triangle2(vertices2, texCoords2));
 }
 
-VertexEdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle)
+VertexEdgeNode *Mesh2::findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
 {
     VertexEdgeNode *sharedEdge = v1->sharedEdge(v2);
     if (sharedEdge)
@@ -51,6 +51,21 @@ VertexEdgeNode *Mesh2::findOrCreateEdge(VertexNode *v1, VertexNode *v2, TexCoord
     
     VertexNode *vertices[2] = { v1, v2 };
     VertexEdgeNode *node = _vertexEdges.add(vertices);
+    node->data.setTriangle(0, triangle);
+    return node;
+}
+
+TexCoordEdgeNode *Mesh2::findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle)
+{
+    TexCoordEdgeNode *sharedEdge = t1->sharedEdge(t2);
+    if (sharedEdge)
+    {
+        sharedEdge->data.setTriangle(1, triangle);
+        return sharedEdge;
+    }
+    
+    TexCoordNode *texCoords[2] = { t1, t2 };
+    TexCoordEdgeNode *node = _texCoordEdges.add(texCoords);
     node->data.setTriangle(0, triangle);
     return node;
 }
@@ -73,8 +88,14 @@ VertexNode *Mesh2::findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexN
 void Mesh2::makeEdges()
 {
     _vertexEdges.removeAll();
+    _texCoordEdges.removeAll();
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        node->removeEdges();
+    }
+    
+    for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
     {
         node->removeEdges();
     }
@@ -93,13 +114,21 @@ void Mesh2::makeEdges()
         TexCoordNode *t1 = triangle.texCoord(1);
         TexCoordNode *t2 = triangle.texCoord(2);
         
-        VertexEdgeNode *e0 = findOrCreateEdge(v0, v1, t0, t1, node);
-        VertexEdgeNode *e1 = findOrCreateEdge(v1, v2, t1, t2, node);
-        VertexEdgeNode *e2 = findOrCreateEdge(v2, v0, t2, t0, node);
+        VertexEdgeNode *ve0 = findOrCreateVertexEdge(v0, v1, node);
+        VertexEdgeNode *ve1 = findOrCreateVertexEdge(v1, v2, node);
+        VertexEdgeNode *ve2 = findOrCreateVertexEdge(v2, v0, node);
         
-        triangle.setEdge(0, e0);
-        triangle.setEdge(1, e1);
-        triangle.setEdge(2, e2);        
+        TexCoordEdgeNode *te0 = findOrCreateTexCoordEdge(t0, t1, node);
+        TexCoordEdgeNode *te1 = findOrCreateTexCoordEdge(t1, t2, node);
+        TexCoordEdgeNode *te2 = findOrCreateTexCoordEdge(t2, t0, node);
+        
+        triangle.setVertexEdge(0, ve0);
+        triangle.setVertexEdge(1, ve1);
+        triangle.setVertexEdge(2, ve2); 
+        
+        triangle.setTexCoordEdge(0, te0);
+        triangle.setTexCoordEdge(1, te1);
+        triangle.setTexCoordEdge(2, te2); 
     }
 }
 

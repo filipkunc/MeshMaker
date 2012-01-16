@@ -111,7 +111,7 @@ void VertexEdgeNode::removeFromTriangles()
     {
         if (data._triangles[i])
         {
-            data._triangles[i]->data.removeEdge(this);
+            data._triangles[i]->data.removeVertexEdge(this);
             data._triangles[i] = NULL;
         }
     }    

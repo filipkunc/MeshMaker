@@ -40,5 +40,7 @@ public:
     void addEdge(TexCoordEdgeNode *edge);
     void removeEdge(TexCoordEdgeNode *edge);
     void removeEdges();
-    void removeFromEdges();   
+    void removeFromEdges(); 
+    TexCoordEdgeNode *sharedEdge(TexCoordNode *otherTexCoord);
+    
 };
