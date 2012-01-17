@@ -804,6 +804,7 @@ vector<T> *ReadValues(string s)
     Mesh *itemMesh = [item mesh];
     
     vector<Vector3D> vertices;
+    vector<Vector2D> texCoords; // TODO: Needs fill with UV coordinates
     vector<Triangle> triangles;
     
     for (uint i = 0; i < points->size(); i += 3)
@@ -825,7 +826,7 @@ vector<T> *ReadValues(string s)
         AddTriangle(triangles, vertexIdx3, vertexIdx2, vertexIdx1);
     }
 
-    itemMesh->mesh->fromIndexRepresentation(vertices, triangles);
+    itemMesh->mesh->fromIndexRepresentation(vertices, texCoords, triangles);
     
     [newItems addItem:item];
     items = newItems;

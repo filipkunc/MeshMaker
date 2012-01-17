@@ -18,6 +18,7 @@ using namespace std;
 struct Triangle
 {
 	uint vertexIndices[3];
+    uint texCoordIndices[3];
 };
 
 struct Edge

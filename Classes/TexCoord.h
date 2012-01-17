@@ -24,6 +24,8 @@ class TexCoordNode : public FPNode<TexCoordNode, TexCoord>
 public:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<TexCoordEdgeNode *> _edges;
+    
+    int index;
 public:
     TexCoordNode() : FPNode<TexCoordNode, TexCoord>() { }
     TexCoordNode(const TexCoord &texCoord) : FPNode<TexCoordNode, TexCoord>(texCoord) { } 

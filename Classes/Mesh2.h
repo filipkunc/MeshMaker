@@ -173,8 +173,8 @@ public:
     void makeCylinder(uint steps);
     void makeSphere(uint steps);
     
-    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Triangle> &triangles);
-    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &triangles);
+    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector2D> &texCoords, const vector<Triangle> &triangles);
+    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector2D> &texCoords, vector<Triangle> &triangles);
   
     void setSelection(const vector<bool> &selection);
     void getSelection(vector<bool> &selection);

@@ -813,16 +813,19 @@ void Mesh2::extrudeSelectedTriangles()
 void Mesh2::merge(Mesh2 *mesh)
 {
     vector<Vector3D> thisVertices;
+    vector<Vector2D> thisTexCoords;
     vector<Triangle> thisTriangles;
     
-    this->toIndexRepresentation(thisVertices, thisTriangles);
+    this->toIndexRepresentation(thisVertices, thisTexCoords, thisTriangles);
     
     vector<Vector3D> otherVertices;
+    vector<Vector2D> otherTexCoords;
     vector<Triangle> otherTriangles;
     
-    mesh->toIndexRepresentation(otherVertices, otherTriangles);
+    mesh->toIndexRepresentation(otherVertices, otherTexCoords, otherTriangles);
     
     vector<Vector3D> mergedVertices;
+    vector<Vector2D> mergedTexCoords;
     vector<Triangle> mergedTriangles;
     
     for (uint i = 0; i < thisVertices.size(); i++)
@@ -831,19 +834,27 @@ void Mesh2::merge(Mesh2 *mesh)
     for (uint i = 0; i < otherVertices.size(); i++)
         mergedVertices.push_back(otherVertices[i]);
     
+    for (uint i = 0; i < thisTexCoords.size(); i++)
+        mergedTexCoords.push_back(thisTexCoords[i]);
+    
+    for (uint i = 0; i < otherTexCoords.size(); i++)
+        mergedTexCoords.push_back(otherTexCoords[i]);
+    
     for (uint i = 0; i < thisTriangles.size(); i++)
         mergedTriangles.push_back(thisTriangles[i]);
     
     for (uint i = 0; i < otherTriangles.size(); i++)
     {
         Triangle triangle = otherTriangles[i];
-        triangle.vertexIndices[0] += thisVertices.size();
-        triangle.vertexIndices[1] += thisVertices.size();
-        triangle.vertexIndices[2] += thisVertices.size();
+        for (uint j = 0; j < 3; j++)
+        {
+            triangle.vertexIndices[j] += thisVertices.size();
+            triangle.texCoordIndices[j] += thisTexCoords.size();
+        }
         mergedTriangles.push_back(triangle);
     }
     
-    this->fromIndexRepresentation(mergedVertices, mergedTriangles);     
+    this->fromIndexRepresentation(mergedVertices, mergedTexCoords, mergedTriangles);     
 }
 
 void Mesh2::computeSoftSelection()

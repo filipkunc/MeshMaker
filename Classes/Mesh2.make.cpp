@@ -333,30 +333,38 @@ void Mesh2::makeSphere(uint steps)
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Triangle> &triangles)
+void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector2D> &texCoords, const vector<Triangle> &triangles)
 {
     resetTriangleCache();
     _vertices.removeAll();
+    _texCoords.removeAll();
     _triangles.removeAll();
     
     vector<VertexNode *> tempVertices;
+    vector<TexCoordNode *> tempTexCoords;
     
     for (uint i = 0; i < vertices.size(); i++)
     {
         tempVertices.push_back(_vertices.add(vertices[i]));
     }
     
+    for (uint i = 0; i < texCoords.size(); i++)
+    {
+        tempTexCoords.push_back(_texCoords.add(texCoords[i]));
+    }
+    
     VertexNode *triangleVertices[3];
+    TexCoordNode *triangleTexCoords[3];
     
     for (uint i = 0; i < triangles.size(); i++)
     {
-        Triangle indexTriangle = triangles[i];
+        const Triangle &indexTriangle = triangles[i];
         for (uint j = 0; j < 3; j++)
         {
-            VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
-            triangleVertices[j] = node;
-        }
-        _triangles.add(triangleVertices);
+            triangleVertices[j] = tempVertices.at(indexTriangle.vertexIndices[j]);
+            triangleTexCoords[j] = tempTexCoords.at(indexTriangle.texCoordIndices[j]);
+        }        
+        _triangles.add(Triangle2(triangleVertices, triangleTexCoords));
     }    
     
     makeEdges();
@@ -364,7 +372,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &triangles)
+void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector2D> &texCoords, vector<Triangle> &triangles)
 {
     int index = 0;
     
@@ -376,12 +384,24 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Triangle> &
         vertices.push_back(node->data.position);
     }
     
+    index = 0;
+    
+    for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
+    {
+        node->index = index;
+        index++;
+        
+        texCoords.push_back(node->data.position);
+    }
+    
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle indexTriangle;
         for (int j = 0; j < 3; j++)
+        {
             indexTriangle.vertexIndices[j] = node->data.vertex(j)->index;
-        
+            indexTriangle.texCoordIndices[j] = node->data.texCoord(j)->index;
+        }        
         triangles.push_back(indexTriangle);
     }
 }

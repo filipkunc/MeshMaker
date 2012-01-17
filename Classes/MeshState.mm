@@ -19,10 +19,11 @@
 	{
 		itemIndex = index;
 		vertices = new vector<Vector3D>();
+        texCoords = new vector<Vector2D>();
 		triangles = new vector<Triangle>();
 		selection = new vector<bool>();
         
-        mesh->mesh->toIndexRepresentation(*vertices, *triangles);
+        mesh->mesh->toIndexRepresentation(*vertices, *texCoords, *triangles);
         mesh->mesh->getSelection(*selection);
         
 		selectionMode = [mesh selectionMode];
@@ -40,7 +41,7 @@
 - (void)applyToMesh:(Mesh *)mesh
 {
     mesh->mesh->setSelectionMode(selectionMode);
-    mesh->mesh->fromIndexRepresentation(*vertices, *triangles);
+    mesh->mesh->fromIndexRepresentation(*vertices, *texCoords, *triangles);
     mesh->mesh->setSelection(*selection);
 }
 
