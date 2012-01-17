@@ -577,12 +577,18 @@ void Mesh2::splitSelectedTriangles()
     resetTriangleCache();
     
     VertexNode *vertices[6];
+    TexCoordNode *texCoords[6];
     
     FPList<TriangleNode, Triangle2> subdivided;
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         node->data.halfVertex = NULL;
+    }
+    
+    for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
+    {
+        node->data.halfTexCoord = NULL;
     }
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -611,6 +617,24 @@ void Mesh2::splitSelectedTriangles()
             vertices[j + 3] = edge.halfVertex;
         }
         
+        for (int j = 0; j < 3; j++)
+        {
+            TexCoordEdge &edge = node->data.texCoordEdge(j)->data;
+            
+            if (edge.halfTexCoord == NULL)
+            {
+                Vector2D t1 = edge.texCoord(0)->data.position;
+                Vector2D t2 = edge.texCoord(1)->data.position;
+                
+                Vector2D edgeTexCoord = (t1 + t2) / 2.0f;
+                
+                edge.halfTexCoord = _texCoords.add(edgeTexCoord);
+            }
+            
+            texCoords[j] = node->data.texCoord(j);
+            texCoords[j + 3] = edge.halfTexCoord;
+        }
+        
         /*    
                2
               /\
@@ -623,10 +647,10 @@ void Mesh2::splitSelectedTriangles()
          
         */
         
-        subdivided.add((VertexNode *[3]){ vertices[0], vertices[3], vertices[5] });
-        subdivided.add((VertexNode *[3]){ vertices[3], vertices[1], vertices[4] });
-        subdivided.add((VertexNode *[3]){ vertices[5], vertices[4], vertices[2] });
-        subdivided.add((VertexNode *[3]){ vertices[3], vertices[4], vertices[5] });
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
+        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
     }
     
     _triangles.moveFrom(subdivided);
