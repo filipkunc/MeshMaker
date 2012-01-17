@@ -10,8 +10,14 @@
 
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
+    TexCoordNode *t1 = _texCoords.add(Vector2D(0, 0));
+    TexCoordNode *t2 = _texCoords.add(Vector2D(0, 1));
+    TexCoordNode *t3 = _texCoords.add(Vector2D(1, 1));
+    
     VertexNode *vertices[3] = { v1, v2, v3 };
-    _triangles.add(vertices);
+    TexCoordNode *texCoords[3] = { t1, t2, t3 };
+
+    _triangles.add(Triangle2(vertices, texCoords));
 }
 
 static Vector2D quadOffset = Vector2D(0, 0);
@@ -325,7 +331,7 @@ void Mesh2::makeSphere(uint steps)
             VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
             triangleVertices[j] = node;
         }
-        _triangles.add(triangleVertices);
+        addTriangle(triangleVertices[0], triangleVertices[1], triangleVertices[2]);
     }    
     
     makeEdges();
