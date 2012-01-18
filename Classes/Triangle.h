@@ -60,16 +60,21 @@ public:
     TriangleNode() : FPNode<TriangleNode, Triangle2>() { }
     TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle)
     {
-        addToVerticesAndTexCoords();
+        addToVertices();
+        addToTexCoords();
     }
     virtual ~TriangleNode()
     {
-        removeFromVerticesAndTexCoords();
+        removeFromVertices();
+        removeFromTexCoords();
         removeFromEdges();
     }
     
-    void addToVerticesAndTexCoords();
-    void removeFromVerticesAndTexCoords();
+    void addToVertices();
+    void addToTexCoords();
+    void removeFromVertices();
+    void removeFromTexCoords();
     void removeFromEdges();
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
+    void replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord);
 };

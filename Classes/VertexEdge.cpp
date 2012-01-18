@@ -178,14 +178,14 @@ void VertexEdge::turn()
     //    Vector3D t0_normal = t0.computeNormal();
     //    Vector3D t1_normal = t1.computeNormal();
     
-    _triangles[0]->removeFromVerticesAndTexCoords();
-    _triangles[1]->removeFromVerticesAndTexCoords();
+    _triangles[0]->removeFromVertices();
+    _triangles[1]->removeFromVertices();
     
     t0.setVertex(0, v1);
     t0.setVertex(1, v0);
     t0.setVertex(2, _vertices[0]);
     
-    _triangles[0]->addToVerticesAndTexCoords();
+    _triangles[0]->addToVertices();
     
     //    if (t0.computeNormal().Dot(t0_normal) < 0.0f)
     //        t0.flip();
@@ -194,7 +194,7 @@ void VertexEdge::turn()
     t1.setVertex(1, v1);
     t1.setVertex(2, _vertices[1]);
     
-    _triangles[1]->addToVerticesAndTexCoords();
+    _triangles[1]->addToVertices();
     
     //    if (t1.computeNormal().Dot(t1_normal) < 0.0f)
     //        t1.flip();

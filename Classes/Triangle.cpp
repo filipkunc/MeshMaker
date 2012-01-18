@@ -41,14 +41,17 @@ Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : sele
     }
 }
 
-void TriangleNode::addToVerticesAndTexCoords()
+void TriangleNode::addToVertices()
 {
     for (int i = 0; i < 3; i++)
     {
         if (data._vertices[i])
             data._vertices[i]->addTriangle(this);
     }
-    
+}
+
+void TriangleNode::addToTexCoords()
+{
     for (int i = 0; i < 3; i++)
     {
         if (data._texCoords[i])
@@ -56,7 +59,7 @@ void TriangleNode::addToVerticesAndTexCoords()
     }
 }
 
-void TriangleNode::removeFromVerticesAndTexCoords()
+void TriangleNode::removeFromVertices()
 {
     for (int i = 0; i < 3; i++)
     {
@@ -66,7 +69,10 @@ void TriangleNode::removeFromVerticesAndTexCoords()
             data._vertices[i] = NULL;
         }
     }
-    
+}
+
+void TriangleNode::removeFromTexCoords()
+{
     for (int i = 0; i < 3; i++)
     {
         if (data._texCoords[i])
@@ -106,6 +112,19 @@ void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVerte
         {
             data._vertices[i] = newVertex;
             newVertex->addTriangle(this);
+            break;
+        }
+    }
+}
+
+void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (data._texCoords[i] == currentTexCoord)
+        {
+            data._texCoords[i] = newTexCoord;
+            newTexCoord->addTriangle(this);
             break;
         }
     }
