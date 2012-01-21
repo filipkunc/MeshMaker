@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 19.06.11.
-//  Copyright 2011 Filip Kunc. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #pragma once
@@ -52,6 +52,12 @@ struct GLEdgeTexCoord
 {
     Point2D position;
     Point3D color;
+};
+
+struct FillMode
+{
+    bool colored;
+    bool textured;
 };
 
 class Mesh2
@@ -149,15 +155,15 @@ public:
     void resetEdgeCache();
     void fillEdgeCache();
     
-    void drawColoredFill(bool colored, ViewMode mode);
-    void draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection);
+    void drawFill(FillMode fillMode, ViewMode viewMode);
+    void draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection);
 
-    void drawAtIndex(uint index, bool forSelection, ViewMode mode);
-    void drawAll(ViewMode mode, bool forSelection);
+    void drawAtIndex(uint index, bool forSelection, ViewMode viewMode);
+    void drawAll(ViewMode viewMode, bool forSelection);
     
-    void drawAllVertices(ViewMode mode, bool forSelection);
-    void drawAllTriangles(ViewMode mode, bool forSelection);
-    void drawAllEdges(ViewMode mode, bool forSelection);
+    void drawAllVertices(ViewMode viewMode, bool forSelection);
+    void drawAllTriangles(ViewMode viewMode, bool forSelection);
+    void drawAllEdges(ViewMode viewMode, bool forSelection);
     
     // make
     

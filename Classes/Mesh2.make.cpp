@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 19.06.11.
-//  Copyright 2011 Filip Kunc. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #include "Mesh2.h"
