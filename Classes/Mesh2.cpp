@@ -316,27 +316,12 @@ void Mesh2::fastMergeSelectedVertices()
     }    
 }
 
-void Mesh2::removeDegeneratedTrianglesAndEdges()
-{
-    removeDegeneratedTriangles();
-    removeDegeneratedEdges();    
-}
-
 void Mesh2::removeDegeneratedTriangles()
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         if (node->data.isDegenerated())
             _triangles.remove(node);
-    }
-}
-
-void Mesh2::removeDegeneratedEdges()
-{
-    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
-    {
-        if (node->data.isDegenerated())
-            _vertexEdges.remove(node);
     }
 }
 
@@ -351,15 +336,27 @@ void Mesh2::removeNonUsedVertices()
     }
 }
 
+void Mesh2::removeNonUsedTexCoords()
+{
+    resetTriangleCache();
+    
+    for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
+    {
+        if (!node->isUsed())
+            _texCoords.remove(node);
+    }
+}
+
 void Mesh2::mergeSelectedVertices()
 {
     resetTriangleCache();
     
     fastMergeSelectedVertices();
-    removeDegeneratedTrianglesAndEdges();
+    removeDegeneratedTriangles();
     removeNonUsedVertices();
+    removeNonUsedTexCoords();
     
-    makeEdges(); // TODO: Boundary edges causes problems?
+    makeEdges();
     
     setSelectionMode(_selectionMode);
 }
@@ -374,8 +371,11 @@ void Mesh2::removeSelectedVertices()
             _vertices.remove(node);
     }
     
-    removeDegeneratedTrianglesAndEdges();
+    removeDegeneratedTriangles();
     removeNonUsedVertices();
+    removeNonUsedTexCoords();
+    
+    makeEdges();
     
     setSelectionMode(_selectionMode);
 }
@@ -390,8 +390,10 @@ void Mesh2::removeSelectedTriangles()
             _triangles.remove(node);
     }
     
-    removeDegeneratedEdges();
     removeNonUsedVertices();
+    removeNonUsedTexCoords();
+    
+    makeEdges();
     
     setSelectionMode(_selectionMode);
 }
@@ -406,8 +408,11 @@ void Mesh2::removeSelectedEdges()
             _vertexEdges.remove(node);
     }
     
-    removeDegeneratedTrianglesAndEdges();
+    removeDegeneratedTriangles();
     removeNonUsedVertices();
+    removeNonUsedTexCoords();
+
+    makeEdges();
     
     setSelectionMode(_selectionMode);
 }
