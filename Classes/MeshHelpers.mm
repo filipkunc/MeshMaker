@@ -9,7 +9,7 @@
 
 #import "MeshHelpers.h"
 
-void AddTriangle(vector<Triangle> &triangles, int index1, int index2, int index3)
+void AddTriangle(vector<Triangle> &triangles, uint index1, uint index2, uint index3)
 {
     Triangle triangle;
     
@@ -20,7 +20,20 @@ void AddTriangle(vector<Triangle> &triangles, int index1, int index2, int index3
     triangles.push_back(triangle);
 }
 
-void AddQuad(vector<Triangle> &triangles, int index1, int index2, int index3, int index4)
+void AddTriangle(vector<Triangle> &triangles, uint vertexIndices[3], uint texCoordIndices[3])
+{
+    Triangle triangle;
+    
+    for (int i = 0; i < 3; i++)
+    {
+        triangle.vertexIndices[i] = vertexIndices[i];
+        triangle.texCoordIndices[i] = texCoordIndices[i];
+    }
+    
+    triangles.push_back(triangle);
+}
+
+void AddQuad(vector<Triangle> &triangles, uint index1, uint index2, uint index3, uint index4)
 {
     Triangle triangle1, triangle2;
 	triangle1.vertexIndices[0] = index1;

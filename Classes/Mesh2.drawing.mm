@@ -259,35 +259,8 @@ void Mesh2::drawColoredFill(bool colored, ViewMode mode)
     glDisableClientState(GL_VERTEX_ARRAY);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDisable(GL_TEXTURE_2D);
-    
-	/*glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	if (colored)
-	{
-		glEnableClientState(GL_COLOR_ARRAY);
-		float *colorPtr = (float *)&_cachedTriangleVertices[0].color;
-		glColorPointer(3, GL_FLOAT, sizeof(GLVertex), colorPtr);
-	}
-	
-	float *vertexPtr = (float *)&_cachedTriangleVertices[0].position;
-	float *normalPtr;
-    
-    if (useVertexNormals)
-        normalPtr = (float *)&_cachedTriangleVertices[0].smoothNormal;
-    else
-        normalPtr = (float *)&_cachedTriangleVertices[0].flatNormal;
-	
-	glNormalPointer(GL_FLOAT, sizeof(GLVertex), normalPtr);
-	glVertexPointer(3, GL_FLOAT, sizeof(GLVertex), vertexPtr);
-	
-	glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
-	
-	if (colored)
-		glDisableClientState(GL_COLOR_ARRAY);
-    
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);*/
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D); 
 }
 
 void Mesh2::draw(ViewMode mode, const Vector3D &scale, bool selected, bool forSelection)

@@ -16,5 +16,6 @@
 #include "VertexEdge.h"
 #include "TexCoordEdge.h"
 
-void AddTriangle(vector<Triangle> &triangles, int index1, int index2, int index3);
-void AddQuad(vector<Triangle> &triangles, int index1, int index2, int index3, int index4);
+void AddTriangle(vector<Triangle> &triangles, uint index1, uint index2, uint index3);
+void AddTriangle(vector<Triangle> &triangles, uint vertexIndices[3], uint texCoordIndices[3]);
+void AddQuad(vector<Triangle> &triangles, uint index1, uint index2, uint index3, uint index4);

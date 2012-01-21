@@ -777,6 +777,9 @@ vector<T> *ReadValues(string s)
     string positionsString = mesh->first_node("source")->first_node("float_array")->value();
     vector<float> *points = ReadValues<float>(positionsString);
     
+    string uvCoordsString = mesh->first_node("source")->next_sibling()->next_sibling()->next_sibling()->first_node("float_array")->value();
+    vector<float> *uvCoords = ReadValues<float>(uvCoordsString);
+    
     xml_node< > *triNode = mesh->first_node("source")->next_sibling("triangles")->first_node();
     
     int inputTypesCount = 0;
@@ -804,7 +807,7 @@ vector<T> *ReadValues(string s)
     Mesh *itemMesh = [item mesh];
     
     vector<Vector3D> vertices;
-    vector<Vector2D> texCoords; // TODO: Needs fill with UV coordinates
+    vector<Vector2D> texCoords;
     vector<Triangle> triangles;
     
     for (uint i = 0; i < points->size(); i += 3)
@@ -815,15 +818,30 @@ vector<T> *ReadValues(string s)
 
         vertices.push_back(point);
     }
+    
+    for (uint i = 0; i < uvCoords->size(); i += 2)
+    {
+        Vector2D uvCoord;
+        for (uint j = 0; j < 2; j++)
+            uvCoord[j] = (*uvCoords)[i + j];
+        
+        texCoords.push_back(uvCoord);
+    }
 
     vector<uint> &trianglesRef = *indices;
     
     for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
     {
-        uint vertexIdx1 = trianglesRef[i];
-        uint vertexIdx2 = trianglesRef[i + inputTypesCount];
-        uint vertexIdx3 = trianglesRef[i + inputTypesCount * 2];
-        AddTriangle(triangles, vertexIdx3, vertexIdx2, vertexIdx1);
+        uint vertexIndices[3];
+        uint texCoordIndices[3];
+        
+        for (uint j = 0; j < 3; j++)
+        {
+            vertexIndices[j] = trianglesRef[i + j * inputTypesCount];
+            texCoordIndices[j] = trianglesRef[i + j * inputTypesCount + 3];
+        }
+                
+        AddTriangle(triangles, vertexIndices, texCoordIndices);
     }
 
     itemMesh->mesh->fromIndexRepresentation(vertices, texCoords, triangles);
@@ -835,6 +853,7 @@ vector<T> *ReadValues(string s)
     [self setManipulated:itemsController];
 
     delete points;
+    delete uvCoords;
     delete indices;
     delete [] textBuffer;
     
