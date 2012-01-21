@@ -2,7 +2,7 @@
 
 ## License
 
-This project is under MIT license. You find it in file "LICENSE.TXT". OpenGL Editor contains [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski. RapidXml which is also under [MIT license](http://rapidxml.sourceforge.net/license.txt).
+This project is under MIT license. You find it in file "LICENSE.TXT". OpenGL Editor contains [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski. RapidXml parser is also under [MIT license](http://rapidxml.sourceforge.net/license.txt).
 
 ## About
 
