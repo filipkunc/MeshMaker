@@ -15,6 +15,7 @@
 #import "Shader.h"
 #import "ShaderProgram.h"
 #import "Mesh.h"
+#import "FPTexture.h"
 
 @class OpenGLSceneView;
 
@@ -31,7 +32,8 @@
 	id<OpenGLManipulating> __weak displayed;
 	id<OpenGLManipulating> __weak manipulated;
 	id<OpenGLSceneViewDelegate> __weak delegate;
-	
+
+    NSString *debugString;
 	Vector3D *selectionOffset;
 	Camera *camera;
 	Vector2D *perspectiveRadians;

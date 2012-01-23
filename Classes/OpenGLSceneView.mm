@@ -245,7 +245,7 @@ NSOpenGLContext *globalGLContext = nil;
 	}
 	else 
 	{
-		gluPerspective(perspectiveAngle, w_h, minDistance, maxDistance);
+		gluPerspective(perspectiveAngle, w_h, minDistance, maxDistance);        
 	}
 }
 
@@ -337,11 +337,20 @@ NSOpenGLContext *globalGLContext = nil;
 	if ([manipulated selectedCount] > 0)
 	{
 		[currentManipulator setPosition:[manipulated selectionCenter]];
-		
+        
 		if (cameraMode == CameraModePerspective)
-			[currentManipulator setSize:camera->GetPosition().Distance([currentManipulator position]) * 0.15f];
+        {
+            Vector3D manipulatorPosition = [manipulated selectionCenter];
+            Vector3D cameraPosition = camera->GetCenter() + camera->GetAxisZ() * camera->GetZoom();
+            
+            float distance = cameraPosition.Distance(manipulatorPosition);
+
+            [currentManipulator setSize:distance * 0.15f];            
+        }
 		else
+        {
 			[currentManipulator setSize:camera->GetZoom() * 0.17f];
+        }
 		
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
 		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
@@ -389,8 +398,15 @@ NSOpenGLContext *globalGLContext = nil;
 	
 	[self drawOrthoDefaultManipulator];
 	[self drawSelectionRect];
-    	
-	glEnable(GL_DEPTH_TEST);
+    
+    if (debugString)
+    {
+        [self beginOrtho];
+        [FPTexture drawString:debugString atPoint:CGPointMake(5.0f, [self bounds].size.height)];
+        [self endOrtho];
+    }
+    
+    glEnable(GL_DEPTH_TEST);
 		
 	[[self openGLContext] flushBuffer];
 }

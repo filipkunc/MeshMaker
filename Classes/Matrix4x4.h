@@ -60,6 +60,10 @@ public:
 	Matrix4x4 Inverse() const;
 	Matrix4x4 Transpose() const;
     Vector3D Transform(const Vector3D &v) const;
+    Vector4D Transform(const Vector4D & v) const;
+    
+    void Frustum(float l, float r, float b, float t, float n, float f);
+    void Perspective(float fovy, float aspect, float n, float f);
 };
 
 float Det2x2(float a1, float a2, float b1, float b2);

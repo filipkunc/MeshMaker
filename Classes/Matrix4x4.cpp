@@ -337,6 +337,54 @@ Vector3D Matrix4x4::Transform(const Vector3D & v) const
     return t;
 }
 
+Vector4D Matrix4x4::Transform(const Vector4D & v) const
+{
+    Vector4D t;
+    
+	t.x = v.x * m[0] + v.y * m[4] + v.z * m[8] + v.w * m[12];
+    t.y = v.x * m[1] + v.y * m[5] + v.z * m[9] + v.w * m[13];
+    t.z = v.x * m[2] + v.y * m[6] + v.z * m[10] + v.w * m[14];
+    t.w = v.x * m[3] + v.y * m[7] + v.z * m[11] + v.w * m[15];
+    
+    return t;
+}
+
+
+void Matrix4x4::Frustum(float l, float r, float b, float t, float n, float f)
+{
+    m[0] = (2.0f * n) / (r - l);
+    m[1] = 0.0;
+	m[2] = 0.0;
+    m[3] = 0.0;
+    
+    m[4] = 0.0;
+    m[5] = (2.0f * n) / (t - b);
+    m[6] = 0.0;
+    m[7] = 0.0;
+    
+	m[8] = (r + l) / (r - l);
+    m[9] = (t + b) / (t - b);
+    m[10] = -(f + n) / (f - n);
+    m[11] = -1.0f;
+    
+	m[12] = 0.0;
+    m[13] = 0.0;
+    m[14] = -(2.0f * f * n) / (f - n);
+    m[15] = 0.0;
+}
+
+void Matrix4x4::Perspective(float fovy, float aspect, float n, float f)
+{
+    float xmin, xmax, ymin, ymax;
+    
+    ymax = n * tanf(fovy * DEG_TO_RAD * 0.5f);
+    ymin = -ymax;
+    
+    xmin = ymin * aspect;
+    xmax = ymax * aspect;
+    
+    Frustum(xmin, xmax, ymin, ymax, n, f);
+}
 
 float Det2x2(float a1, float a2, float b1, float b2)
 {

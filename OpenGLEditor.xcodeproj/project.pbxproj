@@ -74,6 +74,7 @@
 		A7A4874013AE2ECA00C0C41B /* Mesh2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */; };
+		A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 		A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684414B9FC200091B657 /* Vertex.cpp */; };
 		A7D0684714B9FCAF0091B657 /* TexCoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684614B9FCAF0091B657 /* TexCoord.cpp */; };
@@ -177,6 +178,8 @@
 		A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.make.cpp; path = Classes/Mesh2.make.cpp; sourceTree = "<group>"; };
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector4D.cpp; path = Classes/Vector4D.cpp; sourceTree = "<group>"; };
+		A7C692B514CDBFCC00180CA4 /* Vector4D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector4D.h; path = Classes/Vector4D.h; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
 		A7D0684414B9FC200091B657 /* Vertex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vertex.cpp; path = Classes/Vertex.cpp; sourceTree = "<group>"; };
 		A7D0684614B9FCAF0091B657 /* TexCoord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TexCoord.cpp; path = Classes/TexCoord.cpp; sourceTree = "<group>"; };
@@ -292,8 +295,16 @@
 				A7064C4B12BD107800B14CFA /* ManipulatorWidget.mm */,
 				A7064C4C12BD107800B14CFA /* MathDeclaration.h */,
 				A7064C4D12BD107800B14CFA /* MathForwardDeclaration.h */,
-				A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */,
 				A7064C4F12BD107800B14CFA /* Matrix4x4.h */,
+				A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */,
+				A7064C6A12BD107800B14CFA /* Vector2D.h */,
+				A7064C6912BD107800B14CFA /* Vector2D.cpp */,
+				A7064C6C12BD107800B14CFA /* Vector3D.h */,
+				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
+				A7C692B514CDBFCC00180CA4 /* Vector4D.h */,
+				A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */,
+				A7064C6412BD107800B14CFA /* Quaternion.h */,
+				A7064C6312BD107800B14CFA /* Quaternion.cpp */,
 				A7064C5012BD107800B14CFA /* Mesh.h */,
 				A7064C5112BD107800B14CFA /* Mesh.mm */,
 				A7A4874113AE2EF100C0C41B /* Mesh2.h */,
@@ -313,16 +324,10 @@
 				A7064C6012BD107800B14CFA /* OpenGLSceneView.h */,
 				A7064C6112BD107800B14CFA /* OpenGLSceneView.mm */,
 				A7064C6212BD107800B14CFA /* OpenGLSelecting.h */,
-				A7064C6312BD107800B14CFA /* Quaternion.cpp */,
-				A7064C6412BD107800B14CFA /* Quaternion.h */,
 				A7064C6512BD107800B14CFA /* Shader.h */,
 				A7064C6612BD107800B14CFA /* Shader.mm */,
 				A7064C6712BD107800B14CFA /* ShaderProgram.h */,
 				A7064C6812BD107800B14CFA /* ShaderProgram.mm */,
-				A7064C6912BD107800B14CFA /* Vector2D.cpp */,
-				A7064C6A12BD107800B14CFA /* Vector2D.h */,
-				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
-				A7064C6C12BD107800B14CFA /* Vector3D.h */,
 				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
 				A7064C5412BD107800B14CFA /* MeshHelpers.mm */,
 				A7D0684E14B9FF300091B657 /* MeshForwardDeclaration.h */,
@@ -571,6 +576,7 @@
 				A7D0684914B9FD350091B657 /* Triangle.cpp in Sources */,
 				A7D0684B14B9FE500091B657 /* VertexEdge.cpp in Sources */,
 				A7D0685414BA2A100091B657 /* TexCoordEdge.cpp in Sources */,
+				A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

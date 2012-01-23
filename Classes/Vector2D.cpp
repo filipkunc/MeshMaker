@@ -10,7 +10,8 @@
 
 Vector2D::Vector2D()
 {
-	x = y = 0.0f;
+	x = 0.0f;
+    y = 0.0f;
 }
 
 Vector2D::Vector2D(const float * v)

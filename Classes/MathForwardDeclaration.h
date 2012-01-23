@@ -15,9 +15,9 @@
 
 class Vector2D;
 class Vector3D;
+class Vector4D;
 class Quaternion;
 class Matrix4x4;
-class Plane;
 
 const double DOUBLE_PI = 3.14159265358979323846264338327950288419716939937510582;
 const float FLOAT_PI = 3.14159265358979323846264338327950288419716939937510582f;

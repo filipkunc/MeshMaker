@@ -44,28 +44,75 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 
 @synthesize textureID, width, height;
 
-- (id)initWithFile:(NSString *)fileName convertToAlpha:(BOOL)convertToAlpha
+- (id)initWithImage:(NSImage *)image convertToAlpha:(BOOL)convertToAlpha
 {
-	self = [super init];
+    self = [super init];
 	if (self)
 	{
-		NSImage *image = [NSImage imageNamed:fileName];
 		width = [image size].width;
 		height = [image size].height;
-		
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &textureID);
-		glBindTexture(GL_TEXTURE_2D, textureID);
 		
 		NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
 		GLubyte *data = [bitmap bitmapData];
 		NSInteger bitsPerPixel = [bitmap bitsPerPixel];
 		int components = bitsPerPixel / 8;
-		 
+        
 		CreateTexture(data, components, &textureID, width, height, convertToAlpha);
 		return self;
 	}
 	return nil;	
+}
+
+- (id)initWithFile:(NSString *)fileName convertToAlpha:(BOOL)convertToAlpha
+{
+    return [self initWithImage:[NSImage imageNamed:fileName] convertToAlpha:convertToAlpha];
+}
+
+- (void)dealloc
+{
+    glDeleteTextures(1, &textureID);
+}
+
+struct FPVertex
+{
+	float x, y;
+	float s, t;
+};
+
+- (void)drawAtPoint:(CGPoint)pt
+{
+    const FPVertex vertices[] = 
+	{
+		{ pt.x,			pt.y,	0, 0, }, // 0
+		{ pt.x + width, pt.y,	1, 0, }, // 1
+		{ pt.x,			pt.y - height,	0, 1, }, // 2
+		{ pt.x + width, pt.y - height, 	1, 1, }, // 3
+	};
+    
+    glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, sizeof(FPVertex), &vertices->x);	
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(FPVertex), &vertices->s);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_TEXTURE_2D);
+}
+
++ (void)drawString:(NSString *)string atPoint:(CGPoint)point
+{
+    CGSize frameSize = CGSizeMake(256.0f, 128.0f);
+    NSImage *image = [[NSImage alloc] initWithSize:frameSize];
+
+    [image lockFocus];        
+    [[NSColor blackColor] set];
+    [string drawAtPoint:NSMakePoint(0.0f, 0.0f) withAttributes:nil];
+    [image unlockFocus];
+    
+    FPTexture *stringTexture = [[FPTexture alloc] initWithImage:image convertToAlpha:NO];    
+    [stringTexture drawAtPoint:point];
 }
 
 @end
