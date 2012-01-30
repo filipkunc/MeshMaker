@@ -71,3 +71,19 @@ TexCoordEdgeNode *TexCoordNode::sharedEdge(TexCoordNode *otherTexCoord)
     return NULL;
 }
 
+void TexCoordNode::replaceTexCoord(TexCoordNode *newVertex)
+{
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        node->data->replaceTexCoord(this, newVertex);
+    }
+    
+    for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+    {
+        node->data->replaceTexCoord(this, newVertex);
+    }
+    
+    _triangles.removeAll();
+    _edges.removeAll();
+}
+

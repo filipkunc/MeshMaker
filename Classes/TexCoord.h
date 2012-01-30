@@ -44,5 +44,5 @@ public:
     void removeEdges();
     void removeFromEdges(); 
     TexCoordEdgeNode *sharedEdge(TexCoordNode *otherTexCoord);
-    
+    void replaceTexCoord(TexCoordNode *newVertex);    
 };

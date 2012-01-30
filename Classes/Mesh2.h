@@ -93,6 +93,7 @@ private:
     
 private:
     void fastMergeSelectedVertices();
+    void fastMergeSelectedTexCoords();
     void removeDegeneratedTriangles();
     void removeNonUsedVertices();
     void removeNonUsedTexCoords();

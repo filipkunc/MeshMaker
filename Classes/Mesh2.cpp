@@ -316,6 +316,34 @@ void Mesh2::fastMergeSelectedVertices()
     }    
 }
 
+void Mesh2::fastMergeSelectedTexCoords()
+{
+    Vector2D center = Vector2D();
+    
+    SimpleList<TexCoordNode *> selectedNodes;
+    
+    for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
+    {
+        if (node->data.selected)
+        {
+            selectedNodes.add(node);
+            center += node->data.position;
+        }
+    }
+    
+    if (selectedNodes.count() < 2)
+        return;
+    
+    center /= (float)selectedNodes.count();
+    
+    TexCoordNode *centerNode = _texCoords.add(center);
+    
+    for (SimpleNode<TexCoordNode *> *node = selectedNodes.begin(), *end = selectedNodes.end(); node != end; node = node->next())
+    {
+        node->data->replaceTexCoord(centerNode);
+    }
+}
+
 void Mesh2::removeDegeneratedTriangles()
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -351,7 +379,11 @@ void Mesh2::mergeSelectedVertices()
 {
     resetTriangleCache();
     
-    fastMergeSelectedVertices();
+    if (_isUnwrapped)
+        fastMergeSelectedTexCoords();
+    else
+        fastMergeSelectedVertices();
+    
     removeDegeneratedTriangles();
     removeNonUsedVertices();
     removeNonUsedTexCoords();
