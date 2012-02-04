@@ -609,6 +609,34 @@ void Mesh2::loopSubdivision()
     setSelectionMode(_selectionMode);    
 }
 
+void Mesh2::splitSelectedVertices()
+{
+    resetTriangleCache();
+    
+    for (VertexNode *vertexNode = _vertices.begin(), *vertexEnd = _vertices.end(); vertexNode != vertexEnd; vertexNode = vertexNode->next())
+    {
+        if (!vertexNode->data.selected)
+            continue;
+        
+        vertexNode->data.selected = false;
+        
+        for (SimpleNode<TriangleNode *> 
+             *triangleNode = vertexNode->_triangles.begin(), 
+             *triangleEnd = vertexNode->_triangles.end(); 
+             triangleNode != triangleEnd; 
+             triangleNode = triangleNode->next())
+        {
+            triangleNode->data->replaceVertex(vertexNode, _vertices.add(vertexNode->data));
+        }
+        
+        _vertices.remove(vertexNode);
+    }
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::splitSelectedTriangles()
 {
     resetTriangleCache();
@@ -745,6 +773,9 @@ void Mesh2::splitSelected()
 {
     switch (_selectionMode)
     {
+        case MeshSelectionModeVertices:
+            splitSelectedVertices();
+            break;
         case MeshSelectionModeTriangles:
             splitSelectedTriangles();
             break;

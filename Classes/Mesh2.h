@@ -101,6 +101,7 @@ private:
     void removeSelectedVertices();
     void removeSelectedTriangles();
     void removeSelectedEdges();
+    void splitSelectedVertices();
     void splitSelectedTriangles();
     void splitSelectedEdges();
     void flipSelectedTriangles();
