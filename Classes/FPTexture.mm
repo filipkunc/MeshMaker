@@ -81,12 +81,15 @@ struct FPVertex
 
 - (void)drawAtPoint:(CGPoint)pt
 {
+    float x = (float)pt.x;
+    float y = (float)pt.y;
+    
     const FPVertex vertices[] = 
 	{
-		{ pt.x,			pt.y,	0, 0, }, // 0
-		{ pt.x + width, pt.y,	1, 0, }, // 1
-		{ pt.x,			pt.y - height,	0, 1, }, // 2
-		{ pt.x + width, pt.y - height, 	1, 1, }, // 3
+		{ x,         y,             0, 0, }, // 0
+		{ x + width, y,             1, 0, }, // 1
+		{ x,		 y - height,	0, 1, }, // 2
+		{ x + width, y - height, 	1, 1, }, // 3
 	};
     
     glEnable(GL_TEXTURE_2D);
