@@ -171,7 +171,7 @@ public:
     void drawAllTriangles(ViewMode viewMode, bool forSelection);
     void drawAllEdges(ViewMode viewMode, bool forSelection);
     
-    void paintOnTexture(const Camera &camera, FPTexture *texture);
+    void paintOnTexture(const Vector3D &origin, const Vector3D &direction, FPTexture *texture);
     
     // make
     

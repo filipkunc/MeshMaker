@@ -630,11 +630,8 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
     }
 }
 
-void Mesh2::paintOnTexture(const Camera &camera, FPTexture *texture)
+void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction, FPTexture *texture)
 {
-    Vector3D origin = camera.GetCenter() + camera.GetAxisZ() * camera.GetZoom();
-    Vector3D direction = -camera.GetAxisZ();
-    
     float u = 0.0f;
     float v = 0.0f;
     Vector3D intersect = Vector3D();

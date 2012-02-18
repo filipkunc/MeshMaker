@@ -438,21 +438,30 @@ NSOpenGLContext *globalGLContext = nil;
     OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
     if ([[controller model] isKindOfClass:[Mesh class]])
     {
-        NSRect bounds = [self bounds];
-        float w = bounds.size.width;
-        float h = bounds.size.height;
-        float sensitivity = (w + h) / 2.0f;
-        sensitivity = 1.0f / sensitivity;
+        int viewport[4];
+        double modelview[16];
+        double projection[16];
+        float winX, winY, winZ;
+        double posX = 0.0, posY = 0.0, posZ = 0.0;
         
-        Camera rotatedCamera = Camera(*camera);
-        float deltaX = w / 2.0f - point.x;
-        float deltaY = h / 2.0f - point.y;
+        [[self openGLContext] makeCurrentContext];
         
-        rotatedCamera.LeftRight(deltaX * rotatedCamera.GetZoom() * sensitivity);
-        rotatedCamera.UpDown(-deltaY * rotatedCamera.GetZoom() * sensitivity);
+        glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+        glGetDoublev(GL_PROJECTION_MATRIX, projection);
+        glGetIntegerv(GL_VIEWPORT, viewport);
         
+        winX = point.x;
+        winY = point.y;
+        winZ = minDistance;
+        gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+        
+        Vector3D unprojectedPosition = Vector3D((float)posX, (float)posY, (float)posZ);
+        
+        Vector3D origin = camera->GetCenter() + camera->GetAxisZ() * camera->GetZoom();
+        Vector3D direction = unprojectedPosition - origin;
+
         Mesh *m = (Mesh *)[controller model];
-        m->mesh->paintOnTexture(rotatedCamera, nil);
+        m->mesh->paintOnTexture(origin, direction, nil);
         [self setNeedsDisplay:YES];
     }
 }
@@ -628,8 +637,9 @@ NSOpenGLContext *globalGLContext = nil;
 		float h = bounds.size.height;
 		float sensitivity = (w + h) / 2.0f;
 		sensitivity = 1.0f / sensitivity;
-		camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
-		camera->UpDown(deltaY * camera->GetZoom() * sensitivity);
+        sensitivity *= camera->GetZoom() * 1.12f;
+		camera->LeftRight(-deltaX * sensitivity);
+		camera->UpDown(deltaY * sensitivity);
 		
 		lastPoint = currentPoint;
 		[self setNeedsDisplay:YES];
