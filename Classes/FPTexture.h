@@ -12,6 +12,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 
 @interface FPTexture : NSObject 
 {
+    NSImage *_image;
 	GLuint textureID;
 	int width;
 	int height;
@@ -20,10 +21,12 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 @property (readonly, assign) GLuint textureID;
 @property (readonly, assign) int width;
 @property (readonly, assign) int height;
+@property (readonly) NSImage *canvas;
 
 - (id)initWithImage:(NSImage *)image convertToAlpha:(BOOL)convertToAlpha;
 - (id)initWithFile:(NSString *)fileName convertToAlpha:(BOOL)convertToAlpha;
 - (void)drawAtPoint:(CGPoint)point;
+- (void)updateTexture;
 + (void)drawString:(NSString *)string atPoint:(CGPoint)point;
 
 @end

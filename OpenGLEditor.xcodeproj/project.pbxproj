@@ -71,9 +71,9 @@
 		A787CC1913CF717500D2A1FC /* SphereTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1413CF717500D2A1FC /* SphereTemplate.png */; };
 		A787CC1A13CF717500D2A1FC /* TranslateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1513CF717500D2A1FC /* TranslateTemplate.png */; };
 		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
-		A7A4874013AE2ECA00C0C41B /* Mesh2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */; };
+		A7A4874013AE2ECA00C0C41B /* Mesh2.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
-		A7A4874713AE4EC300C0C41B /* Mesh2.make.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */; };
+		A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
 		A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 		A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684414B9FC200091B657 /* Vertex.cpp */; };
@@ -172,10 +172,10 @@
 		A787CC1413CF717500D2A1FC /* SphereTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SphereTemplate.png; sourceTree = "<group>"; };
 		A787CC1513CF717500D2A1FC /* TranslateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TranslateTemplate.png; sourceTree = "<group>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
-		A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = Mesh2.cpp; path = Classes/Mesh2.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; name = Mesh2.mm; path = Classes/Mesh2.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
 		A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.drawing.mm; path = Classes/Mesh2.drawing.mm; sourceTree = "<group>"; };
-		A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh2.make.cpp; path = Classes/Mesh2.make.cpp; sourceTree = "<group>"; };
+		A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.make.mm; path = Classes/Mesh2.make.mm; sourceTree = "<group>"; };
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector4D.cpp; path = Classes/Vector4D.cpp; sourceTree = "<group>"; };
@@ -308,9 +308,9 @@
 				A7064C5012BD107800B14CFA /* Mesh.h */,
 				A7064C5112BD107800B14CFA /* Mesh.mm */,
 				A7A4874113AE2EF100C0C41B /* Mesh2.h */,
-				A7A4873F13AE2ECA00C0C41B /* Mesh2.cpp */,
+				A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */,
 				A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */,
-				A7A4874613AE4EC300C0C41B /* Mesh2.make.cpp */,
+				A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */,
 				A7064C5212BD107800B14CFA /* MeshState.h */,
 				A7064C5312BD107800B14CFA /* MeshState.mm */,
 				A7064C5812BD107800B14CFA /* MyDocument.h */,
@@ -567,9 +567,9 @@
 				A7064C8012BD107800B14CFA /* ShaderProgram.mm in Sources */,
 				A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */,
 				A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */,
-				A7A4874013AE2ECA00C0C41B /* Mesh2.cpp in Sources */,
+				A7A4874013AE2ECA00C0C41B /* Mesh2.mm in Sources */,
 				A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */,
-				A7A4874713AE4EC300C0C41B /* Mesh2.make.cpp in Sources */,
+				A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */,
 				A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */,
 				A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */,
 				A7D0684714B9FCAF0091B657 /* TexCoord.cpp in Sources */,

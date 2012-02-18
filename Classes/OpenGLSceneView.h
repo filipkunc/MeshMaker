@@ -15,6 +15,7 @@
 #import "Shader.h"
 #import "ShaderProgram.h"
 #import "Mesh.h"
+#import "Mesh2.h"
 #import "FPTexture.h"
 
 @class OpenGLSceneView;
@@ -41,6 +42,7 @@
 	NSPoint currentPoint;
 	BOOL isManipulating;
 	BOOL isSelecting;
+    BOOL isPainting;
 	BOOL highlightCameraMode;
 	Manipulator *defaultManipulator;
 	Manipulator *translationManipulator;
@@ -81,6 +83,7 @@
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
          selectThrough:(BOOL)selectThrough;
 
+- (void)paintOnTextureWithMousePoint:(NSPoint)point;
 - (Vector3D)positionInSpaceByPoint:(NSPoint)point;
 - (void)drawSelectionPlaneWithIndex:(int)index;
 - (Vector3D)positionFromAxis:(Axis)axis point:(NSPoint)point;

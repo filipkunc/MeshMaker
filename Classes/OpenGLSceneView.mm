@@ -433,16 +433,48 @@ NSOpenGLContext *globalGLContext = nil;
 	[self addTrackingArea:trackingArea];
 }
 
+- (void)paintOnTextureWithMousePoint:(NSPoint)point
+{
+    OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
+    if ([[controller model] isKindOfClass:[Mesh class]])
+    {
+        NSRect bounds = [self bounds];
+        float w = bounds.size.width;
+        float h = bounds.size.height;
+        float sensitivity = (w + h) / 2.0f;
+        sensitivity = 1.0f / sensitivity;
+        
+        Camera rotatedCamera = Camera(*camera);
+        float deltaX = w / 2.0f - point.x;
+        float deltaY = h / 2.0f - point.y;
+        
+        rotatedCamera.LeftRight(deltaX * rotatedCamera.GetZoom() * sensitivity);
+        rotatedCamera.UpDown(-deltaY * rotatedCamera.GetZoom() * sensitivity);
+        
+        Mesh *m = (Mesh *)[controller model];
+        m->mesh->paintOnTexture(rotatedCamera, nil);
+        [self setNeedsDisplay:YES];
+    }
+}
+
 - (void)mouseDown:(NSEvent *)e
 {
 	lastPoint = [self locationFromNSEvent:e];
+    isPainting = NO;
+    
+    if ([e modifierFlags] & NSShiftKeyMask)
+    {
+        isPainting = YES;
+        [self paintOnTextureWithMousePoint:lastPoint];
+        return;
+    }
 	
 	if ([e modifierFlags] & NSAlternateKeyMask)
 	{
 		isManipulating = isSelecting = NO;
 		return;
-	}
-	
+	}    
+    	
 	if (highlightCameraMode)
 	{
 		switch (cameraMode)
@@ -532,6 +564,8 @@ NSOpenGLContext *globalGLContext = nil;
 
 - (void)mouseUp:(NSEvent *)e
 {
+    isPainting = NO;
+    
 	currentPoint = [self locationFromNSEvent:e];
 	if (isManipulating)
 	{
@@ -577,6 +611,12 @@ NSOpenGLContext *globalGLContext = nil;
 	currentPoint = [self locationFromNSEvent:e];
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
+    
+    if ([e modifierFlags] & NSShiftKeyMask)
+    {
+        [self paintOnTextureWithMousePoint:currentPoint];
+        return;
+    }
 	
 	NSUInteger flags = [e modifierFlags];
 	NSUInteger combinedFlags = NSAlternateKeyMask | NSCommandKeyMask;

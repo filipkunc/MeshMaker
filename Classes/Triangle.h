@@ -50,6 +50,8 @@ public:
     TexCoordEdgeNode *texCoordNotInEdge(const TexCoordEdge *edge) const;
     
     void computeNormal();
+    bool rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect);
+    void convertToPixelPositions(float &u, float &v);
     
     friend class TriangleNode;
 };

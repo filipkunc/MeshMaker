@@ -8,7 +8,11 @@
 
 #pragma once
 
+#import "OpenGLDrawing.h"
+#import "ShaderProgram.h"
+#import "FPTexture.h"
 #include "MeshHelpers.h"
+#include "Camera.h"
 
 struct ExtrudePair 
 {
@@ -166,6 +170,8 @@ public:
     void drawAllVertices(ViewMode viewMode, bool forSelection);
     void drawAllTriangles(ViewMode viewMode, bool forSelection);
     void drawAllEdges(ViewMode viewMode, bool forSelection);
+    
+    void paintOnTexture(const Camera &camera, FPTexture *texture);
     
     // make
     

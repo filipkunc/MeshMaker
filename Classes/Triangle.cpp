@@ -280,3 +280,53 @@ void Triangle2::computeNormal()
 	Vector3D v = _vertices[1]->data.position - _vertices[2]->data.position;
 	normal = u.Cross(v);    
 }
+
+bool Triangle2::rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect)
+{
+    Vector3D v0 = _vertices[0]->data.position;
+    Vector3D v1 = _vertices[1]->data.position;
+    Vector3D v2 = _vertices[2]->data.position; 
+    
+    Vector3D e1 = v1 - v0;
+    Vector3D e2 = v2 - v0;
+    Vector3D p = direction.Cross(e2);
+    float a = e1.Dot(p);
+    
+    if (fabsf(a) < FLOAT_EPS)
+        return false;
+    
+    float f = 1.0f / a;
+    
+    Vector3D s = origin - v0;
+    u = f * s.Dot(p);
+    if (u < 0.0f || u > 1.0f)
+        return false;
+    
+    Vector3D q = s.Cross(e1);
+    v = f * direction.Dot(q);
+    if (v < 0.0f || u + v > 1.0f)
+        return false;
+    
+    float t = f * e2.Dot(q);
+    if (t >= 0.0f)
+    {
+        intersect = v0 + e1 * u + e2 * v;
+        return true;
+    }
+    return false;
+}
+
+void Triangle2::convertToPixelPositions(float &u, float &v)
+{
+    Vector2D t0 = _texCoords[0]->data.position;
+    Vector2D t1 = _texCoords[1]->data.position;
+    Vector2D t2 = _texCoords[2]->data.position;    
+    
+    Vector2D e1 = t1 - t0;
+    Vector2D e2 = t2 - t0;
+   
+    Vector2D final = t0 + e1 * u + e2 * v;
+    
+    u = final.x;
+    v = final.y;
+}

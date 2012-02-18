@@ -17,6 +17,7 @@ private:
 	void ComputeVectors();
 public:
 	Camera();
+    Camera(const Camera &camera) = default;
 
 	Vector2D GetRadians() const;
 	void SetRadians(const Vector2D &newRadians);

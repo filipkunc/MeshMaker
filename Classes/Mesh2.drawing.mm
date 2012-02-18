@@ -7,9 +7,6 @@
 //
 
 #import "Mesh2.h"
-#import "OpenGLDrawing.h"
-#import "ShaderProgram.h"
-#import "FPTexture.h"
 
 FPTexture *checkerTexture = nil;
 
@@ -632,3 +629,74 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
             break;
     }
 }
+
+void Mesh2::paintOnTexture(const Camera &camera, FPTexture *texture)
+{
+    Vector3D origin = camera.GetCenter() + camera.GetAxisZ() * camera.GetZoom();
+    Vector3D direction = -camera.GetAxisZ();
+    
+    float u = 0.0f;
+    float v = 0.0f;
+    Vector3D intersect = Vector3D();
+    
+    TriangleNode *nearestNode = NULL;
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        float tempU = 0.0f;
+        float tempV = 0.0f;
+        Vector3D tempIntersect;
+        
+        //node->data.selected = false;
+        
+        if (node->data.rayIntersect(origin, direction, tempU, tempV, tempIntersect))
+        {
+            if (nearestNode == NULL || intersect.SqDistance(origin) > tempIntersect.SqDistance(origin))
+            {
+                nearestNode = node;
+                u = tempU;
+                v = tempV;
+                intersect = tempIntersect;
+            }            
+        }
+    }
+    
+    if (nearestNode)
+    {
+        /*nearestNode->data.selected = true;
+        resetTriangleCache();
+        setSelectionMode(selectionMode());*/
+        
+        nearestNode->data.convertToPixelPositions(u, v);
+        
+        texture = checkerTexture;
+        
+        while (u > 1.0f)
+            u -= 1.0f;
+        
+        while (u < 0.0f)
+            u += 1.0f;
+        
+        while (v > 1.0f)
+            v -= 1.0f;
+        
+        while (v < 0.0f)
+            v += 1.0f;
+        
+        u *= (float)[texture width];
+        v *= (float)[texture height];
+        
+        v = (float)[texture height] - v;
+        
+        [[texture canvas] lockFocus];
+        
+        [[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setFill];
+        
+        NSBezierPath *bezierPath = [NSBezierPath bezierPathWithOvalInRect:CGRectMake(u - 1.0f, v - 1.0f, 2.0f, 2.0f)];
+        [bezierPath fill];
+        
+        [[texture canvas] unlockFocus];
+        [texture updateTexture];
+    }
+}
+

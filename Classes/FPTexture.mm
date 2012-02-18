@@ -44,11 +44,17 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 
 @synthesize textureID, width, height;
 
+- (NSImage *)canvas
+{
+    return _image;
+}
+
 - (id)initWithImage:(NSImage *)image convertToAlpha:(BOOL)convertToAlpha
 {
     self = [super init];
 	if (self)
 	{
+        _image = [image copy];
 		width = [image size].width;
 		height = [image size].height;
 		
@@ -102,6 +108,16 @@ struct FPVertex
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisable(GL_TEXTURE_2D);
+}
+
+- (void)updateTexture
+{
+    NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[_image TIFFRepresentation]];
+    
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 + (void)drawString:(NSString *)string atPoint:(CGPoint)point
