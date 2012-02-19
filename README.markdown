@@ -24,10 +24,18 @@ And same chess tower after four or five Loop subdivision iterations.
 
 <img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
 
+### Texture painting
+
+Texturing is currently work in progress.
+
+<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="903px" height="667px"></img>
+
+
 ## Videos
 
  * [Chess tower modeling](http://youtu.be/57d63xcT21Y)
  * [Subdivision and soft selection](http://youtu.be/65whhpqHgO4)
+ * [Texture painting](http://youtu.be/nCdlcOvYr-c)
 
 ## Camera manipulation
 
