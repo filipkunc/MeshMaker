@@ -97,10 +97,9 @@ void Mesh2::fillTriangleCache()
             for (int k = 0; k < 3; k++)
             {
                 const Vector3D &n = currentTriangle.vertex(j)->normal;
-                const Vector2D &t = currentTriangle.texCoord(j)->data.position;
+                const Vector3D &t = currentTriangle.texCoord(j)->data.position;
                 _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
-                if (k < 2)
-                    _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = t[k];
+                _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = t[k];
             }
         }
         
@@ -202,7 +201,7 @@ void Mesh2::fillEdgeCache()
             }
         }
         
-        for (int k = 0; k < 2; k++)
+        for (int k = 0; k < 3; k++)
         {
             _cachedEdgeTexCoords[i].position.coords[k] = node->data.texCoord(0)->data.position[k];
             _cachedEdgeTexCoords[i + 1].position.coords[k] = node->data.texCoord(1)->data.position[k];
@@ -249,7 +248,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
         glTexCoordPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
     
     if (viewMode == ViewModeUnwrap)
-        glVertexPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
+        glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
     else
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
 
@@ -338,11 +337,12 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
             {
                 const TexCoord &texCoord = _cachedTexCoordSelection.at(index)->data;
                 selected = texCoord.selected;
-                v = Vector3D(texCoord.position.x, texCoord.position.y, 0.0f);
+                v = texCoord.position;
             }
             else
             {
                 const Vertex2 &vertex = _cachedVertexSelection.at(index)->data;
+                selected = vertex.selected;
                 v = vertex.position;
             }
             
@@ -427,7 +427,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             {
                 colorIndex++;
                 tempColors.push_back(colorIndex);
-                tempVertices.push_back(Vector3D(node->data.position.x, node->data.position.y, 0.0f));
+                tempVertices.push_back(node->data.position);
             }
         }
         else
@@ -471,7 +471,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 else
                     tempColors.push_back(normalColor);
                 
-                tempVertices.push_back(Vector3D(node->data.position.x, node->data.position.y, 0.0f));
+                tempVertices.push_back(node->data.position);
             }
         }
         else
@@ -565,7 +565,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         if (_isUnwrapped)
         {
             float *vertexPtr = (float *)&_cachedEdgeTexCoords[0].position;
-            glVertexPointer(2, GL_FLOAT, sizeof(GLEdgeTexCoord), vertexPtr);
+            glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeTexCoord), vertexPtr);
             
             glDrawArrays(GL_LINES, 0, _cachedEdgeTexCoords.count());
         }
@@ -591,7 +591,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
             glColorPointer(3, GL_FLOAT, sizeof(GLEdgeTexCoord), colorPtr);
             
             float *vertexPtr = (float *)&_cachedEdgeTexCoords[0].position;
-            glVertexPointer(2, GL_FLOAT, sizeof(GLEdgeTexCoord), vertexPtr);
+            glVertexPointer(3, GL_FLOAT, sizeof(GLEdgeTexCoord), vertexPtr);
             
             glDrawArrays(GL_LINES, 0, _cachedEdgeTexCoords.count());
         }

@@ -19,7 +19,7 @@
 	{
 		itemIndex = index;
 		vertices = new vector<Vector3D>();
-        texCoords = new vector<Vector2D>();
+        texCoords = new vector<Vector3D>();
 		triangles = new vector<Triangle>();
 		selection = new vector<bool>();
         

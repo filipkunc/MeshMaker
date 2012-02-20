@@ -43,7 +43,7 @@ struct GLTriangleVertex
     Point3D flatNormal;
     Point3D smoothNormal;
     Point3D color;
-    Point2D texCoord;
+    Point3D texCoord;
 };
 
 struct GLEdgeVertex
@@ -54,7 +54,7 @@ struct GLEdgeVertex
 
 struct GLEdgeTexCoord
 {
-    Point2D position;
+    Point3D position;
     Point3D color;
 };
 
@@ -186,8 +186,8 @@ public:
     void makeCylinder(uint steps);
     void makeSphere(uint steps);
     
-    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector2D> &texCoords, const vector<Triangle> &triangles);
-    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector2D> &texCoords, vector<Triangle> &triangles);
+    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<Triangle> &triangles);
+    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<Triangle> &triangles);
   
     void setSelection(const vector<bool> &selection);
     void getSelection(vector<bool> &selection);

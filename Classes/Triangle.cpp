@@ -318,14 +318,14 @@ bool Triangle2::rayIntersect(const Vector3D &origin, const Vector3D &direction, 
 
 void Triangle2::convertToPixelPositions(float &u, float &v)
 {
-    Vector2D t0 = _texCoords[0]->data.position;
-    Vector2D t1 = _texCoords[1]->data.position;
-    Vector2D t2 = _texCoords[2]->data.position;    
+    Vector3D t0 = _texCoords[0]->data.position;
+    Vector3D t1 = _texCoords[1]->data.position;
+    Vector3D t2 = _texCoords[2]->data.position;    
     
-    Vector2D e1 = t1 - t0;
-    Vector2D e2 = t2 - t0;
+    Vector3D e1 = t1 - t0;
+    Vector3D e2 = t2 - t0;
    
-    Vector2D final = t0 + e1 * u + e2 * v;
+    Vector3D final = t0 + e1 * u + e2 * v;
     
     u = final.x;
     v = final.y;

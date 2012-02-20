@@ -312,7 +312,7 @@
 		fin->read((char *)&trianglesSize, sizeof(uint));
         
         vector<Vector3D> vertices;
-        vector<Vector2D> texCoords;
+        vector<Vector3D> texCoords;
         vector<Triangle> triangles;
 		
 		for (uint i = 0; i < verticesSize; i++)
@@ -324,8 +324,8 @@
         
         for (uint i = 0; i < texCoordsSize; i++)
         {
-            Vector2D texCoord;
-            fin->read((char *)&texCoord, sizeof(Vector2D));
+            Vector3D texCoord;
+            fin->read((char *)&texCoord, sizeof(Vector3D));
             texCoords.push_back(texCoord);
         }
 		
@@ -344,7 +344,7 @@
 - (void)encodeWithFileStream:(ofstream *)fout
 {
     vector<Vector3D> vertices;
-    vector<Vector2D> texCoords;
+    vector<Vector3D> texCoords;
     vector<Triangle> triangles;
     
     mesh->toIndexRepresentation(vertices, texCoords, triangles);
@@ -360,7 +360,7 @@
 		fout->write((char *)&vertices.at(0), vertices.size() * sizeof(Vector3D));
     
     if (texCoords.size() > 0)
-		fout->write((char *)&texCoords.at(0), texCoords.size() * sizeof(Vector2D));
+		fout->write((char *)&texCoords.at(0), texCoords.size() * sizeof(Vector3D));
 	
 	if (triangles.size() > 0)
 		fout->write((char *)&triangles.at(0), triangles.size() * sizeof(Triangle));

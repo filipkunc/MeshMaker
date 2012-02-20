@@ -11,12 +11,12 @@
 class TexCoord
 {
 public:
-    Vector2D position;
+    Vector3D position;
     
     bool selected;
     
     TexCoord() : selected(false) { }
-    TexCoord(const Vector2D &v) : position(v), selected(false) { }
+    TexCoord(const Vector3D &v) : position(v), selected(false) { }
 };
 
 class TexCoordNode : public FPNode<TexCoordNode, TexCoord>

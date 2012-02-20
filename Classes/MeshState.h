@@ -14,7 +14,7 @@
 {
 	uint itemIndex;
 	vector<Vector3D> *vertices;
-    vector<Vector2D> *texCoords;
+    vector<Vector3D> *texCoords;
 	vector<Triangle> *triangles;
 	vector<bool> *selection;
 	enum MeshSelectionMode selectionMode;

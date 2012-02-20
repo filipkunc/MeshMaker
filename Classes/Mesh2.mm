@@ -208,8 +208,7 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
         {
             if (node->data.selected)
             {
-                center.x += node->data.position.x;
-                center.y += node->data.position.y;
+                center += node->data.position;
                 selectedCount++;
             }
         }
@@ -237,9 +236,8 @@ void Mesh2::transformAll(const Matrix4x4 &matrix)
     {
         for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
         {
-            Vector3D v = Vector3D(node->data.position.x, node->data.position.y, 0.0f);
+            Vector3D &v = node->data.position;
             v = matrix.Transform(v);
-            node->data.position = Vector2D(v.x, v.y);
         }
     }
     else
@@ -264,9 +262,8 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
         {
             if (node->data.selected)
             {
-                Vector3D v = Vector3D(node->data.position.x, node->data.position.y, 0.0f);
+                Vector3D &v = node->data.position;
                 v = matrix.Transform(v);
-                node->data.position = Vector2D(v.x, v.y);
             }
         }
     }
@@ -318,7 +315,7 @@ void Mesh2::fastMergeSelectedVertices()
 
 void Mesh2::fastMergeSelectedTexCoords()
 {
-    Vector2D center = Vector2D();
+    Vector3D center = Vector3D();
     
     SimpleList<TexCoordNode *> selectedNodes;
     
@@ -506,10 +503,10 @@ void Mesh2::halfEdges()
     
     for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
     {
-        Vector2D t1 = node->data.texCoord(0)->data.position;
-        Vector2D t2 = node->data.texCoord(1)->data.position;
+        Vector3D t1 = node->data.texCoord(0)->data.position;
+        Vector3D t2 = node->data.texCoord(1)->data.position;
         
-        Vector2D edgeTexCoord = (t1 + t2) / 2.0f;
+        Vector3D edgeTexCoord = (t1 + t2) / 2.0f;
         
         node->data.halfTexCoord = _texCoords.add(edgeTexCoord);
     }
@@ -688,10 +685,10 @@ void Mesh2::splitSelectedTriangles()
             
             if (edge.halfTexCoord == NULL)
             {
-                Vector2D t1 = edge.texCoord(0)->data.position;
-                Vector2D t2 = edge.texCoord(1)->data.position;
+                Vector3D t1 = edge.texCoord(0)->data.position;
+                Vector3D t2 = edge.texCoord(1)->data.position;
                 
-                Vector2D edgeTexCoord = (t1 + t2) / 2.0f;
+                Vector3D edgeTexCoord = (t1 + t2) / 2.0f;
                 
                 edge.halfTexCoord = _texCoords.add(edgeTexCoord);
             }
@@ -881,19 +878,19 @@ void Mesh2::extrudeSelectedTriangles()
 void Mesh2::merge(Mesh2 *mesh)
 {
     vector<Vector3D> thisVertices;
-    vector<Vector2D> thisTexCoords;
+    vector<Vector3D> thisTexCoords;
     vector<Triangle> thisTriangles;
     
     this->toIndexRepresentation(thisVertices, thisTexCoords, thisTriangles);
     
     vector<Vector3D> otherVertices;
-    vector<Vector2D> otherTexCoords;
+    vector<Vector3D> otherTexCoords;
     vector<Triangle> otherTriangles;
     
     mesh->toIndexRepresentation(otherVertices, otherTexCoords, otherTriangles);
     
     vector<Vector3D> mergedVertices;
-    vector<Vector2D> mergedTexCoords;
+    vector<Vector3D> mergedTexCoords;
     vector<Triangle> mergedTriangles;
     
     for (uint i = 0; i < thisVertices.size(); i++)

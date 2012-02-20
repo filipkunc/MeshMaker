@@ -10,9 +10,9 @@
 
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
-    TexCoordNode *t1 = _texCoords.add(Vector2D(0, 0));
-    TexCoordNode *t2 = _texCoords.add(Vector2D(0, 1));
-    TexCoordNode *t3 = _texCoords.add(Vector2D(1, 1));
+    TexCoordNode *t1 = _texCoords.add(v1->data.position);
+    TexCoordNode *t2 = _texCoords.add(v2->data.position);
+    TexCoordNode *t3 = _texCoords.add(v3->data.position);
     
     VertexNode *vertices[3] = { v1, v2, v3 };
     TexCoordNode *texCoords[3] = { t1, t2, t3 };
@@ -20,21 +20,12 @@ void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
     _triangles.add(Triangle2(vertices, texCoords));
 }
 
-static Vector2D quadOffset = Vector2D(0, 0);
-
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
-    TexCoordNode *t1 = _texCoords.add(Vector2D(0, 0) + quadOffset);
-    TexCoordNode *t2 = _texCoords.add(Vector2D(0, 1) + quadOffset);
-    TexCoordNode *t3 = _texCoords.add(Vector2D(1, 1) + quadOffset);
-    TexCoordNode *t4 = _texCoords.add(Vector2D(1, 0) + quadOffset);
-    
-    quadOffset.x+=2;
-    if (fmodf(quadOffset.x, 6.0f) == 0.0f)
-    {
-        quadOffset.y-=2;
-        quadOffset.x = 0.0f;
-    }
+    TexCoordNode *t1 = _texCoords.add(v1->data.position);
+    TexCoordNode *t2 = _texCoords.add(v2->data.position);
+    TexCoordNode *t3 = _texCoords.add(v3->data.position);
+    TexCoordNode *t4 = _texCoords.add(v4->data.position);
     
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
@@ -339,7 +330,7 @@ void Mesh2::makeSphere(uint steps)
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector2D> &texCoords, const vector<Triangle> &triangles)
+void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<Triangle> &triangles)
 {
     resetTriangleCache();
     _vertices.removeAll();
@@ -378,7 +369,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector2D> &texCoords, vector<Triangle> &triangles)
+void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<Triangle> &triangles)
 {
     int index = 0;
     

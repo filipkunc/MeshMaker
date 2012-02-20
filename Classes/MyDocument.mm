@@ -807,7 +807,7 @@ vector<T> *ReadValues(string s)
     Mesh *itemMesh = [item mesh];
     
     vector<Vector3D> vertices;
-    vector<Vector2D> texCoords;
+    vector<Vector3D> texCoords;
     vector<Triangle> triangles;
     
     for (uint i = 0; i < points->size(); i += 3)
@@ -821,7 +821,7 @@ vector<T> *ReadValues(string s)
     
     for (uint i = 0; i < uvCoords->size(); i += 2)
     {
-        Vector2D uvCoord;
+        Vector3D uvCoord;
         for (uint j = 0; j < 2; j++)
             uvCoord[j] = (*uvCoords)[i + j];
         
