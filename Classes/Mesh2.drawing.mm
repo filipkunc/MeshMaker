@@ -320,6 +320,11 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glDisable(GL_POLYGON_OFFSET_FILL);
             drawAllEdges(viewMode, forSelection);
         }        
+        
+        if (_isUnwrapped)
+        {
+            [checkerTexture drawForUnwrap];
+        }
 	}
 	glPopMatrix();
 }

@@ -85,6 +85,28 @@ struct FPVertex
 	float s, t;
 };
 
+- (void)drawForUnwrap
+{
+    const FPVertex vertices[] = 
+	{
+		{ 0, 0, 0, 0, }, // 0
+		{ 1, 0, 1, 0, }, // 1
+		{ 0, 1,	0, 1, }, // 2
+		{ 1, 1,	1, 1, }, // 3
+	};
+    
+    glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, sizeof(FPVertex), &vertices->x);	
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(FPVertex), &vertices->s);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_TEXTURE_2D);
+}
+
 - (void)drawAtPoint:(CGPoint)pt
 {
     float x = (float)pt.x;
