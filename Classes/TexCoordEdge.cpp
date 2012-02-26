@@ -92,8 +92,8 @@ void TexCoordEdgeNode::addToTexCoords()
 {
     for (int i = 0; i < 2; i++)
     {
-        if (data._texCoords[i])
-            data._texCoords[i]->addEdge(this);
+        if (data()._texCoords[i])
+            data()._texCoords[i]->addEdge(this);
     }
 }
 
@@ -101,10 +101,10 @@ void TexCoordEdgeNode::removeFromTexCoords()
 {
     for (int i = 0; i < 2; i++)
     {
-        if (data._texCoords[i])
+        if (data()._texCoords[i])
         {
-            data._texCoords[i]->removeEdge(this);
-            data._texCoords[i] = NULL;
+            data()._texCoords[i]->removeEdge(this);
+            data()._texCoords[i] = NULL;
         }
     }
 }
@@ -113,10 +113,10 @@ void TexCoordEdgeNode::removeFromTriangles()
 {
     for (int i = 0; i < 2; i++)
     {
-        if (data._triangles[i])
+        if (data()._triangles[i])
         {
-            data._triangles[i]->data.removeTexCoordEdge(this);
-            data._triangles[i] = NULL;
+            data()._triangles[i]->data().removeTexCoordEdge(this);
+            data()._triangles[i] = NULL;
         }
     }   
 }
@@ -149,9 +149,9 @@ void TexCoordEdgeNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNo
 {
     for (int i = 0; i < 2; i++)
     {
-        if (data._texCoords[i] == currentTexCoord)
+        if (data()._texCoords[i] == currentTexCoord)
         {
-            data._texCoords[i] = newTexCoord;
+            data()._texCoords[i] = newTexCoord;
             newTexCoord->addEdge(this);
             break;
         }
@@ -162,7 +162,7 @@ bool TexCoordEdge::isNotShared() const
 {
     for (int i = 0; i < 2; i++)
     {
-        if (_triangles[i] == NULL || !_triangles[i]->data.selected)
+        if (_triangles[i] == NULL || !_triangles[i]->data().selected)
             return true;
     }
     return false;    

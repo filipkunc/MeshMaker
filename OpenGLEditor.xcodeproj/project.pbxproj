@@ -63,6 +63,17 @@
 		A746513312BD1D000030EEB0 /* ManipulatorWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4B12BD107800B14CFA /* ManipulatorWidget.mm */; };
 		A746513612BD1D000030EEB0 /* OpenGLDrawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5A12BD107800B14CFA /* OpenGLDrawing.mm */; };
 		A746513A12BD1D000030EEB0 /* OpenGLManipulatingController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */; };
+		A74BF5A714FA9B2E006D7BA3 /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
+		A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */; };
+		A74BF5C514FA9B2E006D7BA3 /* Mesh2.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */; };
+		A74BF5C614FA9B2E006D7BA3 /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
+		A74BF5C714FA9B2E006D7BA3 /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
+		A74BF5D514FA9B2E006D7BA3 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684414B9FC200091B657 /* Vertex.cpp */; };
+		A74BF5D714FA9B2E006D7BA3 /* TexCoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684614B9FCAF0091B657 /* TexCoord.cpp */; };
+		A74BF5D914FA9B2E006D7BA3 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684814B9FD350091B657 /* Triangle.cpp */; };
+		A74BF5DB14FA9B2E006D7BA3 /* VertexEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684A14B9FE500091B657 /* VertexEdge.cpp */; };
+		A74BF5DD14FA9B2E006D7BA3 /* TexCoordEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */; };
+		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
 		A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1113CF717500D2A1FC /* CubeTemplate.png */; };
@@ -584,6 +595,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */,
+				A74BF5A714FA9B2E006D7BA3 /* FPTexture.mm in Sources */,
+				A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */,
+				A74BF5C514FA9B2E006D7BA3 /* Mesh2.mm in Sources */,
+				A74BF5C614FA9B2E006D7BA3 /* Mesh2.drawing.mm in Sources */,
+				A74BF5C714FA9B2E006D7BA3 /* Mesh2.make.mm in Sources */,
+				A74BF5D514FA9B2E006D7BA3 /* Vertex.cpp in Sources */,
+				A74BF5D714FA9B2E006D7BA3 /* TexCoord.cpp in Sources */,
+				A74BF5D914FA9B2E006D7BA3 /* Triangle.cpp in Sources */,
+				A74BF5DB14FA9B2E006D7BA3 /* VertexEdge.cpp in Sources */,
+				A74BF5DD14FA9B2E006D7BA3 /* TexCoordEdge.cpp in Sources */,
 				A746513112BD1D000030EEB0 /* Manipulator.mm in Sources */,
 				A746513312BD1D000030EEB0 /* ManipulatorWidget.mm in Sources */,
 				A746513612BD1D000030EEB0 /* OpenGLDrawing.mm in Sources */,
@@ -680,6 +702,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -690,7 +713,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				INFOPLIST_FILE = "OpenGLEditor_Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SenTestingKit,
@@ -706,6 +729,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
@@ -715,7 +739,7 @@
 				GCC_PREFIX_HEADER = "OpenGLEditor_Tests-Prefix.pch";
 				INFOPLIST_FILE = "OpenGLEditor_Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SenTestingKit,
@@ -751,6 +775,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
@@ -772,6 +797,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -790,7 +816,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OBJC_CALL_CXX_CDTORS = NO;
@@ -817,7 +843,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OBJC_CALL_CXX_CDTORS = NO;

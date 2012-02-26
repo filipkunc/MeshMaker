@@ -82,6 +82,7 @@
 - (IBAction)invertSelection:(id)sender;
 - (IBAction)hideSelected:(id)sender;
 - (IBAction)unhideAll:(id)sender;
+- (IBAction)detachSelected:(id)sender;
 - (BOOL)readFromModel3D:(NSString *)fileName;
 - (void)writeToModel3D:(NSString *)fileName;
 - (void)toggleOneViewFourView:(id)sender;

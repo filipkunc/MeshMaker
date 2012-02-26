@@ -48,8 +48,6 @@
 	
 	// state must be same as before
 	STAssertEquals([document->items count], 0U, @"items must be empty");
-	
-	[document release];
 }
 
 - (void)testUndoItemManipulation

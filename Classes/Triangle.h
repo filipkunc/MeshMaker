@@ -17,7 +17,8 @@ private:
     TexCoordEdgeNode *_texCoordEdges[3];
 public:
     bool selected;
-    Vector3D normal;
+    Vector3D vertexNormal;
+    Vector3D texCoordNormal;
     
     Triangle2();
     Triangle2(VertexNode *vertices[3]);
@@ -70,8 +71,13 @@ public:
         removeFromVertices();
         removeFromTexCoords();
         removeFromEdges();
-    }
-    
+    }    
+    virtual void setData(const Triangle2 &data) 
+    { 
+        FPNode::setData(data);
+        addToVertices();
+        addToTexCoords();
+    }    
     void addToVertices();
     void addToTexCoords();
     void removeFromVertices();

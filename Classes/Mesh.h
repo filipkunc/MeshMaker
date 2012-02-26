@@ -38,5 +38,6 @@
 - (void)flipSelected;
 - (void)flipAllTriangles;
 - (void)loopSubdivision;
+- (void)detachSelected;
 
 @end

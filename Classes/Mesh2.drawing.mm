@@ -64,16 +64,16 @@ void Mesh2::fillTriangleCache()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        Triangle2 &currentTriangle = node->data;
+        Triangle2 &currentTriangle = node->data();
         
         currentTriangle.computeNormal();
-        Vector3D n = currentTriangle.normal;
+        Vector3D n = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
         
         for (int j = 0; j < 3; j++)
         {
             for (int k = 0; k < 3; k++)
             {
-                _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data.position[k];
+                _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data().position[k];
                 _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];   
             }
         }
@@ -86,18 +86,23 @@ void Mesh2::fillTriangleCache()
         node->computeNormal();
     }
     
+    for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
+    {
+        node->computeNormal();
+    }
+    
     i = 0;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        Triangle2 &currentTriangle = node->data;
+        Triangle2 &currentTriangle = node->data();
         
         for (int j = 0; j < 3; j++)
         {
             for (int k = 0; k < 3; k++)
             {
-                const Vector3D &n = currentTriangle.vertex(j)->normal;
-                const Vector3D &t = currentTriangle.texCoord(j)->data.position;
+                const Vector3D &n = _isUnwrapped ? currentTriangle.texCoord(j)->normal : currentTriangle.vertex(j)->normal;
+                const Vector3D &t = currentTriangle.texCoord(j)->data().position;
                 _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
                 _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = t[k];
             }
@@ -112,7 +117,7 @@ void Mesh2::fillTriangleCache()
 	
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
 	{
-		if (node->data.selected)
+		if (node->data().selected)
             fillCachedColorsAtIndex(i, _cachedTriangleVertices, selectedComponents);
 		else
             fillCachedColorsAtIndex(i, _cachedTriangleVertices, _colorComponents);				
@@ -148,10 +153,10 @@ void Mesh2::fillEdgeCache()
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
-        if (_selectionMode == MeshSelectionModeQuadsTriangles && node->data.isQuadEdge())
+        if (_selectionMode == MeshSelectionModeQuadsTriangles && node->data().isQuadEdge())
             continue;
         
-        if (node->data.selected)
+        if (node->data().selected)
         {
             for (int k = 0; k < 3; k++)
             {
@@ -170,8 +175,8 @@ void Mesh2::fillEdgeCache()
         
         for (int k = 0; k < 3; k++)
         {
-            _cachedEdgeVertices[i].position.coords[k] = node->data.vertex(0)->data.position[k];
-            _cachedEdgeVertices[i + 1].position.coords[k] = node->data.vertex(1)->data.position[k];
+            _cachedEdgeVertices[i].position.coords[k] = node->data().vertex(0)->data().position[k];
+            _cachedEdgeVertices[i + 1].position.coords[k] = node->data().vertex(1)->data().position[k];
         }
         
         i += 2;
@@ -184,7 +189,7 @@ void Mesh2::fillEdgeCache()
     
     for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
     {
-        if (node->data.selected)
+        if (node->data().selected)
         {
             for (int k = 0; k < 3; k++)
             {
@@ -203,8 +208,8 @@ void Mesh2::fillEdgeCache()
         
         for (int k = 0; k < 3; k++)
         {
-            _cachedEdgeTexCoords[i].position.coords[k] = node->data.texCoord(0)->data.position[k];
-            _cachedEdgeTexCoords[i + 1].position.coords[k] = node->data.texCoord(1)->data.position[k];
+            _cachedEdgeTexCoords[i].position.coords[k] = node->data().texCoord(0)->data().position[k];
+            _cachedEdgeTexCoords[i + 1].position.coords[k] = node->data().texCoord(1)->data().position[k];
         }
         
         i += 2;
@@ -323,6 +328,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
         
         if (_isUnwrapped)
         {
+            glColor3f(1.0f, 1.0f, 1.0f);
             [checkerTexture drawForUnwrap];
         }
 	}
@@ -340,13 +346,13 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
             
             if (_isUnwrapped)
             {
-                const TexCoord &texCoord = _cachedTexCoordSelection.at(index)->data;
+                const TexCoord &texCoord = _cachedTexCoordSelection.at(index)->data();
                 selected = texCoord.selected;
                 v = texCoord.position;
             }
             else
             {
-                const Vertex2 &vertex = _cachedVertexSelection.at(index)->data;
+                const Vertex2 &vertex = _cachedVertexSelection.at(index)->data();
                 selected = vertex.selected;
                 v = vertex.position;
             }
@@ -367,34 +373,67 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 		{
 			if (forSelection)
 			{
-				const Triangle2 &triangle = _cachedTriangleSelection.at(index)->data;
+				const Triangle2 &triangle = _cachedTriangleSelection.at(index)->data();
 				glBegin(GL_TRIANGLES);
-				for (uint i = 0; i < 3; i++)
-				{
-					Vector3D v = triangle.vertex(i)->data.position;
-					glVertex3f(v.x, v.y, v.z);
-				}
+                if (_isUnwrapped)
+                {
+                    for (uint i = 0; i < 3; i++)
+                    {
+                        Vector3D v = triangle.texCoord(i)->data().position;
+                        glVertex3f(v.x, v.y, v.z);
+                    }
+                }
+                else 
+                {
+                    for (uint i = 0; i < 3; i++)
+                    {
+                        Vector3D v = triangle.vertex(i)->data().position;
+                        glVertex3f(v.x, v.y, v.z);
+                    }
+                }
 				glEnd();
 			}
 		} break;
         case MeshSelectionModeEdges:
         {
-            const VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data;
-            if (!forSelection)
+            if (_isUnwrapped)
             {
-                BOOL isSelected = edge.selected;
-                if (isSelected)
-                    glColor3f(0.8f, 0.0f, 0.0f);
-                else
-                    glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
+                const TexCoordEdge &edge = _cachedTexCoordEdgeSelection.at(index)->data();
+                if (!forSelection)
+                {
+                    BOOL isSelected = edge.selected;
+                    if (isSelected)
+                        glColor3f(0.8f, 0.0f, 0.0f);
+                    else
+                        glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
+                }
+                glBegin(GL_LINES);
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector3D v = edge.texCoord(i)->data().position;
+                    glVertex3f(v.x, v.y, v.z);
+                }
+                glEnd();
             }
-            glBegin(GL_LINES);
-            for (int i = 0; i < 2; i++)
-            {
-                Vector3D v = edge.vertex(i)->data.position;
-                glVertex3f(v.x, v.y, v.z);
+            else 
+            {    
+                const VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
+                if (!forSelection)
+                {
+                    BOOL isSelected = edge.selected;
+                    if (isSelected)
+                        glColor3f(0.8f, 0.0f, 0.0f);
+                    else
+                        glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
+                }
+                glBegin(GL_LINES);
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector3D v = edge.vertex(i)->data().position;
+                    glVertex3f(v.x, v.y, v.z);
+                }
+                glEnd();
             }
-            glEnd();
         } break;
         case MeshSelectionModeQuadsTriangles:
         {
@@ -432,7 +471,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             {
                 colorIndex++;
                 tempColors.push_back(colorIndex);
-                tempVertices.push_back(node->data.position);
+                tempVertices.push_back(node->data().position);
             }
         }
         else
@@ -441,7 +480,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             {
                 colorIndex++;
                 tempColors.push_back(colorIndex);            
-                tempVertices.push_back(node->data.position);            
+                tempVertices.push_back(node->data().position);            
             }
         }
         
@@ -471,26 +510,26 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         {
             for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
             {
-                if (node->data.selected)
+                if (node->data().selected)
                     tempColors.push_back(selectedColor);
                 else
                     tempColors.push_back(normalColor);
                 
-                tempVertices.push_back(node->data.position);
+                tempVertices.push_back(node->data().position);
             }
         }
         else
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
             {
-                if (node->data.selected)
+                if (node->data().selected)
                     tempColors.push_back(selectedColor); 
                 else if (_useSoftSelection && node->selectionWeight > 0.0f)
                     tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
                 else
                     tempColors.push_back(normalColor);
                 
-                tempVertices.push_back(node->data.position);            
+                tempVertices.push_back(node->data().position);            
             }
         }
         
@@ -651,7 +690,7 @@ void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction, FP
         
         //node->data.selected = false;
         
-        if (node->data.rayIntersect(origin, direction, tempU, tempV, tempIntersect))
+        if (node->data().rayIntersect(origin, direction, tempU, tempV, tempIntersect))
         {
             if (nearestNode == NULL || intersect.SqDistance(origin) > tempIntersect.SqDistance(origin))
             {
@@ -669,7 +708,7 @@ void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction, FP
         resetTriangleCache();
         setSelectionMode(selectionMode());*/
         
-        nearestNode->data.convertToPixelPositions(u, v);
+        nearestNode->data().convertToPixelPositions(u, v);
         
         texture = checkerTexture;
         

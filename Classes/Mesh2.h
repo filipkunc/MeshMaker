@@ -105,9 +105,11 @@ private:
     void removeSelectedVertices();
     void removeSelectedTriangles();
     void removeSelectedEdges();
-    void splitSelectedVertices();
     void splitSelectedTriangles();
     void splitSelectedEdges();
+    void detachSelectedVertices();
+    void detachSelectedTriangles();
+    void detachSelectedEdges();
     void flipSelectedTriangles();
     void turnSelectedEdges();
     void halfEdges();
@@ -118,7 +120,8 @@ public:
     ~Mesh2();
     
     int vertexCount() { return _vertices.count(); }
-    int triangleCount() { return _triangles.count(); }    
+    int triangleCount() { return _triangles.count(); }
+    int vertexEdgeCount() { return _vertexEdges.count(); }
     
     MeshSelectionMode selectionMode() const { return _selectionMode; };
     void setSelectionMode(MeshSelectionMode value);
@@ -143,6 +146,7 @@ public:
     void removeSelected();
     void mergeSelected();
     void splitSelected();
+    void detachSelected();
     void flipSelected();
     void flipAllTriangles();
     void extrudeSelectedTriangles();

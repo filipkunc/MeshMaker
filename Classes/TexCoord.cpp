@@ -17,7 +17,7 @@ void TexCoordNode::removeTriangle(TriangleNode *triangle)
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (node->data == triangle)
+        if (node->data() == triangle)
             _triangles.remove(node);
     }
 }
@@ -26,7 +26,7 @@ void TexCoordNode::removeFromTriangles()
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        node->data->data.removeTexCoord(this);
+        node->data()->data().removeTexCoord(this);
     }
     
     _triangles.removeAll();
@@ -41,7 +41,7 @@ void TexCoordNode::removeEdge(TexCoordEdgeNode *edge)
 {
     for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        if (node->data == edge)
+        if (node->data() == edge)
             _edges.remove(node);
     }
 }
@@ -55,7 +55,7 @@ void TexCoordNode::removeFromEdges()
 {
     for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        node->data->data.removeTexCoord(this);
+        node->data()->data().removeTexCoord(this);
     }
     
     _edges.removeAll();
@@ -65,25 +65,38 @@ TexCoordEdgeNode *TexCoordNode::sharedEdge(TexCoordNode *otherTexCoord)
 {
     for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        if (node->data->data.containsTexCoord(otherTexCoord))
-            return node->data;
+        if (node->data()->data().containsTexCoord(otherTexCoord))
+            return node->data();
     }
     return NULL;
 }
 
-void TexCoordNode::replaceTexCoord(TexCoordNode *newVertex)
+void TexCoordNode::replaceTexCoord(TexCoordNode *newTexCoord)
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        node->data->replaceTexCoord(this, newVertex);
+        node->data()->replaceTexCoord(this, newTexCoord);
     }
     
     for (SimpleNode<TexCoordEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        node->data->replaceTexCoord(this, newVertex);
+        node->data()->replaceTexCoord(this, newTexCoord);
     }
     
     _triangles.removeAll();
     _edges.removeAll();
 }
 
+void TexCoordNode::computeNormal()
+{
+    float count = 0;
+    normal = Vector3D();
+    
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        normal += node->data()->data().texCoordNormal;
+        count++;
+    }
+    
+    normal /= count;
+}

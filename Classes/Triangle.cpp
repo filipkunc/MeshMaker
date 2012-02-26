@@ -45,8 +45,8 @@ void TriangleNode::addToVertices()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._vertices[i])
-            data._vertices[i]->addTriangle(this);
+        if (data()._vertices[i])
+            data()._vertices[i]->addTriangle(this);
     }
 }
 
@@ -54,8 +54,8 @@ void TriangleNode::addToTexCoords()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._texCoords[i])
-            data._texCoords[i]->addTriangle(this);
+        if (data()._texCoords[i])
+            data()._texCoords[i]->addTriangle(this);
     }
 }
 
@@ -63,10 +63,10 @@ void TriangleNode::removeFromVertices()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._vertices[i])
+        if (data()._vertices[i])
         {
-            data._vertices[i]->removeTriangle(this);
-            data._vertices[i] = NULL;
+            data()._vertices[i]->removeTriangle(this);
+            data()._vertices[i] = NULL;
         }
     }
 }
@@ -75,10 +75,10 @@ void TriangleNode::removeFromTexCoords()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._texCoords[i])
+        if (data()._texCoords[i])
         {
-            data._texCoords[i]->removeTriangle(this);
-            data._texCoords[i] = NULL;
+            data()._texCoords[i]->removeTriangle(this);
+            data()._texCoords[i] = NULL;
         }
     }
 }
@@ -87,19 +87,19 @@ void TriangleNode::removeFromEdges()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._vertexEdges[i])
+        if (data()._vertexEdges[i])
         {
-            data._vertexEdges[i]->data.removeTriangle(this);
-            data._vertexEdges[i] = NULL;
+            data()._vertexEdges[i]->data().removeTriangle(this);
+            data()._vertexEdges[i] = NULL;
         }
     }
     
     for (int i = 0; i < 3; i++)
     {
-        if (data._texCoordEdges[i])
+        if (data()._texCoordEdges[i])
         {
-            data._texCoordEdges[i]->data.removeTriangle(this);
-            data._texCoordEdges[i] = NULL;
+            data()._texCoordEdges[i]->data().removeTriangle(this);
+            data()._texCoordEdges[i] = NULL;
         }
     }
 }
@@ -108,9 +108,9 @@ void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVerte
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._vertices[i] == currentVertex)
+        if (data()._vertices[i] == currentVertex)
         {
-            data._vertices[i] = newVertex;
+            data()._vertices[i] = newVertex;
             newVertex->addTriangle(this);
             break;
         }
@@ -121,9 +121,9 @@ void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *
 {
     for (int i = 0; i < 3; i++)
     {
-        if (data._texCoords[i] == currentTexCoord)
+        if (data()._texCoords[i] == currentTexCoord)
         {
-            data._texCoords[i] = newTexCoord;
+            data()._texCoords[i] = newTexCoord;
             newTexCoord->addTriangle(this);
             break;
         }
@@ -276,16 +276,22 @@ VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 
 void Triangle2::computeNormal()
 {
-    Vector3D u = _vertices[0]->data.position - _vertices[1]->data.position;
-	Vector3D v = _vertices[1]->data.position - _vertices[2]->data.position;
-	normal = u.Cross(v);    
+    Vector3D u, v;
+    
+    u = _texCoords[0]->data().position - _texCoords[1]->data().position;
+    v = _texCoords[1]->data().position - _texCoords[2]->data().position;
+    texCoordNormal = u.Cross(v);    
+    
+    u = _vertices[0]->data().position - _vertices[1]->data().position;
+    v = _vertices[1]->data().position - _vertices[2]->data().position;
+    vertexNormal = u.Cross(v);    
 }
 
 bool Triangle2::rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect)
 {
-    Vector3D v0 = _vertices[0]->data.position;
-    Vector3D v1 = _vertices[1]->data.position;
-    Vector3D v2 = _vertices[2]->data.position; 
+    Vector3D v0 = _vertices[0]->data().position;
+    Vector3D v1 = _vertices[1]->data().position;
+    Vector3D v2 = _vertices[2]->data().position; 
     
     Vector3D e1 = v1 - v0;
     Vector3D e2 = v2 - v0;
@@ -318,9 +324,9 @@ bool Triangle2::rayIntersect(const Vector3D &origin, const Vector3D &direction, 
 
 void Triangle2::convertToPixelPositions(float &u, float &v)
 {
-    Vector3D t0 = _texCoords[0]->data.position;
-    Vector3D t1 = _texCoords[1]->data.position;
-    Vector3D t2 = _texCoords[2]->data.position;    
+    Vector3D t0 = _texCoords[0]->data().position;
+    Vector3D t1 = _texCoords[1]->data().position;
+    Vector3D t2 = _texCoords[2]->data().position;    
     
     Vector3D e1 = t1 - t0;
     Vector3D e2 = t2 - t0;

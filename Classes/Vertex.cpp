@@ -17,7 +17,7 @@ void VertexNode::removeTriangle(TriangleNode *triangle)
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (node->data == triangle)
+        if (node->data() == triangle)
             _triangles.remove(node);
     }
 }
@@ -26,7 +26,7 @@ void VertexNode::removeFromTriangles()
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        node->data->data.removeVertex(this);
+        node->data()->data().removeVertex(this);
     }
     
     _triangles.removeAll();
@@ -41,7 +41,7 @@ void VertexNode::removeEdge(VertexEdgeNode *edge)
 {
     for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        if (node->data == edge)
+        if (node->data() == edge)
             _edges.remove(node);
     }
 }
@@ -55,7 +55,7 @@ void VertexNode::removeFromEdges()
 {
     for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        node->data->data.removeVertex(this);
+        node->data()->data().removeVertex(this);
     }
     
     _edges.removeAll();
@@ -65,12 +65,12 @@ void VertexNode::replaceVertex(VertexNode *newVertex)
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        node->data->replaceVertex(this, newVertex);
+        node->data()->replaceVertex(this, newVertex);
     }
     
     for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        node->data->replaceVertex(this, newVertex);
+        node->data()->replaceVertex(this, newVertex);
     }
     
     _triangles.removeAll();
@@ -81,9 +81,9 @@ void VertexNode::replaceVertexInSelectedTriangles(VertexNode *newVertex)
 {
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (node->data->data.selected)
+        if (node->data()->data().selected)
         {
-            node->data->replaceVertex(this, newVertex);
+            node->data()->replaceVertex(this, newVertex);
             _triangles.remove(node);
         }
     }    
@@ -96,7 +96,7 @@ void VertexNode::computeNormal()
     
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        normal += node->data->data.normal;
+        normal += node->data()->data().vertexNormal;
         count++;
     }
     
@@ -107,8 +107,8 @@ VertexEdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)
 {
     for (SimpleNode<VertexEdgeNode *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
     {
-        if (node->data->data.containsVertex(otherVertex))
-            return node->data;
+        if (node->data()->data().containsVertex(otherVertex))
+            return node->data();
     }
     return NULL;
 }

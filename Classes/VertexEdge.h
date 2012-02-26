@@ -51,7 +51,11 @@ public:
         removeFromVertices();
         removeFromTriangles();
     }
-    
+    virtual void setData(const VertexEdge &data) 
+    { 
+        FPNode::setData(data);
+        addToVertices();
+    }    
     void addToVertices();
     void removeFromVertices();
     void removeFromTriangles();

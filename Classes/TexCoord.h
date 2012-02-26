@@ -24,8 +24,8 @@ class TexCoordNode : public FPNode<TexCoordNode, TexCoord>
 public:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<TexCoordEdgeNode *> _edges;
-    
     int index;
+    Vector3D normal;
 public:
     TexCoordNode() : FPNode<TexCoordNode, TexCoord>() { }
     TexCoordNode(const TexCoord &texCoord) : FPNode<TexCoordNode, TexCoord>(texCoord) { } 
@@ -44,5 +44,6 @@ public:
     void removeEdges();
     void removeFromEdges(); 
     TexCoordEdgeNode *sharedEdge(TexCoordNode *otherTexCoord);
-    void replaceTexCoord(TexCoordNode *newVertex);    
+    void replaceTexCoord(TexCoordNode *newVertex);
+    void computeNormal();    
 };

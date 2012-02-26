@@ -51,7 +51,11 @@ public:
         removeFromTexCoords();
         removeFromTriangles();
     }
-    
+    virtual void setData(const TexCoordEdge &data) 
+    { 
+        FPNode::setData(data);
+        addToTexCoords();
+    }
     void addToTexCoords();
     void removeFromTexCoords();
     void removeFromTriangles();

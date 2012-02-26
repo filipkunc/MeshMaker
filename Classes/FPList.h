@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <stdio.h>
+
 template <class TNode, class TData>
 class FPList
 {
@@ -151,16 +153,16 @@ public:
     
     TNode *add(const TData &data)
     {
-        TNode *newOne = new TNode(data);
-        TNode *previous = _end->_previous;
-        newOne->_next = _end;
-        newOne->_previous = previous;
-        previous->_next = newOne;
-        _end->_previous = newOne;
+        TNode *newEnd = new TNode();
+        TNode *oldEnd = _end;
+        oldEnd->setData(data);
+        oldEnd->_next = newEnd;
+        newEnd->_previous = oldEnd;
+        _end = newEnd;
         
         _count++;
-        
-        return newOne;
+         
+        return oldEnd;
     }   
 };
 

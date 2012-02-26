@@ -37,8 +37,7 @@
 
 - (uint)edgeCount
 {
-    return 0;
-	//return edges->size();
+    return mesh->vertexEdgeCount();
 }
 
 - (id)init
@@ -234,6 +233,11 @@
 - (void)loopSubdivision
 {
     mesh->loopSubdivision();
+}
+
+- (void)detachSelected
+{
+    mesh->detachSelected();
 }
 
 - (void)duplicateSelected

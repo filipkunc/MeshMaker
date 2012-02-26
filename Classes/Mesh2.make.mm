@@ -10,9 +10,9 @@
 
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
-    TexCoordNode *t1 = _texCoords.add(v1->data.position);
-    TexCoordNode *t2 = _texCoords.add(v2->data.position);
-    TexCoordNode *t3 = _texCoords.add(v3->data.position);
+    TexCoordNode *t1 = _texCoords.add(v1->data().position);
+    TexCoordNode *t2 = _texCoords.add(v2->data().position);
+    TexCoordNode *t3 = _texCoords.add(v3->data().position);
     
     VertexNode *vertices[3] = { v1, v2, v3 };
     TexCoordNode *texCoords[3] = { t1, t2, t3 };
@@ -22,10 +22,10 @@ void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
-    TexCoordNode *t1 = _texCoords.add(v1->data.position);
-    TexCoordNode *t2 = _texCoords.add(v2->data.position);
-    TexCoordNode *t3 = _texCoords.add(v3->data.position);
-    TexCoordNode *t4 = _texCoords.add(v4->data.position);
+    TexCoordNode *t1 = _texCoords.add(v1->data().position);
+    TexCoordNode *t2 = _texCoords.add(v2->data().position);
+    TexCoordNode *t3 = _texCoords.add(v3->data().position);
+    TexCoordNode *t4 = _texCoords.add(v4->data().position);
     
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
@@ -42,13 +42,13 @@ VertexEdgeNode *Mesh2::findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, Tr
     VertexEdgeNode *sharedEdge = v1->sharedEdge(v2);
     if (sharedEdge)
     {
-        sharedEdge->data.setTriangle(1, triangle);
+        sharedEdge->data().setTriangle(1, triangle);
         return sharedEdge;
     }
     
     VertexNode *vertices[2] = { v1, v2 };
     VertexEdgeNode *node = _vertexEdges.add(vertices);
-    node->data.setTriangle(0, triangle);
+    node->data().setTriangle(0, triangle);
     return node;
 }
 
@@ -57,13 +57,13 @@ TexCoordEdgeNode *Mesh2::findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode
     TexCoordEdgeNode *sharedEdge = t1->sharedEdge(t2);
     if (sharedEdge)
     {
-        sharedEdge->data.setTriangle(1, triangle);
+        sharedEdge->data().setTriangle(1, triangle);
         return sharedEdge;
     }
     
     TexCoordNode *texCoords[2] = { t1, t2 };
     TexCoordEdgeNode *node = _texCoordEdges.add(texCoords);
-    node->data.setTriangle(0, triangle);
+    node->data().setTriangle(0, triangle);
     return node;
 }
 
@@ -75,7 +75,7 @@ VertexNode *Mesh2::findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexN
             return extrudePairs[i].extruded;
     }
     
-    VertexNode *extruded = _vertices.add(original->data.position);
+    VertexNode *extruded = _vertices.add(original->data().position);
     ExtrudePair extrudePair = { original, extruded };
     extrudePairs.push_back(extrudePair);
     
@@ -99,7 +99,7 @@ void Mesh2::makeEdges()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        Triangle2 &triangle = node->data;
+        Triangle2 &triangle = node->data();
         
         triangle.removeEdges();
         
@@ -378,7 +378,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
         node->index = index;
         index++;
         
-        vertices.push_back(node->data.position);
+        vertices.push_back(node->data().position);
     }
     
     index = 0;
@@ -388,7 +388,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
         node->index = index;
         index++;
         
-        texCoords.push_back(node->data.position);
+        texCoords.push_back(node->data().position);
     }
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -396,8 +396,8 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
         Triangle indexTriangle;
         for (int j = 0; j < 3; j++)
         {
-            indexTriangle.vertexIndices[j] = node->data.vertex(j)->index;
-            indexTriangle.texCoordIndices[j] = node->data.texCoord(j)->index;
+            indexTriangle.vertexIndices[j] = node->data().vertex(j)->index;
+            indexTriangle.texCoordIndices[j] = node->data().texCoord(j)->index;
         }        
         triangles.push_back(indexTriangle);
     }

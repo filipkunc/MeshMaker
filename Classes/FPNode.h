@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 6/4/11.
-//  Copyright 2011 Filip Kunc. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #pragma once
@@ -16,9 +16,8 @@ class FPNode
 private:
     TNode *_next;
     TNode *_previous;
+    TData _data;
 public:
-    TData data;
-    
     FPNode()
     {
         _next = NULL;
@@ -27,7 +26,7 @@ public:
     
     FPNode(const TData &data)
     {
-        this->data = data;
+        _data = data;
         _next = NULL;
         _previous = NULL;
     }
@@ -37,6 +36,8 @@ public:
         
     }
     
+    TData &data() { return _data; }
+    virtual void setData(const TData &data) { _data = data; }
     TNode *next() { return _next; }
     TNode *previous() { return _previous; }
     
