@@ -11,7 +11,7 @@
 
 @implementation OpenGLManipulatingController
 
-@synthesize selectedCount, lastSelectedIndex;
+@synthesize selectedCount, lastSelectedIndex, modelTransform;
 
 - (id)init
 {

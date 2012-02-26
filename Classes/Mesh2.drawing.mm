@@ -674,7 +674,7 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
     }
 }
 
-void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction)
+void Mesh2::paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, const Vector3D &direction)
 {
     float u = 0.0f;
     float v = 0.0f;
@@ -690,7 +690,7 @@ void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction)
         
         //node->data.selected = false;
         
-        if (node->data().rayIntersect(origin, direction, tempU, tempV, tempIntersect))
+        if (node->data().rayIntersect(transform, origin, direction, tempU, tempV, tempIntersect))
         {
             if (nearestNode == NULL || intersect.SqDistance(origin) > tempIntersect.SqDistance(origin))
             {

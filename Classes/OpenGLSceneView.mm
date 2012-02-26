@@ -455,13 +455,19 @@ NSOpenGLContext *globalGLContext = nil;
         winZ = minDistance;
         gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
         
-        Vector3D unprojectedPosition = Vector3D((float)posX, (float)posY, (float)posZ);
+        Vector3D unprojectedMousePosition = Vector3D((float)posX, (float)posY, (float)posZ);
+        Vector3D cameraOrigin = camera->GetAxisZ() * camera->GetZoom();
+        Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
         
-        Vector3D origin = camera->GetCenter() + camera->GetAxisZ() * camera->GetZoom();
-        Vector3D direction = unprojectedPosition - origin;
+        Matrix4x4 transform;
+        transform.Translate(camera->GetCenter());
+        
+        Matrix4x4 &modelTransform = *[controller modelTransform];
+        
+        transform = transform * modelTransform;
 
         Mesh *m = (Mesh *)[controller model];
-        m->mesh->paintOnTexture(origin, direction);
+        m->mesh->paintOnTexture(transform, cameraOrigin, mouseDirection);
         [self setNeedsDisplay:YES];
     }
 }

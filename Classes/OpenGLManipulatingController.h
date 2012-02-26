@@ -28,6 +28,7 @@
 }
 
 @property (readwrite, assign) id<OpenGLManipulatingModel> model;
+@property (readonly, assign) Matrix4x4 *modelTransform;
 @property (readonly) NSInteger lastSelectedIndex;
 
 - (void)addTransformationObserver:(id)observer;

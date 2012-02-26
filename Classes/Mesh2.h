@@ -175,7 +175,7 @@ public:
     void drawAllTriangles(ViewMode viewMode, bool forSelection);
     void drawAllEdges(ViewMode viewMode, bool forSelection);
     
-    void paintOnTexture(const Vector3D &origin, const Vector3D &direction);
+    void paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, const Vector3D &direction);
     void cleanTexture();
     
     // make
