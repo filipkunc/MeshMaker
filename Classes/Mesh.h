@@ -39,5 +39,6 @@
 - (void)flipAllTriangles;
 - (void)loopSubdivision;
 - (void)detachSelected;
+- (void)cleanTexture;
 
 @end

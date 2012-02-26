@@ -300,6 +300,11 @@
 	}
 	[self resetIndexCache];*/
 }
+
+- (void)cleanTexture
+{
+    mesh->cleanTexture();
+}
 				 
 #pragma mark CppFileStreaming implementation
 

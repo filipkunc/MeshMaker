@@ -88,5 +88,6 @@
 - (void)toggleOneViewFourView:(id)sender;
 - (IBAction)subdivision:(id)sender;
 - (IBAction)softSelection:(id)sender;
+- (IBAction)cleanTexture:(id)sender;
 
 @end

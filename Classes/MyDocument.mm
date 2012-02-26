@@ -750,6 +750,12 @@ vector<T> *ReadValues(string s)
     [self setNeedsDisplayOnAllViews];
 }
 
+- (void)cleanTexture:(id)sender
+{
+    [[self currentMesh] cleanTexture];
+    [self setNeedsDisplayOnAllViews];
+}
+
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document

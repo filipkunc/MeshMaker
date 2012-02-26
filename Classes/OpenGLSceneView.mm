@@ -461,7 +461,18 @@ NSOpenGLContext *globalGLContext = nil;
         Vector3D direction = unprojectedPosition - origin;
 
         Mesh *m = (Mesh *)[controller model];
-        m->mesh->paintOnTexture(origin, direction, nil);
+        m->mesh->paintOnTexture(origin, direction);
+        [self setNeedsDisplay:YES];
+    }
+}
+
+- (void)cleanTexture
+{
+    OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
+    if ([[controller model] isKindOfClass:[Mesh class]])
+    {
+        Mesh *m = (Mesh *)[controller model];
+        m->mesh->cleanTexture();
         [self setNeedsDisplay:YES];
     }
 }

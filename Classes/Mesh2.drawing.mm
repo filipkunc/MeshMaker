@@ -674,7 +674,7 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
     }
 }
 
-void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction, FPTexture *texture)
+void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction)
 {
     float u = 0.0f;
     float v = 0.0f;
@@ -710,7 +710,7 @@ void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction, FP
         
         nearestNode->data().convertToPixelPositions(u, v);
         
-        texture = checkerTexture;
+        FPTexture *texture = checkerTexture;
         
         while (u > 1.0f)
             u -= 1.0f;
@@ -741,3 +741,16 @@ void Mesh2::paintOnTexture(const Vector3D &origin, const Vector3D &direction, FP
     }
 }
 
+void Mesh2::cleanTexture()
+{
+    FPTexture *texture = checkerTexture;
+    
+    [[texture canvas] lockFocus];
+    
+    [[NSColor whiteColor] setFill];
+    NSRectFill(NSMakeRect(0, 0, [texture width], [texture height]));
+    
+    [[texture canvas] unlockFocus];
+    [texture updateTexture];
+ 
+}
