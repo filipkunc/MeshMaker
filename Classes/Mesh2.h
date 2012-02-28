@@ -109,7 +109,6 @@ private:
     void splitSelectedEdges();
     void detachSelectedVertices();
     void detachSelectedTriangles();
-    void detachSelectedEdges();
     void flipSelectedTriangles();
     void turnSelectedEdges();
     void halfEdges();

@@ -720,68 +720,6 @@ void Mesh2::detachSelectedTriangles()
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::detachSelectedEdges()
-{
-    resetTriangleCache();
-    
-    if (_isUnwrapped)
-    {
-        for (TexCoordNode *texCoordNode = _texCoords.begin(), *texCoordEnd = _texCoords.end(); texCoordNode != texCoordEnd; texCoordNode = texCoordNode->next())
-        {
-            TexCoordNode *newTexCoord = NULL;
-            
-            for (SimpleNode<TexCoordEdgeNode *> 
-                 *edgeNode = texCoordNode->_edges.begin(), 
-                 *edgeEnd = texCoordNode->_edges.end(); 
-                 edgeNode != edgeEnd; 
-                 edgeNode = edgeNode->next())
-            {
-                if (edgeNode->data()->data().selected)
-                {
-                    if (newTexCoord == NULL)
-                        newTexCoord = _texCoords.add(texCoordNode->data());
-                    
-                    edgeNode->data()->replaceTexCoord(texCoordNode, newTexCoord);
-                    texCoordNode->_edges.remove(edgeNode);
-                }
-            }
-            
-            if (!texCoordNode->isUsed())
-                _texCoords.remove(texCoordNode);
-        }
-    }
-    else
-    {    
-        for (VertexNode *vertexNode = _vertices.begin(), *vertexEnd = _vertices.end(); vertexNode != vertexEnd; vertexNode = vertexNode->next())
-        {
-            VertexNode *newVertex = NULL;
-            
-            for (SimpleNode<VertexEdgeNode *> 
-                 *edgeNode = vertexNode->_edges.begin(), 
-                 *edgeEnd = vertexNode->_edges.end(); 
-                 edgeNode != edgeEnd; 
-                 edgeNode = edgeNode->next())
-            {
-                if (edgeNode->data()->data().selected)
-                {
-                    if (newVertex == NULL)
-                        newVertex = _vertices.add(vertexNode->data());
-                    
-                    edgeNode->data()->replaceVertex(vertexNode, newVertex);
-                    vertexNode->_edges.remove(edgeNode);
-                }
-            }
-            
-            if (!vertexNode->isUsed())
-                _vertices.remove(vertexNode);
-        }
-    }
-    
-    makeEdges();
-    
-    setSelectionMode(_selectionMode);
-}
-
 void Mesh2::splitSelectedTriangles()
 {
     resetTriangleCache();
@@ -938,9 +876,6 @@ void Mesh2::detachSelected()
             break;
         case MeshSelectionModeTriangles:
             detachSelectedTriangles();
-            break;
-        case MeshSelectionModeEdges:
-            detachSelectedEdges();
             break;
         default:
             break;
