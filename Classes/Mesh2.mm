@@ -660,8 +660,6 @@ void Mesh2::detachSelectedVertices()
 
 void Mesh2::detachSelectedTriangles()
 {
-    NSLog(@"before texCoords: %i, vertices: %i", _texCoords.count(), _vertices.count());
-    
     resetTriangleCache();
     
     if (_isUnwrapped)
@@ -717,8 +715,6 @@ void Mesh2::detachSelectedTriangles()
         }
     }
         
-    NSLog(@"after texCoords: %i, vertices: %i", _texCoords.count(), _vertices.count());
-    
     makeEdges();
     
     setSelectionMode(_selectionMode);
