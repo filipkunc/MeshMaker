@@ -184,6 +184,7 @@ public:
     VertexEdgeNode *findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
     TexCoordEdgeNode *findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle);
     VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
+    void makeTexCoords();
     void makeEdges();
     void makePlane();
     void makeCube();

@@ -130,6 +130,18 @@ void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *
     }
 }
 
+void Triangle2::setTexCoordByVertex(TexCoordNode *texCoord, VertexNode *vertex)
+{
+    for (int i = 0; i < 3; i++)
+    { 
+        if (_vertices[i] == vertex) 
+        {
+            _texCoords[i] = texCoord; 
+            break;
+        }
+    }
+}
+
 void Triangle2::removeVertex(VertexNode *vertex)
 {
     for (int i = 0; i < 3; i++)

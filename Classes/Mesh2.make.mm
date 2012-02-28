@@ -10,31 +10,18 @@
 
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
-    TexCoordNode *t1 = _texCoords.add(v1->data().position);
-    TexCoordNode *t2 = _texCoords.add(v2->data().position);
-    TexCoordNode *t3 = _texCoords.add(v3->data().position);
-    
     VertexNode *vertices[3] = { v1, v2, v3 };
-    TexCoordNode *texCoords[3] = { t1, t2, t3 };
 
-    _triangles.add(Triangle2(vertices, texCoords));
+    _triangles.add(Triangle2(vertices));
 }
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
-    TexCoordNode *t1 = _texCoords.add(v1->data().position);
-    TexCoordNode *t2 = _texCoords.add(v2->data().position);
-    TexCoordNode *t3 = _texCoords.add(v3->data().position);
-    TexCoordNode *t4 = _texCoords.add(v4->data().position);
-    
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-    TexCoordNode *texCoords1[3] = { t1, t2, t3 };
-    TexCoordNode *texCoords2[3] = { t1, t3, t4 };
-    
-  	_triangles.add(Triangle2(vertices1, texCoords1));
-    _triangles.add(Triangle2(vertices2, texCoords2));
+  	_triangles.add(Triangle2(vertices1));
+    _triangles.add(Triangle2(vertices2));
 }
 
 VertexEdgeNode *Mesh2::findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
@@ -80,6 +67,25 @@ VertexNode *Mesh2::findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexN
     extrudePairs.push_back(extrudePair);
     
     return extruded;
+}
+
+void Mesh2::makeTexCoords()
+{
+    _texCoords.removeAll();
+    
+    for (VertexNode *vertex = _vertices.begin(), *end = _vertices.end(); vertex != end; vertex = vertex->next())
+    {
+        TexCoordNode * texCoord = _texCoords.add(vertex->data().position);
+        
+        for (auto triangle = vertex->_triangles.begin(), 
+             triangleEnd = vertex->_triangles.end(); 
+             triangle != triangleEnd; 
+             triangle = triangle->next())
+        {
+            triangle->data()->data().setTexCoordByVertex(texCoord, vertex);
+            texCoord->addTriangle(triangle->data());            
+        }
+    }
 }
 
 void Mesh2::makeEdges()
@@ -141,6 +147,7 @@ void Mesh2::makePlane()
     
     addQuad(v0, v1, v2, v3);
     
+    makeTexCoords();
     makeEdges();
     
     setSelectionMode(_selectionMode);
@@ -182,6 +189,7 @@ void Mesh2::makeCube()
 	// right triangles
     addQuad(v2, v1, v5, v6);
     
+    makeTexCoords();
     makeEdges();
 	
     setSelectionMode(_selectionMode);
@@ -227,6 +235,7 @@ void Mesh2::makeCylinder(uint steps)
     addTriangle(node0, node2, last2);
     addTriangle(node3, node1, last1);
     
+    makeTexCoords();
     makeEdges();
     
     setSelectionMode(_selectionMode);
@@ -325,6 +334,7 @@ void Mesh2::makeSphere(uint steps)
         addTriangle(triangleVertices[0], triangleVertices[1], triangleVertices[2]);
     }    
     
+    makeTexCoords();
     makeEdges();
     
     setSelectionMode(_selectionMode);

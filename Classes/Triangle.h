@@ -30,6 +30,7 @@ public:
     TexCoordEdgeNode *texCoordEdge(int index) const { return _texCoordEdges[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
+    void setTexCoordByVertex(TexCoordNode * texCoord, VertexNode *vertex);
     void setVertexEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
     void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _texCoordEdges[index] = value; }
     
