@@ -89,5 +89,6 @@
 - (IBAction)subdivision:(id)sender;
 - (IBAction)softSelection:(id)sender;
 - (IBAction)cleanTexture:(id)sender;
+- (IBAction)resetTexCoords:(id)sender;
 
 @end

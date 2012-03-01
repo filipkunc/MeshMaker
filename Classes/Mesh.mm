@@ -390,4 +390,11 @@
 	}
 }
 
+- (void)resetTexCooords
+{
+    mesh->resetTriangleCache();
+    mesh->makeTexCoords();
+    mesh->makeEdges();
+}
+
 @end

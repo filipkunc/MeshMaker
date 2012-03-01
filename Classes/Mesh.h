@@ -40,5 +40,6 @@
 - (void)loopSubdivision;
 - (void)detachSelected;
 - (void)cleanTexture;
+- (void)resetTexCooords;
 
 @end

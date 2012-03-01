@@ -10,18 +10,31 @@
 
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
+    TexCoordNode *t1 = _texCoords.add(v1->data().position);
+    TexCoordNode *t2 = _texCoords.add(v2->data().position);
+    TexCoordNode *t3 = _texCoords.add(v3->data().position);
+    
     VertexNode *vertices[3] = { v1, v2, v3 };
-
-    _triangles.add(Triangle2(vertices));
+    TexCoordNode *texCoords[3] = { t1, t2, t3 };
+    
+    _triangles.add(Triangle2(vertices, texCoords));
 }
 
 void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
 {
+    TexCoordNode *t1 = _texCoords.add(v1->data().position);
+    TexCoordNode *t2 = _texCoords.add(v2->data().position);
+    TexCoordNode *t3 = _texCoords.add(v3->data().position);
+    TexCoordNode *t4 = _texCoords.add(v4->data().position);
+    
     VertexNode *vertices1[3] = { v1, v2, v3 };
     VertexNode *vertices2[3] = { v1, v3, v4 };
     
-  	_triangles.add(Triangle2(vertices1));
-    _triangles.add(Triangle2(vertices2));
+    TexCoordNode *texCoords1[3] = { t1, t2, t3 };
+    TexCoordNode *texCoords2[3] = { t1, t3, t4 };
+    
+  	_triangles.add(Triangle2(vertices1, texCoords1));
+    _triangles.add(Triangle2(vertices2, texCoords2));
 }
 
 VertexEdgeNode *Mesh2::findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)

@@ -756,6 +756,12 @@ vector<T> *ReadValues(string s)
     [self setNeedsDisplayOnAllViews];
 }
 
+- (void)resetTexCoords:(id)sender
+{
+    [[self currentMesh] resetTexCooords];
+    [self setNeedsDisplayOnAllViews];
+}
+
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document
