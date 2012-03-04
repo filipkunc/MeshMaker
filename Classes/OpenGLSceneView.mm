@@ -66,49 +66,64 @@ NSOpenGLContext *globalGLContext = nil;
 	self = [super initWithCoder:c];
 	if (self)
 	{		
-		displayed = nil;
-		manipulated = nil;
-		delegate = nil;
-		
-		// The GL context must be active for these functions to have an effect
-		[self clearGLContext];
-		NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
-															  shareContext:[OpenGLSceneView sharedContext]];
-		[self setOpenGLContext:context];
-		[[self openGLContext] makeCurrentContext];
-		
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_LIGHTING);
-		glShadeModel(GL_SMOOTH);
-		
-		selectionOffset = new Vector3D();
-		isManipulating = NO;
-		isSelecting = NO;
-		highlightCameraMode = NO;
-		
-		camera = new Camera();
-		camera->SetRadians(Vector2D(-45.0f * DEG_TO_RAD, 45.0f * DEG_TO_RAD));
-		camera->SetZoom(20.0f);
-		
-		perspectiveRadians = new Vector2D(camera->GetRadians());
-		
-		lastPoint = NSMakePoint(0, 0);
-		
-		defaultManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeDefault];		
-		translationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeTranslation];
-		rotationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeRotation];		
-		scaleManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeScale];
-				
-		currentManipulator = defaultManipulator;
-		
-		cameraMode = CameraModePerspective;
-		viewMode = ViewModeSolidFlat;
-		
-		glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
-		[[ShaderProgram normalShader] linkProgram];
-		[[ShaderProgram flippedShader] linkProgram];
+		[self setupGL];
 	}
 	return self;
+}
+
+- (id)initWithFrame:(NSRect)frameRect
+{
+    self = [super initWithFrame:frameRect];
+    if (self)
+    {
+        [self setupGL];
+    }
+    return self;
+}
+
+- (void)setupGL
+{
+    displayed = nil;
+    manipulated = nil;
+    delegate = nil;
+    
+    // The GL context must be active for these functions to have an effect
+    [self clearGLContext];
+    NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
+                                                          shareContext:[OpenGLSceneView sharedContext]];
+    [self setOpenGLContext:context];
+    [[self openGLContext] makeCurrentContext];
+    
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
+    
+    selectionOffset = new Vector3D();
+    isManipulating = NO;
+    isSelecting = NO;
+    highlightCameraMode = NO;
+    
+    camera = new Camera();
+    camera->SetRadians(Vector2D(-45.0f * DEG_TO_RAD, 45.0f * DEG_TO_RAD));
+    camera->SetZoom(20.0f);
+    
+    perspectiveRadians = new Vector2D(camera->GetRadians());
+    
+    lastPoint = NSMakePoint(0, 0);
+    
+    defaultManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeDefault];		
+    translationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeTranslation];
+    rotationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeRotation];		
+    scaleManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeScale];
+    
+    currentManipulator = defaultManipulator;
+    
+    cameraMode = CameraModePerspective;
+    viewMode = ViewModeSolidFlat;
+    
+    glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
+    [[ShaderProgram normalShader] linkProgram];
+    [[ShaderProgram flippedShader] linkProgram];
 }
 
 - (void)dealloc
