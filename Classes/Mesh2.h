@@ -114,6 +114,7 @@ private:
     void halfEdges();
     void repositionVertices(int vertexCount);
     void makeSubdividedTriangles();
+    void uvToPixels(float &u, float &v);
 public:
     Mesh2(float colorComponents[4]);
     ~Mesh2();
@@ -174,9 +175,12 @@ public:
     void drawAllTriangles(ViewMode viewMode, bool forSelection);
     void drawAllEdges(ViewMode viewMode, bool forSelection);
     
-    void paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, const Vector3D &direction);
-    void cleanTexture();
+    // texturing
     
+    void paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, 
+                        const Vector3D &direction1, const Vector3D &direction2);
+    void cleanTexture();    
+
     // make
     
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);

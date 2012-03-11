@@ -11,8 +11,8 @@
 #import "OpenGLSceneView.h"
 
 const float perspectiveAngle = 45.0f;
-const float minDistance = 1.0f;
-const float maxDistance = 1000.0f;
+const float minDistance = 0.2f;
+const float maxDistance = 500.0f;
 
 NSOpenGLPixelFormat *globalPixelFormat = nil;
 NSOpenGLContext *globalGLContext = nil;
@@ -448,7 +448,7 @@ NSOpenGLContext *globalGLContext = nil;
 	[self addTrackingArea:trackingArea];
 }
 
-- (void)paintOnTextureWithMousePoint:(NSPoint)point
+- (void)paintOnTextureWithFirstPoint:(NSPoint)firstPoint secondPoint:(NSPoint)secondPoint
 {
     OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
     if ([[controller model] isKindOfClass:[Mesh class]])
@@ -456,7 +456,6 @@ NSOpenGLContext *globalGLContext = nil;
         int viewport[4];
         double modelview[16];
         double projection[16];
-        float winX, winY, winZ;
         double posX = 0.0, posY = 0.0, posZ = 0.0;
         
         [[self openGLContext] makeCurrentContext];
@@ -465,14 +464,17 @@ NSOpenGLContext *globalGLContext = nil;
         glGetDoublev(GL_PROJECTION_MATRIX, projection);
         glGetIntegerv(GL_VIEWPORT, viewport);
         
-        winX = point.x;
-        winY = point.y;
-        winZ = minDistance;
-        gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+        const float z = 1.0f;
         
-        Vector3D unprojectedMousePosition = Vector3D((float)posX, (float)posY, (float)posZ);
+        gluUnProject(firstPoint.x, firstPoint.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
+        Vector3D unprojectedMousePosition1 = Vector3D((float)posX, (float)posY, (float)posZ);
+
+        gluUnProject(secondPoint.x, secondPoint.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
+        Vector3D unprojectedMousePosition2 = Vector3D((float)posX, (float)posY, (float)posZ);        
+        
         Vector3D cameraOrigin = camera->GetAxisZ() * camera->GetZoom();
-        Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
+        Vector3D mouseDirection1 = unprojectedMousePosition1 - cameraOrigin;
+        Vector3D mouseDirection2 = unprojectedMousePosition2 - cameraOrigin;
         
         Matrix4x4 transform;
         transform.Translate(camera->GetCenter());
@@ -482,7 +484,7 @@ NSOpenGLContext *globalGLContext = nil;
         transform = transform * modelTransform;
 
         Mesh *m = (Mesh *)[controller model];
-        m->mesh->paintOnTexture(transform, cameraOrigin, mouseDirection);
+        m->mesh->paintOnTexture(transform, cameraOrigin, mouseDirection1, mouseDirection2);
         [self setNeedsDisplay:YES];
     }
 }
@@ -506,7 +508,7 @@ NSOpenGLContext *globalGLContext = nil;
     if ([e modifierFlags] & NSShiftKeyMask)
     {
         isPainting = YES;
-        [self paintOnTextureWithMousePoint:lastPoint];
+        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
 	
@@ -655,7 +657,8 @@ NSOpenGLContext *globalGLContext = nil;
     
     if ([e modifierFlags] & NSShiftKeyMask)
     {
-        [self paintOnTextureWithMousePoint:currentPoint];
+        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:currentPoint];
+        lastPoint = currentPoint;
         return;
     }
 	

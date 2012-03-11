@@ -674,13 +674,40 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
     }
 }
 
-void Mesh2::paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, const Vector3D &direction)
+void Mesh2::uvToPixels(float &u, float &v)
 {
-    float u = 0.0f;
-    float v = 0.0f;
-    Vector3D intersect = Vector3D();
+    /*while (u > 1.0f)
+        u -= 1.0f;
     
-    TriangleNode *nearestNode = NULL;
+    while (u < 0.0f)
+        u += 1.0f;
+    
+    while (v > 1.0f)
+        v -= 1.0f;
+    
+    while (v < 0.0f)
+        v += 1.0f;*/
+    
+    FPTexture *texture = checkerTexture;
+    
+    u *= (float)texture.width;
+    v *= (float)texture.height;
+    
+    v = (float)texture.height - v;
+}
+
+void Mesh2::paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin,
+                           const Vector3D &direction1, const Vector3D &direction2)
+{
+    float u1 = 0.0f; 
+    float u2 = 0.0f;
+    float v1 = 0.0f;
+    float v2 = 0.0f;
+    Vector3D intersect1 = Vector3D();
+    Vector3D intersect2 = Vector3D();
+    
+    TriangleNode *nearest1 = NULL;
+    TriangleNode *nearest2 = NULL;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -688,53 +715,108 @@ void Mesh2::paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, c
         float tempV = 0.0f;
         Vector3D tempIntersect;
         
-        //node->data.selected = false;
-        
-        if (node->data().rayIntersect(transform, origin, direction, tempU, tempV, tempIntersect))
+        if (node->data().rayIntersect(transform, origin, direction1, tempU, tempV, tempIntersect))
         {
-            if (nearestNode == NULL || intersect.SqDistance(origin) > tempIntersect.SqDistance(origin))
+            if (nearest1 == NULL || intersect1.SqDistance(origin) > tempIntersect.SqDistance(origin))
             {
-                nearestNode = node;
-                u = tempU;
-                v = tempV;
-                intersect = tempIntersect;
+                nearest1 = node;
+                u1 = tempU;
+                v1 = tempV;
+                intersect1 = tempIntersect;
+            }            
+        }
+        
+        if (node->data().rayIntersect(transform, origin, direction2, tempU, tempV, tempIntersect))
+        {
+            if (nearest2 == NULL || intersect2.SqDistance(origin) > tempIntersect.SqDistance(origin))
+            {
+                nearest2 = node;
+                u2 = tempU;
+                v2 = tempV;
+                intersect2 = tempIntersect;
             }            
         }
     }
     
-    if (nearestNode)
+    if (nearest1 && nearest2)
     {
-        /*nearestNode->data.selected = true;
-        resetTriangleCache();
-        setSelectionMode(selectionMode());*/
-        
-        nearestNode->data().convertToPixelPositions(u, v);
+        nearest1->data().convertToPixelPositions(u1, v1);
+        nearest2->data().convertToPixelPositions(u2, v2);
         
         FPTexture *texture = checkerTexture;
         
-        while (u > 1.0f)
-            u -= 1.0f;
+        uvToPixels(u1, v1);
+        uvToPixels(u2, v2);
         
-        while (u < 0.0f)
-            u += 1.0f;
+        if (nearest1 != nearest2)
+        {
+            if (u1 > u2)
+            {
+                if (fabsf(u1 - (u2 + texture.width)) < fabsf(u1 - u2))
+                {
+                    u2 += texture.width;
+                }
+            }
+            else if (u1 < u2)
+            {
+                if (fabsf(u1 + texture.width - u2) < fabsf(u1 - u2))
+                {
+                    u1 += texture.width;
+                }
+            }
+            
+            if (v1 > v2)
+            {
+                if (fabsf(v1 - (v2 + texture.height)) < fabsf(v1 - v2))
+                {
+                    v2 += texture.height;
+                }
+            }
+            else if (v1 < v2)
+            {
+                if (fabsf(v1 + texture.height - v2) < fabsf(v1 - v2))
+                {
+                    v1 += texture.height;
+                }
+            }
+        }
         
-        while (v > 1.0f)
-            v -= 1.0f;
+        NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(texture.width * 2, texture.height * 2)];
         
-        while (v < 0.0f)
-            v += 1.0f;
+        [image lockFocus];        
         
-        u *= (float)[texture width];
-        v *= (float)[texture height];
+        [[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setStroke];
         
-        v = (float)[texture height] - v;
+        NSBezierPath *bezierPath = [NSBezierPath bezierPath];
+        [bezierPath setLineWidth:2.0f];
+        [bezierPath moveToPoint:NSMakePoint(u1, v1)];
+        [bezierPath lineToPoint:NSMakePoint(u2, v2)];
+        [bezierPath stroke];
+        
+        [image unlockFocus];
         
         [[texture canvas] lockFocus];
         
-        [[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setFill];
+        [image drawAtPoint:NSZeroPoint 
+                  fromRect:NSMakeRect(0, 0, texture.width, texture.height) 
+                 operation:NSCompositeSourceOver 
+                  fraction:1.0f];
         
-        NSBezierPath *bezierPath = [NSBezierPath bezierPathWithOvalInRect:CGRectMake(u - 1.0f, v - 1.0f, 2.0f, 2.0f)];
-        [bezierPath fill];
+        [image drawAtPoint:NSZeroPoint 
+                  fromRect:NSMakeRect(texture.width, 0, texture.width * 2, texture.height) 
+                 operation:NSCompositeSourceOver 
+                  fraction:1.0f];
+        
+        [image drawAtPoint:NSZeroPoint 
+                  fromRect:NSMakeRect(0, texture.height, texture.width, texture.height * 2) 
+                 operation:NSCompositeSourceOver 
+                  fraction:1.0f];
+
+        
+        [image drawAtPoint:NSZeroPoint 
+                  fromRect:NSMakeRect(texture.width, texture.height, texture.width * 2, texture.height * 2) 
+                 operation:NSCompositeSourceOver 
+                  fraction:1.0f];
         
         [[texture canvas] unlockFocus];
         [texture updateTexture];
