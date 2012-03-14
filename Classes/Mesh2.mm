@@ -21,11 +21,14 @@ Mesh2::Mesh2(float colorComponents[4])
     
     _vboID = 0U;
     _vboGenerated = false;
+    
+    _texture = nil;
 }
 
 Mesh2::~Mesh2()
 {
     resetTriangleCache();
+    _texture = nil;
 }
 
 void Mesh2::setSelectionMode(MeshSelectionMode value)

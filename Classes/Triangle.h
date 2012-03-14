@@ -53,7 +53,7 @@ public:
     
     void computeNormal();
     bool rayIntersect(const Matrix4x4 &transform, const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect);
-    void convertToPixelPositions(float &u, float &v);
+    void convertBarycentricToUVs(float &u, float &v);
     
     friend class TriangleNode;
 };

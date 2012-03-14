@@ -305,7 +305,7 @@
 {
     mesh->cleanTexture();
 }
-				 
+
 #pragma mark CppFileStreaming implementation
 
 - (id)initWithFileStream:(ifstream *)fin

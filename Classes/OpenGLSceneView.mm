@@ -464,27 +464,73 @@ NSOpenGLContext *globalGLContext = nil;
         glGetDoublev(GL_PROJECTION_MATRIX, projection);
         glGetIntegerv(GL_VIEWPORT, viewport);
         
+        const Vector3D cameraOrigin = camera->GetAxisZ() * camera->GetZoom();
         const float z = 1.0f;
         
-        gluUnProject(firstPoint.x, firstPoint.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
-        Vector3D unprojectedMousePosition1 = Vector3D((float)posX, (float)posY, (float)posZ);
-
-        gluUnProject(secondPoint.x, secondPoint.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
-        Vector3D unprojectedMousePosition2 = Vector3D((float)posX, (float)posY, (float)posZ);        
+        Mesh *m = (Mesh *)[controller model];
         
-        Vector3D cameraOrigin = camera->GetAxisZ() * camera->GetZoom();
-        Vector3D mouseDirection1 = unprojectedMousePosition1 - cameraOrigin;
-        Vector3D mouseDirection2 = unprojectedMousePosition2 - cameraOrigin;
+        const Matrix4x4 &modelTransform = *[controller modelTransform];
         
         Matrix4x4 transform;
         transform.Translate(camera->GetCenter());
-        
-        Matrix4x4 &modelTransform = *[controller modelTransform];
-        
         transform = transform * modelTransform;
+        
+        Vector2D startPoint = Vector2D(firstPoint.x, firstPoint.y);
+        Vector2D endPoint = Vector2D(secondPoint.x, secondPoint.y);
+        
+        Vector2D move = endPoint - startPoint;
+        float advance = 1.0f / move.GetLength();
+        
+        vector<Vector2D> *UVs = new vector<Vector2D>();
+        
+        for (float t = 0.0f; t <= 1.0f; t += advance)
+        {
+            Vector2D current = startPoint + move * t;
+            
+            gluUnProject(current.x, current.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
+            Vector3D unprojectedMousePosition = Vector3D((float)posX, (float)posY, (float)posZ);
+            Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
+            
+            float u, v;
+            
+            TriangleNode *nearest = m->mesh->rayToUV(transform, cameraOrigin, mouseDirection, u, v);
+            if (nearest)
+                UVs->push_back(Vector2D(u, v));
+        }
+        
+        [[m->mesh->texture() canvas] lockFocus];
+        
+        [[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setStroke];
+        
+        NSBezierPath *bezierPath = [NSBezierPath bezierPath];
+        [bezierPath setLineWidth:2.0f];
+        
+        Vector2D lastUV;
+        
+        for (int i = 0; i < (int)UVs->size(); i++)
+        {
+            Vector2D uv = UVs->at(i);
+            NSPoint point = NSMakePoint(uv.x, uv.y);
+            if (i == 0)
+                [bezierPath moveToPoint:point];
+            else
+            {
+                float distance = lastUV.Distance(uv);
+                if (distance > 10.0f)
+                    [bezierPath moveToPoint:point];
+                else
+                    [bezierPath lineToPoint:point];
+            }
+            
+            lastUV = uv;
+        }
+        
+        delete UVs;
 
-        Mesh *m = (Mesh *)[controller model];
-        m->mesh->paintOnTexture(transform, cameraOrigin, mouseDirection1, mouseDirection2);
+        [bezierPath stroke];
+        
+        [[m->mesh->texture() canvas] unlockFocus];        
+        [m->mesh->texture() updateTexture];
         [self setNeedsDisplay:YES];
     }
 }

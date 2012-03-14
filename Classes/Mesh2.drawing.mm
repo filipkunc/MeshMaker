@@ -8,26 +8,6 @@
 
 #import "Mesh2.h"
 
-FPTexture *checkerTexture = nil;
-
-void loadTextureIfNeeded();
-
-void loadTextureIfNeeded()
-{
-    if (!checkerTexture)
-        checkerTexture = [[FPTexture alloc] initWithFile:@"checker.png" convertToAlpha:NO];    
-}
-
-Point2D makePoint(float x, float y);
-
-Point2D makePoint(float x, float y)
-{
-    Point2D point;
-    point.coords[0] = x;
-    point.coords[1] = y;
-    return point;
-}
-
 void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float components[3]);
 
 void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float components[3])
@@ -226,8 +206,9 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (fillMode.textured)
     {
         glEnable(GL_TEXTURE_2D);
-        loadTextureIfNeeded();
-        glBindTexture(GL_TEXTURE_2D, [checkerTexture textureID]);
+        if (!_texture)
+            _texture = [[FPTexture alloc] initWithFile:@"checker.png" convertToAlpha:NO];
+        glBindTexture(GL_TEXTURE_2D, [_texture textureID]);
     }
     
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
@@ -329,7 +310,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
         if (_isUnwrapped)
         {
             glColor3f(1.0f, 1.0f, 1.0f);
-            [checkerTexture drawForUnwrap];
+            [_texture drawForUnwrap];
         }
 	}
 	glPopMatrix();
@@ -688,26 +669,22 @@ void Mesh2::uvToPixels(float &u, float &v)
     while (v < 0.0f)
         v += 1.0f;*/
     
-    FPTexture *texture = checkerTexture;
+    u *= (float)_texture.width;
+    v *= (float)_texture.height;
     
-    u *= (float)texture.width;
-    v *= (float)texture.height;
-    
-    v = (float)texture.height - v;
+    v = (float)_texture.height - v;
 }
 
-void Mesh2::paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin,
-                           const Vector3D &direction1, const Vector3D &direction2)
+TriangleNode *Mesh2::rayToUV(const Matrix4x4 &transform, const Vector3D &origin, 
+                             const Vector3D &direction, float &u, float &v)
 {
-    float u1 = 0.0f; 
-    float u2 = 0.0f;
-    float v1 = 0.0f;
-    float v2 = 0.0f;
-    Vector3D intersect1 = Vector3D();
-    Vector3D intersect2 = Vector3D();
+    Vector3D intersect = Vector3D();
+    TriangleNode *nearest = NULL;
+    u = 0.0f;
+    v = 0.0f;
     
-    TriangleNode *nearest1 = NULL;
-    TriangleNode *nearest2 = NULL;
+    float lastSqDistance = 0.0f;
+    float tempSqDistance = 0.0f;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -715,124 +692,35 @@ void Mesh2::paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin,
         float tempV = 0.0f;
         Vector3D tempIntersect;
         
-        if (node->data().rayIntersect(transform, origin, direction1, tempU, tempV, tempIntersect))
+        if (node->data().rayIntersect(transform, origin, direction, tempU, tempV, tempIntersect))
         {
-            if (nearest1 == NULL || intersect1.SqDistance(origin) > tempIntersect.SqDistance(origin))
+            tempSqDistance = tempIntersect.SqDistance(origin);
+            if (nearest == NULL || lastSqDistance > tempSqDistance)
             {
-                nearest1 = node;
-                u1 = tempU;
-                v1 = tempV;
-                intersect1 = tempIntersect;
-            }            
-        }
-        
-        if (node->data().rayIntersect(transform, origin, direction2, tempU, tempV, tempIntersect))
-        {
-            if (nearest2 == NULL || intersect2.SqDistance(origin) > tempIntersect.SqDistance(origin))
-            {
-                nearest2 = node;
-                u2 = tempU;
-                v2 = tempV;
-                intersect2 = tempIntersect;
+                nearest = node;
+                u = tempU;
+                v = tempV;
+                intersect = tempIntersect;
+                lastSqDistance = tempSqDistance;
             }            
         }
     }
-    
-    if (nearest1 && nearest2)
-    {
-        nearest1->data().convertToPixelPositions(u1, v1);
-        nearest2->data().convertToPixelPositions(u2, v2);
-        
-        FPTexture *texture = checkerTexture;
-        
-        uvToPixels(u1, v1);
-        uvToPixels(u2, v2);
-        
-        if (nearest1 != nearest2)
-        {
-            if (u1 > u2)
-            {
-                if (fabsf(u1 - (u2 + texture.width)) < fabsf(u1 - u2))
-                {
-                    u2 += texture.width;
-                }
-            }
-            else if (u1 < u2)
-            {
-                if (fabsf(u1 + texture.width - u2) < fabsf(u1 - u2))
-                {
-                    u1 += texture.width;
-                }
-            }
-            
-            if (v1 > v2)
-            {
-                if (fabsf(v1 - (v2 + texture.height)) < fabsf(v1 - v2))
-                {
-                    v2 += texture.height;
-                }
-            }
-            else if (v1 < v2)
-            {
-                if (fabsf(v1 + texture.height - v2) < fabsf(v1 - v2))
-                {
-                    v1 += texture.height;
-                }
-            }
-        }
-        
-        NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(texture.width * 2, texture.height * 2)];
-        
-        [image lockFocus];        
-        
-        [[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setStroke];
-        
-        NSBezierPath *bezierPath = [NSBezierPath bezierPath];
-        [bezierPath setLineWidth:2.0f];
-        [bezierPath moveToPoint:NSMakePoint(u1, v1)];
-        [bezierPath lineToPoint:NSMakePoint(u2, v2)];
-        [bezierPath stroke];
-        
-        [image unlockFocus];
-        
-        [[texture canvas] lockFocus];
-        
-        [image drawAtPoint:NSZeroPoint 
-                  fromRect:NSMakeRect(0, 0, texture.width, texture.height) 
-                 operation:NSCompositeSourceOver 
-                  fraction:1.0f];
-        
-        [image drawAtPoint:NSZeroPoint 
-                  fromRect:NSMakeRect(texture.width, 0, texture.width * 2, texture.height) 
-                 operation:NSCompositeSourceOver 
-                  fraction:1.0f];
-        
-        [image drawAtPoint:NSZeroPoint 
-                  fromRect:NSMakeRect(0, texture.height, texture.width, texture.height * 2) 
-                 operation:NSCompositeSourceOver 
-                  fraction:1.0f];
 
-        
-        [image drawAtPoint:NSZeroPoint 
-                  fromRect:NSMakeRect(texture.width, texture.height, texture.width * 2, texture.height * 2) 
-                 operation:NSCompositeSourceOver 
-                  fraction:1.0f];
-        
-        [[texture canvas] unlockFocus];
-        [texture updateTexture];
+    if (nearest)
+    {
+        nearest->data().convertBarycentricToUVs(u, v);
+        uvToPixels(u, v);
     }
+    return nearest;
 }
 
 void Mesh2::cleanTexture()
-{
-    FPTexture *texture = checkerTexture;
-    
-    [[texture canvas] lockFocus];
+{   
+    [[_texture canvas] lockFocus];
     
     [[NSColor whiteColor] setFill];
-    NSRectFill(NSMakeRect(0, 0, [texture width], [texture height]));
+    NSRectFill(NSMakeRect(0, 0, [_texture width], [_texture height]));
     
-    [[texture canvas] unlockFocus];
-    [texture updateTexture];
- 
+    [[_texture canvas] unlockFocus];
+    [_texture updateTexture]; 
 }

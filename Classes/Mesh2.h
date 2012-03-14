@@ -95,6 +95,7 @@ private:
     uint _vboID;
     bool _vboGenerated;
     
+    FPTexture *_texture;    
 private:
     void fastMergeSelectedVertices();
     void fastMergeSelectedTexCoords();
@@ -118,6 +119,8 @@ private:
 public:
     Mesh2(float colorComponents[4]);
     ~Mesh2();
+    
+    FPTexture *texture() { return _texture; }
     
     int vertexCount() { return _vertices.count(); }
     int triangleCount() { return _triangles.count(); }
@@ -177,8 +180,9 @@ public:
     
     // texturing
     
-    void paintOnTexture(const Matrix4x4 &transform, const Vector3D &origin, 
-                        const Vector3D &direction1, const Vector3D &direction2);
+    TriangleNode *rayToUV(const Matrix4x4 &transform, const Vector3D &origin, 
+                          const Vector3D &direction, float &u, float &v);
+    
     void cleanTexture();    
 
     // make

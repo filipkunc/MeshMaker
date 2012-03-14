@@ -334,7 +334,7 @@ bool Triangle2::rayIntersect(const Matrix4x4 &transform, const Vector3D &origin,
     return false;
 }
 
-void Triangle2::convertToPixelPositions(float &u, float &v)
+void Triangle2::convertBarycentricToUVs(float &u, float &v)
 {
     Vector3D t0 = _texCoords[0]->data().position;
     Vector3D t1 = _texCoords[1]->data().position;
