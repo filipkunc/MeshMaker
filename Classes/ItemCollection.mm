@@ -430,4 +430,14 @@
     return nil;
 }
 
+- (Item *)firstSelectedItem
+{
+    for (Item *item in items)
+	{
+		if ([item selected])
+			return item;
+	}
+    return nil;
+}
+
 @end

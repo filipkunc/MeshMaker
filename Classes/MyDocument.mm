@@ -146,6 +146,8 @@ vector<T> *ReadValues(string s)
 {
 	if (manipulated == meshController)
 		return (Mesh *)[meshController model];
+    if (manipulated == itemsController)
+        return [(ItemCollection *)[itemsController model] currentMesh];
 	return nil;
 }
 

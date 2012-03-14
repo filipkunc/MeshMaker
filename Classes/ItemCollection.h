@@ -37,5 +37,6 @@
 - (void)deselectAll;
 - (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount;
 - (Mesh *)currentMesh;
+- (Item *)firstSelectedItem;
 
 @end

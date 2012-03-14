@@ -17,6 +17,7 @@
 #import "Mesh.h"
 #import "Mesh2.h"
 #import "FPTexture.h"
+#import "ItemCollection.h"
 
 @class OpenGLSceneView;
 
