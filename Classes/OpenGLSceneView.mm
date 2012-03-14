@@ -464,7 +464,7 @@ NSOpenGLContext *globalGLContext = nil;
         glGetDoublev(GL_PROJECTION_MATRIX, projection);
         glGetIntegerv(GL_VIEWPORT, viewport);
         
-        const Vector3D cameraOrigin = camera->GetAxisZ() * camera->GetZoom();
+        Vector3D cameraOrigin = camera->GetAxisZ() * camera->GetZoom();
         const float z = 1.0f;
         
         Mesh *m = (Mesh *)[controller model];
@@ -474,6 +474,9 @@ NSOpenGLContext *globalGLContext = nil;
         Matrix4x4 transform;
         transform.Translate(camera->GetCenter());
         transform = transform * modelTransform;
+        transform = transform.Inverse();
+        
+        cameraOrigin = transform.Transform(cameraOrigin);
         
         Vector2D startPoint = Vector2D(firstPoint.x, firstPoint.y);
         Vector2D endPoint = Vector2D(secondPoint.x, secondPoint.y);
@@ -482,21 +485,30 @@ NSOpenGLContext *globalGLContext = nil;
         float advance = 1.0f / move.GetLength();
         
         vector<Vector2D> *UVs = new vector<Vector2D>();
-        
-        for (float t = 0.0f; t <= 1.0f; t += advance)
+        float u, v;
+
+        for (float t = 0.0f; t < 1.0f; t += advance)
         {
             Vector2D current = startPoint + move * t;
             
             gluUnProject(current.x, current.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
             Vector3D unprojectedMousePosition = Vector3D((float)posX, (float)posY, (float)posZ);
             Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
-            
-            float u, v;
-            
-            TriangleNode *nearest = m->mesh->rayToUV(transform, cameraOrigin, mouseDirection, u, v);
+            mouseDirection = transform.Transform(mouseDirection);
+           
+            TriangleNode *nearest = m->mesh->rayToUV(cameraOrigin, mouseDirection, u, v);
             if (nearest)
                 UVs->push_back(Vector2D(u, v));
         }
+        
+        gluUnProject(endPoint.x, endPoint.y, z, modelview, projection, viewport, &posX, &posY, &posZ);
+        Vector3D unprojectedMousePosition = Vector3D((float)posX, (float)posY, (float)posZ);
+        Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
+        mouseDirection = transform.Transform(mouseDirection);
+        
+        TriangleNode *nearest = m->mesh->rayToUV(cameraOrigin, mouseDirection, u, v);
+        if (nearest)
+            UVs->push_back(Vector2D(u, v));
         
         [[m->mesh->texture() canvas] lockFocus];
         

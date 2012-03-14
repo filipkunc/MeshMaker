@@ -657,26 +657,13 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
 
 void Mesh2::uvToPixels(float &u, float &v)
 {
-    /*while (u > 1.0f)
-        u -= 1.0f;
-    
-    while (u < 0.0f)
-        u += 1.0f;
-    
-    while (v > 1.0f)
-        v -= 1.0f;
-    
-    while (v < 0.0f)
-        v += 1.0f;*/
-    
     u *= (float)_texture.width;
     v *= (float)_texture.height;
     
     v = (float)_texture.height - v;
 }
 
-TriangleNode *Mesh2::rayToUV(const Matrix4x4 &transform, const Vector3D &origin, 
-                             const Vector3D &direction, float &u, float &v)
+TriangleNode *Mesh2::rayToUV(const Vector3D &origin, const Vector3D &direction, float &u, float &v)
 {
     Vector3D intersect = Vector3D();
     TriangleNode *nearest = NULL;
@@ -692,7 +679,7 @@ TriangleNode *Mesh2::rayToUV(const Matrix4x4 &transform, const Vector3D &origin,
         float tempV = 0.0f;
         Vector3D tempIntersect;
         
-        if (node->data().rayIntersect(transform, origin, direction, tempU, tempV, tempIntersect))
+        if (node->data().rayIntersect(origin, direction, tempU, tempV, tempIntersect))
         {
             tempSqDistance = tempIntersect.SqDistance(origin);
             if (nearest == NULL || lastSqDistance > tempSqDistance)

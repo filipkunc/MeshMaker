@@ -299,11 +299,11 @@ void Triangle2::computeNormal()
     vertexNormal = u.Cross(v);    
 }
 
-bool Triangle2::rayIntersect(const Matrix4x4 &transform, const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect)
+bool Triangle2::rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect)
 {
-    Vector3D v0 = transform.Transform(_vertices[0]->data().position);
-    Vector3D v1 = transform.Transform(_vertices[1]->data().position);
-    Vector3D v2 = transform.Transform(_vertices[2]->data().position);
+    Vector3D v0 = _vertices[0]->data().position;
+    Vector3D v1 = _vertices[1]->data().position;
+    Vector3D v2 = _vertices[2]->data().position;
     
     Vector3D e1 = v1 - v0;
     Vector3D e2 = v2 - v0;

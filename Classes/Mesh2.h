@@ -180,8 +180,7 @@ public:
     
     // texturing
     
-    TriangleNode *rayToUV(const Matrix4x4 &transform, const Vector3D &origin, 
-                          const Vector3D &direction, float &u, float &v);
+    TriangleNode *rayToUV(const Vector3D &origin, const Vector3D &direction, float &u, float &v);
     
     void cleanTexture();    
 
