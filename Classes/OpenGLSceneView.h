@@ -27,6 +27,9 @@
 - (void)manipulationEndedInView:(OpenGLSceneView *)view;
 - (void)selectionChangedInView:(OpenGLSceneView *)view;
 
+@property (readonly) NSColor *brushColor;
+@property (readonly) float brushSize;
+
 @end
 
 @interface OpenGLSceneView : NSOpenGLView 

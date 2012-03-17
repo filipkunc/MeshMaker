@@ -419,6 +419,16 @@ vector<T> *ReadValues(string s)
 	[self setNeedsDisplayExceptView:view];
 }
 
+- (NSColor *)brushColor
+{
+    return [texturePaintToolWindowController brushColor];
+}
+
+- (float)brushSize
+{
+    return [texturePaintToolWindowController brushSize];
+}
+
 - (void)selectionChangedInView:(OpenGLSceneView *)view
 {
 	[self setNeedsDisplayExceptView:view];
@@ -762,6 +772,11 @@ vector<T> *ReadValues(string s)
 {
     [[self currentMesh] resetTexCooords];
     [self setNeedsDisplayOnAllViews];
+}
+
+- (void)viewTexturePaintTool:(id)sender
+{
+    [texturePaintToolWindowController showWindow:nil];
 }
 
 - (NSString *)windowNibName

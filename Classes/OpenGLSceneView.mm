@@ -549,10 +549,11 @@ NSOpenGLContext *globalGLContext = nil;
     
     [[m->mesh->texture() canvas] lockFocus];
     
-    [[NSColor colorWithCalibratedRed:0.5f green:0.3f blue:1.0f alpha:0.3f] setStroke];
+    NSColor *color = [[delegate brushColor] colorWithAlphaComponent:0.3f];
+    [color setStroke];
     
     NSBezierPath *bezierPath = [NSBezierPath bezierPath];
-    [bezierPath setLineWidth:2.0f];
+    [bezierPath setLineWidth:[delegate brushSize]];
     
     Vector2D lastUV;
     

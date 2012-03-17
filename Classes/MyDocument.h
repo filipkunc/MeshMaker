@@ -10,6 +10,7 @@
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
+#import "FPTexturePaintToolWindowController.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate, NSWindowDelegate>
 {
@@ -36,6 +37,7 @@
 	IBOutlet NSSplitView *bottomSplit;
 	IBOutlet NSSplitView *mainSplit;
 	OpenGLSceneView *oneView;
+    IBOutlet FPTexturePaintToolWindowController *texturePaintToolWindowController;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -90,5 +92,6 @@
 - (IBAction)softSelection:(id)sender;
 - (IBAction)cleanTexture:(id)sender;
 - (IBAction)resetTexCoords:(id)sender;
+- (IBAction)viewTexturePaintTool:(id)sender;
 
 @end

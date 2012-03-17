@@ -92,6 +92,8 @@
 		A7D0684914B9FD350091B657 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684814B9FD350091B657 /* Triangle.cpp */; };
 		A7D0684B14B9FE500091B657 /* VertexEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684A14B9FE500091B657 /* VertexEdge.cpp */; };
 		A7D0685414BA2A100091B657 /* TexCoordEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */; };
+		A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */; };
+		A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */; };
 		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
 /* End PBXBuildFile section */
@@ -203,6 +205,9 @@
 		A7D0685114BA00340091B657 /* VertexEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VertexEdge.h; path = Classes/VertexEdge.h; sourceTree = "<group>"; };
 		A7D0685214BA008B0091B657 /* TexCoordEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TexCoordEdge.h; path = Classes/TexCoordEdge.h; sourceTree = "<group>"; };
 		A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TexCoordEdge.cpp; path = Classes/TexCoordEdge.cpp; sourceTree = "<group>"; };
+		A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexturePaintToolWindowController.h; path = Classes/FPTexturePaintToolWindowController.h; sourceTree = "<group>"; };
+		A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPTexturePaintToolWindowController.m; path = Classes/FPTexturePaintToolWindowController.m; sourceTree = "<group>"; };
+		A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTexturePaintToolWindowController.xib; path = Classes/FPTexturePaintToolWindowController.xib; sourceTree = "<group>"; };
 		A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleNodeAndList.h; path = Classes/SimpleNodeAndList.h; sourceTree = "<group>"; };
 		A7FEB1FB13FF002E00473F8D /* FPTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexture.h; path = Classes/FPTexture.h; sourceTree = "<group>"; };
 		A7FEB1FC13FF002E00473F8D /* FPTexture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTexture.mm; path = Classes/FPTexture.mm; sourceTree = "<group>"; };
@@ -352,6 +357,9 @@
 				A7D0684A14B9FE500091B657 /* VertexEdge.cpp */,
 				A7D0685214BA008B0091B657 /* TexCoordEdge.h */,
 				A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */,
+				A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */,
+				A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */,
+				A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -489,6 +497,7 @@
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				en,
+				English,
 			);
 			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */;
 			projectDirPath = "";
@@ -522,6 +531,7 @@
 				A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */,
 				A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */,
 				A7FEB20213FF01D200473F8D /* checker.png in Resources */,
+				A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -588,6 +598,7 @@
 				A7D0684B14B9FE500091B657 /* VertexEdge.cpp in Sources */,
 				A7D0685414BA2A100091B657 /* TexCoordEdge.cpp in Sources */,
 				A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */,
+				A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
