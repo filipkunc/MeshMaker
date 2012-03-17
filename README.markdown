@@ -28,7 +28,7 @@ And same chess tower after four or five Loop subdivision iterations.
 
 Texturing is currently work in progress.
 
-<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="994px" height="654px"></img>
+<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="785px" height="577px"></img>
 
 
 ## Videos
