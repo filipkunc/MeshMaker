@@ -24,31 +24,31 @@
 
 #pragma mark CppFileStreaming implementation
 
-- (id)initWithFileStream:(ifstream *)fin
+- (id)initWithReadStream:(MemoryReadStream *)stream
 {
 	self = [super init];
 	if (self)
 	{
 		items = [[NSMutableArray alloc] init];
 		uint itemsCount;
-		fin->read((char *)&itemsCount, sizeof(uint));
+        [stream readBytes:&itemsCount length:sizeof(uint)];
 		for (uint i = 0; i < itemsCount; i++)
 		{
-			Item *item = [[Item alloc] initWithFileStream:fin];
+			Item *item = [[Item alloc] initWithReadStream:stream];
 			[items addObject:item];
 		}
 	}
 	return self;
 }
 
-- (void)encodeWithFileStream:(ofstream *)fout
+- (void)encodeWithWriteStream:(MemoryWriteStream *)stream
 {
 	uint itemsCount = [items count];
-	fout->write((char *)&itemsCount, sizeof(uint));
+    [stream writeBytes:&itemsCount length:sizeof(uint)];
 	for (uint i = 0; i < itemsCount; i++)
 	{		
 		Item *item = [self itemAtIndex:i];
-		[item encodeWithFileStream:fout];
+		[item encodeWithWriteStream:stream];
 	}
 }
 

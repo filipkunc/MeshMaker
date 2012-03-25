@@ -70,38 +70,38 @@
 	return self;
 }
 
-#pragma mark CppFileStreaming implementation
+#pragma mark MemoryStreaming implementation
 
-- (id)initWithFileStream:(ifstream *)fin
+- (id)initWithReadStream:(MemoryReadStream *)stream
 {
 	self = [super init];
 	if (self)
 	{
 		position = new Vector3D();
-		fin->read((char *)position, sizeof(Vector3D));
+        [stream readBytes:position length:sizeof(Vector3D)];
 		
 		rotation = new Quaternion();
-		fin->read((char *)rotation, sizeof(Quaternion));
+        [stream readBytes:rotation length:sizeof(Quaternion)];
 		
 		scale = new Vector3D();
-		fin->read((char *)scale, sizeof(Vector3D));
+        [stream readBytes:scale length:sizeof(Vector3D)];
 		
-		fin->read((char *)&selected, sizeof(BOOL));
+        [stream readBytes:&selected length:sizeof(BOOL)];
 		visible = YES;
 		
-		mesh = [[Mesh alloc] initWithFileStream:fin];
+		mesh = [[Mesh alloc] initWithReadStream:stream];
 	}
 	return self;
 }
 
-- (void)encodeWithFileStream:(ofstream *)fout
+- (void)encodeWithWriteStream:(MemoryWriteStream *)stream
 {
-	fout->write((char *)position, sizeof(Vector3D));
-	fout->write((char *)rotation, sizeof(Quaternion));
-	fout->write((char *)scale, sizeof(Vector3D));
-	fout->write((char *)&selected, sizeof(BOOL));
+    [stream writeBytes:position length:sizeof(Vector3D)];
+    [stream writeBytes:rotation length:sizeof(Quaternion)];
+    [stream writeBytes:scale length:sizeof(Vector3D)];
+    [stream writeBytes:&selected length:sizeof(BOOL)];
 	
-	[mesh encodeWithFileStream:fout];
+	[mesh encodeWithWriteStream:stream];
 }
 
 - (void)dealloc

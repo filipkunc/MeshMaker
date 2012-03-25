@@ -794,9 +794,30 @@ vector<T> *ReadValues(string s)
 
 #pragma mark Archivation
 
-- (BOOL)readFromCollada:(NSString *)fileName
+/*- (BOOL)readFromFileWrapper:(NSFileWrapper *)dirWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
-    NSString* xmlData = [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:NULL];
+    NSFileWrapper *wrapper;
+    NSData *data;
+    
+    wrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3d"];
+    data = [wrapper regularFileContents];
+    self.pdfData = data;
+    
+    wrapper = [[dirWrapper fileWrappers] objectForKey:@"SignatureBitmap.png"];
+    data = [wrapper regularFileContents];
+    self.signatureBitmapData = data;
+    
+    return YES;
+}
+
+- (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
+{
+    
+}*/
+
+- (BOOL)readFromCollada:(NSData *)data
+{
+    NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
     int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     char *textBuffer = new char [length];
@@ -891,59 +912,47 @@ vector<T> *ReadValues(string s)
     delete uvCoords;
     delete indices;
     delete [] textBuffer;
-    
+
     return YES;
 }
 
-- (BOOL)readFromModel3D:(NSString *)fileName
+- (BOOL)readFromModel3D:(NSData *)data
 {
-	const char *cFileName = [fileName cStringUsingEncoding:NSUTF8StringEncoding];
-	ifstream fin;
-	fin.open(cFileName, ios::in | ios::binary);
-	if (fin.is_open())
-	{
-		ItemCollection *newItems = [[ItemCollection alloc] initWithFileStream:&fin];
-		items = newItems;
-		[itemsController setModel:items];
-		[itemsController updateSelection];
-		[self setManipulated:itemsController];
-		fin.close();
-		return YES;
-	}
-	fin.close();
-	return NO;
+    MemoryReadStream *stream = [[MemoryReadStream alloc] initWithData:data];
+    ItemCollection *newItems = [[ItemCollection alloc] initWithReadStream:stream];
+    items = newItems;
+    [itemsController setModel:items];
+    [itemsController updateSelection];
+    [self setManipulated:itemsController];
+
+    return YES;
 }
 
-- (void)writeToModel3D:(NSString *)fileName
+- (NSData *)dataOfModel3D
 {
-	const char *cFileName = [fileName cStringUsingEncoding:NSUTF8StringEncoding];
-	ofstream fout;
-	fout.open(cFileName, ios::out | ios::binary);
-	[items encodeWithFileStream:&fout];
-	fout.close();
+    NSMutableData *data = [[NSMutableData alloc] init];
+    MemoryWriteStream *stream = [[MemoryWriteStream alloc] initWithData:data];
+    [items encodeWithWriteStream:stream];
+    return data;
 }
 
-// these read/write methods are deprecated, I need to use newer methods
-
-- (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)typeName
+- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
-	if ([typeName isEqual:@"model3D"])
-		return [self readFromModel3D:fileName];
-
+    if ([typeName isEqual:@"model3D"])
+		return [self readFromModel3D:data];
+    
     if ([typeName isEqualToString:@"Collada"])
-        return [self readFromCollada:fileName];
-	
+        return [self readFromCollada:data];
+    
     return NO;
 }
 
-- (BOOL)writeToFile:(NSString *)fileName ofType:(NSString *)typeName
+- (NSData *)dataOfType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
-	if ([typeName isEqual:@"model3D"])
-	{
-		[self writeToModel3D:fileName];
-		return YES;
-	}
-	return NO;
+    if ([typeName isEqualToString:@"model3D"])
+        return [self dataOfModel3D];
+    
+    return nil;
 }
 
 #pragma mark Splitter sync

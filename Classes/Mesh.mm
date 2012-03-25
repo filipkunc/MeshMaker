@@ -308,7 +308,7 @@
 
 #pragma mark CppFileStreaming implementation
 
-- (id)initWithFileStream:(ifstream *)fin
+- (id)initWithReadStream:(MemoryReadStream *)stream
 {
 	self = [self init];
 	if (self)
@@ -316,9 +316,10 @@
 		uint verticesSize;
         uint texCoordsSize;
 		uint trianglesSize;
-		fin->read((char *)&verticesSize, sizeof(uint));
-        fin->read((char *)&texCoordsSize, sizeof(uint));
-		fin->read((char *)&trianglesSize, sizeof(uint));
+        
+        [stream readBytes:&verticesSize length:sizeof(uint)];
+        [stream readBytes:&texCoordsSize length:sizeof(uint)];
+        [stream readBytes:&trianglesSize length:sizeof(uint)];
         
         vector<Vector3D> vertices;
         vector<Vector3D> texCoords;
@@ -327,21 +328,21 @@
 		for (uint i = 0; i < verticesSize; i++)
 		{
 			Vector3D vertex;
-			fin->read((char *)&vertex, sizeof(Vector3D));
+            [stream readBytes:&vertex length:sizeof(Vector3D)];
 			vertices.push_back(vertex);
 		}
         
         for (uint i = 0; i < texCoordsSize; i++)
         {
             Vector3D texCoord;
-            fin->read((char *)&texCoord, sizeof(Vector3D));
+            [stream readBytes:&texCoord length:sizeof(Vector3D)];
             texCoords.push_back(texCoord);
         }
 		
 		for (uint i = 0; i < trianglesSize; i++)
 		{
 			Triangle triangle;
-			fin->read((char *)&triangle, sizeof(Triangle));
+            [stream readBytes:&triangle length:sizeof(Triangle)];
 			triangles.push_back(triangle);
 		}
         
@@ -350,7 +351,7 @@
 	return self;
 }
 
-- (void)encodeWithFileStream:(ofstream *)fout
+- (void)encodeWithWriteStream:(MemoryWriteStream *)stream
 {
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
@@ -359,20 +360,20 @@
     mesh->toIndexRepresentation(vertices, texCoords, triangles);
     
 	uint size = vertices.size();
-	fout->write((char *)&size, sizeof(uint));
+    [stream writeBytes:&size length:sizeof(uint)];
     size = texCoords.size();
-	fout->write((char *)&size, sizeof(uint));
+    [stream writeBytes:&size length:sizeof(uint)];
 	size = triangles.size();
-	fout->write((char *)&size, sizeof(uint));
+    [stream writeBytes:&size length:sizeof(uint)];
     	
 	if (vertices.size() > 0)
-		fout->write((char *)&vertices.at(0), vertices.size() * sizeof(Vector3D));
+        [stream writeBytes:&vertices.at(0) length:vertices.size() * sizeof(Vector3D)];
     
     if (texCoords.size() > 0)
-		fout->write((char *)&texCoords.at(0), texCoords.size() * sizeof(Vector3D));
+        [stream writeBytes:&texCoords.at(0) length:texCoords.size() * sizeof(Vector3D)];
 	
 	if (triangles.size() > 0)
-		fout->write((char *)&triangles.at(0), triangles.size() * sizeof(Triangle));
+        [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(Triangle)];
 }
 
 - (NSString *)nameAtIndex:(uint)index

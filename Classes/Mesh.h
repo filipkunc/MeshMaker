@@ -10,12 +10,12 @@
 #import "MathDeclaration.h"
 #import "OpenGLManipulatingController.h"
 #import "MeshHelpers.h"
-#import "CppFileStreaming.h"
+#import "MemoryStreaming.h"
 #import "Shader.h"
 #import "ShaderProgram.h"
 #import "Mesh2.h"
 
-@interface Mesh : NSObject <OpenGLManipulatingModelMesh, CppFileStreaming>
+@interface Mesh : NSObject <OpenGLManipulatingModelMesh, MemoryStreaming>
 {
 @public
     NSColor *color;    

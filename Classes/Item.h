@@ -9,9 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "MathDeclaration.h"
 #import "Mesh.h"
-#import "CppFileStreaming.h"
+#import "MemoryStreaming.h"
 
-@interface Item : NSObject <CppFileStreaming>
+@interface Item : NSObject <MemoryStreaming>
 {
 	Vector3D *position;
 	Quaternion *rotation;

@@ -85,8 +85,8 @@
 - (IBAction)hideSelected:(id)sender;
 - (IBAction)unhideAll:(id)sender;
 - (IBAction)detachSelected:(id)sender;
-- (BOOL)readFromModel3D:(NSString *)fileName;
-- (void)writeToModel3D:(NSString *)fileName;
+- (BOOL)readFromModel3D:(NSData *)data;
+- (NSData *)dataOfModel3D;
 - (void)toggleOneViewFourView:(id)sender;
 - (IBAction)subdivision:(id)sender;
 - (IBAction)softSelection:(id)sender;
