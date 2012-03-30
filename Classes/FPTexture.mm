@@ -42,11 +42,39 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 
 @implementation FPTexture
 
-@synthesize textureID, width, height;
+@synthesize textureID, needUpdate;
+
+- (int)width
+{
+    return (int)_image.size.width;
+}
+
+- (int)height
+{
+    return (int)_image.size.height;
+}
 
 - (NSImage *)canvas
 {
     return _image;
+}
+
+- (void)setCanvas:(NSImage *)canvas
+{
+    _image = [canvas copy];
+    needUpdate = YES;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self)
+    {
+        _image = nil;
+        textureID = 0;
+        needUpdate = NO;
+    }
+    return self;        
 }
 
 - (id)initWithImage:(NSImage *)image convertToAlpha:(BOOL)convertToAlpha
@@ -55,15 +83,15 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 	if (self)
 	{
         _image = [image copy];
-		width = [image size].width;
-		height = [image size].height;
 		
 		NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
 		GLubyte *data = [bitmap bitmapData];
 		NSInteger bitsPerPixel = [bitmap bitsPerPixel];
 		int components = bitsPerPixel / 8;
         
-		CreateTexture(data, components, &textureID, width, height, convertToAlpha);
+        needUpdate = NO;
+        
+		CreateTexture(data, components, &textureID, _image.size.width, _image.size.height, convertToAlpha);
 		return self;
 	}
 	return nil;	
@@ -111,6 +139,8 @@ struct FPVertex
 {
     float x = (float)pt.x;
     float y = (float)pt.y;
+    float width = self.width;
+    float height = self.height;
     
     const FPVertex vertices[] = 
 	{
@@ -136,10 +166,23 @@ struct FPVertex
 {
     NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[_image TIFFRepresentation]];
     
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    if (textureID == 0)
+    {
+        GLubyte *data = [bitmap bitmapData];
+		NSInteger bitsPerPixel = [bitmap bitsPerPixel];
+		int components = bitsPerPixel / 8;
+        
+		CreateTexture(data, components, &textureID, self.width, self.height, NO);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, 4, self.width, self.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);        
+    }
+    
+    needUpdate = NO;
 }
 
 + (void)drawString:(NSString *)string atPoint:(CGPoint)point

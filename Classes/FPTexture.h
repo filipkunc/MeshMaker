@@ -14,14 +14,14 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 {
     NSImage *_image;
 	GLuint textureID;
-	int width;
-	int height;
+    BOOL needUpdate;
 }
 
 @property (readonly, assign) GLuint textureID;
 @property (readonly, assign) int width;
 @property (readonly, assign) int height;
-@property (readonly) NSImage *canvas;
+@property (readwrite, copy) NSImage *canvas;
+@property (readwrite, assign) BOOL needUpdate;
 
 - (id)initWithImage:(NSImage *)image convertToAlpha:(BOOL)convertToAlpha;
 - (id)initWithFile:(NSString *)fileName convertToAlpha:(BOOL)convertToAlpha;

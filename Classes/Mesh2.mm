@@ -31,6 +31,13 @@ Mesh2::~Mesh2()
     _texture = nil;
 }
 
+FPTexture *Mesh2::texture()
+{
+    if (!_texture)
+        _texture = [[FPTexture alloc] init];
+    return _texture;
+}
+
 void Mesh2::setSelectionMode(MeshSelectionMode value)
 {
     resetEdgeCache();

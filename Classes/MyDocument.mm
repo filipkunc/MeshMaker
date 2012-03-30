@@ -794,26 +794,74 @@ vector<T> *ReadValues(string s)
 
 #pragma mark Archivation
 
-/*- (BOOL)readFromFileWrapper:(NSFileWrapper *)dirWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
+- (BOOL)readFromFileWrapper:(NSFileWrapper *)dirWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
+    if ([typeName isEqualToString:@"model3D"])
+        return [self readFromModel3D:[dirWrapper regularFileContents]];
+    
+    if ([typeName isEqualToString:@"Collada"])
+        return [self readFromCollada:[dirWrapper regularFileContents]];
+    
     NSFileWrapper *wrapper;
     NSData *data;
     
-    wrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3d"];
+    wrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3D"];
     data = [wrapper regularFileContents];
-    self.pdfData = data;
+    [self readFromModel3D:data];
     
-    wrapper = [[dirWrapper fileWrappers] objectForKey:@"SignatureBitmap.png"];
-    data = [wrapper regularFileContents];
-    self.signatureBitmapData = data;
+    [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        
+        NSString *textureName = (NSString *)key;
+        if ([textureName hasSuffix:@".png"])
+        {
+            textureName = [textureName stringByDeletingPathExtension];
+            
+            NSFileWrapper *wrapper = (NSFileWrapper *)obj;
+            NSData *data = [wrapper regularFileContents];
+            
+            NSImage *image = [[NSImage alloc] initWithData:data];
+            int index = [textureName substringFromIndex:@"Texture".length].integerValue;
+            Item *item = [items itemAtIndex:index];
+            FPTexture *texture = item.mesh->mesh->texture();
+            [texture setCanvas:image];
+        }        
+    }];
     
     return YES;
 }
 
 - (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
+    if ([typeName isEqualToString:@"model3D"])
+        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfModel3D]];
+        
     
-}*/
+    NSFileWrapper *dirWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:nil];
+    
+    [dirWrapper addRegularFileWithContents:[self dataOfModel3D]
+                         preferredFilename:@"Geometry.model3D"];
+    
+    int i = 0;
+    
+    for (Item *item in items)
+    {
+        NSImage *image = item.mesh->mesh->texture().canvas;
+        NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
+        
+        NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
+
+        
+        [dirWrapper addRegularFileWithContents:imageData 
+                             preferredFilename:[NSString stringWithFormat:@"Texture%.2i.png", i]];
+        
+        i++;
+    }
+    
+//    [dirWrapper addRegularFileWithContents:self.signatureBitmapData
+//                         preferredFilename:@"SignatureBitmap.png"];
+    
+    return dirWrapper;
+}
 
 - (BOOL)readFromCollada:(NSData *)data
 {
@@ -934,25 +982,6 @@ vector<T> *ReadValues(string s)
     MemoryWriteStream *stream = [[MemoryWriteStream alloc] initWithData:data];
     [items encodeWithWriteStream:stream];
     return data;
-}
-
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
-{
-    if ([typeName isEqual:@"model3D"])
-		return [self readFromModel3D:data];
-    
-    if ([typeName isEqualToString:@"Collada"])
-        return [self readFromCollada:data];
-    
-    return NO;
-}
-
-- (NSData *)dataOfType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
-{
-    if ([typeName isEqualToString:@"model3D"])
-        return [self dataOfModel3D];
-    
-    return nil;
 }
 
 #pragma mark Splitter sync

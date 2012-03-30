@@ -14,7 +14,7 @@
 #import "IndexedItem.h"
 #import "MeshState.h"
 
-@interface ItemCollection : NSObject <OpenGLManipulatingModelItem, MemoryStreaming>
+@interface ItemCollection : NSObject <OpenGLManipulatingModelItem, MemoryStreaming, NSFastEnumeration>
 {
 	NSMutableArray *items;
 }

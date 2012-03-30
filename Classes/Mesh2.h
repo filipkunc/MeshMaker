@@ -116,11 +116,12 @@ private:
     void repositionVertices(int vertexCount);
     void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
+    void initOrUpdateTexture();
 public:
     Mesh2(float colorComponents[4]);
     ~Mesh2();
     
-    FPTexture *texture() { return _texture; }
+    FPTexture *texture();
     
     int vertexCount() { return _vertices.count(); }
     int triangleCount() { return _triangles.count(); }

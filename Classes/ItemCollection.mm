@@ -22,6 +22,11 @@
 	return self;
 }
 
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len;
+{
+    return [items countByEnumeratingWithState:state objects:buffer count:len];
+}
+
 #pragma mark CppFileStreaming implementation
 
 - (id)initWithReadStream:(MemoryReadStream *)stream

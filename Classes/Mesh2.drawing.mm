@@ -199,6 +199,14 @@ void Mesh2::fillEdgeCache()
     _cachedEdgeTexCoords.setValid(true);
 }
 
+void Mesh2::initOrUpdateTexture()
+{
+    if (!_texture)
+        _texture = [[FPTexture alloc] initWithFile:@"checker.png" convertToAlpha:NO];
+    else if (_texture.needUpdate)
+        [_texture updateTexture];
+}
+
 void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
@@ -206,8 +214,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (fillMode.textured)
     {
         glEnable(GL_TEXTURE_2D);
-        if (!_texture)
-            _texture = [[FPTexture alloc] initWithFile:@"checker.png" convertToAlpha:NO];
+        initOrUpdateTexture();
         glBindTexture(GL_TEXTURE_2D, [_texture textureID]);
     }
     

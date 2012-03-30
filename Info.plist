@@ -6,6 +6,26 @@
 	<string>English</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
+        <dict>
+            <key>CFBundleTypeExtensions</key>
+			<array>
+				<string>folder3D</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string></string>
+			<key>CFBundleTypeName</key>
+			<string>folder3D</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>????</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+            <key>LSTypeIsPackage</key>
+			<string>YES</string>
+			<key>NSDocumentClass</key>
+			<string>MyDocument</string>
+        </dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
