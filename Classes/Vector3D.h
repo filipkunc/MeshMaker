@@ -50,6 +50,6 @@ public:
 	void Normalize();
 	float Distance(const Vector3D & v) const;
 	float SqDistance(const Vector3D & v) const;
-	Vector3D Lerp(float w, const Vector3D & v) const;
+	Vector3D Lerp(const Vector3D & v, float w) const;
 	float GetAngle(const Vector3D & v) const;
 };

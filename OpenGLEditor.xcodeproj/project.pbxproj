@@ -95,6 +95,7 @@
 		A7D0685414BA2A100091B657 /* TexCoordEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */; };
 		A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */; };
 		A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */; };
+		A7F6DDEA15276DE900D614D3 /* Mesh2.csg.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7F6DDE915276DE900D614D3 /* Mesh2.csg.mm */; };
 		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
 /* End PBXBuildFile section */
@@ -176,7 +177,7 @@
 		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
 		A736599E13D228B100F9D7D1 /* MergeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MergeTemplate.png; sourceTree = "<group>"; };
 		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
-		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
+		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
@@ -212,6 +213,7 @@
 		A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPTexturePaintToolWindowController.m; path = Classes/FPTexturePaintToolWindowController.m; sourceTree = "<group>"; };
 		A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTexturePaintToolWindowController.xib; path = Classes/FPTexturePaintToolWindowController.xib; sourceTree = "<group>"; };
 		A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleNodeAndList.h; path = Classes/SimpleNodeAndList.h; sourceTree = "<group>"; };
+		A7F6DDE915276DE900D614D3 /* Mesh2.csg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.csg.mm; path = Classes/Mesh2.csg.mm; sourceTree = "<group>"; };
 		A7FEB1FB13FF002E00473F8D /* FPTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexture.h; path = Classes/FPTexture.h; sourceTree = "<group>"; };
 		A7FEB1FC13FF002E00473F8D /* FPTexture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTexture.mm; path = Classes/FPTexture.mm; sourceTree = "<group>"; };
 		A7FEB20113FF01D200473F8D /* checker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checker.png; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 				A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */,
 				A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */,
 				A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */,
+				A7F6DDE915276DE900D614D3 /* Mesh2.csg.mm */,
 				A7064C5212BD107800B14CFA /* MeshState.h */,
 				A7064C5312BD107800B14CFA /* MeshState.mm */,
 				A7064C5812BD107800B14CFA /* MyDocument.h */,
@@ -605,6 +608,7 @@
 				A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */,
 				A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */,
 				A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */,
+				A7F6DDEA15276DE900D614D3 /* Mesh2.csg.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

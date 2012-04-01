@@ -265,6 +265,75 @@
 	[self addItem:newItem];
 }
 
+- (void)unionSelectedItems
+{
+    Item *first = nil;
+    Item *second = nil;
+    
+    for (Item *item in items)
+	{
+        if (item.selected)
+		{
+            if (!first)
+                first = item;
+            else if (!second)
+            {
+                second = item;
+                
+                first.mesh->mesh->unionCsg(second.mesh->mesh);
+                
+                return;
+            }
+		}
+	}
+}
+
+- (void)subtractSelectedItems
+{
+    Item *first = nil;
+    Item *second = nil;
+    
+    for (Item *item in items)
+	{
+        if (item.selected)
+		{
+            if (!first)
+                first = item;
+            else if (!second)
+            {
+                second = item;
+                
+                first.mesh->mesh->subtractCsg(second.mesh->mesh);
+                
+                return;
+            }
+		}
+	}
+}
+
+- (void)intersectSelectedItems
+{
+    Item *first = nil;
+    Item *second = nil;
+    
+    for (Item *item in items)
+	{
+        if (item.selected)
+		{
+            if (!first)
+                first = item;
+            else if (!second)
+            {
+                second = item;
+                
+                first.mesh->mesh->intersectCsg(second.mesh->mesh);
+                
+                return;
+            }
+		}
+	}
+}
+
 - (NSMutableArray *)currentManipulations
 {
 	NSMutableArray *manipulations = [[NSMutableArray alloc] init];

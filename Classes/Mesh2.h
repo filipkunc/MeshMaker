@@ -158,6 +158,9 @@ public:
     void loopSubdivision();
     
     void merge(Mesh2 *mesh);
+    void unionCsg(Mesh2 *mesh);
+    void subtractCsg(Mesh2 *mesh);
+    void intersectCsg(Mesh2 *mesh);
     
     void computeSoftSelection();
 
@@ -198,6 +201,9 @@ public:
     void makeCube();
     void makeCylinder(uint steps);
     void makeSphere(uint steps);
+    
+    void fromVertices(const vector<Vector3D> &vertices);
+    void toVertices(vector<Vector3D> &vertices);
     
     void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<Triangle> &triangles);
     void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<Triangle> &triangles);

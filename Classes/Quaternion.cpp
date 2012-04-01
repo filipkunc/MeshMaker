@@ -307,7 +307,7 @@ Vector3D Quaternion::ToEulerAngles() const
     return v;
 }
 
-Quaternion Quaternion::Slerp(float s, const Quaternion & q) const
+Quaternion Quaternion::Slerp(const Quaternion & q, float s) const
 {
 	float cosine = this->Dot(q);
 	if (cosine < -1.0f)

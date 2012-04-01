@@ -353,6 +353,51 @@ void Mesh2::makeSphere(uint steps)
     setSelectionMode(_selectionMode);
 }
 
+void Mesh2::fromVertices(const vector<Vector3D> &vertices)
+{
+    resetTriangleCache();
+    _vertices.removeAll();
+    _texCoords.removeAll();
+    _triangles.removeAll();
+    
+    vector<VertexNode *> tempVertices;
+    
+    uint verticesSize = vertices.size();
+    
+    for (uint i = 0; i < verticesSize; i++)
+    {
+        tempVertices.push_back(_vertices.add(vertices[i]));
+    }
+    
+    VertexNode *triangleVertices[3];
+    
+    for (uint i = 0; i < verticesSize; i += 3)
+    {
+        for (uint j = 0; j < 3; j++)
+        {
+            triangleVertices[j] = tempVertices.at(i + j);
+        }        
+        _triangles.add(Triangle2(triangleVertices));
+    }    
+    
+    makeTexCoords();
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::toVertices(vector<Vector3D> &vertices)
+{
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            Vector3D vertex = node->data().vertex(j)->data().position;
+            vertices.push_back(vertex);
+        }        
+    }
+}
+
 void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<Triangle> &triangles)
 {
     resetTriangleCache();

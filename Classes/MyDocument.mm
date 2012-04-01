@@ -541,6 +541,48 @@ vector<T> *ReadValues(string s)
 	[self setNeedsDisplayOnAllViews];
 }
 
+- (IBAction)unionSelected:(id)sender
+{
+    if ([manipulated selectedCount] <= 0)
+		return;
+    
+    if (manipulated == itemsController)
+	{
+		[self allItemsActionWithName:@"Union" block:^ { [items unionSelectedItems]; }];
+	}
+    
+    [manipulated updateSelection];
+    [self setNeedsDisplayOnAllViews];
+}
+
+- (IBAction)subtractSelected:(id)sender
+{
+    if ([manipulated selectedCount] <= 0)
+		return;
+    
+    if (manipulated == itemsController)
+	{
+		[self allItemsActionWithName:@"Subtract" block:^ { [items subtractSelectedItems]; }];
+	}
+    
+    [manipulated updateSelection];
+    [self setNeedsDisplayOnAllViews];
+}
+
+- (IBAction)intersectSelected:(id)sender
+{
+    if ([manipulated selectedCount] <= 0)
+		return;
+    
+    if (manipulated == itemsController)
+	{
+		[self allItemsActionWithName:@"Intersect" block:^ { [items intersectSelectedItems]; }];
+	}
+    
+    [manipulated updateSelection];
+    [self setNeedsDisplayOnAllViews];
+}
+
 - (IBAction)splitSelected:(id)sender
 {
     if ([manipulated selectedCount] <= 0)

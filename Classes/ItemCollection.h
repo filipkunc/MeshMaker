@@ -33,6 +33,9 @@
 - (void)removeItemsInRange:(NSRange)range;
 - (void)insertItem:(Item *)item atIndex:(uint)index;
 - (void)mergeSelectedItems;
+- (void)unionSelectedItems;
+- (void)subtractSelectedItems;
+- (void)intersectSelectedItems;
 - (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems;
 - (void)deselectAll;
 - (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount;

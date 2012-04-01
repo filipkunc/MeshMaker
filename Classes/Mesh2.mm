@@ -289,7 +289,7 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
             else if (_useSoftSelection && node->selectionWeight > 0.1f)
             {
                 Vector3D &v = node->data().position;
-                v = v.Lerp(node->selectionWeight, matrix.Transform(v));            
+                v = v.Lerp(matrix.Transform(v), node->selectionWeight);            
             }
         }
     }

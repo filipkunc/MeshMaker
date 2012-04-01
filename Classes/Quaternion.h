@@ -59,6 +59,6 @@ public:
 	void FromEulerAngles(const Vector3D &v);
 	Vector3D ToEulerAngles() const;
 
-	Quaternion Slerp(float s, const Quaternion &q) const;
+	Quaternion Slerp(const Quaternion &q, float s) const;
     void Normalize();
 };

@@ -184,7 +184,7 @@ float Vector3D::SqDistance(const Vector3D & v) const
 	return mag.GetLengthSq();
 }
 
-Vector3D Vector3D::Lerp(float w, const Vector3D & v) const
+Vector3D Vector3D::Lerp(const Vector3D & v, float w) const
 {
 	 return (*this * (1.0f - w) + v * w);
 }

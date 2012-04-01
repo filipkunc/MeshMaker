@@ -155,7 +155,7 @@ float Vector2D::SqDistance(const Vector2D & v) const
 	return mag.GetLengthSq();
 }
 
-Vector2D Vector2D::Lerp(float w, const Vector2D & v) const
+Vector2D Vector2D::Lerp(const Vector2D & v, float w) const
 {
 	 return (*this * (1.0f - w) + v * w);
 }

@@ -49,5 +49,5 @@ public:
 	void Normalize();
 	float Distance(const Vector2D & v) const;
 	float SqDistance(const Vector2D & v) const;
-	Vector2D Lerp(float w, const Vector2D & v) const;
+	Vector2D Lerp(const Vector2D & v, float w) const;
 };
