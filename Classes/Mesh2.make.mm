@@ -88,10 +88,10 @@ void Mesh2::makeTexCoords()
     
     for (VertexNode *vertex = _vertices.begin(), *end = _vertices.end(); vertex != end; vertex = vertex->next())
     {
-        TexCoordNode * texCoord = _texCoords.add(vertex->data().position);
+        TexCoordNode *texCoord = _texCoords.add(vertex->data().position);
         
-        for (auto triangle = vertex->_triangles.begin(), 
-             triangleEnd = vertex->_triangles.end(); 
+        for (SimpleNode<TriangleNode *> *triangle = vertex->_triangles.begin(), 
+             *triangleEnd = vertex->_triangles.end(); 
              triangle != triangleEnd; 
              triangle = triangle->next())
         {
@@ -134,17 +134,18 @@ void Mesh2::makeEdges()
         VertexEdgeNode *ve1 = findOrCreateVertexEdge(v1, v2, node);
         VertexEdgeNode *ve2 = findOrCreateVertexEdge(v2, v0, node);
         
+        triangle.setVertexEdge(0, ve0);
+        triangle.setVertexEdge(1, ve1);
+        triangle.setVertexEdge(2, ve2);
+        
         TexCoordEdgeNode *te0 = findOrCreateTexCoordEdge(t0, t1, node);
         TexCoordEdgeNode *te1 = findOrCreateTexCoordEdge(t1, t2, node);
         TexCoordEdgeNode *te2 = findOrCreateTexCoordEdge(t2, t0, node);
-        
-        triangle.setVertexEdge(0, ve0);
-        triangle.setVertexEdge(1, ve1);
-        triangle.setVertexEdge(2, ve2); 
-        
+
         triangle.setTexCoordEdge(0, te0);
         triangle.setTexCoordEdge(1, te1);
         triangle.setTexCoordEdge(2, te2); 
+        
     }
 }
 
@@ -361,12 +362,36 @@ void Mesh2::fromVertices(const vector<Vector3D> &vertices)
     _triangles.removeAll();
     
     vector<VertexNode *> tempVertices;
+    vector<VertexNode *> uniqueVertices;
     
     uint verticesSize = vertices.size();
     
     for (uint i = 0; i < verticesSize; i++)
     {
-        tempVertices.push_back(_vertices.add(vertices[i]));
+        bool found = false;
+        
+        for (uint j = 0; j < uniqueVertices.size(); j++)
+        {
+            if (uniqueVertices[j]->data().position.SqDistance(vertices[i]) < FLOAT_EPS)
+            {
+                VertexNode *last = tempVertices.size() > 0 ? tempVertices[tempVertices.size() - 1] : NULL;
+                VertexNode *lastPrevious = tempVertices.size() > 1 ? tempVertices[tempVertices.size() - 2] : NULL;
+                
+                if (last == uniqueVertices[j] || lastPrevious == uniqueVertices[j])
+                    break;
+                
+                tempVertices.push_back(uniqueVertices[j]);
+                found = true;
+                break;
+            }            
+        }
+        
+        if (!found)
+        {
+            VertexNode *newVertex = _vertices.add(vertices[i]);
+            uniqueVertices.push_back(newVertex);
+            tempVertices.push_back(newVertex);
+        }        
     }
     
     VertexNode *triangleVertices[3];

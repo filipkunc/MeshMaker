@@ -27,6 +27,7 @@
 @property (readwrite, assign) BOOL selected;
 @property (readwrite, assign) BOOL visible;
 @property (readonly) Mesh *mesh;
+@property (readonly) Matrix4x4 transform;
 
 - (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
 - (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection;

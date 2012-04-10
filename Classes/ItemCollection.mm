@@ -280,7 +280,15 @@
             {
                 second = item;
                 
+                first.mesh->mesh->transformAll(first.transform);
+                second.mesh->mesh->transformAll(second.transform);
                 first.mesh->mesh->unionCsg(second.mesh->mesh);
+                
+                [first setPosition:Vector3D(0, 0, 0)];
+                [first setRotation:Quaternion(0, 0, 0, 1)];
+                [first setScale:Vector3D(1, 1, 1)];
+                
+                [items removeObject:second];
                 
                 return;
             }
@@ -303,7 +311,15 @@
             {
                 second = item;
                 
+                first.mesh->mesh->transformAll(first.transform);
+                second.mesh->mesh->transformAll(second.transform);
                 first.mesh->mesh->subtractCsg(second.mesh->mesh);
+                
+                [first setPosition:Vector3D(0, 0, 0)];
+                [first setRotation:Quaternion(0, 0, 0, 1)];
+                [first setScale:Vector3D(1, 1, 1)];
+                
+                [items removeObject:second];
                 
                 return;
             }
@@ -326,8 +342,15 @@
             {
                 second = item;
                 
+                first.mesh->mesh->transformAll(first.transform);
+                second.mesh->mesh->transformAll(second.transform);
                 first.mesh->mesh->intersectCsg(second.mesh->mesh);
                 
+                [first setPosition:Vector3D(0, 0, 0)];
+                [first setRotation:Quaternion(0, 0, 0, 1)];
+                [first setScale:Vector3D(1, 1, 1)];
+                
+                [items removeObject:second];                
                 return;
             }
 		}

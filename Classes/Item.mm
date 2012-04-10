@@ -11,36 +11,6 @@
 
 @implementation Item
 
-- (Vector3D)position
-{
-	return *position;
-}
-
-- (void)setPosition:(Vector3D)aPosition
-{
-	*position = aPosition;
-}
-
-- (Quaternion)rotation
-{
-	return *rotation;
-}
-
-- (void)setRotation:(Quaternion)aRotation
-{
-	*rotation = aRotation;
-}
-
-- (Vector3D)scale
-{
-	return *scale;
-}
-
-- (void)setScale:(Vector3D)aScale
-{
-	*scale = aScale;
-}
-
 @synthesize selected, mesh, visible;
 
 - (id)init
@@ -109,6 +79,43 @@
 	delete position;
 	delete rotation;
 	delete scale;
+}
+
+- (Vector3D)position
+{
+	return *position;
+}
+
+- (void)setPosition:(Vector3D)aPosition
+{
+	*position = aPosition;
+}
+
+- (Quaternion)rotation
+{
+	return *rotation;
+}
+
+- (void)setRotation:(Quaternion)aRotation
+{
+	*rotation = aRotation;
+}
+
+- (Vector3D)scale
+{
+	return *scale;
+}
+
+- (void)setScale:(Vector3D)aScale
+{
+	*scale = aScale;
+}
+
+- (Matrix4x4)transform
+{
+    Matrix4x4 m;
+    m.TranslateRotateScale(*position, *rotation, *scale);
+    return m;
 }
 
 - (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection
