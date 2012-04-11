@@ -64,6 +64,13 @@ struct FillMode
     bool textured;
 };
 
+enum CsgOperation
+{
+    CsgUnion,
+    CsgSubtract,
+    CsgIntersect
+};
+
 class Mesh2
 {
 private:
@@ -158,9 +165,7 @@ public:
     void loopSubdivision();
     
     void merge(Mesh2 *mesh);
-    void unionCsg(Mesh2 *mesh);
-    void subtractCsg(Mesh2 *mesh);
-    void intersectCsg(Mesh2 *mesh);
+    void csg(Mesh2 *mesh, CsgOperation operation);
     
     void computeSoftSelection();
 

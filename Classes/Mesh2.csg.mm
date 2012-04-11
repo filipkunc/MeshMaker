@@ -26,7 +26,6 @@ namespace CSG
     struct Polygon
     {
         Plane plane;
-        bool shared;
         vector<Vertex> vertices;
     };
     
@@ -36,11 +35,48 @@ namespace CSG
         Node *front;
         Node *back;
         vector<Polygon> polygons;
+        
+        Node() 
+        { 
+            plane = NULL;
+            front = NULL;
+            back = NULL;
+        }
+        
+        ~Node()
+        {
+            polygons.clear();
+            
+            if (plane)
+                delete plane;
+            
+            if (front) 
+                delete front;
+            
+            if (back) 
+                delete back;
+        }
     };
     
     struct Csg
     {
-        vector<Polygon> polygons;
+        vector<Polygon> *polygons;
+        
+        Csg()
+        {
+            polygons = NULL;
+        }
+        
+        Csg(vector<Polygon> *polygons)
+        {
+            this->polygons = polygons;
+        }
+        
+        ~Csg()
+        {
+            if (polygons)
+                delete polygons;
+        }
     };
     
     Vertex CloneVertex(const Vertex &vertex);
@@ -82,34 +118,25 @@ namespace CSG
         plane.w = -plane.w;
     }
     
-    Polygon MakePolygon(const Vertex &a, const Vertex &b, const Vertex &c, bool shared);
+    Polygon MakePolygon(const Vertex &a, const Vertex &b, const Vertex &c);
     
-    Polygon MakePolygon(const Vertex &a, const Vertex &b, const Vertex &c, bool shared)
+    Polygon MakePolygon(const Vertex &a, const Vertex &b, const Vertex &c)
     {
         Polygon polygon;
         polygon.vertices.push_back(a);
         polygon.vertices.push_back(b);
         polygon.vertices.push_back(c);
-        polygon.shared = shared;
         polygon.plane = PlaneFromPoints(a, b, c);
         return polygon;
     }
     
-    Polygon MakePolygon(const vector<Vertex> &vertices, bool shared);
+    Polygon MakePolygon(const vector<Vertex> &vertices);
     
-    Polygon MakePolygon(const vector<Vertex> &vertices, bool shared)
+    Polygon MakePolygon(const vector<Vertex> &vertices)
     {
         Polygon polygon;
         polygon.vertices = vertices;
-        polygon.shared = shared;
         polygon.plane = PlaneFromPoints(vertices[0], vertices[1], vertices[2]);
-        return polygon;
-    }    
-    
-    Polygon ClonePolygon(const Polygon &polygon);
-    
-    Polygon ClonePolygon(const Polygon &polygon)
-    {
         return polygon;
     }    
     
@@ -181,8 +208,8 @@ namespace CSG
                         b.push_back(CloneVertex(v));
                     }
                 }
-                if (f.size() >= 3) front.push_back(MakePolygon(f, polygon.shared));
-                if (b.size() >= 3) back.push_back(MakePolygon(b, polygon.shared));
+                if (f.size() >= 3) front.push_back(MakePolygon(f));
+                if (b.size() >= 3) back.push_back(MakePolygon(b));
                 break;
         }
     }
@@ -220,7 +247,7 @@ namespace CSG
             clone->back = CloneNode(node->back);
         
         for (int i = 0; i < (int)node->polygons.size(); i++)
-            clone->polygons.push_back(ClonePolygon(node->polygons[i]));
+            clone->polygons.push_back(node->polygons[i]);
         
         return node;
     }
@@ -280,26 +307,29 @@ namespace CSG
             ClipToNode(node->back, bsp);
     }
     
-    vector<Polygon> AllNodePolygons(Node *node);
+    vector<Polygon> *AllNodePolygons(Node *node);
     
-    vector<Polygon> AllNodePolygons(Node *node)
+    vector<Polygon> *AllNodePolygons(Node *node)
     {
-        vector<Polygon> polygons;
+        vector<Polygon> *polygons = new vector<Polygon>();
+        
         for (int i = 0; i < (int)node->polygons.size(); i++)
-            polygons.push_back(node->polygons[i]);
+            polygons->push_back(node->polygons[i]);
         
         if (node->front)
         {
-            vector<Polygon> frontPolygons = AllNodePolygons(node->front); 
-            for (int i = 0; i < (int)frontPolygons.size(); i++)
-                polygons.push_back(frontPolygons[i]);            
+            vector<Polygon> *frontPolygons = AllNodePolygons(node->front); 
+            for (int i = 0; i < (int)frontPolygons->size(); i++)
+                polygons->push_back((*frontPolygons)[i]);
+            delete frontPolygons;
         }
         
         if (node->back)
         {
-            vector<Polygon> backPolygons = AllNodePolygons(node->back); 
-            for (int i = 0; i < (int)backPolygons.size(); i++)
-                polygons.push_back(backPolygons[i]);            
+            vector<Polygon> *backPolygons = AllNodePolygons(node->back); 
+            for (int i = 0; i < (int)backPolygons->size(); i++)
+                polygons->push_back((*backPolygons)[i]);            
+            delete backPolygons;
         }
         
         return polygons;
@@ -335,85 +365,102 @@ namespace CSG
         }
     }
     
-    Csg FromPolygonsCsg(const vector<Polygon> &polygons);
+    Csg *UnionCsg(const Csg &first, const Csg &second);
     
-    Csg FromPolygonsCsg(const vector<Polygon> &polygons)
+    Csg *UnionCsg(const Csg &first, const Csg &second)
     {
-        Csg csg;
-        csg.polygons = polygons;
-        return csg;       
-    }
-    
-    Csg UnionCsg(const Csg &first, const Csg &second);
-    
-    Csg UnionCsg(const Csg &first, const Csg &second)
-    {
-        Node *a = MakeNode(first.polygons);
-        Node *b = MakeNode(second.polygons);
+        Node *a = MakeNode(*first.polygons);
+        Node *b = MakeNode(*second.polygons);
         ClipToNode(a, b);
         ClipToNode(b, a);
         InvertNode(b);
         ClipToNode(b, a);
         InvertNode(b);
-        BuildNode(a, AllNodePolygons(b));
-        return FromPolygonsCsg(AllNodePolygons(a));
+        
+        vector<Polygon> *bPolygons = AllNodePolygons(b);
+        BuildNode(a, *bPolygons);
+        Csg *csg = new Csg(AllNodePolygons(a));
+        
+        delete a;
+        delete b;
+        delete bPolygons;
+        
+        return csg;
     }
     
-    Csg SubtractCsg(const Csg &first, const Csg &second);
+    Csg *SubtractCsg(const Csg &first, const Csg &second);
     
-    Csg SubtractCsg(const Csg &first, const Csg &second)
+    Csg *SubtractCsg(const Csg &first, const Csg &second)
     {
-        Node *a = MakeNode(first.polygons);
-        Node *b = MakeNode(second.polygons);
+        Node *a = MakeNode(*first.polygons);
+        Node *b = MakeNode(*second.polygons);
         InvertNode(a);
         ClipToNode(a, b);
         ClipToNode(b, a);
         InvertNode(b);
         ClipToNode(b, a);
         InvertNode(b);
-        BuildNode(a, AllNodePolygons(b));
+        
+        vector<Polygon> *bPolygons = AllNodePolygons(b);
+        BuildNode(a, *bPolygons);
         InvertNode(a);
-        return FromPolygonsCsg(AllNodePolygons(a));
+        
+        Csg *csg = new Csg(AllNodePolygons(a));
+        
+        delete a;
+        delete b;
+        delete bPolygons;
+        
+        return csg;
     }
     
-    Csg IntersectCsg(const Csg &first, const Csg &second);
+    Csg *IntersectCsg(const Csg &first, const Csg &second);
     
-    Csg IntersectCsg(const Csg &first, const Csg &second)
+    Csg *IntersectCsg(const Csg &first, const Csg &second)
     {
-        Node *a = MakeNode(first.polygons);
-        Node *b = MakeNode(second.polygons);
+        Node *a = MakeNode(*first.polygons);
+        Node *b = MakeNode(*second.polygons);
         InvertNode(a);
         ClipToNode(b, a);
         InvertNode(b);
         ClipToNode(a, b);
         ClipToNode(b, a);
-        BuildNode(a, AllNodePolygons(b));
+        
+        vector<Polygon> *bPolygons = AllNodePolygons(b);
+        BuildNode(a, *bPolygons);
         InvertNode(a);
-        return FromPolygonsCsg(AllNodePolygons(a));
+        
+        Csg *csg = new Csg(AllNodePolygons(a));
+        
+        delete a;
+        delete b;
+        delete bPolygons;
+        
+        return csg;
     }
 
     void ToVerticesCsg(const Csg &csg, vector<Vertex> &vertices);
     
     void ToVerticesCsg(const Csg &csg, vector<Vertex> &vertices)
     {
-        for (int i = 0; i < (int)csg.polygons.size(); i++)
+        for (int i = 0; i < (int)csg.polygons->size(); i++)
         {
-            int verticesSize = (int)csg.polygons[i].vertices.size();
+            int verticesSize = (int)(*csg.polygons)[i].vertices.size();
             
             if (verticesSize > 3)
             {
                 for (int j = 2; j < verticesSize; j++)
                 {
-                    vertices.push_back(csg.polygons[i].vertices[0]);
-                    vertices.push_back(csg.polygons[i].vertices[j - 1]);
-                    vertices.push_back(csg.polygons[i].vertices[j]);
+                    vertices.push_back((*csg.polygons)[i].vertices[0]);
+                    vertices.push_back((*csg.polygons)[i].vertices[j - 1]);
+                    vertices.push_back((*csg.polygons)[i].vertices[j]);
                 }
             }
             else 
             {
                 for (int j = 0; j < verticesSize; j++)
                 {
-                    vertices.push_back(csg.polygons[i].vertices[j]);
+                    vertices.push_back((*csg.polygons)[i].vertices[j]);
                 }
             }
         }
@@ -423,15 +470,20 @@ namespace CSG
     
     void FromVerticesCsg(const vector<Vertex> &vertices, Csg &csg)
     {
+        if (csg.polygons)
+            delete csg.polygons;
+
+        csg.polygons = new vector<Polygon>();
+        
         for (int i = 0; i < (int)vertices.size(); i += 3)
         {
-            Polygon polygon = MakePolygon(vertices[i], vertices[i + 1], vertices[i + 2], true);
-            csg.polygons.push_back(polygon);
+            Polygon polygon = MakePolygon(vertices[i], vertices[i + 1], vertices[i + 2]);
+            csg.polygons->push_back(polygon);
         }
     }
 }
 
-void Mesh2::unionCsg(Mesh2 *mesh)
+void Mesh2::csg(Mesh2 *mesh, CsgOperation operation)
 {
     vector<Vector3D> firstVertices;
     vector<Vector3D> secondVertices;
@@ -448,67 +500,30 @@ void Mesh2::unionCsg(Mesh2 *mesh)
     CSG::FromVerticesCsg(firstVertices, a);
     CSG::FromVerticesCsg(secondVertices, b);
     
-    a = CSG::UnionCsg(a, b);
+    CSG::Csg *result;
+    
+    switch (operation)
+    {
+        case CsgUnion:
+            result = CSG::UnionCsg(a, b);
+            break;
+        case CsgSubtract:
+            result = CSG::SubtractCsg(a, b);
+            break;
+        case CsgIntersect:
+            result = CSG::IntersectCsg(a, b);
+            break;            
+        default:
+            @throw [NSException exceptionWithName:@"Undefined CSG operation" reason:nil userInfo:nil];
+            break;
+    }
     
     firstVertices.clear();
     
-    CSG::ToVerticesCsg(a, firstVertices);
-    this->fromVertices(firstVertices);
+    CSG::ToVerticesCsg(*result, firstVertices);
     
-    this->flipAllTriangles();
-    mesh->flipAllTriangles();
-}
-
-void Mesh2::subtractCsg(Mesh2 *mesh)
-{
-    vector<Vector3D> firstVertices;
-    vector<Vector3D> secondVertices;
+    delete result;
     
-    this->flipAllTriangles();
-    mesh->flipAllTriangles();
-    
-    this->toVertices(firstVertices);
-    mesh->toVertices(secondVertices);
-    
-    CSG::Csg a;
-    CSG::Csg b;
-    
-    CSG::FromVerticesCsg(firstVertices, a);
-    CSG::FromVerticesCsg(secondVertices, b);
-    
-    a = CSG::SubtractCsg(a, b);
-    
-    firstVertices.clear();
-    
-    CSG::ToVerticesCsg(a, firstVertices);
-    this->fromVertices(firstVertices);
-    
-    this->flipAllTriangles();
-    mesh->flipAllTriangles();
-}
-
-void Mesh2::intersectCsg(Mesh2 *mesh)
-{
-    vector<Vector3D> firstVertices;
-    vector<Vector3D> secondVertices;
-    
-    this->flipAllTriangles();
-    mesh->flipAllTriangles();
-    
-    this->toVertices(firstVertices);
-    mesh->toVertices(secondVertices);
-    
-    CSG::Csg a;
-    CSG::Csg b;
-    
-    CSG::FromVerticesCsg(firstVertices, a);
-    CSG::FromVerticesCsg(secondVertices, b);
-    
-    a = CSG::IntersectCsg(a, b);
-    
-    firstVertices.clear();
-    
-    CSG::ToVerticesCsg(a, firstVertices);
     this->fromVertices(firstVertices);
     
     this->flipAllTriangles();

@@ -548,7 +548,7 @@ vector<T> *ReadValues(string s)
     
     if (manipulated == itemsController)
 	{
-		[self allItemsActionWithName:@"Union" block:^ { [items unionSelectedItems]; }];
+		[self allItemsActionWithName:@"CSG Union" block:^ { [items csgOperationOnSelectedItems:CsgUnion]; }];
 	}
     
     [manipulated updateSelection];
@@ -562,7 +562,7 @@ vector<T> *ReadValues(string s)
     
     if (manipulated == itemsController)
 	{
-		[self allItemsActionWithName:@"Subtract" block:^ { [items subtractSelectedItems]; }];
+		[self allItemsActionWithName:@"CSG Subtract" block:^ { [items csgOperationOnSelectedItems:CsgSubtract]; }];
 	}
     
     [manipulated updateSelection];
@@ -576,7 +576,7 @@ vector<T> *ReadValues(string s)
     
     if (manipulated == itemsController)
 	{
-		[self allItemsActionWithName:@"Intersect" block:^ { [items intersectSelectedItems]; }];
+		[self allItemsActionWithName:@"CSG Intersect" block:^ { [items csgOperationOnSelectedItems:CsgIntersect]; }];
 	}
     
     [manipulated updateSelection];

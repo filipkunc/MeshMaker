@@ -265,7 +265,7 @@
 	[self addItem:newItem];
 }
 
-- (void)unionSelectedItems
+- (void)csgOperationOnSelectedItems:(CsgOperation)operation
 {
     Item *first = nil;
     Item *second = nil;
@@ -282,7 +282,7 @@
                 
                 first.mesh->mesh->transformAll(first.transform);
                 second.mesh->mesh->transformAll(second.transform);
-                first.mesh->mesh->unionCsg(second.mesh->mesh);
+                first.mesh->mesh->csg(second.mesh->mesh, operation);
                 
                 [first setPosition:Vector3D(0, 0, 0)];
                 [first setRotation:Quaternion(0, 0, 0, 1)];
@@ -290,67 +290,6 @@
                 
                 [items removeObject:second];
                 
-                return;
-            }
-		}
-	}
-}
-
-- (void)subtractSelectedItems
-{
-    Item *first = nil;
-    Item *second = nil;
-    
-    for (Item *item in items)
-	{
-        if (item.selected)
-		{
-            if (!first)
-                first = item;
-            else if (!second)
-            {
-                second = item;
-                
-                first.mesh->mesh->transformAll(first.transform);
-                second.mesh->mesh->transformAll(second.transform);
-                first.mesh->mesh->subtractCsg(second.mesh->mesh);
-                
-                [first setPosition:Vector3D(0, 0, 0)];
-                [first setRotation:Quaternion(0, 0, 0, 1)];
-                [first setScale:Vector3D(1, 1, 1)];
-                
-                [items removeObject:second];
-                
-                return;
-            }
-		}
-	}
-}
-
-- (void)intersectSelectedItems
-{
-    Item *first = nil;
-    Item *second = nil;
-    
-    for (Item *item in items)
-	{
-        if (item.selected)
-		{
-            if (!first)
-                first = item;
-            else if (!second)
-            {
-                second = item;
-                
-                first.mesh->mesh->transformAll(first.transform);
-                second.mesh->mesh->transformAll(second.transform);
-                first.mesh->mesh->intersectCsg(second.mesh->mesh);
-                
-                [first setPosition:Vector3D(0, 0, 0)];
-                [first setRotation:Quaternion(0, 0, 0, 1)];
-                [first setScale:Vector3D(1, 1, 1)];
-                
-                [items removeObject:second];                
                 return;
             }
 		}
