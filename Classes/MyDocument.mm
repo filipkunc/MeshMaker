@@ -58,6 +58,8 @@ vector<T> *ReadValues(string s)
 		
 		views = [[NSMutableArray alloc] init];
 		oneView = nil;
+        
+        currentManipulator = ManipulatorTypeDefault;
     }
     return self;
 }
@@ -92,6 +94,18 @@ vector<T> *ReadValues(string s)
 	[viewLeft setCameraMode:CameraModeLeft];
 	[viewFront setCameraMode:CameraModeFront];
 	[viewPerspective setCameraMode:CameraModePerspective];
+}
+
+- (enum ManipulatorType)currentManipulator
+{
+    return currentManipulator;
+}
+
+- (void)setCurrentManipulator:(enum ManipulatorType)value;
+{
+    currentManipulator = value;
+    [itemsController setCurrentManipulator:value];
+    [meshController setCurrentManipulator:value];
 }
 
 - (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
@@ -191,111 +205,39 @@ vector<T> *ReadValues(string s)
 	[self setManipulated:itemsController];
 }
 
-- (float)positionX
+- (float)selectionX
 {
-	return [manipulated positionX];
+	return [manipulated selectionX];
 }
 
-- (float)positionY
+- (float)selectionY
 {
-	return [manipulated positionY];
+	return [manipulated selectionY];
 }
 
-- (float)positionZ
+- (float)selectionZ
 {
-	return [manipulated positionZ];
+	return [manipulated selectionZ];
 }
 
-- (float)rotationX
-{
-	return [manipulated rotationX];
-}
-
-- (float)rotationY
-{
-	return [manipulated rotationY];
-}
-
-- (float)rotationZ
-{
-	return [manipulated rotationZ];
-}
-
-- (float)scaleX
-{
-	return [manipulated scaleX];
-}
-
-- (float)scaleY
-{
-	return [manipulated scaleY];
-}
-
-- (float)scaleZ
-{
-	return [manipulated scaleZ];
-}
-
-- (void)setPositionX:(float)value
+- (void)setSelectionX:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setPositionX:value];
+	[manipulated setSelectionX:value];
 	[self manipulationEndedInView:nil];
 }
 
-- (void)setPositionY:(float)value
+- (void)setSelectionY:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setPositionY:value];
+	[manipulated setSelectionY:value];
 	[self manipulationEndedInView:nil];
 }
 
-- (void)setPositionZ:(float)value
+- (void)setSelectionZ:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setPositionZ:value];
-	[self manipulationEndedInView:nil];
-}
-
-- (void)setRotationX:(float)value
-{
-	[self manipulationStartedInView:nil];
-	[manipulated setRotationX:value];
-	[self manipulationEndedInView:nil];
-}
-
-- (void)setRotationY:(float)value
-{
-	[self manipulationStartedInView:nil];
-	[manipulated setRotationY:value];
-	[self manipulationEndedInView:nil];
-}
-
-- (void)setRotationZ:(float)value
-{
-	[self manipulationStartedInView:nil];
-	[manipulated setRotationZ:value];
-	[self manipulationEndedInView:nil];
-}
-
-- (void)setScaleX:(float)value
-{
-	[self manipulationStartedInView:nil];
-	[manipulated setScaleX:value];
-	[self manipulationEndedInView:nil];
-}
-
-- (void)setScaleY:(float)value
-{
-	[self manipulationStartedInView:nil];
-	[manipulated setScaleY:value];
-	[self manipulationEndedInView:nil];
-}
-
-- (void)setScaleZ:(float)value
-{
-	[self manipulationStartedInView:nil];
-	[manipulated setScaleZ:value];
+	[manipulated setSelectionZ:value];
 	[self manipulationEndedInView:nil];
 }
 
@@ -767,10 +709,10 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)changeManipulator:(id)sender
 {
-	ManipulatorType newManipulator = (ManipulatorType)[sender tag];
+	self.currentManipulator = (ManipulatorType)[sender tag];
 	for (OpenGLSceneView *view in views)
 	{ 
-		[view setCurrentManipulator:newManipulator]; 
+		[view setCurrentManipulator:currentManipulator]; 
 	}
 }
 

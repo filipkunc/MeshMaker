@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 3/24/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #import <Foundation/Foundation.h>

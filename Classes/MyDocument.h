@@ -38,6 +38,8 @@
 	IBOutlet NSSplitView *mainSplit;
 	OpenGLSceneView *oneView;
     IBOutlet FPTexturePaintToolWindowController *texturePaintToolWindowController;
+    
+    enum ManipulatorType currentManipulator;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;

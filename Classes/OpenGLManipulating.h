@@ -8,12 +8,10 @@
  */
 #import "OpenGLSelecting.h"
 
-// for PropertyReflector
 @protocol OpenGLTransforming <NSObject>
 
-@property (readwrite, assign) float positionX, positionY, positionZ;
-@property (readwrite, assign) float rotationX, rotationY, rotationZ;
-@property (readwrite, assign) float scaleX, scaleY, scaleZ;
+@property (readwrite, assign) float selectionX, selectionY, selectionZ;
+@property (readwrite, assign) enum ManipulatorType currentManipulator;
 
 @end
 

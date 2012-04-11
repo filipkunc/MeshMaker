@@ -28,6 +28,7 @@
 		modelPosition = new Vector3D();
 		modelRotation = new Quaternion();
 		modelScale = new Vector3D(1, 1, 1);
+        currentManipulator = ManipulatorTypeDefault;
 	}
 	return self;
 }
@@ -73,32 +74,16 @@
 
 - (void)addTransformationObserver:(id)observer
 {
-	[self addObserver:observer forKeyPath:@"positionX"];
-	[self addObserver:observer forKeyPath:@"positionY"];
-	[self addObserver:observer forKeyPath:@"positionZ"];
-	
-	[self addObserver:observer forKeyPath:@"rotationX"];
-	[self addObserver:observer forKeyPath:@"rotationY"];
-	[self addObserver:observer forKeyPath:@"rotationZ"];
-	
-	[self addObserver:observer forKeyPath:@"scaleX"];
-	[self addObserver:observer forKeyPath:@"scaleY"];
-	[self addObserver:observer forKeyPath:@"scaleZ"];
+	[self addObserver:observer forKeyPath:@"selectionX"];
+	[self addObserver:observer forKeyPath:@"selectionY"];
+	[self addObserver:observer forKeyPath:@"selectionZ"];	
 }
 
 - (void)removeTransformationObserver:(id)observer
 {
-	[self removeObserver:observer forKeyPath:@"positionX"];
-	[self removeObserver:observer forKeyPath:@"positionY"];
-	[self removeObserver:observer forKeyPath:@"positionZ"];
-	
-	[self removeObserver:observer forKeyPath:@"rotationX"];
-	[self removeObserver:observer forKeyPath:@"rotationY"];
-	[self removeObserver:observer forKeyPath:@"rotationZ"];
-	
-	[self removeObserver:observer forKeyPath:@"scaleX"];
-	[self removeObserver:observer forKeyPath:@"scaleY"];
-	[self removeObserver:observer forKeyPath:@"scaleZ"];
+	[self removeObserver:observer forKeyPath:@"selectionX"];
+	[self removeObserver:observer forKeyPath:@"selectionY"];
+	[self removeObserver:observer forKeyPath:@"selectionZ"];
 }
 
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
@@ -109,94 +94,46 @@
 	modelTransform->TranslateRotateScale(aPosition, aRotation, aScale);
 }
 
-- (float)positionX
+- (enum ManipulatorType)currentManipulator
 {
-	return [self transformValueAtIndex:0 withManipulator:ManipulatorTypeTranslation];
+    return currentManipulator;
 }
 
-- (float)positionY
+- (void)setCurrentManipulator:(enum ManipulatorType)value
 {
-	return [self transformValueAtIndex:1 withManipulator:ManipulatorTypeTranslation];
+    [self willChangeTransformation];
+    currentManipulator = value;
+    [self didChangeTransformation];
 }
 
-- (float)positionZ
+- (float)selectionX
 {
-	return [self transformValueAtIndex:2 withManipulator:ManipulatorTypeTranslation];
+	return [self transformValueAtIndex:0 withManipulator:currentManipulator];
 }
 
-- (float)rotationX
+- (float)selectionY
 {
-	return [self transformValueAtIndex:0 withManipulator:ManipulatorTypeRotation];
+	return [self transformValueAtIndex:1 withManipulator:currentManipulator];
 }
 
-- (float)rotationY
+- (float)selectionZ
 {
-	return [self transformValueAtIndex:1 withManipulator:ManipulatorTypeRotation];
+	return [self transformValueAtIndex:2 withManipulator:currentManipulator];
 }
 
-- (float)rotationZ
+- (void)setSelectionX:(float)value
 {
-	return [self transformValueAtIndex:2 withManipulator:ManipulatorTypeRotation];
+	[self setTransformValue:value atIndex:0 withManipulator:currentManipulator];
 }
 
-- (float)scaleX
+- (void)setSelectionY:(float)value
 {
-	return [self transformValueAtIndex:0 withManipulator:ManipulatorTypeScale];
+	[self setTransformValue:value atIndex:1 withManipulator:currentManipulator];
 }
 
-- (float)scaleY
+- (void)setSelectionZ:(float)value
 {
-	return [self transformValueAtIndex:1 withManipulator:ManipulatorTypeScale];
-}
-
-- (float)scaleZ
-{
-	return [self transformValueAtIndex:2 withManipulator:ManipulatorTypeScale];
-}
-
-- (void)setPositionX:(float)value
-{
-	[self setTransformValue:value atIndex:0 withManipulator:ManipulatorTypeTranslation];
-}
-
-- (void)setPositionY:(float)value
-{
-	[self setTransformValue:value atIndex:1 withManipulator:ManipulatorTypeTranslation];
-}
-
-- (void)setPositionZ:(float)value
-{
-	[self setTransformValue:value atIndex:2 withManipulator:ManipulatorTypeTranslation];
-}
-
-- (void)setRotationX:(float)value
-{
-	[self setTransformValue:value atIndex:0 withManipulator:ManipulatorTypeRotation];
-}
-
-- (void)setRotationY:(float)value
-{
-	[self setTransformValue:value atIndex:1 withManipulator:ManipulatorTypeRotation];
-}
-
-- (void)setRotationZ:(float)value
-{
-	[self setTransformValue:value atIndex:2 withManipulator:ManipulatorTypeRotation];
-}
-
-- (void)setScaleX:(float)value
-{
-	[self setTransformValue:value atIndex:0 withManipulator:ManipulatorTypeScale];
-}
-
-- (void)setScaleY:(float)value
-{
-	[self setTransformValue:value atIndex:1 withManipulator:ManipulatorTypeScale];
-}
-
-- (void)setScaleZ:(float)value
-{
-	[self setTransformValue:value atIndex:2 withManipulator:ManipulatorTypeScale];
+	[self setTransformValue:value atIndex:2 withManipulator:currentManipulator];
 }
 
 - (void)setNilValueForKey:(NSString *)key
@@ -321,32 +258,16 @@
 
 - (void)willChangeTransformation
 {
-	[self willChangeValueForKey:@"positionX"];
-	[self willChangeValueForKey:@"positionY"];
-	[self willChangeValueForKey:@"positionZ"];	
-	
-	[self willChangeValueForKey:@"rotationX"];
-	[self willChangeValueForKey:@"rotationY"];
-	[self willChangeValueForKey:@"rotationZ"];	
-	
-	[self willChangeValueForKey:@"scaleX"];
-	[self willChangeValueForKey:@"scaleY"];
-	[self willChangeValueForKey:@"scaleZ"];	
+	[self willChangeValueForKey:@"selectionX"];
+	[self willChangeValueForKey:@"selectionY"];
+	[self willChangeValueForKey:@"selectionZ"];	
 }
 
 - (void)didChangeTransformation
 {
-	[self didChangeValueForKey:@"positionX"];
-	[self didChangeValueForKey:@"positionY"];
-	[self didChangeValueForKey:@"positionZ"];	
-	
-	[self didChangeValueForKey:@"rotationX"];
-	[self didChangeValueForKey:@"rotationY"];
-	[self didChangeValueForKey:@"rotationZ"];	
-	
-	[self didChangeValueForKey:@"scaleX"];
-	[self didChangeValueForKey:@"scaleY"];
-	[self didChangeValueForKey:@"scaleZ"];	
+	[self didChangeValueForKey:@"selectionX"];
+	[self didChangeValueForKey:@"selectionY"];
+	[self didChangeValueForKey:@"selectionZ"];	
 }
 
 - (Vector3D)selectionCenter

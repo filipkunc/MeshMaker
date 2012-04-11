@@ -154,8 +154,8 @@
 	[newItem setRotation:[self rotation]];
 	[newItem setScale:[self scale]];
 	
-	[[newItem mesh] mergeWithMesh:[self mesh]];
-	
+    [newItem->mesh mergeWithMesh:self->mesh];
+    
 	[newItem setSelected:[self selected]];
 	
 	return newItem;

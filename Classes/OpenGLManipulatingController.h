@@ -25,6 +25,8 @@
 	Vector3D *modelPosition;
 	Quaternion *modelRotation;
 	Vector3D *modelScale;
+    
+    enum ManipulatorType currentManipulator;
 }
 
 @property (readwrite, assign) id<OpenGLManipulatingModel> model;
