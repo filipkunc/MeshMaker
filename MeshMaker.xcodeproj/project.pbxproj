@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		1DDD582C0DA1D0D100B32029 /* MyDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MyDocument.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
-		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
@@ -38,6 +37,7 @@
 		A7064C8B12BD10C200B14CFA /* twoSidedLightingFlipped.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */; };
 		A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7064C9212BD19F400B14CFA /* Cocoa.framework */; };
 		A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7064C9612BD19F400B14CFA /* InfoPlist.strings */; };
+		A729F1791538B038002759BB /* SubdivisionTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A729F1781538B038002759BB /* SubdivisionTemplate.png */; };
 		A73659A013D228B100F9D7D1 /* CylinderTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599D13D228B100F9D7D1 /* CylinderTemplate.png */; };
 		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
 		A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599F13D228B100F9D7D1 /* SplitTemplate.png */; };
@@ -86,6 +86,7 @@
 		A7A4874013AE2ECA00C0C41B /* Mesh2.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
+		A7BFCC101538D12A0076B712 /* Application.icns in Resources */ = {isa = PBXBuildFile; fileRef = A7BFCC0F1538D12A0076B712 /* Application.icns */; };
 		A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 		A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684414B9FC200091B657 /* Vertex.cpp */; };
@@ -107,7 +108,6 @@
 		1DDD58290DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MyDocument.xib; sourceTree = "<group>"; };
 		1DDD582B0DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32DBCF750370BD2300C91783 /* MeshMaker_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshMaker_Prefix.pch; sourceTree = "<group>"; };
@@ -174,6 +174,7 @@
 		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
 		A726AD3413034D85004A774D /* rapidxml_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_utils.hpp; path = Classes/rapidxml_utils.hpp; sourceTree = "<group>"; };
 		A726AD3513034D85004A774D /* rapidxml.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml.hpp; path = Classes/rapidxml.hpp; sourceTree = "<group>"; };
+		A729F1781538B038002759BB /* SubdivisionTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SubdivisionTemplate.png; sourceTree = "<group>"; };
 		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
 		A736599E13D228B100F9D7D1 /* MergeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MergeTemplate.png; sourceTree = "<group>"; };
 		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
@@ -195,6 +196,8 @@
 		A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.make.mm; path = Classes/Mesh2.make.mm; sourceTree = "<group>"; };
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		A7BFCC0F1538D12A0076B712 /* Application.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Application.icns; sourceTree = "<group>"; };
+		A7BFCC111538D6060076B712 /* MeshMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MeshMaker.entitlements; sourceTree = "<group>"; };
 		A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector4D.cpp; path = Classes/Vector4D.cpp; sourceTree = "<group>"; };
 		A7C692B514CDBFCC00180CA4 /* Vector4D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector4D.h; path = Classes/Vector4D.h; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
@@ -387,15 +390,16 @@
 			children = (
 				A7FEB20013FF01D200473F8D /* Textures */,
 				A787CC0C13CF6F0400D2A1FC /* Icons */,
+				A7BFCC0F1538D12A0076B712 /* Application.icns */,
 				A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */,
 				A7A96A4910222EE2003110A1 /* Tests-Info.plist */,
-				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* Info.plist */,
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
 				1DDD58280DA1D0D100B32029 /* MyDocument.xib */,
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
 				A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */,
 				A7064C9612BD19F400B14CFA /* InfoPlist.strings */,
+				A7BFCC111538D6060076B712 /* MeshMaker.entitlements */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -431,6 +435,7 @@
 		A787CC0C13CF6F0400D2A1FC /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				A729F1781538B038002759BB /* SubdivisionTemplate.png */,
 				A736599D13D228B100F9D7D1 /* CylinderTemplate.png */,
 				A736599E13D228B100F9D7D1 /* MergeTemplate.png */,
 				A736599F13D228B100F9D7D1 /* SplitTemplate.png */,
@@ -522,7 +527,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
 				1DDD582C0DA1D0D100B32029 /* MyDocument.xib in Resources */,
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
@@ -540,6 +544,8 @@
 				A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */,
 				A7FEB20213FF01D200473F8D /* checker.png in Resources */,
 				A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */,
+				A729F1791538B038002759BB /* SubdivisionTemplate.png in Resources */,
+				A7BFCC101538D12A0076B712 /* Application.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,14 +685,6 @@
 			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
-		2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2A37F4BAFDCFA73011CA2CEA /* English */,
-			);
-			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
 		A7064C9612BD19F400B14CFA /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -799,6 +797,8 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				CODE_SIGN_ENTITLEMENTS = MeshMaker.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
@@ -821,6 +821,8 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				CODE_SIGN_ENTITLEMENTS = MeshMaker.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

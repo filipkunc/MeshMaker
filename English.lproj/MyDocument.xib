@@ -163,6 +163,7 @@
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {110, 31}}</string>
 								<reference key="NSSuperview"/>
+								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="181969951">
 									<int key="NSCellFlags">-2076049856</int>
@@ -375,7 +376,7 @@
 							<nil key="NSToolbarItemView"/>
 							<object class="NSCustomResource" key="NSToolbarItemImage">
 								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">NSActionTemplate</string>
+								<string key="NSResourceName">SubdivisionTemplate</string>
 							</object>
 							<nil key="NSToolbarItemTarget"/>
 							<nil key="NSToolbarItemAction"/>
@@ -399,6 +400,7 @@
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
 								<reference key="NSSuperview"/>
+								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076049856</int>
@@ -565,7 +567,7 @@
 							</object>
 						</object>
 					</dictionary>
-					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
+					<array key="NSToolbarIBAllowedItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
@@ -919,6 +921,7 @@
 							<string key="NSFrame">{{878, 4}, {96, 22}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="801101494">
@@ -2597,7 +2600,6 @@
 			<string key="CubeTemplate">{128, 128}</string>
 			<string key="CylinderTemplate">{128, 128}</string>
 			<string key="MergeTemplate">{128, 128}</string>
-			<string key="NSActionTemplate">{15, 15}</string>
 			<string key="NSMenuCheckmark">{11, 11}</string>
 			<string key="NSMenuMixedState">{10, 3}</string>
 			<string key="RotateTemplate">{128, 128}</string>
@@ -2605,6 +2607,7 @@
 			<string key="SelectTemplate">{128, 128}</string>
 			<string key="SphereTemplate">{128, 128}</string>
 			<string key="SplitTemplate">{128, 128}</string>
+			<string key="SubdivisionTemplate">{128, 128}</string>
 			<string key="TranslateTemplate">{128, 128}</string>
 		</dictionary>
 		<bool key="IBDocument.UseAutolayout">YES</bool>

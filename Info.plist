@@ -6,8 +6,8 @@
 	<string>English</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
-        <dict>
-            <key>CFBundleTypeExtensions</key>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>folder3D</string>
 			</array>
@@ -21,11 +21,11 @@
 			</array>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-            <key>LSTypeIsPackage</key>
+			<key>LSTypeIsPackage</key>
 			<string>YES</string>
 			<key>NSDocumentClass</key>
 			<string>MyDocument</string>
-        </dict>
+		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
@@ -60,21 +60,25 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>Application.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.${PRODUCT_NAME:identifier}</string>
+	<string>com.filipkunc.${PRODUCT_NAME:identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array/>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.graphics-design</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
