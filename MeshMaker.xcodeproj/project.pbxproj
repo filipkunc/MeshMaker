@@ -110,9 +110,9 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		32DBCF750370BD2300C91783 /* OpenGLEditor_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLEditor_Prefix.pch; sourceTree = "<group>"; };
+		32DBCF750370BD2300C91783 /* MeshMaker_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshMaker_Prefix.pch; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8D15AC370486D014006FF6A4 /* OpenGLEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenGLEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D15AC370486D014006FF6A4 /* MeshMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeshMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7064C3A12BD107800B14CFA /* AddItemWithStepsSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AddItemWithStepsSheetController.h; path = Classes/AddItemWithStepsSheetController.h; sourceTree = "<group>"; };
 		A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AddItemWithStepsSheetController.m; path = Classes/AddItemWithStepsSheetController.m; sourceTree = "<group>"; };
 		A7064C3C12BD107800B14CFA /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Classes/Camera.cpp; sourceTree = "<group>"; };
@@ -165,10 +165,10 @@
 		A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLighting.vs; sourceTree = "<group>"; };
 		A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLightingFlipped.vs; sourceTree = "<group>"; };
-		A7064C9112BD19F400B14CFA /* OpenGLEditor-Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "OpenGLEditor-Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MeshMaker-Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7064C9212BD19F400B14CFA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		A7064C9412BD19F400B14CFA /* OpenGLEditor_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenGLEditor_Tests-Info.plist"; sourceTree = "<group>"; };
-		A7064C9512BD19F400B14CFA /* OpenGLEditor_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpenGLEditor_Tests-Prefix.pch"; sourceTree = "<group>"; };
+		A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeshMaker_Tests-Info.plist"; sourceTree = "<group>"; };
+		A7064C9512BD19F400B14CFA /* MeshMaker_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MeshMaker_Tests-Prefix.pch"; sourceTree = "<group>"; };
 		A7064C9712BD19F400B14CFA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A726AD3213034D85004A774D /* rapidxml_iterators.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_iterators.hpp; path = Classes/rapidxml_iterators.hpp; sourceTree = "<group>"; };
 		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
@@ -263,8 +263,8 @@
 		19C28FB0FE9D524F11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D15AC370486D014006FF6A4 /* OpenGLEditor.app */,
-				A7064C9112BD19F400B14CFA /* OpenGLEditor-Tests.octest */,
+				8D15AC370486D014006FF6A4 /* MeshMaker.app */,
+				A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -375,9 +375,9 @@
 		2A37F4AFFDCFA73011CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32DBCF750370BD2300C91783 /* OpenGLEditor_Prefix.pch */,
+				32DBCF750370BD2300C91783 /* MeshMaker_Prefix.pch */,
 				2A37F4B0FDCFA73011CA2CEA /* main.m */,
-				A7064C9512BD19F400B14CFA /* OpenGLEditor_Tests-Prefix.pch */,
+				A7064C9512BD19F400B14CFA /* MeshMaker_Tests-Prefix.pch */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -394,7 +394,7 @@
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
 				1DDD58280DA1D0D100B32029 /* MyDocument.xib */,
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
-				A7064C9412BD19F400B14CFA /* OpenGLEditor_Tests-Info.plist */,
+				A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */,
 				A7064C9612BD19F400B14CFA /* InfoPlist.strings */,
 			);
 			name = Resources;
@@ -455,9 +455,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D15AC270486D014006FF6A4 /* OpenGLEditor */ = {
+		8D15AC270486D014006FF6A4 /* MeshMaker */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "OpenGLEditor" */;
+			buildConfigurationList = C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "MeshMaker" */;
 			buildPhases = (
 				8D15AC2B0486D014006FF6A4 /* Resources */,
 				8D15AC300486D014006FF6A4 /* Sources */,
@@ -467,15 +467,15 @@
 			);
 			dependencies = (
 			);
-			name = OpenGLEditor;
+			name = MeshMaker;
 			productInstallPath = "$(HOME)/Applications";
 			productName = OpenGLEditor;
-			productReference = 8D15AC370486D014006FF6A4 /* OpenGLEditor.app */;
+			productReference = 8D15AC370486D014006FF6A4 /* MeshMaker.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A7064C9012BD19F400B14CFA /* OpenGLEditor-Tests */ = {
+		A7064C9012BD19F400B14CFA /* MeshMaker-Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A7064C9F12BD19F400B14CFA /* Build configuration list for PBXNativeTarget "OpenGLEditor-Tests" */;
+			buildConfigurationList = A7064C9F12BD19F400B14CFA /* Build configuration list for PBXNativeTarget "MeshMaker-Tests" */;
 			buildPhases = (
 				A7064C8C12BD19F400B14CFA /* Sources */,
 				A7064C8D12BD19F400B14CFA /* Frameworks */,
@@ -486,9 +486,9 @@
 			);
 			dependencies = (
 			);
-			name = "OpenGLEditor-Tests";
+			name = "MeshMaker-Tests";
 			productName = "OpenGLEditor-Tests";
-			productReference = A7064C9112BD19F400B14CFA /* OpenGLEditor-Tests.octest */;
+			productReference = A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -499,7 +499,7 @@
 			attributes = {
 				LastUpgradeCheck = 0430;
 			};
-			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "OpenGLEditor" */;
+			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "MeshMaker" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -511,8 +511,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8D15AC270486D014006FF6A4 /* OpenGLEditor */,
-				A7064C9012BD19F400B14CFA /* OpenGLEditor-Tests */,
+				8D15AC270486D014006FF6A4 /* MeshMaker */,
+				A7064C9012BD19F400B14CFA /* MeshMaker-Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -730,16 +730,16 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "OpenGLEditor_Tests-Prefix.pch";
+				GCC_PREFIX_HEADER = "MeshMaker_Tests-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
-				INFOPLIST_FILE = "OpenGLEditor_Tests-Info.plist";
+				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SenTestingKit,
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "MeshMaker-Tests";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = octest;
 			};
@@ -757,15 +757,15 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "OpenGLEditor_Tests-Prefix.pch";
-				INFOPLIST_FILE = "OpenGLEditor_Tests-Info.plist";
+				GCC_PREFIX_HEADER = "MeshMaker_Tests-Prefix.pch";
+				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SenTestingKit,
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "MeshMaker-Tests";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = octest;
 			};
@@ -777,7 +777,8 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = "OpenGLEditor-Tests";
+				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
+				PRODUCT_NAME = "MeshMaker-Tests";
 			};
 			name = Debug;
 		};
@@ -786,7 +787,8 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				PRODUCT_NAME = "OpenGLEditor-Tests";
+				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
+				PRODUCT_NAME = "MeshMaker-Tests";
 			};
 			name = Release;
 		};
@@ -802,12 +804,12 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = OpenGLEditor_Prefix.pch;
+				GCC_PREFIX_HEADER = MeshMaker_Prefix.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_NAME = OpenGLEditor;
+				PRODUCT_NAME = MeshMaker;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -822,12 +824,12 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = OpenGLEditor_Prefix.pch;
+				GCC_PREFIX_HEADER = MeshMaker_Prefix.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_NAME = OpenGLEditor;
+				PRODUCT_NAME = MeshMaker;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -887,7 +889,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A7064C9F12BD19F400B14CFA /* Build configuration list for PBXNativeTarget "OpenGLEditor-Tests" */ = {
+		A7064C9F12BD19F400B14CFA /* Build configuration list for PBXNativeTarget "MeshMaker-Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A7064CA012BD19F400B14CFA /* Debug */,
@@ -898,7 +900,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "OpenGLEditor" */ = {
+		C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "MeshMaker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C05733C808A9546B00998B17 /* Debug */,
@@ -907,7 +909,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "OpenGLEditor" */ = {
+		C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "MeshMaker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C05733CC08A9546B00998B17 /* Debug */,
