@@ -12,7 +12,7 @@
 #import "AddItemWithStepsSheetController.h"
 #import "FPTexturePaintToolWindowController.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSTableViewDataSource, NSTableViewDelegate, NSWindowDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSWindowDelegate>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;
