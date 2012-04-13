@@ -943,6 +943,14 @@ vector<T> *ReadValues(string s)
 - (BOOL)readFromModel3D:(NSData *)data
 {
     MemoryReadStream *stream = [[MemoryReadStream alloc] initWithData:data];
+    
+    unsigned int version = 0;
+    
+    [stream readBytes:&version length:sizeof(unsigned int)];
+    
+    if (version != 1)
+        return NO;
+    
     ItemCollection *newItems = [[ItemCollection alloc] initWithReadStream:stream];
     items = newItems;
     [itemsController setModel:items];
@@ -956,6 +964,10 @@ vector<T> *ReadValues(string s)
 {
     NSMutableData *data = [[NSMutableData alloc] init];
     MemoryWriteStream *stream = [[MemoryWriteStream alloc] initWithData:data];
+    
+    unsigned int version = 1;
+    
+    [stream writeBytes:&version length:sizeof(unsigned int)];
     [items encodeWithWriteStream:stream];
     return data;
 }
