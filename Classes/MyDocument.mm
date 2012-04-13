@@ -72,9 +72,6 @@ vector<T> *ReadValues(string s)
 
 - (void)awakeFromNib
 {
-	// maximizing window on start
-	[[viewPerspective window] performZoom:self];
-	
 	[editModePopUp selectItemWithTag:0];
 	[viewModePopUp selectItemWithTag:0];
 	
@@ -110,7 +107,7 @@ vector<T> *ReadValues(string s)
 
 - (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
-    return proposedOptions | NSApplicationPresentationAutoHideToolbar;    
+    return proposedOptions;    
 }
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view
