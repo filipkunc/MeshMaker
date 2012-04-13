@@ -29,6 +29,7 @@
 
 @property (readonly) NSColor *brushColor;
 @property (readonly) float brushSize;
+@property (readonly) BOOL texturePaintEnabled;
 
 @end
 

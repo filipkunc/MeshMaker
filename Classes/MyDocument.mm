@@ -745,6 +745,16 @@ vector<T> *ReadValues(string s)
     [texturePaintToolWindowController showWindow:nil];
 }
 
+- (BOOL)texturePaintEnabled
+{
+    if (texturePaintToolWindowController.isWindowLoaded)
+    {
+        if (texturePaintToolWindowController.window.isVisible)
+            return YES;
+    }
+    return NO;
+}
+
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document

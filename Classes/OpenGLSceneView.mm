@@ -589,14 +589,7 @@ NSOpenGLContext *globalGLContext = nil;
 	lastPoint = [self locationFromNSEvent:e];
     isPainting = NO;
     
-    if ([e modifierFlags] & NSShiftKeyMask)
-    {
-        isPainting = YES;
-        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
-        return;
-    }
-	
-	if ([e modifierFlags] & NSAlternateKeyMask)
+    if ([e modifierFlags] & NSAlternateKeyMask)
 	{
 		isManipulating = isSelecting = NO;
 		return;
@@ -628,7 +621,13 @@ NSOpenGLContext *globalGLContext = nil;
 				break;
 		}
 	}
-	else if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
+	else if (delegate.texturePaintEnabled)
+    {
+        isPainting = YES;
+        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
+        return;
+    }
+    else if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
 	{
 		if (currentManipulator == translationManipulator)
 		{
@@ -739,13 +738,6 @@ NSOpenGLContext *globalGLContext = nil;
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
     
-    if ([e modifierFlags] & NSShiftKeyMask)
-    {
-        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:currentPoint];
-        lastPoint = currentPoint;
-        return;
-    }
-	
 	NSUInteger flags = [e modifierFlags];
 	NSUInteger combinedFlags = NSAlternateKeyMask | NSCommandKeyMask;
 	
@@ -774,7 +766,12 @@ NSOpenGLContext *globalGLContext = nil;
 			[self setNeedsDisplay:YES];
 		}
 	}
-	else if (isManipulating)
+	else if (delegate.texturePaintEnabled)
+    {
+        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:currentPoint];
+        lastPoint = currentPoint;
+    }
+    else if (isManipulating)
 	{
 		lastPoint = currentPoint;
 		if (currentManipulator == translationManipulator)
