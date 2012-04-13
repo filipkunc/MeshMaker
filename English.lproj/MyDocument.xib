@@ -159,9 +159,10 @@
 							<string key="NSToolbarItemPaletteLabel">View Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="440722997">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
-								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
+								<string key="NSFrame">{{0, 14}, {110, 31}}</string>
+								<reference key="NSSuperview"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="181969951">
 									<int key="NSCellFlags">-2076049856</int>
@@ -178,35 +179,45 @@
 									<string key="NSKeyEquivalent"/>
 									<int key="NSPeriodicDelay">400</int>
 									<int key="NSPeriodicInterval">75</int>
-									<object class="NSMenuItem" key="NSMenuItem" id="149067008">
+									<object class="NSMenuItem" key="NSMenuItem" id="872096553">
 										<reference key="NSMenu" ref="491414831"/>
-										<string key="NSTitle">Solid Flat</string>
+										<string key="NSTitle">Unwrap</string>
 										<string key="NSKeyEquiv"/>
 										<int key="NSMnemonicLoc">2147483647</int>
-										<int key="NSState">1</int>
-										<object class="NSCustomResource" key="NSOnImage" id="384045352">
+										<object class="NSCustomResource" key="NSOnImage" id="627992541">
 											<string key="NSClassName">NSImage</string>
 											<string key="NSResourceName">NSMenuCheckmark</string>
 										</object>
-										<object class="NSCustomResource" key="NSMixedImage" id="340299042">
+										<object class="NSCustomResource" key="NSMixedImage" id="1048028348">
 											<string key="NSClassName">NSImage</string>
 											<string key="NSResourceName">NSMenuMixedState</string>
 										</object>
 										<string key="NSAction">_popUpItemAction:</string>
+										<int key="NSTag">3</int>
 										<reference key="NSTarget" ref="181969951"/>
 									</object>
 									<bool key="NSMenuItemRespectAlignment">YES</bool>
 									<object class="NSMenu" key="NSMenu" id="491414831">
 										<string key="NSTitle">OtherViews</string>
 										<array class="NSMutableArray" key="NSMenuItems">
-											<reference ref="149067008"/>
+											<object class="NSMenuItem" id="149067008">
+												<reference key="NSMenu" ref="491414831"/>
+												<string key="NSTitle">Solid Flat</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<int key="NSState">1</int>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
+												<string key="NSAction">_popUpItemAction:</string>
+												<reference key="NSTarget" ref="181969951"/>
+											</object>
 											<object class="NSMenuItem" id="966476802">
 												<reference key="NSMenu" ref="491414831"/>
 												<string key="NSTitle">Solid Smooth</string>
 												<string key="NSKeyEquiv"/>
 												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
 												<string key="NSAction">_popUpItemAction:</string>
 												<int key="NSTag">1</int>
 												<reference key="NSTarget" ref="181969951"/>
@@ -216,24 +227,13 @@
 												<string key="NSTitle">Wireframe</string>
 												<string key="NSKeyEquiv"/>
 												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
 												<string key="NSAction">_popUpItemAction:</string>
 												<int key="NSTag">2</int>
 												<reference key="NSTarget" ref="181969951"/>
 											</object>
-											<object class="NSMenuItem" id="872096553">
-												<reference key="NSMenu" ref="491414831"/>
-												<string key="NSTitle">Unwrap</string>
-												<string key="NSKeyEquiv"/>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<int key="NSState">1</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
-												<string key="NSAction">_popUpItemAction:</string>
-												<int key="NSTag">3</int>
-												<reference key="NSTarget" ref="181969951"/>
-											</object>
+											<reference ref="872096553"/>
 										</array>
 										<reference key="NSMenuFont" ref="889920428"/>
 									</object>
@@ -248,7 +248,7 @@
 							<nil key="NSToolbarItemTarget"/>
 							<nil key="NSToolbarItemAction"/>
 							<string key="NSToolbarItemMinSize">{100, 25}</string>
-							<string key="NSToolbarItemMaxSize">{100, 25}</string>
+							<string key="NSToolbarItemMaxSize">{114, 31}</string>
 							<bool key="NSToolbarItemEnabled">YES</bool>
 							<bool key="NSToolbarItemAutovalidates">YES</bool>
 							<int key="NSToolbarItemTag">0</int>
@@ -395,9 +395,10 @@
 							<string key="NSToolbarItemPaletteLabel">Edit Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="631661131">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
+								<reference key="NSSuperview"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076049856</int>
@@ -410,31 +411,31 @@
 									<string key="NSKeyEquivalent"/>
 									<int key="NSPeriodicDelay">400</int>
 									<int key="NSPeriodicInterval">75</int>
-									<object class="NSMenuItem" key="NSMenuItem" id="313745957">
-										<reference key="NSMenu" ref="860704842"/>
-										<string key="NSTitle">Items</string>
-										<string key="NSKeyEquiv"/>
-										<int key="NSKeyEquivModMask">1048576</int>
-										<int key="NSMnemonicLoc">2147483647</int>
-										<int key="NSState">1</int>
-										<reference key="NSOnImage" ref="384045352"/>
-										<reference key="NSMixedImage" ref="340299042"/>
-										<string key="NSAction">_popUpItemAction:</string>
-										<reference key="NSTarget" ref="857395174"/>
-									</object>
+									<nil key="NSMenuItem"/>
 									<bool key="NSMenuItemRespectAlignment">YES</bool>
 									<object class="NSMenu" key="NSMenu" id="860704842">
 										<string key="NSTitle">OtherViews</string>
 										<array class="NSMutableArray" key="NSMenuItems">
-											<reference ref="313745957"/>
+											<object class="NSMenuItem" id="313745957">
+												<reference key="NSMenu" ref="860704842"/>
+												<string key="NSTitle">Items</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSKeyEquivModMask">1048576</int>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<int key="NSState">1</int>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
+												<string key="NSAction">_popUpItemAction:</string>
+												<reference key="NSTarget" ref="857395174"/>
+											</object>
 											<object class="NSMenuItem" id="136780822">
 												<reference key="NSMenu" ref="860704842"/>
 												<string key="NSTitle">Vertices</string>
 												<string key="NSKeyEquiv"/>
 												<int key="NSKeyEquivModMask">1048576</int>
 												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
 												<string key="NSAction">_popUpItemAction:</string>
 												<int key="NSTag">1</int>
 												<reference key="NSTarget" ref="857395174"/>
@@ -445,8 +446,8 @@
 												<string key="NSKeyEquiv"/>
 												<int key="NSKeyEquivModMask">1048576</int>
 												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
 												<string key="NSAction">_popUpItemAction:</string>
 												<int key="NSTag">2</int>
 												<reference key="NSTarget" ref="857395174"/>
@@ -456,21 +457,10 @@
 												<string key="NSTitle">Edges</string>
 												<string key="NSKeyEquiv"/>
 												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
+												<reference key="NSOnImage" ref="627992541"/>
+												<reference key="NSMixedImage" ref="1048028348"/>
 												<string key="NSAction">_popUpItemAction:</string>
 												<int key="NSTag">3</int>
-												<reference key="NSTarget" ref="857395174"/>
-											</object>
-											<object class="NSMenuItem" id="39843394">
-												<reference key="NSMenu" ref="860704842"/>
-												<string key="NSTitle">Quads &amp; Triangles</string>
-												<string key="NSKeyEquiv"/>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="384045352"/>
-												<reference key="NSMixedImage" ref="340299042"/>
-												<string key="NSAction">_popUpItemAction:</string>
-												<int key="NSTag">4</int>
 												<reference key="NSTarget" ref="857395174"/>
 											</object>
 										</array>
@@ -516,8 +506,8 @@
 								<string key="NSKeyEquiv"/>
 								<int key="NSKeyEquivModMask">1048576</int>
 								<int key="NSMnemonicLoc">2147483647</int>
-								<reference key="NSOnImage" ref="384045352"/>
-								<reference key="NSMixedImage" ref="340299042"/>
+								<reference key="NSOnImage" ref="627992541"/>
+								<reference key="NSMixedImage" ref="1048028348"/>
 							</object>
 						</object>
 						<object class="NSToolbarSeparatorItem" key="NSToolbarSeparatorItem" id="786968178">
@@ -543,8 +533,8 @@
 								<string key="NSKeyEquiv"/>
 								<int key="NSKeyEquivModMask">1048576</int>
 								<int key="NSMnemonicLoc">2147483647</int>
-								<reference key="NSOnImage" ref="384045352"/>
-								<reference key="NSMixedImage" ref="340299042"/>
+								<reference key="NSOnImage" ref="627992541"/>
+								<reference key="NSMixedImage" ref="1048028348"/>
 							</object>
 						</object>
 						<object class="NSToolbarSpaceItem" key="NSToolbarSpaceItem" id="804788330">
@@ -570,12 +560,12 @@
 								<string key="NSKeyEquiv"/>
 								<int key="NSKeyEquivModMask">1048576</int>
 								<int key="NSMnemonicLoc">2147483647</int>
-								<reference key="NSOnImage" ref="384045352"/>
-								<reference key="NSMixedImage" ref="340299042"/>
+								<reference key="NSOnImage" ref="627992541"/>
+								<reference key="NSMixedImage" ref="1048028348"/>
 							</object>
 						</object>
 					</dictionary>
-					<array key="NSToolbarIBAllowedItems">
+					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
@@ -592,7 +582,7 @@
 						<reference ref="772056680"/>
 						<reference ref="786968178"/>
 					</array>
-					<array key="NSToolbarIBDefaultItems">
+					<array class="NSMutableArray" key="NSToolbarIBDefaultItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
@@ -928,6 +918,7 @@
 							<string key="NSFrame">{{878, 4}, {96, 22}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="801101494">
@@ -1654,7 +1645,6 @@
 							<reference ref="313745957"/>
 							<reference ref="136780822"/>
 							<reference ref="639890568"/>
-							<reference ref="39843394"/>
 						</array>
 						<reference key="parent" ref="857395174"/>
 					</object>
@@ -1836,12 +1826,6 @@
 						<int key="objectID">100424</int>
 						<reference key="object" ref="664980159"/>
 						<reference key="parent" ref="491414831"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">100425</int>
-						<reference key="object" ref="39843394"/>
-						<reference key="parent" ref="860704842"/>
-						<string key="objectName">Menu Item - Quads &amp; Triangles</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100433</int>
@@ -2227,7 +2211,6 @@
 				<string key="100421.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100422.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100424.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="100425.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100433.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100434.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100436.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2408,7 +2391,6 @@
 						<string key="intersectSelected:">id</string>
 						<string key="invertSelection:">id</string>
 						<string key="mergeSelected:">id</string>
-						<string key="mergeVertexPairs:">id</string>
 						<string key="resetTexCoords:">id</string>
 						<string key="selectAll:">id</string>
 						<string key="softSelection:">id</string>
@@ -2478,10 +2460,6 @@
 						</object>
 						<object class="IBActionInfo" key="mergeSelected:">
 							<string key="name">mergeSelected:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="mergeVertexPairs:">
-							<string key="name">mergeVertexPairs:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="resetTexCoords:">

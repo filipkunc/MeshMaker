@@ -103,46 +103,6 @@
 	}
 }
 
-- (void)mergeVertexPairs
-{
-    /*
-	[self resetCache];
-	
-	for (int i = 0; i < (int)selected->size(); i++)
-	{
-		if (selected->at(i).selected)
-		{
-			Vector3D firstVertex = [self vertexAtIndex:i];
-			float smallestDistance = 10.0f; // maximum distance between vertices in pair
-			int secondIndex = -1;
-			for (int j = i + 1; j < (int)selected->size(); j++)
-			{
-				if (selected->at(j).selected)
-				{
-					Vector3D secondVertex = [self vertexAtIndex:j];
-					float currentDistance = firstVertex.Distance(secondVertex);
-					if (currentDistance < smallestDistance)
-					{
-						secondIndex = j;
-						smallestDistance = currentDistance;
-					}
-				}
-			}
-			
-			if (secondIndex > -1)
-			{
-				[self fastMergeVertexFirst:i second:secondIndex];
-				i--;
-			}
-		}
-	}
-		
-	[self removeDegeneratedTriangles];
-	[self removeNonUsedVertices];
-	
-	NSAssert(vertices->size() == selected->size(), @"vertices->size() == selected->size()");*/
-}
-
 - (void)transformWithMatrix:(Matrix4x4 *)matrix
 {
     mesh->transformAll(*matrix);

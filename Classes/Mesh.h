@@ -32,7 +32,6 @@
 - (void)makeMeshWithType:(enum MeshType)type steps:(uint)steps;
 - (void)transformWithMatrix:(Matrix4x4 *)matrix;
 - (void)mergeWithMesh:(Mesh *)aMesh;
-- (void)mergeVertexPairs;
 - (void)mergeSelected;
 - (void)splitSelected;
 - (void)flipSelected;

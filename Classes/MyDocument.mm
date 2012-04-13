@@ -445,9 +445,6 @@ vector<T> *ReadValues(string s)
 		case EditModeEdges:
 			[self editMeshWithMode:MeshSelectionModeEdges];
 			break;
-        case EditModeQuadsTriangles:
-            [self editMeshWithMode:MeshSelectionModeQuadsTriangles];
-            break;
 	}
 }
 
@@ -654,21 +651,6 @@ vector<T> *ReadValues(string s)
 	[document redoDeleteSelected:selectedItems];
 	
 	[itemsController updateSelection];
-	[self setNeedsDisplayOnAllViews];
-}
-
-- (IBAction)mergeVertexPairs:(id)sender
-{
-	if ([manipulated selectedCount] <= 0)
-		return;
-	
-	if (manipulated == meshController)
-	{
-		if ([[self currentMesh] selectionMode] == MeshSelectionModeVertices)
-		{
-			[self meshActionWithName:@"Merge Vertex Pairs" block:^ { [[self currentMesh] mergeVertexPairs]; }];
-		}
-	}
 	[self setNeedsDisplayOnAllViews];
 }
 

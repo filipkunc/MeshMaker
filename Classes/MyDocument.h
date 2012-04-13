@@ -77,7 +77,6 @@
 - (IBAction)subtractSelected:(id)sender;
 - (IBAction)intersectSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
-- (IBAction)mergeVertexPairs:(id)sender;
 - (IBAction)duplicateSelected:(id)sender;
 - (void)redoDuplicateSelected:(NSMutableArray *)selection;
 - (void)undoDuplicateSelected:(NSMutableArray *)selection;

@@ -133,9 +133,6 @@ void Mesh2::fillEdgeCache()
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
-        if (_selectionMode == MeshSelectionModeQuadsTriangles && node->data().isQuadEdge())
-            continue;
-        
         if (node->data().selected)
         {
             for (int k = 0; k < 3; k++)
@@ -423,10 +420,6 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
                 glEnd();
             }
         } break;
-        case MeshSelectionModeQuadsTriangles:
-        {
-            
-        }break;
 	}
 }
 
@@ -655,9 +648,6 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
             break;
         case MeshSelectionModeEdges:
             drawAllEdges(viewMode, forSelection);
-            break;
-        case MeshSelectionModeQuadsTriangles:
-            //drawAllTriangles(mode, forSelection);
             break;
     }
 }

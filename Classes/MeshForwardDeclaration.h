@@ -26,12 +26,6 @@ struct Edge
 	uint vertexIndices[2];
 };
 
-struct SelectionInfo
-{
-    bool selected;
-    bool visible;
-};
-
 class Vertex2;
 class Triangle2;
 class VertexEdge;
