@@ -11,3 +11,9 @@ p, ul
     font-size: 14px;
     line-height: 18px;
 }
+
+div
+{
+    width: 800px;
+    text-align: center;
+}
