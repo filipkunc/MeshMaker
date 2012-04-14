@@ -1,14 +1,17 @@
-# Welcome to OpenGL Editor
+# Welcome to MeshMaker
 
 ## License
 
-This project is under MIT license. You find it in file "LICENSE.TXT". OpenGL Editor contains [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski. RapidXml parser is also under [MIT license](http://rapidxml.sourceforge.net/license.txt).
+MeshMaker is under MIT license. You find it in file "LICENSE.TXT". 
+
+MeshMaker contains:
+
+ * [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski, also under MIT license.
+ * C++ port of [csg.js](https://github.com/evanw/csg.js) from Evan Wallace, also under MIT license.
 
 ## About
 
-OpenGL Editor is very basic modeling tool focused on low poly modeling with triangles. 
-Currently Mesh class is being re-implemented in Mesh2 for faster modeling operations and easier
-implementation of advanced features (subdivision, splitting, extrusion, ...).
+MeshMaker is very basic modeling tool focused on low poly modeling with triangles.
 
 ## Screenshots
 
@@ -16,19 +19,19 @@ implementation of advanced features (subdivision, splitting, extrusion, ...).
 
 Modeled with extrude (⌘D shortcut, same as duplicate).
 
-<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/chesstower.png" alt="Chess tower" width="902px" height="597px"></img>
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/chesstower.png" alt="Chess tower" width="902px" height="597px"></img>
 
 ### Loop subdivision
 
 And same chess tower after four or five Loop subdivision iterations.
 
-<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
 
 ### Texture painting
 
 Texturing is currently work in progress.
 
-<img src="https://github.com/filipkunc/opengl-editor-cocoa/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="785px" height="577px"></img>
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="785px" height="577px"></img>
 
 
 ## Videos
