@@ -1,0 +1,25 @@
+# xcode noise
+build
+*.pbxuser
+*.mode1v3
+
+xcuserdata
+
+# osx noise
+.DS_Store
+profile
+
+# visual studio noise
+Debug
+Release
+obj
+*.exe
+*.dll
+*.obj
+*.pdb
+*.ncb
+*.user
+*.suo
+
+# windows noise
+Thumbs.db

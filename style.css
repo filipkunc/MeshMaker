@@ -1,0 +1,13 @@
+body
+{
+    font-family: Helvetica, Arial, sans-serif;
+    margin: auto;
+    width: 800px;
+}
+
+p, ul
+{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 18px;
+}
