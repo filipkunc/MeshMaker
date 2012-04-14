@@ -25,6 +25,12 @@ Mesh2::Mesh2(float colorComponents[4])
     _texture = nil;
 }
 
+void Mesh2::setColorComponents(float colorComponents[4])
+{
+    for (int i = 0; i < 4; i++)
+    _colorComponents[i] = colorComponents[i];
+}
+
 Mesh2::~Mesh2()
 {
     resetTriangleCache();

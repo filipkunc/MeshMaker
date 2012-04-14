@@ -155,6 +155,8 @@
 	[newItem setScale:[self scale]];
 	
     [newItem->mesh mergeWithMesh:self->mesh];
+    [newItem->mesh setColor:self->mesh.color];
+    [newItem->mesh setImage:self->mesh.image];
     
 	[newItem setSelected:[self selected]];
 	

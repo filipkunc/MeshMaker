@@ -84,7 +84,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 	{
         _image = [image copy];
 		
-		NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
+		NSBitmapImageRep *bitmap = [self bitmapImageRepFromImage:image];
 		GLubyte *data = [bitmap bitmapData];
 		NSInteger bitsPerPixel = [bitmap bitsPerPixel];
 		int components = bitsPerPixel / 8;
@@ -164,7 +164,7 @@ struct FPVertex
 
 - (void)updateTexture
 {
-    NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[_image TIFFRepresentation]];
+    NSBitmapImageRep *bitmap = [self bitmapImageRepFromImage:_image];
     
     if (textureID == 0)
     {
@@ -183,6 +183,18 @@ struct FPVertex
     }
     
     needUpdate = NO;
+}
+
+- (NSBitmapImageRep *)bitmapImageRepFromImage:(NSImage *)theImg
+{
+    NSBitmapImageRep* bitmap = [NSBitmapImageRep alloc];
+    NSSize imgSize = [theImg size];
+    
+    [theImg lockFocus];
+    bitmap = [bitmap initWithFocusedViewRect:NSMakeRect(0.0, 0.0, imgSize.width, imgSize.height)];
+    [theImg unlockFocus];
+    
+    return bitmap;
 }
 
 + (void)drawString:(NSString *)string atPoint:(CGPoint)point

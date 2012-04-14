@@ -9,6 +9,7 @@
 
 #import "OpenGLDrawing.h"
 #import "OpenGLSceneView.h"
+#import <GLUT/GLUT.h>
 
 const float perspectiveAngle = 45.0f;
 const float minDistance = 0.2f;
@@ -322,16 +323,6 @@ NSOpenGLContext *globalGLContext = nil;
 	[manipulated drawWithMode:viewMode forSelection:forSelection];
 }
 
-- (void)drawDefaultManipulator
-{
-	[defaultManipulator setPosition:Vector3D()];
-	if (cameraMode == CameraModePerspective)
-		[defaultManipulator setSize:camera->GetPosition().Distance([defaultManipulator position]) * 0.07f];
-	else
-		[defaultManipulator setSize:camera->GetZoom() * 0.08f];
-	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() center:Vector3D()];
-}
-
 - (void)drawOrthoDefaultManipulator
 {
 	[self beginOrtho];
@@ -356,9 +347,11 @@ NSOpenGLContext *globalGLContext = nil;
 		if (cameraMode == CameraModePerspective)
         {
             Vector3D manipulatorPosition = [manipulated selectionCenter];
-            Vector3D cameraPosition = camera->GetCenter() + camera->GetAxisZ() * camera->GetZoom();
+            Vector3D cameraPosition = -camera->GetCenter() + (camera->GetAxisZ() * camera->GetZoom());
             
             float distance = cameraPosition.Distance(manipulatorPosition);
+            
+            //debugString = [NSString stringWithFormat:@"%.2f", distance];            
 
             [currentManipulator setSize:distance * 0.15f];            
         }

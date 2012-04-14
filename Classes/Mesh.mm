@@ -67,6 +67,22 @@
 	delete mesh;
 }
 
+- (NSColor *)color
+{
+    return color;
+}
+
+- (void)setColor:(NSColor *)value
+{
+    color = value;
+    CGFloat colorComponents[4];
+    [color getComponents:colorComponents];
+    float floatComponents[4];
+    for (int i = 0; i < 4; i++)
+        floatComponents[i] = (float)colorComponents[i];
+    mesh->setColorComponents(floatComponents);
+}
+
 - (enum MeshSelectionMode)selectionMode
 {
     return mesh->selectionMode();
@@ -273,6 +289,13 @@
 	self = [self init];
 	if (self)
 	{
+        if (stream.version > 1)
+        {
+            Vector4D baseColor;           
+            [stream readBytes:&baseColor length:sizeof(Vector4D)];
+            color = [NSColor colorWithCalibratedRed:baseColor.x green:baseColor.y blue:baseColor.z alpha:baseColor.w];
+        }
+        
 		uint verticesSize;
         uint texCoordsSize;
 		uint trianglesSize;
@@ -307,12 +330,29 @@
 		}
         
         mesh->fromIndexRepresentation(vertices, texCoords, triangles);
+        
+        CGFloat colorComponents[4];
+        [color getComponents:colorComponents];
+        float floatComponents[4];
+        for (int i = 0; i < 4; i++)
+            floatComponents[i] = (float)colorComponents[i];
+        mesh->setColorComponents(floatComponents);
 	}
 	return self;
 }
 
 - (void)encodeWithWriteStream:(MemoryWriteStream *)stream
 {
+    if (stream.version > 1)
+    {
+        Vector4D baseColor;
+        baseColor.x = color.redComponent;
+        baseColor.y = color.greenComponent;
+        baseColor.z = color.blueComponent;
+        baseColor.w = color.alphaComponent;
+        [stream writeBytes:&baseColor length:sizeof(Vector4D)];
+    }
+    
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
     vector<Triangle> triangles;
@@ -356,6 +396,16 @@
     mesh->resetTriangleCache();
     mesh->makeTexCoords();
     mesh->makeEdges();
+}
+
+- (NSImage *)image
+{
+    return mesh->texture().canvas;
+}
+
+- (void)setImage:(NSImage *)image
+{
+    [mesh->texture() setCanvas:image];
 }
 
 @end

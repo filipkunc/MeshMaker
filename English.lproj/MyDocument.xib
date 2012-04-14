@@ -159,11 +159,9 @@
 							<string key="NSToolbarItemPaletteLabel">View Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="440722997">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {110, 31}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="181969951">
 									<int key="NSCellFlags">-2076049856</int>
@@ -396,11 +394,9 @@
 							<string key="NSToolbarItemPaletteLabel">Edit Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="631661131">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076049856</int>
@@ -996,6 +992,9 @@
 			<object class="NSCustomObject" id="316888027">
 				<string key="NSClassName">FPTexturePaintToolWindowController</string>
 			</object>
+			<object class="NSCustomObject" id="531718">
+				<string key="NSClassName">FPTextureBrowserWindowController</string>
+			</object>
 		</array>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
 			<array class="NSMutableArray" key="connectionRecords">
@@ -1190,6 +1189,14 @@
 						<reference key="destination" ref="772056680"/>
 					</object>
 					<int key="connectionID">100423</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">textureBrowserWindowController</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="531718"/>
+					</object>
+					<int key="connectionID">100842</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2173,6 +2180,11 @@
 						<reference key="parent" ref="24235194"/>
 						<string key="objectName">Toolbar Item - Subdivision</string>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">100840</int>
+						<reference key="object" ref="531718"/>
+						<reference key="parent" ref="0"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2290,6 +2302,7 @@
 				<string key="100837.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100838.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="100839.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="100840.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBWindowTemplateEditedContentRect">{{381, 488}, {739, 467}}</string>
 				<array class="NSMutableArray" key="6.IBNSViewMetadataConstraints">
@@ -2316,7 +2329,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">100839</int>
+			<int key="maxID">100842</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2351,6 +2364,28 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/AddItemWithStepsSheetController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">FPTextureBrowserWindowController</string>
+					<string key="superclassName">NSWindowController</string>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="textureList">NSTableView</string>
+						<string key="textureView">NSImageView</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="textureList">
+							<string key="name">textureList</string>
+							<string key="candidateClassName">NSTableView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="textureView">
+							<string key="name">textureView</string>
+							<string key="candidateClassName">NSImageView</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/FPTextureBrowserWindowController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2402,6 +2437,7 @@
 						<string key="subtractSelected:">id</string>
 						<string key="unhideAll:">id</string>
 						<string key="unionSelected:">id</string>
+						<string key="viewTextureBrowser:">id</string>
 						<string key="viewTexturePaintTool:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
@@ -2497,6 +2533,10 @@
 							<string key="name">unionSelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="viewTextureBrowser:">
+							<string key="name">viewTextureBrowser:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="viewTexturePaintTool:">
 							<string key="name">viewTexturePaintTool:</string>
 							<string key="candidateClassName">id</string>
@@ -2507,6 +2547,7 @@
 						<string key="bottomSplit">NSSplitView</string>
 						<string key="editModePopUp">NSPopUpButton</string>
 						<string key="mainSplit">NSSplitView</string>
+						<string key="textureBrowserWindowController">FPTextureBrowserWindowController</string>
 						<string key="texturePaintToolWindowController">FPTexturePaintToolWindowController</string>
 						<string key="topSplit">NSSplitView</string>
 						<string key="viewFront">OpenGLSceneView</string>
@@ -2531,6 +2572,10 @@
 						<object class="IBToOneOutletInfo" key="mainSplit">
 							<string key="name">mainSplit</string>
 							<string key="candidateClassName">NSSplitView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="textureBrowserWindowController">
+							<string key="name">textureBrowserWindowController</string>
+							<string key="candidateClassName">FPTextureBrowserWindowController</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="texturePaintToolWindowController">
 							<string key="name">texturePaintToolWindowController</string>

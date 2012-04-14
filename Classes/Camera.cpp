@@ -98,7 +98,8 @@ Quaternion Camera::GetRotationQuaternion() const
 void Camera::MoveDirection(const Vector3D & v)
 {
 	center += v;
-    position += v;
+    ComputeVectors();
+    //position += v;
 }
 	
 void Camera::Move(float s)

@@ -10,6 +10,8 @@
 
 @implementation MemoryReadStream
 
+@synthesize version = _version;
+
 - (id)initWithData:(NSData *)data
 {
     self = [super init];
@@ -30,6 +32,8 @@
 @end
 
 @implementation MemoryWriteStream
+
+@synthesize version = _version;
 
 - (id)initWithData:(NSMutableData *)data
 {

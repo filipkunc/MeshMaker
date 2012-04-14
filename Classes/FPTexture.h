@@ -28,6 +28,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 - (void)drawAtPoint:(CGPoint)point;
 - (void)drawForUnwrap;
 - (void)updateTexture;
+- (NSBitmapImageRep *)bitmapImageRepFromImage:(NSImage *)theImg;
 + (void)drawString:(NSString *)string atPoint:(CGPoint)point;
 
 @end

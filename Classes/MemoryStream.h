@@ -12,7 +12,10 @@
 {
     NSData *_data;
     NSUInteger _lastReadPosition;
+    unsigned int _version;
 }
+
+@property (readwrite, assign) unsigned int version;
 
 - (id)initWithData:(NSData *)data;
 - (void)readBytes:(void *)buffer length:(NSUInteger)length;
@@ -22,7 +25,10 @@
 @interface MemoryWriteStream : NSObject
 {
     NSMutableData *_data;
+    unsigned int _version;
 }
+
+@property (readwrite, assign) unsigned int version;
 
 - (id)initWithData:(NSMutableData *)data;
 - (void)writeBytes:(void *)buffer length:(NSUInteger)length;

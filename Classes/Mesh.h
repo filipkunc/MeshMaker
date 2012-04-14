@@ -26,6 +26,8 @@
 @property (readonly) uint vertexCount;
 @property (readonly) uint triangleCount;
 @property (readonly) uint edgeCount;
+@property (readwrite, copy) NSImage *image;
+@property (readwrite, copy) NSColor *color;
 
 + (NSString *)descriptionOfMeshType:(enum MeshType)type;
 - (void)drawWithMode:(enum ViewMode)mode scale:(Vector3D)scale selected:(BOOL)isSelected forSelection:(BOOL)forSelection;

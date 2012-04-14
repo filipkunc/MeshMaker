@@ -183,7 +183,7 @@ vector<T> *ReadValues(string s)
 	[document removeItemWithType:type steps:steps];
 	
 	[items addItem:item];
-	
+    [textureBrowserWindowController setItems:items];	
 	[itemsController changeSelection:NO];
 	[items setSelected:YES atIndex:[items count] - 1];
 	[itemsController updateSelection];
@@ -198,6 +198,7 @@ vector<T> *ReadValues(string s)
 	[document addItemWithType:type steps:steps];
 		
 	[items removeLastItem];
+    [textureBrowserWindowController setItems:items];
 	[itemsController changeSelection:NO];
 	[self setManipulated:itemsController];
 }
@@ -304,6 +305,8 @@ vector<T> *ReadValues(string s)
 	NSMutableArray *oldItems = [items allItems];
 
 	action();
+    
+    [textureBrowserWindowController setItems:items];
 	
 	NSMutableArray *currentItems = [items allItems];
 	[document swapAllItemsWithOld:oldItems 
@@ -617,6 +620,7 @@ vector<T> *ReadValues(string s)
 		MyDocument *document = [self prepareUndoWithName:@"Delete"];
 		[document undoDeleteSelected:currentItems];
 		[manipulated removeSelected];
+        [textureBrowserWindowController setItems:items];
 	}
 	else if (manipulated == meshController)
 	{
@@ -631,10 +635,11 @@ vector<T> *ReadValues(string s)
 	[self setManipulated:itemsController];
 	[items setSelectionFromIndexedItems:selectedItems];
 	[manipulated removeSelected];
+    [textureBrowserWindowController setItems:items];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document undoDeleteSelected:selectedItems];
-	
+
 	[itemsController updateSelection];
 	[self setNeedsDisplayOnAllViews];
 }
@@ -643,6 +648,7 @@ vector<T> *ReadValues(string s)
 {
 	[self setManipulated:itemsController];
 	[items setCurrentItems:selectedItems];
+    [textureBrowserWindowController setItems:items];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document redoDeleteSelected:selectedItems];
@@ -731,6 +737,11 @@ vector<T> *ReadValues(string s)
     [self setNeedsDisplayOnAllViews];
 }
 
+- (void)setBaseColorFromBrush:(id)sender
+{
+    [[self currentMesh] setColor:self.brushColor];
+}
+
 - (void)resetTexCoords:(id)sender
 {
     [[self currentMesh] resetTexCooords];
@@ -740,6 +751,12 @@ vector<T> *ReadValues(string s)
 - (void)viewTexturePaintTool:(id)sender
 {
     [texturePaintToolWindowController showWindow:nil];
+}
+
+- (void)viewTextureBrowser:(id)sender
+{
+    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController showWindow:nil];
 }
 
 - (BOOL)texturePaintEnabled
@@ -829,9 +846,6 @@ vector<T> *ReadValues(string s)
         
         i++;
     }
-    
-//    [dirWrapper addRegularFileWithContents:self.signatureBitmapData
-//                         preferredFilename:@"SignatureBitmap.png"];
     
     return dirWrapper;
 }
@@ -945,9 +959,10 @@ vector<T> *ReadValues(string s)
     
     [stream readBytes:&version length:sizeof(unsigned int)];
     
-    if (version != 1)
+    if (version < 1 || version > 2)
         return NO;
     
+    [stream setVersion:version];
     ItemCollection *newItems = [[ItemCollection alloc] initWithReadStream:stream];
     items = newItems;
     [itemsController setModel:items];
@@ -962,8 +977,8 @@ vector<T> *ReadValues(string s)
     NSMutableData *data = [[NSMutableData alloc] init];
     MemoryWriteStream *stream = [[MemoryWriteStream alloc] initWithData:data];
     
-    unsigned int version = 1;
-    
+    unsigned int version = 2;
+    [stream setVersion:version];
     [stream writeBytes:&version length:sizeof(unsigned int)];
     [items encodeWithWriteStream:stream];
     return data;

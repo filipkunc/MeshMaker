@@ -11,6 +11,7 @@
 #import "OpenGLSceneView.h"
 #import "AddItemWithStepsSheetController.h"
 #import "FPTexturePaintToolWindowController.h"
+#import "FPTextureBrowserWindowController.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSWindowDelegate>
 {
@@ -32,14 +33,15 @@
 	NSMutableArray *views;
 	NSMutableArray *oldManipulations;
 	MeshState *oldMeshState;
+    
+    enum ManipulatorType currentManipulator;
 	
 	IBOutlet NSSplitView *topSplit;
 	IBOutlet NSSplitView *bottomSplit;
 	IBOutlet NSSplitView *mainSplit;
 	OpenGLSceneView *oneView;
     IBOutlet FPTexturePaintToolWindowController *texturePaintToolWindowController;
-    
-    enum ManipulatorType currentManipulator;
+    IBOutlet FPTextureBrowserWindowController *textureBrowserWindowController;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -95,7 +97,9 @@
 - (IBAction)subdivision:(id)sender;
 - (IBAction)softSelection:(id)sender;
 - (IBAction)cleanTexture:(id)sender;
+- (IBAction)setBaseColorFromBrush:(id)sender;
 - (IBAction)resetTexCoords:(id)sender;
 - (IBAction)viewTexturePaintTool:(id)sender;
+- (IBAction)viewTextureBrowser:(id)sender;
 
 @end

@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 3/17/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #import <Cocoa/Cocoa.h>

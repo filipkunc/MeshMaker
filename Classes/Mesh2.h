@@ -93,15 +93,14 @@ private:
     FPArrayCache<GLEdgeVertex> _cachedEdgeVertices;
     FPArrayCache<GLEdgeTexCoord> _cachedEdgeTexCoords;
     
-    float _colorComponents[4];
-    
     static bool _useSoftSelection;
     static bool _selectThrough;
     static bool _isUnwrapped;
     
     uint _vboID;
     bool _vboGenerated;
-    
+
+    float _colorComponents[4];
     FPTexture *_texture;    
 private:
     void fastMergeSelectedVertices();
@@ -129,6 +128,7 @@ public:
     ~Mesh2();
     
     FPTexture *texture();
+    void setColorComponents(float colorComponents[4]);
     
     int vertexCount() { return _vertices.count(); }
     int triangleCount() { return _triangles.count(); }

@@ -37,6 +37,8 @@
 		A7064C8B12BD10C200B14CFA /* twoSidedLightingFlipped.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */; };
 		A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7064C9212BD19F400B14CFA /* Cocoa.framework */; };
 		A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7064C9612BD19F400B14CFA /* InfoPlist.strings */; };
+		A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */; };
+		A718D5F91539714000589FFF /* FPTextureBrowserWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */; };
 		A729F1791538B038002759BB /* SubdivisionTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A729F1781538B038002759BB /* SubdivisionTemplate.png */; };
 		A73659A013D228B100F9D7D1 /* CylinderTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599D13D228B100F9D7D1 /* CylinderTemplate.png */; };
 		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
@@ -170,6 +172,9 @@
 		A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeshMaker_Tests-Info.plist"; sourceTree = "<group>"; };
 		A7064C9512BD19F400B14CFA /* MeshMaker_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MeshMaker_Tests-Prefix.pch"; sourceTree = "<group>"; };
 		A7064C9712BD19F400B14CFA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTextureBrowserWindowController.h; path = Classes/FPTextureBrowserWindowController.h; sourceTree = "<group>"; };
+		A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTextureBrowserWindowController.mm; path = Classes/FPTextureBrowserWindowController.mm; sourceTree = "<group>"; };
+		A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTextureBrowserWindowController.xib; path = Classes/FPTextureBrowserWindowController.xib; sourceTree = "<group>"; };
 		A726AD3213034D85004A774D /* rapidxml_iterators.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_iterators.hpp; path = Classes/rapidxml_iterators.hpp; sourceTree = "<group>"; };
 		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
 		A726AD3413034D85004A774D /* rapidxml_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_utils.hpp; path = Classes/rapidxml_utils.hpp; sourceTree = "<group>"; };
@@ -371,6 +376,9 @@
 				A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */,
 				A76AF5E6151E331A0015E5B4 /* MemoryStream.h */,
 				A76AF5E7151E331A0015E5B4 /* MemoryStream.m */,
+				A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */,
+				A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */,
+				A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -546,6 +554,7 @@
 				A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */,
 				A729F1791538B038002759BB /* SubdivisionTemplate.png in Resources */,
 				A7BFCC101538D12A0076B712 /* Application.icns in Resources */,
+				A718D5F91539714000589FFF /* FPTextureBrowserWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,6 +624,7 @@
 				A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */,
 				A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */,
 				A7F6DDEA15276DE900D614D3 /* Mesh2.csg.mm in Sources */,
+				A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
