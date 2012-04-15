@@ -30,7 +30,8 @@ enum MeshType
     MeshTypePlane = 0,
 	MeshTypeCube,
 	MeshTypeCylinder,
-	MeshTypeSphere
+	MeshTypeSphere,
+    MeshTypeIcosahedron
 };
 	
 enum MeshSelectionMode

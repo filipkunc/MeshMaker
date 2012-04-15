@@ -114,6 +114,9 @@
 		case MeshTypeSphere:
             mesh->makeSphere(steps);
 			break;
+        case MeshTypeIcosahedron:
+            mesh->makeIcosahedron();
+            break;
 		default:
 			break;
 	}

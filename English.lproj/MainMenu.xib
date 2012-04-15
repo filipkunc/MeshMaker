@@ -431,6 +431,14 @@
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
 											</object>
+											<object class="NSMenuItem" id="45045057">
+												<reference key="NSMenu" ref="511267261"/>
+												<string key="NSTitle">Icosahedron</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
 										</object>
 									</object>
 								</object>
@@ -1204,6 +1212,14 @@
 					</object>
 					<int key="connectionID">570</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">addIcosahedron:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="45045057"/>
+					</object>
+					<int key="connectionID">572</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1613,6 +1629,7 @@
 							<reference ref="384929290"/>
 							<reference ref="749803773"/>
 							<reference ref="587810936"/>
+							<reference ref="45045057"/>
 						</object>
 						<reference key="parent" ref="885898768"/>
 					</object>
@@ -1837,6 +1854,11 @@
 						<reference key="object" ref="663869309"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">571</int>
+						<reference key="object" ref="45045057"/>
+						<reference key="parent" ref="511267261"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -1924,6 +1946,7 @@
 					<string>567.IBPluginDependency</string>
 					<string>569.IBPluginDependency</string>
 					<string>57.IBPluginDependency</string>
+					<string>571.IBPluginDependency</string>
 					<string>58.IBPluginDependency</string>
 					<string>72.IBPluginDependency</string>
 					<string>73.IBPluginDependency</string>
@@ -1937,6 +1960,7 @@
 				</object>
 				<object class="NSArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2042,7 +2066,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">570</int>
+			<int key="maxID">572</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2155,6 +2179,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addCube:</string>
 							<string>addCylinder:</string>
+							<string>addIcosahedron:</string>
 							<string>addSphere:</string>
 							<string>changeEditMode:</string>
 							<string>changeManipulator:</string>
@@ -2183,6 +2208,7 @@
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -2218,6 +2244,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addCube:</string>
 							<string>addCylinder:</string>
+							<string>addIcosahedron:</string>
 							<string>addSphere:</string>
 							<string>changeEditMode:</string>
 							<string>changeManipulator:</string>
@@ -2252,6 +2279,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">addCylinder:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">addIcosahedron:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">

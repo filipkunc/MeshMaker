@@ -355,6 +355,47 @@ void Mesh2::makeSphere(uint steps)
     setSelectionMode(_selectionMode);
 }
 
+void Mesh2::makeIcosahedron()
+{
+    const float X = 0.525731112119133606f;
+    const float Z = 0.850650808352039932f;
+    
+    static GLfloat vdata[12][3] = 
+    {    
+        {-X, 0.0, Z}, {X, 0.0, Z}, {-X, 0.0, -Z}, {X, 0.0, -Z},    
+        {0.0, Z, X}, {0.0, Z, -X}, {0.0, -Z, X}, {0.0, -Z, -X},    
+        {Z, X, 0.0}, {-Z, X, 0.0}, {Z, -X, 0.0}, {-Z, -X, 0.0} 
+    };
+    
+    static GLint tindices[20][3] = 
+    { 
+        {0,4,1}, {0,9,4}, {9,5,4}, {4,5,8}, {4,8,1},    
+        {8,10,1}, {8,3,10}, {5,3,8}, {5,2,3}, {2,7,3},    
+        {7,10,3}, {7,6,10}, {7,11,6}, {11,0,6}, {0,1,6}, 
+        {6,1,10}, {9,0,11}, {9,11,2}, {9,2,5}, {7,2,11} 
+    };
+    
+    vector<VertexNode *> vertexNodes;
+    
+    for (int i = 0; i < 12; i++)
+    {
+        vertexNodes.push_back(_vertices.add(Vector3D(vdata[i])));
+    }
+    
+    for (int i = 0; i < 20; i++)
+    {
+        VertexNode *triangleVertices[3];
+        for (int j = 0; j < 3; j++)
+            triangleVertices[j] = vertexNodes[tindices[i][j]];
+        _triangles.add(Triangle2(triangleVertices));
+    }
+    
+    makeTexCoords();
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::fromVertices(const vector<Vector3D> &vertices)
 {
     resetTriangleCache();

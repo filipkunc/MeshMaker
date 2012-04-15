@@ -69,6 +69,7 @@
 - (IBAction)addCube:(id)sender;
 - (IBAction)addCylinder:(id)sender;
 - (IBAction)addSphere:(id)sender;
+- (IBAction)addIcosahedron:(id)sender;
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
 - (void)meshOnlyActionWithName:(NSString *)actionName block:(void (^)())action;

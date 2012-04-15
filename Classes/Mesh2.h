@@ -205,6 +205,7 @@ public:
     void makeCube();
     void makeCylinder(uint steps);
     void makeSphere(uint steps);
+    void makeIcosahedron();
     
     void fromVertices(const vector<Vector3D> &vertices);
     void toVertices(vector<Vector3D> &vertices);

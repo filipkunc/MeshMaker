@@ -77,6 +77,7 @@
 		A74BF5DD14FA9B2E006D7BA3 /* TexCoordEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0685314BA2A100091B657 /* TexCoordEdge.cpp */; };
 		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
 		A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
 		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
 		A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1113CF717500D2A1FC /* CubeTemplate.png */; };
@@ -186,6 +187,7 @@
 		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		A767E0E3153B544700A175DE /* IcosahedronTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IcosahedronTemplate.png; sourceTree = "<group>"; };
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
 		A76AF5E7151E331A0015E5B4 /* MemoryStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MemoryStream.m; path = Classes/MemoryStream.m; sourceTree = "<group>"; };
 		A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RotateTemplate.png; sourceTree = "<group>"; };
@@ -443,6 +445,7 @@
 		A787CC0C13CF6F0400D2A1FC /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				A767E0E3153B544700A175DE /* IcosahedronTemplate.png */,
 				A729F1781538B038002759BB /* SubdivisionTemplate.png */,
 				A736599D13D228B100F9D7D1 /* CylinderTemplate.png */,
 				A736599E13D228B100F9D7D1 /* MergeTemplate.png */,
@@ -555,6 +558,7 @@
 				A729F1791538B038002759BB /* SubdivisionTemplate.png in Resources */,
 				A7BFCC101538D12A0076B712 /* Application.icns in Resources */,
 				A718D5F91539714000589FFF /* FPTextureBrowserWindowController.xib in Resources */,
+				A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

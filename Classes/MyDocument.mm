@@ -464,6 +464,11 @@ struct anim
 	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
+- (void)addIcosahedron:(id)sender
+{
+    [self addItemWithType:MeshTypeIcosahedron steps:0];
+}
+
 - (void)addItemWithSteps:(uint)steps
 {
 	[self addItemWithType:itemWithSteps steps:steps];
