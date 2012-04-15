@@ -163,6 +163,8 @@
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {110, 31}}</string>
 								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="181969951">
 									<int key="NSCellFlags">-2076049856</int>
@@ -421,6 +423,8 @@
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
 								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076049856</int>
@@ -436,8 +440,7 @@
 									<object class="NSMenuItem" key="NSMenuItem" id="313745957">
 										<reference key="NSMenu" ref="860704842"/>
 										<string key="NSTitle">Items</string>
-										<string key="NSKeyEquiv"/>
-										<int key="NSKeyEquivModMask">1048576</int>
+										<string key="NSKeyEquiv">I</string>
 										<int key="NSMnemonicLoc">2147483647</int>
 										<int key="NSState">1</int>
 										<reference key="NSOnImage" ref="646477414"/>
@@ -453,8 +456,7 @@
 											<object class="NSMenuItem" id="136780822">
 												<reference key="NSMenu" ref="860704842"/>
 												<string key="NSTitle">Vertices</string>
-												<string key="NSKeyEquiv"/>
-												<int key="NSKeyEquivModMask">1048576</int>
+												<string key="NSKeyEquiv">V</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="646477414"/>
 												<reference key="NSMixedImage" ref="737401192"/>
@@ -465,8 +467,7 @@
 											<object class="NSMenuItem" id="639890568">
 												<reference key="NSMenu" ref="860704842"/>
 												<string key="NSTitle">Triangles</string>
-												<string key="NSKeyEquiv"/>
-												<int key="NSKeyEquivModMask">1048576</int>
+												<string key="NSKeyEquiv">T</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="646477414"/>
 												<reference key="NSMixedImage" ref="737401192"/>
@@ -477,7 +478,7 @@
 											<object class="NSMenuItem" id="540689705">
 												<reference key="NSMenu" ref="860704842"/>
 												<string key="NSTitle">Edges</string>
-												<string key="NSKeyEquiv"/>
+												<string key="NSKeyEquiv">E</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="646477414"/>
 												<reference key="NSMixedImage" ref="737401192"/>
@@ -587,7 +588,7 @@
 							</object>
 						</object>
 					</dictionary>
-					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
+					<array key="NSToolbarIBAllowedItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
@@ -943,6 +944,7 @@
 							<string key="NSFrame">{{878, 4}, {96, 22}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="801101494">
