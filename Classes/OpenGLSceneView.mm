@@ -12,7 +12,7 @@
 #import <GLUT/GLUT.h>
 
 const float perspectiveAngle = 45.0f;
-const float minDistance = 0.2f;
+const float minDistance = 1.0f;
 const float maxDistance = 500.0f;
 
 NSOpenGLPixelFormat *globalPixelFormat = nil;

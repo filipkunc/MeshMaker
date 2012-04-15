@@ -71,6 +71,7 @@
 - (IBAction)addSphere:(id)sender;
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode;
 - (void)editItems;
+- (void)meshOnlyActionWithName:(NSString *)actionName block:(void (^)())action;
 - (IBAction)changeEditMode:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
 - (IBAction)changeViewMode:(id)sender;
@@ -90,7 +91,9 @@
 - (IBAction)invertSelection:(id)sender;
 - (IBAction)hideSelected:(id)sender;
 - (IBAction)unhideAll:(id)sender;
+- (IBAction)extrudeSelected:(id)sender;
 - (IBAction)detachSelected:(id)sender;
+- (BOOL)readFromTMD:(NSData *)data;
 - (BOOL)readFromModel3D:(NSData *)data;
 - (NSData *)dataOfModel3D;
 - (void)toggleOneViewFourView:(id)sender;

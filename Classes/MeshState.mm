@@ -40,8 +40,8 @@
 
 - (void)applyToMesh:(Mesh *)mesh
 {
-    mesh->mesh->setSelectionMode(selectionMode);
     mesh->mesh->fromIndexRepresentation(*vertices, *texCoords, *triangles);
+    mesh->mesh->setSelectionMode(selectionMode);
     mesh->mesh->setSelection(*selection);
 }
 

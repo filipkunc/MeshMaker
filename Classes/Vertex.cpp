@@ -32,6 +32,18 @@ void VertexNode::removeFromTriangles()
     _triangles.removeAll();
 }
 
+void VertexNode::removeFromSelectedTriangles()
+{
+    for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (node->data()->data().selected)
+        {
+            node->data()->data().removeVertex(this);
+            _triangles.remove(node);
+        }
+    }    
+}
+
 void VertexNode::addEdge(VertexEdgeNode *edge)
 {
     _edges.add(edge);

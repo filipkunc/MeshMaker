@@ -216,10 +216,16 @@
     mesh->detachSelected();
 }
 
+- (void)extrudeSelected
+{
+    if (mesh->selectionMode() == MeshSelectionModeTriangles)
+        mesh->extrudeSelectedTriangles();
+}
+
 - (void)duplicateSelected
 {
 	if (mesh->selectionMode() == MeshSelectionModeTriangles)
-        mesh->extrudeSelectedTriangles();
+        mesh->duplicateSelectedTriangles();
 }
 
 - (void)removeSelected

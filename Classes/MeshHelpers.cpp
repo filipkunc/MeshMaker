@@ -47,3 +47,9 @@ void AddQuad(vector<Triangle> &triangles, uint index1, uint index2, uint index3,
     triangles.push_back(triangle1);
     triangles.push_back(triangle2);
 }
+
+void FlipTriangle(Triangle &triangle)
+{
+    swap(triangle.vertexIndices[0], triangle.vertexIndices[2]);
+    swap(triangle.texCoordIndices[0], triangle.texCoordIndices[2]);
+}

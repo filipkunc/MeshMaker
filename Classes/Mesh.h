@@ -40,6 +40,7 @@
 - (void)flipAllTriangles;
 - (void)loopSubdivision;
 - (void)detachSelected;
+- (void)extrudeSelected;
 - (void)cleanTexture;
 - (void)resetTexCooords;
 

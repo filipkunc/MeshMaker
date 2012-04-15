@@ -33,6 +33,72 @@ vector<T> *ReadValues(string s)
     return values;
 }
 
+namespace TMD
+{
+
+#define MODEL_VERSION "TMD v.3.1"
+
+struct model_header
+{
+    char version[10];
+	int no_meshes;
+	int no_materials;
+};
+
+struct anim_header
+{
+	int no_anims;
+	float frame_speed;
+	float ticks_per_frame;
+	float end_time;
+};
+
+struct face
+{
+    unsigned int vertID[3];
+	unsigned int texID[3];
+	Vector3D face_normal;
+};
+
+struct material
+{
+    Vector4D color;
+	char texture_file[255];	
+};
+
+struct mesh_desc
+{
+    int materialID;	
+	int no_faces;
+    int no_vertices;
+	int no_texcoords;
+	int start_animID;
+	int end_animID;
+};
+
+struct mesh
+{
+	face * faces;
+	Vector3D * vertices;
+	Vector3D * normals;
+	Vector2D * tex_coords;
+};
+
+struct anim_desc
+{
+    int no_vertices;
+	float time_value;
+};
+
+// snimek animace
+struct anim
+{
+    Vector3D * vertices;
+	Vector3D * normals;
+};
+    
+};
+
 @implementation MyDocument
 
 - (id)init
@@ -431,6 +497,11 @@ vector<T> *ReadValues(string s)
 - (IBAction)changeEditMode:(id)sender
 {
 	EditMode mode = (EditMode)[[editModePopUp selectedItem] tag];
+    Mesh *currentMesh = [self currentMesh];
+    
+    if (currentMesh == nil)
+        [editModePopUp selectItemWithTag:EditModeItems];
+    
 	switch (mode)
 	{
 		case EditModeItems:
@@ -522,32 +593,40 @@ vector<T> *ReadValues(string s)
     [self setNeedsDisplayOnAllViews];
 }
 
-- (IBAction)splitSelected:(id)sender
+- (void)meshOnlyActionWithName:(NSString *)actionName block:(void (^)())action
 {
     if ([manipulated selectedCount] <= 0)
 		return;
 	
-	if (manipulated == meshController)
+	BOOL startManipulation = NO;
+	if (!manipulationFinished)
 	{
-		[self meshActionWithName:@"Split" block:^ { [[self currentMesh] splitSelected]; }];
+		startManipulation = YES;
+		[self manipulationEndedInView:nil];
 	}
 	
-	[manipulated updateSelection];
+	if (manipulated == meshController)
+	{
+		[self meshActionWithName:actionName block:action];
+	}
+	
+    [manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
+	
+	if (startManipulation)
+	{
+		[self manipulationStartedInView:nil];
+	}
+}
+
+- (IBAction)splitSelected:(id)sender
+{
+    [self meshOnlyActionWithName:@"Split" block:^ { [[self currentMesh] splitSelected]; }];
 }
 
 - (IBAction)flipSelected:(id)sender
 {
-	if ([manipulated selectedCount] <= 0)
-		return;
-	
-	if (manipulated == meshController)
-	{
-		[self meshActionWithName:@"Flip" block:^ { [[self currentMesh] flipSelected]; }];
-	}
-	
-	[manipulated updateSelection];
-	[self setNeedsDisplayOnAllViews];
+    [self meshOnlyActionWithName:@"Flip" block:^ { [[self currentMesh] flipSelected]; }];
 }
 
 - (IBAction)duplicateSelected:(id)sender
@@ -574,6 +653,7 @@ vector<T> *ReadValues(string s)
 		[self meshActionWithName:@"Duplicate" block:^ { [manipulated duplicateSelected]; }];
 	}
 	
+    [manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];
 	
 	if (startManipulation)
@@ -659,20 +739,7 @@ vector<T> *ReadValues(string s)
 
 - (IBAction)subdivision:(id)sender
 {
-    Mesh *currentMesh;
-    
-    if (manipulated == meshController)
-        currentMesh = [self currentMesh];
-    else
-        currentMesh = [items currentMesh];
-
-    if (currentMesh)
-    {
-        [self meshActionWithName:@"Subdivision" block:^ { [currentMesh loopSubdivision]; }];
-    }
-	
-	[manipulated updateSelection];
-	[self setNeedsDisplayOnAllViews];
+    [self meshOnlyActionWithName:@"Subdivision" block:^ { [[self currentMesh] loopSubdivision]; }];
 }
 
 + (BOOL)softSelection
@@ -725,35 +792,38 @@ vector<T> *ReadValues(string s)
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (void)detachSelected:(id)sender
+- (IBAction)detachSelected:(id)sender
 {
-    [[self currentMesh] detachSelected];
-    [self setNeedsDisplayOnAllViews];
+    [self meshOnlyActionWithName:@"Detach" block:^ { [[self currentMesh] detachSelected]; }];
 }
 
-- (void)cleanTexture:(id)sender
+- (IBAction)extrudeSelected:(id)sender
+{
+    [self meshOnlyActionWithName:@"Extrude" block:^ { [[self currentMesh] extrudeSelected]; }];
+}
+
+- (IBAction)cleanTexture:(id)sender
 {
     [[self currentMesh] cleanTexture];
     [self setNeedsDisplayOnAllViews];
 }
 
-- (void)setBaseColorFromBrush:(id)sender
+- (IBAction)setBaseColorFromBrush:(id)sender
 {
     [[self currentMesh] setColor:self.brushColor];
 }
 
-- (void)resetTexCoords:(id)sender
+- (IBAction)resetTexCoords:(id)sender
 {
-    [[self currentMesh] resetTexCooords];
-    [self setNeedsDisplayOnAllViews];
+    [self meshOnlyActionWithName:@"Reset Texture Coordinates" block:^ { [[self currentMesh] resetTexCooords]; }];
 }
 
-- (void)viewTexturePaintTool:(id)sender
+- (IBAction)viewTexturePaintTool:(id)sender
 {
     [texturePaintToolWindowController showWindow:nil];
 }
 
-- (void)viewTextureBrowser:(id)sender
+- (IBAction)viewTextureBrowser:(id)sender
 {
     [textureBrowserWindowController setItems:items];
     [textureBrowserWindowController showWindow:nil];
@@ -791,6 +861,9 @@ vector<T> *ReadValues(string s)
     
     if ([typeName isEqualToString:@"Collada"])
         return [self readFromCollada:[dirWrapper regularFileContents]];
+    
+    if ([typeName isEqualToString:@"TMD"])
+        return [self readFromTMD:[dirWrapper regularFileContents]];
     
     NSFileWrapper *wrapper;
     NSData *data;
@@ -948,6 +1021,117 @@ vector<T> *ReadValues(string s)
     delete indices;
     delete [] textBuffer;
 
+    return YES;
+}
+
+- (BOOL)readFromTMD:(NSData *)data
+{
+    MemoryReadStream *stream = [[MemoryReadStream alloc] initWithData:data];
+
+    TMD::model_header desc;
+    
+    [stream readBytes:&desc length:sizeof(TMD::model_header)];
+	if (strncmp(desc.version, MODEL_VERSION, sizeof(MODEL_VERSION)) != 0)
+	{
+		desc.no_materials = 0;
+		desc.no_meshes = 0;
+        return NO;
+	}
+    
+    TMD::anim_header a_desc;
+    [stream readBytes:&a_desc length:sizeof(TMD::anim_header)];
+    TMD::material *materials = new TMD::material[desc.no_materials];
+	int *textureIDs = new int[desc.no_materials];
+    TMD::mesh_desc *m_descs = new TMD::mesh_desc[desc.no_meshes];
+    TMD::mesh *meshes = new TMD::mesh[desc.no_meshes];
+    
+	int i, j;
+	for (i = 0; i < desc.no_materials; i++)
+	{
+        [stream readBytes:&materials[i] length:sizeof(TMD::material)];
+		textureIDs[i] = 0;
+	}
+	for (i = 0; i < desc.no_meshes; i++)
+	{
+        [stream readBytes:&m_descs[i] length:sizeof(TMD::mesh_desc)];
+		meshes[i].faces = new TMD::face[m_descs[i].no_faces];
+	    for (j = 0; j < m_descs[i].no_faces; j++)
+	    {
+            [stream readBytes:&meshes[i].faces[j] length:sizeof(TMD::face)];
+	    }
+		meshes[i].vertices = new Vector3D[m_descs[i].no_vertices];
+		meshes[i].normals = new Vector3D[m_descs[i].no_vertices];
+		meshes[i].tex_coords = new Vector2D[m_descs[i].no_texcoords];
+	    for (j = 0; j < m_descs[i].no_vertices; j++)
+	    {
+            [stream readBytes:&meshes[i].vertices[j] length:sizeof(Vector3D)];
+            [stream readBytes:&meshes[i].normals[j] length:sizeof(Vector3D)];
+	    }
+		for (j = 0; j < m_descs[i].no_texcoords; j++)
+	    {
+            [stream readBytes:&meshes[i].tex_coords[j] length:sizeof(Vector2D)];
+        }
+    }
+    
+    ItemCollection *newItems = [[ItemCollection alloc] init];
+    
+    for (i = 0; i < desc.no_meshes; i++)
+    {
+        Item *item = [[Item alloc] init];
+        Mesh *itemMesh = [item mesh];
+        
+        vector<Vector3D> vertices;
+        vector<Vector3D> texCoords;
+        vector<Triangle> triangles;
+        
+        for (j = 0; j < m_descs[i].no_faces; j++)
+        {
+            Triangle triangle;
+            for (int k = 0; k < 3; k++)
+            {
+                triangle.vertexIndices[k] = meshes[i].faces[j].vertID[k];
+                triangle.texCoordIndices[k] = meshes[i].faces[j].texID[k];
+            }
+            FlipTriangle(triangle);
+            triangles.push_back(triangle);
+        }
+        
+        for (j = 0; j < m_descs[i].no_vertices; j++)
+	    {
+            vertices.push_back(meshes[i].vertices[j]);
+        }
+        
+        for (j = 0; j < m_descs[i].no_texcoords; j++)
+	    {
+            Vector3D texCoord;
+            texCoord.x = meshes[i].tex_coords[j].x;
+            texCoord.y = meshes[i].tex_coords[j].y;
+            texCoord.z = 0.0f;
+            texCoords.push_back(texCoord);
+        }
+        
+        itemMesh->mesh->fromIndexRepresentation(vertices, texCoords, triangles);
+        
+        [newItems addItem:item];
+    }
+    
+    items = newItems;
+    [itemsController setModel:items];
+    [itemsController updateSelection];
+    [self setManipulated:itemsController];
+    
+    delete [] materials;
+    delete [] textureIDs;
+    delete [] m_descs;
+    for (i = 0; i < desc.no_meshes; i++)
+    {
+        delete [] meshes[i].faces;
+        delete [] meshes[i].vertices;
+        delete [] meshes[i].normals;
+        delete [] meshes[i].tex_coords;
+    }
+    delete [] meshes;
+	
     return YES;
 }
 

@@ -19,3 +19,4 @@
 void AddTriangle(vector<Triangle> &triangles, uint index1, uint index2, uint index3);
 void AddTriangle(vector<Triangle> &triangles, uint vertexIndices[3], uint texCoordIndices[3]);
 void AddQuad(vector<Triangle> &triangles, uint index1, uint index2, uint index3, uint index4);
+void FlipTriangle(Triangle &triangle);

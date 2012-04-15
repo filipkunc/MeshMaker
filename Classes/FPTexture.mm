@@ -165,7 +165,7 @@ struct FPVertex
 - (void)updateTexture
 {
     NSBitmapImageRep *bitmap = [self bitmapImageRepFromImage:_image];
-    
+
     if (textureID == 0)
     {
         GLubyte *data = [bitmap bitmapData];
@@ -187,12 +187,14 @@ struct FPVertex
 
 - (NSBitmapImageRep *)bitmapImageRepFromImage:(NSImage *)theImg
 {
+    NSImage *copy = [theImg copy];
     NSBitmapImageRep* bitmap = [NSBitmapImageRep alloc];
-    NSSize imgSize = [theImg size];
+    NSSize imgSize = [copy size];    
     
-    [theImg lockFocus];
+    [copy setFlipped:YES];
+    [copy lockFocus];
     bitmap = [bitmap initWithFocusedViewRect:NSMakeRect(0.0, 0.0, imgSize.width, imgSize.height)];
-    [theImg unlockFocus];
+    [copy unlockFocus];
     
     return bitmap;
 }

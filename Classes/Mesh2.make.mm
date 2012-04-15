@@ -499,7 +499,16 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
 void Mesh2::setSelection(const vector<bool> &selection)
 {
     for (uint i = 0; i < selection.size(); i++)
-        setSelectedAtIndex(selection[i], i);
+    {
+        if (!selection[i])
+            setSelectedAtIndex(selection[i], i);
+    }
+    
+    for (uint i = 0; i < selection.size(); i++)
+    {
+        if (selection[i])
+            setSelectedAtIndex(selection[i], i);
+    }
 }
 
 void Mesh2::getSelection(vector<bool> &selection)

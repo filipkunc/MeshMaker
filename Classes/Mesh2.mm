@@ -898,6 +898,37 @@ void Mesh2::detachSelected()
     }
 }
 
+void Mesh2::duplicateSelectedTriangles()
+{
+    resetTriangleCache();
+    
+    vector<ExtrudePair> extrudePairs;
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (!node->data().selected)
+            continue;
+        
+        VertexNode *duplicated[3];
+        
+        for (int i = 0; i < 3; i++)
+        {
+            VertexNode *original = node->data().vertex(i);
+            duplicated[i] = findOrCreateVertex(extrudePairs, original);
+        }
+        
+        node->data().selected = false;
+        
+        TriangleNode * newTriangle = _triangles.add(Triangle2(duplicated));
+        newTriangle->data().selected = true;
+    }
+        
+    makeTexCoords();
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);    
+}
+
 void Mesh2::flipSelectedTriangles()
 {
     resetTriangleCache();

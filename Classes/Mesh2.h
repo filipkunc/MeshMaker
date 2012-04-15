@@ -158,6 +158,7 @@ public:
     void mergeSelected();
     void splitSelected();
     void detachSelected();
+    void duplicateSelectedTriangles();
     void flipSelected();
     void flipAllTriangles();
     void extrudeSelectedTriangles();

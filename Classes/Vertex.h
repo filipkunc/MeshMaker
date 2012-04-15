@@ -41,6 +41,7 @@ public:
     void addTriangle(TriangleNode *triangle);
     void removeTriangle(TriangleNode *triangle);
     void removeFromTriangles();
+    void removeFromSelectedTriangles();
     void addEdge(VertexEdgeNode *edge);
     void removeEdge(VertexEdgeNode *edge);
     void removeEdges();
