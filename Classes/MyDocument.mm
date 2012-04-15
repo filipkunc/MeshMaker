@@ -594,9 +594,9 @@ struct anim
 }
 
 - (void)meshOnlyActionWithName:(NSString *)actionName block:(void (^)())action
-{
-    if ([manipulated selectedCount] <= 0)
-		return;
+{    
+    if ([self currentMesh] == nil)
+        return;
 	
 	BOOL startManipulation = NO;
 	if (!manipulationFinished)
@@ -605,10 +605,7 @@ struct anim
 		[self manipulationEndedInView:nil];
 	}
 	
-	if (manipulated == meshController)
-	{
-		[self meshActionWithName:actionName block:action];
-	}
+    [self meshActionWithName:actionName block:action];
 	
     [manipulated updateSelection];
 	[self setNeedsDisplayOnAllViews];

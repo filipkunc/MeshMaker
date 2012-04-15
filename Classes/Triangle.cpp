@@ -286,6 +286,17 @@ VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
     return NULL;
 }
 
+TexCoordNode *Triangle2::texCoordNotInEdge(const TexCoordEdge *edge) const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (_texCoords[i] != edge->texCoord(0) &&
+            _texCoords[i] != edge->texCoord(1))
+            return _texCoords[i];
+    }
+    return NULL;
+}
+
 void Triangle2::computeNormal()
 {
     Vector3D u, v;

@@ -840,35 +840,59 @@ void Mesh2::splitSelectedEdges()
 {
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
-        VertexEdge &edge = node->data();
-        if (!edge.selected)
+        VertexEdge &vertexEdge = node->data();
+        if (!vertexEdge.selected)
             continue;
         
-        if (edge.halfVertex == NULL)
+        if (vertexEdge.halfVertex == NULL)
         {
-            Vector3D v1 = edge.vertex(0)->data().position;
-            Vector3D v2 = edge.vertex(1)->data().position;
+            Vector3D v1 = vertexEdge.vertex(0)->data().position;
+            Vector3D v2 = vertexEdge.vertex(1)->data().position;
             
             Vector3D edgeVertex = (v1 + v2) / 2.0f;
             
-            edge.halfVertex = _vertices.add(edgeVertex);
+            vertexEdge.halfVertex = _vertices.add(edgeVertex);
         }
         
         for (int i = 0; i < 2; i++)
         {
-            TriangleNode *triangleNode = edge.triangle(i);
+            TriangleNode *triangleNode = vertexEdge.triangle(i);
             if (triangleNode == NULL)
                 continue;
             
-            VertexNode *oppositeVertexNode = triangleNode->data().vertexNotInEdge(&edge);
+            VertexNode *oppositeVertexNode = triangleNode->data().vertexNotInEdge(&vertexEdge);
             
-            VertexNode *original0 = edge.vertex(0);
-            VertexNode *original1 = edge.vertex(1);
+            VertexNode *originalVertex0 = vertexEdge.vertex(0);
+            VertexNode *originalVertex1 = vertexEdge.vertex(1);
             
-            triangleNode->data().sortVertices(original0, original1);
+            triangleNode->data().sortVertices(originalVertex0, originalVertex1);
             
-            addTriangle(edge.halfVertex, oppositeVertexNode, original0);
-            addTriangle(original1, oppositeVertexNode, edge.halfVertex);
+            int texCoordIndex0 = triangleNode->data().indexOfVertex(originalVertex0);
+            int texCoordIndex1 = triangleNode->data().indexOfVertex(originalVertex1);
+            
+            TexCoordNode *originalTexCoord0 = triangleNode->data().texCoord(texCoordIndex0);
+            TexCoordNode *originalTexCoord1 = triangleNode->data().texCoord(texCoordIndex1);
+                        
+            TexCoordEdgeNode *texCoordEdgeNode = originalTexCoord0->sharedEdge(originalTexCoord1);
+            TexCoordEdge &texCoordEdge = texCoordEdgeNode->data();
+            
+            TexCoordNode *oppositeTexCoordNode = triangleNode->data().texCoordNotInEdge(&texCoordEdge);
+
+            if (texCoordEdge.halfTexCoord == NULL)
+            {
+                Vector3D edgeTexCoord = originalTexCoord0->data().position + originalTexCoord1->data().position;
+                edgeTexCoord /= 2.0f;
+                texCoordEdge.halfTexCoord = _texCoords.add(edgeTexCoord);
+            }
+            
+            VertexNode *vertices0[3] = { vertexEdge.halfVertex, oppositeVertexNode, originalVertex0 };
+            VertexNode *vertices1[3] = { originalVertex1, oppositeVertexNode, vertexEdge.halfVertex };
+            
+            TexCoordNode *texCoords0[3] = { texCoordEdge.halfTexCoord, oppositeTexCoordNode, originalTexCoord0 };
+            TexCoordNode *texCoords1[3] = { originalTexCoord1, oppositeTexCoordNode, texCoordEdge.halfTexCoord };
+            
+            _triangles.add(Triangle2(vertices0, texCoords0));
+            _triangles.add(Triangle2(vertices1, texCoords1));
             
             _triangles.remove(triangleNode);
         }
@@ -1023,7 +1047,8 @@ void Mesh2::extrudeSelectedTriangles()
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
-        node->replaceVertexInSelectedTriangles(node->algorithmData.duplicatePair);
+        if (node->algorithmData.duplicatePair != NULL)
+            node->replaceVertexInSelectedTriangles(node->algorithmData.duplicatePair);
     }
         
     makeEdges();
