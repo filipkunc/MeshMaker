@@ -90,13 +90,13 @@ void TexCoordNode::replaceTexCoord(TexCoordNode *newTexCoord)
 void TexCoordNode::computeNormal()
 {
     float count = 0;
-    normal = Vector3D();
+    algorithmData.normal = Vector3D();
     
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        normal += node->data()->data().texCoordNormal;
+        algorithmData.normal += node->data()->data().texCoordNormal;
         count++;
     }
     
-    normal /= count;
+    algorithmData.normal /= count;
 }

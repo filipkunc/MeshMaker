@@ -104,15 +104,15 @@ void VertexNode::replaceVertexInSelectedTriangles(VertexNode *newVertex)
 void VertexNode::computeNormal()
 {
     float count = 0;
-    normal = Vector3D();
+    algorithmData.normal = Vector3D();
     
     for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        normal += node->data()->data().vertexNormal;
+        algorithmData.normal += node->data()->data().vertexNormal;
         count++;
     }
     
-    normal /= count;
+    algorithmData.normal /= count;
 }
 
 VertexEdgeNode *VertexNode::sharedEdge(VertexNode *otherVertex)

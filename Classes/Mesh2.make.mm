@@ -67,19 +67,20 @@ TexCoordEdgeNode *Mesh2::findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode
     return node;
 }
 
-VertexNode *Mesh2::findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original)
+VertexNode *Mesh2::duplicateVertex(VertexNode *original)
 {
-    for (int i = 0; i < (int)extrudePairs.size(); i++)
-    {
-        if (extrudePairs[i].original == original)
-            return extrudePairs[i].extruded;
-    }
+    if (original->algorithmData.duplicatePair == NULL)
+        original->algorithmData.duplicatePair = _vertices.add(original->data().position);
     
-    VertexNode *extruded = _vertices.add(original->data().position);
-    ExtrudePair extrudePair = { original, extruded };
-    extrudePairs.push_back(extrudePair);
+    return original->algorithmData.duplicatePair;
+}
+
+TexCoordNode *Mesh2::duplicateTexCoord(TexCoordNode *original)
+{
+    if (original->algorithmData.duplicatePair == NULL)
+        original->algorithmData.duplicatePair = _texCoords.add(original->data().position);
     
-    return extruded;
+    return original->algorithmData.duplicatePair;
 }
 
 void Mesh2::makeTexCoords()
@@ -468,7 +469,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
-        node->index = index;
+        node->algorithmData.index = index;
         index++;
         
         vertices.push_back(node->data().position);
@@ -478,7 +479,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
     
     for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
     {
-        node->index = index;
+        node->algorithmData.index = index;
         index++;
         
         texCoords.push_back(node->data().position);
@@ -489,8 +490,8 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
         Triangle indexTriangle;
         for (int j = 0; j < 3; j++)
         {
-            indexTriangle.vertexIndices[j] = node->data().vertex(j)->index;
-            indexTriangle.texCoordIndices[j] = node->data().texCoord(j)->index;
+            indexTriangle.vertexIndices[j] = node->data().vertex(j)->algorithmData.index;
+            indexTriangle.texCoordIndices[j] = node->data().texCoord(j)->algorithmData.index;
         }        
         triangles.push_back(indexTriangle);
     }

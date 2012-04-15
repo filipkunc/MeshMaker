@@ -19,15 +19,31 @@ public:
     Vertex2(const Vector3D &v) : position(v), selected(false) { }    
 };
 
+union VertexAlgorithmData
+{
+    int index;
+    Vector3D normal;
+    VertexNode *duplicatePair;
+    
+    VertexAlgorithmData()
+    {
+        memset(this, 0, sizeof(VertexAlgorithmData));
+    }
+    
+    void clear()
+    {
+        memset(this, 0, sizeof(VertexAlgorithmData));
+    }
+};
+
 class VertexNode : public FPNode<VertexNode, Vertex2>
 {
 public:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<VertexEdgeNode *> _edges;
 public:
-    int index;
-    Vector3D normal;
     float selectionWeight;
+    VertexAlgorithmData algorithmData;
     
     VertexNode() : FPNode<VertexNode, Vertex2>() { }
     VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 

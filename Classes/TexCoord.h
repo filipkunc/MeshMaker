@@ -19,13 +19,30 @@ public:
     TexCoord(const Vector3D &v) : position(v), selected(false) { }
 };
 
+union TexCoordAlgorithmData 
+{
+    int index;
+    Vector3D normal;
+    TexCoordNode *duplicatePair;
+    
+    TexCoordAlgorithmData()
+    {
+        memset(this, 0, sizeof(TexCoordAlgorithmData));
+    }
+    
+    void clear()
+    {
+        memset(this, 0, sizeof(TexCoordAlgorithmData));
+    }
+};
+
 class TexCoordNode : public FPNode<TexCoordNode, TexCoord>
 {
 public:
     SimpleList<TriangleNode *> _triangles;
     SimpleList<TexCoordEdgeNode *> _edges;
-    int index;
-    Vector3D normal;
+public:
+    TexCoordAlgorithmData algorithmData;
 public:
     TexCoordNode() : FPNode<TexCoordNode, TexCoord>() { }
     TexCoordNode(const TexCoord &texCoord) : FPNode<TexCoordNode, TexCoord>(texCoord) { } 

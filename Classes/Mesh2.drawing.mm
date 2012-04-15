@@ -38,6 +38,8 @@ void Mesh2::fillTriangleCache()
     if (_cachedTriangleVertices.isValid())
         return;
     
+    resetAlgorithmData();
+    
     _cachedTriangleVertices.resize(_triangles.count() * 3);
     
     int i = 0;
@@ -81,7 +83,7 @@ void Mesh2::fillTriangleCache()
         {
             for (int k = 0; k < 3; k++)
             {
-                const Vector3D &n = _isUnwrapped ? currentTriangle.texCoord(j)->normal : currentTriangle.vertex(j)->normal;
+                const Vector3D &n = _isUnwrapped ? currentTriangle.texCoord(j)->algorithmData.normal : currentTriangle.vertex(j)->algorithmData.normal;
                 const Vector3D &t = currentTriangle.texCoord(j)->data().position;
                 _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
                 _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = t[k];

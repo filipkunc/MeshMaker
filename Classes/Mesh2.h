@@ -14,12 +14,6 @@
 #include "MeshHelpers.h"
 #include "Camera.h"
 
-struct ExtrudePair 
-{
-    VertexNode *original;
-    VertexNode *extruded;
-};
-
 enum GLVertexAttribID
 {
     GLVertexAttribID_Position = 0,
@@ -127,6 +121,7 @@ public:
     Mesh2(float colorComponents[4]);
     ~Mesh2();
     
+    
     FPTexture *texture();
     void setColorComponents(float colorComponents[4]);
     
@@ -136,6 +131,8 @@ public:
     
     MeshSelectionMode selectionMode() const { return _selectionMode; };
     void setSelectionMode(MeshSelectionMode value);
+    
+    void resetAlgorithmData();
     
     uint selectedCount() const;
     bool isSelectedAtIndex(uint index) const;
@@ -200,7 +197,8 @@ public:
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
     VertexEdgeNode *findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
     TexCoordEdgeNode *findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle);
-    VertexNode *findOrCreateVertex(vector<ExtrudePair> &extrudePairs, VertexNode *original);
+    VertexNode *duplicateVertex(VertexNode *original);
+    TexCoordNode *duplicateTexCoord(TexCoordNode *original);
     void makeTexCoords();
     void makeEdges();
     void makePlane();

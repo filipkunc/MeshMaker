@@ -44,6 +44,15 @@ FPTexture *Mesh2::texture()
     return _texture;
 }
 
+void Mesh2::resetAlgorithmData()
+{
+    for (VertexNode *vertexNode = _vertices.begin(), *vertexEnd = _vertices.end(); vertexNode != vertexEnd; vertexNode = vertexNode->next())
+        vertexNode->algorithmData.clear();
+    
+    for (TexCoordNode *texCoordNode = _texCoords.begin(), *texCoordEnd = _texCoords.end(); texCoordNode != texCoordEnd; texCoordNode = texCoordNode->next())
+        texCoordNode->algorithmData.clear();
+}
+
 void Mesh2::setSelectionMode(MeshSelectionMode value)
 {
     resetEdgeCache();
@@ -530,13 +539,15 @@ void Mesh2::halfEdges()
 
 void Mesh2::repositionVertices(int vertexCount)
 {
+    resetAlgorithmData();
+    
     vector<Vector3D> tempVertices;
     
     int index = 0;
     
     for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
     {
-        node->index = index;
+        node->algorithmData.index = index;
         index++;
         
         float beta, n;
@@ -564,7 +575,7 @@ void Mesh2::repositionVertices(int vertexCount)
     
     for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
     {
-        node->data().position = tempVertices[node->index];
+        node->data().position = tempVertices[node->algorithmData.index];
         index++;
     }
 }
@@ -901,29 +912,30 @@ void Mesh2::detachSelected()
 void Mesh2::duplicateSelectedTriangles()
 {
     resetTriangleCache();
-    
-    vector<ExtrudePair> extrudePairs;
+    resetAlgorithmData();
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         if (!node->data().selected)
             continue;
         
-        VertexNode *duplicated[3];
+        VertexNode *duplicatedVertices[3];
+        TexCoordNode *duplicatedTexCoords[3];
         
         for (int i = 0; i < 3; i++)
         {
-            VertexNode *original = node->data().vertex(i);
-            duplicated[i] = findOrCreateVertex(extrudePairs, original);
+            VertexNode *originalVertex = node->data().vertex(i);
+            TexCoordNode *originalTexCoord = node->data().texCoord(i);
+            duplicatedVertices[i] = duplicateVertex(originalVertex);
+            duplicatedTexCoords[i] = duplicateTexCoord(originalTexCoord);
         }
         
         node->data().selected = false;
         
-        TriangleNode * newTriangle = _triangles.add(Triangle2(duplicated));
+        TriangleNode *newTriangle = _triangles.add(Triangle2(duplicatedVertices, duplicatedTexCoords));
         newTriangle->data().selected = true;
     }
         
-    makeTexCoords();
     makeEdges();
     
     setSelectionMode(_selectionMode);    
@@ -983,8 +995,7 @@ void Mesh2::flipAllTriangles()
 void Mesh2::extrudeSelectedTriangles()
 {
     resetTriangleCache();
-    
-    vector<ExtrudePair> extrudePairs;
+    resetAlgorithmData();
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -993,28 +1004,28 @@ void Mesh2::extrudeSelectedTriangles()
         
         for (int i = 0; i < 3; i++)
         {
-            VertexEdge &edge = node->data().vertexEdge(i)->data();
+            VertexEdge &vertexEdge = node->data().vertexEdge(i)->data();
             
-            if (edge.isNotShared())
+            if (vertexEdge.isNotShared())
             {
-                VertexNode *original0 = edge.vertex(0);
-                VertexNode *original1 = edge.vertex(1);
+                VertexNode *original0 = vertexEdge.vertex(0);
+                VertexNode *original1 = vertexEdge.vertex(1);
                 
                 node->data().sortVertices(original0, original1);
                 
-                VertexNode *extruded0 = findOrCreateVertex(extrudePairs, original0);
-                VertexNode *extruded1 = findOrCreateVertex(extrudePairs, original1);
+                VertexNode *extruded0 = duplicateVertex(original0);
+                VertexNode *extruded1 = duplicateVertex(original1);
                 
                 addQuad(original0, original1, extruded1, extruded0);
             }
         }
     }
     
-    for (size_t i = 0; i < extrudePairs.size(); i++)
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
-        extrudePairs[i].original->replaceVertexInSelectedTriangles(extrudePairs[i].extruded);
+        node->replaceVertexInSelectedTriangles(node->algorithmData.duplicatePair);
     }
-    
+        
     makeEdges();
     
     setSelectionMode(_selectionMode);
