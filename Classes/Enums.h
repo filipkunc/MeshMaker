@@ -53,8 +53,9 @@ enum ViewMode
 {
 	ViewModeSolidFlat = 0,
     ViewModeSolidSmooth = 1,
-	ViewModeWireframe = 2,
-    ViewModeUnwrap = 3
+    ViewModeMixedWireSolid = 2,
+	ViewModeWireframe = 3,
+    ViewModeUnwrap = 4
 };
 
 enum EditMode

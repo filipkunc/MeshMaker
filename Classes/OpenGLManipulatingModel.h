@@ -25,6 +25,8 @@
 
 @optional
 
+@property (readwrite, copy) NSColor *selectionColor;
+
 - (void)willSelectThrough:(BOOL)selectThrough;
 - (void)didSelect;
 - (void)drawAllForSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;

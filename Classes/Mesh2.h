@@ -21,6 +21,11 @@ enum GLVertexAttribID
     GLVertexAttribID_Color
 };
 
+struct Point4D
+{
+    float coords[4];
+};
+
 struct Point3D
 {
     float coords[3];
@@ -36,7 +41,7 @@ struct GLTriangleVertex
     Point3D position;
     Point3D flatNormal;
     Point3D smoothNormal;
-    Point3D color;
+    Point4D color;
     Point3D texCoord;
 };
 

@@ -20,6 +20,10 @@
 			return @"Cylinder";
 		case MeshTypeSphere:
 			return @"Sphere";
+        case MeshTypePlane:
+            return @"Plane";
+        case MeshTypeIcosahedron:
+            return @"Icosahedron";
 		default:
 			return nil;
 	}
@@ -65,6 +69,16 @@
 - (void)dealloc
 {
 	delete mesh;
+}
+
+- (NSColor *)selectionColor
+{
+    return self.color;
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    self.color = selectionColor;
 }
 
 - (NSColor *)color

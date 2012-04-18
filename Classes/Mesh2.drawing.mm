@@ -18,6 +18,7 @@ void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float c
         {
             cachedColors[index * 3 + j].color.coords[k] = components[k];
         }
+        cachedColors[index * 3 + j].color.coords[3] = 0.5f;
     }	
 }
 
@@ -210,6 +211,9 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
     
+    if (viewMode == ViewModeMixedWireSolid)
+        glEnable(GL_BLEND);
+    
     if (fillMode.textured)
     {
         glEnable(GL_TEXTURE_2D);
@@ -228,7 +232,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (fillMode.colored)
     {
         glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
+        glColorPointer(4, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
     }
     
     if (viewMode == ViewModeSolidSmooth)
@@ -262,13 +266,26 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D); 
     }
+    
+    if (viewMode == ViewModeMixedWireSolid)
+        glDisable(GL_BLEND);
 }
 
 void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection)
 {
-	bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+    bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
     ShaderProgram *shader = flipped ? [ShaderProgram flippedShader] : [ShaderProgram normalShader];
     
+    if (viewMode == ViewModeMixedWireSolid)
+    {
+        selected = true;
+        glEnable(GL_CULL_FACE);
+        if (flipped)
+            glCullFace(GL_BACK);
+        else
+            glCullFace(GL_FRONT);
+    }   
+	
     FillMode fillMode;
 	
 	glPushMatrix();
@@ -320,6 +337,12 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
         }
 	}
 	glPopMatrix();
+    
+    if (viewMode == ViewModeMixedWireSolid)
+    {
+        selected = true;
+        glDisable(GL_CULL_FACE);
+    }
 }
 
 void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)

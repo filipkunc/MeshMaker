@@ -476,4 +476,21 @@
     return nil;
 }
 
+- (NSColor *)selectionColor
+{
+    Item *first = [self firstSelectedItem];
+    if (first)
+        return first.mesh.selectionColor;
+    return nil;
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    for (Item *item in items)
+	{
+		if (item.selected)
+            item.mesh.selectionColor = selectionColor;
+	}
+}
+
 @end

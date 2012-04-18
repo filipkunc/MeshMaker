@@ -395,9 +395,12 @@ NSOpenGLContext *globalGLContext = nil;
 	[self setupViewportAndCamera];
 
 	[self drawGridWithSize:10 step:2];
+    
+    if (viewMode == ViewModeMixedWireSolid)
+        glDisable(GL_DEPTH_TEST);
 	
 	[self drawManipulatedAndDisplayedForSelection:NO];
-	
+    
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);

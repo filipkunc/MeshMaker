@@ -14,9 +14,12 @@ void main()
 	NdotL = max(dot(normal, vec3(0.0, 0.0, 1.0)), 0.0);
 	BackNdotL = max(dot(normal, vec3(0.0, 0.0, -1.0)), 0.0);
 	
-	gl_FrontColor = gl_Color * BackNdotL + vec4(0.3, 0.3, 0.3, 1.0);
+	gl_FrontColor = gl_Color * BackNdotL + vec4(0.3, 0.3, 0.3, 0.0);
 	
-	gl_BackColor = vec4(0.5, 0.5, 0.5, 1.0) * NdotL + vec4(0.3, 0.3, 0.3, 1.0);
+	gl_BackColor = vec4(0.5, 0.5, 0.5, 1.0) * NdotL + vec4(0.3, 0.3, 0.3, 0.0);
+    
+    gl_FrontColor.a = 0.5;
+    gl_BackColor.a = 0.5;
 	
     gl_TexCoord[0] = gl_MultiTexCoord0;
     

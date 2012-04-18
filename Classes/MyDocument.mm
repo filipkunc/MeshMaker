@@ -115,8 +115,8 @@ struct anim
 		[itemsController setModel:items];
 		manipulated = itemsController;
 
-		[itemsController addTransformationObserver:self];
-		[meshController addTransformationObserver:self];
+		[itemsController addSelectionObserver:self];
+		[meshController addSelectionObserver:self];
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
@@ -132,12 +132,14 @@ struct anim
 						   
 - (void)dealloc
 {
-	[itemsController removeTransformationObserver:self];
-	[meshController removeTransformationObserver:self];
+	[itemsController removeSelectionObserver:self];
+	[meshController removeSelectionObserver:self];
 }
 
 - (void)awakeFromNib
 {
+    //[NSColor setIgnoresAlpha:NO];
+    
 	[editModePopUp selectItemWithTag:0];
 	[viewModePopUp selectItemWithTag:0];
 	
@@ -303,6 +305,21 @@ struct anim
 	[self manipulationStartedInView:nil];
 	[manipulated setSelectionZ:value];
 	[self manipulationEndedInView:nil];
+}
+
+- (BOOL)selectionColorEnabled
+{
+    return manipulated.selectionColorEnabled;
+}
+
+- (NSColor *)selectionColor
+{
+    return manipulated.selectionColor;
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    [self meshOnlyActionWithName:@"Change Color" block:^ { manipulated.selectionColor = selectionColor; }];
 }
 
 - (void)setNilValueForKey:(NSString *)key
@@ -808,11 +825,6 @@ struct anim
 {
     [[self currentMesh] cleanTexture];
     [self setNeedsDisplayOnAllViews];
-}
-
-- (IBAction)setBaseColorFromBrush:(id)sender
-{
-    [[self currentMesh] setColor:self.brushColor];
 }
 
 - (IBAction)resetTexCoords:(id)sender

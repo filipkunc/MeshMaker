@@ -101,7 +101,6 @@
 - (IBAction)subdivision:(id)sender;
 - (IBAction)softSelection:(id)sender;
 - (IBAction)cleanTexture:(id)sender;
-- (IBAction)setBaseColorFromBrush:(id)sender;
 - (IBAction)resetTexCoords:(id)sender;
 - (IBAction)viewTexturePaintTool:(id)sender;
 - (IBAction)viewTextureBrowser:(id)sender;

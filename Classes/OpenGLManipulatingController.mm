@@ -45,6 +45,27 @@
 	delete modelScale;
 }
 
+- (BOOL)selectionColorEnabled
+{
+    if ([model respondsToSelector:@selector(selectionColor)])
+        return YES;
+    
+    return NO;
+}
+
+- (NSColor *)selectionColor
+{
+    if (self.selectionColorEnabled)
+        return model.selectionColor;
+    return nil;
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    if (self.selectionColorEnabled)
+        model.selectionColor = selectionColor;
+}
+
 - (id<OpenGLManipulatingModel>)model
 {
     return model;
@@ -72,18 +93,22 @@
 			  context:NULL];
 }
 
-- (void)addTransformationObserver:(id)observer
+- (void)addSelectionObserver:(id)observer
 {
 	[self addObserver:observer forKeyPath:@"selectionX"];
 	[self addObserver:observer forKeyPath:@"selectionY"];
-	[self addObserver:observer forKeyPath:@"selectionZ"];	
+	[self addObserver:observer forKeyPath:@"selectionZ"];
+    [self addObserver:observer forKeyPath:@"selectionColor"];
+    [self addObserver:observer forKeyPath:@"selectionColorEnabled"];
 }
 
-- (void)removeTransformationObserver:(id)observer
+- (void)removeSelectionObserver:(id)observer
 {
 	[self removeObserver:observer forKeyPath:@"selectionX"];
 	[self removeObserver:observer forKeyPath:@"selectionY"];
 	[self removeObserver:observer forKeyPath:@"selectionZ"];
+    [self removeObserver:observer forKeyPath:@"selectionColor"];
+    [self removeObserver:observer forKeyPath:@"selectionColorEnabled"];
 }
 
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
@@ -101,9 +126,9 @@
 
 - (void)setCurrentManipulator:(enum ManipulatorType)value
 {
-    [self willChangeTransformation];
+    [self willChangeSelection];
     currentManipulator = value;
-    [self didChangeTransformation];
+    [self didChangeSelection];
 }
 
 - (float)selectionX
@@ -209,7 +234,7 @@
 
 - (void)updateSelection
 {
-	[self willChangeTransformation];
+	[self willChangeSelection];
 	
 	if (modelMesh != nil)
 	{
@@ -253,21 +278,26 @@
 	}
 	*selectionEuler = selectionRotation->ToEulerAngles();
     *selectionCenter = modelTransform->Transform(*selectionCenter);
-	[self didChangeTransformation];
+	[self didChangeSelection];
 }
 
-- (void)willChangeTransformation
+- (void)willChangeSelection
 {
 	[self willChangeValueForKey:@"selectionX"];
 	[self willChangeValueForKey:@"selectionY"];
 	[self willChangeValueForKey:@"selectionZ"];	
+    [self willChangeValueForKey:@"selectionColor"];	
+    [self willChangeValueForKey:@"selectionColorEnabled"];	
 }
 
-- (void)didChangeTransformation
+- (void)didChangeSelection
 {
 	[self didChangeValueForKey:@"selectionX"];
 	[self didChangeValueForKey:@"selectionY"];
-	[self didChangeValueForKey:@"selectionZ"];	
+	[self didChangeValueForKey:@"selectionZ"];
+    [self didChangeValueForKey:@"selectionColor"];	
+    [self didChangeValueForKey:@"selectionColorEnabled"];	
+
 }
 
 - (Vector3D)selectionCenter
@@ -277,9 +307,9 @@
 
 - (void)setSelectionCenter:(Vector3D)value
 {
-	[self willChangeTransformation];
+	[self willChangeSelection];
 	*selectionCenter = value;
-	[self didChangeTransformation];
+	[self didChangeSelection];
 }
 
 - (Quaternion)selectionRotation
@@ -289,10 +319,10 @@
 
 - (void)setSelectionRotation:(Quaternion)value
 {
-	[self willChangeTransformation];
+	[self willChangeSelection];
 	*selectionRotation = value;
 	*selectionEuler = selectionRotation->ToEulerAngles();
-	[self didChangeTransformation];
+	[self didChangeSelection];
 }
 
 - (Vector3D)selectionScale
@@ -302,9 +332,9 @@
 
 - (void)setSelectionScale:(Vector3D)value
 {
-	[self willChangeTransformation];
+	[self willChangeSelection];
 	*selectionScale = value;
-	[self didChangeTransformation];
+	[self didChangeSelection];
 }
 
 - (void)moveSelectedByOffset:(Vector3D)offset

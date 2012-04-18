@@ -13,6 +13,9 @@
 @property (readwrite, assign) float selectionX, selectionY, selectionZ;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 
+@property (readonly, assign) BOOL selectionColorEnabled;
+@property (readwrite, assign) NSColor *selectionColor;
+
 @end
 
 @protocol OpenGLManipulating <OpenGLSelecting, OpenGLTransforming>
@@ -33,6 +36,5 @@
 - (void)removeSelected;
 - (void)hideSelected;
 - (void)unhideAll;
-- (NSString *)nameAtIndex:(uint)index;
 
 @end

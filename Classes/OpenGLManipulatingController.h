@@ -33,15 +33,15 @@
 @property (readonly, assign) Matrix4x4 *modelTransform;
 @property (readonly) NSInteger lastSelectedIndex;
 
-- (void)addTransformationObserver:(id)observer;
-- (void)removeTransformationObserver:(id)observer;
+- (void)addSelectionObserver:(id)observer;
+- (void)removeSelectionObserver:(id)observer;
 - (float)transformValueAtIndex:(uint)index
 			   withManipulator:(enum ManipulatorType)manipulatorType;
 - (void)setTransformValue:(float)value
 				  atIndex:(uint)index
 		  withManipulator:(enum ManipulatorType)manipulatorType;
-- (void)willChangeTransformation;
-- (void)didChangeTransformation;
+- (void)willChangeSelection;
+- (void)didChangeSelection;
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
 
 @end
