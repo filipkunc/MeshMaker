@@ -18,7 +18,6 @@ void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float c
         {
             cachedColors[index * 3 + j].color.coords[k] = components[k];
         }
-        cachedColors[index * 3 + j].color.coords[3] = 0.5f;
     }	
 }
 
@@ -232,7 +231,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (fillMode.colored)
     {
         glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(4, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
+        glColorPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
     }
     
     if (viewMode == ViewModeSolidSmooth)
