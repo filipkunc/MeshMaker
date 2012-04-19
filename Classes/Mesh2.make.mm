@@ -156,9 +156,9 @@ void Mesh2::makePlane()
     _triangles.removeAll();
     
     VertexNode *v0 = _vertices.add(Vector3D(-1, -1, 0));
-	VertexNode *v1 = _vertices.add(Vector3D( 1, -1, 0));
+	VertexNode *v1 = _vertices.add(Vector3D(-1,  1, 0));
     VertexNode *v2 = _vertices.add(Vector3D( 1,  1, 0));
-	VertexNode *v3 = _vertices.add(Vector3D(-1,  1, 0));
+	VertexNode *v3 = _vertices.add(Vector3D( 1, -1, 0));
     
     addQuad(v0, v1, v2, v3);
     
