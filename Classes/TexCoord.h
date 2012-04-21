@@ -14,9 +14,10 @@ public:
     Vector3D position;
     
     bool selected;
+    bool visible;
     
-    TexCoord() : selected(false) { }
-    TexCoord(const Vector3D &v) : position(v), selected(false) { }
+    TexCoord() : selected(false), visible(true) { }
+    TexCoord(const Vector3D &v) : position(v), selected(false), visible(true) { }
 };
 
 union TexCoordAlgorithmData 

@@ -15,6 +15,7 @@ private:
     TriangleNode *_triangles[2];
 public:
     bool selected;
+    bool visible;
     VertexNode *halfVertex;
     
     VertexEdge();

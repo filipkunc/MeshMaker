@@ -14,9 +14,10 @@ public:
     Vector3D position;
     
     bool selected;
+    bool visible;
     
-    Vertex2() : selected(false) { }
-    Vertex2(const Vector3D &v) : position(v), selected(false) { }    
+    Vertex2() : selected(false), visible(true) { }
+    Vertex2(const Vector3D &v) : position(v), selected(false), visible(true) { }    
 };
 
 union VertexAlgorithmData

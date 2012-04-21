@@ -185,6 +185,9 @@ public:
     void drawAllTriangles(ViewMode viewMode, bool forSelection);
     void drawAllEdges(ViewMode viewMode, bool forSelection);
     
+    void hideSelected();
+    void unhideAll();
+    
     // texturing
     
     TriangleNode *rayToUV(const Vector3D &origin, const Vector3D &direction, float &u, float &v);

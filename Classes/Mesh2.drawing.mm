@@ -46,6 +46,9 @@ void Mesh2::fillTriangleCache()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
+        if (!node->data().visible)
+            continue;
+        
         Triangle2 &currentTriangle = node->data();
         
         currentTriangle.computeNormal();
@@ -77,6 +80,9 @@ void Mesh2::fillTriangleCache()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
+        if (!node->data().visible)
+            continue;
+        
         Triangle2 &currentTriangle = node->data();
         
         for (int j = 0; j < 3; j++)
@@ -99,14 +105,18 @@ void Mesh2::fillTriangleCache()
 	
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
 	{
+        if (!node->data().visible)
+            continue;
+        
 		if (node->data().selected)
             fillCachedColorsAtIndex(i, _cachedTriangleVertices, selectedComponents);
 		else
-            fillCachedColorsAtIndex(i, _cachedTriangleVertices, _colorComponents);				
+            fillCachedColorsAtIndex(i, _cachedTriangleVertices, _colorComponents);
         
         i++;
 	}
     
+    _cachedTriangleVertices.resize(i * 3);
     _cachedTriangleVertices.setValid(true);
     
     if (!_vboGenerated)
@@ -135,6 +145,9 @@ void Mesh2::fillEdgeCache()
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
+        if (!node->data().visible)
+            continue;
+        
         if (node->data().selected)
         {
             for (int k = 0; k < 3; k++)
@@ -168,6 +181,9 @@ void Mesh2::fillEdgeCache()
     
     for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
     {
+        if (!node->data().visible)
+            continue;
+        
         if (node->data().selected)
         {
             for (int k = 0; k < 3; k++)
@@ -247,7 +263,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     else
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
 
-    glDrawArrays(GL_TRIANGLES, 0, _triangles.count() * 3);
+    glDrawArrays(GL_TRIANGLES, 0, _cachedTriangleVertices.count());
 
     if (fillMode.colored)
         glDisableClientState(GL_COLOR_ARRAY);
@@ -356,12 +372,20 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
             if (_isUnwrapped)
             {
                 const TexCoord &texCoord = _cachedTexCoordSelection.at(index)->data();
+                
+                if (!texCoord.visible)
+                    return;
+                
                 selected = texCoord.selected;
                 v = texCoord.position;
             }
             else
             {
                 const Vertex2 &vertex = _cachedVertexSelection.at(index)->data();
+                
+                if (!vertex.visible)
+                    return;
+                
                 selected = vertex.selected;
                 v = vertex.position;
             }
@@ -383,6 +407,10 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 			if (forSelection)
 			{
 				const Triangle2 &triangle = _cachedTriangleSelection.at(index)->data();
+                
+                if (!triangle.visible)
+                    return;
+                
 				glBegin(GL_TRIANGLES);
                 if (_isUnwrapped)
                 {
@@ -408,6 +436,10 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
             if (_isUnwrapped)
             {
                 const TexCoordEdge &edge = _cachedTexCoordEdgeSelection.at(index)->data();
+                
+                if (!edge.visible)
+                    return;
+                
                 if (!forSelection)
                 {
                     BOOL isSelected = edge.selected;
@@ -427,6 +459,10 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
             else 
             {    
                 const VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
+                
+                if (!edge.visible)
+                    return;
+                
                 if (!forSelection)
                 {
                     BOOL isSelected = edge.selected;
@@ -475,6 +511,10 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
             {
                 colorIndex++;
+                
+                if (!node->data().visible)
+                    continue;
+                
                 tempColors.push_back(colorIndex);
                 tempVertices.push_back(node->data().position);
             }
@@ -484,6 +524,10 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
             {
                 colorIndex++;
+                
+                if (!node->data().visible)
+                    continue;
+                
                 tempColors.push_back(colorIndex);            
                 tempVertices.push_back(node->data().position);            
             }
@@ -515,6 +559,9 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         {
             for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
             {
+                if (!node->data().visible)
+                    continue;
+                
                 if (node->data().selected)
                     tempColors.push_back(selectedColor);
                 else
@@ -527,6 +574,9 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
             {
+                if (!node->data().visible)
+                    continue;
+                
                 if (node->data().selected)
                     tempColors.push_back(selectedColor); 
                 else if (_useSoftSelection && node->selectionWeight > 0.0f)
@@ -590,6 +640,12 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         {
             for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
             {
+                if (!node->data().visible)
+                {
+                    colorIndex++;
+                    continue;
+                }
+                
                 colorIndex++;
                 tempColors.push_back(colorIndex);
                 tempColors.push_back(colorIndex);
@@ -599,6 +655,12 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         {
             for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
             {
+                if (!node->data().visible)
+                {
+                    colorIndex++;
+                    continue;
+                }
+                
                 colorIndex++;
                 tempColors.push_back(colorIndex);
                 tempColors.push_back(colorIndex);
@@ -732,3 +794,115 @@ void Mesh2::cleanTexture()
     [[_texture canvas] unlockFocus];
     [_texture updateTexture]; 
 }
+
+void Mesh2::hideSelected()
+{
+    resetTriangleCache();
+    
+    switch (_selectionMode)
+    {
+        case MeshSelectionModeTriangles:
+            
+            for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+            {
+                if (!node->data().visible)
+                    node->data().selected = true;
+            }            
+            
+            for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+            {
+                if (node->data().selected)
+                {
+                    node->data().visible = false;
+                    
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (!node->data().vertexEdge(i)->data().isNotShared())
+                            node->data().vertexEdge(i)->data().visible = false;
+                        
+                        if (!node->data().texCoordEdge(i)->data().isNotShared())
+                            node->data().texCoordEdge(i)->data().visible = false;
+                    }
+                    
+                    node->data().selected = false;
+                }
+            }
+            
+            break;
+        case MeshSelectionModeEdges:
+            if (_isUnwrapped)
+            {
+                for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
+                {
+                    if (node->data().selected)
+                    {
+                        node->data().visible = false;
+                        node->data().selected = false;
+                    }
+                }
+            }
+            else
+            {
+                for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+                {
+                    if (node->data().selected)
+                    {
+                        node->data().visible = false;
+                        node->data().selected = false;
+                    }
+                }
+            }
+            break;
+        case MeshSelectionModeVertices:
+            if (_isUnwrapped)
+            {
+                for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
+                {
+                    if (node->data().selected)
+                    {
+                        node->data().visible = false;
+                        node->data().selected = false;
+                    }
+                } 
+            }
+            else
+            {
+                for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+                {
+                    if (node->data().selected)
+                    {
+                        node->data().visible = false;
+                        node->data().selected = false;
+                    }
+                } 
+            }
+            break;            
+        default:
+            break;
+    }
+    
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::unhideAll()
+{
+    resetTriangleCache();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        node->data().visible = true;
+
+    for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
+        node->data().visible = true;
+    
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+        node->data().visible = true;
+    
+    for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
+        node->data().visible = true;
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        node->data().visible = true;
+    
+    setSelectionMode(_selectionMode);
+}
+

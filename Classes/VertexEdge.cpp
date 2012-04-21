@@ -8,7 +8,7 @@
 
 #include "MeshHelpers.h"
 
-VertexEdge::VertexEdge() : selected(false), halfVertex(NULL)
+VertexEdge::VertexEdge() : selected(false), visible(true), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -17,7 +17,7 @@ VertexEdge::VertexEdge() : selected(false), halfVertex(NULL)
     }
 }
 
-VertexEdge::VertexEdge(VertexNode *vertices[2]) : selected(false), halfVertex(NULL)
+VertexEdge::VertexEdge(VertexNode *vertices[2]) : selected(false), visible(true), halfVertex(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -175,9 +175,6 @@ void VertexEdge::turn()
     VertexNode *v0 = t0.vertexNotInEdge(this);
     VertexNode *v1 = t1.vertexNotInEdge(this);
     
-    //    Vector3D t0_normal = t0.computeNormal();
-    //    Vector3D t1_normal = t1.computeNormal();
-    
     _triangles[0]->removeFromVertices();
     _triangles[1]->removeFromVertices();
     
@@ -187,17 +184,11 @@ void VertexEdge::turn()
     
     _triangles[0]->addToVertices();
     
-    //    if (t0.computeNormal().Dot(t0_normal) < 0.0f)
-    //        t0.flip();
-    
     t1.setVertex(0, v0);
     t1.setVertex(1, v1);
     t1.setVertex(2, _vertices[1]);
     
     _triangles[1]->addToVertices();
-    
-    //    if (t1.computeNormal().Dot(t1_normal) < 0.0f)
-    //        t1.flip();
     
     _vertices[0] = v0;
     _vertices[1] = v1;

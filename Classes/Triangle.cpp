@@ -8,7 +8,7 @@
 
 #include "MeshHelpers.h"
 
-Triangle2::Triangle2() : selected(false)
+Triangle2::Triangle2() : selected(false), visible(true)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -19,7 +19,7 @@ Triangle2::Triangle2() : selected(false)
     }
 }
 
-Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
+Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false), visible(true)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -30,7 +30,7 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false)
     }
 }
 
-Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : selected(false)
+Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : selected(false), visible(true)
 {
     for (int i = 0; i < 3; i++)
     {

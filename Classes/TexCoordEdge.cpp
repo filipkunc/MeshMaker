@@ -8,7 +8,7 @@
 
 #include "MeshHelpers.h"
 
-TexCoordEdge::TexCoordEdge() : selected(false), halfTexCoord(NULL)
+TexCoordEdge::TexCoordEdge() : selected(false), visible(true), halfTexCoord(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -17,7 +17,7 @@ TexCoordEdge::TexCoordEdge() : selected(false), halfTexCoord(NULL)
     }
 }
 
-TexCoordEdge::TexCoordEdge(TexCoordNode *texCoords[2]) : selected(false), halfTexCoord(NULL)
+TexCoordEdge::TexCoordEdge(TexCoordNode *texCoords[2]) : selected(false), visible(true), halfTexCoord(NULL)
 {
     for (int i = 0; i < 2; i++)
     {
@@ -28,26 +28,22 @@ TexCoordEdge::TexCoordEdge(TexCoordNode *texCoords[2]) : selected(false), halfTe
 
 bool TexCoordEdge::isQuadEdge() const
 {
-    // TODO: implement texCoordNotInEdge
-    
-    return false;
-    
-    /*if (_triangles[0] != NULL && _triangles[1] != NULL)
+    if (_triangles[0] != NULL && _triangles[1] != NULL)
     {
-        Triangle2 &t0 = _triangles[0]->data;
-        Triangle2 &t1 = _triangles[1]->data;
+        Triangle2 &t0 = _triangles[0]->data();
+        Triangle2 &t1 = _triangles[1]->data();
         
-        VertexNode *otherVertices[2];
-        otherVertices[0] = t0.vertexNotInEdge(this);
-        otherVertices[1] = t1.vertexNotInEdge(this);
+        TexCoordNode *otherTexCoords[2];
+        otherTexCoords[0] = t0.texCoordNotInEdge(this);
+        otherTexCoords[1] = t1.texCoordNotInEdge(this);
         
-        float squaredDistanceInEdge = _vertices[0]->data.position.SqDistance(_vertices[1]->data.position);
+        float squaredDistanceInEdge = _texCoords[0]->data().position.SqDistance(_texCoords[1]->data().position);
         float sqDistances[4];
         
         for (int i = 0; i < 2; i++)
         {
-            sqDistances[i] = otherVertices[i]->data.position.SqDistance(_vertices[0]->data.position);
-            sqDistances[i + 2] = otherVertices[i]->data.position.SqDistance(_vertices[1]->data.position); 
+            sqDistances[i] = otherTexCoords[i]->data().position.SqDistance(_texCoords[0]->data().position);
+            sqDistances[i + 2] = otherTexCoords[i]->data().position.SqDistance(_texCoords[1]->data().position); 
         }
         
         for (int i = 0; i < 4; i++)
@@ -61,7 +57,7 @@ bool TexCoordEdge::isQuadEdge() const
         
         return true;
     }
-    return false;*/
+    return false;
 }
 
 bool TexCoordEdge::isDegenerated() const
@@ -170,43 +166,32 @@ bool TexCoordEdge::isNotShared() const
 
 void TexCoordEdge::turn()
 {
-    // TODO: implement texCoordNotInEdge
-    
-    /*if (_triangles[0] == NULL || _triangles[1] == NULL)
+    if (_triangles[0] == NULL || _triangles[1] == NULL)
         return;
     
-    Triangle2 &t0 = _triangles[0]->data;
-    Triangle2 &t1 = _triangles[1]->data;
+    Triangle2 &t0 = _triangles[0]->data();
+    Triangle2 &t1 = _triangles[1]->data();
     
-    VertexNode *v0 = t0.vertexNotInEdge(this);
-    VertexNode *v1 = t1.vertexNotInEdge(this);
-    
-    //    Vector3D t0_normal = t0.computeNormal();
-    //    Vector3D t1_normal = t1.computeNormal();
+    TexCoordNode *v0 = t0.texCoordNotInEdge(this);
+    TexCoordNode *v1 = t1.texCoordNotInEdge(this);
     
     _triangles[0]->removeFromVertices();
     _triangles[1]->removeFromVertices();
     
-    t0.setVertex(0, v1);
-    t0.setVertex(1, v0);
-    t0.setVertex(2, _vertices[0]);
+    t0.setTexCoord(0, v1);
+    t0.setTexCoord(1, v0);
+    t0.setTexCoord(2, _texCoords[0]);
     
     _triangles[0]->addToVertices();
     
-    //    if (t0.computeNormal().Dot(t0_normal) < 0.0f)
-    //        t0.flip();
-    
-    t1.setVertex(0, v0);
-    t1.setVertex(1, v1);
-    t1.setVertex(2, _vertices[1]);
+    t1.setTexCoord(0, v0);
+    t1.setTexCoord(1, v1);
+    t1.setTexCoord(2, _texCoords[1]);
     
     _triangles[1]->addToVertices();
     
-    //    if (t1.computeNormal().Dot(t1_normal) < 0.0f)
-    //        t1.flip();
-    
-    _vertices[0] = v0;
-    _vertices[1] = v1;*/
+    _texCoords[0] = v0;
+    _texCoords[1] = v1;
 }
 
 TexCoordNode *TexCoordEdge::opposite(TexCoordNode *texCoord) const

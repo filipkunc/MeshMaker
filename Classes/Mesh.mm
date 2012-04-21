@@ -252,52 +252,12 @@
 
 - (void)hideSelected
 {
-	/*if (selectionMode == MeshSelectionModeEdges)
-	{
-		for (uint i = 0; i < selected->size(); i++)
-		{
-			if ((*selected)[i].selected)
-			{
-				(*selected)[i].visible = NO;
-				(*selected)[i].selected = NO;
-				[self setEdgeMarked:NO atIndex:i];
-			}
-		}
-	}
-	else if (selectionMode == MeshSelectionModeTriangles)
-	{
-		for (uint i = 0; i < selected->size(); i++)
-		{
-			if ((*selected)[i].selected)
-			{
-				(*selected)[i].visible = NO;
-				(*selected)[i].selected = NO;
-				[self setTriangleMarked:NO atIndex:i];
-			}
-		}
-		[self resetIndexCache];
-	}
-	else
-	{
-		for (uint i = 0; i < selected->size(); i++)
-		{
-			if ((*selected)[i].selected)
-			{
-				(*selected)[i].visible = NO;
-				(*selected)[i].selected = NO;
-				markedVertices->at(i) = NO;
-			}
-		}
-	}*/	
+    mesh->hideSelected();
 }
 
 - (void)unhideAll
 {
-	/*for (uint i = 0; i < selected->size(); i++)
-	{
-		(*selected)[i].visible = YES;
-	}
-	[self resetIndexCache];*/
+	mesh->unhideAll();
 }
 
 - (void)cleanTexture

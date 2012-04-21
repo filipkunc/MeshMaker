@@ -17,6 +17,7 @@ private:
     TexCoordEdgeNode *_texCoordEdges[3];
 public:
     bool selected;
+    bool visible;
     Vector3D vertexNormal;
     Vector3D texCoordNormal;
     
@@ -30,6 +31,7 @@ public:
     TexCoordEdgeNode *texCoordEdge(int index) const { return _texCoordEdges[index]; }
     
     void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
+    void setTexCoord(int index, TexCoordNode *value) { _texCoords[index] = value; }
     void setTexCoordByVertex(TexCoordNode * texCoord, VertexNode *vertex);
     void setVertexEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
     void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _texCoordEdges[index] = value; }

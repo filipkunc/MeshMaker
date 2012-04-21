@@ -15,6 +15,7 @@ private:
     TexCoordNode *_texCoords[2];
 public:
     bool selected;
+    bool visible;
     TexCoordNode *halfTexCoord;
     
     TexCoordEdge();
