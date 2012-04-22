@@ -370,8 +370,12 @@ struct anim
 {
 	[items setCurrentMeshState:old];
 	Item *item = [items itemAtIndex:[old itemIndex]];
-	[meshController setModel:[item mesh]];
 	
+    [meshController setModel:[item mesh]];
+    [meshController setPosition:[item position] 
+                       rotation:[item rotation] 
+                          scale:[item scale]];
+    
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapMeshStateWithOld:current
 						   current:old
@@ -379,6 +383,7 @@ struct anim
 	
 	[itemsController updateSelection];
 	[meshController updateSelection];
+    
 	[self setManipulated:meshController];
 }
 
