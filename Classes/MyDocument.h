@@ -26,7 +26,6 @@
 	IBOutlet OpenGLSceneView *viewFront;
 	IBOutlet OpenGLSceneView *viewPerspective;
 	IBOutlet NSPopUpButton *editModePopUp;
-	IBOutlet NSPopUpButton *viewModePopUp;
 	IBOutlet AddItemWithStepsSheetController *addItemWithStepsSheetController;
 	enum MeshType itemWithSteps;
 	

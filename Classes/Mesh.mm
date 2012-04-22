@@ -71,16 +71,6 @@
 	delete mesh;
 }
 
-- (NSColor *)selectionColor
-{
-    return self.color;
-}
-
-- (void)setSelectionColor:(NSColor *)selectionColor
-{
-    self.color = selectionColor;
-}
-
 - (NSColor *)color
 {
     return color;
@@ -201,11 +191,6 @@
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index 
 {
     mesh->setSelectedAtIndex(isSelected, index);
-}
-
-- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
-{
-	//mesh->drawAtIndex(index, forSelection, mode);
 }
 
 - (void)drawAllForSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
@@ -357,21 +342,6 @@
 	
 	if (triangles.size() > 0)
         [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(Triangle)];
-}
-
-- (NSString *)nameAtIndex:(uint)index
-{
-	switch (mesh->selectionMode())
-	{
-		case MeshSelectionModeVertices:
-			return [NSString stringWithFormat:@"Vertex %i", index];
-		case MeshSelectionModeEdges:
-			return [NSString stringWithFormat:@"Edge %i", index];
-		case MeshSelectionModeTriangles:
-			return [NSString stringWithFormat:@"Triangle %i", index];	
-		default:
-			return nil;
-	}
 }
 
 - (void)resetTexCooords

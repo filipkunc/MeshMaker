@@ -16,12 +16,11 @@
 - (uint)count;
 - (BOOL)isSelectedAtIndex:(uint)index;
 - (void)setSelected:(BOOL)selected atIndex:(uint)index;
-- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;
 - (void)duplicateSelected;
 - (void)removeSelected;
 - (void)hideSelected;
 - (void)unhideAll;
-- (NSString *)nameAtIndex:(uint)index;
+- (void)setViewMode:(enum ViewMode)viewMode;
 
 @optional
 
@@ -29,7 +28,6 @@
 
 - (void)willSelectThrough:(BOOL)selectThrough;
 - (void)didSelect;
-- (void)drawAllForSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;
 - (BOOL)needsCullFace;
 
 @end
@@ -41,6 +39,7 @@
 					 scale:(Vector3D *)scale;
 
 - (void)transformSelectedByMatrix:(Matrix4x4 *)matrix;
+- (void)drawAllForSelection:(BOOL)forSelection;
 
 @end
 
@@ -55,6 +54,7 @@
 - (void)moveByOffset:(Vector3D)offset atIndex:(uint)index;
 - (void)rotateByOffset:(Quaternion)offset atIndex:(uint)index;
 - (void)scaleByOffset:(Vector3D)offset atIndex:(uint)index;
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection;
 
 @end
 

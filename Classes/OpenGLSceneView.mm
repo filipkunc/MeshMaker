@@ -9,7 +9,6 @@
 
 #import "OpenGLDrawing.h"
 #import "OpenGLSceneView.h"
-#import <GLUT/GLUT.h>
 
 const float perspectiveAngle = 45.0f;
 const float minDistance = 1.0f;
@@ -120,7 +119,6 @@ NSOpenGLContext *globalGLContext = nil;
     currentManipulator = defaultManipulator;
     
     cameraMode = CameraModePerspective;
-    viewMode = ViewModeSolidFlat;
     
     glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
     [[ShaderProgram normalShader] linkProgram];
@@ -220,17 +218,6 @@ NSOpenGLContext *globalGLContext = nil;
 	[self setNeedsDisplay:YES];
 }
 
-- (enum ViewMode)viewMode
-{
-	return viewMode;
-}
-
-- (void)setViewMode:(enum ViewMode)value
-{
-	viewMode = value;
-	[self setNeedsDisplay:YES];
-}
-
 - (void)reshape
 {
 	[self setNeedsDisplay:YES];
@@ -319,8 +306,8 @@ NSOpenGLContext *globalGLContext = nil;
 - (void)drawManipulatedAndDisplayedForSelection:(BOOL)forSelection
 {
 	if (displayed != manipulated)
-		[displayed drawWithMode:viewMode forSelection:forSelection];
-	[manipulated drawWithMode:viewMode forSelection:forSelection];
+		[displayed drawForSelection:forSelection];
+	[manipulated drawForSelection:forSelection];
 }
 
 - (void)drawOrthoDefaultManipulator
@@ -396,9 +383,6 @@ NSOpenGLContext *globalGLContext = nil;
 
 	[self drawGridWithSize:10 step:2];
     
-    if (viewMode == ViewModeMixedWireSolid)
-        glDisable(GL_DEPTH_TEST);
-	
 	[self drawManipulatedAndDisplayedForSelection:NO];
     
 	glDisable(GL_TEXTURE_2D);

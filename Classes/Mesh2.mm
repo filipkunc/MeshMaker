@@ -10,7 +10,6 @@
 
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
-bool Mesh2::_isUnwrapped = false;
 
 Mesh2::Mesh2(float colorComponents[4])
 {
@@ -23,6 +22,7 @@ Mesh2::Mesh2(float colorComponents[4])
     _vboGenerated = false;
     
     _texture = nil;
+    _isUnwrapped = false;
 }
 
 void Mesh2::setColorComponents(float colorComponents[4])

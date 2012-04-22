@@ -153,9 +153,9 @@
 	[[self itemAtIndex:index] setSelected:selected];
 }
 
-- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
+- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
 {
-	[[self itemAtIndex:index] drawWithMode:mode forSelection:forSelection];
+	[[self itemAtIndex:index] drawForSelection:forSelection];
 }
 
 - (void)duplicateSelected
@@ -480,7 +480,7 @@
 {
     Item *first = [self firstSelectedItem];
     if (first)
-        return first.mesh.selectionColor;
+        return first.selectionColor;
     return nil;
 }
 
@@ -489,8 +489,17 @@
     for (Item *item in items)
 	{
 		if (item.selected)
-            item.mesh.selectionColor = selectionColor;
+            item.selectionColor = selectionColor;
 	}
+}
+
+- (void)setViewMode:(enum ViewMode)viewMode
+{
+    for (Item *item in items)
+    {
+        if (item.selected)
+            item.viewMode = viewMode;
+    }
 }
 
 @end

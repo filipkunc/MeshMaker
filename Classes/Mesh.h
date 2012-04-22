@@ -15,7 +15,7 @@
 #import "ShaderProgram.h"
 #import "Mesh2.h"
 
-@interface Mesh : NSObject <OpenGLManipulatingModelMesh, MemoryStreaming>
+@interface Mesh : NSObject <MemoryStreaming>
 {
 @public
     NSColor *color;    
@@ -43,5 +43,27 @@
 - (void)extrudeSelected;
 - (void)cleanTexture;
 - (void)resetTexCooords;
+
+- (uint)count;
+- (void)willSelectThrough:(BOOL)selectThrough;
+- (BOOL)needsCullFace;
+- (void)didSelect;
+- (void)getSelectionCenter:(Vector3D *)center 
+				  rotation:(Quaternion *)rotation
+					 scale:(Vector3D *)scale;
+- (void)transformSelectedByMatrix:(Matrix4x4 *)matrix;
+- (BOOL)isSelectedAtIndex:(uint)index;
+- (void)setSelected:(BOOL)isSelected atIndex:(uint)index;
+- (void)drawAllForSelection:(BOOL)forSelection withMode:(enum ViewMode)mode;
+- (void)flipSelected;
+- (void)flipAllTriangles;
+- (void)loopSubdivision;
+- (void)detachSelected;
+- (void)extrudeSelected;
+- (void)duplicateSelected;
+- (void)removeSelected;
+- (void)hideSelected;
+- (void)unhideAll;
+- (void)cleanTexture;
 
 @end

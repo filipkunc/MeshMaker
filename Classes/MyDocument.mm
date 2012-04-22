@@ -141,7 +141,6 @@ struct anim
     //[NSColor setIgnoresAlpha:NO];
     
 	[editModePopUp selectItemWithTag:0];
-	[viewModePopUp selectItemWithTag:0];
 	
 	[views addObject:viewTop];
 	[views addObject:viewLeft];
@@ -224,7 +223,7 @@ struct anim
 - (Mesh *)currentMesh
 {
 	if (manipulated == meshController)
-		return (Mesh *)[meshController model];
+		return [(Item *)[meshController model] mesh];
     if (manipulated == itemsController)
         return [(ItemCollection *)[itemsController model] currentMesh];
 	return nil;
@@ -332,9 +331,11 @@ struct anim
 						change:(NSDictionary *)change
 					   context:(void *)context
 {
-	// Is it right way to do it? I really don't know, but it works.
-	[self willChangeValueForKey:keyPath];
-	[self didChangeValueForKey:keyPath];
+    if (manipulationFinished)
+    {
+        [self willChangeValueForKey:keyPath];
+        [self didChangeValueForKey:keyPath];
+    }
 }
 
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current
@@ -371,7 +372,7 @@ struct anim
 	[items setCurrentMeshState:old];
 	Item *item = [items itemAtIndex:[old itemIndex]];
 	
-    [meshController setModel:[item mesh]];
+    [meshController setModel:item];
     [meshController setPosition:[item position] 
                        rotation:[item rotation] 
                           scale:[item scale]];
@@ -438,12 +439,18 @@ struct anim
 		MyDocument *document = [self prepareUndoWithName:@"Manipulations"];
 		[document swapManipulationsWithOld:oldManipulations current:[items currentManipulations]];
 		oldManipulations = nil;
+        
+        [itemsController willChangeSelection];
+        [itemsController didChangeSelection];
 	}
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
 		[document swapMeshStateWithOld:oldMeshState current:[items currentMeshState] actionName:@"Mesh Manipulation"];
 		oldMeshState = nil;
+        
+        [meshController willChangeSelection];
+        [meshController didChangeSelection];
 	}
 	
 	[self setNeedsDisplayExceptView:view];
@@ -503,7 +510,7 @@ struct anim
 	{
 		Item *item = [items itemAtIndex:index];
 		[[item mesh] setSelectionMode:mode];
-		[meshController setModel:[item mesh]];
+		[meshController setModel:item];
 		[meshController setPosition:[item position] 
 						   rotation:[item rotation] 
 							  scale:[item scale]];
@@ -548,16 +555,11 @@ struct anim
 
 - (IBAction)changeViewMode:(id)sender
 {
-	ViewMode mode = (ViewMode)[[viewModePopUp selectedItem] tag];
-	for (OpenGLSceneView *view in views)
-	{ 
-        if (mode == ViewModeUnwrap)
-            Mesh2::setUnwrapped(true);
-        else
-            Mesh2::setUnwrapped(false);
-        
-		[view setViewMode:mode];
-	}
+	ViewMode mode = (ViewMode)[sender tag];
+    
+    [manipulated setViewMode:mode];
+    
+    [self setNeedsDisplayOnAllViews];
 }
 
 - (IBAction)mergeSelected:(id)sender

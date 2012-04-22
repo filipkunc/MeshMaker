@@ -89,7 +89,7 @@
 {
 	[self addObserver:observer
 		   forKeyPath:keyPath
-			  options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
+			  options:NSKeyValueObservingOptionNew
 			  context:NULL];
 }
 
@@ -296,8 +296,7 @@
 	[self didChangeValueForKey:@"selectionY"];
 	[self didChangeValueForKey:@"selectionZ"];
     [self didChangeValueForKey:@"selectionColor"];	
-    [self didChangeValueForKey:@"selectionColorEnabled"];	
-
+    [self didChangeValueForKey:@"selectionColorEnabled"];
 }
 
 - (Vector3D)selectionCenter
@@ -460,22 +459,22 @@
 	[self setSelectionScale:*selectionScale + offset];
 }
 
-- (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection
+- (void)drawForSelection:(BOOL)forSelection
 {
-    if ([model isKindOfClass:[Mesh class]])
+    if (modelMesh != nil)
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        [model drawAllForSelection:forSelection withMode:mode];
+        [modelMesh drawAllForSelection:forSelection];
         glPopMatrix();
     }
     else
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        for (uint i = 0; i < [model count]; i++)
+        for (uint i = 0; i < [modelItem count]; i++)
         {
-            [model drawAtIndex:i forSelection:forSelection withMode:mode];
+            [modelItem drawAtIndex:i forSelection:forSelection];
         }
         glPopMatrix();
     }
@@ -510,28 +509,28 @@
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
-	[model drawAtIndex:index forSelection:YES withMode:ViewModeSolidFlat];
+	[modelItem drawAtIndex:index forSelection:YES];
 	glPopMatrix();
 }
 
 - (void)drawAllForSelection
 {
-    if ([model respondsToSelector:@selector(drawAllForSelection:withMode:)])
+    if (modelMesh != nil)
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        [model drawAllForSelection:YES withMode:ViewModeSolidFlat];
+        [modelMesh drawAllForSelection:YES];
         glPopMatrix();
     }
     else
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        for (uint i = 0; i < [model count]; i++)
+        for (uint i = 0; i < [modelItem count]; i++)
         {
             uint colorIndex = i + 1;
             glColor4ubv((GLubyte *)&colorIndex);
-            [model drawAtIndex:i forSelection:YES withMode:ViewModeSolidFlat];
+            [modelItem drawAtIndex:i forSelection:YES];
         }
         glPopMatrix();        
     }
@@ -602,9 +601,9 @@
 	[model unhideAll];
 }
 
-- (NSString *)nameAtIndex:(uint)index
+- (void)setViewMode:(enum ViewMode)viewMode
 {
-	return [model nameAtIndex:index];
+    [model setViewMode:viewMode];
 }
 
 @end

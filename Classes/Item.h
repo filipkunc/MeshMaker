@@ -11,7 +11,7 @@
 #import "Mesh.h"
 #import "MemoryStreaming.h"
 
-@interface Item : NSObject <MemoryStreaming>
+@interface Item : NSObject <OpenGLManipulatingModelMesh, MemoryStreaming>
 {
 	Vector3D *position;
 	Quaternion *rotation;
@@ -19,18 +19,21 @@
 	Mesh *mesh;
 	BOOL selected;
 	BOOL visible;
+    enum ViewMode viewMode;
 }
 
+@property (readwrite, copy) NSColor *selectionColor;
 @property (readwrite, assign) Vector3D position;
 @property (readwrite, assign) Quaternion rotation;
 @property (readwrite, assign) Vector3D scale;
 @property (readwrite, assign) BOOL selected;
 @property (readwrite, assign) BOOL visible;
+@property (readwrite, assign) enum ViewMode viewMode;
 @property (readonly) Mesh *mesh;
 @property (readonly) Matrix4x4 transform;
 
 - (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
-- (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection;
+- (void)drawForSelection:(BOOL)forSelection;
 - (void)moveByOffset:(Vector3D)offset;
 - (void)rotateByOffset:(Quaternion)offset;
 - (void)scaleByOffset:(Vector3D)offset;

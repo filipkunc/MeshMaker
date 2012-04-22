@@ -24,6 +24,7 @@
 		mesh = [[Mesh alloc] init];
 		selected = NO;
 		visible = YES;
+        viewMode = ViewModeSolidFlat;
 	}
 	return self;
 }
@@ -118,19 +119,6 @@
     return m;
 }
 
-- (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection
-{
-	if (visible)
-	{
-		glPushMatrix();
-		glTranslatef(position->x, position->y, position->z);
-		Matrix4x4 rotationMatrix = rotation->ToMatrix();
-		glMultMatrixf(rotationMatrix);
-		[mesh drawWithMode:mode scale:*scale selected:selected forSelection:forSelection];
-		glPopMatrix();
-	}
-}
-
 - (void)moveByOffset:(Vector3D)offset
 {
 	*position += offset;
@@ -161,6 +149,172 @@
 	[newItem setSelected:[self selected]];
 	
 	return newItem;
+}
+
+- (uint)count 
+{ 
+    return mesh.count;
+}
+
+- (void)willSelectThrough:(BOOL)selectThrough
+{
+    [mesh willSelectThrough:selectThrough];
+}
+
+- (BOOL)needsCullFace
+{
+    return mesh.needsCullFace;
+}
+
+- (void)didSelect
+{
+    [mesh didSelect];
+}
+
+- (void)getSelectionCenter:(Vector3D *)aCenter 
+				  rotation:(Quaternion *)aRotation
+					 scale:(Vector3D *)aScale
+{
+    [mesh getSelectionCenter:aCenter rotation:aRotation scale:aScale];
+}
+
+- (void)transformSelectedByMatrix:(Matrix4x4 *)matrix
+{
+    [mesh transformSelectedByMatrix:matrix];
+}
+
+- (BOOL)isSelectedAtIndex:(uint)index
+{
+    return [mesh isSelectedAtIndex:index];
+}
+
+- (void)setSelected:(BOOL)isSelected atIndex:(uint)index
+{
+    [mesh setSelected:isSelected atIndex:index];
+}
+
+- (void)drawForSelection:(BOOL)forSelection
+{
+	if (visible)
+	{
+		glPushMatrix();
+		glTranslatef(position->x, position->y, position->z);
+		Matrix4x4 rotationMatrix = rotation->ToMatrix();
+		glMultMatrixf(rotationMatrix);
+        if (forSelection)
+        {
+            [mesh drawWithMode:ViewModeSolidFlat scale:*scale selected:selected forSelection:forSelection];
+        }
+        else
+        {
+            if (viewMode == ViewModeMixedWireSolid)
+            {
+                glDisable(GL_DEPTH_TEST);
+                [mesh drawWithMode:viewMode scale:*scale selected:selected forSelection:forSelection];
+                glEnable(GL_DEPTH_TEST);
+            }
+            else
+            {
+                [mesh drawWithMode:viewMode scale:*scale selected:selected forSelection:forSelection];
+            }
+        }
+		glPopMatrix();
+	}
+}
+
+- (void)drawAllForSelection:(BOOL)forSelection
+{
+    if (forSelection)
+    {
+        [mesh drawAllForSelection:forSelection withMode:ViewModeSolidFlat];
+    }
+    else
+    {
+        if (viewMode == ViewModeMixedWireSolid)
+        {
+            glDisable(GL_DEPTH_TEST);
+            [mesh drawAllForSelection:forSelection withMode:viewMode];
+            glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            [mesh drawAllForSelection:forSelection withMode:viewMode];
+        }
+    }
+}
+
+- (void)flipSelected
+{
+    [mesh flipSelected];
+}
+
+- (void)flipAllTriangles
+{
+    [mesh flipAllTriangles];
+}
+
+- (void)loopSubdivision
+{
+    [mesh loopSubdivision];
+}
+
+- (void)detachSelected
+{
+    [mesh detachSelected];
+}
+
+- (void)extrudeSelected
+{
+    [mesh extrudeSelected];
+}
+
+- (void)duplicateSelected
+{
+    [mesh duplicateSelected];
+}
+
+- (void)removeSelected
+{
+    [mesh removeSelected];
+}
+
+- (void)hideSelected
+{
+    [mesh hideSelected];
+}
+
+- (void)unhideAll
+{
+    [mesh unhideAll];
+}
+
+- (void)cleanTexture
+{
+    [mesh cleanTexture];
+}
+
+- (NSColor *)selectionColor
+{
+    return [mesh color];
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    [mesh setColor:selectionColor];
+}
+
+- (enum ViewMode)viewMode
+{
+    return viewMode;
+}
+
+- (void)setViewMode:(enum ViewMode)aViewMode
+{
+    viewMode = aViewMode;
+    if (viewMode == ViewModeUnwrap)
+        mesh->mesh->setUnwrapped(true);
+    else
+        mesh->mesh->setUnwrapped(false);
 }
 
 @end

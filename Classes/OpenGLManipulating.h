@@ -29,12 +29,13 @@
 - (void)rotateSelectedByOffset:(Quaternion)offset;
 - (void)scaleSelectedByOffset:(Vector3D)offset;
 - (void)updateSelection;
-- (void)drawWithMode:(enum ViewMode)mode forSelection:(BOOL)forSelection;
+- (void)drawForSelection:(BOOL)forSelection;
 - (void)changeSelection:(BOOL)isSelected;
 - (void)invertSelection;
 - (void)duplicateSelected;
 - (void)removeSelected;
 - (void)hideSelected;
 - (void)unhideAll;
+- (void)setViewMode:(enum ViewMode)viewMode;
 
 @end

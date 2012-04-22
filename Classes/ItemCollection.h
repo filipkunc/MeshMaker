@@ -39,5 +39,6 @@
 - (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount;
 - (Mesh *)currentMesh;
 - (Item *)firstSelectedItem;
+- (void)setViewMode:(enum ViewMode)viewMode;
 
 @end

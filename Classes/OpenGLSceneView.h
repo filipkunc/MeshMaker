@@ -55,7 +55,6 @@
 	Manipulator *scaleManipulator;
 	Manipulator *currentManipulator;
 	enum CameraMode cameraMode;
-	enum ViewMode viewMode;
 }
 
 @property (readwrite, weak) id<OpenGLManipulating> displayed;
@@ -63,7 +62,6 @@
 @property (readwrite, weak) id<OpenGLSceneViewDelegate> delegate;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 @property (readwrite, assign) enum CameraMode cameraMode;
-@property (readwrite, assign) enum ViewMode viewMode;
 @property (readwrite, assign) Camera camera;
 
 - (void)drawGridWithSize:(int)size step:(int)step;
