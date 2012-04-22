@@ -648,7 +648,7 @@
 								<object class="NSMenuItem" id="242683482">
 									<reference key="NSMenu" ref="466310130"/>
 									<string key="NSTitle">Texture Paint Tool...</string>
-									<string key="NSKeyEquiv">t</string>
+									<string key="NSKeyEquiv">T</string>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
@@ -656,7 +656,7 @@
 								<object class="NSMenuItem" id="586266">
 									<reference key="NSMenu" ref="466310130"/>
 									<string key="NSTitle">Texture Browser...</string>
-									<string key="NSKeyEquiv">b</string>
+									<string key="NSKeyEquiv">B</string>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
