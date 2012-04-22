@@ -604,6 +604,52 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
     }
 }
 
+void Mesh2::glProjectSelect(int x, int y, int width, int height, const Matrix4x4 &transform, OpenGLSelectionMode selectionMode)
+{
+    int viewport[4];
+    double modelview[16];
+    double projection[16];
+    double winX, winY, winZ;
+    double posX, posY, posZ;
+	
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        if (!node->data().visible)
+            continue;
+
+        Vector3D position = transform.Transform(node->data().position);
+
+        posX = position.x;
+        posY = position.y;
+        posZ = position.z;
+        
+        gluProject(posX, posY, posZ, modelview, projection, viewport, &winX, &winY, &winZ);
+        
+        if (winX > x && winX < x + width &&
+            winY > y && winY < y + height)
+        {
+            switch (selectionMode) 
+            {
+                case OpenGLSelectionModeAdd:
+                    node->data().selected = true;
+                    break;
+                case OpenGLSelectionModeSubtract:
+                    node->data().selected = false;
+                    break;
+                case OpenGLSelectionModeInvert:
+                    node->data().selected = !node->data().selected;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
 void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
 {
     for (int i = 0; i < _triangles.count(); i++)

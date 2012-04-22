@@ -22,5 +22,11 @@
 - (BOOL)isObjectSelectedAtIndex:(uint)index;
 - (void)drawAllForSelection;
 - (BOOL)needsCullFace;
+- (BOOL)useGLProject;
+- (void)glProjectSelectWithX:(int)x  
+                           y:(int)y 
+                       width:(int)width
+                      height:(int)height
+               selectionMode:(enum OpenGLSelectionMode)selectionMode;
 
 @end

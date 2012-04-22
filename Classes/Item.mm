@@ -243,6 +243,21 @@
     }
 }
 
+- (BOOL)useGLProject
+{
+    return mesh->mesh->useGLProject();
+}
+
+- (void)glProjectSelectWithX:(int)x 
+                           y:(int)y
+                       width:(int)width 
+                      height:(int)height 
+                   transform:(Matrix4x4 *)matrix 
+               selectionMode:(enum OpenGLSelectionMode)selectionMode
+{
+    mesh->mesh->glProjectSelect(x, y, width, height, *matrix, selectionMode);
+}
+
 - (void)flipSelected
 {
     [mesh flipSelected];

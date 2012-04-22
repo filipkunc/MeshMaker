@@ -40,7 +40,13 @@
 
 - (void)transformSelectedByMatrix:(Matrix4x4 *)matrix;
 - (void)drawAllForSelection:(BOOL)forSelection;
-
+- (BOOL)useGLProject;
+- (void)glProjectSelectWithX:(int)x  
+                           y:(int)y 
+                       width:(int)width
+                      height:(int)height
+                   transform:(Matrix4x4 *)matrix
+               selectionMode:(enum OpenGLSelectionMode)selectionMode;
 @end
 
 @protocol OpenGLManipulatingModelItem <OpenGLManipulatingModel>

@@ -977,8 +977,8 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     if ([selecting respondsToSelector:@selector(willSelectThrough:)])
 		[selecting willSelectThrough:NO];
     
-    [[self openGLContext] makeCurrentContext];    
-    
+    [[self openGLContext] makeCurrentContext];
+        
 	NSMutableIndexSet *uniqueIndices = [self selectWithX:point.x - 5
                                                        y:point.y - 5
                                                    width:10
@@ -1007,6 +1007,23 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 		[selecting willSelectThrough:selectThrough];
     
     [[self openGLContext] makeCurrentContext];
+
+    if ([selecting respondsToSelector:@selector(useGLProject)])
+    {
+        if ([selecting useGLProject])
+        {
+            [selecting glProjectSelectWithX:rect.origin.x
+                                          y:rect.origin.y
+                                      width:rect.size.width
+                                     height:rect.size.height
+                              selectionMode:selectionMode];
+            
+            if ([selecting respondsToSelector:@selector(didSelect)])
+                [selecting didSelect];
+            
+            return;
+        }
+    }    
     
     NSMutableIndexSet *uniqueIndices;
     

@@ -536,6 +536,29 @@
     }
 }
 
+- (BOOL)useGLProject
+{
+    if (modelMesh != nil)
+        return [modelMesh useGLProject];
+    return NO;
+}
+
+- (void)glProjectSelectWithX:(int)x 
+                           y:(int)y
+                       width:(int)width 
+                      height:(int)height 
+               selectionMode:(enum OpenGLSelectionMode)selectionMode
+{
+    if (modelMesh != nil)
+    {
+        [modelMesh glProjectSelectWithX:x 
+                                      y:y
+                                  width:width 
+                                 height:height
+                              transform:modelTransform selectionMode:selectionMode];
+    }
+}
+
 - (void)selectObjectAtIndex:(uint)index
 				   withMode:(enum OpenGLSelectionMode)selectionMode
 {

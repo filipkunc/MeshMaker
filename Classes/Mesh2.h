@@ -185,6 +185,9 @@ public:
     void drawAllTriangles(ViewMode viewMode, bool forSelection);
     void drawAllEdges(ViewMode viewMode, bool forSelection);
     
+    bool useGLProject() { return _selectThrough && _selectionMode == MeshSelectionModeVertices; }
+    void glProjectSelect(int x, int y, int width, int height, const Matrix4x4 &transform, OpenGLSelectionMode selectionMode);
+    
     void hideSelected();
     void unhideAll();
     
