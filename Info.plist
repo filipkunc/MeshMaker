@@ -56,7 +56,7 @@
 			<key>NSDocumentClass</key>
 			<string>MyDocument</string>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>TMD</string>
@@ -93,5 +93,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>CFBundleHelpBookFolder</key>
+	<string>MeshMaker.help</string>
+	<key>CFBundleHelpBookName</key>
+	<string>com.filipkunc.MeshMaker.help</string>
 </dict>
 </plist>

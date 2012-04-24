@@ -92,6 +92,7 @@
 		A7BFCC101538D12A0076B712 /* Application.icns in Resources */ = {isa = PBXBuildFile; fileRef = A7BFCC0F1538D12A0076B712 /* Application.icns */; };
 		A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
+		A7CFB7EC1544AD7A009BE0F4 /* MeshMaker.help in Resources */ = {isa = PBXBuildFile; fileRef = A7CFB7EB1544AD7A009BE0F4 /* MeshMaker.help */; };
 		A7D0684514B9FC200091B657 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684414B9FC200091B657 /* Vertex.cpp */; };
 		A7D0684714B9FCAF0091B657 /* TexCoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684614B9FCAF0091B657 /* TexCoord.cpp */; };
 		A7D0684914B9FD350091B657 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684814B9FD350091B657 /* Triangle.cpp */; };
@@ -208,6 +209,7 @@
 		A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector4D.cpp; path = Classes/Vector4D.cpp; sourceTree = "<group>"; };
 		A7C692B514CDBFCC00180CA4 /* Vector4D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector4D.h; path = Classes/Vector4D.h; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
+		A7CFB7EB1544AD7A009BE0F4 /* MeshMaker.help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MeshMaker.help; sourceTree = "<group>"; };
 		A7D0684414B9FC200091B657 /* Vertex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vertex.cpp; path = Classes/Vertex.cpp; sourceTree = "<group>"; };
 		A7D0684614B9FCAF0091B657 /* TexCoord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TexCoord.cpp; path = Classes/TexCoord.cpp; sourceTree = "<group>"; };
 		A7D0684814B9FD350091B657 /* Triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Triangle.cpp; path = Classes/Triangle.cpp; sourceTree = "<group>"; };
@@ -398,6 +400,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A7CFB7EB1544AD7A009BE0F4 /* MeshMaker.help */,
 				A7FEB20013FF01D200473F8D /* Textures */,
 				A787CC0C13CF6F0400D2A1FC /* Icons */,
 				A7BFCC0F1538D12A0076B712 /* Application.icns */,
@@ -559,6 +562,7 @@
 				A7BFCC101538D12A0076B712 /* Application.icns in Resources */,
 				A718D5F91539714000589FFF /* FPTextureBrowserWindowController.xib in Resources */,
 				A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */,
+				A7CFB7EC1544AD7A009BE0F4 /* MeshMaker.help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
