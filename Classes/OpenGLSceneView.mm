@@ -432,7 +432,7 @@ NSOpenGLContext *globalGLContext = nil;
 {
     OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
     
-    if ([[controller model] isKindOfClass:[Mesh class]])
+    if ([[controller model] isKindOfClass:[Item class]])
     {
         *matrix = *[controller modelTransform];
     }
@@ -451,9 +451,9 @@ NSOpenGLContext *globalGLContext = nil;
     
     Mesh *mesh = nil;
     
-    if ([[controller model] isKindOfClass:[Mesh class]])
+    if ([[controller model] isKindOfClass:[Item class]])
     {
-        mesh = (Mesh *)[controller model];
+        mesh = [(Item *)[controller model] mesh];
     }
     else 
     {
