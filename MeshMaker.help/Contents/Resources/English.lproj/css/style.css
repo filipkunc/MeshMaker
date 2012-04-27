@@ -64,7 +64,7 @@ text-decoration: underline;
     color: rgb(51,51,51);
 }
 
-.helprow p
+.helprow p, li
 {
     font: 80% 'Lucida Grande', Geneva, Helvetica, Arial, sans-serif;
     font-weight: normal;
@@ -86,6 +86,23 @@ text-decoration: underline;
     padding-right: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
+}
+
+.helpboxrighthalf
+{
+    float: left;
+    display: block;
+    width: 479px;
+    height: 189px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(222, 222, 222);
+    -webkit-border-radius: 5px;
+    -webkit-box-shadow: 0px 1px 1px rgb(179, 179, 179);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .helpboxleft
