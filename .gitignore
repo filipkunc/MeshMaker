@@ -23,3 +23,7 @@ obj
 
 # windows noise
 Thumbs.db
+
+# videos - too large to be practical
+*.mp4
+*.mov
