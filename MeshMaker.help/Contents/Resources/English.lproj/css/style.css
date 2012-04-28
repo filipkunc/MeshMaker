@@ -125,7 +125,7 @@ text-decoration: underline;
 .navigation
 {
     width: 480px;
-    height: 270px;
+    height: 251px;
     background-image: url("../images/navigation.png");
     display: table-cell; 
     text-align: center;
@@ -135,7 +135,7 @@ text-decoration: underline;
 .modeling
 {
     width: 480px;
-    height: 270px;
+    height: 251px;
     background-image: url("../images/modeling.png");
     display: table-cell; 
     text-align: center;
@@ -145,7 +145,7 @@ text-decoration: underline;
 .unwrap
 {
     width: 480px;
-    height: 270px;
+    height: 251px;
     background-image: url("../images/unwrap.png");
     display: table-cell; 
     text-align: center;
