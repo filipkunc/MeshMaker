@@ -516,11 +516,25 @@ void Mesh2::halfEdges()
             edgeVertex = (v1 + v2) / 2.0f;
         }
         else
-        {        
-            Vector3D v3 = node->data().triangle(0)->data().vertexNotInEdge(&node->data())->data().position;
-            Vector3D v4 = node->data().triangle(1)->data().vertexNotInEdge(&node->data())->data().position;
+        {   
+            Triangle2 &t0 = node->data().triangle(0)->data();
+            Triangle2 &t1 = node->data().triangle(1)->data();
             
-            edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;           
+            VertexNode *vn0 = t0.vertexNotInEdge(&node->data());
+            VertexNode *vn1 = t1.vertexNotInEdge(&node->data());
+            
+            // degenerated triangles
+            if (vn0 == NULL || vn1 == NULL)
+            {
+                edgeVertex = (v1 + v2) / 2.0f;
+            }
+            else
+            {
+                Vector3D v3 = vn0->data().position;
+                Vector3D v4 = vn1->data().position;
+            
+                edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;
+            }
         }
         
         node->data().halfVertex = _vertices.add(edgeVertex);
