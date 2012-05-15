@@ -875,6 +875,11 @@ struct anim
 
 #pragma mark Archivation
 
++ (BOOL)autosavesInPlace
+{
+    return YES;
+}
+
 - (BOOL)readFromFileWrapper:(NSFileWrapper *)dirWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
     if ([typeName isEqualToString:@"model3D"])
