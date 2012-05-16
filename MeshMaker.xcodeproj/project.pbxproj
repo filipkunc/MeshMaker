@@ -101,6 +101,8 @@
 		A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */; };
 		A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */; };
 		A7F6DDEA15276DE900D614D3 /* Mesh2.csg.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7F6DDE915276DE900D614D3 /* Mesh2.csg.mm */; };
+		A7FD04DD1564508F002D0777 /* Mesh2.csg.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7F6DDE915276DE900D614D3 /* Mesh2.csg.mm */; };
+		A7FD04DE1564508F002D0777 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
 		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
 /* End PBXBuildFile section */
@@ -640,6 +642,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7FD04DD1564508F002D0777 /* Mesh2.csg.mm in Sources */,
+				A7FD04DE1564508F002D0777 /* MemoryStream.m in Sources */,
 				A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */,
 				A74BF5A714FA9B2E006D7BA3 /* FPTexture.mm in Sources */,
 				A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */,

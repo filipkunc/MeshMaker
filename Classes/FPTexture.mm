@@ -104,7 +104,8 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 
 - (void)dealloc
 {
-    glDeleteTextures(1, &textureID);
+    if (textureID > 0U)
+        glDeleteTextures(1, &textureID);
 }
 
 struct FPVertex

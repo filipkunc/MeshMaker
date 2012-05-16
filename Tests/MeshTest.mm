@@ -28,14 +28,14 @@
         list->add(i);
     }
     
-    for (SimpleNode<int> *node = list->begin(), end = list->end(); node != end; node = node->next())
+    for (SimpleNode<int> *node = list->begin(), *end = list->end(); node != end; node = node->next())
     {
         printf("%i\n", node->data());
     }
     
     list->removeAll();
     
-    for (SimpleNode<int> *node = list->begin(), end = list->end(); node != end; node = node->next())
+    for (SimpleNode<int> *node = list->begin(), *end = list->end(); node != end; node = node->next())
     {
         printf("%i\n", node->data());
     }
