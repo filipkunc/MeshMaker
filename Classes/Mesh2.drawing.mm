@@ -355,7 +355,6 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
     
     if (viewMode == ViewModeMixedWireSolid)
     {
-        selected = true;
         glDisable(GL_CULL_FACE);
     }
 }

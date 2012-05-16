@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include <stdio.h>
-
 template <class TNode, class TData>
 class FPList
 {
