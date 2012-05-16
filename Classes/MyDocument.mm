@@ -880,6 +880,18 @@ struct anim
     return YES;
 }
 
+- (void)windowWillEnterVersionBrowser:(NSNotification *)notification
+{
+    NSWindow *window = (NSWindow *)[notification object];
+    [window.toolbar setVisible:NO];
+}
+
+- (void)windowDidExitVersionBrowser:(NSNotification *)notification
+{
+    NSWindow *window = (NSWindow *)[notification object];
+    [window.toolbar setVisible:YES];
+}
+
 - (BOOL)readFromFileWrapper:(NSFileWrapper *)dirWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
     if ([typeName isEqualToString:@"model3D"])
