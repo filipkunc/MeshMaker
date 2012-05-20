@@ -97,5 +97,7 @@
 	<string>MeshMaker.help</string>
 	<key>CFBundleHelpBookName</key>
 	<string>com.filipkunc.MeshMaker.help</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 </dict>
 </plist>
