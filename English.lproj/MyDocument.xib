@@ -2,10 +2,10 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1070</int>
-		<string key="IBDocument.SystemVersion">11D50</string>
+		<string key="IBDocument.SystemVersion">11E53</string>
 		<string key="IBDocument.InterfaceBuilderVersion">2182</string>
-		<string key="IBDocument.AppKitVersion">1138.32</string>
-		<string key="IBDocument.HIToolboxVersion">568.00</string>
+		<string key="IBDocument.AppKitVersion">1138.47</string>
+		<string key="IBDocument.HIToolboxVersion">569.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			<string key="NS.object.0">2182</string>
@@ -141,6 +141,28 @@
 							<object class="NSCustomResource" key="NSToolbarItemImage">
 								<string key="NSClassName">NSImage</string>
 								<string key="NSResourceName">CubeTemplate</string>
+							</object>
+							<nil key="NSToolbarItemTarget"/>
+							<nil key="NSToolbarItemAction"/>
+							<string key="NSToolbarItemMinSize">{0, 0}</string>
+							<string key="NSToolbarItemMaxSize">{0, 0}</string>
+							<bool key="NSToolbarItemEnabled">YES</bool>
+							<bool key="NSToolbarItemAutovalidates">YES</bool>
+							<int key="NSToolbarItemTag">-1</int>
+							<bool key="NSToolbarIsUserRemovable">YES</bool>
+							<int key="NSToolbarItemVisibilityPriority">0</int>
+						</object>
+						<object class="NSToolbarItem" key="61A15B32-375C-4624-A8FE-31AD58DF877D" id="560091128">
+							<object class="NSMutableString" key="NSToolbarItemIdentifier">
+								<characters key="NS.bytes">61A15B32-375C-4624-A8FE-31AD58DF877D</characters>
+							</object>
+							<string key="NSToolbarItemLabel">Add Plane</string>
+							<string key="NSToolbarItemPaletteLabel">Add Plane</string>
+							<string key="NSToolbarItemToolTip"/>
+							<nil key="NSToolbarItemView"/>
+							<object class="NSCustomResource" key="NSToolbarItemImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">PlaneTemplate</string>
 							</object>
 							<nil key="NSToolbarItemTarget"/>
 							<nil key="NSToolbarItemAction"/>
@@ -492,11 +514,12 @@
 							</object>
 						</object>
 					</dictionary>
-					<array key="NSToolbarIBAllowedItems">
+					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
 						<reference ref="534841699"/>
+						<reference ref="560091128"/>
 						<reference ref="474581757"/>
 						<reference ref="169982275"/>
 						<reference ref="257090882"/>
@@ -509,11 +532,12 @@
 						<reference ref="772056680"/>
 						<reference ref="786968178"/>
 					</array>
-					<array class="NSMutableArray" key="NSToolbarIBDefaultItems">
+					<array key="NSToolbarIBDefaultItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
 						<reference ref="534841699"/>
+						<reference ref="560091128"/>
 						<reference ref="474581757"/>
 						<reference ref="169982275"/>
 						<reference ref="257090882"/>
@@ -622,7 +646,7 @@
 						<object class="NSTextField" id="402915775">
 							<reference key="NSNextResponder" ref="568628114"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{589, 6}, {38, 17}}</string>
+							<string key="NSFrame">{{589, 7}, {38, 17}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="302821449"/>
@@ -676,7 +700,7 @@
 						<object class="NSTextField" id="1062463690">
 							<reference key="NSNextResponder" ref="568628114"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{858, 6}, {38, 17}}</string>
+							<string key="NSFrame">{{858, 7}, {38, 17}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="30980160"/>
@@ -902,7 +926,7 @@
 							<set class="NSMutableSet" key="NSDragTypes">
 								<string>NSColor pasteboard type</string>
 							</set>
-							<string key="NSFrame">{{526, 3}, {50, 23}}</string>
+							<string key="NSFrame">{{526, 5}, {50, 21}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="402915775"/>
@@ -917,7 +941,7 @@
 						<object class="NSTextField" id="718086768">
 							<reference key="NSNextResponder" ref="568628114"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{478, 6}, {43, 17}}</string>
+							<string key="NSFrame">{{478, 7}, {43, 17}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="245351471"/>
@@ -1159,6 +1183,14 @@
 						<reference key="destination" ref="311364792"/>
 					</object>
 					<int key="connectionID">100844</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">addPlane:</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="560091128"/>
+					</object>
+					<int key="connectionID">101142</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -1680,6 +1712,7 @@
 							<reference ref="257090882"/>
 							<reference ref="772056680"/>
 							<reference ref="311364792"/>
+							<reference ref="560091128"/>
 						</array>
 						<reference key="parent" ref="275939982"/>
 					</object>
@@ -2261,6 +2294,11 @@
 						<reference key="object" ref="883622940"/>
 						<reference key="parent" ref="568628114"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">101141</int>
+						<reference key="object" ref="560091128"/>
+						<reference key="parent" ref="24235194"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2386,6 +2424,7 @@
 				<string key="101135.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101136.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101137.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="101141.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBWindowTemplateEditedContentRect">{{381, 488}, {739, 467}}</string>
 				<array class="NSMutableArray" key="6.IBNSViewMetadataConstraints">
@@ -2417,7 +2456,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101140</int>
+			<int key="maxID">101142</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2636,7 +2675,6 @@
 						<string key="topSplit">NSSplitView</string>
 						<string key="viewFront">OpenGLSceneView</string>
 						<string key="viewLeft">OpenGLSceneView</string>
-						<string key="viewModePopUp">NSPopUpButton</string>
 						<string key="viewPerspective">OpenGLSceneView</string>
 						<string key="viewTop">OpenGLSceneView</string>
 					</dictionary>
@@ -2676,10 +2714,6 @@
 						<object class="IBToOneOutletInfo" key="viewLeft">
 							<string key="name">viewLeft</string>
 							<string key="candidateClassName">OpenGLSceneView</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="viewModePopUp">
-							<string key="name">viewModePopUp</string>
-							<string key="candidateClassName">NSPopUpButton</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="viewPerspective">
 							<string key="name">viewPerspective</string>
@@ -2732,6 +2766,7 @@
 			<string key="MergeTemplate">{128, 128}</string>
 			<string key="NSMenuCheckmark">{11, 11}</string>
 			<string key="NSMenuMixedState">{10, 3}</string>
+			<string key="PlaneTemplate">{128, 128}</string>
 			<string key="RotateTemplate">{128, 128}</string>
 			<string key="ScaleTemplate">{128, 128}</string>
 			<string key="SelectTemplate">{128, 128}</string>
