@@ -11,8 +11,8 @@
 #import "OpenGLDrawing.h"
 #import "ShaderProgram.h"
 #import "FPTexture.h"
-#include "MeshHelpers.h"
-#include "Camera.h"
+#import "MeshHelpers.h"
+#import "Camera.h"
 
 enum GLVertexAttribID
 {
