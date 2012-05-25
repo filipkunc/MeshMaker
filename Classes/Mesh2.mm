@@ -11,24 +11,40 @@
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
 
-Mesh2::Mesh2(float colorComponents[4])
+NSColor *generateRandomColor();
+
+NSColor *generateRandomColor()
+{
+    float hue = (random() % 10) / 10.0f;
+    
+    return [NSColor colorWithCalibratedHue:hue 
+                                saturation:0.5f
+                                brightness:0.6f 
+                                    alpha:1.0f];
+}
+
+Mesh2::Mesh2()
 {
     _selectionMode = MeshSelectionModeVertices;
-    
-    for (int i = 0; i < 4; i++)
-        _colorComponents[i] = colorComponents[i];
     
     _vboID = 0U;
     _vboGenerated = false;
     
     _texture = nil;
     _isUnwrapped = false;
+    
+    setColor(generateRandomColor());
 }
 
-void Mesh2::setColorComponents(float colorComponents[4])
+void Mesh2::setColor(NSColor *color)
 {
+    _color = color;
+    CGFloat colorComponents[4];
+    [_color getComponents:colorComponents];
     for (int i = 0; i < 4; i++)
-    _colorComponents[i] = colorComponents[i];
+        _colorComponents[i] = (float)colorComponents[i];
+    
+    resetTriangleCache();    
 }
 
 Mesh2::~Mesh2()

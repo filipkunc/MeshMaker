@@ -18,7 +18,6 @@
 @interface Mesh : NSObject <MemoryStreaming>
 {
 @public
-    NSColor *color;    
     Mesh2 *mesh;    
 }
 

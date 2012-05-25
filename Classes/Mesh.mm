@@ -49,19 +49,7 @@
 	self = [super init];
 	if (self)
 	{
-		float hue = (random() % 10) / 10.0f;
-		color = [NSColor colorWithCalibratedHue:hue 
-									 saturation:0.5f
-									 brightness:0.6f 
-										  alpha:1.0f];
-        
-        CGFloat colorComponents[4];
-        [color getComponents:colorComponents];
-        float floatComponents[4];
-        for (int i = 0; i < 4; i++)
-            floatComponents[i] = (float)colorComponents[i];
-        
-        mesh = new Mesh2(floatComponents);
+		mesh = new Mesh2();
     }
 	return self;
 }
@@ -73,18 +61,12 @@
 
 - (NSColor *)color
 {
-    return color;
+    return mesh->color();
 }
 
 - (void)setColor:(NSColor *)value
 {
-    color = value;
-    CGFloat colorComponents[4];
-    [color getComponents:colorComponents];
-    float floatComponents[4];
-    for (int i = 0; i < 4; i++)
-        floatComponents[i] = (float)colorComponents[i];
-    mesh->setColorComponents(floatComponents);
+    mesh->setColor(value);
 }
 
 - (enum MeshSelectionMode)selectionMode
@@ -257,6 +239,8 @@
 	self = [self init];
 	if (self)
 	{
+        NSColor *color = nil;
+        
         if (stream.version > 1)
         {
             Vector4D baseColor;           
@@ -298,19 +282,15 @@
 		}
         
         mesh->fromIndexRepresentation(vertices, texCoords, triangles);
-        
-        CGFloat colorComponents[4];
-        [color getComponents:colorComponents];
-        float floatComponents[4];
-        for (int i = 0; i < 4; i++)
-            floatComponents[i] = (float)colorComponents[i];
-        mesh->setColorComponents(floatComponents);
+        mesh->setColor(color);
 	}
 	return self;
 }
 
 - (void)encodeWithWriteStream:(MemoryWriteStream *)stream
 {
+    NSColor *color = mesh->color();
+    
     if (stream.version > 1)
     {
         Vector4D baseColor;

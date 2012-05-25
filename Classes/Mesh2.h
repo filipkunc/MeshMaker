@@ -95,6 +95,7 @@ private:
     bool _vboGenerated;
 
     float _colorComponents[4];
+    NSColor *_color;
     FPTexture *_texture;    
 private:
     void fastMergeSelectedVertices();
@@ -118,12 +119,13 @@ private:
     void uvToPixels(float &u, float &v);
     void initOrUpdateTexture();
 public:
-    Mesh2(float colorComponents[4]);
+    Mesh2();
     ~Mesh2();
     
     
     FPTexture *texture();
-    void setColorComponents(float colorComponents[4]);
+    NSColor *color() { return _color; }
+    void setColor(NSColor *color);
     
     int vertexCount() { return _vertices.count(); }
     int triangleCount() { return _triangles.count(); }
