@@ -239,89 +239,14 @@
 	self = [self init];
 	if (self)
 	{
-        NSColor *color = nil;
-        
-        if (stream.version > 1)
-        {
-            Vector4D baseColor;           
-            [stream readBytes:&baseColor length:sizeof(Vector4D)];
-            color = [NSColor colorWithCalibratedRed:baseColor.x green:baseColor.y blue:baseColor.z alpha:baseColor.w];
-        }
-        
-		uint verticesSize;
-        uint texCoordsSize;
-		uint trianglesSize;
-        
-        [stream readBytes:&verticesSize length:sizeof(uint)];
-        [stream readBytes:&texCoordsSize length:sizeof(uint)];
-        [stream readBytes:&trianglesSize length:sizeof(uint)];
-        
-        vector<Vector3D> vertices;
-        vector<Vector3D> texCoords;
-        vector<Triangle> triangles;
-		
-		for (uint i = 0; i < verticesSize; i++)
-		{
-			Vector3D vertex;
-            [stream readBytes:&vertex length:sizeof(Vector3D)];
-			vertices.push_back(vertex);
-		}
-        
-        for (uint i = 0; i < texCoordsSize; i++)
-        {
-            Vector3D texCoord;
-            [stream readBytes:&texCoord length:sizeof(Vector3D)];
-            texCoords.push_back(texCoord);
-        }
-		
-		for (uint i = 0; i < trianglesSize; i++)
-		{
-			Triangle triangle;
-            [stream readBytes:&triangle length:sizeof(Triangle)];
-			triangles.push_back(triangle);
-		}
-        
-        mesh->fromIndexRepresentation(vertices, texCoords, triangles);
-        mesh->setColor(color);
+        mesh = new Mesh2(stream);
 	}
 	return self;
 }
 
 - (void)encodeWithWriteStream:(MemoryWriteStream *)stream
 {
-    NSColor *color = mesh->color();
-    
-    if (stream.version > 1)
-    {
-        Vector4D baseColor;
-        baseColor.x = color.redComponent;
-        baseColor.y = color.greenComponent;
-        baseColor.z = color.blueComponent;
-        baseColor.w = color.alphaComponent;
-        [stream writeBytes:&baseColor length:sizeof(Vector4D)];
-    }
-    
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<Triangle> triangles;
-    
-    mesh->toIndexRepresentation(vertices, texCoords, triangles);
-    
-	uint size = vertices.size();
-    [stream writeBytes:&size length:sizeof(uint)];
-    size = texCoords.size();
-    [stream writeBytes:&size length:sizeof(uint)];
-	size = triangles.size();
-    [stream writeBytes:&size length:sizeof(uint)];
-    	
-	if (vertices.size() > 0)
-        [stream writeBytes:&vertices.at(0) length:vertices.size() * sizeof(Vector3D)];
-    
-    if (texCoords.size() > 0)
-        [stream writeBytes:&texCoords.at(0) length:texCoords.size() * sizeof(Vector3D)];
-	
-	if (triangles.size() > 0)
-        [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(Triangle)];
+    mesh->encode(stream);
 }
 
 - (void)resetTexCooords

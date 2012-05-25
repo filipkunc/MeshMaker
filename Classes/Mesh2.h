@@ -13,6 +13,7 @@
 #import "FPTexture.h"
 #import "MeshHelpers.h"
 #import "Camera.h"
+#import "MemoryStream.h"
 
 enum GLVertexAttribID
 {
@@ -120,8 +121,10 @@ private:
     void initOrUpdateTexture();
 public:
     Mesh2();
+    Mesh2(MemoryReadStream *stream);
     ~Mesh2();
     
+    void encode(MemoryWriteStream *stream);
     
     FPTexture *texture();
     NSColor *color() { return _color; }
