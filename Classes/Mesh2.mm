@@ -23,6 +23,25 @@ NSColor *generateRandomColor()
                                     alpha:1.0f];
 }
 
+NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
+{
+    switch (meshType)
+	{
+		case MeshTypeCube:
+			return @"Cube";
+		case MeshTypeCylinder:
+			return @"Cylinder";
+		case MeshTypeSphere:
+			return @"Sphere";
+        case MeshTypePlane:
+            return @"Plane";
+        case MeshTypeIcosahedron:
+            return @"Icosahedron";
+		default:
+			return nil;
+	}
+}
+
 Mesh2::Mesh2()
 {
     _selectionMode = MeshSelectionModeVertices;

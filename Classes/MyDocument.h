@@ -49,7 +49,7 @@
 + (void)setSoftSelection:(BOOL)value;
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view;
 - (void)setNeedsDisplayOnAllViews;
-- (Mesh *)currentMesh;
+- (Mesh2 *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
 

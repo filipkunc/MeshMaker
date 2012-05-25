@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "MathDeclaration.h"
-#import "Mesh.h"
+#import "Mesh2.h"
 
 @interface MeshState : NSObject
 {
@@ -22,7 +22,7 @@
 
 @property (readonly, assign) uint itemIndex;
 
-- (id)initWithMesh:(Mesh *)mesh itemIndex:(uint)index;
-- (void)applyToMesh:(Mesh *)mesh;
+- (id)initWithMesh:(Mesh2 *)mesh itemIndex:(uint)index;
+- (void)applyToMesh:(Mesh2 *)mesh;
 
 @end

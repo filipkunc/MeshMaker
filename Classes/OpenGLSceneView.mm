@@ -445,11 +445,11 @@ NSOpenGLContext *globalGLContext = nil;
     }
 }
 
-- (Mesh *)currentMesh
+- (Mesh2 *)currentMesh
 {
     OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
     
-    Mesh *mesh = nil;
+    Mesh2 *mesh = NULL;
     
     if ([[controller model] isKindOfClass:[Item class]])
     {
@@ -466,9 +466,9 @@ NSOpenGLContext *globalGLContext = nil;
 
 - (void)paintOnTextureWithFirstPoint:(NSPoint)firstPoint secondPoint:(NSPoint)secondPoint
 {
-    Mesh *m = [self currentMesh];
+    Mesh2 *mesh = [self currentMesh];
     
-    if (m == nil)
+    if (!mesh)
         return;
     
     int viewport[4];
@@ -513,7 +513,7 @@ NSOpenGLContext *globalGLContext = nil;
         Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
         mouseDirection = transform.Transform(mouseDirection);
        
-        TriangleNode *nearest = m->mesh->rayToUV(cameraOrigin, mouseDirection, u, v);
+        TriangleNode *nearest = mesh->rayToUV(cameraOrigin, mouseDirection, u, v);
         if (nearest)
             UVs->push_back(Vector2D(u, v));
     }
@@ -523,11 +523,11 @@ NSOpenGLContext *globalGLContext = nil;
     Vector3D mouseDirection = unprojectedMousePosition - cameraOrigin;
     mouseDirection = transform.Transform(mouseDirection);
     
-    TriangleNode *nearest = m->mesh->rayToUV(cameraOrigin, mouseDirection, u, v);
+    TriangleNode *nearest = mesh->rayToUV(cameraOrigin, mouseDirection, u, v);
     if (nearest)
         UVs->push_back(Vector2D(u, v));
     
-    [[m->mesh->texture() canvas] lockFocus];
+    [[mesh->texture() canvas] lockFocus];
     
     NSColor *color = [[delegate brushColor] colorWithAlphaComponent:0.3f];
     [color setStroke];
@@ -559,8 +559,8 @@ NSOpenGLContext *globalGLContext = nil;
 
     [bezierPath stroke];
     
-    [[m->mesh->texture() canvas] unlockFocus];        
-    [m->mesh->texture() updateTexture];
+    [[mesh->texture() canvas] unlockFocus];        
+    [mesh->texture() updateTexture];
     [self setNeedsDisplay:YES];
 }
 

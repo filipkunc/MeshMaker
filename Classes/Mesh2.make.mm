@@ -560,3 +560,28 @@ void Mesh2::getSelection(vector<bool> &selection)
         selection.push_back(isSelectedAtIndex(i));
 }
 
+
+void Mesh2::make(MeshType meshType, uint steps)
+{
+	switch (meshType) 
+	{
+        case MeshTypePlane:
+            this->makePlane();
+            break;
+		case MeshTypeCube:
+            this->makeCube();
+			break;
+		case MeshTypeCylinder:
+            this->makeCylinder(steps);
+			break;
+		case MeshTypeSphere:
+            this->makeSphere(steps);
+			break;
+        case MeshTypeIcosahedron:
+            this->makeIcosahedron();
+            break;
+		default:
+			break;
+	}
+}
+

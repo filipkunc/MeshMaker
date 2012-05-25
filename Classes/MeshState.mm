@@ -12,7 +12,7 @@
 
 @synthesize itemIndex;
 
-- (id)initWithMesh:(Mesh *)mesh itemIndex:(uint)index
+- (id)initWithMesh:(Mesh2 *)mesh itemIndex:(uint)index
 {
 	self = [super init];
 	if (self)
@@ -23,10 +23,10 @@
 		triangles = new vector<Triangle>();
 		selection = new vector<bool>();
         
-        mesh->mesh->toIndexRepresentation(*vertices, *texCoords, *triangles);
-        mesh->mesh->getSelection(*selection);
+        mesh->toIndexRepresentation(*vertices, *texCoords, *triangles);
+        mesh->getSelection(*selection);
         
-		selectionMode = [mesh selectionMode];
+		selectionMode = mesh->selectionMode();
 	}
 	return self;
 }
@@ -38,11 +38,11 @@
 	delete selection;
 }
 
-- (void)applyToMesh:(Mesh *)mesh
+- (void)applyToMesh:(Mesh2 *)mesh
 {
-    mesh->mesh->fromIndexRepresentation(*vertices, *texCoords, *triangles);
-    mesh->mesh->setSelectionMode(selectionMode);
-    mesh->mesh->setSelection(*selection);
+    mesh->fromIndexRepresentation(*vertices, *texCoords, *triangles);
+    mesh->setSelectionMode(selectionMode);
+    mesh->setSelection(*selection);
 }
 
 @end

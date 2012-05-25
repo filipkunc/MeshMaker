@@ -37,7 +37,7 @@
 - (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems;
 - (void)deselectAll;
 - (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount;
-- (Mesh *)currentMesh;
+- (Mesh2 *)currentMesh;
 - (Item *)firstSelectedItem;
 - (void)setViewMode:(enum ViewMode)viewMode;
 

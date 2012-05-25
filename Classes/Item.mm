@@ -21,7 +21,7 @@
 		position = new Vector3D();
 		rotation = new Quaternion();
 		scale = new Vector3D(1, 1, 1);
-		mesh = [[Mesh alloc] init];
+		mesh = new Mesh2();
 		selected = NO;
 		visible = YES;
         viewMode = ViewModeSolidFlat;
@@ -60,7 +60,7 @@
         [stream readBytes:&selected length:sizeof(BOOL)];
 		visible = YES;
 		
-		mesh = [[Mesh alloc] initWithReadStream:stream];
+		mesh = new Mesh2(stream);
 	}
 	return self;
 }
@@ -72,7 +72,7 @@
     [stream writeBytes:scale length:sizeof(Vector3D)];
     [stream writeBytes:&selected length:sizeof(BOOL)];
 	
-	[mesh encodeWithWriteStream:stream];
+    mesh->encode(stream);    
 }
 
 - (void)dealloc
@@ -142,10 +142,9 @@
 	[newItem setRotation:[self rotation]];
 	[newItem setScale:[self scale]];
 	
-    [newItem->mesh mergeWithMesh:self->mesh];
-    [newItem->mesh setColor:self->mesh.color];
-    [newItem->mesh setImage:self->mesh.image];
-    
+    newItem->mesh->merge(self->mesh);
+    newItem->mesh->setColor(self->mesh->color());
+    [newItem->mesh->texture() setCanvas:self->mesh->texture().canvas];
 	[newItem setSelected:[self selected]];
 	
 	return newItem;
@@ -153,44 +152,47 @@
 
 - (uint)count 
 { 
-    return mesh.count;
+    return mesh->selectedCount();
 }
 
 - (void)willSelectThrough:(BOOL)selectThrough
 {
-    [mesh willSelectThrough:selectThrough];
+    Mesh2::setSelectThrough(selectThrough);
 }
 
 - (BOOL)needsCullFace
 {
-    return mesh.needsCullFace;
+    if (mesh->selectionMode() == MeshSelectionModeTriangles && Mesh2::selectThrough())
+        return YES;
+    return NO;
 }
 
 - (void)didSelect
 {
-    [mesh didSelect];
+    mesh->resetTriangleCache();
+    mesh->computeSoftSelection();
 }
 
 - (void)getSelectionCenter:(Vector3D *)aCenter 
 				  rotation:(Quaternion *)aRotation
 					 scale:(Vector3D *)aScale
 {
-    [mesh getSelectionCenter:aCenter rotation:aRotation scale:aScale];
+    mesh->getSelectionCenterRotationScale(*aCenter, *aRotation, *aScale);
 }
 
 - (void)transformSelectedByMatrix:(Matrix4x4 *)matrix
 {
-    [mesh transformSelectedByMatrix:matrix];
+    mesh->transformSelected(*matrix);
 }
 
 - (BOOL)isSelectedAtIndex:(uint)index
 {
-    return [mesh isSelectedAtIndex:index];
+    return mesh->isSelectedAtIndex(index);
 }
 
 - (void)setSelected:(BOOL)isSelected atIndex:(uint)index
 {
-    [mesh setSelected:isSelected atIndex:index];
+    mesh->setSelectedAtIndex(isSelected, index);
 }
 
 - (void)drawForSelection:(BOOL)forSelection
@@ -203,19 +205,19 @@
 		glMultMatrixf(rotationMatrix);
         if (forSelection)
         {
-            [mesh drawWithMode:ViewModeSolidFlat scale:*scale selected:selected forSelection:forSelection];
+            mesh->draw(ViewModeSolidFlat, *scale, selected, forSelection);
         }
         else
         {
             if (viewMode == ViewModeMixedWireSolid)
             {
                 glDisable(GL_DEPTH_TEST);
-                [mesh drawWithMode:viewMode scale:*scale selected:selected forSelection:forSelection];
+                mesh->draw(viewMode, *scale, selected, forSelection);
                 glEnable(GL_DEPTH_TEST);
             }
             else
             {
-                [mesh drawWithMode:viewMode scale:*scale selected:selected forSelection:forSelection];
+                mesh->draw(viewMode, *scale, selected, forSelection);
             }
         }
 		glPopMatrix();
@@ -226,26 +228,26 @@
 {
     if (forSelection)
     {
-        [mesh drawAllForSelection:forSelection withMode:ViewModeSolidFlat];
+        mesh->drawAll(ViewModeSolidFlat, forSelection);
     }
     else
     {
         if (viewMode == ViewModeMixedWireSolid)
         {
             glDisable(GL_DEPTH_TEST);
-            [mesh drawAllForSelection:forSelection withMode:viewMode];
+            mesh->drawAll(viewMode, forSelection);
             glEnable(GL_DEPTH_TEST);
         }
         else
         {
-            [mesh drawAllForSelection:forSelection withMode:viewMode];
+            mesh->drawAll(viewMode, forSelection);
         }
     }
 }
 
 - (BOOL)useGLProject
 {
-    return mesh->mesh->useGLProject();
+    return mesh->useGLProject();
 }
 
 - (void)glProjectSelectWithX:(int)x 
@@ -255,67 +257,37 @@
                    transform:(Matrix4x4 *)matrix 
                selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
-    mesh->mesh->glProjectSelect(x, y, width, height, *matrix, selectionMode);
-}
-
-- (void)flipSelected
-{
-    [mesh flipSelected];
-}
-
-- (void)flipAllTriangles
-{
-    [mesh flipAllTriangles];
-}
-
-- (void)loopSubdivision
-{
-    [mesh loopSubdivision];
-}
-
-- (void)detachSelected
-{
-    [mesh detachSelected];
-}
-
-- (void)extrudeSelected
-{
-    [mesh extrudeSelected];
+    mesh->glProjectSelect(x, y, width, height, *matrix, selectionMode);
 }
 
 - (void)duplicateSelected
 {
-    [mesh duplicateSelected];
+    mesh->duplicateSelectedTriangles();
 }
 
 - (void)removeSelected
 {
-    [mesh removeSelected];
+    mesh->removeSelected();
 }
 
 - (void)hideSelected
 {
-    [mesh hideSelected];
+    mesh->hideSelected();
 }
 
 - (void)unhideAll
 {
-    [mesh unhideAll];
-}
-
-- (void)cleanTexture
-{
-    [mesh cleanTexture];
+    mesh->unhideAll();
 }
 
 - (NSColor *)selectionColor
 {
-    return [mesh color];
+    return mesh->color();
 }
 
 - (void)setSelectionColor:(NSColor *)selectionColor
 {
-    [mesh setColor:selectionColor];
+    mesh->setColor(selectionColor);
 }
 
 - (enum ViewMode)viewMode
@@ -327,9 +299,9 @@
 {
     viewMode = aViewMode;
     if (viewMode == ViewModeUnwrap)
-        mesh->mesh->setUnwrapped(true);
+        mesh->setUnwrapped(true);
     else
-        mesh->mesh->setUnwrapped(false);
+        mesh->setUnwrapped(false);
 }
 
 @end

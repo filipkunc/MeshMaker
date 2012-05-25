@@ -215,12 +215,12 @@ struct anim
 	}
 	else if (manipulated == meshController)
 	{
-		int meshTag = [[self currentMesh] selectionMode] + 1;
+		int meshTag = [self currentMesh]->selectionMode() + 1;
 		[editModePopUp selectItemWithTag:meshTag];
 	}
 }
 
-- (Mesh *)currentMesh
+- (Mesh2 *)currentMesh
 {
 	if (manipulated == meshController)
 		return [(Item *)[meshController model] mesh];
@@ -241,10 +241,10 @@ struct anim
 - (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 {
 	Item *item = [[Item alloc] init];
-	Mesh *mesh = [item mesh];
-	[mesh makeMeshWithType:type steps:steps];
+	Mesh2 *mesh = [item mesh];
+    mesh->make(type, steps);
 	
-	NSString *name = [Mesh descriptionOfMeshType:type];
+	NSString *name = Mesh2::descriptionOfMeshType(type);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Add %@", name]];
 	[document removeItemWithType:type steps:steps];
@@ -259,7 +259,7 @@ struct anim
 
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps
 {
-	NSString *name = [Mesh descriptionOfMeshType:type];
+	NSString *name = Mesh2::descriptionOfMeshType(type);
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Remove %@", name]];
 	[document addItemWithType:type steps:steps];
@@ -509,7 +509,7 @@ struct anim
 	if (index > -1)
 	{
 		Item *item = [items itemAtIndex:index];
-		[[item mesh] setSelectionMode:mode];
+        [item mesh]->setSelectionMode(mode);
 		[meshController setModel:item];
 		[meshController setPosition:[item position] 
 						   rotation:[item rotation] 
@@ -520,7 +520,7 @@ struct anim
 
 - (void)editItems
 {
-	[[self currentMesh] setSelectionMode:MeshSelectionModeVertices];
+	[self currentMesh]->setSelectionMode(MeshSelectionModeVertices);
 	[itemsController setModel:items];
 	[itemsController setPosition:Vector3D()
 						rotation:Quaternion()
@@ -531,9 +531,9 @@ struct anim
 - (IBAction)changeEditMode:(id)sender
 {
 	EditMode mode = (EditMode)[[editModePopUp selectedItem] tag];
-    Mesh *currentMesh = [self currentMesh];
+    Mesh2 *currentMesh = [self currentMesh];
     
-    if (currentMesh == nil)
+    if (!currentMesh)
         [editModePopUp selectItemWithTag:EditModeItems];
     
 	switch (mode)
@@ -573,7 +573,7 @@ struct anim
 	}
 	else if (manipulated == meshController)
 	{
-		[self meshActionWithName:@"Merge" block:^ { [[self currentMesh] mergeSelected]; }]; 
+		[self meshActionWithName:@"Merge" block:^ { [self currentMesh]->mergeSelected(); }]; 
 	}
 	
 	[manipulated updateSelection];
@@ -647,12 +647,12 @@ struct anim
 
 - (IBAction)splitSelected:(id)sender
 {
-    [self meshOnlyActionWithName:@"Split" block:^ { [[self currentMesh] splitSelected]; }];
+    [self meshOnlyActionWithName:@"Split" block:^ { [self currentMesh]->splitSelected(); }];
 }
 
 - (IBAction)flipSelected:(id)sender
 {
-    [self meshOnlyActionWithName:@"Flip" block:^ { [[self currentMesh] flipSelected]; }];
+    [self meshOnlyActionWithName:@"Flip" block:^ { [self currentMesh]->flipSelected(); }];
 }
 
 - (IBAction)duplicateSelected:(id)sender
@@ -765,7 +765,7 @@ struct anim
 
 - (IBAction)subdivision:(id)sender
 {
-    [self meshOnlyActionWithName:@"Subdivision" block:^ { [[self currentMesh] loopSubdivision]; }];
+    [self meshOnlyActionWithName:@"Subdivision" block:^ { [self currentMesh]->loopSubdivision(); }];
 }
 
 + (BOOL)softSelection
@@ -820,23 +820,33 @@ struct anim
 
 - (IBAction)detachSelected:(id)sender
 {
-    [self meshOnlyActionWithName:@"Detach" block:^ { [[self currentMesh] detachSelected]; }];
+    [self meshOnlyActionWithName:@"Detach" block:^ { [self currentMesh]->detachSelected(); }];
 }
 
 - (IBAction)extrudeSelected:(id)sender
 {
-    [self meshOnlyActionWithName:@"Extrude" block:^ { [[self currentMesh] extrudeSelected]; }];
+    [self meshOnlyActionWithName:@"Extrude" block:^ { [self currentMesh]->extrudeSelectedTriangles(); }];
 }
 
 - (IBAction)cleanTexture:(id)sender
 {
-    [[self currentMesh] cleanTexture];
-    [self setNeedsDisplayOnAllViews];
+    Mesh2 *mesh = [self currentMesh];
+    if (mesh)
+    {
+        mesh->cleanTexture();
+        [self setNeedsDisplayOnAllViews];
+    }
 }
 
 - (IBAction)resetTexCoords:(id)sender
 {
-    [self meshOnlyActionWithName:@"Reset Texture Coordinates" block:^ { [[self currentMesh] resetTexCooords]; }];
+    [self meshOnlyActionWithName:@"Reset Texture Coordinates" block:^ 
+    { 
+        Mesh2 *mesh = [self currentMesh];
+        mesh->resetTriangleCache();
+        mesh->makeTexCoords();
+        mesh->makeEdges();
+    }];
 }
 
 - (IBAction)viewTexturePaintTool:(id)sender
@@ -910,8 +920,8 @@ struct anim
     data = [wrapper regularFileContents];
     [self readFromModel3D:data];
     
-    [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        
+    [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) 
+    {
         NSString *textureName = (NSString *)key;
         if ([textureName hasSuffix:@".png"])
         {
@@ -923,7 +933,7 @@ struct anim
             NSImage *image = [[NSImage alloc] initWithData:data];
             int index = [textureName substringFromIndex:@"Texture".length].integerValue;
             Item *item = [items itemAtIndex:index];
-            FPTexture *texture = item.mesh->mesh->texture();
+            FPTexture *texture = item.mesh->texture();
             [texture setCanvas:image];
         }        
     }];
@@ -946,7 +956,7 @@ struct anim
     
     for (Item *item in items)
     {
-        NSImage *image = item.mesh->mesh->texture().canvas;
+        NSImage *image = item.mesh->texture().canvas;
         NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
         
         NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
@@ -1006,7 +1016,7 @@ struct anim
     ItemCollection *newItems = [[ItemCollection alloc] init];
     
     Item *item = [[Item alloc] init];
-    Mesh *itemMesh = [item mesh];
+    Mesh2 *itemMesh = [item mesh];
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
@@ -1046,7 +1056,7 @@ struct anim
         AddTriangle(triangles, vertexIndices, texCoordIndices);
     }
 
-    itemMesh->mesh->fromIndexRepresentation(vertices, texCoords, triangles);
+    itemMesh->fromIndexRepresentation(vertices, texCoords, triangles);
     
     [newItems addItem:item];
     items = newItems;
@@ -1116,7 +1126,7 @@ struct anim
     for (i = 0; i < desc.no_meshes; i++)
     {
         Item *item = [[Item alloc] init];
-        Mesh *itemMesh = [item mesh];
+        Mesh2 *itemMesh = [item mesh];
         
         vector<Vector3D> vertices;
         vector<Vector3D> texCoords;
@@ -1148,7 +1158,7 @@ struct anim
             texCoords.push_back(texCoord);
         }
         
-        itemMesh->mesh->fromIndexRepresentation(vertices, texCoords, triangles);
+        itemMesh->fromIndexRepresentation(vertices, texCoords, triangles);
         
         [newItems addItem:item];
     }

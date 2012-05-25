@@ -225,7 +225,7 @@
 	center /= selectedCount;
 	
 	Item *newItem = [[Item alloc] initWithPosition:center rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	Mesh *mesh = [newItem mesh];
+	Mesh2 *mesh = [newItem mesh];
 	
 	Matrix4x4 firstMatrix, itemMatrix;
 	
@@ -247,15 +247,15 @@
 											scale);
 			
 			Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
-			Mesh *itemMesh = [item mesh];
+			Mesh2 *itemMesh = [item mesh];
 			
-			[itemMesh transformWithMatrix:&finalMatrix];
+			itemMesh->transformAll(finalMatrix);
 			
 			// mirror detection, some component of scale is negative
 			if (scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f)
-				[itemMesh flipAllTriangles];
+                itemMesh->flipAllTriangles();
 				
-			[mesh mergeWithMesh:itemMesh];
+            mesh->merge(itemMesh);
 			[items removeObjectAtIndex:i];
 			i--;
 		}
@@ -280,9 +280,9 @@
             {
                 second = item;
                 
-                first.mesh->mesh->transformAll(first.transform);
-                second.mesh->mesh->transformAll(second.transform);
-                first.mesh->mesh->csg(second.mesh->mesh, operation);
+                first.mesh->transformAll(first.transform);
+                second.mesh->transformAll(second.transform);
+                first.mesh->csg(second.mesh, operation);
                 
                 [first setPosition:Vector3D(0, 0, 0)];
                 [first setRotation:Quaternion(0, 0, 0, 1)];
@@ -445,9 +445,9 @@
 	*triangleCount = 0;
 	for (Item *item in items)
 	{
-		Mesh *mesh = [item mesh];
-		*vertexCount += [mesh vertexCount];
-		*triangleCount += [mesh triangleCount];
+		Mesh2 *mesh = [item mesh];
+		*vertexCount += mesh->vertexCount();
+		*triangleCount += mesh->triangleCount();
 	}
 }
 
@@ -456,7 +456,7 @@
 	return [NSString stringWithFormat:@"Item %i", index];
 }
 
-- (Mesh *)currentMesh
+- (Mesh2 *)currentMesh
 {
     for (Item *item in items)
 	{

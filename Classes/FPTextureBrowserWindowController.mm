@@ -7,7 +7,6 @@
 //
 
 #import "FPTextureBrowserWindowController.h"
-#import "Mesh.h"
 
 @interface FPTextureBrowserWindowController ()  <NSTableViewDataSource, NSTableViewDelegate>
 {
@@ -54,8 +53,8 @@
     int selectedRow = textureList.selectedRow;
     if (selectedRow >= 0 && selectedRow < (int)items.count)
     {    
-        Mesh *mesh = [items itemAtIndex:selectedRow].mesh;
-        [textureView setImage:mesh.image];
+        Mesh2 *mesh = [items itemAtIndex:selectedRow].mesh;
+        [textureView setImage:mesh->texture().canvas];
     }
     else
     {
@@ -68,8 +67,8 @@
     int selectedRow = textureList.selectedRow;
     if (selectedRow >= 0 && selectedRow < (int)items.count)
     {    
-        Mesh *mesh = [items itemAtIndex:selectedRow].mesh;
-        [mesh setImage:textureView.image];
+        Mesh2 *mesh = [items itemAtIndex:selectedRow].mesh;
+        [mesh->texture() setCanvas:textureView.image];
     }
 }
 

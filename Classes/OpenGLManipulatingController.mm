@@ -7,7 +7,6 @@
 //
 
 #import "OpenGLManipulatingController.h"
-#import "Mesh.h"
 
 @implementation OpenGLManipulatingController
 

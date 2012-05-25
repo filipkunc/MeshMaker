@@ -8,7 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 #import "MathDeclaration.h"
-#import "Mesh.h"
+#import "MeshHelpers.h"
+#import "Mesh2.h"
+#import "OpenGLManipulatingController.h"
+#import "MemoryStream.h"
 #import "MemoryStreaming.h"
 
 @interface Item : NSObject <OpenGLManipulatingModelMesh, MemoryStreaming>
@@ -16,7 +19,7 @@
 	Vector3D *position;
 	Quaternion *rotation;
 	Vector3D *scale;
-	Mesh *mesh;
+	Mesh2 *mesh;
 	BOOL selected;
 	BOOL visible;
     enum ViewMode viewMode;
@@ -29,7 +32,7 @@
 @property (readwrite, assign) BOOL selected;
 @property (readwrite, assign) BOOL visible;
 @property (readwrite, assign) enum ViewMode viewMode;
-@property (readonly) Mesh *mesh;
+@property (readonly) Mesh2 *mesh;
 @property (readonly) Matrix4x4 transform;
 
 - (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;

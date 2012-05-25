@@ -14,7 +14,6 @@
 #import "OpenGLManipulating.h"
 #import "Shader.h"
 #import "ShaderProgram.h"
-#import "Mesh.h"
 #import "Mesh2.h"
 #import "FPTexture.h"
 #import "ItemCollection.h"

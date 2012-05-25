@@ -150,6 +150,8 @@ public:
     static bool selectThrough() { return _selectThrough; }
     static void setSelectThrough(bool value) { _selectThrough = value; }
     
+    static NSString *descriptionOfMeshType(MeshType meshType);
+    
     bool isUnwrapped() { return _isUnwrapped; }
     void setUnwrapped(bool value) { _isUnwrapped = value; }
     
@@ -217,6 +219,7 @@ public:
     void makeCylinder(uint steps);
     void makeSphere(uint steps);
     void makeIcosahedron();
+    void make(MeshType meshType, uint steps);
     
     void fromVertices(const vector<Vector3D> &vertices);
     void toVertices(vector<Vector3D> &vertices);

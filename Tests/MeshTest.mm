@@ -7,11 +7,11 @@
 //
 
 #import <SenTestingKit/SenTestingKit.h>
-#import "Mesh.h"
+#import "Mesh2.h"
 
 @interface MeshTest : SenTestCase 
 {
-	Mesh *mesh;
+	Mesh2 *mesh;
 }
 
 @end
@@ -43,15 +43,15 @@
 
 - (void)testMakeEdges
 {
-	mesh = [[Mesh alloc] init];
+	mesh = new Mesh2();
 	
-	STAssertNotNil(mesh, @"mesh can't be nil");
+	STAssertTrue(mesh != NULL, @"mesh can't be NULL");
 	
-	[mesh makeMeshWithType:MeshTypeCube steps:0];
+    mesh->makeCube();
 
-	STAssertEquals([mesh vertexCount], 8U, @"vertexCount in cube must be equal to 8");
-	STAssertEquals([mesh triangleCount], 12U, @"triangleCount in cube must be equal to 12");
-	STAssertEquals([mesh edgeCount], 18U, @"edgeCount in cube must be equal to 18");
+	STAssertEquals(mesh->vertexCount(), 8, @"vertexCount in cube must be equal to 8");
+	STAssertEquals(mesh->triangleCount(), 12, @"triangleCount in cube must be equal to 12");
+	STAssertEquals(mesh->vertexEdgeCount(), 18, @"edgeCount in cube must be equal to 18");
 }
 
 @end
