@@ -208,10 +208,19 @@ public:
     
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
-    VertexEdgeNode *findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle);
-    TexCoordEdgeNode *findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle);
-    VertexNode *duplicateVertex(VertexNode *original);
-    TexCoordNode *duplicateTexCoord(TexCoordNode *original);
+    
+    template <class T>
+    FPList<VEdgeNode<T>, VEdge<T>> &edges();
+    
+    template <class T>
+    FPList<VNode<T>, T> &vertices();    
+    
+    template <class T>
+    VEdgeNode<T> *findOrCreateEdge(VNode<T> *v1, VNode<T> *v2, TriangleNode * triangle);
+        
+    template <class T>
+    VNode<T> *duplicateVertex(VNode<T> *original);
+    
     void makeTexCoords();
     void makeEdges();
     void makePlane();
@@ -230,3 +239,41 @@ public:
     void setSelection(const vector<bool> &selection);
     void getSelection(vector<bool> &selection);
 };
+
+template <>
+inline FPList<VertexEdgeNode, VertexEdge> &Mesh2::edges() { return this->_vertexEdges; }
+
+template <>
+inline FPList<TexCoordEdgeNode, TexCoordEdge> &Mesh2::edges() { return this->_texCoordEdges; }
+
+template <>
+inline FPList<VertexNode, Vertex2> &Mesh2::vertices() { return this->_vertices; }
+
+template <>
+inline FPList<TexCoordNode, TexCoord> &Mesh2::vertices() { return this->_texCoords; }
+
+template <class T>
+inline VEdgeNode<T> *Mesh2::findOrCreateEdge(VNode<T> *v1, VNode<T> *v2, TriangleNode * triangle)
+{
+    VEdgeNode<T> *sharedEdge = v1->sharedEdge(v2);
+    if (sharedEdge)
+    {
+        sharedEdge->data().setTriangle(1, triangle);
+        return sharedEdge;
+    }
+    
+    VNode<T> *vertices[2] = { v1, v2 };
+    VEdgeNode<T> *node = edges<T>().add(vertices);
+    
+    node->data().setTriangle(0, triangle);
+    return node;
+}
+
+template <class T>
+inline VNode<T> *Mesh2::duplicateVertex(VNode<T> *original)
+{
+    if (original->algorithmData.duplicatePair == NULL)
+        original->algorithmData.duplicatePair = vertices<T>().add(original->data().position);
+    
+    return original->algorithmData.duplicatePair;
+}

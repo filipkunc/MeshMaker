@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#include "Mesh2.h"
+#import "Mesh2.h"
 
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
@@ -52,7 +52,7 @@ Mesh2::Mesh2()
     _texture = nil;
     _isUnwrapped = false;
     
-    setColor(generateRandomColor());
+    setColor(generateRandomColor());    
 }
 
 Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
@@ -1084,7 +1084,7 @@ void Mesh2::duplicateSelectedTriangles()
             VertexNode *originalVertex = node->data().vertex(i);
             TexCoordNode *originalTexCoord = node->data().texCoord(i);
             duplicatedVertices[i] = duplicateVertex(originalVertex);
-            duplicatedTexCoords[i] = duplicateTexCoord(originalTexCoord);
+            duplicatedTexCoords[i] = duplicateVertex(originalTexCoord);
         }
         
         node->data().selected = false;

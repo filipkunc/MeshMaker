@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#include "Mesh2.h"
+#import "Mesh2.h"
 
 void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
@@ -35,52 +35,6 @@ void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *
     
   	_triangles.add(Triangle2(vertices1, texCoords1));
     _triangles.add(Triangle2(vertices2, texCoords2));
-}
-
-VertexEdgeNode *Mesh2::findOrCreateVertexEdge(VertexNode *v1, VertexNode *v2, TriangleNode *triangle)
-{
-    VertexEdgeNode *sharedEdge = v1->sharedEdge(v2);
-    if (sharedEdge)
-    {
-        sharedEdge->data().setTriangle(1, triangle);
-        return sharedEdge;
-    }
-    
-    VertexNode *vertices[2] = { v1, v2 };
-    VertexEdgeNode *node = _vertexEdges.add(vertices);
-    node->data().setTriangle(0, triangle);
-    return node;
-}
-
-TexCoordEdgeNode *Mesh2::findOrCreateTexCoordEdge(TexCoordNode *t1, TexCoordNode *t2, TriangleNode *triangle)
-{
-    TexCoordEdgeNode *sharedEdge = t1->sharedEdge(t2);
-    if (sharedEdge)
-    {
-        sharedEdge->data().setTriangle(1, triangle);
-        return sharedEdge;
-    }
-    
-    TexCoordNode *texCoords[2] = { t1, t2 };
-    TexCoordEdgeNode *node = _texCoordEdges.add(texCoords);
-    node->data().setTriangle(0, triangle);
-    return node;
-}
-
-VertexNode *Mesh2::duplicateVertex(VertexNode *original)
-{
-    if (original->algorithmData.duplicatePair == NULL)
-        original->algorithmData.duplicatePair = _vertices.add(original->data().position);
-    
-    return original->algorithmData.duplicatePair;
-}
-
-TexCoordNode *Mesh2::duplicateTexCoord(TexCoordNode *original)
-{
-    if (original->algorithmData.duplicatePair == NULL)
-        original->algorithmData.duplicatePair = _texCoords.add(original->data().position);
-    
-    return original->algorithmData.duplicatePair;
 }
 
 void Mesh2::makeTexCoords()
@@ -131,17 +85,17 @@ void Mesh2::makeEdges()
         TexCoordNode *t1 = triangle.texCoord(1);
         TexCoordNode *t2 = triangle.texCoord(2);
         
-        VertexEdgeNode *ve0 = findOrCreateVertexEdge(v0, v1, node);
-        VertexEdgeNode *ve1 = findOrCreateVertexEdge(v1, v2, node);
-        VertexEdgeNode *ve2 = findOrCreateVertexEdge(v2, v0, node);
+        VertexEdgeNode *ve0 = findOrCreateEdge(v0, v1, node);
+        VertexEdgeNode *ve1 = findOrCreateEdge(v1, v2, node);
+        VertexEdgeNode *ve2 = findOrCreateEdge(v2, v0, node);
         
         triangle.setVertexEdge(0, ve0);
         triangle.setVertexEdge(1, ve1);
         triangle.setVertexEdge(2, ve2);
         
-        TexCoordEdgeNode *te0 = findOrCreateTexCoordEdge(t0, t1, node);
-        TexCoordEdgeNode *te1 = findOrCreateTexCoordEdge(t1, t2, node);
-        TexCoordEdgeNode *te2 = findOrCreateTexCoordEdge(t2, t0, node);
+        TexCoordEdgeNode *te0 = findOrCreateEdge(t0, t1, node);
+        TexCoordEdgeNode *te1 = findOrCreateEdge(t1, t2, node);
+        TexCoordEdgeNode *te2 = findOrCreateEdge(t2, t0, node);
 
         triangle.setTexCoordEdge(0, te0);
         triangle.setTexCoordEdge(1, te1);
