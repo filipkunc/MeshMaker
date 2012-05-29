@@ -8,63 +8,152 @@
 
 #pragma once
 
-class Vertex2
+template <class T>
+class VNode : public FPNode<VNode<T>, T>
 {
 public:
-    Vector3D position;
-    
-    bool selected;
-    bool visible;
-    
-    Vertex2() : selected(false), visible(true) { }
-    Vertex2(const Vector3D &v) : position(v), selected(false), visible(true) { }    
-};
-
-union VertexAlgorithmData
-{
-    int index;
-    Vector3D normal;
-    VertexNode *duplicatePair;
-    
-    VertexAlgorithmData()
+    union AlgorithmData
     {
-        memset(this, 0, sizeof(VertexAlgorithmData));
-    }
+        int index;
+        Vector3D normal;
+        VNode *duplicatePair;
+        
+        AlgorithmData()
+        {
+            memset(this, 0, sizeof(AlgorithmData));
+        }
+        
+        void clear()
+        {
+            memset(this, 0, sizeof(AlgorithmData));
+        }
+    };
     
-    void clear()
-    {
-        memset(this, 0, sizeof(VertexAlgorithmData));
-    }
-};
-
-class VertexNode : public FPNode<VertexNode, Vertex2>
-{
 public:
     SimpleList<TriangleNode *> _triangles;
-    SimpleList<VertexEdgeNode *> _edges;
+    SimpleList<VEdgeNode<T> *> _edges;
 public:
     float selectionWeight;
-    VertexAlgorithmData algorithmData;
+    AlgorithmData algorithmData;
     
-    VertexNode() : FPNode<VertexNode, Vertex2>() { }
-    VertexNode(const Vertex2 &vertex) : FPNode<VertexNode, Vertex2>(vertex) { } 
-    virtual ~VertexNode() 
+    VNode() : FPNode<VNode<T>, T>() { }
+    VNode(const T &vertex) : FPNode<VNode<T>, T>(vertex) { } 
+    virtual ~VNode() 
     { 
         removeFromTriangles();
         removeFromEdges();
     }
     
     bool isUsed() const { return _triangles.count() > 0; }
-    void addTriangle(TriangleNode *triangle);
-    void removeTriangle(TriangleNode *triangle);
-    void removeFromTriangles();
-    void removeFromSelectedTriangles();
-    void addEdge(VertexEdgeNode *edge);
-    void removeEdge(VertexEdgeNode *edge);
-    void removeEdges();
-    void removeFromEdges();
-    void replaceVertex(VertexNode *newVertex);
-    void replaceVertexInSelectedTriangles(VertexNode *newVertex);
-    VertexEdgeNode *sharedEdge(VertexNode *otherVertex);
-    void computeNormal();
+    void addTriangle(TriangleNode *triangle) { _triangles.add(triangle); }
+    void removeTriangle(TriangleNode *triangle)
+    {
+        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            if (node->data() == triangle)
+                _triangles.remove(node);
+        }
+    }
+    void removeFromTriangles()
+    {
+        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            node->data()->data().removeVertex(this);
+        }
+        
+        _triangles.removeAll(); 
+    }
+    
+    void removeFromSelectedTriangles()
+    {
+        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            if (node->data()->data().selected)
+            {
+                node->data()->data().removeVertex(this);
+                _triangles.remove(node);
+            }
+        }
+    }
+    
+    void addEdge(VEdgeNode<T> *edge)
+    {
+        _edges.add(edge);
+    }
+    
+    void removeEdge(VEdgeNode<T> *edge)
+    {
+        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            if (node->data() == edge)
+                _edges.remove(node);
+        }
+    }
+    
+    void removeEdges()
+    {
+        _edges.removeAll();
+    }
+    
+    void removeFromEdges()
+    {
+        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            node->data()->data().removeVertex(this);
+        }
+        
+        _edges.removeAll();
+    }
+    
+    void replaceVertex(VNode *newVertex)
+    {
+        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            node->data()->replaceVertex(this, newVertex);
+        }
+        
+        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            node->data()->replaceVertex(this, newVertex);
+        }
+        
+        _triangles.removeAll();
+        _edges.removeAll();
+    }
+    
+    void replaceVertexInSelectedTriangles(VNode *newVertex)
+    {
+        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            if (node->data()->data().selected)
+            {
+                node->data()->replaceVertex(this, newVertex);
+                _triangles.remove(node);
+            }
+        } 
+    }
+    
+    void computeNormal()
+    {
+        float count = 0;
+        algorithmData.normal = Vector3D();
+        
+        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            algorithmData.normal += node->data()->data().vertexNormal;
+            count++;
+        }
+        
+        algorithmData.normal /= count;
+    }
+    
+    VEdgeNode<T> *sharedEdge(VNode *otherVertex)
+    {
+        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            if (node->data()->data().containsVertex(otherVertex))
+                return node->data();
+        }
+        return NULL;
+    }
 };

@@ -8,58 +8,205 @@
 
 #pragma once
 
-class VertexEdge
+template <class T>
+class VEdge
 {
 private:
-    VertexNode *_vertices[2];
+    VNode<T> *_vertices[2];
     TriangleNode *_triangles[2];
 public:
     bool selected;
     bool visible;
-    VertexNode *halfVertex;
+    VNode<T> *half;
     
-    VertexEdge();
-    VertexEdge(VertexNode *vertices[2]);
+    VEdge() : selected(false), visible(true), half(NULL)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            _vertices[i] = NULL;
+            _triangles[i] = NULL;
+        }
+    }
     
-    bool isQuadEdge() const;
-    bool isDegenerated() const;
-    bool containsVertex(const VertexNode *vertex) const;
-    bool isNotShared() const;
+    VEdge(VNode<T> *vertices[2]) : selected(false), visible(true), half(NULL)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            _vertices[i] = vertices[i];
+            _triangles[i] = NULL;
+        }
+    }
     
-    VertexNode *vertex(int index) const { return _vertices[index]; }
+    bool isDegenerated() const
+    {
+        if (_triangles[0] == NULL && _triangles[1] == NULL)
+            return true;
+        
+        if (containsVertex(NULL))
+            return true;
+        
+        if (_vertices[0] == _vertices[1])
+            return true;
+        
+        return false;
+    }
+    
+    bool containsVertex(const VNode<T> *vertex) const
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (_vertices[i] == vertex)
+                return true;        
+        }
+        return false;
+    }
+    
+    bool isNotShared() const
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (_triangles[i] == NULL || !_triangles[i]->data().selected)
+                return true;
+        }
+        return false;
+    }
+    
+    VNode<T> *vertex(int index) const { return _vertices[index]; }
+    VNode<T> *texCoord(int index) const { return _vertices[index]; } 
     TriangleNode *triangle(int index) const { return _triangles[index]; }
     
     void setTriangle(int index, TriangleNode *value) { _triangles[index] = value; }
-    void removeVertex(VertexNode *vertex);
-    void removeTriangle(TriangleNode *triangle);
-    void turn();
+    void removeVertex(VNode<T> *vertex)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (_vertices[i] == vertex)
+            {
+                _vertices[i] = NULL;
+                break;
+            }
+        }
+    }
     
-    VertexNode *opposite(VertexNode *vertex) const;
+    void removeTriangle(TriangleNode *triangle)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (_triangles[i] == triangle)
+            {
+                _triangles[i] = NULL;
+                break;
+            }
+        }
+    }
     
-    friend class VertexEdgeNode;
+    void turn()
+    {
+        if (_triangles[0] == NULL || _triangles[1] == NULL)
+            return;
+        
+        Triangle2 &t0 = _triangles[0]->data();
+        Triangle2 &t1 = _triangles[1]->data();
+        
+        VNode<T> *v0 = t0.vertexNotInEdge(this);
+        VNode<T> *v1 = t1.vertexNotInEdge(this);
+        
+        _triangles[0]->removeFromVertices();
+        _triangles[1]->removeFromVertices();
+        
+        t0.setVertex(0, v1);
+        t0.setVertex(1, v0);
+        t0.setVertex(2, _vertices[0]);
+        
+        _triangles[0]->addToVertices();
+        
+        t1.setVertex(0, v0);
+        t1.setVertex(1, v1);
+        t1.setVertex(2, _vertices[1]);
+        
+        _triangles[1]->addToVertices();
+        
+        _vertices[0] = v0;
+        _vertices[1] = v1;
+    }
+    
+    VNode<T> *opposite(VNode<T> *vertex) const
+    {
+        if (_vertices[0] == vertex)
+            return _vertices[1];
+        
+        return _vertices[0];
+    }
+    
+    friend class VEdgeNode<T>;
 };
 
-class VertexEdgeNode : public FPNode<VertexEdgeNode, VertexEdge>
+template <class T>
+class VEdgeNode : public FPNode<VEdgeNode<T>, VEdge<T>>
 {
 public:
-    VertexEdgeNode() : FPNode<VertexEdgeNode, VertexEdge>() { }
-    VertexEdgeNode(const VertexEdge &edge) : FPNode<VertexEdgeNode, VertexEdge>(edge)
+    VEdgeNode() : FPNode<VEdgeNode<T>, VEdge<T>>() { }
+    
+    VEdgeNode(const VEdge<T> &edge) : FPNode<VEdgeNode<T>, VEdge<T>>(edge)
     {
         addToVertices();
     }
-    virtual ~VertexEdgeNode()
+    
+    virtual ~VEdgeNode()
     {
         removeFromVertices();
         removeFromTriangles();
     }
-    virtual void setData(const VertexEdge &data) 
+    
+    virtual void setData(const VEdge<T> &data) 
     { 
-        FPNode::setData(data);
+        FPNode<VEdgeNode<T>, VEdge<T>>::setData(data);
         addToVertices();
     }    
-    void addToVertices();
-    void removeFromVertices();
-    void removeFromTriangles();
-    void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
+    
+    void addToVertices()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (this->data()._vertices[i])
+                this->data()._vertices[i]->addEdge(this);
+        }
+    }
+    
+    void removeFromVertices()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (this->data()._vertices[i])
+            {
+                this->data()._vertices[i]->removeEdge(this);
+                this->data()._vertices[i] = NULL;
+            }
+        }
+    }
+    
+    void removeFromTriangles()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (this->data()._triangles[i])
+            {
+                this->data()._triangles[i]->data().removeEdge(this);
+                this->data()._triangles[i] = NULL;
+            }
+        }
+    }
+    
+    void replaceVertex(VNode<T> *currentVertex, VNode<T> *newVertex)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (this->data()._vertices[i] == currentVertex)
+            {
+                this->data()._vertices[i] = newVertex;
+                newVertex->addEdge(this);
+                break;
+            }
+        }
+    }
 };
-

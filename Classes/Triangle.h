@@ -36,6 +36,12 @@ public:
     void setVertexEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
     void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _texCoordEdges[index] = value; }
     
+    void removeVertex(TexCoordNode *texCoord) { removeTexCoord(texCoord); }
+    void removeEdge(VertexEdgeNode *edge) { removeVertexEdge(edge); }
+    void removeEdge(TexCoordEdgeNode *edge) { removeTexCoordEdge(edge); }
+    
+    TexCoordNode *vertexNotInEdge(const TexCoordEdge *edge) const { return texCoordNotInEdge(edge); }
+    
     void removeVertex(VertexNode *vertex);
     void removeTexCoord(TexCoordNode *texCoord);
     void removeVertexEdge(VertexEdgeNode *edge);
@@ -86,6 +92,10 @@ public:
     void removeFromVertices();
     void removeFromTexCoords();
     void removeFromEdges();
+    
+    void replaceVertex(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord) { replaceTexCoord(currentTexCoord, newTexCoord); }
+    
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
     void replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord);
 };
+

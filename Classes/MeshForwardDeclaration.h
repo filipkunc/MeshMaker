@@ -26,14 +26,46 @@ struct Edge
 	uint vertexIndices[2];
 };
 
-class Vertex2;
-class Triangle2;
-class VertexEdge;
-class TexCoord;
-class TexCoordEdge;
+class Vertex2
+{
+public:
+    Vector3D position;
+    
+    bool selected;
+    bool visible;
+    
+    Vertex2() : selected(false), visible(true) { }
+    Vertex2(const Vector3D &v) : position(v), selected(false), visible(true) { }    
+};
 
-class VertexNode;
+class TexCoord
+{
+public:
+    Vector3D position;
+    
+    bool selected;
+    bool visible;
+    
+    TexCoord() : selected(false), visible(true) { }
+    TexCoord(const Vector3D &v) : position(v), selected(false), visible(true) { }
+};
+
+template <class T>
+class VNode;
+
+template <class T>
+class VEdge;
+
+template <class T>
+class VEdgeNode;
+
+typedef VNode<Vertex2> VertexNode;
+typedef VEdge<Vertex2> VertexEdge;
+typedef VEdgeNode<Vertex2> VertexEdgeNode;
+
+typedef VNode<TexCoord> TexCoordNode;
+typedef VEdge<TexCoord> TexCoordEdge;
+typedef VEdgeNode<TexCoord> TexCoordEdgeNode;
+
+class Triangle2;
 class TriangleNode;
-class VertexEdgeNode;
-class TexCoordNode;
-class TexCoordEdgeNode;

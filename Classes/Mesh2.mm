@@ -481,7 +481,7 @@ void Mesh2::fastMergeSelectedTexCoords()
     
     for (SimpleNode<TexCoordNode *> *node = selectedNodes.begin(), *end = selectedNodes.end(); node != end; node = node->next())
     {
-        node->data()->replaceTexCoord(centerNode);
+        node->data()->replaceVertex(centerNode);
     }
 }
 
@@ -656,7 +656,7 @@ void Mesh2::halfEdges()
             }
         }
         
-        node->data().halfVertex = _vertices.add(edgeVertex);
+        node->data().half = _vertices.add(edgeVertex);
     }
     
     for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
@@ -666,7 +666,7 @@ void Mesh2::halfEdges()
         
         Vector3D edgeTexCoord = (t1 + t2) / 2.0f;
         
-        node->data().halfTexCoord = _texCoords.add(edgeTexCoord);
+        node->data().half = _texCoords.add(edgeTexCoord);
     }
 }
 
@@ -724,10 +724,10 @@ void Mesh2::makeSubdividedTriangles()
         for (int i = 0; i < 3; i++)
         {
             vertices[i] = node->data().vertex(i);
-            vertices[i + 3] = node->data().vertexEdge(i)->data().halfVertex;
+            vertices[i + 3] = node->data().vertexEdge(i)->data().half;
             
             texCoords[i] = node->data().texCoord(i);
-            texCoords[i + 3] = node->data().texCoordEdge(i)->data().halfTexCoord;
+            texCoords[i + 3] = node->data().texCoordEdge(i)->data().half;
         }
         
         /*    
@@ -891,12 +891,12 @@ void Mesh2::splitSelectedTriangles()
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
-        node->data().halfVertex = NULL;
+        node->data().half = NULL;
     }
     
     for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
     {
-        node->data().halfTexCoord = NULL;
+        node->data().half = NULL;
     }
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -911,36 +911,36 @@ void Mesh2::splitSelectedTriangles()
         {
             VertexEdge &edge = node->data().vertexEdge(j)->data();
             
-            if (edge.halfVertex == NULL)
+            if (edge.half == NULL)
             {
                 Vector3D v1 = edge.vertex(0)->data().position;
                 Vector3D v2 = edge.vertex(1)->data().position;
                 
                 Vector3D edgeVertex = (v1 + v2) / 2.0f;
                 
-                edge.halfVertex = _vertices.add(edgeVertex);
+                edge.half = _vertices.add(edgeVertex);
             }
             
             vertices[j] = node->data().vertex(j);
-            vertices[j + 3] = edge.halfVertex;
+            vertices[j + 3] = edge.half;
         }
         
         for (int j = 0; j < 3; j++)
         {
             TexCoordEdge &edge = node->data().texCoordEdge(j)->data();
             
-            if (edge.halfTexCoord == NULL)
+            if (edge.half == NULL)
             {
                 Vector3D t1 = edge.texCoord(0)->data().position;
                 Vector3D t2 = edge.texCoord(1)->data().position;
                 
                 Vector3D edgeTexCoord = (t1 + t2) / 2.0f;
                 
-                edge.halfTexCoord = _texCoords.add(edgeTexCoord);
+                edge.half = _texCoords.add(edgeTexCoord);
             }
             
             texCoords[j] = node->data().texCoord(j);
-            texCoords[j + 3] = edge.halfTexCoord;
+            texCoords[j + 3] = edge.half;
         }
         
         /*    
@@ -977,14 +977,14 @@ void Mesh2::splitSelectedEdges()
         if (!vertexEdge.selected)
             continue;
         
-        if (vertexEdge.halfVertex == NULL)
+        if (vertexEdge.half == NULL)
         {
             Vector3D v1 = vertexEdge.vertex(0)->data().position;
             Vector3D v2 = vertexEdge.vertex(1)->data().position;
             
             Vector3D edgeVertex = (v1 + v2) / 2.0f;
             
-            vertexEdge.halfVertex = _vertices.add(edgeVertex);
+            vertexEdge.half = _vertices.add(edgeVertex);
         }
         
         for (int i = 0; i < 2; i++)
@@ -1011,18 +1011,18 @@ void Mesh2::splitSelectedEdges()
             
             TexCoordNode *oppositeTexCoordNode = triangleNode->data().texCoordNotInEdge(&texCoordEdge);
 
-            if (texCoordEdge.halfTexCoord == NULL)
+            if (texCoordEdge.half == NULL)
             {
                 Vector3D edgeTexCoord = originalTexCoord0->data().position + originalTexCoord1->data().position;
                 edgeTexCoord /= 2.0f;
-                texCoordEdge.halfTexCoord = _texCoords.add(edgeTexCoord);
+                texCoordEdge.half = _texCoords.add(edgeTexCoord);
             }
             
-            VertexNode *vertices0[3] = { vertexEdge.halfVertex, oppositeVertexNode, originalVertex0 };
-            VertexNode *vertices1[3] = { originalVertex1, oppositeVertexNode, vertexEdge.halfVertex };
+            VertexNode *vertices0[3] = { vertexEdge.half, oppositeVertexNode, originalVertex0 };
+            VertexNode *vertices1[3] = { originalVertex1, oppositeVertexNode, vertexEdge.half };
             
-            TexCoordNode *texCoords0[3] = { texCoordEdge.halfTexCoord, oppositeTexCoordNode, originalTexCoord0 };
-            TexCoordNode *texCoords1[3] = { originalTexCoord1, oppositeTexCoordNode, texCoordEdge.halfTexCoord };
+            TexCoordNode *texCoords0[3] = { texCoordEdge.half, oppositeTexCoordNode, originalTexCoord0 };
+            TexCoordNode *texCoords1[3] = { originalTexCoord1, oppositeTexCoordNode, texCoordEdge.half };
             
             _triangles.add(Triangle2(vertices0, texCoords0));
             _triangles.add(Triangle2(vertices1, texCoords1));

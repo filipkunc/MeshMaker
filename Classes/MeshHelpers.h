@@ -10,11 +10,9 @@
 #pragma once
 
 #include "MeshForwardDeclaration.h"
-#include "Vertex.h"
-#include "TexCoord.h"
 #include "Triangle.h"
+#include "Vertex.h"
 #include "VertexEdge.h"
-#include "TexCoordEdge.h"
 
 void AddTriangle(vector<Triangle> &triangles, uint index1, uint index2, uint index3);
 void AddTriangle(vector<Triangle> &triangles, uint vertexIndices[3], uint texCoordIndices[3]);
