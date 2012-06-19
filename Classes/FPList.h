@@ -58,8 +58,8 @@ public:
         other._count = -1;
     }
     
-    TNode *begin() { return _begin->_next; }
-    TNode *end() { return _end; }
+    TNode *begin() const { return _begin->_next; }
+    TNode *end() const { return _end; } 
     
     TNode *first(int n) const
     {

@@ -22,13 +22,18 @@ vector<T> *ReadValues(string s)
 {
     vector<T> *values = new vector<T>();
     
-    stringstream ss(s);
-    while (!ss.eof())
+    istringstream ss(s);
+    
+    T value;
+    
+    while (ss >> value)
     {
-        T value;
-        ss >> value;
         values->push_back(value);
+        
+        NSLog(@"%.2f", (float)value);
     }
+        
+    NSLog(@"finish read");
     
     return values;
 }
@@ -945,7 +950,9 @@ struct anim
 {
     if ([typeName isEqualToString:@"model3D"])
         return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfModel3D]];
-        
+    
+    if ([typeName isEqualToString:@"Collada"])
+        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfCollada]];
     
     NSFileWrapper *dirWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:nil];
     
@@ -976,20 +983,21 @@ struct anim
     NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
     int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    char *textBuffer = new char [length];
-    memset(textBuffer, 0, length);
+    char *textBuffer = new char [length + 1];
+    memset(textBuffer, 0, length + 1);
     memcpy(textBuffer, [xmlData UTF8String], length);
     
-    // Insert code here to initialize your application
     xml_document< > document;
     document.parse<0>(textBuffer);
+    
+    // TODO: read more items than one
     
     xml_node< > *mesh = document.first_node()->first_node("library_geometries")->first_node("geometry")->first_node("mesh");
     
     string positionsString = mesh->first_node("source")->first_node("float_array")->value();
     vector<float> *points = ReadValues<float>(positionsString);
     
-    string uvCoordsString = mesh->first_node("source")->next_sibling()->next_sibling()->next_sibling()->first_node("float_array")->value();
+    string uvCoordsString = mesh->first_node("source")->next_sibling()->next_sibling()->first_node("float_array")->value();
     vector<float> *uvCoords = ReadValues<float>(uvCoordsString);
     
     xml_node< > *triNode = mesh->first_node("source")->next_sibling("triangles")->first_node();
@@ -1022,11 +1030,13 @@ struct anim
     vector<Vector3D> texCoords;
     vector<Triangle> triangles;
     
-    for (uint i = 0; i < points->size(); i += 3)
+    uint pointsSize = points->size();
+    
+    for (uint i = 0; i < pointsSize; i += 3)
     {
         Vector3D point;
         for (uint j = 0; j < 3; j++)
-            point[j] = (*points)[i + j];
+            point[j] = points->at(i + j);
 
         vertices.push_back(point);
     }
@@ -1042,6 +1052,8 @@ struct anim
 
     vector<uint> &trianglesRef = *indices;
     
+    NSLog(@"trianglesRef.size(): %lu", trianglesRef.size());
+    
     for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
     {
         uint vertexIndices[3];
@@ -1049,8 +1061,8 @@ struct anim
         
         for (uint j = 0; j < 3; j++)
         {
-            vertexIndices[j] = trianglesRef[i + j * inputTypesCount];
-            texCoordIndices[j] = trianglesRef[i + j * inputTypesCount + 3];
+            vertexIndices[j] = trianglesRef.at(i + j * inputTypesCount);
+            texCoordIndices[j] = trianglesRef.at(i + j * inputTypesCount + inputTypesCount - 1);
         }
                 
         AddTriangle(triangles, vertexIndices, texCoordIndices);
@@ -1214,6 +1226,338 @@ struct anim
     [stream writeBytes:&version length:sizeof(unsigned int)];
     [items encodeWithWriteStream:stream];
     return data;
+}
+
+- (NSData *)dataOfCollada
+{
+    NSMutableString *colladaXml = [[NSMutableString alloc] init];
+    
+    [colladaXml appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"];
+    [colladaXml appendString:@"<COLLADA xmlns=\"http://www.collada.org/2005/11/COLLADASchema\" version=\"1.4.1\">\n"];
+    {
+        [colladaXml appendString:@"<asset>\n"];
+        {
+            [colladaXml appendString:@"<contributor>\n"];
+            {
+                NSString *version =[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleVersion"];
+                [colladaXml appendFormat:@"<authoring_tool>MeshMaker %@</authoring_tool>\n", version];
+            }
+            [colladaXml appendString:@"</contributor>\n"];
+            [colladaXml appendString:@"<created>2011-01-23T15:41:29Z</created>\n"];     // TODO: fill real date-time
+            [colladaXml appendString:@"<modified>2011-01-23T15:41:29Z</modified>\n"];   // TODO: fill real date-time
+            [colladaXml appendString:@"<up_axis>Y_UP</up_axis>\n"];
+        }
+        [colladaXml appendString:@"</asset>\n"];
+        
+        [colladaXml appendString:@"<library_cameras>\n"];
+        {
+            [colladaXml appendString:@"<camera id=\"Camera-Camera\" name=\"Camera\">\n"];
+            {
+                [colladaXml appendString:@"<optics>\n"];
+                {
+                    [colladaXml appendString:@"<technique_common>\n"];
+                    {
+                        [colladaXml appendString:@"<perspective>\n"];
+                        {
+                            [colladaXml appendString:@"<xfov sid=\"HFOV\">39.5978</xfov>\n"];       // TODO: fill real HFOV
+                            [colladaXml appendString:@"<yfov sid=\"YFOV\">26.9915</yfov>\n"];       // TODO: fill real YFOV
+                            [colladaXml appendString:@"<znear sid=\"near_clip\">0.01</znear>\n"];   // TODO: fill real near_clip
+                            [colladaXml appendString:@"<zfar sid=\"far_clip\">10000</zfar>\n"];     // TODO: fill real far_clip
+                        }
+                        [colladaXml appendString:@"</perspective>\n"];
+                    }
+                    [colladaXml appendString:@"</technique_common>\n"];
+                }
+            [colladaXml appendString:@"</optics>\n"];
+            }
+            [colladaXml appendString:@"</camera>\n"];
+        }
+        [colladaXml appendString:@"</library_cameras>\n"];
+        
+        [colladaXml appendString:@"<library_materials>\n"];
+        {
+            [colladaXml appendString:@"<material id=\"Material-Default\" name=\"Default\">\n"];
+            {
+                [colladaXml appendString:@"<instance_effect url=\"#Effect-Default\" />\n"];
+            }
+            [colladaXml appendString:@"</material>\n"];
+        }
+        [colladaXml appendString:@"</library_materials>\n"];
+        
+        [colladaXml appendString:@"<library_effects>\n"];
+        {
+            [colladaXml appendString:@"<effect id=\"Effect-Default\" name=\"Default\">\n"];
+            {
+                [colladaXml appendString:@"<profile_COMMON>\n"];
+                {
+                    [colladaXml appendString:@"<technique sid=\"common\">\n"];
+                    {
+                        [colladaXml appendString:@"<phong>\n"];
+                        {
+                            [colladaXml appendString:@"<diffuse>\n"];
+                            {
+                                [colladaXml appendString:@"<color sid=\"diffuse_effect_rgb\">0.8 0.8 0.8 1</color>\n"];
+                            }
+                            [colladaXml appendString:@"</diffuse>\n"];
+                            
+                            [colladaXml appendString:@"<specular>\n"];
+                            {
+                                [colladaXml appendString:@"<color sid=\"specular_effect_rgb\">0.2 0.2 0.2 1</color>\n"];
+                            }
+                            [colladaXml appendString:@"</specular>\n"];
+                        }
+                        [colladaXml appendString:@"</phong>\n"];
+                    }
+                    [colladaXml appendString:@"</technique>\n"];
+                }
+                [colladaXml appendString:@"</profile_COMMON>\n"];
+            }
+            [colladaXml appendString:@"</effect>\n"];
+        }
+        [colladaXml appendString:@"</library_effects>\n"];
+        
+        [colladaXml appendString:@"<library_geometries>\n"];
+        {
+            int itemID = 0;
+            for (Item *item in items)
+            {
+                vector<Vector3D> vertices;
+                vector<Vector3D> texCoords;
+                vector<Vector3D> normals;
+                vector<Triangle> triangles;
+                
+                item.mesh->toIndexRepresentation(vertices, texCoords, triangles);
+                
+                const FPList<TriangleNode, Triangle2> &trianglesRef = item.mesh->triangles();
+                for (TriangleNode *node = trianglesRef.begin(), *end = trianglesRef.end(); node != end; node = node->next())
+                    normals.push_back(node->data().vertexNormal);
+                
+                [colladaXml appendFormat:@"<geometry id=\"Geometry-Mesh_%i\" name=\"Mesh_%i\">\n", itemID];
+                {
+                    [colladaXml appendString:@"<mesh>\n"];
+                    {
+                        // positions
+                        [colladaXml appendFormat:@"<source id=\"Geometry-Mesh_%i-positions\" name=\"positions\">\n", itemID];
+                        {
+                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-positions-array\" count=\"%i\">\n", 
+                                itemID, vertices.size() * 3];
+                            {
+                                for (uint i = 0; i < vertices.size(); i++)
+                                    [colladaXml appendFormat:@"%f %f %f\n", vertices[i].x, vertices[i].y, vertices[i].z];                                    
+                            }
+                            [colladaXml appendString:@"</float_array>\n"];
+                            
+                            [colladaXml appendString:@"<technique_common>\n"];
+                            { 
+                                [colladaXml appendFormat:@"<accessor count=\"%i\" source=\"#Geometry-Mesh_%i-positions-array\" stride=\"3\">\n",
+                                    vertices.size(), itemID];
+                                {
+                                    [colladaXml appendString:@"<param name=\"X\" type=\"float\" />\n"];
+                                    [colladaXml appendString:@"<param name=\"Y\" type=\"float\" />\n"];
+                                    [colladaXml appendString:@"<param name=\"Z\" type=\"float\" />\n"];
+                                }
+                                [colladaXml appendString:@"</accessor>\n"];
+                            }
+                            [colladaXml appendString:@"</technique_common>\n"];
+                        }
+                        [colladaXml appendString:@"</source>\n"];
+                        
+                        // normals
+                        [colladaXml appendFormat:@"<source id=\"Geometry-Mesh_%i-normals\" name=\"normals\">\n", itemID];
+                        {
+                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-normals-array\" count=\"%i\">\n", 
+                             itemID, normals.size() * 3];
+                            {
+                                for (uint i = 0; i < normals.size(); i++)
+                                    [colladaXml appendFormat:@"%f %f %f\n", normals[i].x, normals[i].y, normals[i].z]; 
+                            }
+                            [colladaXml appendString:@"</float_array>\n"];
+                            
+                            [colladaXml appendString:@"<technique_common>\n"];
+                            { 
+                                [colladaXml appendFormat:@"<accessor count=\"%i\" source=\"#Geometry-Mesh_%i-normals-array\" stride=\"3\">\n",
+                                    normals.size(), itemID];
+                                {
+                                    [colladaXml appendString:@"<param name=\"X\" type=\"float\" />\n"];
+                                    [colladaXml appendString:@"<param name=\"Y\" type=\"float\" />\n"];
+                                    [colladaXml appendString:@"<param name=\"Z\" type=\"float\" />\n"];
+                                }
+                                [colladaXml appendString:@"</accessor>\n"];
+                            }
+                            [colladaXml appendString:@"</technique_common>\n"];
+                        }
+                        [colladaXml appendString:@"</source>\n"];
+                        
+                        // texture
+                        [colladaXml appendFormat:@"<source id=\"Geometry-Mesh_%i-Texture\" name=\"Texture\">\n", itemID];
+                        {
+                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-Texture-array\" count=\"%i\">\n", 
+                             itemID, texCoords.size() * 2];
+                            {
+                                for (uint i = 0; i < texCoords.size(); i++)
+                                    [colladaXml appendFormat:@"%f %f\n", texCoords[i].x, texCoords[i].y];
+                            }
+                            [colladaXml appendString:@"</float_array>\n"];
+                            
+                            [colladaXml appendString:@"<technique_common>\n"];
+                            { 
+                                [colladaXml appendFormat:@"<accessor count=\"%i\" source=\"#Geometry-Mesh_%i-Texture-array\" stride=\"2\">\n",
+                                    texCoords.size(), itemID];
+                                {
+                                    [colladaXml appendString:@"<param name=\"S\" type=\"float\" />\n"];
+                                    [colladaXml appendString:@"<param name=\"T\" type=\"float\" />\n"];
+                                }
+                                [colladaXml appendString:@"</accessor>\n"];
+                            }
+                            [colladaXml appendString:@"</technique_common>\n"];
+                        }
+                        [colladaXml appendString:@"</source>\n"];
+                        
+                        [colladaXml appendFormat:@"<vertices id=\"Geometry-Mesh_%i-vertices\">\n", itemID];
+                        {
+                            [colladaXml appendFormat:@"<input semantic=\"POSITION\" source=\"#Geometry-Mesh_%i-positions\" />\n", itemID];
+                        }
+                        [colladaXml appendString:@"</vertices>\n"];
+                        
+                        [colladaXml appendFormat:@"<triangles count=\"%i\" material=\"Material-Default\">\n", triangles.size()];
+                        {
+                            [colladaXml appendFormat:@"<input semantic=\"VERTEX\" source=\"#Geometry-Mesh_%i-vertices\" offset=\"0\" />\n", itemID];
+                            [colladaXml appendFormat:@"<input semantic=\"NORMAL\" source=\"#Geometry-Mesh_%i-normals\" offset=\"1\" />\n", itemID];
+                            [colladaXml appendFormat:@"<input semantic=\"TEXCOORD\" source=\"#Geometry-Mesh_%i-Texture\" offset=\"2\" set=\"0\" />\n", itemID];
+                            
+                            [colladaXml appendString:@"<p>"];
+                            {
+                                uint normalIndex = 0U;
+                                
+                                for (uint i = 0; i < triangles.size(); i++)
+                                {
+                                    const Triangle &t = triangles[i];
+                                    
+                                    for (uint j = 0; j < 3; j++)
+                                    {
+                                        [colladaXml appendFormat:@"%i %i %i ", t.vertexIndices[j], normalIndex, t.texCoordIndices[j]];
+                                    }
+                                    normalIndex++;
+                                }
+                            }
+                            [colladaXml appendString:@"</p>\n"];
+                        }
+                        [colladaXml appendString:@"</triangles>\n"];
+                    }
+                    [colladaXml appendString:@"</mesh>\n"];
+                }
+                [colladaXml appendString:@"</geometry>\n"];
+                
+                itemID++;
+            }
+        }
+        [colladaXml appendString:@"</library_geometries>\n"];
+        
+        [colladaXml appendString:@"<library_lights>\n"];
+        {
+            [colladaXml appendString:@"<light id=\"Light-Render\" name=\"Render\">\n"];
+            {
+                [colladaXml appendString:@"<technique_common>\n"];
+                {
+                    [colladaXml appendString:@"<ambient>\n"];
+                    {
+                        [colladaXml appendString:@"<color sid=\"ambient_light_rgb\">0.05 0.05 0.05</color>\n"];
+                    }
+                    [colladaXml appendString:@"</ambient>\n"];
+                }
+                [colladaXml appendString:@"</technique_common>\n"];
+            }
+            [colladaXml appendString:@"</light>\n"];
+            [colladaXml appendString:@"<light id=\"Light-Directional_Light\" name=\"Directional_Light\">\n"];
+            {
+                [colladaXml appendString:@"<technique_common>\n"];
+                {
+                    [colladaXml appendString:@"<directional>\n"];
+                    {
+                        [colladaXml appendString:@"<color sid=\"directional_light_rgb\">1 1 1</color>\n"];
+                    }
+                    [colladaXml appendString:@"</directional>\n"];
+                }
+                [colladaXml appendString:@"</technique_common>\n"];
+            }
+            [colladaXml appendString:@"</light>\n"];
+        }
+        [colladaXml appendString:@"</library_lights>\n"];
+        
+        [colladaXml appendString:@"<library_visual_scenes>\n"];
+        {
+            [colladaXml appendString:@"<visual_scene id=\"DefaultScene\">\n"];
+            {
+                [colladaXml appendString:@"<node id=\"RenderNode\" name=\"Render\" type=\"NODE\">\n"];
+                {
+                    [colladaXml appendString:@"<instance_light url=\"#Light-Render\" />\n"];
+                }
+                [colladaXml appendString:@"</node>\n"];
+                
+                int itemID = 0;
+                for (Item *item in items)
+                {
+                    [colladaXml appendFormat:@"<node id=\"Geometry-MeshNode_%i\" name=\"Mesh_%i\" type=\"NODE\">\n", itemID, itemID];
+                    {
+                        // TODO: fill rotation and scale too
+                        
+                        [colladaXml appendFormat:@"<translate sid=\"Position_%i\">%f %f %f</translate>\n", 
+                            itemID, item.position.x, item.position.y, item.position.z];
+                        
+                        /*[colladaXml appendFormat:@"<rotate sid=\"RotationY\">0 1 0 0</rotate>\n"];
+                        [colladaXml appendFormat:@"<rotate sid=\"RotationX\">1 0 0 -5</rotate>\n"];
+                        [colladaXml appendFormat:@"<rotate sid=\"RotationZ\">0 0 1 0</rotate>\n"];*/
+                        [colladaXml appendFormat:@"<instance_geometry url=\"#Geometry-Mesh_%i\">\n", itemID];
+                        {
+                            [colladaXml appendString:@"<bind_material>\n"];
+                            {
+                                [colladaXml appendString:@"<technique_common>\n"];
+                                {
+                                   [colladaXml appendString:@"<instance_material symbol=\"Material-Default\" target=\"#Material-Default\" />\n"];
+                                }
+                                [colladaXml appendString:@"</technique_common>\n"];
+                            }
+                            [colladaXml appendString:@"</bind_material>\n"];
+                        }
+                        [colladaXml appendString:@"</instance_geometry>\n"];
+                    }
+                    [colladaXml appendString:@"</node>\n"];
+                    itemID++;
+                }
+                
+                [colladaXml appendString:@"<node id=\"Camera-CameraNode\" name=\"Camera\" type=\"NODE\">\n"];
+                {
+                    [colladaXml appendString:@"<translate sid=\"Position\">0 0.75 10</translate>\n"];
+                    [colladaXml appendString:@"<rotate sid=\"RotationY\">0 1 0 0</rotate>\n"];
+                    [colladaXml appendString:@"<rotate sid=\"RotationX\">1 0 0 -5</rotate>\n"];
+                    [colladaXml appendString:@"<rotate sid=\"RotationZ\">0 0 1 0</rotate>\n"];
+                    [colladaXml appendString:@"<instance_camera url=\"#Camera-Camera\" />\n"];
+                }
+                [colladaXml appendString:@"</node>\n"];
+                
+                [colladaXml appendString:@"<node id=\"Light-Directional_LightNode\" name=\"Directional_Light\" type=\"NODE\">\n"];
+                {
+                    [colladaXml appendString:@"<translate sid=\"Position__2_\">-2 2 2</translate>\n"];
+                    [colladaXml appendString:@"<rotate sid=\"Rotation__2_Y\">0 1 0 -45</rotate>\n"];
+                    [colladaXml appendString:@"<rotate sid=\"Rotation__2_X\">1 0 0 -30</rotate>\n"];
+                    [colladaXml appendString:@"<rotate sid=\"Rotation__2_Z\">0 0 1 0</rotate>\n"];
+                    [colladaXml appendString:@"<instance_light url=\"#Light-Directional_Light\" />\n"];
+                }
+                [colladaXml appendString:@"</node>\n"];
+            }
+            [colladaXml appendString:@"</visual_scene>\n"];
+        }
+        [colladaXml appendString:@"</library_visual_scenes>\n"];
+        
+        [colladaXml appendString:@"<scene>\n"];
+        {
+            [colladaXml appendString:@"<instance_visual_scene url=\"#DefaultScene\" />\n"];
+        }
+        [colladaXml appendString:@"</scene>\n"];
+    }
+    [colladaXml appendString:@"</COLLADA>\n"];
+
+    return [colladaXml dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 #pragma mark Splitter sync

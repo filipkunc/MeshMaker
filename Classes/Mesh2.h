@@ -119,6 +119,18 @@ private:
     void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
     void initOrUpdateTexture();
+    
+    template <class T>
+    FPList<VEdgeNode<T>, VEdge<T>> &edges();
+    
+    template <class T>
+    FPList<VNode<T>, T> &vertices();    
+    
+    template <class T>
+    VEdgeNode<T> *findOrCreateEdge(VNode<T> *v1, VNode<T> *v2, TriangleNode * triangle);
+    
+    template <class T>
+    VNode<T> *duplicateVertex(VNode<T> *original);    
 public:
     Mesh2();
     Mesh2(MemoryReadStream *stream);
@@ -209,17 +221,9 @@ public:
     void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
     
-    template <class T>
-    FPList<VEdgeNode<T>, VEdge<T>> &edges();
-    
-    template <class T>
-    FPList<VNode<T>, T> &vertices();    
-    
-    template <class T>
-    VEdgeNode<T> *findOrCreateEdge(VNode<T> *v1, VNode<T> *v2, TriangleNode * triangle);
-        
-    template <class T>
-    VNode<T> *duplicateVertex(VNode<T> *original);
+    const FPList<VertexNode, Vertex2> &vertices() const { return _vertices; }
+	const FPList<TriangleNode, Triangle2> &triangles() const { return _triangles; }
+    const FPList<TexCoordNode, TexCoord> &texCoords() const { return _texCoords; }
     
     void makeTexCoords();
     void makeEdges();
