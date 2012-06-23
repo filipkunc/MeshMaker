@@ -978,112 +978,6 @@ struct anim
     return dirWrapper;
 }
 
-- (BOOL)readFromCollada:(NSData *)data
-{
-    NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-    int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    char *textBuffer = new char [length + 1];
-    memset(textBuffer, 0, length + 1);
-    memcpy(textBuffer, [xmlData UTF8String], length);
-    
-    xml_document< > document;
-    document.parse<0>(textBuffer);
-    
-    // TODO: read more items than one
-    
-    xml_node< > *mesh = document.first_node()->first_node("library_geometries")->first_node("geometry")->first_node("mesh");
-    
-    string positionsString = mesh->first_node("source")->first_node("float_array")->value();
-    vector<float> *points = ReadValues<float>(positionsString);
-    
-    string uvCoordsString = mesh->first_node("source")->next_sibling()->next_sibling()->first_node("float_array")->value();
-    vector<float> *uvCoords = ReadValues<float>(uvCoordsString);
-    
-    xml_node< > *triNode = mesh->first_node("source")->next_sibling("triangles")->first_node();
-    
-    int inputTypesCount = 0;
-    string trianglesString;
-    
-    while (true)
-    {
-        if (strcmp(triNode->name(), "p") == 0)
-        {
-            trianglesString = triNode->value();
-            break;
-        }
-        else
-        {
-            triNode = triNode->next_sibling();
-            inputTypesCount++;
-        }
-    }
-    
-    vector<uint> *indices = ReadValues<uint>(trianglesString);
-    
-    ItemCollection *newItems = [[ItemCollection alloc] init];
-    
-    Item *item = [[Item alloc] init];
-    Mesh2 *itemMesh = [item mesh];
-    
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<Triangle> triangles;
-    
-    uint pointsSize = points->size();
-    
-    for (uint i = 0; i < pointsSize; i += 3)
-    {
-        Vector3D point;
-        for (uint j = 0; j < 3; j++)
-            point[j] = points->at(i + j);
-
-        vertices.push_back(point);
-    }
-    
-    for (uint i = 0; i < uvCoords->size(); i += 2)
-    {
-        Vector3D uvCoord;
-        for (uint j = 0; j < 2; j++)
-            uvCoord[j] = (*uvCoords)[i + j];
-        
-        texCoords.push_back(uvCoord);
-    }
-
-    vector<uint> &trianglesRef = *indices;
-    
-    NSLog(@"trianglesRef.size(): %lu", trianglesRef.size());
-    
-    for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
-    {
-        uint vertexIndices[3];
-        uint texCoordIndices[3];
-        
-        for (uint j = 0; j < 3; j++)
-        {
-            vertexIndices[j] = trianglesRef.at(i + j * inputTypesCount);
-            texCoordIndices[j] = trianglesRef.at(i + j * inputTypesCount + inputTypesCount - 1);
-        }
-                
-        AddTriangle(triangles, vertexIndices, texCoordIndices);
-    }
-
-    itemMesh->fromIndexRepresentation(vertices, texCoords, triangles);
-    
-    [newItems addItem:item];
-    items = newItems;
-    [itemsController setModel:items];
-    [itemsController updateSelection];
-    [self setManipulated:itemsController];
-
-    delete points;
-    delete uvCoords;
-    delete indices;
-    delete [] textBuffer;
-
-    return YES;
-}
-
 - (BOOL)readFromTMD:(NSData *)data
 {
     MemoryReadStream *stream = [[MemoryReadStream alloc] initWithData:data];
@@ -1226,6 +1120,143 @@ struct anim
     [stream writeBytes:&version length:sizeof(unsigned int)];
     [items encodeWithWriteStream:stream];
     return data;
+}
+
+- (void)readMesh:(Mesh2 *)itemMesh fromXml:(xml_node< > *)meshXml
+{
+    string positionsString = meshXml->first_node("source")->first_node("float_array")->value();
+    vector<float> *points = ReadValues<float>(positionsString);
+    
+    string uvCoordsString = meshXml->first_node("source")->next_sibling()->next_sibling()->first_node("float_array")->value();
+    vector<float> *uvCoords = ReadValues<float>(uvCoordsString);
+    
+    xml_node< > *triNode = meshXml->first_node("source")->next_sibling("triangles")->first_node();
+    
+    int inputTypesCount = 0;
+    string trianglesString;
+    
+    while (true)
+    {
+        if (strcmp(triNode->name(), "p") == 0)
+        {
+            trianglesString = triNode->value();
+            break;
+        }
+        else
+        {
+            triNode = triNode->next_sibling();
+            inputTypesCount++;
+        }
+    }
+    
+    vector<uint> *indices = ReadValues<uint>(trianglesString);
+    
+    vector<Vector3D> vertices;
+    vector<Vector3D> texCoords;
+    vector<Triangle> triangles;
+    
+    uint pointsSize = points->size();
+    
+    for (uint i = 0; i < pointsSize; i += 3)
+    {
+        Vector3D point;
+        for (uint j = 0; j < 3; j++)
+            point[j] = points->at(i + j);
+        
+        vertices.push_back(point);
+    }
+    
+    for (uint i = 0; i < uvCoords->size(); i += 2)
+    {
+        Vector3D uvCoord;
+        for (uint j = 0; j < 2; j++)
+            uvCoord[j] = (*uvCoords)[i + j];
+        
+        texCoords.push_back(uvCoord);
+    }
+    
+    vector<uint> &trianglesRef = *indices;
+    
+    NSLog(@"trianglesRef.size(): %lu", trianglesRef.size());
+    
+    for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
+    {
+        uint vertexIndices[3];
+        uint texCoordIndices[3];
+        
+        for (uint j = 0; j < 3; j++)
+        {
+            vertexIndices[j] = trianglesRef.at(i + j * inputTypesCount);
+            texCoordIndices[j] = trianglesRef.at(i + j * inputTypesCount + inputTypesCount - 1);
+        }
+        
+        AddTriangle(triangles, vertexIndices, texCoordIndices);
+    }
+    
+    itemMesh->fromIndexRepresentation(vertices, texCoords, triangles);
+    
+    delete points;
+    delete uvCoords;
+    delete indices;
+}
+
+- (BOOL)readFromCollada:(NSData *)data
+{
+    NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    char *textBuffer = new char [length + 1];
+    memset(textBuffer, 0, length + 1);
+    memcpy(textBuffer, [xmlData UTF8String], length);
+    
+    xml_document< > document;
+    document.parse<0>(textBuffer);
+    
+    xml_node< > *geometries = document.first_node()->first_node("library_geometries");
+    xml_node< > *visualScenes = document.first_node()->first_node("library_visual_scenes")->first_node("visual_scene");
+    
+    ItemCollection *newItems = [[ItemCollection alloc] init];
+    
+    for (xml_node< > *node = visualScenes->first_node("node"); node; node = node->next_sibling())
+    {
+        xml_node< > *instanceGeometry = node->first_node("instance_geometry");
+        if (instanceGeometry != NULL)
+        {
+            Item *item = [[Item alloc] init];
+            
+            xml_attribute< > *url = instanceGeometry->first_attribute("url");
+            char *urlValue = url->value();
+            urlValue++; // Skipping '#'
+            
+            for (xml_node< > *geometry = geometries->first_node("geometry"); geometry; geometry = geometry->next_sibling())
+            {
+                if (strcmp(urlValue, geometry->first_attribute("id")->value()) == 0)
+                {
+                    [self readMesh:item.mesh fromXml:geometry->first_node("mesh")];
+                    break;
+                }
+            }
+            
+            xml_node< > *translate = node->first_node("translate");
+            if (translate != NULL)
+            {
+                float x, y, z;
+                sscanf(translate->value(), "%f %f %f", &x, &y, &z);
+                item.position = Vector3D(x, y, z);
+            }
+            
+            [newItems addItem:item];
+        }
+    }
+    
+    items = newItems;
+    [itemsController setModel:items];
+    [itemsController updateSelection];
+    [self setManipulated:itemsController];
+    
+    delete [] textBuffer;
+    
+    return YES;
 }
 
 - (NSData *)dataOfCollada
