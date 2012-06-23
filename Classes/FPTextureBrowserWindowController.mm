@@ -45,7 +45,7 @@
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    return [NSString stringWithFormat:@"Texture%.2i.png", row];
+    return [NSString stringWithFormat:@"Texture%.2li.png", row];
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification

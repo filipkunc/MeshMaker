@@ -1332,14 +1332,14 @@ struct anim
                 for (TriangleNode *node = trianglesRef.begin(), *end = trianglesRef.end(); node != end; node = node->next())
                     normals.push_back(node->data().vertexNormal);
                 
-                [colladaXml appendFormat:@"<geometry id=\"Geometry-Mesh_%i\" name=\"Mesh_%i\">\n", itemID];
+                [colladaXml appendFormat:@"<geometry id=\"Geometry-Mesh_%i\" name=\"Mesh_%i\">\n", itemID, itemID];
                 {
                     [colladaXml appendString:@"<mesh>\n"];
                     {
                         // positions
                         [colladaXml appendFormat:@"<source id=\"Geometry-Mesh_%i-positions\" name=\"positions\">\n", itemID];
                         {
-                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-positions-array\" count=\"%i\">\n", 
+                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-positions-array\" count=\"%li\">\n",
                                 itemID, vertices.size() * 3];
                             {
                                 for (uint i = 0; i < vertices.size(); i++)
@@ -1349,7 +1349,7 @@ struct anim
                             
                             [colladaXml appendString:@"<technique_common>\n"];
                             { 
-                                [colladaXml appendFormat:@"<accessor count=\"%i\" source=\"#Geometry-Mesh_%i-positions-array\" stride=\"3\">\n",
+                                [colladaXml appendFormat:@"<accessor count=\"%li\" source=\"#Geometry-Mesh_%i-positions-array\" stride=\"3\">\n",
                                     vertices.size(), itemID];
                                 {
                                     [colladaXml appendString:@"<param name=\"X\" type=\"float\" />\n"];
@@ -1365,7 +1365,7 @@ struct anim
                         // normals
                         [colladaXml appendFormat:@"<source id=\"Geometry-Mesh_%i-normals\" name=\"normals\">\n", itemID];
                         {
-                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-normals-array\" count=\"%i\">\n", 
+                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-normals-array\" count=\"%li\">\n",
                              itemID, normals.size() * 3];
                             {
                                 for (uint i = 0; i < normals.size(); i++)
@@ -1375,7 +1375,7 @@ struct anim
                             
                             [colladaXml appendString:@"<technique_common>\n"];
                             { 
-                                [colladaXml appendFormat:@"<accessor count=\"%i\" source=\"#Geometry-Mesh_%i-normals-array\" stride=\"3\">\n",
+                                [colladaXml appendFormat:@"<accessor count=\"%li\" source=\"#Geometry-Mesh_%i-normals-array\" stride=\"3\">\n",
                                     normals.size(), itemID];
                                 {
                                     [colladaXml appendString:@"<param name=\"X\" type=\"float\" />\n"];
@@ -1391,7 +1391,7 @@ struct anim
                         // texture
                         [colladaXml appendFormat:@"<source id=\"Geometry-Mesh_%i-Texture\" name=\"Texture\">\n", itemID];
                         {
-                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-Texture-array\" count=\"%i\">\n", 
+                            [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-Texture-array\" count=\"%li\">\n",
                              itemID, texCoords.size() * 2];
                             {
                                 for (uint i = 0; i < texCoords.size(); i++)
@@ -1401,7 +1401,7 @@ struct anim
                             
                             [colladaXml appendString:@"<technique_common>\n"];
                             { 
-                                [colladaXml appendFormat:@"<accessor count=\"%i\" source=\"#Geometry-Mesh_%i-Texture-array\" stride=\"2\">\n",
+                                [colladaXml appendFormat:@"<accessor count=\"%li\" source=\"#Geometry-Mesh_%i-Texture-array\" stride=\"2\">\n",
                                     texCoords.size(), itemID];
                                 {
                                     [colladaXml appendString:@"<param name=\"S\" type=\"float\" />\n"];
@@ -1419,7 +1419,7 @@ struct anim
                         }
                         [colladaXml appendString:@"</vertices>\n"];
                         
-                        [colladaXml appendFormat:@"<triangles count=\"%i\" material=\"Material-Default\">\n", triangles.size()];
+                        [colladaXml appendFormat:@"<triangles count=\"%li\" material=\"Material-Default\">\n", triangles.size()];
                         {
                             [colladaXml appendFormat:@"<input semantic=\"VERTEX\" source=\"#Geometry-Mesh_%i-vertices\" offset=\"0\" />\n", itemID];
                             [colladaXml appendFormat:@"<input semantic=\"NORMAL\" source=\"#Geometry-Mesh_%i-normals\" offset=\"1\" />\n", itemID];
