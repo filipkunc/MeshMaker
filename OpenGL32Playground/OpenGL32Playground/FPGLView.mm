@@ -94,8 +94,7 @@ struct Triangle
 		NSOpenGLPFADoubleBuffer,
 		NSOpenGLPFADepthSize, 24,
 		// Must specify the 3.2 Core Profile to use OpenGL 3.2
-		NSOpenGLPFAOpenGLProfile,
-		NSOpenGLProfileVersion3_2Core,
+		//NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 		0
 	};
 	
@@ -154,7 +153,7 @@ struct Triangle
 - (void)createShaderProgram
 {
     _shaderProgram = glCreateProgram();
-    glBindAttribLocation(_shaderProgram, 0, "inPosition");
+    //glBindAttribLocation(_shaderProgram, 0, "inPosition");
     
     _vertexShader = [self loadShaderWithName:@"vertexShader.vs" type:GL_VERTEX_SHADER];
     glAttachShader(_shaderProgram, _vertexShader);
@@ -208,8 +207,8 @@ struct Triangle
 {
     [super prepareOpenGL];
     
-    glGenVertexArrays(1, &_vertexArray);
-    glBindVertexArray(_vertexArray);
+//    glGenVertexArrays(1, &_vertexArray);
+//    glBindVertexArray(_vertexArray);
     
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -266,7 +265,7 @@ struct Triangle
     
     glUniformMatrix4fv(_mvpLocation, 1, GL_FALSE, mvp);
     
-    glBindVertexArray(_vertexArray);
+    //glBindVertexArray(_vertexArray);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
     GetGLError();

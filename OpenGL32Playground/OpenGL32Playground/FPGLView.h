@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/gl3.h>
+#import <OpenGL/gl.h>
 
 @interface FPGLView : NSOpenGLView
 {
