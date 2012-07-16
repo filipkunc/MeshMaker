@@ -525,7 +525,9 @@ struct anim
 
 - (void)editItems
 {
-	[self currentMesh]->setSelectionMode(MeshSelectionModeVertices);
+    Mesh2 *currentMesh = [self currentMesh];
+    if (currentMesh)
+        currentMesh->setSelectionMode(MeshSelectionModeVertices);
 	[itemsController setModel:items];
 	[itemsController setPosition:Vector3D()
 						rotation:Quaternion()
