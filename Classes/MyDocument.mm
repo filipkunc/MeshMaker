@@ -587,48 +587,6 @@ struct anim
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (IBAction)unionSelected:(id)sender
-{
-    if ([manipulated selectedCount] <= 0)
-		return;
-    
-    if (manipulated == itemsController)
-	{
-		[self allItemsActionWithName:@"CSG Union" block:^ { [items csgOperationOnSelectedItems:CsgUnion]; }];
-	}
-    
-    [manipulated updateSelection];
-    [self setNeedsDisplayOnAllViews];
-}
-
-- (IBAction)subtractSelected:(id)sender
-{
-    if ([manipulated selectedCount] <= 0)
-		return;
-    
-    if (manipulated == itemsController)
-	{
-		[self allItemsActionWithName:@"CSG Subtract" block:^ { [items csgOperationOnSelectedItems:CsgSubtract]; }];
-	}
-    
-    [manipulated updateSelection];
-    [self setNeedsDisplayOnAllViews];
-}
-
-- (IBAction)intersectSelected:(id)sender
-{
-    if ([manipulated selectedCount] <= 0)
-		return;
-    
-    if (manipulated == itemsController)
-	{
-		[self allItemsActionWithName:@"CSG Intersect" block:^ { [items csgOperationOnSelectedItems:CsgIntersect]; }];
-	}
-    
-    [manipulated updateSelection];
-    [self setNeedsDisplayOnAllViews];
-}
-
 - (void)meshOnlyActionWithName:(NSString *)actionName block:(void (^)())action
 {    
     if ([self currentMesh] == nil)

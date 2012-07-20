@@ -76,9 +76,6 @@
 - (IBAction)changeManipulator:(id)sender;
 - (IBAction)changeViewMode:(id)sender;
 - (IBAction)mergeSelected:(id)sender;
-- (IBAction)unionSelected:(id)sender;
-- (IBAction)subtractSelected:(id)sender;
-- (IBAction)intersectSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)duplicateSelected:(id)sender;
 - (void)redoDuplicateSelected:(NSMutableArray *)selection;

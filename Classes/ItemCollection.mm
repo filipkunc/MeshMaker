@@ -265,37 +265,6 @@
 	[self addItem:newItem];
 }
 
-- (void)csgOperationOnSelectedItems:(CsgOperation)operation
-{
-    Item *first = nil;
-    Item *second = nil;
-    
-    for (Item *item in items)
-	{
-        if (item.selected)
-		{
-            if (!first)
-                first = item;
-            else if (!second)
-            {
-                second = item;
-                
-                first.mesh->transformAll(first.transform);
-                second.mesh->transformAll(second.transform);
-                first.mesh->csg(second.mesh, operation);
-                
-                [first setPosition:Vector3D(0, 0, 0)];
-                [first setRotation:Quaternion(0, 0, 0, 1)];
-                [first setScale:Vector3D(1, 1, 1)];
-                
-                [items removeObject:second];
-                
-                return;
-            }
-		}
-	}
-}
-
 - (NSMutableArray *)currentManipulations
 {
 	NSMutableArray *manipulations = [[NSMutableArray alloc] init];
