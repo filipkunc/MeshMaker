@@ -27,13 +27,7 @@ vector<T> *ReadValues(string s)
     T value;
     
     while (ss >> value)
-    {
         values->push_back(value);
-        
-        NSLog(@"%.2f", (float)value);
-    }
-        
-    NSLog(@"finish read");
     
     return values;
 }
@@ -1137,8 +1131,6 @@ struct anim
     
     vector<uint> &trianglesRef = *indices;
     
-    NSLog(@"trianglesRef.size(): %lu", trianglesRef.size());
-    
     for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
     {
         uint vertexIndices[3];
@@ -1154,6 +1146,7 @@ struct anim
     }
     
     itemMesh->fromIndexRepresentation(vertices, texCoords, triangles);
+    itemMesh->flipAllTriangles();
     
     delete points;
     delete uvCoords;
@@ -1317,11 +1310,14 @@ struct anim
                 vector<Vector3D> normals;
                 vector<Triangle> triangles;
                 
+                item.mesh->flipAllTriangles();
                 item.mesh->toIndexRepresentation(vertices, texCoords, triangles);
                 
                 const FPList<TriangleNode, Triangle2> &trianglesRef = item.mesh->triangles();
                 for (TriangleNode *node = trianglesRef.begin(), *end = trianglesRef.end(); node != end; node = node->next())
                     normals.push_back(node->data().vertexNormal);
+                
+                item.mesh->flipAllTriangles();
                 
                 [colladaXml appendFormat:@"<geometry id=\"Geometry-Mesh_%i\" name=\"Mesh_%i\">\n", itemID, itemID];
                 {
