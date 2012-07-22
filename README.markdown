@@ -7,7 +7,6 @@ MeshMaker is under MIT license. You find it in file "LICENSE.TXT".
 MeshMaker contains:
 
  * [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski, also under MIT license.
- * C++ port of [csg.js](https://github.com/evanw/csg.js) from Evan Wallace, also under MIT license.
 
 ## About
 
