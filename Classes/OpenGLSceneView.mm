@@ -537,7 +537,7 @@ NSOpenGLContext *globalGLContext = nil;
     
     Vector2D lastUV;
     
-    for (int i = 0; i < (int)UVs->size(); i++)
+    for (uint i = 0; i < UVs->size(); i++)
     {
         Vector2D uv = UVs->at(i);
         NSPoint point = NSMakePoint(uv.x, uv.y);
@@ -607,7 +607,7 @@ NSOpenGLContext *globalGLContext = nil;
         [self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
-    else if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] >= 0)
+    else if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] < UINT_MAX)
 	{
 		if (currentManipulator == translationManipulator)
 		{
@@ -647,14 +647,14 @@ NSOpenGLContext *globalGLContext = nil;
 	{
 		if (!isManipulating)
 		{
-			[currentManipulator setSelectedIndex:-1];
+			[currentManipulator setSelectedIndex:UINT_MAX];
 			[currentManipulator setPosition:[manipulated selectionCenter]];
 			[self selectWithPoint:currentPoint selecting:currentManipulator selectionMode:OpenGLSelectionModeAdd];
 			[self setNeedsDisplay:YES];
 		}
 	}
 	
-	if ([currentManipulator selectedIndex] < 0)
+	if ([currentManipulator selectedIndex] == UINT_MAX)
 	{
 		if (NSPointInRect(currentPoint, [self orthoManipulatorRect]))
 			highlightCameraMode = YES;
@@ -943,7 +943,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     
 	glFinish();
     
-    uint selectedIndicesCount = width * height;
+    uint selectedIndicesCount = (uint)width * (uint)height;
 
     if (selectedIndicesCount >= kMaxSelectedIndicesCount)
         return nil;
@@ -1144,7 +1144,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	glLoadMatrixf(camera->GetViewMatrix());
 	
 	Vector3D position = [manipulated selectionCenter];
-	int selectedIndex = [currentManipulator selectedIndex];
+	uint selectedIndex = [currentManipulator selectedIndex];
 	
 	if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
 		return [self positionFromAxis:(Axis)selectedIndex point:point];
@@ -1160,11 +1160,11 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	glLoadMatrixf(camera->GetViewMatrix());
 	
 	Vector3D position = [manipulated selectionCenter];
-	int selectedIndex = [currentManipulator selectedIndex];
+	uint selectedIndex = [currentManipulator selectedIndex];
 	
 	Vector3D scale = Vector3D();
 	
-	if (selectedIndex >= 0)
+	if (selectedIndex < UINT_MAX)
 	{
 		ManipulatorWidget *selectedWidget = [currentManipulator widgetAtIndex:selectedIndex];
 		enum Axis selectedAxis = [selectedWidget axis];
@@ -1197,7 +1197,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	Vector3D position;
 	float angle;
 	
-	int selectedIndex = [currentManipulator selectedIndex];
+	uint selectedIndex = [currentManipulator selectedIndex];
 	
 	position = [self positionFromPlaneAxis:(PlaneAxis)(selectedIndex + 3) point:point];
 	position -= [manipulated selectionCenter];

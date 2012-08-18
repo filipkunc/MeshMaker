@@ -108,7 +108,7 @@ private:
     void flipSelectedTriangles();
     void turnSelectedEdges();
     void halfEdges();
-    void repositionVertices(int vertexCount);
+    void repositionVertices(uint vertexCount);
     void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
     void initOrUpdateTexture();
@@ -135,9 +135,9 @@ public:
     NSColor *color() { return _color; }
     void setColor(NSColor *color);
     
-    int vertexCount() { return _vertices.count(); }
-    int triangleCount() { return _triangles.count(); }
-    int vertexEdgeCount() { return _vertexEdges.count(); }
+    uint vertexCount() { return _vertices.count(); }
+    uint triangleCount() { return _triangles.count(); }
+    uint vertexEdgeCount() { return _vertexEdges.count(); }
     
     MeshSelectionMode selectionMode() const { return _selectionMode; };
     void setSelectionMode(MeshSelectionMode value);

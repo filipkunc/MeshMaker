@@ -10,16 +10,16 @@
 
 void ProgramLog(GLuint program)
 {
-	int infologLength = 0;
+	int infoLogLength = 0;
 	int charsWritten = 0;
 	GLchar *infoLog;
 	
-	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infologLength);
+	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
 	
-	if (infologLength > 0)
+	if (infoLogLength > 0)
 	{
-		infoLog = (GLchar *)malloc(infologLength);
-		glGetProgramInfoLog(program, infologLength, &charsWritten, infoLog);
+		infoLog = (GLchar *)malloc((size_t)infoLogLength);
+		glGetProgramInfoLog(program, infoLogLength, &charsWritten, infoLog);
 		free(infoLog);
 	}
 }
@@ -78,8 +78,8 @@ ShaderProgram *globalFlippedShader = nil;
 // GL_TRIANGLES, GL_TRIANGLE_STRIP
 - (void)setGeometryInput:(GLenum)input output:(GLenum)output
 {
-	glProgramParameteriEXT(program, GL_GEOMETRY_INPUT_TYPE_EXT, input);
-	glProgramParameteriEXT(program, GL_GEOMETRY_OUTPUT_TYPE_EXT, output);
+	glProgramParameteriEXT(program, GL_GEOMETRY_INPUT_TYPE_EXT, (int)input);
+	glProgramParameteriEXT(program, GL_GEOMETRY_OUTPUT_TYPE_EXT, (int)output);
 	
 	int temp;
 	glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT, &temp);

@@ -208,7 +208,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                 Triangle2 &triangle = node->data();
                 if (triangle.selected)
                 {
-                    for (int i = 0; i < 3; i++)
+                    for (uint i = 0; i < 3; i++)
                     {
                         triangle.vertex(i)->data().selected = true;
                         triangle.texCoord(i)->data().selected = true;
@@ -233,7 +233,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                     TexCoordEdge &edge = node->data();
                     if (edge.selected)
                     {
-                        for (int i = 0; i < 2; i++)
+                        for (uint i = 0; i < 2; i++)
                             edge.texCoord(i)->data().selected = true;
                     }
                 }
@@ -247,7 +247,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                     VertexEdge &edge = node->data();
                     if (edge.selected)
                     {
-                        for (int i = 0; i < 2; i++)
+                        for (uint i = 0; i < 2; i++)
                             edge.vertex(i)->data().selected = true;
                     }
                 }
@@ -310,7 +310,7 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
         {
             Triangle2 &triangle = _cachedTriangleSelection.at(index)->data();
             triangle.selected = selected;
-            for (int i = 0; i < 3; i++)
+            for (uint i = 0; i < 3; i++)
             {
                 triangle.vertex(i)->data().selected = selected;
                 triangle.texCoord(i)->data().selected = selected;
@@ -322,14 +322,14 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
             {
                 TexCoordEdge &edge = _cachedTexCoordEdgeSelection.at(index)->data();
                 edge.selected = selected;
-                for (int i = 0; i < 2; i++)
+                for (uint i = 0; i < 2; i++)
                     edge.texCoord(i)->data().selected = selected;
             }
             else                
             {
                 VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
                 edge.selected = selected;
-                for (int i = 0; i < 2; i++)
+                for (uint i = 0; i < 2; i++)
                     edge.vertex(i)->data().selected = selected;
             }
         } break;
@@ -670,13 +670,13 @@ void Mesh2::halfEdges()
     }
 }
 
-void Mesh2::repositionVertices(int vertexCount)
+void Mesh2::repositionVertices(uint vertexCount)
 {
     resetAlgorithmData();
     
     vector<Vector3D> tempVertices;
     
-    int index = 0;
+    uint index = 0;
     
     for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
     {
@@ -708,7 +708,7 @@ void Mesh2::repositionVertices(int vertexCount)
     
     for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
     {
-        node->data().position = tempVertices[node->algorithmData.index];
+        node->data().position = tempVertices[(uint)node->algorithmData.index];
         index++;
     }
 }
@@ -721,7 +721,7 @@ void Mesh2::makeSubdividedTriangles()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        for (int i = 0; i < 3; i++)
+        for (uint i = 0; i < 3; i++)
         {
             vertices[i] = node->data().vertex(i);
             vertices[i + 3] = node->data().vertexEdge(i)->data().half;
@@ -755,7 +755,7 @@ void Mesh2::loopSubdivision()
 {
     resetTriangleCache();        
     
-    int vertexCount = _vertices.count();
+    uint vertexCount = _vertices.count();
     
     halfEdges();
     repositionVertices(vertexCount);
@@ -907,7 +907,7 @@ void Mesh2::splitSelectedTriangles()
             continue;
         }
         
-        for (int j = 0; j < 3; j++)
+        for (uint j = 0; j < 3; j++)
         {
             VertexEdge &edge = node->data().vertexEdge(j)->data();
             
@@ -925,7 +925,7 @@ void Mesh2::splitSelectedTriangles()
             vertices[j + 3] = edge.half;
         }
         
-        for (int j = 0; j < 3; j++)
+        for (uint j = 0; j < 3; j++)
         {
             TexCoordEdge &edge = node->data().texCoordEdge(j)->data();
             
@@ -987,7 +987,7 @@ void Mesh2::splitSelectedEdges()
             vertexEdge.half = _vertices.add(edgeVertex);
         }
         
-        for (int i = 0; i < 2; i++)
+        for (uint i = 0; i < 2; i++)
         {
             TriangleNode *triangleNode = vertexEdge.triangle(i);
             if (triangleNode == NULL)
@@ -1000,8 +1000,8 @@ void Mesh2::splitSelectedEdges()
             
             triangleNode->data().sortVertices(originalVertex0, originalVertex1);
             
-            int texCoordIndex0 = triangleNode->data().indexOfVertex(originalVertex0);
-            int texCoordIndex1 = triangleNode->data().indexOfVertex(originalVertex1);
+            uint texCoordIndex0 = triangleNode->data().indexOfVertex(originalVertex0);
+            uint texCoordIndex1 = triangleNode->data().indexOfVertex(originalVertex1);
             
             TexCoordNode *originalTexCoord0 = triangleNode->data().texCoord(texCoordIndex0);
             TexCoordNode *originalTexCoord1 = triangleNode->data().texCoord(texCoordIndex1);
@@ -1079,7 +1079,7 @@ void Mesh2::duplicateSelectedTriangles()
         VertexNode *duplicatedVertices[3];
         TexCoordNode *duplicatedTexCoords[3];
         
-        for (int i = 0; i < 3; i++)
+        for (uint i = 0; i < 3; i++)
         {
             VertexNode *originalVertex = node->data().vertex(i);
             TexCoordNode *originalTexCoord = node->data().texCoord(i);
@@ -1159,7 +1159,7 @@ void Mesh2::extrudeSelectedTriangles()
         if (!node->data().selected)
             continue;
         
-        for (int i = 0; i < 3; i++)
+        for (uint i = 0; i < 3; i++)
         {
             VertexEdge &vertexEdge = node->data().vertexEdge(i)->data();
             

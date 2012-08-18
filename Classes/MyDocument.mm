@@ -12,7 +12,11 @@
 
 #import <string>
 #import <sstream>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
 #import "rapidxml.hpp"
+#pragma clang diagnostic pop
 
 using namespace std;
 using namespace rapidxml;
@@ -872,12 +876,9 @@ struct anim
     if ([typeName isEqualToString:@"TMD"])
         return [self readFromTMD:[dirWrapper regularFileContents]];
     
-    NSFileWrapper *wrapper;
-    NSData *data;
-    
-    wrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3D"];
-    data = [wrapper regularFileContents];
-    [self readFromModel3D:data];
+    NSFileWrapper *modelWrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3D"];
+    NSData *modelData = [modelWrapper regularFileContents];
+    [self readFromModel3D:modelData];
     
     [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) 
     {
@@ -886,11 +887,11 @@ struct anim
         {
             textureName = [textureName stringByDeletingPathExtension];
             
-            NSFileWrapper *wrapper = (NSFileWrapper *)obj;
-            NSData *data = [wrapper regularFileContents];
+            NSFileWrapper *textureWrapper = (NSFileWrapper *)obj;
+            NSData *textureData = [textureWrapper regularFileContents];
             
-            NSImage *image = [[NSImage alloc] initWithData:data];
-            int index = [textureName substringFromIndex:@"Texture".length].integerValue;
+            NSImage *image = [[NSImage alloc] initWithData:textureData];
+            uint index = [textureName substringFromIndex:@"Texture".length].integerValue;
             Item *item = [items itemAtIndex:index];
             FPTexture *texture = item.mesh->texture();
             [texture setCanvas:image];
@@ -1086,7 +1087,7 @@ struct anim
     
     xml_node< > *triNode = meshXml->first_node("source")->next_sibling("triangles")->first_node();
     
-    int inputTypesCount = 0;
+    uint inputTypesCount = 0;
     string trianglesString;
     
     while (true)
@@ -1157,7 +1158,7 @@ struct anim
 {
     NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    uint length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     char *textBuffer = new char [length + 1];
     memset(textBuffer, 0, length + 1);
     memcpy(textBuffer, [xmlData UTF8String], length);

@@ -18,19 +18,19 @@
 	Vector3D *position;
 	Quaternion *rotation;
 	float size;
-	int selectedIndex;
+	uint selectedIndex;
 }
 
 @property (readwrite, assign) Vector3D position;
 @property (readwrite, assign) Quaternion rotation;
 @property (readwrite, assign) float size;
-@property (readwrite, assign) int selectedIndex;
+@property (readwrite, assign) uint selectedIndex;
 
 - (id)initWithManipulatorType:(enum ManipulatorType)type;
 - (void)addWidget:(ManipulatorWidget *)widget;
 - (void)addWidgetWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget;
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center;
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center highlightAll:(BOOL)higlightAll;
-- (ManipulatorWidget *)widgetAtIndex:(int)index;
+- (ManipulatorWidget *)widgetAtIndex:(uint)index;
 
 @end

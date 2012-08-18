@@ -160,8 +160,8 @@
 
 - (void)duplicateSelected
 {
-	int count = [self count];
-	for (int i = 0; i < count; i++)
+	uint count = [self count];
+	for (uint i = 0; i < count; i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
@@ -175,7 +175,7 @@
 
 - (void)removeSelected
 {
-	for (int i = 0; i < (int)[self count]; i++)
+	for (uint i = 0; i < [self count]; i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{
@@ -235,7 +235,7 @@
 	
 	firstMatrix = firstMatrix.Inverse();
 	
-	for (int i = 0; i < (int)[items count]; i++)
+	for (uint i = 0; i < [items count]; i++)
 	{
 		if ([self isSelectedAtIndex:i])
 		{

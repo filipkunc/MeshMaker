@@ -14,7 +14,7 @@ class VNode : public FPNode<VNode<T>, T>
 public:
     union AlgorithmData
     {
-        int index;
+        uint index;
         Vector3D normal;
         VNode *duplicatePair;
         

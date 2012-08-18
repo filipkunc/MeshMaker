@@ -8,9 +8,12 @@
 
 #include "MeshHelpers.h"
 
-Triangle2::Triangle2() : selected(false), visible(true)
+Triangle2::Triangle2() :
+    selected(false),
+    visible(true),
+    _isQuad(false)
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         setVertex(i, NULL);
         setVertexEdge(i, NULL);
@@ -19,9 +22,12 @@ Triangle2::Triangle2() : selected(false), visible(true)
     }
 }
 
-Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false), visible(true)
+Triangle2::Triangle2(VertexNode *vertices[], bool isQuad) :
+    selected(false),
+    visible(true),
+    _isQuad(isQuad)
 {
-    for (int i = 0; i < 3; i++)
+    for (uint i = 0; i < count(); i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);
@@ -30,9 +36,12 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false), visible(true)
     }
 }
 
-Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : selected(false), visible(true)
+Triangle2::Triangle2(VertexNode *vertices[], TexCoordNode *texCoords[], bool isQuad) :
+    selected(false),
+    visible(true),
+    _isQuad(isQuad)
 {
-    for (int i = 0; i < 3; i++)
+    for (uint i = 0; i < count(); i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);
@@ -41,9 +50,23 @@ Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : sele
     }
 }
 
+const Triangle2::PackedNode &Triangle2::node(uint index) const
+{
+    if (index < count())
+        return _nodes[index];
+    @throw [NSException exceptionWithName:@"Triangle2::node(int index) const" reason:@"index out of range" userInfo:nil];
+}
+
+Triangle2::PackedNode &Triangle2::node(uint index)
+{
+    if (index < count())
+        return _nodes[index];
+    @throw [NSException exceptionWithName:@"Triangle2::node(int index)" reason:@"index out of range" userInfo:nil];
+}
+
 void TriangleNode::addToVertices()
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().vertex(i))
             data().vertex(i)->addTriangle(this);
@@ -52,7 +75,7 @@ void TriangleNode::addToVertices()
 
 void TriangleNode::addToTexCoords()
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().texCoord(i))
             data().texCoord(i)->addTriangle(this);
@@ -61,7 +84,7 @@ void TriangleNode::addToTexCoords()
 
 void TriangleNode::removeFromVertices()
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().vertex(i))
         {
@@ -73,7 +96,7 @@ void TriangleNode::removeFromVertices()
 
 void TriangleNode::removeFromTexCoords()
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().texCoord(i))
         {
@@ -85,7 +108,7 @@ void TriangleNode::removeFromTexCoords()
 
 void TriangleNode::removeFromEdges()
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().vertexEdge(i))
         {
@@ -103,7 +126,7 @@ void TriangleNode::removeFromEdges()
 
 void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().vertex(i) == currentVertex)
         {
@@ -116,7 +139,7 @@ void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVerte
 
 void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord)
 {
-    for (int i = 0; i < data().count(); i++)
+    for (uint i = 0; i < data().count(); i++)
     {
         if (data().texCoord(i) == currentTexCoord)
         {
@@ -129,7 +152,7 @@ void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *
 
 void Triangle2::setTexCoordByVertex(TexCoordNode *texCoord, VertexNode *vertex)
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     { 
         if (this->vertex(i) == vertex)
         {
@@ -141,7 +164,7 @@ void Triangle2::setTexCoordByVertex(TexCoordNode *texCoord, VertexNode *vertex)
 
 void Triangle2::removeVertex(VertexNode *vertex)
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (this->vertex(i) == vertex)
         {
@@ -153,7 +176,7 @@ void Triangle2::removeVertex(VertexNode *vertex)
 
 void Triangle2::removeTexCoord(TexCoordNode *texCoord)
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (this->texCoord(i) == texCoord)
         {
@@ -165,7 +188,7 @@ void Triangle2::removeTexCoord(TexCoordNode *texCoord)
 
 void Triangle2::removeVertexEdge(VertexEdgeNode *edge)
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (vertexEdge(i) == edge)
         {
@@ -177,7 +200,7 @@ void Triangle2::removeVertexEdge(VertexEdgeNode *edge)
 
 void Triangle2::removeTexCoordEdge(TexCoordEdgeNode *edge)
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (texCoordEdge(i) == edge)
         {
@@ -189,7 +212,7 @@ void Triangle2::removeTexCoordEdge(TexCoordEdgeNode *edge)
 
 void Triangle2::removeEdges()
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         setVertexEdge(i, NULL);
         setTexCoordEdge(i, NULL);
@@ -204,9 +227,9 @@ bool Triangle2::isDegenerated() const
     if (containsVertexEdge(NULL))
         return true;
     
-    for (int i = 0; i < count() - 1; i++)
+    for (uint i = 0; i < count() - 1; i++)
     {
-        for (int j = i + 1; j < count(); j++)
+        for (uint j = i + 1; j < count(); j++)
         {
             if (vertex(i) == vertex(j))
                 return true;
@@ -218,7 +241,7 @@ bool Triangle2::isDegenerated() const
 
 bool Triangle2::containsVertex(const VertexNode *vertex) const
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
 	{
 		if (this->vertex(i) == vertex)
 			return true;
@@ -228,7 +251,7 @@ bool Triangle2::containsVertex(const VertexNode *vertex) const
 
 bool Triangle2::containsVertexEdge(const VertexEdgeNode *edge) const
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (vertexEdge(i) == edge)
             return true;
@@ -238,7 +261,7 @@ bool Triangle2::containsVertexEdge(const VertexEdgeNode *edge) const
 
 bool Triangle2::containsTexCoordEdge(const TexCoordEdgeNode *edge) const
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (texCoordEdge(i) == edge)
             return true;
@@ -253,22 +276,22 @@ void Triangle2::flip()
     swap(_nodes[0].vertex, _nodes[2].vertex);
 }
 
-int Triangle2::indexOfVertex(const VertexNode *vertex) const
+uint Triangle2::indexOfVertex(const VertexNode *vertex) const
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         if (this->vertex(i) == vertex)
             return i;
     }
-    return -1;
+    return UINT_MAX;
 }
 
 void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
 {
     // TODO: Make it work for polygon (tri/quad).
     
-    int index1 = indexOfVertex(v1);
-    int index2 = indexOfVertex(v2);
+    uint index1 = indexOfVertex(v1);
+    uint index2 = indexOfVertex(v2);
     
     if (index1 == 1 && index2 == 0)
         swap(v1, v2);
@@ -280,7 +303,7 @@ void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
 
 VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         VertexNode *currentVertex = vertex(i);
         if (currentVertex != edge->vertex(0) &&
@@ -292,7 +315,7 @@ VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 
 TexCoordNode *Triangle2::texCoordNotInEdge(const TexCoordEdge *edge) const
 {
-    for (int i = 0; i < count(); i++)
+    for (uint i = 0; i < count(); i++)
     {
         TexCoordNode *currentTexCoord = texCoord(i);
         if (currentTexCoord != edge->texCoord(0) &&

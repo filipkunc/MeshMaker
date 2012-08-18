@@ -242,7 +242,7 @@ void Mesh2::makeSphere(uint steps)
             
             if (i > 0 && j < max - 1)
             {
-                int index = (i - 1) * (max - 1);
+                uint index = (i - 1) * (max - 1);
                 
                 AddQuad(tempTriangles, 
                         1 + max + j + index, 
@@ -252,7 +252,7 @@ void Mesh2::makeSphere(uint steps)
             }
         }
         
-        int index = i * (max - 1);
+        uint index = i * (max - 1);
         if (i < max - 1)
         {
             AddTriangle(tempTriangles,
@@ -282,7 +282,7 @@ void Mesh2::makeSphere(uint steps)
     
     for (uint j = 1; j < max - 1; j++)
     {
-        int index = (max - 1) * (max - 1);
+        uint index = (max - 1) * (max - 1);
         AddQuad(tempTriangles,
                 1 + j + index,
                 1 + j,
@@ -314,14 +314,14 @@ void Mesh2::makeIcosahedron()
     const float X = 0.525731112119133606f;
     const float Z = 0.850650808352039932f;
     
-    static GLfloat vdata[12][3] = 
+    static float vdata[12][3] =
     {    
         {-X, 0.0, Z}, {X, 0.0, Z}, {-X, 0.0, -Z}, {X, 0.0, -Z},    
         {0.0, Z, X}, {0.0, Z, -X}, {0.0, -Z, X}, {0.0, -Z, -X},    
         {Z, X, 0.0}, {-Z, X, 0.0}, {Z, -X, 0.0}, {-Z, -X, 0.0} 
     };
     
-    static GLint tindices[20][3] = 
+    static uint tindices[20][3] =
     { 
         {0,4,1}, {0,9,4}, {9,5,4}, {4,5,8}, {4,8,1},    
         {8,10,1}, {8,3,10}, {5,3,8}, {5,2,3}, {2,7,3},    
@@ -331,15 +331,15 @@ void Mesh2::makeIcosahedron()
     
     vector<VertexNode *> vertexNodes;
     
-    for (int i = 0; i < 12; i++)
+    for (uint i = 0; i < 12; i++)
     {
         vertexNodes.push_back(_vertices.add(Vector3D(vdata[i])));
     }
     
-    for (int i = 0; i < 20; i++)
+    for (uint i = 0; i < 20; i++)
     {
         VertexNode *triangleVertices[3];
-        for (int j = 0; j < 3; j++)
+        for (uint j = 0; j < 3; j++)
             triangleVertices[j] = vertexNodes[tindices[i][j]];
         _triangles.add(Triangle2(triangleVertices));
     }
@@ -411,7 +411,7 @@ void Mesh2::toVertices(vector<Vector3D> &vertices)
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        for (int j = 0; j < 3; j++)
+        for (uint j = 0; j < 3; j++)
         {
             Vector3D vertex = node->data().vertex(j)->data().position;
             vertices.push_back(vertex);
@@ -460,7 +460,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
 
 void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<Triangle> &triangles)
 {
-    int index = 0;
+    uint index = 0;
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -483,7 +483,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle indexTriangle;
-        for (int j = 0; j < 3; j++)
+        for (uint j = 0; j < 3; j++)
         {
             indexTriangle.vertexIndices[j] = node->data().vertex(j)->algorithmData.index;
             indexTriangle.texCoordIndices[j] = node->data().texCoord(j)->algorithmData.index;

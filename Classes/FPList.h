@@ -14,7 +14,7 @@ class FPList
 private:
     TNode *_begin;
     TNode *_end;
-    int _count;
+    uint _count;
 public:
     FPList()
     {
@@ -23,7 +23,7 @@ public:
         
         _begin->_next = _end;
         _end->_previous = _begin;
-        _count = 0;
+        _count = 0U;
     }
     
     virtual ~FPList()
@@ -55,49 +55,11 @@ public:
         
         other._begin = NULL;
         other._end = NULL;
-        other._count = -1;
+        other._count = 0U;
     }
     
     TNode *begin() const { return _begin->_next; }
     TNode *end() const { return _end; } 
-    
-    TNode *first(int n) const
-    {
-        TNode *current = _begin->_next;
-        
-        int i = 0;
-        
-        while (current != _end)
-        {
-            TNode *next = current->_next;
-            
-            if (i == n)
-                return current;
-            
-            current = next;
-        }
-        
-        return NULL;
-    }
-    
-    TNode *last(int n) const
-    {
-        TNode *current = _end->_previous;
-        
-        int i = 0;
-        
-        while (current != _begin)
-        {
-            TNode *next = current->_previous;
-            
-            if (i == n)
-                return current;
-            
-            current = next;
-        }
-        
-        return NULL;
-    }    
     
     TNode *first() const
     {
@@ -113,7 +75,7 @@ public:
         return NULL;
     }
     
-    int count() const
+    uint count() const
     {
         return _count;
     }
@@ -146,7 +108,7 @@ public:
         _begin->_next = _end;
         _end->_previous = _begin;
         
-        _count = 0;
+        _count = 0U;
     }
     
     TNode *add(const TData &data)

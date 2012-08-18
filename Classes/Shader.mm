@@ -12,16 +12,16 @@
 
 void ShaderLog(GLuint shader)
 {
-	int infologLength = 0;
+	int infoLogLength = 0;
 	int charsWritten = 0;
 	GLchar *infoLog;
 	
-	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infologLength);
+	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 	
-	if (infologLength > 0)
+	if (infoLogLength > 0)
 	{
-		infoLog = (GLchar *)malloc(infologLength);
-		glGetShaderInfoLog(shader, infologLength, &charsWritten, infoLog);
+		infoLog = (GLchar *)malloc((size_t)infoLogLength);
+		glGetShaderInfoLog(shader, infoLogLength, &charsWritten, infoLog);
 		free(infoLog);
 	}
 }

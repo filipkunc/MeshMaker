@@ -22,7 +22,7 @@
 		position = new Vector3D();
 		rotation = new Quaternion();
 		size = 10.0f;
-		selectedIndex = -1;
+		selectedIndex = UINT_MAX;
     }
 	return self;
 }
@@ -109,9 +109,9 @@
 
 - (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center highlightAll:(BOOL)higlightAll
 {
-	int widgetsCount = (int)[widgets count];
+	uint widgetsCount = [widgets count];
 	
-	if (widgetsCount <= 0)
+	if (widgetsCount == 0U)
 		return;
 	
 	Matrix4x4 rotationMatrix = rotation->ToMatrix();
@@ -129,7 +129,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		for (int i = 0; i < widgetsCount; i++)
+		for (uint i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
 			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:YES forSelection:NO];
@@ -161,7 +161,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		for (int i = 0; i < widgetsCount; i++)
+		for (uint i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
 			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO forSelection:NO];
@@ -175,7 +175,7 @@
 		glPushMatrix();
 		glTranslatef(position->x, position->y, position->z);
 		glMultMatrixf(rotationMatrix);
-		for (int i = 0; i < widgetsCount; i++)
+		for (uint i = 0; i < widgetsCount; i++)
 		{
 			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
 			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO forSelection:NO];
@@ -184,7 +184,7 @@
 	}
 }
 
-- (ManipulatorWidget *)widgetAtIndex:(int)index
+- (ManipulatorWidget *)widgetAtIndex:(uint)index
 {
 	return [widgets objectAtIndex:index];
 }

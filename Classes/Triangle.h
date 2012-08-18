@@ -21,22 +21,11 @@ private:
         PackedNode() : vertex(NULL), vertexEdge(NULL), texCoord(NULL), texCoordEdge(NULL) { }
     };
     
-    PackedNode _nodes[3];
+    PackedNode _nodes[4];
+    bool _isQuad;
     
-    const PackedNode &node(int index) const
-    {
-        if (index >= 0 && index < count())
-            return _nodes[index];
-        @throw [NSException exceptionWithName:@"Triangle2::node(int index) const" reason:@"index out of range" userInfo:nil];
-    }
-    
-    PackedNode &node(int index)
-    {
-        if (index >= 0 && index < count())
-            return _nodes[index];
-        @throw [NSException exceptionWithName:@"Triangle2::node(int index)" reason:@"index out of range" userInfo:nil];
-    }
-    
+    const PackedNode &node(uint index) const;
+    PackedNode &node(uint index);
 public:
     bool selected;
     bool visible;
@@ -44,21 +33,36 @@ public:
     Vector3D texCoordNormal;
     
     Triangle2();
-    Triangle2(VertexNode *vertices[3]);
-    Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]);
+    Triangle2(VertexNode *vertices[], bool isQuad=false);
+    Triangle2(VertexNode *vertices[], TexCoordNode *texCoords[], bool isQuad=false);
+
+    bool isQuad() const { return _isQuad; }
+    uint count() const { return isQuad() ? 4U : 3U; }
     
-    int count() const { return 3; }
+    uint twoTriIndex(uint index) const
+    {
+        switch (index)
+        {
+            case 3:
+            case 4:
+                return index - 1;
+            case 5:
+                return 0;
+            default:
+                return index;
+        }
+    }
+
+    VertexNode *vertex(uint index) const { return node(index).vertex; }
+    VertexEdgeNode *vertexEdge(uint index) const { return node(index).vertexEdge; }
+    TexCoordNode *texCoord(uint index) const { return node(index).texCoord; }
+    TexCoordEdgeNode *texCoordEdge(uint index) const { return node(index).texCoordEdge; }
     
-    VertexNode *vertex(int index) const { return node(index).vertex; }
-    VertexEdgeNode *vertexEdge(int index) const { return node(index).vertexEdge; }
-    TexCoordNode *texCoord(int index) const { return node(index).texCoord; }
-    TexCoordEdgeNode *texCoordEdge(int index) const { return node(index).texCoordEdge; }
-    
-    void setVertex(int index, VertexNode *value) { node(index).vertex = value; }
-    void setTexCoord(int index, TexCoordNode *value) { node(index).texCoord = value; }
+    void setVertex(uint index, VertexNode *value) { node(index).vertex = value; }
+    void setTexCoord(uint index, TexCoordNode *value) { node(index).texCoord = value; }
     void setTexCoordByVertex(TexCoordNode * texCoord, VertexNode *vertex);
-    void setVertexEdge(int index, VertexEdgeNode *value) { node(index).vertexEdge = value; }
-    void setTexCoordEdge(int index, TexCoordEdgeNode *value) { node(index).texCoordEdge = value; }
+    void setVertexEdge(uint index, VertexEdgeNode *value) { node(index).vertexEdge = value; }
+    void setTexCoordEdge(uint index, TexCoordEdgeNode *value) { node(index).texCoordEdge = value; }
     
     void removeVertex(TexCoordNode *texCoord) { removeTexCoord(texCoord); }
     void removeEdge(VertexEdgeNode *edge) { removeVertexEdge(edge); }
@@ -78,7 +82,7 @@ public:
     bool containsTexCoordEdge(const TexCoordEdgeNode *edge) const;
     void flip();
     
-    int indexOfVertex(const VertexNode *vertex) const;
+    uint indexOfVertex(const VertexNode *vertex) const;
     void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
     VertexNode *vertexNotInEdge(const VertexEdge *edge) const;
     TexCoordNode *texCoordNotInEdge(const TexCoordEdge *edge) const;

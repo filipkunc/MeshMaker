@@ -16,7 +16,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 	
 	if (convertToAlpha)
 	{
-		GLubyte *alphaData = (GLubyte *)malloc(width * height);
+		GLubyte *alphaData = (GLubyte *)malloc((size_t)(width * height));
 		for (int i = 0; i < width * height; i++)
 			alphaData[i] = data[i * components];
 		
