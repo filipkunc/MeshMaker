@@ -227,7 +227,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                 Triangle2 &triangle = node->data();
                 if (triangle.selected)
                 {
-                    for (uint i = 0; i < 3; i++)
+                    for (uint i = 0; i < triangle.count(); i++)
                     {
                         triangle.vertex(i)->data().selected = true;
                         triangle.texCoord(i)->data().selected = true;
@@ -329,7 +329,7 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
         {
             Triangle2 &triangle = _cachedTriangleSelection.at(index)->data();
             triangle.selected = selected;
-            for (uint i = 0; i < 3; i++)
+            for (uint i = 0; i < triangle.count(); i++)
             {
                 triangle.vertex(i)->data().selected = selected;
                 triangle.texCoord(i)->data().selected = selected;
@@ -508,7 +508,7 @@ void Mesh2::removeDegeneratedTriangles()
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (node->data().isDegenerated())
+        if (node->data().isDegeneratedAfterCollapseToTriangle())
             _triangles.remove(node);
     }
 }
@@ -1092,23 +1092,25 @@ void Mesh2::duplicateSelectedTriangles()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (!node->data().selected)
+        Triangle2 &triQuad = node->data();
+        
+        if (!triQuad.selected)
             continue;
         
-        VertexNode *duplicatedVertices[3];
-        TexCoordNode *duplicatedTexCoords[3];
+        VertexNode *duplicatedVertices[4];
+        TexCoordNode *duplicatedTexCoords[4];
         
-        for (uint i = 0; i < 3; i++)
+        for (uint i = 0; i < triQuad.count(); i++)
         {
-            VertexNode *originalVertex = node->data().vertex(i);
-            TexCoordNode *originalTexCoord = node->data().texCoord(i);
+            VertexNode *originalVertex = triQuad.vertex(i);
+            TexCoordNode *originalTexCoord = triQuad.texCoord(i);
             duplicatedVertices[i] = duplicateVertex(originalVertex);
             duplicatedTexCoords[i] = duplicateVertex(originalTexCoord);
         }
         
         node->data().selected = false;
         
-        TriangleNode *newTriangle = _triangles.add(Triangle2(duplicatedVertices, duplicatedTexCoords));
+        TriangleNode *newTriangle = _triangles.add(Triangle2(duplicatedVertices, duplicatedTexCoords, triQuad.isQuad()));
         newTriangle->data().selected = true;
     }
         

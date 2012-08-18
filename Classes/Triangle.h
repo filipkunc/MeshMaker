@@ -62,7 +62,7 @@ public:
     void removeTexCoordEdge(TexCoordEdgeNode *edge);
     void removeEdges();
     
-    bool isDegenerated() const;
+    bool isDegeneratedAfterCollapseToTriangle();
     bool containsVertex(const VertexNode *vertex) const;
     bool containsVertexEdge(const VertexEdgeNode *edge) const;
     bool containsTexCoordEdge(const TexCoordEdgeNode *edge) const;

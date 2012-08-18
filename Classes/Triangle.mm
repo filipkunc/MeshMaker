@@ -219,7 +219,7 @@ void Triangle2::removeEdges()
     }
 }
 
-bool Triangle2::isDegenerated() const
+bool Triangle2::isDegeneratedAfterCollapseToTriangle()
 {
     if (containsVertex(NULL))
         return true;
@@ -232,7 +232,19 @@ bool Triangle2::isDegenerated() const
         for (uint j = i + 1; j < count(); j++)
         {
             if (vertex(i) == vertex(j))
+            {
+                if (_isQuad)
+                {
+                    if (i < 3 && j < 3)
+                        swap(node(i), node(3));
+                    
+                    node(3) = PackedNode();
+                    _isQuad = false;
+                    
+                    return isDegeneratedAfterCollapseToTriangle();
+                }
                 return true;
+            }
         }
     }
     	
