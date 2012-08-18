@@ -39,20 +39,6 @@ public:
     bool isQuad() const { return _isQuad; }
     uint count() const { return isQuad() ? 4U : 3U; }
     
-    uint twoTriIndex(uint index) const
-    {
-        switch (index)
-        {
-            case 3:
-            case 4:
-                return index - 1;
-            case 5:
-                return 0;
-            default:
-                return index;
-        }
-    }
-
     VertexNode *vertex(uint index) const { return node(index).vertex; }
     VertexEdgeNode *vertexEdge(uint index) const { return node(index).vertexEdge; }
     TexCoordNode *texCoord(uint index) const { return node(index).texCoord; }

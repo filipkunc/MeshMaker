@@ -8,19 +8,6 @@
 
 #import "Mesh2.h"
 
-void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float components[3]);
-
-void fillCachedColorsAtIndex(uint index, GLTriangleVertex *cachedColors, float components[3])
-{
-    for (uint j = 0; j < 3; j++)
-    {
-        for (uint k = 0; k < 3; k++)
-        {
-            cachedColors[index * 3 + j].color.coords[k] = components[k];
-        }
-    }	
-}
-
 void Mesh2::resetTriangleCache()
 {
     _cachedTriangleVertices.setValid(false);
@@ -38,45 +25,9 @@ void Mesh2::fillTriangleCache()
     if (_cachedTriangleVertices.isValid())
         return;
     
+    _cachedTriangleVertices.resize(_triangles.count() * 6);
+    
     resetAlgorithmData();
-    
-    _cachedTriangleVertices.resize(_triangles.count() * 3);
-    
-    uint i = 0;
-    
-    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
-    {
-        if (!node->data().visible)
-            continue;
-        
-        Triangle2 &currentTriangle = node->data();
-        
-        currentTriangle.computeNormal();
-        Vector3D n = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
-        
-        for (uint j = 0; j < 3; j++)
-        {
-            for (uint k = 0; k < 3; k++)
-            {
-                _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data().position[k];
-                _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];
-            }
-        }
-        
-        if (currentTriangle.isQuad())
-        {
-            for (uint j = 0; j < 3; j++)
-            {
-                for (uint k = 0; k < 3; k++)
-                {
-                    _cachedTriangleVertices[i * 3 + j].position.coords[k] = currentTriangle.vertex(j)->data().position[k];
-                    _cachedTriangleVertices[i * 3 + j].flatNormal.coords[k] = n[k];
-                }
-            }
-        }
-        
-        i++;
-    }
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -87,48 +38,52 @@ void Mesh2::fillTriangleCache()
     {
         node->computeNormal();
     }
-    
-    i = 0;
+
+    const float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
+    const uint twoTriIndices[6] = { 0, 1, 2, 0, 2, 3 };
+    uint i = 0;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (!node->data().visible)
+        Triangle2 &currentTriangle = node->data();
+
+        if (!currentTriangle.visible)
             continue;
         
-        Triangle2 &currentTriangle = node->data();
+        const float *c = currentTriangle.selected ? selectedComponents : _colorComponents;
         
-        for (uint j = 0; j < 3; j++)
+        currentTriangle.computeNormal();
+        Vector3D fn = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
+        
+        uint vertexCount = currentTriangle.isQuad() ? 6 : 3;
+        
+        for (uint j = 0; j < vertexCount; j++)
         {
+            uint twoTriIndex = twoTriIndices[j];
+            VertexNode *vertex = currentTriangle.vertex(twoTriIndex);
+            TexCoordNode *texCoord = currentTriangle.texCoord(twoTriIndex);
+
+            const Vector3D &v = vertex->data().position;
+            const Vector3D &t = texCoord->data().position;
+            
+            const Vector3D &sn = _isUnwrapped ? texCoord->algorithmData.normal : vertex->algorithmData.normal;
+            
+            GLTriangleVertex &cachedVertex = _cachedTriangleVertices[i];
+            
             for (uint k = 0; k < 3; k++)
             {
-                const Vector3D &n = _isUnwrapped ? currentTriangle.texCoord(j)->algorithmData.normal : currentTriangle.vertex(j)->algorithmData.normal;
-                const Vector3D &t = currentTriangle.texCoord(j)->data().position;
-                _cachedTriangleVertices[i * 3 + j].smoothNormal.coords[k] = n[k];
-                _cachedTriangleVertices[i * 3 + j].texCoord.coords[k] = t[k];
+                cachedVertex.position.coords[k] = v[k];
+                cachedVertex.texCoord.coords[k] = t[k];
+                cachedVertex.flatNormal.coords[k] = fn[k];
+                cachedVertex.smoothNormal.coords[k] = sn[k];
+                cachedVertex.color.coords[k] = c[k];
             }
+            
+            i++;
         }
-        
-        i++;
     }
     
-    float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
-	
-    i = 0;
-	
-    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
-	{
-        if (!node->data().visible)
-            continue;
-        
-		if (node->data().selected)
-            fillCachedColorsAtIndex(i, _cachedTriangleVertices, selectedComponents);
-		else
-            fillCachedColorsAtIndex(i, _cachedTriangleVertices, _colorComponents);
-        
-        i++;
-	}
-    
-    _cachedTriangleVertices.resize(i * 3);
+    _cachedTriangleVertices.resize(i);
     _cachedTriangleVertices.setValid(true);
     
     if (!_vboGenerated)
@@ -162,7 +117,7 @@ void Mesh2::fillEdgeCache()
         
         if (node->data().selected)
         {
-            for (int k = 0; k < 3; k++)
+            for (uint k = 0; k < 3; k++)
             {
                 _cachedEdgeVertices[i].color.coords[k] = selectedColor[k];
                 _cachedEdgeVertices[i + 1].color.coords[k] = selectedColor[k];
@@ -170,14 +125,14 @@ void Mesh2::fillEdgeCache()
         }
         else
         {
-            for (int k = 0; k < 3; k++)
+            for (uint k = 0; k < 3; k++)
             {
                 _cachedEdgeVertices[i].color.coords[k] = normalColor[k];
                 _cachedEdgeVertices[i + 1].color.coords[k] = normalColor[k];
             }
         }
         
-        for (int k = 0; k < 3; k++)
+        for (uint k = 0; k < 3; k++)
         {
             _cachedEdgeVertices[i].position.coords[k] = node->data().vertex(0)->data().position[k];
             _cachedEdgeVertices[i + 1].position.coords[k] = node->data().vertex(1)->data().position[k];
@@ -198,7 +153,7 @@ void Mesh2::fillEdgeCache()
         
         if (node->data().selected)
         {
-            for (int k = 0; k < 3; k++)
+            for (uint k = 0; k < 3; k++)
             {
                 _cachedEdgeTexCoords[i].color.coords[k] = selectedColor[k];
                 _cachedEdgeTexCoords[i + 1].color.coords[k] = selectedColor[k];
@@ -206,14 +161,14 @@ void Mesh2::fillEdgeCache()
         }
         else
         {
-            for (int k = 0; k < 3; k++)
+            for (uint k = 0; k < 3; k++)
             {
                 _cachedEdgeTexCoords[i].color.coords[k] = normalColor[k];
                 _cachedEdgeTexCoords[i + 1].color.coords[k] = normalColor[k];
             }
         }
         
-        for (int k = 0; k < 3; k++)
+        for (uint k = 0; k < 3; k++)
         {
             _cachedEdgeTexCoords[i].position.coords[k] = node->data().texCoord(0)->data().position[k];
             _cachedEdgeTexCoords[i + 1].position.coords[k] = node->data().texCoord(1)->data().position[k];
@@ -868,20 +823,22 @@ void Mesh2::hideSelected()
             
             for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
             {
-                if (node->data().selected)
+                Triangle2 &tri = node->data();
+                
+                if (tri.selected)
                 {
-                    node->data().visible = false;
+                    tri.visible = false;
                     
-                    for (uint i = 0; i < 3; i++)
+                    for (uint i = 0; i < tri.count(); i++)
                     {
-                        if (!node->data().vertexEdge(i)->data().isNotShared())
-                            node->data().vertexEdge(i)->data().visible = false;
+                        if (!tri.vertexEdge(i)->data().isNotShared())
+                            tri.vertexEdge(i)->data().visible = false;
                         
-                        if (!node->data().texCoordEdge(i)->data().isNotShared())
-                            node->data().texCoordEdge(i)->data().visible = false;
+                        if (!tri.texCoordEdge(i)->data().isNotShared())
+                            tri.texCoordEdge(i)->data().visible = false;
                     }
                     
-                    node->data().selected = false;
+                    tri.selected = false;
                 }
             }
             
