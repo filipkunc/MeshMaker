@@ -1,5 +1,5 @@
 /*
- *  MeshHelpers.cpp
+ *  MeshHelpers.mm
  *  OpenGLEditor
  *
  *  Created by Filip Kunc on 10/23/09.

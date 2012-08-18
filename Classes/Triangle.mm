@@ -1,5 +1,5 @@
 //
-//  Triangle.cpp
+//  Triangle.mm
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 1/8/12.
@@ -21,7 +21,7 @@ Triangle2::Triangle2() : selected(false), visible(true)
 
 Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false), visible(true)
 {
-    for (int i = 0; i < count(); i++)
+    for (int i = 0; i < 3; i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);
@@ -32,7 +32,7 @@ Triangle2::Triangle2(VertexNode *vertices[3]) : selected(false), visible(true)
 
 Triangle2::Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]) : selected(false), visible(true)
 {
-    for (int i = 0; i < count(); i++)
+    for (int i = 0; i < 3; i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);

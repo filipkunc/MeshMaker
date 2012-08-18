@@ -22,6 +22,21 @@ private:
     };
     
     PackedNode _nodes[3];
+    
+    const PackedNode &node(int index) const
+    {
+        if (index >= 0 && index < count())
+            return _nodes[index];
+        @throw [NSException exceptionWithName:@"Triangle2::node(int index) const" reason:@"index out of range" userInfo:nil];
+    }
+    
+    PackedNode &node(int index)
+    {
+        if (index >= 0 && index < count())
+            return _nodes[index];
+        @throw [NSException exceptionWithName:@"Triangle2::node(int index)" reason:@"index out of range" userInfo:nil];
+    }
+    
 public:
     bool selected;
     bool visible;
@@ -34,16 +49,16 @@ public:
     
     int count() const { return 3; }
     
-    VertexNode *vertex(int index) const { return _nodes[index].vertex; }
-    VertexEdgeNode *vertexEdge(int index) const { return _nodes[index].vertexEdge; }
-    TexCoordNode *texCoord(int index) const { return _nodes[index].texCoord; }
-    TexCoordEdgeNode *texCoordEdge(int index) const { return _nodes[index].texCoordEdge; }
+    VertexNode *vertex(int index) const { return node(index).vertex; }
+    VertexEdgeNode *vertexEdge(int index) const { return node(index).vertexEdge; }
+    TexCoordNode *texCoord(int index) const { return node(index).texCoord; }
+    TexCoordEdgeNode *texCoordEdge(int index) const { return node(index).texCoordEdge; }
     
-    void setVertex(int index, VertexNode *value) { _nodes[index].vertex = value; }
-    void setTexCoord(int index, TexCoordNode *value) { _nodes[index].texCoord = value; }
+    void setVertex(int index, VertexNode *value) { node(index).vertex = value; }
+    void setTexCoord(int index, TexCoordNode *value) { node(index).texCoord = value; }
     void setTexCoordByVertex(TexCoordNode * texCoord, VertexNode *vertex);
-    void setVertexEdge(int index, VertexEdgeNode *value) { _nodes[index].vertexEdge = value; }
-    void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _nodes[index].texCoordEdge = value; }
+    void setVertexEdge(int index, VertexEdgeNode *value) { node(index).vertexEdge = value; }
+    void setTexCoordEdge(int index, TexCoordEdgeNode *value) { node(index).texCoordEdge = value; }
     
     void removeVertex(TexCoordNode *texCoord) { removeTexCoord(texCoord); }
     void removeEdge(VertexEdgeNode *edge) { removeVertexEdge(edge); }
