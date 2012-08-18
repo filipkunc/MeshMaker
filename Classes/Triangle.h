@@ -11,10 +11,17 @@
 class Triangle2
 {
 private:
-    VertexNode *_vertices[3];
-    VertexEdgeNode *_vertexEdges[3];
-    TexCoordNode *_texCoords[3];
-    TexCoordEdgeNode *_texCoordEdges[3];
+    struct PackedNode
+    {
+        VertexNode *vertex;
+        VertexEdgeNode *vertexEdge;
+        TexCoordNode *texCoord;
+        TexCoordEdgeNode *texCoordEdge;
+        
+        PackedNode() : vertex(NULL), vertexEdge(NULL), texCoord(NULL), texCoordEdge(NULL) { }
+    };
+    
+    PackedNode _nodes[3];
 public:
     bool selected;
     bool visible;
@@ -25,16 +32,18 @@ public:
     Triangle2(VertexNode *vertices[3]);
     Triangle2(VertexNode *vertices[3], TexCoordNode *texCoords[3]);
     
-    VertexNode *vertex(int index) const { return _vertices[index]; }
-    VertexEdgeNode *vertexEdge(int index) const { return _vertexEdges[index]; }
-    TexCoordNode *texCoord(int index) const { return _texCoords[index]; }
-    TexCoordEdgeNode *texCoordEdge(int index) const { return _texCoordEdges[index]; }
+    int count() const { return 3; }
     
-    void setVertex(int index, VertexNode *value) { _vertices[index] = value; }
-    void setTexCoord(int index, TexCoordNode *value) { _texCoords[index] = value; }
+    VertexNode *vertex(int index) const { return _nodes[index].vertex; }
+    VertexEdgeNode *vertexEdge(int index) const { return _nodes[index].vertexEdge; }
+    TexCoordNode *texCoord(int index) const { return _nodes[index].texCoord; }
+    TexCoordEdgeNode *texCoordEdge(int index) const { return _nodes[index].texCoordEdge; }
+    
+    void setVertex(int index, VertexNode *value) { _nodes[index].vertex = value; }
+    void setTexCoord(int index, TexCoordNode *value) { _nodes[index].texCoord = value; }
     void setTexCoordByVertex(TexCoordNode * texCoord, VertexNode *vertex);
-    void setVertexEdge(int index, VertexEdgeNode *value) { _vertexEdges[index] = value; }
-    void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _texCoordEdges[index] = value; }
+    void setVertexEdge(int index, VertexEdgeNode *value) { _nodes[index].vertexEdge = value; }
+    void setTexCoordEdge(int index, TexCoordEdgeNode *value) { _nodes[index].texCoordEdge = value; }
     
     void removeVertex(TexCoordNode *texCoord) { removeTexCoord(texCoord); }
     void removeEdge(VertexEdgeNode *edge) { removeVertexEdge(edge); }
