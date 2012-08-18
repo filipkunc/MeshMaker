@@ -15,10 +15,26 @@
 #import <vector>
 using namespace std;
 
+enum ModelVersion : uint
+{
+    ModelVersionFirst = 1U,
+    ModelVersionColors = 2U,
+    ModelVersionTriQuads = 3U,
+    
+    ModelVersionLatest = ModelVersionTriQuads
+};
+
 struct Triangle
 {
-	uint vertexIndices[3];
+    uint vertexIndices[3];
     uint texCoordIndices[3];
+};
+
+struct TriQuad
+{
+	uint vertexIndices[4];
+    uint texCoordIndices[4];
+    bool isQuad;
 };
 
 struct Edge

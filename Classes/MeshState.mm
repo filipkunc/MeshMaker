@@ -20,7 +20,7 @@
 		itemIndex = index;
 		vertices = new vector<Vector3D>();
         texCoords = new vector<Vector3D>();
-		triangles = new vector<Triangle>();
+		triangles = new vector<TriQuad>();
 		selection = new vector<bool>();
         
         mesh->toIndexRepresentation(*vertices, *texCoords, *triangles);

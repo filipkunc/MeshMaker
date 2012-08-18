@@ -59,7 +59,7 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
 {
     NSColor *color = nil;
     
-    if (stream.version > 1)
+    if (stream.version >= ModelVersionColors)
     {
         Vector4D baseColor;           
         [stream readBytes:&baseColor length:sizeof(Vector4D)];
@@ -76,7 +76,7 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
-    vector<Triangle> triangles;
+    vector<TriQuad> triangles;
     
     for (uint i = 0; i < verticesSize; i++)
     {
@@ -92,11 +92,30 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
         texCoords.push_back(texCoord);
     }
     
-    for (uint i = 0; i < trianglesSize; i++)
+    if (stream.version >= ModelVersionTriQuads)
     {
-        Triangle triangle;
-        [stream readBytes:&triangle length:sizeof(Triangle)];
-        triangles.push_back(triangle);
+        for (uint i = 0; i < trianglesSize; i++)
+        {
+            TriQuad triangle;
+            [stream readBytes:&triangle length:sizeof(TriQuad)];
+            triangles.push_back(triangle);
+        }
+    }
+    else
+    {
+        for (uint i = 0; i < trianglesSize; i++)
+        {
+            Triangle triangle;
+            [stream readBytes:&triangle length:sizeof(Triangle)];
+            TriQuad triQuad;
+            triQuad.isQuad = false;
+            for (uint j = 0; j < 3; j++)
+            {
+                triQuad.vertexIndices[j] = triangle.vertexIndices[j];
+                triQuad.texCoordIndices[j] = triangle.texCoordIndices[j];
+            }
+            triangles.push_back(triQuad);
+        }
     }
     
     this->fromIndexRepresentation(vertices, texCoords, triangles);
@@ -106,7 +125,7 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
 
 void Mesh2::encode(MemoryWriteStream *stream)
 {
-    if (stream.version > 1)
+    if (stream.version > ModelVersionColors)
     {
         Vector4D baseColor;
         baseColor.x = _color.redComponent;
@@ -118,7 +137,7 @@ void Mesh2::encode(MemoryWriteStream *stream)
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
-    vector<Triangle> triangles;
+    vector<TriQuad> triangles;
     
     this->toIndexRepresentation(vertices, texCoords, triangles);
     
@@ -136,7 +155,7 @@ void Mesh2::encode(MemoryWriteStream *stream)
         [stream writeBytes:&texCoords.at(0) length:texCoords.size() * sizeof(Vector3D)];
 	
 	if (triangles.size() > 0)
-        [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(Triangle)];
+        [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(TriQuad)];
 }
 
 void Mesh2::setColor(NSColor *color)
@@ -1156,10 +1175,12 @@ void Mesh2::extrudeSelectedTriangles()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (!node->data().selected)
+        Triangle2 &triQuad = node->data();
+        
+        if (!triQuad.selected)
             continue;
         
-        for (uint i = 0; i < 3; i++)
+        for (uint i = 0; i < triQuad.count(); i++)
         {
             VertexEdge &vertexEdge = node->data().vertexEdge(i)->data();
             
@@ -1193,19 +1214,19 @@ void Mesh2::merge(Mesh2 *mesh)
 {
     vector<Vector3D> thisVertices;
     vector<Vector3D> thisTexCoords;
-    vector<Triangle> thisTriangles;
+    vector<TriQuad> thisTriangles;
     
     this->toIndexRepresentation(thisVertices, thisTexCoords, thisTriangles);
     
     vector<Vector3D> otherVertices;
     vector<Vector3D> otherTexCoords;
-    vector<Triangle> otherTriangles;
+    vector<TriQuad> otherTriangles;
     
     mesh->toIndexRepresentation(otherVertices, otherTexCoords, otherTriangles);
     
     vector<Vector3D> mergedVertices;
     vector<Vector3D> mergedTexCoords;
-    vector<Triangle> mergedTriangles;
+    vector<TriQuad> mergedTriangles;
     
     for (uint i = 0; i < thisVertices.size(); i++)
         mergedVertices.push_back(thisVertices[i]);
@@ -1224,8 +1245,8 @@ void Mesh2::merge(Mesh2 *mesh)
     
     for (uint i = 0; i < otherTriangles.size(); i++)
     {
-        Triangle triangle = otherTriangles[i];
-        for (uint j = 0; j < 3; j++)
+        TriQuad triangle = otherTriangles[i];
+        for (uint j = 0; j < 4; j++)
         {
             triangle.vertexIndices[j] += thisVertices.size();
             triangle.texCoordIndices[j] += thisTexCoords.size();

@@ -229,8 +229,8 @@ public:
     void fromVertices(const vector<Vector3D> &vertices);
     void toVertices(vector<Vector3D> &vertices);
     
-    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<Triangle> &triangles);
-    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<Triangle> &triangles);
+    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<TriQuad> &triangles);
+    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles);
   
     void setSelection(const vector<bool> &selection);
     void getSelection(vector<bool> &selection);

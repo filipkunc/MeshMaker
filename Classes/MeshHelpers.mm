@@ -9,9 +9,10 @@
 
 #import "MeshHelpers.h"
 
-void AddTriangle(vector<Triangle> &triangles, uint index1, uint index2, uint index3)
+void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint index3)
 {
-    Triangle triangle;
+    TriQuad triangle;
+    triangle.isQuad = false;
     
     triangle.vertexIndices[0] = index1;
     triangle.vertexIndices[1] = index2;
@@ -20,9 +21,10 @@ void AddTriangle(vector<Triangle> &triangles, uint index1, uint index2, uint ind
     triangles.push_back(triangle);
 }
 
-void AddTriangle(vector<Triangle> &triangles, uint vertexIndices[3], uint texCoordIndices[3])
+void AddTriangle(vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoordIndices[3])
 {
-    Triangle triangle;
+    TriQuad triangle;
+    triangle.isQuad = false;
     
     for (int i = 0; i < 3; i++)
     {
@@ -33,22 +35,20 @@ void AddTriangle(vector<Triangle> &triangles, uint vertexIndices[3], uint texCoo
     triangles.push_back(triangle);
 }
 
-void AddQuad(vector<Triangle> &triangles, uint index1, uint index2, uint index3, uint index4)
+void AddQuad(vector<TriQuad> &triangles, uint index1, uint index2, uint index3, uint index4)
 {
-    Triangle triangle1, triangle2;
-	triangle1.vertexIndices[0] = index1;
-	triangle1.vertexIndices[1] = index2;
-	triangle1.vertexIndices[2] = index3;
-	
-	triangle2.vertexIndices[0] = index1;
-	triangle2.vertexIndices[1] = index3;
-	triangle2.vertexIndices[2] = index4;
+    TriQuad triangle;
+    triangle.isQuad = true;
     
-    triangles.push_back(triangle1);
-    triangles.push_back(triangle2);
+	triangle.vertexIndices[0] = index1;
+	triangle.vertexIndices[1] = index2;
+	triangle.vertexIndices[2] = index3;
+    triangle.vertexIndices[3] = index4;
+	
+    triangles.push_back(triangle);
 }
 
-void FlipTriangle(Triangle &triangle)
+void FlipTriangle(TriQuad &triangle)
 {
     swap(triangle.vertexIndices[0], triangle.vertexIndices[2]);
     swap(triangle.texCoordIndices[0], triangle.texCoordIndices[2]);

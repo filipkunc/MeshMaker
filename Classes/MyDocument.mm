@@ -991,11 +991,12 @@ struct anim
         
         vector<Vector3D> vertices;
         vector<Vector3D> texCoords;
-        vector<Triangle> triangles;
+        vector<TriQuad> triangles;
         
         for (j = 0; j < m_descs[i].no_faces; j++)
         {
-            Triangle triangle;
+            TriQuad triangle;
+            triangle.isQuad = false;
             for (int k = 0; k < 3; k++)
             {
                 triangle.vertexIndices[k] = meshes[i].faces[j].vertID[k];
@@ -1052,7 +1053,7 @@ struct anim
     
     [stream readBytes:&version length:sizeof(unsigned int)];
     
-    if (version < 1 || version > 2)
+    if (version < ModelVersionFirst || version > ModelVersionLatest)
         return NO;
     
     [stream setVersion:version];
@@ -1070,7 +1071,7 @@ struct anim
     NSMutableData *data = [[NSMutableData alloc] init];
     MemoryWriteStream *stream = [[MemoryWriteStream alloc] initWithData:data];
     
-    unsigned int version = 2;
+    unsigned int version = ModelVersionLatest;
     [stream setVersion:version];
     [stream writeBytes:&version length:sizeof(unsigned int)];
     [items encodeWithWriteStream:stream];
@@ -1108,7 +1109,7 @@ struct anim
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
-    vector<Triangle> triangles;
+    vector<TriQuad> triangles;
     
     uint pointsSize = points->size();
     
@@ -1309,7 +1310,7 @@ struct anim
                 vector<Vector3D> vertices;
                 vector<Vector3D> texCoords;
                 vector<Vector3D> normals;
-                vector<Triangle> triangles;
+                vector<TriQuad> triangles;
                 
                 item.mesh->flipAllTriangles();
                 item.mesh->toIndexRepresentation(vertices, texCoords, triangles);
@@ -1419,7 +1420,8 @@ struct anim
                                 
                                 for (uint i = 0; i < triangles.size(); i++)
                                 {
-                                    const Triangle &t = triangles[i];
+                                    const TriQuad &t = triangles[i];
+                                    // TODO: implement tri/quads.
                                     
                                     for (uint j = 0; j < 3; j++)
                                     {
