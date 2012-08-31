@@ -8,6 +8,7 @@
 
 #pragma once
 
+
 class Triangle2
 {
 private:
@@ -31,6 +32,8 @@ public:
     bool visible;
     Vector3D vertexNormal;
     Vector3D texCoordNormal;
+    
+    static const uint twoTriIndices[6];
     
     Triangle2();
     Triangle2(VertexNode *vertices[], bool isQuad=false);

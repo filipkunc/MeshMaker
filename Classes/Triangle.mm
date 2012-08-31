@@ -8,6 +8,8 @@
 
 #include "MeshHelpers.h"
 
+const uint Triangle2::twoTriIndices[6] = { 0, 1, 2, 0, 2, 3 };
+
 Triangle2::Triangle2() :
     selected(false),
     visible(true),

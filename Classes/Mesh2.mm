@@ -639,6 +639,40 @@ void Mesh2::mergeSelected()
 	}
 }
 
+void Mesh2::triangulate()
+{
+    resetTriangleCache();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle2 quad = node->data();
+        if (quad.isQuad())
+        {
+            Triangle2 triangle[2];
+            
+            uint v = 0;
+            for (uint i = 0; i < 2; i++)
+            {
+                for (uint j = 0; j < 3; j++)
+                {
+                    uint index = Triangle2::twoTriIndices[v];
+                    v++;
+                    triangle[i].setVertex(j, quad.vertex(index));
+                    triangle[i].setTexCoord(j, quad.texCoord(index));
+                }
+                
+                _triangles.add(triangle[i]);
+            }
+            
+            _triangles.remove(node);
+        }
+    }
+    
+    makeEdges();
+	
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::halfEdges()
 {
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
@@ -772,6 +806,8 @@ void Mesh2::makeSubdividedTriangles()
 
 void Mesh2::loopSubdivision()
 {
+    triangulate();
+    
     resetTriangleCache();        
     
     uint vertexCount = _vertices.count();

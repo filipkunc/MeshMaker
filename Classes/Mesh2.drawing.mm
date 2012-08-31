@@ -40,7 +40,7 @@ void Mesh2::fillTriangleCache()
     }
 
     const float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
-    const uint twoTriIndices[6] = { 0, 1, 2, 0, 2, 3 };
+    const uint *twoTriIndices = Triangle2::twoTriIndices;
     uint i = 0;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())

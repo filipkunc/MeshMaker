@@ -171,7 +171,7 @@ public:
     void flipSelected();
     void flipAllTriangles();
     void extrudeSelectedTriangles();
-    
+    void triangulate();
     void loopSubdivision();
     
     void merge(Mesh2 *mesh);
