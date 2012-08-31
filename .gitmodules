@@ -1,0 +1,3 @@
+[submodule "Submodules/OpenSubdiv"]
+	path = Submodules/OpenSubdiv
+	url = https://github.com/filipkunc/OpenSubdiv.git
