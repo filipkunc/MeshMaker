@@ -10,4 +10,7 @@
    <FileRef
       location = "group:OpenGL32Playground/OpenGL32Playground.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Submodules/OpenSubdiv/OpenSubdiv.xcodeproj">
+   </FileRef>
 </Workspace>
