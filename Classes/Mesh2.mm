@@ -906,7 +906,10 @@ void Mesh2::openSubdivision()
         TriQuad triQuad;
         triQuad.isQuad = numVerts == 4;
         for (uint j = 0; j < numVerts; j++)
+        {
             triQuad.vertexIndices[j] = indices[i + j];
+            triQuad.texCoordIndices[j] = indices[i + j];
+        }
         triQuads.push_back(triQuad);
     }
     
