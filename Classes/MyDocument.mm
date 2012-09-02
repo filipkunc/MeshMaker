@@ -728,7 +728,7 @@ struct anim
 
 - (IBAction)subdivision:(id)sender
 {
-    [self meshOnlyActionWithName:@"Subdivision" block:^ { [self currentMesh]->loopSubdivision(); }];
+    [self meshOnlyActionWithName:@"Subdivision" block:^ { [self currentMesh]->openSubdivision(); }];
 }
 
 + (BOOL)softSelection

@@ -71,6 +71,7 @@
 		A74BF5D914FA9B2E006D7BA3 /* Triangle.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684814B9FD350091B657 /* Triangle.mm */; };
 		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A766E70F15F3749D003499BB /* libosd.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A766E70E15F3749D003499BB /* libosd.dylib */; };
 		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
 		A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
 		A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */; };
@@ -177,6 +178,7 @@
 		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		A766E70E15F3749D003499BB /* libosd.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosd.dylib; path = ../Programming/GitProjects/MeshMaker/externals/OpenSubdiv/lib/Debug/libosd.dylib; sourceTree = "<group>"; };
 		A767E0E3153B544700A175DE /* IcosahedronTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IcosahedronTemplate.png; sourceTree = "<group>"; };
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
 		A76AF5E7151E331A0015E5B4 /* MemoryStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MemoryStream.m; path = Classes/MemoryStream.m; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A766E70F15F3749D003499BB /* libosd.dylib in Frameworks */,
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
 			);
@@ -267,6 +270,7 @@
 		2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */ = {
 			isa = PBXGroup;
 			children = (
+				A766E70E15F3749D003499BB /* libosd.dylib */,
 				A7064C8312BD109A00B14CFA /* Tests */,
 				A7521E8A10E675ED003D31E4 /* Shaders */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
@@ -717,6 +721,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/OpenSubdiv\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -744,6 +752,10 @@
 				GCC_PREFIX_HEADER = "MeshMaker_Tests-Prefix.pch";
 				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/OpenSubdiv\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -762,6 +774,10 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/OpenSubdiv\"",
+				);
 				PRODUCT_NAME = "MeshMaker-Tests";
 			};
 			name = Debug;
@@ -772,6 +788,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/OpenSubdiv\"",
+				);
 				PRODUCT_NAME = "MeshMaker-Tests";
 			};
 			name = Release;
@@ -780,27 +800,40 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = MeshMaker.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MeshMaker_Prefix.pch;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_SHADOW = NO;
-				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = (
+					Submodules/OpenSubdiv/opensubdiv,
+					Submodules/OpenSubdiv/regression,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Debug\"",
+					"\"$(SRCROOT)/../Programming/GitProjects/MeshMaker/externals/OpenSubdiv/lib/Debug\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
 				PROVISIONING_PROFILE = "";
@@ -812,25 +845,38 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = MeshMaker.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MeshMaker_Prefix.pch;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_SHADOW = NO;
-				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = (
+					Submodules/OpenSubdiv/opensubdiv,
+					Submodules/OpenSubdiv/regression,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Debug\"",
+					"\"$(SRCROOT)/../Programming/GitProjects/MeshMaker/externals/OpenSubdiv/lib/Debug\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
 				PROVISIONING_PROFILE = "";

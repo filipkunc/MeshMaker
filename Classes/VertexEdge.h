@@ -142,12 +142,12 @@ public:
 };
 
 template <class T>
-class VEdgeNode : public FPNode<VEdgeNode<T>, VEdge<T>>
+class VEdgeNode : public FPNode<VEdgeNode<T>, VEdge<T> >
 {
 public:
-    VEdgeNode() : FPNode<VEdgeNode<T>, VEdge<T>>() { }
+    VEdgeNode() : FPNode<VEdgeNode<T>, VEdge<T> >() { }
     
-    VEdgeNode(const VEdge<T> &edge) : FPNode<VEdgeNode<T>, VEdge<T>>(edge)
+    VEdgeNode(const VEdge<T> &edge) : FPNode<VEdgeNode<T>, VEdge<T> >(edge)
     {
         addToVertices();
     }
@@ -160,7 +160,7 @@ public:
     
     virtual void setData(const VEdge<T> &data) 
     { 
-        FPNode<VEdgeNode<T>, VEdge<T>>::setData(data);
+        FPNode<VEdgeNode<T>, VEdge<T> >::setData(data);
         addToVertices();
     }    
     

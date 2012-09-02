@@ -83,6 +83,7 @@ private:
     
     static bool _useSoftSelection;
     static bool _selectThrough;
+    
     bool _isUnwrapped;
     
     uint _vboID;
@@ -90,7 +91,7 @@ private:
 
     float _colorComponents[4];
     NSColor *_color;
-    FPTexture *_texture;    
+    FPTexture *_texture;
 private:
     void fastMergeSelectedVertices();
     void fastMergeSelectedTexCoords();
@@ -114,7 +115,7 @@ private:
     void initOrUpdateTexture();
     
     template <class T>
-    FPList<VEdgeNode<T>, VEdge<T>> &edges();
+    FPList<VEdgeNode<T>, VEdge<T> > &edges();
     
     template <class T>
     FPList<VNode<T>, T> &vertices();    
@@ -172,6 +173,7 @@ public:
     void flipAllTriangles();
     void extrudeSelectedTriangles();
     void triangulate();
+    void openSubdivision();
     void loopSubdivision();
     
     void merge(Mesh2 *mesh);

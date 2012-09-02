@@ -7,6 +7,11 @@
 //
 
 #import "Mesh2.h"
+#import <osd/mutex.h>
+#import <osd/vertex.h>
+#import <osd/mesh.h>
+#import <osd/cpuDispatcher.h>
+#import <common/shape_utils.h>
 
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
@@ -52,7 +57,7 @@ Mesh2::Mesh2()
     _texture = nil;
     _isUnwrapped = false;
     
-    setColor(generateRandomColor());    
+    setColor(generateRandomColor());
 }
 
 Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
@@ -804,6 +809,121 @@ void Mesh2::makeSubdividedTriangles()
     _triangles.moveFrom(subdivided);
 }
 
+void Mesh2::openSubdivision()
+{
+    OpenSubdiv::OsdCpuKernelDispatcher::Register();
+    
+    Scheme scheme = kCatmark;
+    
+    if (scheme == kLoop)
+        triangulate();
+    
+    vector<Vector3D> vertices;
+    vector<Vector3D> texCoords;
+    vector<TriQuad> triQuads;
+    toIndexRepresentation(vertices, texCoords, triQuads);
+    
+    vector<float> verts;
+    vector<int> faceverts;
+    vector<int> nvertsPerFace;
+    
+    for (uint i = 0; i < vertices.size(); i++)
+    {
+        verts.push_back(vertices[i].x);
+        verts.push_back(vertices[i].y);
+        verts.push_back(vertices[i].z);
+    }
+    
+    for (uint i = 0; i < triQuads.size(); i++)
+    {
+        uint nvertsPerCurrentFace = triQuads[i].isQuad ? 4 : 3;
+        nvertsPerFace.push_back(nvertsPerCurrentFace);
+        for (uint j = 0; j < nvertsPerCurrentFace; j++)
+            faceverts.push_back(triQuads[i].vertexIndices[j]);
+    }
+    
+    OpenSubdiv::OsdHbrMesh *hbrMesh = simpleHbr2<OpenSubdiv::OsdVertex>(verts, faceverts, nvertsPerFace, scheme);
+    
+    OpenSubdiv::OsdMesh * osdMesh = new OpenSubdiv::OsdMesh();
+    
+    int level = 2;
+    int kernel = OpenSubdiv::OsdKernelDispatcher::kCPU;
+    
+    osdMesh->Create(hbrMesh, level, kernel);
+    
+    delete hbrMesh;
+    
+    const std::vector<int> &indices = osdMesh->GetFarMesh()->GetFaceVertices(level);
+    
+    int nverts = (int)verts.size() / 3;
+    
+    std::vector<float> vertex;
+    vertex.reserve(nverts * 3);
+    
+    const float *p = &verts[0];
+    
+    for (int i = 0; i < nverts; ++i)
+    {
+        vertex.push_back(p[0]);
+        vertex.push_back(p[1]);
+        vertex.push_back(p[2]);
+        p += 3;
+    }
+    
+    OpenSubdiv::OsdCpuVertexBuffer *osdVertexBuffer = (OpenSubdiv::OsdCpuVertexBuffer *)osdMesh->InitializeVertexBuffer(3);
+    
+    osdVertexBuffer->UpdateData(&vertex[0], nverts);
+    
+    osdMesh->Subdivide(osdVertexBuffer, NULL);
+    osdMesh->Synchronize();
+    
+    const float *cpuBuffer = osdVertexBuffer->GetCpuBuffer();
+    
+    uint numVerts = scheme == kLoop ? 3 : 4;
+    
+    vertices.clear();
+    texCoords.clear();
+    triQuads.clear();
+    
+    int vertexCount = osdVertexBuffer->VboSize() / osdVertexBuffer->GetNumElements();
+    const float *vPos = cpuBuffer;
+    
+    for (int i = 0; i < vertexCount; i++)
+    {
+        Vector3D v;
+        for (uint k = 0; k < 3; k++)
+        {
+            v[k] = *vPos;
+            vPos++;
+        }
+        
+        vertices.push_back(v);
+        texCoords.push_back(v);
+    }
+    
+    for (uint i = 0; i < indices.size(); i += numVerts)
+    {
+        TriQuad triQuad;
+        triQuad.isQuad = numVerts == 4;
+        for (uint j = 0; j < numVerts; j++)
+            triQuad.vertexIndices[j] = indices[i + j];
+        triQuads.push_back(triQuad);
+    }
+    
+    delete osdVertexBuffer;
+    delete osdMesh;
+    
+    fromIndexRepresentation(vertices, texCoords, triQuads);
+    
+    removeDegeneratedTriangles();
+    removeNonUsedVertices();
+    
+    makeTexCoords();
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::loopSubdivision()
 {
     triangulate();
@@ -818,7 +938,7 @@ void Mesh2::loopSubdivision()
     
     makeEdges();
     
-    setSelectionMode(_selectionMode);    
+    setSelectionMode(_selectionMode);
 }
 
 void Mesh2::detachSelectedVertices()

@@ -23,6 +23,11 @@ public:
             memset(this, 0, sizeof(AlgorithmData));
         }
         
+        AlgorithmData(const AlgorithmData &data)
+        {
+            memcpy(this, &data, sizeof(AlgorithmData));
+        }
+        
         void clear()
         {
             memset(this, 0, sizeof(AlgorithmData));
