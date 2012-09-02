@@ -285,8 +285,6 @@ bool Triangle2::containsTexCoordEdge(const TexCoordEdgeNode *edge) const
 
 void Triangle2::flip()
 {
-    // TODO: Make it work for polygon (tri/quad).
-    
     swap(_nodes[0].vertex, _nodes[2].vertex);
 }
 
@@ -302,16 +300,12 @@ uint Triangle2::indexOfVertex(const VertexNode *vertex) const
 
 void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
 {
-    // TODO: Make it work for polygon (tri/quad).
-    
     uint index1 = indexOfVertex(v1);
     uint index2 = indexOfVertex(v2);
     
-    if (index1 == 1 && index2 == 0)
+    if (index1 - 1 == index2)
         swap(v1, v2);
-    else if (index1 == 2 && index2 == 1)
-        swap(v1, v2);
-    else if (index1 == 0 && index2 == 2)
+    else if (index1 == 0 && index2 == count() - 1)
         swap(v1, v2);
 }
 

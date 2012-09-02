@@ -1350,7 +1350,7 @@ void Mesh2::extrudeSelectedTriangles()
                 VertexNode *original0 = vertexEdge.vertex(0);
                 VertexNode *original1 = vertexEdge.vertex(1);
                 
-                node->data().sortVertices(original0, original1);
+                triQuad.sortVertices(original0, original1);
                 
                 VertexNode *extruded0 = duplicateVertex(original0);
                 VertexNode *extruded1 = duplicateVertex(original1);
