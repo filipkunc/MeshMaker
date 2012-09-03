@@ -2,36 +2,36 @@
 
 ## License
 
-MeshMaker is under MIT license. You find it in file "LICENSE.TXT". 
+MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php). You find it in file "LICENSE.TXT". 
 
-MeshMaker contains:
+MeshMaker uses:
 
  * [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski, also under MIT license.
+ * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
 
 ## About
 
-MeshMaker is very basic modeling tool focused on low poly modeling with triangles.
+MeshMaker is very basic modeling tool focused on low poly modeling with triangles and now also quads.
 
 ## Screenshots
 
 ### Chess tower
 
-Modeled with extrude (⌘D shortcut, same as duplicate).
+Modeled with extrusion.
 
 <img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/chesstower.png" alt="Chess tower" width="902px" height="597px"></img>
 
 ### Loop subdivision
 
-And same chess tower after four or five Loop subdivision iterations.
+And same chess tower after four or five Loop subdivision iterations. This is before OpenSubdiv.
 
 <img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
 
 ### Texture painting
 
-Texturing is currently work in progress.
+Texturing needs a lot of work.
 
 <img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="785px" height="577px"></img>
-
 
 ## Videos
 
