@@ -846,7 +846,7 @@ void Mesh2::openSubdivision()
     
     OpenSubdiv::OsdMesh * osdMesh = new OpenSubdiv::OsdMesh();
     
-    int level = 2;
+    int level = 1;
     int kernel = OpenSubdiv::OsdKernelDispatcher::kCPU;
     
     osdMesh->Create(hbrMesh, level, kernel);
@@ -1062,8 +1062,8 @@ void Mesh2::splitSelectedTriangles()
 {
     resetTriangleCache();
     
-    VertexNode *vertices[6];
-    TexCoordNode *texCoords[6];
+    VertexNode *v[9];
+    TexCoordNode *t[9];
     
     FPList<TriangleNode, Triangle2> subdivided;
     
@@ -1079,13 +1079,15 @@ void Mesh2::splitSelectedTriangles()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        if (!node->data().selected)
+        Triangle2 &triQuad = node->data();
+        
+        if (!triQuad.selected)
         {
-            subdivided.add(node->data());
+            subdivided.add(triQuad);
             continue;
         }
         
-        for (uint j = 0; j < 3; j++)
+        for (uint j = 0; j < triQuad.count(); j++)
         {
             VertexEdge &edge = node->data().vertexEdge(j)->data();
             
@@ -1099,11 +1101,11 @@ void Mesh2::splitSelectedTriangles()
                 edge.half = _vertices.add(edgeVertex);
             }
             
-            vertices[j] = node->data().vertex(j);
-            vertices[j + 3] = edge.half;
+            v[j] = node->data().vertex(j);
+            v[j + triQuad.count()] = edge.half;
         }
         
-        for (uint j = 0; j < 3; j++)
+        for (uint j = 0; j < triQuad.count(); j++)
         {
             TexCoordEdge &edge = node->data().texCoordEdge(j)->data();
             
@@ -1117,26 +1119,50 @@ void Mesh2::splitSelectedTriangles()
                 edge.half = _texCoords.add(edgeTexCoord);
             }
             
-            texCoords[j] = node->data().texCoord(j);
-            texCoords[j + 3] = edge.half;
+            t[j] = node->data().texCoord(j);
+            t[j + triQuad.count()] = edge.half;
         }
         
-        /*    
-               2
-              /\
-             /  \
-          *5/____\*4
-           /\    /\
-          /  \  /  \
-         /____\/____\
-         0    *3     1
-         
-        */
-        
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
+        if (triQuad.isQuad())
+        {
+            /*      
+                3----(6)----2
+                |     |     |
+                |     |     |
+               (7)---[8]---(5)
+                |     |     |
+                |     |     |
+                0----(4)----1
+    
+            */
+            
+            v[8] = _vertices.add((v[7]->data().position + v[5]->data().position) / 2.0f);
+            t[8] = _texCoords.add((t[7]->data().position + t[5]->data().position) / 2.0f);
+            
+            subdivided.add(Triangle2((VertexNode *[4]) { v[0], v[4], v[8], v[7] }, (TexCoordNode *[4]) { t[0], t[4], t[8], t[7] }, true));
+            subdivided.add(Triangle2((VertexNode *[4]) { v[4], v[1], v[5], v[8] }, (TexCoordNode *[4]) { t[4], t[1], t[5], t[8] }, true));
+            subdivided.add(Triangle2((VertexNode *[4]) { v[8], v[5], v[2], v[6] }, (TexCoordNode *[4]) { t[8], t[5], t[2], t[6] }, true));
+            subdivided.add(Triangle2((VertexNode *[4]) { v[7], v[8], v[6], v[3] }, (TexCoordNode *[4]) { t[7], t[8], t[6], t[3] }, true));
+        }
+        else
+        {
+            /*
+                   2
+                  /\
+                 /  \
+              *5/____\*4
+               /\    /\
+              /  \  /  \
+             /____\/____\
+             0    *3     1
+             
+            */
+            
+            subdivided.add(Triangle2((VertexNode *[3]) { v[0], v[3], v[5] }, (TexCoordNode *[3]) { t[0], t[3], t[5] }));
+            subdivided.add(Triangle2((VertexNode *[3]) { v[3], v[1], v[4] }, (TexCoordNode *[3]) { t[3], t[1], t[4] }));
+            subdivided.add(Triangle2((VertexNode *[3]) { v[5], v[4], v[2] }, (TexCoordNode *[3]) { t[5], t[4], t[2] }));
+            subdivided.add(Triangle2((VertexNode *[3]) { v[3], v[4], v[5] }, (TexCoordNode *[3]) { t[3], t[4], t[5] }));
+        }
     }
     
     _triangles.moveFrom(subdivided);
