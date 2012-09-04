@@ -29,6 +29,12 @@ void Mesh2::fillTriangleCache()
     
     resetAlgorithmData();
     
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle2 &currentTriangle = node->data();
+        currentTriangle.computeNormal();
+    }
+    
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
         node->computeNormal();
@@ -52,7 +58,6 @@ void Mesh2::fillTriangleCache()
         
         const float *c = currentTriangle.selected ? selectedComponents : _colorComponents;
         
-        currentTriangle.computeNormal();
         Vector3D fn = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
         
         uint vertexCount = currentTriangle.isQuad() ? 6 : 3;
