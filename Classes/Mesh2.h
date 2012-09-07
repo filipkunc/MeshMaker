@@ -108,9 +108,6 @@ private:
     void detachSelectedTriangles();
     void flipSelectedTriangles();
     void turnSelectedEdges();
-    void halfEdges();
-    void repositionVertices(uint vertexCount);
-    void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
     void initOrUpdateTexture();
     
@@ -174,12 +171,11 @@ public:
     void extrudeSelectedTriangles();
     void triangulate();
     void openSubdivision();
-    void loopSubdivision();
     
     void merge(Mesh2 *mesh);
     
     void computeSoftSelection();
-
+    
     // drawing
     
     void resetTriangleCache();

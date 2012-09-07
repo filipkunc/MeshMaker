@@ -298,15 +298,18 @@ uint Triangle2::indexOfVertex(const VertexNode *vertex) const
     return UINT_MAX;
 }
 
-void Triangle2::sortVertices(VertexNode *&v1, VertexNode *&v2) const
+bool Triangle2::shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) const
 {
     uint index1 = indexOfVertex(v1);
     uint index2 = indexOfVertex(v2);
     
     if (index1 - 1 == index2)
-        swap(v1, v2);
-    else if (index1 == 0 && index2 == count() - 1)
-        swap(v1, v2);
+        return true;
+    
+    if (index1 == 0 && index2 == count() - 1)
+        return true;
+    
+    return false;
 }
 
 VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const

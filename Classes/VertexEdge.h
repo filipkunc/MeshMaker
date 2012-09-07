@@ -71,6 +71,16 @@ public:
         return false;
     }
     
+    bool sharesVertexWithEdge(const VEdge &edge) const
+    {
+        for (uint i = 0; i < 2; i++)
+        {
+            if (edge.containsVertex(_vertices[i]))
+                return true;
+        }
+        return false;
+    }
+    
     VNode<T> *vertex(uint index) const { return _vertices[index]; }
     VNode<T> *texCoord(uint index) const { return _vertices[index]; }
     TriangleNode *triangle(uint index) const { return _triangles[index]; }

@@ -678,137 +678,6 @@ void Mesh2::triangulate()
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::halfEdges()
-{
-    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
-    {
-        Vector3D v1 = node->data().vertex(0)->data().position;
-        Vector3D v2 = node->data().vertex(1)->data().position;
-        
-        Vector3D edgeVertex;
-        
-        // boundary
-        if (node->data().triangle(0) == NULL || node->data().triangle(1) == NULL)
-        {
-            edgeVertex = (v1 + v2) / 2.0f;
-        }
-        else
-        {   
-            Triangle2 &t0 = node->data().triangle(0)->data();
-            Triangle2 &t1 = node->data().triangle(1)->data();
-            
-            VertexNode *vn0 = t0.vertexNotInEdge(&node->data());
-            VertexNode *vn1 = t1.vertexNotInEdge(&node->data());
-            
-            // degenerated triangles
-            if (vn0 == NULL || vn1 == NULL)
-            {
-                edgeVertex = (v1 + v2) / 2.0f;
-            }
-            else
-            {
-                Vector3D v3 = vn0->data().position;
-                Vector3D v4 = vn1->data().position;
-            
-                edgeVertex = 3.0f * (v1 + v2) / 8.0f + 1.0f * (v3 + v4) / 8.0f;
-            }
-        }
-        
-        node->data().half = _vertices.add(edgeVertex);
-    }
-    
-    for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
-    {
-        Vector3D t1 = node->data().texCoord(0)->data().position;
-        Vector3D t2 = node->data().texCoord(1)->data().position;
-        
-        Vector3D edgeTexCoord = (t1 + t2) / 2.0f;
-        
-        node->data().half = _texCoords.add(edgeTexCoord);
-    }
-}
-
-void Mesh2::repositionVertices(uint vertexCount)
-{
-    resetAlgorithmData();
-    
-    vector<Vector3D> tempVertices;
-    
-    uint index = 0;
-    
-    for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
-    {
-        node->algorithmData.index = index;
-        index++;
-        
-        float beta, n;
-        
-        n = (float)node->_edges.count();
-        beta = 3.0f + 2.0f * cosf(FLOAT_PI * 2.0f / n);
-        beta = 5.0f / 8.0f - (beta * beta) / 64.0f;
-        
-        Vector3D finalPosition = (1.0f - beta) * node->data().position;
-        
-        float bon = beta / n;
-        
-        for (SimpleNode<VertexEdgeNode *> *vertexEdgeNode = node->_edges.begin(), *endVertexEdgeNode = node->_edges.end(); vertexEdgeNode != endVertexEdgeNode; vertexEdgeNode = vertexEdgeNode->next())
-        {
-            VertexEdge &edge = vertexEdgeNode->data()->data();
-            VertexNode *oppositeVertex = edge.opposite(node);
-            
-            finalPosition += oppositeVertex->data().position * bon;
-        }
-        
-        tempVertices.push_back(finalPosition);
-    }
-    
-    index = 0;
-    
-    for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
-    {
-        node->data().position = tempVertices[(uint)node->algorithmData.index];
-        index++;
-    }
-}
-
-void Mesh2::makeSubdividedTriangles()
-{
-    VertexNode *vertices[6];
-    TexCoordNode *texCoords[6];
-    FPList<TriangleNode, Triangle2> subdivided;
-    
-    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
-    {
-        for (uint i = 0; i < 3; i++)
-        {
-            vertices[i] = node->data().vertex(i);
-            vertices[i + 3] = node->data().vertexEdge(i)->data().half;
-            
-            texCoords[i] = node->data().texCoord(i);
-            texCoords[i + 3] = node->data().texCoordEdge(i)->data().half;
-        }
-        
-        /*    
-               2
-              /\
-             /  \
-          *5/____\*4
-           /\    /\
-          /  \  /  \
-         /____\/____\
-         0    *3     1
-         
-         */
-        
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
-    }
-    
-    _triangles.moveFrom(subdivided);
-}
-
 void Mesh2::openSubdivision()
 {
     OpenSubdiv::OsdCpuKernelDispatcher::Register();
@@ -922,23 +791,6 @@ void Mesh2::openSubdivision()
     removeNonUsedVertices();
     
     makeTexCoords();
-    makeEdges();
-    
-    setSelectionMode(_selectionMode);
-}
-
-void Mesh2::loopSubdivision()
-{
-    triangulate();
-    
-    resetTriangleCache();        
-    
-    uint vertexCount = _vertices.count();
-    
-    halfEdges();
-    repositionVertices(vertexCount);
-    makeSubdividedTriangles();    
-    
     makeEdges();
     
     setSelectionMode(_selectionMode);
@@ -1170,14 +1022,32 @@ void Mesh2::splitSelectedTriangles()
     makeEdges();
     
     setSelectionMode(_selectionMode);
+}
 
+VertexEdgeNode *findSecondEdgeNode(const Triangle2 &triQuad, const VertexEdge &vertexEdge)
+{
+    for (uint j = 0; j < triQuad.count(); j++)
+    {
+        VertexEdgeNode *secondEdgeNode = triQuad.vertexEdge(j);
+        VertexEdge &secondEdge = secondEdgeNode->data();
+        if (vertexEdge.half != secondEdge.half && secondEdge.selected)
+        {
+            if (triQuad.isQuad() && secondEdgeNode->data().sharesVertexWithEdge(vertexEdge))
+                return NULL;
+            
+            return secondEdgeNode;
+        }
+    }
+    return NULL;
 }
 
 void Mesh2::splitSelectedEdges()
 {
-    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+    resetTriangleCache();
+    
+    for (VertexEdgeNode *edgeNode = _vertexEdges.begin(), *end = _vertexEdges.end(); edgeNode != end; edgeNode = edgeNode->next())
     {
-        VertexEdge &vertexEdge = node->data();
+        VertexEdge &vertexEdge = edgeNode->data();
         if (!vertexEdge.selected)
             continue;
         
@@ -1190,6 +1060,15 @@ void Mesh2::splitSelectedEdges()
             
             vertexEdge.half = _vertices.add(edgeVertex);
         }
+    }
+    
+    VertexNode *v[4];
+    
+    for (VertexEdgeNode *edgeNode = _vertexEdges.begin(), *end = _vertexEdges.end(); edgeNode != end; edgeNode = edgeNode->next())
+    {
+        VertexEdge &vertexEdge = edgeNode->data();
+        if (!vertexEdge.selected)
+            continue;
         
         for (uint i = 0; i < 2; i++)
         {
@@ -1197,44 +1076,79 @@ void Mesh2::splitSelectedEdges()
             if (triangleNode == NULL)
                 continue;
             
-            VertexNode *oppositeVertexNode = triangleNode->data().vertexNotInEdge(&vertexEdge);
+            Triangle2 &triQuad = triangleNode->data();
             
-            VertexNode *originalVertex0 = vertexEdge.vertex(0);
-            VertexNode *originalVertex1 = vertexEdge.vertex(1);
+            VertexEdgeNode *secondEdgeNode = findSecondEdgeNode(triQuad, vertexEdge);
+            if (secondEdgeNode == NULL)
+                continue;
             
-            triangleNode->data().sortVertices(originalVertex0, originalVertex1);
+            VertexEdge &secondEdge = secondEdgeNode->data();
             
-            uint texCoordIndex0 = triangleNode->data().indexOfVertex(originalVertex0);
-            uint texCoordIndex1 = triangleNode->data().indexOfVertex(originalVertex1);
-            
-            TexCoordNode *originalTexCoord0 = triangleNode->data().texCoord(texCoordIndex0);
-            TexCoordNode *originalTexCoord1 = triangleNode->data().texCoord(texCoordIndex1);
-                        
-            TexCoordEdgeNode *texCoordEdgeNode = originalTexCoord0->sharedEdge(originalTexCoord1);
-            TexCoordEdge &texCoordEdge = texCoordEdgeNode->data();
-            
-            TexCoordNode *oppositeTexCoordNode = triangleNode->data().texCoordNotInEdge(&texCoordEdge);
-
-            if (texCoordEdge.half == NULL)
+            if (triQuad.isQuad())
             {
-                Vector3D edgeTexCoord = originalTexCoord0->data().position + originalTexCoord1->data().position;
-                edgeTexCoord /= 2.0f;
-                texCoordEdge.half = _texCoords.add(edgeTexCoord);
+                for (uint k = 0; k < 2; k++)
+                {
+                    v[0] = secondEdge.half;
+                    v[1] = vertexEdge.half;
+                    
+                    v[2] = vertexEdge.vertex(k);
+                    
+                    if (v[2]->sharedEdge(secondEdge.vertex(0)))
+                        v[3] = secondEdge.vertex(0);
+                    else
+                        v[3] = secondEdge.vertex(1);
+                    
+                    if (triQuad.shouldSwapVertices(v[2], v[3]))
+                    {
+                        swap(v[2], v[3]);
+                        swap(v[1], v[0]);
+                    }
+                    
+                    _triangles.add(Triangle2(v, true));
+                }                                
             }
-            
-            VertexNode *vertices0[3] = { vertexEdge.half, oppositeVertexNode, originalVertex0 };
-            VertexNode *vertices1[3] = { originalVertex1, oppositeVertexNode, vertexEdge.half };
-            
-            TexCoordNode *texCoords0[3] = { texCoordEdge.half, oppositeTexCoordNode, originalTexCoord0 };
-            TexCoordNode *texCoords1[3] = { originalTexCoord1, oppositeTexCoordNode, texCoordEdge.half };
-            
-            _triangles.add(Triangle2(vertices0, texCoords0));
-            _triangles.add(Triangle2(vertices1, texCoords1));
+            else
+            {
+                // needs improving, doesn't work on all triangles.
+                
+                for (uint k = 0; k < 2; k++)
+                {
+                    v[0] = secondEdge.half;
+                    v[1] = vertexEdge.half;
+                    
+                    v[2] = vertexEdge.vertex(k);
+                    
+                    if (vertexEdge.containsVertex(v[2]) &&
+                        secondEdge.containsVertex(v[2]))
+                    {
+                        VertexNode *opposite0 = secondEdge.opposite(v[2]);
+                        VertexNode *opposite1 = vertexEdge.opposite(v[2]);
+                        
+                        if (triQuad.shouldSwapVertices(opposite0, opposite1))
+                            swap(v[0], v[1]);
+                        
+                        _triangles.add(Triangle2(v, false));
+                    }
+                    else
+                    {
+                        v[3] = secondEdge.opposite(v[2]);
+                        
+                        if (triQuad.shouldSwapVertices(v[2], v[3]))
+                        {
+                            swap(v[2], v[3]);
+                            swap(v[1], v[0]);
+                        }
+                        
+                        _triangles.add(Triangle2(v, true));
+                    }
+                }
+            }
             
             _triangles.remove(triangleNode);
         }
     }
     
+    makeTexCoords();
     makeEdges();
     
     setSelectionMode(_selectionMode);
@@ -1376,7 +1290,8 @@ void Mesh2::extrudeSelectedTriangles()
                 VertexNode *original0 = vertexEdge.vertex(0);
                 VertexNode *original1 = vertexEdge.vertex(1);
                 
-                triQuad.sortVertices(original0, original1);
+                if (triQuad.shouldSwapVertices(original0, original1))
+                    swap(original0, original1);
                 
                 VertexNode *extruded0 = duplicateVertex(original0);
                 VertexNode *extruded1 = duplicateVertex(original1);

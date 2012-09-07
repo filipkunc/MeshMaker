@@ -72,7 +72,7 @@ public:
     void flip();
     
     uint indexOfVertex(const VertexNode *vertex) const;
-    void sortVertices(VertexNode *&v1, VertexNode *&v2) const;
+    bool shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) const;
     VertexNode *vertexNotInEdge(const VertexEdge *edge) const;
     TexCoordNode *texCoordNotInEdge(const TexCoordEdge *edge) const;
     
