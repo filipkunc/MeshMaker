@@ -76,6 +76,8 @@ public:
     VertexNode *vertexNotInEdge(const VertexEdge *edge) const;
     TexCoordNode *texCoordNotInEdge(const TexCoordEdge *edge) const;
     
+    VertexEdgeNode *findSecondEdgeNode(const VertexEdge &firstEdge) const;
+    
     void computeNormal();
     bool rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect);
     void convertBarycentricToUVs(float &u, float &v);

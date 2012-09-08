@@ -1024,23 +1024,6 @@ void Mesh2::splitSelectedTriangles()
     setSelectionMode(_selectionMode);
 }
 
-VertexEdgeNode *findSecondEdgeNode(const Triangle2 &triQuad, const VertexEdge &vertexEdge)
-{
-    for (uint j = 0; j < triQuad.count(); j++)
-    {
-        VertexEdgeNode *secondEdgeNode = triQuad.vertexEdge(j);
-        VertexEdge &secondEdge = secondEdgeNode->data();
-        if (vertexEdge.half != secondEdge.half && secondEdge.selected)
-        {
-            if (triQuad.isQuad() && secondEdgeNode->data().sharesVertexWithEdge(vertexEdge))
-                return NULL;
-            
-            return secondEdgeNode;
-        }
-    }
-    return NULL;
-}
-
 void Mesh2::splitSelectedEdges()
 {
     resetTriangleCache();
@@ -1078,7 +1061,7 @@ void Mesh2::splitSelectedEdges()
             
             Triangle2 &triQuad = triangleNode->data();
             
-            VertexEdgeNode *secondEdgeNode = findSecondEdgeNode(triQuad, vertexEdge);
+            VertexEdgeNode *secondEdgeNode = triQuad.findSecondEdgeNode(vertexEdge);
             if (secondEdgeNode == NULL)
                 continue;
             
@@ -1109,39 +1092,27 @@ void Mesh2::splitSelectedEdges()
             }
             else
             {
-                // needs improving, doesn't work on all triangles.
+                v[0] = secondEdge.half;
+                v[1] = vertexEdge.half;
+                v[2] = vertexEdge.sharedVertexWithEdge(secondEdge);
                 
-                for (uint k = 0; k < 2; k++)
+                VertexNode *opposite0 = secondEdge.opposite(v[2]);
+                VertexNode *opposite1 = vertexEdge.opposite(v[2]);
+                
+                if (triQuad.shouldSwapVertices(opposite0, opposite1))
                 {
-                    v[0] = secondEdge.half;
-                    v[1] = vertexEdge.half;
-                    
-                    v[2] = vertexEdge.vertex(k);
-                    
-                    if (vertexEdge.containsVertex(v[2]) &&
-                        secondEdge.containsVertex(v[2]))
-                    {
-                        VertexNode *opposite0 = secondEdge.opposite(v[2]);
-                        VertexNode *opposite1 = vertexEdge.opposite(v[2]);
-                        
-                        if (triQuad.shouldSwapVertices(opposite0, opposite1))
-                            swap(v[0], v[1]);
-                        
-                        _triangles.add(Triangle2(v, false));
-                    }
-                    else
-                    {
-                        v[3] = secondEdge.opposite(v[2]);
-                        
-                        if (triQuad.shouldSwapVertices(v[2], v[3]))
-                        {
-                            swap(v[2], v[3]);
-                            swap(v[1], v[0]);
-                        }
-                        
-                        _triangles.add(Triangle2(v, true));
-                    }
+                    swap(opposite0, opposite1);
+                    swap(v[0], v[1]);
                 }
+                
+                _triangles.add(Triangle2(v, false));
+                
+                v[2] = opposite1;
+                v[3] = opposite0;
+                
+                swap(v[0], v[2]);
+                
+                _triangles.add(Triangle2(v, true));                
             }
             
             _triangles.remove(triangleNode);

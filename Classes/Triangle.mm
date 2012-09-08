@@ -312,6 +312,25 @@ bool Triangle2::shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) c
     return false;
 }
 
+VertexEdgeNode *Triangle2::findSecondEdgeNode(const VertexEdge &firstEdge) const
+{
+    for (uint i = 0; i < count(); i++)
+    {
+        VertexEdgeNode *secondEdgeNode = vertexEdge(i);
+        VertexEdge &secondEdge = secondEdgeNode->data();
+        if (firstEdge.half != secondEdge.half && secondEdge.selected)
+        {
+            if (isQuad() && secondEdgeNode->data().sharedVertexWithEdge(firstEdge) != NULL)
+            {
+                return NULL;
+            }
+            
+            return secondEdgeNode;
+        }
+    }
+    return NULL;
+}
+
 VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 {
     for (uint i = 0; i < count(); i++)

@@ -71,14 +71,14 @@ public:
         return false;
     }
     
-    bool sharesVertexWithEdge(const VEdge &edge) const
+    VertexNode *sharedVertexWithEdge(const VEdge &edge) const
     {
         for (uint i = 0; i < 2; i++)
         {
             if (edge.containsVertex(_vertices[i]))
-                return true;
+                return _vertices[i];
         }
-        return false;
+        return NULL;
     }
     
     VNode<T> *vertex(uint index) const { return _vertices[index]; }
