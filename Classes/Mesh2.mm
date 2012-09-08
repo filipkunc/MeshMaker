@@ -1119,6 +1119,7 @@ void Mesh2::splitSelectedEdges()
         }
     }
     
+    removeNonUsedVertices();    
     makeTexCoords();
     makeEdges();
     
