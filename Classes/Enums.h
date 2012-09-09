@@ -106,4 +106,5 @@ enum OpenGLSelectionMode
 	OpenGLSelectionModeAdd,
 	OpenGLSelectionModeSubtract,
 	OpenGLSelectionModeInvert,
+    OpenGLSelectionModeExpand,
 };

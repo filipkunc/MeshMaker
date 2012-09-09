@@ -362,6 +362,21 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
     }
 }
 
+void Mesh2::expandSelectionFromIndex(uint index)
+{
+    switch (_selectionMode)
+    {
+        case MeshSelectionModeEdges:
+        {
+            VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
+            edge.selectEdgesInLoop();
+            setSelectionMode(_selectionMode);
+        } break;
+        default:
+            break;
+    }
+}
+
 void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale)
 {
     center = Vector3D();
@@ -1094,7 +1109,7 @@ void Mesh2::splitSelectedEdges()
             {
                 v[0] = secondEdge.half;
                 v[1] = vertexEdge.half;
-                v[2] = vertexEdge.sharedVertexWithEdge(secondEdge);
+                v[2] = vertexEdge.sharedVertex(secondEdge);
                 
                 VertexNode *opposite0 = secondEdge.opposite(v[2]);
                 VertexNode *opposite1 = vertexEdge.opposite(v[2]);

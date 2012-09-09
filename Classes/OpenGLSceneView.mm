@@ -348,7 +348,8 @@ NSOpenGLContext *globalGLContext = nil;
         }
 		
 		[scaleManipulator setRotation:[manipulated selectionRotation]];
-		[currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
+        if (currentManipulator != defaultManipulator)
+            [currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
 	}
 }
 
@@ -693,7 +694,7 @@ NSOpenGLContext *globalGLContext = nil;
 			[manipulated changeSelection:NO];
 		
 		NSRect rect = [self currentRect];
-		if (rect.size.width > 5.0f && rect.size.height > 5.0f)
+		if ([e clickCount] <= 1 && rect.size.width > 5.0f && rect.size.height > 5.0f)
 		{
             [self selectWithRect:[self currentRect] 
 					   selecting:manipulated 
@@ -704,7 +705,7 @@ NSOpenGLContext *globalGLContext = nil;
         {
         	[self selectWithPoint:currentPoint 
 						selecting:manipulated
-					selectionMode:selectionMode];
+					selectionMode:[e clickCount] == 2 ? OpenGLSelectionModeExpand : selectionMode];
         }
 		
 		[delegate selectionChangedInView:self];

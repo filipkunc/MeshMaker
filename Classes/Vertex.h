@@ -152,13 +152,27 @@ public:
         algorithmData.normal /= count;
     }
     
-    VEdgeNode<T> *sharedEdge(VNode *otherVertex)
+    VEdgeNode<T> *sharedEdge(const VNode *otherVertex) const
     {
         for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             if (node->data()->data().containsVertex(otherVertex))
                 return node->data();
         }
+        return NULL;
+    }
+    
+    VEdgeNode<T> *nextEdgeInLoop(const VEdge<T> &edge) const
+    {
+        if (_edges.count() != 4)
+            return NULL;
+        
+        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            if (node->data()->data().sharedTriangle(edge) == NULL)
+                return node->data();
+        }
+        
         return NULL;
     }
 };

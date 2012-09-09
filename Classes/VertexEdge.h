@@ -61,6 +61,16 @@ public:
         return false;
     }
     
+    bool containsTriangle(const TriangleNode *triangle) const
+    {
+        for (uint i = 0; i < 2; i++)
+        {
+            if (_triangles[i] == triangle)
+                return true;
+        }
+        return false;
+    }
+    
     bool isNotShared() const
     {
         for (uint i = 0; i < 2; i++)
@@ -71,12 +81,22 @@ public:
         return false;
     }
     
-    VertexNode *sharedVertexWithEdge(const VEdge &edge) const
+    VertexNode *sharedVertex(const VEdge &edge) const
     {
         for (uint i = 0; i < 2; i++)
         {
             if (edge.containsVertex(_vertices[i]))
                 return _vertices[i];
+        }
+        return NULL;
+    }
+    
+    TriangleNode *sharedTriangle(const VEdge &edge) const
+    {
+        for (uint i = 0; i < 2; i++)
+        {
+            if (edge.containsTriangle(_triangles[i]))
+                return _triangles[i];
         }
         return NULL;
     }
@@ -146,6 +166,24 @@ public:
             return _vertices[1];
         
         return _vertices[0];
+    }
+    
+    void selectEdgesInLoop()
+    {
+        VNode<T> *vertex = _vertices[1];
+        VEdge<T> *edge = this;
+        
+        while (!edge->selected)
+        {
+            edge->selected = true;
+            
+            VEdgeNode<T> *nextEdge = vertex->nextEdgeInLoop(*edge);
+            if (nextEdge == NULL)
+                return;
+            
+            edge = &nextEdge->data();
+            vertex = edge->opposite(vertex);
+        }
     }
     
     friend class VEdgeNode<T>;

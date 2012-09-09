@@ -153,6 +153,12 @@
 	[[self itemAtIndex:index] setSelected:selected];
 }
 
+- (void)expandSelectionFromIndex:(uint)index
+{
+    for (uint i = 0; i < [self count]; i++)
+		[self setSelected:YES atIndex:i];
+}
+
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
 {
 	[[self itemAtIndex:index] drawForSelection:forSelection];

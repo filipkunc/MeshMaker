@@ -195,6 +195,11 @@
     mesh->setSelectedAtIndex(isSelected, index);
 }
 
+- (void)expandSelectionFromIndex:(uint)index
+{
+    mesh->expandSelectionFromIndex(index);
+}
+
 - (void)drawForSelection:(BOOL)forSelection
 {
 	if (visible)

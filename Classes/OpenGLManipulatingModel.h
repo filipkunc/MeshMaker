@@ -16,6 +16,7 @@
 - (uint)count;
 - (BOOL)isSelectedAtIndex:(uint)index;
 - (void)setSelected:(BOOL)selected atIndex:(uint)index;
+- (void)expandSelectionFromIndex:(uint)index;
 - (void)duplicateSelected;
 - (void)removeSelected;
 - (void)hideSelected;

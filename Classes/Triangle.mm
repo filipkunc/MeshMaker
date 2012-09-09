@@ -320,7 +320,7 @@ VertexEdgeNode *Triangle2::findSecondEdgeNode(const VertexEdge &firstEdge) const
         VertexEdge &secondEdge = secondEdgeNode->data();
         if (firstEdge.half != secondEdge.half && secondEdge.selected)
         {
-            if (isQuad() && secondEdgeNode->data().sharedVertexWithEdge(firstEdge) != NULL)
+            if (isQuad() && secondEdgeNode->data().sharedVertex(firstEdge) != NULL)
             {
                 return NULL;
             }
