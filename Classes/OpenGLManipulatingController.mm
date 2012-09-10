@@ -573,7 +573,11 @@
 			[model setSelected:![model isSelectedAtIndex:index] atIndex:index];
 			break;
         case OpenGLSelectionModeExpand:
-            [model expandSelectionFromIndex:index];
+            [model expandSelectionFromIndex:index invert:NO];
+            break;
+        case OpenGLSelectionModeInvertExpand:
+            [model expandSelectionFromIndex:index invert:YES];
+            break;
 		default:
 			break;
 	}

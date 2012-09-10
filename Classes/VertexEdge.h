@@ -160,7 +160,7 @@ public:
         _vertices[1] = v1;
     }
     
-    VNode<T> *opposite(VNode<T> *vertex) const
+    VNode<T> *opposite(const VNode<T> *vertex) const
     {
         if (_vertices[0] == vertex)
             return _vertices[1];
@@ -168,10 +168,19 @@ public:
         return _vertices[0];
     }
     
-    void selectEdgesInLoop()
+    TriangleNode *opposite(const TriangleNode *triQuad) const
+    {
+        if (_triangles[0] == triQuad)
+            return _triangles[1];
+        
+        return _triangles[0];
+    }
+    
+    void selectEdgesInEdgeLoop()
     {
         VNode<T> *vertex = _vertices[1];
         VEdge<T> *edge = this;
+        edge->selected = false;
         
         while (!edge->selected)
         {
@@ -183,6 +192,25 @@ public:
             
             edge = &nextEdge->data();
             vertex = edge->opposite(vertex);
+        }
+    }
+    
+    void selectEdgesInQuadLoop()
+    {
+        TriangleNode *quad = _triangles[1];
+        VEdge<T> *edge = this;
+        edge->selected = false;
+        
+        while (quad != NULL && !edge->selected)
+        {
+            edge->selected = true;
+            
+            VEdgeNode<T> *nextEdge = quad->data().nextEdgeInQuadLoop(*edge);
+            if (nextEdge == NULL)
+                return;
+            
+            edge = &nextEdge->data();
+            quad = edge->opposite(quad);
         }
     }
     

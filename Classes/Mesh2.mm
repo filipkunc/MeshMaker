@@ -362,14 +362,19 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
     }
 }
 
-void Mesh2::expandSelectionFromIndex(uint index)
+void Mesh2::expandSelectionFromIndex(uint index, bool invert)
 {
     switch (_selectionMode)
     {
         case MeshSelectionModeEdges:
         {
             VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
-            edge.selectEdgesInLoop();
+
+            if (invert)
+                edge.selectEdgesInQuadLoop();
+            else
+                edge.selectEdgesInEdgeLoop();
+            
             setSelectionMode(_selectionMode);
         } break;
         default:
@@ -1076,7 +1081,7 @@ void Mesh2::splitSelectedEdges()
             
             Triangle2 &triQuad = triangleNode->data();
             
-            VertexEdgeNode *secondEdgeNode = triQuad.findSecondEdgeNode(vertexEdge);
+            VertexEdgeNode *secondEdgeNode = triQuad.findSecondSplitEdgeNode(vertexEdge);
             if (secondEdgeNode == NULL)
                 continue;
             

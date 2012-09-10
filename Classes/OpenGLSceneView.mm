@@ -683,7 +683,7 @@ NSOpenGLContext *globalGLContext = nil;
 	{
 		isSelecting = NO;
 		OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
-		
+        
 		NSUInteger flags = [e modifierFlags];
 				
 		if ((flags & NSCommandKeyMask) == NSCommandKeyMask)
@@ -703,9 +703,17 @@ NSOpenGLContext *globalGLContext = nil;
 		}
 		else
         {
+            if ([e clickCount] == 2)
+            {
+                if (selectionMode == OpenGLSelectionModeInvert)
+                    selectionMode = OpenGLSelectionModeInvertExpand;
+                else
+                    selectionMode = OpenGLSelectionModeExpand;
+            }
+            
         	[self selectWithPoint:currentPoint 
 						selecting:manipulated
-					selectionMode:[e clickCount] == 2 ? OpenGLSelectionModeExpand : selectionMode];
+					selectionMode:selectionMode];
         }
 		
 		[delegate selectionChangedInView:self];

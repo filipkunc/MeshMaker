@@ -195,9 +195,9 @@
     mesh->setSelectedAtIndex(isSelected, index);
 }
 
-- (void)expandSelectionFromIndex:(uint)index
+- (void)expandSelectionFromIndex:(uint)index invert:(BOOL)invert
 {
-    mesh->expandSelectionFromIndex(index);
+    mesh->expandSelectionFromIndex(index, invert);
 }
 
 - (void)drawForSelection:(BOOL)forSelection

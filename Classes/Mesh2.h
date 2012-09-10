@@ -145,7 +145,7 @@ public:
     uint selectedCount() const;
     bool isSelectedAtIndex(uint index) const;
     void setSelectedAtIndex(bool selected, uint index);
-    void expandSelectionFromIndex(uint index);
+    void expandSelectionFromIndex(uint index, bool invert);
     void getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale);
     
     static bool useSoftSelection() { return _useSoftSelection; }

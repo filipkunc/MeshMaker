@@ -312,7 +312,7 @@ bool Triangle2::shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) c
     return false;
 }
 
-VertexEdgeNode *Triangle2::findSecondEdgeNode(const VertexEdge &firstEdge) const
+VertexEdgeNode *Triangle2::findSecondSplitEdgeNode(const VertexEdge &firstEdge) const
 {
     for (uint i = 0; i < count(); i++)
     {
@@ -328,6 +328,23 @@ VertexEdgeNode *Triangle2::findSecondEdgeNode(const VertexEdge &firstEdge) const
             return secondEdgeNode;
         }
     }
+    return NULL;
+}
+
+VertexEdgeNode *Triangle2::nextEdgeInQuadLoop(const VertexEdge &edge) const
+{
+    if (!isQuad())
+        return NULL;
+    
+    for (uint i = 0; i < count(); i++)
+    {
+        VertexEdgeNode *edgeNode = vertexEdge(i);
+        VertexNode *sharedVertex = edgeNode->data().sharedVertex(edge);
+        
+        if (!sharedVertex)
+            return edgeNode;
+    }
+    
     return NULL;
 }
 

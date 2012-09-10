@@ -153,7 +153,7 @@
 	[[self itemAtIndex:index] setSelected:selected];
 }
 
-- (void)expandSelectionFromIndex:(uint)index
+- (void)expandSelectionFromIndex:(uint)index invert:(BOOL)invert
 {
     for (uint i = 0; i < [self count]; i++)
 		[self setSelected:YES atIndex:i];
