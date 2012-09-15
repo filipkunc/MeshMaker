@@ -6,8 +6,9 @@ MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php)
 
 MeshMaker uses:
 
- * [RapidXml parser](http://rapidxml.sourceforge.net/) from Marcin Kalicinski, also under MIT license.
  * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
+ * [Open Asset Import Library](http://assimp.sourceforge.net/) from assimp team under [3-clause BSD license](http://assimp.sourceforge.net/main_license.html). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/assimp](https://github.com/filipkunc/assimp)
+ 
 
 ## About
 

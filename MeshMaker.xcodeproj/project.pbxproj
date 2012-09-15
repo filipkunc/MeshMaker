@@ -90,6 +90,7 @@
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
 		A7CFB7EC1544AD7A009BE0F4 /* MeshMaker.help in Resources */ = {isa = PBXBuildFile; fileRef = A7CFB7EB1544AD7A009BE0F4 /* MeshMaker.help */; };
 		A7D0684914B9FD350091B657 /* Triangle.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D0684814B9FD350091B657 /* Triangle.mm */; };
+		A7DEE48F16013923004E019D /* libassimpD.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7DEE48E16013923004E019D /* libassimpD.dylib */; };
 		A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */; };
 		A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */; };
 		A7FD04DE1564508F002D0777 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
@@ -167,10 +168,6 @@
 		A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTextureBrowserWindowController.h; path = Classes/FPTextureBrowserWindowController.h; sourceTree = "<group>"; };
 		A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTextureBrowserWindowController.mm; path = Classes/FPTextureBrowserWindowController.mm; sourceTree = "<group>"; };
 		A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTextureBrowserWindowController.xib; path = Classes/FPTextureBrowserWindowController.xib; sourceTree = "<group>"; };
-		A726AD3213034D85004A774D /* rapidxml_iterators.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_iterators.hpp; path = Classes/rapidxml_iterators.hpp; sourceTree = "<group>"; };
-		A726AD3313034D85004A774D /* rapidxml_print.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_print.hpp; path = Classes/rapidxml_print.hpp; sourceTree = "<group>"; };
-		A726AD3413034D85004A774D /* rapidxml_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml_utils.hpp; path = Classes/rapidxml_utils.hpp; sourceTree = "<group>"; };
-		A726AD3513034D85004A774D /* rapidxml.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rapidxml.hpp; path = Classes/rapidxml.hpp; sourceTree = "<group>"; };
 		A729F1781538B038002759BB /* SubdivisionTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SubdivisionTemplate.png; sourceTree = "<group>"; };
 		A72F429B15F3CD8F008524C1 /* libosd.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libosd.a; path = Submodules/OpenSubdiv/lib/Debug/libosd.a; sourceTree = "<group>"; };
 		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
@@ -207,6 +204,7 @@
 		A7D0684E14B9FF300091B657 /* MeshForwardDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshForwardDeclaration.h; path = Classes/MeshForwardDeclaration.h; sourceTree = "<group>"; };
 		A7D0685014B9FFE90091B657 /* Triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Triangle.h; path = Classes/Triangle.h; sourceTree = "<group>"; };
 		A7D0685114BA00340091B657 /* VertexEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VertexEdge.h; path = Classes/VertexEdge.h; sourceTree = "<group>"; };
+		A7DEE48E16013923004E019D /* libassimpD.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimpD.dylib; path = Submodules/assimp/lib/Debug/libassimpD.dylib; sourceTree = "<group>"; };
 		A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexturePaintToolWindowController.h; path = Classes/FPTexturePaintToolWindowController.h; sourceTree = "<group>"; };
 		A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPTexturePaintToolWindowController.m; path = Classes/FPTexturePaintToolWindowController.m; sourceTree = "<group>"; };
 		A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTexturePaintToolWindowController.xib; path = Classes/FPTexturePaintToolWindowController.xib; sourceTree = "<group>"; };
@@ -221,6 +219,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7DEE48F16013923004E019D /* libassimpD.dylib in Frameworks */,
 				A72F429C15F3CD8F008524C1 /* libosd.a in Frameworks */,
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
@@ -270,6 +269,7 @@
 		2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */ = {
 			isa = PBXGroup;
 			children = (
+				A7DEE48E16013923004E019D /* libassimpD.dylib */,
 				A72F429B15F3CD8F008524C1 /* libosd.a */,
 				A7064C8312BD109A00B14CFA /* Tests */,
 				A7521E8A10E675ED003D31E4 /* Shaders */,
@@ -292,10 +292,6 @@
 				A74FBFF5139A74AC00349A4C /* FPNode.h */,
 				A79F521E1394161B00CF7DBE /* FPList.h */,
 				A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */,
-				A726AD3213034D85004A774D /* rapidxml_iterators.hpp */,
-				A726AD3313034D85004A774D /* rapidxml_print.hpp */,
-				A726AD3413034D85004A774D /* rapidxml_utils.hpp */,
-				A726AD3513034D85004A774D /* rapidxml.hpp */,
 				A7064C3A12BD107800B14CFA /* AddItemWithStepsSheetController.h */,
 				A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */,
 				A7064C3C12BD107800B14CFA /* Camera.cpp */,
@@ -825,6 +821,7 @@
 				HEADER_SEARCH_PATHS = (
 					Submodules/OpenSubdiv/opensubdiv,
 					Submodules/OpenSubdiv/regression,
+					Submodules/assimp/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -833,6 +830,7 @@
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Debug\"",
 					"\"$(SRCROOT)/../Programming/GitProjects/MeshMaker/externals/OpenSubdiv/lib/Debug\"",
+					"\"$(SRCROOT)/Submodules/assimp/lib/Debug\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
@@ -868,6 +866,7 @@
 				HEADER_SEARCH_PATHS = (
 					Submodules/OpenSubdiv/opensubdiv,
 					Submodules/OpenSubdiv/regression,
+					Submodules/assimp/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -876,6 +875,7 @@
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Debug\"",
 					"\"$(SRCROOT)/../Programming/GitProjects/MeshMaker/externals/OpenSubdiv/lib/Debug\"",
+					"\"$(SRCROOT)/Submodules/assimp/lib/Debug\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
