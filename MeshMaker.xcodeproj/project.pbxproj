@@ -269,8 +269,6 @@
 		2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */ = {
 			isa = PBXGroup;
 			children = (
-				A7806F201605E03C00F1BC9A /* libassimp.dylib */,
-				A72F429B15F3CD8F008524C1 /* libosd.a */,
 				A7064C8312BD109A00B14CFA /* Tests */,
 				A7521E8A10E675ED003D31E4 /* Shaders */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
@@ -394,6 +392,8 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A7806F201605E03C00F1BC9A /* libassimp.dylib */,
+				A72F429B15F3CD8F008524C1 /* libosd.a */,
 				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
 				A7064C9212BD19F400B14CFA /* Cocoa.framework */,
