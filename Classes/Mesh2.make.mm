@@ -8,29 +8,29 @@
 
 #import "Mesh2.h"
 
-void Mesh2::addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3)
+TriangleNode * Mesh2::addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2)
 {
+    TexCoordNode *t0 = _texCoords.add(v0->data().position);
     TexCoordNode *t1 = _texCoords.add(v1->data().position);
     TexCoordNode *t2 = _texCoords.add(v2->data().position);
-    TexCoordNode *t3 = _texCoords.add(v3->data().position);
     
-    VertexNode *vertices[3] = { v1, v2, v3 };
-    TexCoordNode *texCoords[3] = { t1, t2, t3 };
+    VertexNode *vertices[3] = { v0, v1, v2 };
+    TexCoordNode *texCoords[3] = { t0, t1, t2 };
     
-    _triangles.add(Triangle2(vertices, texCoords));
+    return _triangles.add(Triangle2(vertices, texCoords));
 }
 
-void Mesh2::addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4)
+TriangleNode *Mesh2::addQuad(VertexNode *v0, VertexNode *v1, VertexNode *v2, VertexNode *v3)
 {
+    TexCoordNode *t0 = _texCoords.add(v0->data().position);
     TexCoordNode *t1 = _texCoords.add(v1->data().position);
     TexCoordNode *t2 = _texCoords.add(v2->data().position);
     TexCoordNode *t3 = _texCoords.add(v3->data().position);
-    TexCoordNode *t4 = _texCoords.add(v4->data().position);
     
-    VertexNode *vertices[4] = { v1, v2, v3, v4 };
-    TexCoordNode *texCoords[4] = { t1, t2, t3, t4 };
+    VertexNode *vertices[4] = { v0, v1, v2, v3 };
+    TexCoordNode *texCoords[4] = { t0, t1, t2, t3 };
     
-  	_triangles.add(Triangle2(vertices, texCoords, true));
+  	return _triangles.add(Triangle2(vertices, texCoords, true));
 }
 
 void Mesh2::makeTexCoords()
@@ -52,6 +52,31 @@ void Mesh2::makeTexCoords()
     }
 }
 
+void Mesh2::makeEdges(TriangleNode *node)
+{
+    Triangle2 &triangle = node->data();
+    triangle.removeEdges();
+    
+    for (uint i = 0; i < triangle.count(); i++)
+    {
+        uint j = i + 1;
+        if (j == triangle.count())
+            j = 0;
+        
+        VertexNode *vi = triangle.vertex(i);
+        VertexNode *vj = triangle.vertex(j);
+        
+        TexCoordNode *ti = triangle.texCoord(i);
+        TexCoordNode *tj = triangle.texCoord(j);
+        
+        VertexEdgeNode *vij = findOrCreateEdge(vi, vj, node);
+        TexCoordEdgeNode *tij = findOrCreateEdge(ti, tj, node);
+        
+        triangle.setVertexEdge(i, vij);
+        triangle.setTexCoordEdge(i, tij);
+    }
+}
+
 void Mesh2::makeEdges()
 {
     _vertexEdges.removeAll();
@@ -69,28 +94,7 @@ void Mesh2::makeEdges()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        Triangle2 &triangle = node->data();
-        
-        triangle.removeEdges();
-        
-        for (uint i = 0; i < triangle.count(); i++)
-        {
-            uint j = i + 1;
-            if (j == triangle.count())
-                j = 0;
-            
-            VertexNode *vi = triangle.vertex(i);
-            VertexNode *vj = triangle.vertex(j);
-            
-            TexCoordNode *ti = triangle.texCoord(i);
-            TexCoordNode *tj = triangle.texCoord(j);
-            
-            VertexEdgeNode *vij = findOrCreateEdge(vi, vj, node);
-            TexCoordEdgeNode *tij = findOrCreateEdge(ti, tj, node);
-            
-            triangle.setVertexEdge(i, vij);
-            triangle.setTexCoordEdge(i, tij);
-        }
+        makeEdges(node);
     }
 }
 
@@ -170,27 +174,27 @@ void Mesh2::makeCylinder(uint steps)
     float angle = step;
     for (uint i = 1; i < max; i++)
     {
-        VertexNode *last2 = _vertices.add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
-        VertexNode *last1 = _vertices.add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
+        VertexNode *last1 = _vertices.add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
+        VertexNode *last0 = _vertices.add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
         
+        VertexNode *last2 = last1->previous();
         VertexNode *last3 = last2->previous();
-        VertexNode *last4 = last3->previous();
                 
-        addQuad(last3, last4, last2, last1);
+        addQuad(last2, last3, last1, last0);
         
-        addTriangle(last4, node0, last2);
-        addTriangle(last3, last1, node1);
+        addTriangle(last3, node0, last1);
+        addTriangle(last2, last0, node1);
         
         angle += step;
     }
     
-    VertexNode *last1 = _vertices.last();
-    VertexNode *last2 = last1->previous();
+    VertexNode *last0 = _vertices.last();
+    VertexNode *last1 = last0->previous();
         
-    addQuad(last2, node2, node3, last1);
+    addQuad(last1, node2, node3, last0);
     
-    addTriangle(node0, node2, last2);
-    addTriangle(node3, node1, last1);
+    addTriangle(node0, node2, last1);
+    addTriangle(node3, node1, last0);
     
     makeTexCoords();
     makeEdges();

@@ -94,6 +94,7 @@
 - (IBAction)softSelection:(id)sender;
 - (IBAction)cleanTexture:(id)sender;
 - (IBAction)resetTexCoords:(id)sender;
+- (IBAction)triangulateSelectedQuads:(id)sender;
 - (IBAction)viewTexturePaintTool:(id)sender;
 - (IBAction)viewTextureBrowser:(id)sender;
 

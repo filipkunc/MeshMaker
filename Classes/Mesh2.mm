@@ -621,8 +621,29 @@ void Mesh2::removeSelectedEdges()
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
-        if (node->data().selected)
+        VertexEdge &edge = node->data();
+        if (edge.selected)
+        {
+            TriangleNode *t0, *t1;
+            
+            if ((t0 = edge.triangle(0)) && (t1 = edge.triangle(1)) &&
+                !t0->data().isQuad() && !t1->data().isQuad())
+            {
+                VertexNode *v0 = t0->data().vertexNotInEdge(&edge);
+                VertexNode *v1 = t1->data().vertexNotInEdge(&edge);
+                
+                VertexNode *v2 = edge.vertex(0);
+                VertexNode *v3 = edge.vertex(1);
+                
+                TriangleNode *quad = addQuad(v3, v0, v2, v1);
+                makeEdges(quad);
+                
+                _triangles.remove(t0);
+                _triangles.remove(t1);
+            }
+            
             _vertexEdges.remove(node);
+        }
     }
     
     removeDegeneratedTriangles();
@@ -672,6 +693,40 @@ void Mesh2::triangulate()
     {
         Triangle2 quad = node->data();
         if (quad.isQuad())
+        {
+            Triangle2 triangle[2];
+            
+            uint v = 0;
+            for (uint i = 0; i < 2; i++)
+            {
+                for (uint j = 0; j < 3; j++)
+                {
+                    uint index = Triangle2::twoTriIndices[v];
+                    v++;
+                    triangle[i].setVertex(j, quad.vertex(index));
+                    triangle[i].setTexCoord(j, quad.texCoord(index));
+                }
+                
+                _triangles.add(triangle[i]);
+            }
+            
+            _triangles.remove(node);
+        }
+    }
+    
+    makeEdges();
+	
+    setSelectionMode(_selectionMode);
+}
+
+void Mesh2::triangulateSelectedQuads()
+{
+    resetTriangleCache();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle2 quad = node->data();
+        if (quad.isQuad() && quad.selected)
         {
             Triangle2 triangle[2];
             
@@ -965,10 +1020,10 @@ void Mesh2::splitSelectedTriangles()
             
             if (edge.half == NULL)
             {
-                Vector3D v1 = edge.vertex(0)->data().position;
-                Vector3D v2 = edge.vertex(1)->data().position;
+                Vector3D v0 = edge.vertex(0)->data().position;
+                Vector3D v1 = edge.vertex(1)->data().position;
                 
-                Vector3D edgeVertex = (v1 + v2) / 2.0f;
+                Vector3D edgeVertex = (v0 + v1) / 2.0f;
                 
                 edge.half = _vertices.add(edgeVertex);
             }
@@ -983,10 +1038,10 @@ void Mesh2::splitSelectedTriangles()
             
             if (edge.half == NULL)
             {
-                Vector3D t1 = edge.texCoord(0)->data().position;
-                Vector3D t2 = edge.texCoord(1)->data().position;
+                Vector3D t0 = edge.texCoord(0)->data().position;
+                Vector3D t1 = edge.texCoord(1)->data().position;
                 
-                Vector3D edgeTexCoord = (t1 + t2) / 2.0f;
+                Vector3D edgeTexCoord = (t0 + t1) / 2.0f;
                 
                 edge.half = _texCoords.add(edgeTexCoord);
             }
@@ -1056,10 +1111,10 @@ void Mesh2::splitSelectedEdges()
         
         if (vertexEdge.half == NULL)
         {
-            Vector3D v1 = vertexEdge.vertex(0)->data().position;
-            Vector3D v2 = vertexEdge.vertex(1)->data().position;
+            Vector3D v0 = vertexEdge.vertex(0)->data().position;
+            Vector3D v1 = vertexEdge.vertex(1)->data().position;
             
-            Vector3D edgeVertex = (v1 + v2) / 2.0f;
+            Vector3D edgeVertex = (v0 + v1) / 2.0f;
             
             vertexEdge.half = _vertices.add(edgeVertex);
         }

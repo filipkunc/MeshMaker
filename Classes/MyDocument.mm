@@ -42,6 +42,9 @@
 		oneView = nil;
         
         currentManipulator = ManipulatorTypeDefault;
+        
+        NSUndoManager *undo = [self undoManager];
+        [undo setLevelsOfUndo:100];
     }
     return self;
 }
@@ -725,6 +728,11 @@
     }];
 }
 
+- (IBAction)triangulateSelectedQuads:(id)sender
+{
+    [self meshOnlyActionWithName:@"Triangulate" block:^ { [self currentMesh]->triangulateSelectedQuads(); }];
+}
+
 - (IBAction)viewTexturePaintTool:(id)sender
 {
     [texturePaintToolWindowController showWindow:nil];
@@ -907,7 +915,7 @@
     
     if (scene->HasMeshes())
     {
-        uint flags = aiProcess_JoinIdenticalVertices;
+        uint flags = aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices;// | aiProcess_Debone;
 
         if ([self aiSceneNeedsTriangulation:scene])
             flags |= aiProcess_Triangulate;
@@ -943,15 +951,11 @@
             for (uint j = 0; j < mesh->mNumVertices; j++)
             {
                 const aiVector3D &v = mesh->mVertices[j];
-                vertices.push_back(Vector3D(v.x, v.y, v.z));
-                
-                texCoords.push_back(Vector3D());
+                vertices.push_back(Vector3D(v.x, v.y, v.z));                
+                texCoords.push_back(Vector3D(v.x, v.y, v.z));
             }
             
             itemMesh->fromIndexRepresentation(vertices, texCoords, triangles);
-            itemMesh->makeTexCoords();
-            itemMesh->makeEdges();
-            itemMesh->setSelectionMode(itemMesh->selectionMode());
             
             [newItems addItem:item];
         }

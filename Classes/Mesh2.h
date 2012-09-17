@@ -171,6 +171,7 @@ public:
     void flipAllTriangles();
     void extrudeSelectedTriangles();
     void triangulate();
+    void triangulateSelectedQuads();
     void openSubdivision();
     
     void merge(Mesh2 *mesh);
@@ -209,12 +210,14 @@ public:
 
     // make
     
-    void addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
-    void addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
+    TriangleNode *addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
+    TriangleNode *addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
     
     const FPList<VertexNode, Vertex2> &vertices() const { return _vertices; }
 	const FPList<TriangleNode, Triangle2> &triangles() const { return _triangles; }
     const FPList<TexCoordNode, TexCoord> &texCoords() const { return _texCoords; }
+    
+    void makeEdges(TriangleNode *node);
     
     void makeTexCoords();
     void makeEdges();
