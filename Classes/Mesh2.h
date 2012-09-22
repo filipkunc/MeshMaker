@@ -232,10 +232,10 @@ public:
     void toVertices(vector<Vector3D> &vertices);
     
     void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<TriQuad> &triangles);
-    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles);
+    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles) const;
   
     void setSelection(const vector<bool> &selection);
-    void getSelection(vector<bool> &selection);
+    void getSelection(vector<bool> &selection) const;
 };
 
 template <>

@@ -14,9 +14,16 @@ void main()
 	NdotL = max(dot(normal, vec3(0.0, 0.0, 1.0)), 0.0);
 	BackNdotL = max(dot(normal, vec3(0.0, 0.0, -1.0)), 0.0);
 	
-	gl_FrontColor = vec4(0.5, 0.5, 0.5, 1.0) * NdotL + vec4(0.3, 0.3, 0.3, 1.0);
-	
-	gl_BackColor = gl_Color * BackNdotL + vec4(0.3, 0.3, 0.3, 1.0);
+    if (gl_Color.rgb == vec3(0.7, 0.0, 0.0))
+    {
+        gl_FrontColor = gl_Color + vec4(0.3, 0.3, 0.3, 1.0);
+        gl_BackColor = gl_Color + vec4(0.3, 0.3, 0.3, 1.0);
+    }
+    else
+    {
+        gl_FrontColor = vec4(0.5, 0.5, 0.5, 1.0) * NdotL + vec4(0.3, 0.3, 0.3, 1.0);
+        gl_BackColor = gl_Color * BackNdotL + vec4(0.3, 0.3, 0.3, 1.0);
+    }
     
     gl_FrontColor.a = 0.5;
     gl_BackColor.a = 0.5;

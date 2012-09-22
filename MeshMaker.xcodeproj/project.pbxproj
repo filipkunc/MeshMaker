@@ -158,8 +158,8 @@
 		A7064C6C12BD107800B14CFA /* Vector3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector3D.h; path = Classes/Vector3D.h; sourceTree = "<group>"; };
 		A7064C8412BD109A00B14CFA /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
 		A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
-		A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLighting.vs; sourceTree = "<group>"; };
-		A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLightingFlipped.vs; sourceTree = "<group>"; };
+		A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLighting.vs; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLightingFlipped.vs; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MeshMaker-Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7064C9212BD19F400B14CFA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeshMaker_Tests-Info.plist"; sourceTree = "<group>"; };
@@ -180,7 +180,7 @@
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
 		A76AF5E7151E331A0015E5B4 /* MemoryStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MemoryStream.m; path = Classes/MemoryStream.m; sourceTree = "<group>"; };
 		A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaneTemplate.png; sourceTree = "<group>"; };
-		A7806F201605E03C00F1BC9A /* libassimp.dylib */ = {isa = PBXFileReference; lastKnownFileType = file; name = libassimp.dylib; path = Submodules/assimp/lib/Debug/libassimp.dylib; sourceTree = "<group>"; };
+		A7806F201605E03C00F1BC9A /* libassimp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.dylib; path = Submodules/assimp/lib/Debug/libassimp.dylib; sourceTree = "<group>"; };
 		A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RotateTemplate.png; sourceTree = "<group>"; };
 		A787CC1113CF717500D2A1FC /* CubeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CubeTemplate.png; sourceTree = "<group>"; };
 		A787CC1213CF717500D2A1FC /* ScaleTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScaleTemplate.png; sourceTree = "<group>"; };

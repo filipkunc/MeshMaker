@@ -8,7 +8,7 @@
 
 #import "Mesh2.h"
 
-TriangleNode * Mesh2::addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2)
+TriangleNode *Mesh2::addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2)
 {
     TexCoordNode *t0 = _texCoords.add(v0->data().position);
     TexCoordNode *t1 = _texCoords.add(v1->data().position);
@@ -474,7 +474,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles)
+void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles) const
 {
     uint index = 0;
     
@@ -524,7 +524,7 @@ void Mesh2::setSelection(const vector<bool> &selection)
     }
 }
 
-void Mesh2::getSelection(vector<bool> &selection)
+void Mesh2::getSelection(vector<bool> &selection) const
 {
     selection.clear();
     for (uint i = 0; i < selectedCount(); i++)
