@@ -474,12 +474,14 @@
 	}
 }
 
-- (IBAction)changeViewMode:(id)sender
+- (enum ViewMode)viewMode
 {
-	ViewMode mode = (ViewMode)[sender tag];
-    
-    [manipulated setViewMode:mode];
-    
+    return manipulated.viewMode;
+}
+
+- (void)setViewMode:(enum ViewMode)viewMode
+{
+    manipulated.viewMode = viewMode;
     [self setNeedsDisplayOnAllViews];
 }
 

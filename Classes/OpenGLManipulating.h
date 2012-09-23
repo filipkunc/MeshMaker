@@ -24,6 +24,7 @@
 @property (readwrite, assign) Quaternion selectionRotation;
 @property (readwrite, assign) Vector3D selectionScale;
 @property (readonly) uint selectedCount;
+@property (readwrite, assign) enum ViewMode viewMode;
 
 - (void)moveSelectedByOffset:(Vector3D)offset;
 - (void)rotateSelectedByOffset:(Quaternion)offset;
@@ -36,6 +37,5 @@
 - (void)removeSelected;
 - (void)hideSelected;
 - (void)unhideAll;
-- (void)setViewMode:(enum ViewMode)viewMode;
 
 @end

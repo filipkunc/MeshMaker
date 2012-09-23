@@ -74,7 +74,6 @@
 - (void)meshOnlyActionWithName:(NSString *)actionName block:(void (^)())action;
 - (IBAction)changeEditMode:(id)sender;
 - (IBAction)changeManipulator:(id)sender;
-- (IBAction)changeViewMode:(id)sender;
 - (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)duplicateSelected:(id)sender;

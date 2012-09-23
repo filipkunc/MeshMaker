@@ -13,6 +13,8 @@
 
 @protocol OpenGLManipulatingModel <NSObject>
 
+@property (readwrite, assign) enum ViewMode viewMode;
+
 - (uint)count;
 - (BOOL)isSelectedAtIndex:(uint)index;
 - (void)setSelected:(BOOL)selected atIndex:(uint)index;
@@ -21,7 +23,6 @@
 - (void)removeSelected;
 - (void)hideSelected;
 - (void)unhideAll;
-- (void)setViewMode:(enum ViewMode)viewMode;
 
 @optional
 

@@ -65,6 +65,16 @@
         model.selectionColor = selectionColor;
 }
 
+- (enum ViewMode)viewMode
+{
+    return model.viewMode;
+}
+
+- (void)setViewMode:(enum ViewMode)viewMode
+{
+    model.viewMode = viewMode;
+}
+
 - (id<OpenGLManipulatingModel>)model
 {
     return model;
@@ -99,6 +109,7 @@
 	[self addObserver:observer forKeyPath:@"selectionZ"];
     [self addObserver:observer forKeyPath:@"selectionColor"];
     [self addObserver:observer forKeyPath:@"selectionColorEnabled"];
+    [self addObserver:observer forKeyPath:@"viewMode"];
 }
 
 - (void)removeSelectionObserver:(id)observer
@@ -108,6 +119,7 @@
 	[self removeObserver:observer forKeyPath:@"selectionZ"];
     [self removeObserver:observer forKeyPath:@"selectionColor"];
     [self removeObserver:observer forKeyPath:@"selectionColorEnabled"];
+    [self removeObserver:observer forKeyPath:@"viewMode"];
 }
 
 - (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
@@ -286,7 +298,8 @@
 	[self willChangeValueForKey:@"selectionY"];
 	[self willChangeValueForKey:@"selectionZ"];	
     [self willChangeValueForKey:@"selectionColor"];	
-    [self willChangeValueForKey:@"selectionColorEnabled"];	
+    [self willChangeValueForKey:@"selectionColorEnabled"];
+    [self willChangeValueForKey:@"viewMode"];
 }
 
 - (void)didChangeSelection
@@ -296,6 +309,7 @@
 	[self didChangeValueForKey:@"selectionZ"];
     [self didChangeValueForKey:@"selectionColor"];	
     [self didChangeValueForKey:@"selectionColorEnabled"];
+    [self didChangeValueForKey:@"viewMode"];
 }
 
 - (Vector3D)selectionCenter
@@ -627,11 +641,6 @@
 - (void)unhideAll
 {
 	[model unhideAll];
-}
-
-- (void)setViewMode:(enum ViewMode)viewMode
-{
-    [model setViewMode:viewMode];
 }
 
 @end

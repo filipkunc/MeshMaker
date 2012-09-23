@@ -468,6 +468,16 @@
 	}
 }
 
+- (enum ViewMode)viewMode
+{
+    for (Item *item in items)
+    {
+        if (item.selected)
+            return item.viewMode;
+    }
+    return ViewModeSolidFlat;
+}
+
 - (void)setViewMode:(enum ViewMode)viewMode
 {
     for (Item *item in items)
