@@ -75,7 +75,6 @@
 		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
 		A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
 		A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */; };
-		A7806F211605E03C00F1BC9A /* libassimp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7806F201605E03C00F1BC9A /* libassimp.dylib */; };
 		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
 		A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1113CF717500D2A1FC /* CubeTemplate.png */; };
 		A787CC1713CF717500D2A1FC /* ScaleTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1213CF717500D2A1FC /* ScaleTemplate.png */; };
@@ -219,7 +218,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A7806F211605E03C00F1BC9A /* libassimp.dylib in Frameworks */,
 				A72F429C15F3CD8F008524C1 /* libosd.a in Frameworks */,
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
@@ -821,7 +819,6 @@
 				HEADER_SEARCH_PATHS = (
 					Submodules/OpenSubdiv/opensubdiv,
 					Submodules/OpenSubdiv/regression,
-					Submodules/assimp/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -829,7 +826,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Debug\"",
-					"\"$(SRCROOT)/Submodules/assimp/lib/Debug\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
@@ -865,7 +861,6 @@
 				HEADER_SEARCH_PATHS = (
 					Submodules/OpenSubdiv/opensubdiv,
 					Submodules/OpenSubdiv/regression,
-					Submodules/assimp/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -873,7 +868,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Release\"",
-					"\"$(SRCROOT)/Submodules/assimp/lib/Release\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;

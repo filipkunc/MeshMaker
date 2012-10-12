@@ -1,6 +1,3 @@
 [submodule "Submodules/OpenSubdiv"]
 	path = Submodules/OpenSubdiv
 	url = https://github.com/filipkunc/OpenSubdiv.git
-[submodule "Submodules/assimp"]
-	path = Submodules/assimp
-	url = https://github.com/filipkunc/assimp.git

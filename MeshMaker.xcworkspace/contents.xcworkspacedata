@@ -13,7 +13,4 @@
    <FileRef
       location = "group:Submodules/OpenSubdiv/OpenSubdiv.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:Submodules/assimp/Assimp.xcodeproj">
-   </FileRef>
 </Workspace>

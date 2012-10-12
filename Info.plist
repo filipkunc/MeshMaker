@@ -44,66 +44,6 @@
 			<key>NSDocumentClass</key>
 			<string>MyDocument</string>
 		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>dae</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Collada</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>NSDocumentClass</key>
-			<string>MyDocument</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>obj</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Wavefront Object</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>NSDocumentClass</key>
-			<string>MyDocument</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>3ds</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>3D Studio Max 3DS</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>NSDocumentClass</key>
-			<string>MyDocument</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>ase</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>3D Studio Max ASE</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>NSDocumentClass</key>
-			<string>MyDocument</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>lxo</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Modo Model</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>NSDocumentClass</key>
-			<string>MyDocument</string>
-		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
