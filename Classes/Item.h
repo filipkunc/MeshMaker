@@ -35,6 +35,8 @@
 @property (readonly) Mesh2 *mesh;
 @property (readonly) Matrix4x4 transform;
 
+- (id)initFromSelectedTrianglesInMesh:(Mesh2 *)aMesh;
+- (id)initWithMesh:(Mesh2 *)aMesh;
 - (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
 - (void)drawForSelection:(BOOL)forSelection;
 - (void)moveByOffset:(Vector3D)offset;

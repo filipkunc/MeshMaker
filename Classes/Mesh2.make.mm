@@ -556,3 +556,40 @@ void Mesh2::make(MeshType meshType, uint steps)
 	}
 }
 
+void Mesh2::fillMeshFromSelectedTriangles(Mesh2 &mesh)
+{
+    mesh._vertices.removeAll();
+    mesh._texCoords.removeAll();
+    mesh._triangles.removeAll();
+
+    resetAlgorithmData();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        Triangle2 &triangle = node->data();
+        if (triangle.selected)
+        {
+            VertexNode *vertices[4];
+            TexCoordNode *texCoords[4];
+            for (uint i = 0; i < triangle.count(); i++)
+            {
+                VertexNode *vertex = triangle.vertex(i);
+                TexCoordNode *texCoord = triangle.texCoord(i);
+                
+                if (vertex->algorithmData.duplicatePair == NULL)
+                    vertex->algorithmData.duplicatePair = vertices[i] = mesh._vertices.add(vertex->data());
+                else
+                    vertices[i] = vertex->algorithmData.duplicatePair;
+                
+                if (texCoord->algorithmData.duplicatePair == NULL)
+                    texCoord->algorithmData.duplicatePair = texCoords[i] = mesh._texCoords.add(texCoord->data());
+                else
+                    texCoords[i] = texCoord->algorithmData.duplicatePair;
+            }
+            mesh._triangles.add(Triangle2(vertices, texCoords, triangle.isQuad()));
+        }
+    }
+    
+    mesh.makeEdges();
+    mesh.setSelectionMode(mesh._selectionMode);
+}

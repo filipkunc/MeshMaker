@@ -15,13 +15,29 @@
 
 - (id)init
 {
-	self = [super init];
+	self = [self initWithMesh:new Mesh2()];
+	return self;
+}
+
+- (id)initFromSelectedTrianglesInMesh:(Mesh2 *)aMesh
+{
+    self = [self init];
+    if (self)
+    {
+        aMesh->fillMeshFromSelectedTriangles(*mesh);
+    }
+    return self;
+}
+
+- (id)initWithMesh:(Mesh2 *)aMesh
+{
+    self = [super init];
 	if (self)
 	{
 		position = new Vector3D();
 		rotation = new Quaternion();
 		scale = new Vector3D(1, 1, 1);
-		mesh = new Mesh2();
+		mesh = aMesh;
 		selected = NO;
 		visible = YES;
         viewMode = ViewModeSolidFlat;
@@ -80,6 +96,7 @@
 	delete position;
 	delete rotation;
 	delete scale;
+    delete mesh;
 }
 
 - (Vector3D)position

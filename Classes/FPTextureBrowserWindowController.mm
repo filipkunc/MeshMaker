@@ -54,10 +54,13 @@
     if (selectedRow >= 0 && selectedRow < (int)items.count)
     {    
         Mesh2 *mesh = [items itemAtIndex:selectedRow].mesh;
+        [items deselectAll];
+        [items setSelected:YES atIndex:selectedRow];
         [textureView setImage:mesh->texture().canvas];
     }
     else
     {
+        [items deselectAll];
         [textureView setImage:nil];
     }
 }

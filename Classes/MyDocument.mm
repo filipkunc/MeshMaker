@@ -9,6 +9,7 @@
 #import "MyDocument.h"
 #import "ItemManipulationState.h"
 #import "IndexedItem.h"
+#import <sstream>
 
 @implementation MyDocument
 
@@ -279,7 +280,7 @@
 	[self setManipulated:itemsController];
 }
 
-- (void)swapMeshStateWithOld:(MeshState *)old 
+- (void)swapMeshStateWithOld:(MeshState *)old
 					 current:(MeshState *)current 
 				  actionName:(NSString *)actionName
 {
@@ -787,6 +788,9 @@
 {
     if ([typeName isEqualToString:@"model3D"])
         return [self readFromModel3D:[dirWrapper regularFileContents]];
+
+    if ([typeName isEqualToString:@"Wavefront Object"])
+        return [self readFromWavefrontObject:[dirWrapper regularFileContents]];
     
     NSFileWrapper *modelWrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3D"];
     NSData *modelData = [modelWrapper regularFileContents];
@@ -817,6 +821,9 @@
 {
     if ([typeName isEqualToString:@"model3D"])
         return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfModel3D]];
+    
+    if ([typeName isEqualToString:@"Wavefront Object"])
+        return nil;
     
     NSFileWrapper *dirWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:nil];
     
@@ -873,6 +880,147 @@
     [stream writeBytes:&version length:sizeof(unsigned int)];
     [items encodeWithWriteStream:stream];
     return data;
+}
+
+- (BOOL)readFromWavefrontObject:(NSData *)data
+{
+    NSString *fileContents = [NSString stringWithUTF8String:(const char *)[data bytes]];
+    string str = [fileContents UTF8String];
+    stringstream ssfile;
+    ssfile << str;
+    
+    vector<Vector3D> vertices;
+    vector<Vector3D> texCoords;
+    vector<TriQuad> triangles;
+    vector<uint> groups;
+    
+    bool hasTexCoords = false;
+    bool hasNormals = false;
+    
+    while (!ssfile.eof())
+    {
+        string line;
+        getline(ssfile, line);
+        stringstream ssline;
+        ssline << line;
+        
+        string prefix;
+        ssline >> prefix;
+        
+        if (prefix == "#")
+        {
+            // # This is a comment
+            continue;
+        }
+        else if (prefix == "g")
+        {
+            // g group_name
+            groups.push_back(triangles.size());
+        }
+        else if (prefix == "v")
+        {
+            // v -5.79346 -1.38018 42.63113
+            Vector3D v;
+            ssline >> v.x >> v.y >> v.z;
+            
+            swap(v.y, v.z);
+            v.z = -v.z;
+            
+            vertices.push_back(v);
+        }
+        else if (prefix == "vt")
+        {
+            // vt 0.12528 -0.64560
+            Vector3D vt;
+            ssline >> vt.x >> vt.y >> vt.z;
+            
+            vt.z = 0.0f;
+            
+            texCoords.push_back(vt);
+            hasTexCoords = true;
+        }
+        else if (prefix == "vn")
+        {
+            // vn -0.78298 -0.13881 -0.60637
+            hasNormals = true;
+        }
+        else if (prefix == "f")
+        {
+            // f  v1 v2 v3 v4 ...
+            // f  v1/vt1 v2/vt2 v3/vt3 ...
+            // f  v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+            // f  v1//vn1 v2//vn2 v3//vn3 ...
+            
+            // f  187/1/1 204/2/2 185/3/3
+
+            TriQuad triQuad;
+            for (uint i = 0; i < 4; i++)
+            {
+                uint vi, ti, ni;
+                char c;
+                
+                if (!hasTexCoords && !hasNormals)
+                    ssline >> vi;
+                else if (hasTexCoords && !hasNormals)
+                    ssline >> vi >> c >> ti;
+                else if (!hasTexCoords && hasNormals)
+                    ssline >> vi >> c >> c >> ni;
+                else if (hasTexCoords && hasNormals)
+                    ssline >> vi >> c >> ti >> c >> ni;
+                
+                triQuad.vertexIndices[i] = vi - 1;
+                triQuad.texCoordIndices[i] = ti - 1;
+            }
+            triQuad.isQuad = ssline.good();
+            triangles.push_back(triQuad);
+        }
+    }
+    
+    Mesh2 *mesh = new Mesh2();
+    if (!hasTexCoords)
+        mesh->fromIndexRepresentation(vertices, vertices, triangles);
+    else
+        mesh->fromIndexRepresentation(vertices, texCoords, triangles);
+    
+    mesh->flipAllTriangles();
+    
+    mesh->setSelectionMode(MeshSelectionModeTriangles);
+    
+    ItemCollection *newItems = [[ItemCollection alloc] init];
+
+    for (uint i = 0; i < groups.size(); i++)
+    {
+        for (uint j = 0; j < mesh->triangleCount(); j++)
+            mesh->setSelectedAtIndex(false, j);
+        
+        for (uint j = groups.at(i), end = i + 1 < groups.size() ? groups.at(i + 1) : mesh->triangleCount(); j < end; j++)
+            mesh->setSelectedAtIndex(true, j);
+        
+        Item *item = [[Item alloc] initFromSelectedTrianglesInMesh:mesh];
+        [newItems addItem:item];
+    }
+    
+    if (groups.empty())
+    {
+        Item *item = [[Item alloc] initWithMesh:mesh];
+        [newItems addItem:item];
+    }
+    else
+    {
+        delete mesh;
+    }
+    
+    items = newItems;
+    [itemsController setModel:items];
+    [itemsController updateSelection];
+    [self setManipulated:itemsController];
+    
+    return YES;
+}
+
+- (NSData *)dataOfWavefrontObject
+{
+    return nil;
 }
 
 #pragma mark Splitter sync

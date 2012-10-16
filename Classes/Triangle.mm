@@ -286,6 +286,7 @@ bool Triangle2::containsTexCoordEdge(const TexCoordEdgeNode *edge) const
 void Triangle2::flip()
 {
     swap(_nodes[0].vertex, _nodes[2].vertex);
+    swap(_nodes[0].texCoord, _nodes[2].texCoord);
 }
 
 uint Triangle2::indexOfVertex(const VertexNode *vertex) const

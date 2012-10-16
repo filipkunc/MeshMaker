@@ -236,6 +236,8 @@ public:
   
     void setSelection(const vector<bool> &selection);
     void getSelection(vector<bool> &selection) const;
+    
+    void fillMeshFromSelectedTriangles(Mesh2 &mesh);
 };
 
 template <>
