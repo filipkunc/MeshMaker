@@ -326,4 +326,188 @@
         mesh->setUnwrapped(false);
 }
 
+#pragma mark JavaScript interop
+
+- (VertexNodeIterator *)vertexIterator
+{
+    return [[VertexNodeIterator alloc] initWithBegin:mesh->vertices().begin() end:mesh->vertices().end()];
+}
+
+- (TriangleNodeIterator *)triQuadIterator
+{
+    return [[TriangleNodeIterator alloc] initWithBegin:mesh->triangles().begin() end:mesh->triangles().end()];
+}
+
+- (void)addTriangleWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2
+{
+    mesh->addTriangle(v0.vertex, v1.vertex, v2.vertex);
+}
+
+- (void)addQuadWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2 fourth:(VertexWrapper *)v3
+{
+    mesh->addQuad(v0.vertex, v1.vertex, v2.vertex, v3.vertex);
+}
+
+- (void)removeTriQuad:(TriangleNodeIterator *)triQuadIterator
+{
+    TriangleNode *current = triQuadIterator.current;
+    mesh->removeTriQuad(current);
+    triQuadIterator.current = current;
+}
+
++ (NSString *)webScriptNameForSelector:(SEL)sel
+{
+    if (sel == @selector(addTriangleWithFirst:second:third:))
+        return @"addTriangle";
+    if (sel == @selector(addQuadWithFirst:second:third:fourth:))
+        return @"addQuad";
+    if (sel == @selector(removeTriQuad:))
+        return @"removeTriQuad";
+    
+    return nil;
+}
+
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector { return NO; }
++ (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; }
+
+@end
+
+@implementation VertexNodeIterator
+
+- (BOOL)finished { return current == end; }
+
+- (BOOL)selected { return current->data().selected; }
+- (void)setSelected:(BOOL)selected { current->data().selected = selected; }
+- (float)positionX { return current->data().position.x; }
+- (void)setPositionX:(float)positionX { current->data().position.x = positionX; }
+- (float)positionY { return current->data().position.y; }
+- (void)setPositionY:(float)positionY { current->data().position.y = positionY; }
+- (float)positionZ { return current->data().position.z; }
+- (void)setPositionZ:(float)positionZ { current->data().position.z = positionZ; }
+
+- (id)initWithBegin:(VertexNode *)theBegin end:(VertexNode *)theEnd
+{
+    self = [super init];
+    if (self)
+    {
+        begin = theBegin;
+        end = theEnd;
+        current = begin;
+    }
+    return self;
+}
+
+- (void)moveStart { current = begin; }
+- (void)moveNext { current = current->next(); }
+
++ (NSString *)webScriptNameForSelector:(SEL)sel
+{
+    if (sel == @selector(setSelected:))
+        return @"setSelected";
+    if (sel == @selector(setPositionX:))
+        return @"setPositionX";
+    if (sel == @selector(setPositionY:))
+        return @"setPositionY";
+    if (sel == @selector(setPositionZ:))
+        return @"setPositionZ";
+    
+    return nil;
+}
+
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector { return NO; }
++ (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; }
+
+@end
+
+@implementation TriangleNodeIterator
+
+@synthesize current = current;
+
+- (BOOL)finished { return current == end; }
+
+- (BOOL)isQuad { return current->data().isQuad(); }
+- (uint)count { return current->data().count(); }
+- (BOOL)selected { return current->data().selected; }
+- (void)setSelected:(BOOL)selected { current->data().selected = selected; }
+
+- (id)initWithBegin:(TriangleNode *)theBegin end:(TriangleNode *)theEnd
+{
+    self = [super init];
+    if (self)
+    {
+        begin = theBegin;
+        end = theEnd;
+        current = begin;
+    }
+    return self;
+}
+
+- (void)moveStart { current = begin; }
+- (void)moveNext { current = current->next(); }
+
+- (VertexWrapper *)vertexAtIndex:(uint)index
+{
+    return [[VertexWrapper alloc] initWithVertex:current->data().vertex(index)];
+}
+
+- (void)setVertex:(VertexWrapper *)vertex atIndex:(uint)index
+{
+    current->data().setVertex(index, vertex.vertex);
+}
+
++ (NSString *)webScriptNameForSelector:(SEL)sel
+{
+    if (sel == @selector(setSelected:))
+        return @"setSelected";
+    if (sel == @selector(vertexAtIndex:))
+        return @"vertex";
+    if (sel == @selector(setVertex:atIndex:))
+        return @"setVertex";
+    
+    return nil;
+}
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector { return NO; }
++ (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; }
+
+@end
+
+@implementation VertexWrapper
+
+- (VertexNode *)vertex { return vertex; }
+- (BOOL)selected { return vertex->data().selected; }
+- (void)setSelected:(BOOL)selected { vertex->data().selected = selected; }
+- (float)positionX { return vertex->data().position.x; }
+- (void)setPositionX:(float)positionX { vertex->data().position.x = positionX; }
+- (float)positionY { return vertex->data().position.y; }
+- (void)setPositionY:(float)positionY { vertex->data().position.y = positionY; }
+- (float)positionZ { return vertex->data().position.z; }
+- (void)setPositionZ:(float)positionZ { vertex->data().position.z = positionZ; }
+
+- (id)initWithVertex:(VertexNode *)aVertexNode
+{
+    self = [super init];
+    if (self)
+    {
+        vertex = aVertexNode;
+    }
+    return self;
+}
+
++ (NSString *)webScriptNameForSelector:(SEL)sel
+{
+    if (sel == @selector(setSelected:))
+        return @"setSelected";
+    if (sel == @selector(setPositionX:))
+        return @"setPositionX";
+    if (sel == @selector(setPositionY:))
+        return @"setPositionY";
+    if (sel == @selector(setPositionZ:))
+        return @"setPositionZ";
+    
+    return nil;
+}
+
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector { return NO; }
++ (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; }
+
 @end

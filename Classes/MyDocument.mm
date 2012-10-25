@@ -742,6 +742,12 @@
     [textureBrowserWindowController showWindow:nil];
 }
 
+- (void)viewScriptEditor:(id)sender
+{
+    [scriptWindowController setItems:items];
+    [scriptWindowController showWindow:nil];
+}
+
 - (BOOL)texturePaintEnabled
 {
     if (texturePaintToolWindowController.isWindowLoaded)

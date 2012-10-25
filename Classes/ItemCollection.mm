@@ -487,4 +487,15 @@
     }
 }
 
++ (NSString *)webScriptNameForSelector:(SEL)sel
+{
+   if (sel == @selector(itemAtIndex:))
+       return @"at";
+    
+    return nil;    
+}
+
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector { return NO; }
++ (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; }
+
 @end

@@ -108,6 +108,9 @@ private:
     void detachSelectedTriangles();
     void flipSelectedTriangles();
     void turnSelectedEdges();
+    void halfEdges();
+    void repositionVertices(uint vertexCount);
+    void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
     void initOrUpdateTexture();
     
@@ -173,6 +176,7 @@ public:
     void triangulate();
     void triangulateSelectedQuads();
     void openSubdivision();
+    void loopSubdivision();
     
     void merge(Mesh2 *mesh);
     
@@ -210,8 +214,9 @@ public:
 
     // make
     
-    TriangleNode *addTriangle(VertexNode *v1, VertexNode *v2, VertexNode *v3);
-    TriangleNode *addQuad(VertexNode *v1, VertexNode *v2, VertexNode *v3, VertexNode *v4);
+    TriangleNode *addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2);
+    TriangleNode *addQuad(VertexNode *v0, VertexNode *v1, VertexNode *v2, VertexNode *v3);
+    void removeTriQuad(TriangleNode *&triQuad);
     
     const FPList<VertexNode, Vertex2> &vertices() const { return _vertices; }
 	const FPList<TriangleNode, Triangle2> &triangles() const { return _triangles; }
@@ -238,6 +243,9 @@ public:
     void getSelection(vector<bool> &selection) const;
     
     void fillMeshFromSelectedTriangles(Mesh2 &mesh);
+    
+    void beforeScriptAction();
+    void afterScriptAction();
 };
 
 template <>

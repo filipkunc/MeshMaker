@@ -12,6 +12,7 @@
 #import "AddItemWithStepsSheetController.h"
 #import "FPTexturePaintToolWindowController.h"
 #import "FPTextureBrowserWindowController.h"
+#import "ScriptWindowController.h"
 
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSWindowDelegate>
 {
@@ -41,6 +42,7 @@
 	OpenGLSceneView *oneView;
     IBOutlet FPTexturePaintToolWindowController *texturePaintToolWindowController;
     IBOutlet FPTextureBrowserWindowController *textureBrowserWindowController;
+    IBOutlet ScriptWindowController *scriptWindowController;
 }
 
 @property (readwrite, assign) id<OpenGLManipulating> manipulated;
@@ -96,5 +98,6 @@
 - (IBAction)triangulateSelectedQuads:(id)sender;
 - (IBAction)viewTexturePaintTool:(id)sender;
 - (IBAction)viewTextureBrowser:(id)sender;
+- (IBAction)viewScriptEditor:(id)sender;
 
 @end

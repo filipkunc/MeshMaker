@@ -33,6 +33,11 @@ TriangleNode *Mesh2::addQuad(VertexNode *v0, VertexNode *v1, VertexNode *v2, Ver
   	return _triangles.add(Triangle2(vertices, texCoords, true));
 }
 
+void Mesh2::removeTriQuad(TriangleNode *&triQuad)
+{
+    _triangles.remove(triQuad);
+}
+
 void Mesh2::makeTexCoords()
 {
     _texCoords.removeAll();
