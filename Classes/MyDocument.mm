@@ -728,9 +728,20 @@
     }];
 }
 
-- (IBAction)triangulateSelectedQuads:(id)sender
+- (IBAction)triangulate:(id)sender
 {
-    [self meshOnlyActionWithName:@"Triangulate" block:^ { [self currentMesh]->triangulateSelectedQuads(); }];
+    if (manipulated == meshController)
+    {
+        [self meshOnlyActionWithName:@"Triangulate" block:^ { [self currentMesh]->triangulateSelectedQuads(); }];
+    }
+    else if (manipulated == itemsController)
+    {
+        [self allItemsActionWithName:@"Triangulate" block:^
+        {
+            for (Item *item in items)
+                item.mesh->triangulate();
+        }];
+    }
 }
 
 - (IBAction)viewTexturePaintTool:(id)sender

@@ -1227,14 +1227,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">triangulateSelectedQuads:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="938375642"/>
-					</object>
-					<int key="connectionID">593</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">viewScriptEditor:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="417741643"/>
@@ -1272,6 +1264,14 @@
 						<reference key="destination" ref="534601679"/>
 					</object>
 					<int key="connectionID">744</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">triangulate:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="938375642"/>
+					</object>
+					<int key="connectionID">753</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2136,7 +2136,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">752</int>
+			<int key="maxID">753</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2258,6 +2258,7 @@
 							<string>addCube:</string>
 							<string>addCylinder:</string>
 							<string>addIcosahedron:</string>
+							<string>addPlane:</string>
 							<string>addSphere:</string>
 							<string>changeEditMode:</string>
 							<string>changeManipulator:</string>
@@ -2275,7 +2276,7 @@
 							<string>softSelection:</string>
 							<string>splitSelected:</string>
 							<string>subdivision:</string>
-							<string>triangulateSelectedQuads:</string>
+							<string>triangulate:</string>
 							<string>unhideAll:</string>
 							<string>viewScriptEditor:</string>
 							<string>viewTextureBrowser:</string>
@@ -2283,6 +2284,7 @@
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -2317,6 +2319,7 @@
 							<string>addCube:</string>
 							<string>addCylinder:</string>
 							<string>addIcosahedron:</string>
+							<string>addPlane:</string>
 							<string>addSphere:</string>
 							<string>changeEditMode:</string>
 							<string>changeManipulator:</string>
@@ -2334,7 +2337,7 @@
 							<string>softSelection:</string>
 							<string>splitSelected:</string>
 							<string>subdivision:</string>
-							<string>triangulateSelectedQuads:</string>
+							<string>triangulate:</string>
 							<string>unhideAll:</string>
 							<string>viewScriptEditor:</string>
 							<string>viewTextureBrowser:</string>
@@ -2352,6 +2355,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">addIcosahedron:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">addPlane:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -2423,7 +2430,7 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
-								<string key="name">triangulateSelectedQuads:</string>
+								<string key="name">triangulate:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">

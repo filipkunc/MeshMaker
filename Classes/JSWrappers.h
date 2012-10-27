@@ -11,9 +11,11 @@
 @class VertexWrapper;
 @class TriangleWrapper;
 @class EdgeWrapper;
+@class SimpleNodeEdgeWrapper;
 @class VertexNodeIterator;
 @class TriangleNodeIterator;
 @class EdgeNodeIterator;
+@class SimpleNodeEdgeIterator;
 
 @interface ItemCollection (JSWrappers)
 
@@ -25,6 +27,16 @@
 @property (readonly) TriangleNodeIterator *triQuadIterator;
 @property (readonly) EdgeNodeIterator *edgeIterator;
 
+@property (readonly) uint vertexCount;
+@property (readonly) uint triQuadCount;
+
+- (VertexWrapper *)addVertexWithX:(float)x y:(float)y z:(float)z;
+- (TriangleWrapper *)addTriangleWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2;
+- (TriangleWrapper *)addQuadWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2 fourth:(VertexWrapper *)v3;
+- (void)removeTriQuad:(TriangleWrapper *)triQuad;
+- (void)makeEdges;
+- (void)updateSelection;
+
 @end
 
 @interface VertexWrapper : NSObject
@@ -34,6 +46,9 @@
 @property (readwrite, assign) float x;
 @property (readwrite, assign) float y;
 @property (readwrite, assign) float z;
+@property (readwrite, assign) uint index;
+@property (readonly) uint edgeCount;
+@property (readonly) SimpleNodeEdgeIterator *edgeIterator;
 
 - (id)initWithNode:(VertexNode *)vertexNode;
 
@@ -51,12 +66,18 @@
 - (VertexWrapper *)vertexAtIndex:(uint)index;
 - (void)setVertex:(VertexWrapper *)vertex atIndex:(uint)index;
 
+- (EdgeWrapper *)edgeAtIndex:(uint)index;
+- (void)setEdge:(EdgeWrapper *)edge atIndex:(uint)index;
+
+- (VertexWrapper *)vertexNotInEdge:(EdgeWrapper *)edge;
+
 @end
 
 @interface EdgeWrapper : NSObject
 
 @property (readwrite, assign) VertexEdgeNode *node;
 @property (readwrite, assign) BOOL selected;
+@property (readwrite, assign) VertexWrapper *half;
 
 - (id)initWithNode:(VertexEdgeNode *)edgeNode;
 
@@ -66,46 +87,37 @@
 - (TriangleWrapper *)triangleAtIndex:(uint)index;
 - (void)setTriangle:(TriangleWrapper *)triangle atIndex:(uint)index;
 
+- (VertexWrapper *)oppositeVertex:(VertexWrapper *)vertex;
+
 @end
 
-@interface VertexNodeIterator : VertexWrapper
+@interface SimpleNodeEdgeWrapper : EdgeWrapper
 {
-    VertexNode *begin;
-    VertexNode *end;
+    SimpleNode<VertexEdgeNode *> *_simpleNode;
 }
 
-@property (readonly) BOOL finished;
+@property (readwrite, assign) SimpleNode<VertexEdgeNode *> *simpleNode;
 
-- (id)initWithBegin:(VertexNode *)theBegin end:(VertexNode *)theEnd;
-- (void)moveStart;
-- (void)moveNext;
+- (id)initWithSimpleNode:(SimpleNode<VertexEdgeNode *> *)edgeNode;
 
 @end
 
-@interface TriangleNodeIterator : TriangleWrapper
-{
-    TriangleNode *begin;
-    TriangleNode *end;
-}
-
-@property (readonly) BOOL finished;
-
-- (id)initWithBegin:(TriangleNode *)theBegin end:(TriangleNode *)theEnd;
-- (void)moveStart;
-- (void)moveNext;
-
+#define DeclareIterator(Name, TBase, TNode) \
+@interface Name : TBase \
+{ \
+    TNode *begin; \
+    TNode *end; \
+} \
+\
+@property (readonly) BOOL finished; \
+\
+- (id)initWithBegin:(TNode *)theBegin end:(TNode *)theEnd; \
+- (void)moveStart; \
+- (void)moveNext; \
+\
 @end
 
-@interface EdgeNodeIterator : EdgeWrapper
-{
-    VertexEdgeNode *begin;
-    VertexEdgeNode *end;
-}
-
-@property (readonly) BOOL finished;
-
-- (id)initWithBegin:(VertexEdgeNode *)theBegin end:(VertexEdgeNode *)theEnd;
-- (void)moveStart;
-- (void)moveNext;
-
-@end
+DeclareIterator(VertexNodeIterator, VertexWrapper, VertexNode)
+DeclareIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode)
+DeclareIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode)
+DeclareIterator(SimpleNodeEdgeIterator, SimpleNodeEdgeWrapper, SimpleNode<VertexEdgeNode *>)

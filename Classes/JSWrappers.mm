@@ -40,6 +40,26 @@
     return [[EdgeNodeIterator alloc] initWithBegin:mesh->vertexEdges().begin() end:mesh->vertexEdges().end()];
 }
 
+- (uint)vertexCount
+{
+    return mesh->vertexCount();
+}
+
+- (uint)triQuadCount
+{
+    return mesh->triangleCount();
+}
+
+- (void)makeEdges
+{
+    mesh->makeEdges();
+}
+
+- (void)updateSelection
+{
+    mesh->setSelectionMode(mesh->selectionMode());
+}
+
 - (VertexWrapper *)addVertexWithX:(float)x y:(float)y z:(float)z
 {
     return [[VertexWrapper alloc] initWithNode:mesh->addVertex(Vector3D(x, y, z))];
@@ -55,11 +75,11 @@
     return [[TriangleWrapper alloc] initWithNode:mesh->addQuad(v0.node, v1.node, v2.node, v3.node)];
 }
 
-- (void)removeTriQuad:(TriangleNodeIterator *)triQuadIterator
+- (void)removeTriQuad:(TriangleWrapper *)triQuad
 {
-    TriangleNode *current = triQuadIterator.node;
+    TriangleNode *current = triQuad.node;
     mesh->removeTriQuad(current);
-    triQuadIterator.node = current;
+    triQuad.node = current;
 }
 
 + (NSString *)webScriptNameForSelector:(SEL)sel
@@ -93,6 +113,10 @@
 - (void)setY:(float)y { node->data().position.y = y; }
 - (float)z { return node->data().position.z; }
 - (void)setZ:(float)z { node->data().position.z = z; }
+- (uint)index { return node->algorithmData.index; }
+- (void)setIndex:(uint)index { node->algorithmData.index = index; }
+- (uint)edgeCount { return node->_edges.count(); }
+- (SimpleNodeEdgeIterator *)edgeIterator { return [[SimpleNodeEdgeIterator alloc] initWithBegin:node->_edges.begin() end:node->_edges.end()]; }
 
 - (id)initWithNode:(VertexNode *)vertexNode
 {
@@ -114,6 +138,8 @@
         return @"setY";
     if (sel == @selector(setZ:))
         return @"setZ";
+    if (sel == @selector(setIndex:))
+        return @"setIndex";
     
     return nil;
 }
@@ -152,6 +178,21 @@
     node->data().setVertex(index, vertex.node);
 }
 
+- (EdgeWrapper *)edgeAtIndex:(uint)index
+{
+    return [[EdgeWrapper alloc] initWithNode:node->data().vertexEdge(index)];
+}
+
+- (void)setEdge:(EdgeWrapper *)edge atIndex:(uint)index
+{
+    node->data().setVertexEdge(index, edge.node);
+}
+
+- (VertexWrapper *)vertexNotInEdge:(EdgeWrapper *)edge
+{
+    return [[VertexWrapper alloc] initWithNode:node->data().vertexNotInEdge(&edge.node->data())];
+}
+
 + (NSString *)webScriptNameForSelector:(SEL)sel
 {
     if (sel == @selector(setSelected:))
@@ -160,6 +201,12 @@
         return @"vertex";
     if (sel == @selector(setVertex:atIndex:))
         return @"setVertex";
+    if (sel == @selector(edgeAtIndex:))
+        return @"edge";
+    if (sel == @selector(setEdge:atIndex:))
+        return @"setEdge";
+    if (sel == @selector(vertexNotInEdge:))
+        return @"vertexNotInEdge";
     
     return nil;
 }
@@ -176,6 +223,21 @@
 - (BOOL)selected { return node->data().selected; }
 - (void)setSelected:(BOOL)selected { node->data().selected = selected; }
 
+- (VertexWrapper *)half
+{
+    if (node->data().half)
+        return [[VertexWrapper alloc] initWithNode:node->data().half];
+    return nil;
+}
+
+- (void)setHalf:(VertexWrapper *)half
+{
+    if (half)
+        node->data().half = half.node;
+    else
+        node->data().half = NULL;
+}
+
 - (id)initWithNode:(VertexEdgeNode *)edgeNode
 {
     self = [super init];
@@ -188,22 +250,39 @@
 
 - (VertexWrapper *)vertexAtIndex:(uint)index
 {
-    return [[VertexWrapper alloc] initWithNode:node->data().vertex(index)];
+    VertexNode *vertex = node->data().vertex(index);
+    if (vertex)
+        return [[VertexWrapper alloc] initWithNode:vertex];
+    return nil;
 }
 
 - (void)setVertex:(VertexWrapper *)vertex atIndex:(uint)index
 {
-    node->data().setVertex(index, vertex.node);
+    if (vertex)
+        node->data().setVertex(index, vertex.node);
+    else
+        node->data().setVertex(index, NULL);
 }
 
 - (TriangleWrapper *)triangleAtIndex:(uint)index
 {
-    return [[TriangleWrapper alloc] initWithNode:node->data().triangle(index)];
+    TriangleNode *triangle = node->data().triangle(index);
+    if (triangle)
+        return [[TriangleWrapper alloc] initWithNode:triangle];
+    return nil;
 }
 
 - (void)setTriangle:(TriangleWrapper *)triangle atIndex:(uint)index
 {
-    node->data().setTriangle(index, triangle.node);
+    if (triangle)
+        node->data().setTriangle(index, triangle.node);
+    else
+        node->data().setTriangle(index, NULL);
+}
+
+- (VertexWrapper *)oppositeVertex:(VertexWrapper *)vertex
+{
+    return [[VertexWrapper alloc] initWithNode:node->data().opposite(vertex.node)];
 }
 
 + (NSString *)webScriptNameForSelector:(SEL)sel
@@ -218,6 +297,10 @@
         return @"triangle";
     if (sel == @selector(setTriangle:atIndex:))
         return @"setTriangle";
+    if (sel == @selector(setHalf:))
+        return @"setHalf";
+    if (sel == @selector(oppositeVertex:))
+        return @"oppositeVertex";
     
     return nil;
 }
@@ -227,65 +310,54 @@
 
 @end
 
-@implementation VertexNodeIterator
+@implementation SimpleNodeEdgeWrapper
 
-- (BOOL)finished { return self.node == end; }
-
-- (id)initWithBegin:(VertexNode *)theBegin end:(VertexNode *)theEnd
+- (SimpleNode<VertexEdgeNode *> *)simpleNode
 {
-    self = [super init];
+    return _simpleNode;
+}
+
+- (void)setSimpleNode:(SimpleNode<VertexEdgeNode *> *)simpleNode
+{
+    _simpleNode = simpleNode;
+    self.node = _simpleNode->data();
+}
+
+- (id)initWithSimpleNode:(SimpleNode<VertexEdgeNode *> *)edgeNode
+{
+    self = [self initWithNode:edgeNode->data()];
     if (self)
     {
-        begin = theBegin;
-        end = theEnd;
-        self.node = begin;
+        _simpleNode = edgeNode;
     }
     return self;
 }
 
-- (void)moveStart { self.node = begin; }
-- (void)moveNext { self.node = self.node->next(); }
-
 @end
 
-@implementation TriangleNodeIterator
-
-- (BOOL)finished { return self.node == end; }
-
-- (id)initWithBegin:(TriangleNode *)theBegin end:(TriangleNode *)theEnd
-{
-    self = [super init];
-    if (self)
-    {
-        begin = theBegin;
-        end = theEnd;
-        self.node = begin;
-    }
-    return self;
-}
-
-- (void)moveStart { self.node = begin; }
-- (void)moveNext { self.node = self.node->next(); }
-
+#define ImplementIterator(Name, TNode, nodeProperty) \
+@implementation Name \
+\
+- (BOOL)finished { return self.nodeProperty == end; } \
+\
+- (id)initWithBegin:(TNode *)theBegin end:(TNode *)theEnd \
+{ \
+    self = [super init]; \
+    if (self) \
+    { \
+        begin = theBegin; \
+        end = theEnd; \
+        self.nodeProperty = begin; \
+    } \
+    return self; \
+} \
+\
+- (void)moveStart { self.nodeProperty = begin; } \
+- (void)moveNext { self.nodeProperty = self.nodeProperty->next(); } \
+\
 @end
 
-@implementation EdgeNodeIterator
-
-- (BOOL)finished { return self.node == end; }
-
-- (id)initWithBegin:(VertexEdgeNode *)theBegin end:(VertexEdgeNode *)theEnd
-{
-    self = [super init];
-    if (self)
-    {
-        begin = theBegin;
-        end = theEnd;
-        self.node = begin;
-    }
-    return self;
-}
-
-- (void)moveStart { self.node = begin; }
-- (void)moveNext { self.node = self.node->next(); }
-
-@end
+ImplementIterator(VertexNodeIterator, VertexNode, node)
+ImplementIterator(TriangleNodeIterator, TriangleNode, node)
+ImplementIterator(EdgeNodeIterator, VertexEdgeNode, node)
+ImplementIterator(SimpleNodeEdgeIterator, SimpleNode<VertexEdgeNode *>, simpleNode)
