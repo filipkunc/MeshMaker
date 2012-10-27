@@ -24,7 +24,7 @@
 
 @implementation ScriptWindowController
 
-@synthesize items;
+@synthesize delegate;
 
 - (id)init
 {
@@ -43,7 +43,6 @@
     [[scriptView mainFrame] loadHTMLString:@"" baseURL:NULL];
     [scriptView setUIDelegate:self];
 	scriptObject = [scriptView windowScriptObject];
-	[scriptObject setValue:items forKey:@"items"];
     
     NSURL *url = [[NSBundle mainBundle] URLForResource:@"editor" withExtension:@"html"];
     [[editorView mainFrame] loadRequest:[NSURLRequest requestWithURL:url]];
@@ -62,21 +61,26 @@
     NSString *code = (NSString *)[editorObject evaluateWebScript:@"editor.getValue();"];
 	NSString* script = [NSString stringWithFormat:@"try { %@ } catch (e) { e.toString() }", code];
     
+    [scriptObject setValue:delegate.items forKey:@"items"];
     [outputView setString:@""];
     
-    for (Item *item in items)
-        item.mesh->beforeScriptAction();
-    
-    id data = [scriptObject evaluateWebScript:script];
-	if (![data isMemberOfClass:[WebUndefined class]])
+    [delegate allItemsActionWithName:@"Script Action" block:^
     {
-        [outputView setString:[data description]];
-		NSLog(@"%@", data);
-    }
-    //[scriptObject evaluateWebScript:script];
+        for (Item *item in delegate.items)
+            item.mesh->beforeScriptAction();
+        
+        id data = [scriptObject evaluateWebScript:script];
+        if (![data isMemberOfClass:[WebUndefined class]])
+        {
+            [outputView setString:[data description]];
+            NSLog(@"%@", data);
+        }
+        
+        for (Item *item in delegate.items)
+            item.mesh->afterScriptAction();
+    }];
     
-    for (Item *item in items)
-        item.mesh->afterScriptAction();
+    [delegate setNeedsDisplayOnAllViews];
 }
 
 @end

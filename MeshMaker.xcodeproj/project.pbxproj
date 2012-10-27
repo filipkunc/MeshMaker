@@ -82,6 +82,7 @@
 		A787CC1913CF717500D2A1FC /* SphereTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1413CF717500D2A1FC /* SphereTemplate.png */; };
 		A787CC1A13CF717500D2A1FC /* TranslateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1513CF717500D2A1FC /* TranslateTemplate.png */; };
 		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */; };
 		A7A4874013AE2ECA00C0C41B /* Mesh2.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
@@ -177,6 +178,7 @@
 		A7E8B7401631C47100B8599D /* worker-javascript.js in Resources */ = {isa = PBXBuildFile; fileRef = A7E8B69E1631C46400B8599D /* worker-javascript.js */; };
 		A7E8B7411631C47100B8599D /* worker-json.js in Resources */ = {isa = PBXBuildFile; fileRef = A7E8B69F1631C46400B8599D /* worker-json.js */; };
 		A7E8B7421631C47100B8599D /* worker-xquery.js in Resources */ = {isa = PBXBuildFile; fileRef = A7E8B6A01631C46400B8599D /* worker-xquery.js */; };
+		A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A7FBCD0D163B367900423D57 /* AppDelegate.m */; };
 		A7FD04DE1564508F002D0777 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
 		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
@@ -270,6 +272,8 @@
 		A787CC1313CF717500D2A1FC /* SelectTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SelectTemplate.png; sourceTree = "<group>"; };
 		A787CC1413CF717500D2A1FC /* SphereTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SphereTemplate.png; sourceTree = "<group>"; };
 		A787CC1513CF717500D2A1FC /* TranslateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TranslateTemplate.png; sourceTree = "<group>"; };
+		A78BDDDB163BF7D800FFFACD /* JSWrappers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSWrappers.h; path = Classes/JSWrappers.h; sourceTree = "<group>"; };
+		A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = JSWrappers.mm; path = Classes/JSWrappers.mm; sourceTree = "<group>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
 		A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; name = Mesh2.mm; path = Classes/Mesh2.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
@@ -378,6 +382,8 @@
 		A7E8B69E1631C46400B8599D /* worker-javascript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-javascript.js"; sourceTree = "<group>"; };
 		A7E8B69F1631C46400B8599D /* worker-json.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-json.js"; sourceTree = "<group>"; };
 		A7E8B6A01631C46400B8599D /* worker-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-xquery.js"; sourceTree = "<group>"; };
+		A7FBCD0C163B367900423D57 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
+		A7FBCD0D163B367900423D57 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Classes/AppDelegate.m; sourceTree = "<group>"; };
 		A7FEB1FB13FF002E00473F8D /* FPTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexture.h; path = Classes/FPTexture.h; sourceTree = "<group>"; };
 		A7FEB1FC13FF002E00473F8D /* FPTexture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTexture.mm; path = Classes/FPTexture.mm; sourceTree = "<group>"; };
 		A7FEB20113FF01D200473F8D /* checker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checker.png; sourceTree = "<group>"; };
@@ -454,6 +460,8 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				A7FBCD0C163B367900423D57 /* AppDelegate.h */,
+				A7FBCD0D163B367900423D57 /* AppDelegate.m */,
 				A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */,
 				A7FEB1FB13FF002E00473F8D /* FPTexture.h */,
 				A7FEB1FC13FF002E00473F8D /* FPTexture.mm */,
@@ -529,6 +537,8 @@
 				A7E8B36D1631BDF500B8599D /* ScriptWindowController.h */,
 				A7E8B36E1631BDF500B8599D /* ScriptWindowController.mm */,
 				A7E8B36F1631BDF500B8599D /* ScriptWindowController.xib */,
+				A78BDDDB163BF7D800FFFACD /* JSWrappers.h */,
+				A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -949,6 +959,8 @@
 				A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */,
 				A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */,
 				A7E8B3701631BDF500B8599D /* ScriptWindowController.mm in Sources */,
+				A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */,
+				A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,10 +14,6 @@
 #import "MemoryStream.h"
 #import "MemoryStreaming.h"
 
-@class VertexWrapper;
-@class VertexNodeIterator;
-@class TriangleNodeIterator;
-
 @interface Item : NSObject <OpenGLManipulatingModelMesh, MemoryStreaming>
 {
 	Vector3D *position;
@@ -38,8 +34,6 @@
 @property (readwrite, assign) enum ViewMode viewMode;
 @property (readonly) Mesh2 *mesh;
 @property (readonly) Matrix4x4 transform;
-@property (readonly) VertexNodeIterator *vertexIterator;
-@property (readonly) TriangleNodeIterator *triQuadIterator;
 
 - (id)initFromSelectedTrianglesInMesh:(Mesh2 *)aMesh;
 - (id)initWithMesh:(Mesh2 *)aMesh;
@@ -52,60 +46,3 @@
 
 @end
 
-@interface VertexNodeIterator : NSObject
-{
-    VertexNode *begin;
-    VertexNode *end;
-    VertexNode *current;
-}
-
-@property (readonly) BOOL finished;
-
-@property (readwrite, assign) BOOL selected;
-@property (readwrite, assign) float positionX;
-@property (readwrite, assign) float positionY;
-@property (readwrite, assign) float positionZ;
-
-- (id)initWithBegin:(VertexNode *)theBegin end:(VertexNode *)theEnd;
-- (void)moveStart;
-- (void)moveNext;
-
-@end
-
-@interface TriangleNodeIterator : NSObject
-{
-    TriangleNode *begin;
-    TriangleNode *end;
-    TriangleNode *current;
-}
-
-@property (readwrite, assign) TriangleNode *current;
-@property (readonly) BOOL finished;
-@property (readonly) BOOL isQuad;
-@property (readonly) uint count;
-
-@property (readwrite, assign) BOOL selected;
-
-- (id)initWithBegin:(TriangleNode *)theBegin end:(TriangleNode *)theEnd;
-- (void)moveStart;
-- (void)moveNext;
-
-- (VertexWrapper *)vertexAtIndex:(uint)index;
-- (void)setVertex:(VertexWrapper *)vertex atIndex:(uint)index;
-
-@end
-
-@interface VertexWrapper : NSObject
-{
-    VertexNode *vertex;
-}
-
-@property (readonly) VertexNode *vertex;
-@property (readwrite, assign) BOOL selected;
-@property (readwrite, assign) float positionX;
-@property (readwrite, assign) float positionY;
-@property (readwrite, assign) float positionZ;
-
-- (id)initWithVertex:(VertexNode *)aVertexNode;
-
-@end

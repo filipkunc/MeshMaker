@@ -13,6 +13,8 @@
 
 @implementation MyDocument
 
+@synthesize items;
+
 - (id)init
 {
     self = [super init];
@@ -744,7 +746,7 @@
 
 - (void)viewScriptEditor:(id)sender
 {
-    [scriptWindowController setItems:items];
+    [scriptWindowController setDelegate:self];
     [scriptWindowController showWindow:nil];
 }
 

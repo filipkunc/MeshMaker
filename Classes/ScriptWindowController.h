@@ -9,11 +9,20 @@
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
 
+@protocol ScriptDelegate <NSObject>
+
+@property (readonly) ItemCollection *items;
+
+- (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action;
+- (void)setNeedsDisplayOnAllViews;
+
+@end
+
 @interface ScriptWindowController : NSWindowController
 {
 
 }
 
-@property (readwrite, retain) ItemCollection *items;
+@property (readwrite, weak) id<ScriptDelegate> delegate;
 
 @end

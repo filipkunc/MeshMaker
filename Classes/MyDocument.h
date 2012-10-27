@@ -14,7 +14,7 @@
 #import "FPTextureBrowserWindowController.h"
 #import "ScriptWindowController.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, NSWindowDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, ScriptDelegate, NSWindowDelegate>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;

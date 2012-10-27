@@ -214,6 +214,7 @@ public:
 
     // make
     
+    VertexNode *addVertex(const Vector3D &position);
     TriangleNode *addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2);
     TriangleNode *addQuad(VertexNode *v0, VertexNode *v1, VertexNode *v2, VertexNode *v3);
     void removeTriQuad(TriangleNode *&triQuad);
@@ -221,6 +222,7 @@ public:
     const FPList<VertexNode, Vertex2> &vertices() const { return _vertices; }
 	const FPList<TriangleNode, Triangle2> &triangles() const { return _triangles; }
     const FPList<TexCoordNode, TexCoord> &texCoords() const { return _texCoords; }
+    const FPList<VertexEdgeNode, VertexEdge> &vertexEdges() const { return _vertexEdges; }
     
     void makeEdges(TriangleNode *node);
     

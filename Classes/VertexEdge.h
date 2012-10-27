@@ -102,10 +102,12 @@ public:
     }
     
     VNode<T> *vertex(uint index) const { return _vertices[index]; }
+    void setVertex(uint index, VNode<T> *value) { _vertices[index] = value; }
     VNode<T> *texCoord(uint index) const { return _vertices[index]; }
+    void setTexCoord(uint index, VNode<T> *value) { _vertices[index] = value; }
     TriangleNode *triangle(uint index) const { return _triangles[index]; }
-    
     void setTriangle(uint index, TriangleNode *value) { _triangles[index] = value; }
+    
     void removeVertex(VNode<T> *vertex)
     {
         for (uint i = 0; i < 2; i++)

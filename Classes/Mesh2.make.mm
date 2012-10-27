@@ -8,6 +8,11 @@
 
 #import "Mesh2.h"
 
+VertexNode *Mesh2::addVertex(const Vector3D &position)
+{
+    return _vertices.add(position);
+}
+
 TriangleNode *Mesh2::addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2)
 {
     TexCoordNode *t0 = _texCoords.add(v0->data().position);
