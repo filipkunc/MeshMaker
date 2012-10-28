@@ -7,12 +7,11 @@ MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php)
 MeshMaker uses:
 
  * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
- * [Open Asset Import Library](http://assimp.sourceforge.net/) from assimp team under [3-clause BSD license](http://assimp.sourceforge.net/main_license.html). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/assimp](https://github.com/filipkunc/assimp)
- 
+ * [Ace editor](http://ace.ajax.org) located in ace folder. Ace is under BSD license.
 
 ## About
 
-MeshMaker is very basic modeling tool focused on low poly modeling with triangles and now also quads.
+MeshMaker is very basic modeling tool focused on low poly modeling with triangles and quads.
 
 ## Screenshots
 
@@ -39,6 +38,11 @@ Texturing needs a lot of work.
  * [Chess tower modeling](http://youtu.be/57d63xcT21Y)
  * [Subdivision and soft selection](http://youtu.be/65whhpqHgO4)
  * [Texture painting](http://youtu.be/nCdlcOvYr-c)
+ 
+## Scripting
+
+For scripting is used JavaScript via WebScriptObject and Ace editor for editing code. 
+Example scripts are in Scripts folder. Scripting is now work in progress.
 
 ## Camera manipulation
 
