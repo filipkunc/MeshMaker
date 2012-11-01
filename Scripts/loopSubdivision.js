@@ -48,7 +48,8 @@ function halfEdges(item)
         var t0 = edge.triangle(0);
         var t1 = edge.triangle(1);
         
-        if (t0 === null || t1 === null)
+        // or test with === undefined, because WebScriptObject maps nil to undefined
+        if (t0 == null || t1 == null)
         {
             eX = (v1.x() + v2.x()) / 2.0;
             eY = (v1.y() + v2.y()) / 2.0;
@@ -59,7 +60,7 @@ function halfEdges(item)
             var v3 = t0.vertexNotInEdge(edge);
             var v4 = t1.vertexNotInEdge(edge);
             
-            if (v3 === null || v4 === null)
+            if (v3 == null || v4 == null)
             {
                 eX = (v1.x() + v2.x()) / 2.0;
                 eY = (v1.y() + v2.y()) / 2.0;
