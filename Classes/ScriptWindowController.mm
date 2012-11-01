@@ -27,7 +27,7 @@
 
 @implementation ScriptWindowController
 
-@synthesize delegate;
+@synthesize delegate, scripts;
 
 - (id)init
 {
@@ -60,6 +60,10 @@
         
         if (scripts.count == 0)
             [scripts addObject:@"Script1"];
+        
+        [scriptView setUIDelegate:self];
+        [[scriptView mainFrame] loadHTMLString:@"" baseURL:NULL];
+        scriptObject = [scriptView windowScriptObject];
     }
     return self;
 }
@@ -97,10 +101,6 @@
 - (void)windowDidLoad
 {
     [super windowDidLoad];
-
-    [scriptView setUIDelegate:self];
-    [[scriptView mainFrame] loadHTMLString:@"" baseURL:NULL];
-	scriptObject = [scriptView windowScriptObject];
     
     NSURL *url = [[NSBundle mainBundle] URLForResource:@"editor" withExtension:@"html"];
     [editorView setFrameLoadDelegate:self];
@@ -250,9 +250,21 @@
     return code;
 }
 
-- (IBAction)runScript:(id)sender
+- (void)runScriptWithName:(NSString *)scriptName
 {
-    NSString *code = [self savedCodeOfScriptAtIndex:scriptsTableView.selectedRow];
+    NSURL *scriptURL = [self scriptURLWithName:scriptName];
+    NSError *error = nil;
+    NSString *code = [NSString stringWithContentsOfURL:scriptURL encoding:NSUTF8StringEncoding error:&error];
+    if (error)
+    {
+        NSLog(@"Script content error: %@", [error localizedDescription]);
+        return;
+    }
+    [self runScriptCode:code];
+}
+
+- (void)runScriptCode:(NSString *)code
+{
     NSString* script = [NSString stringWithFormat:@"try { %@ } catch (e) { e.toString() }", code];
     
     [scriptObject setValue:delegate.items forKey:@"items"];
@@ -262,19 +274,25 @@
     {
         for (Item *item in delegate.items)
             item.mesh->beforeScriptAction();
-        
+
         id data = [scriptObject evaluateWebScript:script];
         if (![data isMemberOfClass:[WebUndefined class]])
         {
             [outputView setString:[NSString stringWithFormat:@"Output:\n%@", [data description]]];
             NSLog(@"%@", data);
         }
-        
+
         for (Item *item in delegate.items)
             item.mesh->afterScriptAction();
     }];
     
     [delegate setNeedsDisplayOnAllViews];
+}
+
+- (IBAction)runScript:(id)sender
+{
+    NSString *code = [self savedCodeOfScriptAtIndex:scriptsTableView.selectedRow];
+    [self runScriptCode:code];
 }
 
 @end

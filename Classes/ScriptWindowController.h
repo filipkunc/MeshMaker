@@ -24,5 +24,8 @@
 }
 
 @property (readwrite, weak) id<ScriptDelegate> delegate;
+@property (readonly) NSArray *scripts;
+
+- (void)runScriptWithName:(NSString *)scriptName;
 
 @end

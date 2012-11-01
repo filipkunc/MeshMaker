@@ -690,7 +690,8 @@
 								<object class="NSMenuItem" id="417741643">
 									<reference key="NSMenu" ref="466310130"/>
 									<string key="NSTitle">Script Editor...</string>
-									<string key="NSKeyEquiv"/>
+									<string key="NSKeyEquiv">e</string>
+									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
@@ -2272,6 +2273,7 @@
 							<string>invertSelection:</string>
 							<string>mergeSelected:</string>
 							<string>resetTexCoords:</string>
+							<string>runScriptAction:</string>
 							<string>selectAll:</string>
 							<string>softSelection:</string>
 							<string>splitSelected:</string>
@@ -2284,6 +2286,7 @@
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -2333,6 +2336,7 @@
 							<string>invertSelection:</string>
 							<string>mergeSelected:</string>
 							<string>resetTexCoords:</string>
+							<string>runScriptAction:</string>
 							<string>selectAll:</string>
 							<string>softSelection:</string>
 							<string>splitSelected:</string>
@@ -2414,6 +2418,10 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
+								<string key="name">runScriptAction:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
 								<string key="name">selectAll:</string>
 								<string key="candidateClassName">id</string>
 							</object>
@@ -2459,6 +2467,7 @@
 							<string>bottomSplit</string>
 							<string>editModePopUp</string>
 							<string>mainSplit</string>
+							<string>scriptPullDown</string>
 							<string>scriptWindowController</string>
 							<string>textureBrowserWindowController</string>
 							<string>texturePaintToolWindowController</string>
@@ -2474,6 +2483,7 @@
 							<string>NSSplitView</string>
 							<string>NSPopUpButton</string>
 							<string>NSSplitView</string>
+							<string>NSPopUpButton</string>
 							<string>ScriptWindowController</string>
 							<string>FPTextureBrowserWindowController</string>
 							<string>FPTexturePaintToolWindowController</string>
@@ -2492,6 +2502,7 @@
 							<string>bottomSplit</string>
 							<string>editModePopUp</string>
 							<string>mainSplit</string>
+							<string>scriptPullDown</string>
 							<string>scriptWindowController</string>
 							<string>textureBrowserWindowController</string>
 							<string>texturePaintToolWindowController</string>
@@ -2518,6 +2529,10 @@
 							<object class="IBToOneOutletInfo">
 								<string key="name">mainSplit</string>
 								<string key="candidateClassName">NSSplitView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">scriptPullDown</string>
+								<string key="candidateClassName">NSPopUpButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">scriptWindowController</string>
