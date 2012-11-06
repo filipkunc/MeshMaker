@@ -1,3 +1,6 @@
 [submodule "Submodules/OpenSubdiv"]
 	path = Submodules/OpenSubdiv
 	url = https://github.com/filipkunc/OpenSubdiv.git
+[submodule "Submodules/fragaria"]
+	path = Submodules/fragaria
+	url = https://github.com/filipkunc/Fragaria.git

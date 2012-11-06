@@ -355,6 +355,12 @@
 - (void)moveStart { self.nodeProperty = begin; } \
 - (void)moveNext { self.nodeProperty = self.nodeProperty->next(); } \
 \
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector \
+{ \
+    return NO; \
+} \
++ (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; } \
+\
 @end
 
 ImplementIterator(VertexNodeIterator, VertexNode, node)

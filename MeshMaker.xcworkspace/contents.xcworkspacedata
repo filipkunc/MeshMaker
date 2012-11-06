@@ -13,4 +13,7 @@
    <FileRef
       location = "group:Submodules/OpenSubdiv/OpenSubdiv.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Submodules/fragaria/Fragaria.xcodeproj">
+   </FileRef>
 </Workspace>

@@ -8,16 +8,19 @@
 
 #import "ScriptWindowController.h"
 #import <WebKit/WebKit.h>
+#import <MGSFragaria/MGSFragaria.h>
+#import <MGSFragaria/SMLSyntaxColouring.h>
 
 @interface ScriptWindowController () <NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate>
 {
-    IBOutlet WebView *editorView;
+    IBOutlet NSView *editorView;
     IBOutlet NSTextView *outputView;
     IBOutlet NSTableView *scriptsTableView;
-    WebScriptObject *editorObject;
     WebView *scriptView;
     WebScriptObject *scriptObject;
     NSMutableArray *scripts;
+    
+    MGSFragaria *fragaria;
 }
 
 - (IBAction)newScript:(id)sender;
@@ -101,12 +104,120 @@
 - (void)windowDidLoad
 {
     [super windowDidLoad];
+
+    // create an instance
+	fragaria = [[MGSFragaria alloc] init];
+	
+	[fragaria setObject:self forKey:MGSFODelegate];
+	
+	// define our syntax definition
+    [fragaria setObject:@"JavaScript" forKey:MGSFOSyntaxDefinitionName];
+	
+	// embed editor in editorView
+	[fragaria embedInView:editorView];
+	
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
-    NSURL *url = [[NSBundle mainBundle] URLForResource:@"editor" withExtension:@"html"];
-    [editorView setFrameLoadDelegate:self];
-    [[editorView mainFrame] loadRequest:[NSURLRequest requestWithURL:url]];
-   
-    [outputView setFont:[NSFont fontWithName:@"Monaco" size:14.0]];
+    [defaults setObject:@YES forKey:MGSFragariaPrefsAutocompleteSuggestAutomatically];
+    [defaults setObject:@NO forKey:MGSFragariaPrefsLineWrapNewDocuments];
+    
+    NSFont *codeFont = [NSFont fontWithName:@"Monaco" size:14];
+    
+    [defaults setObject:[NSArchiver archivedDataWithRootObject:codeFont] forKey:MGSFragariaPrefsTextFont];
+    [defaults setObject:@0.1 forKey:MGSFragariaPrefsAutocompleteAfterDelay];
+    
+    [fragaria setSyntaxColoured:YES];
+    [fragaria setShowsLineNumbers:YES];
+    
+    SMLSyntaxColouring *syntaxColouring = [[fragaria docSpec] valueForKey:ro_MGSFOSyntaxColouring];
+    
+    NSArray *keywords = @[
+        // JavaScript keywords
+        @"break",
+        @"else",
+        @"new",
+        @"var",
+        @"case",
+        @"finally",
+        @"return",
+        @"void",
+        @"catch",
+        @"for",
+        @"switch",
+        @"while",
+        @"continue",
+        @"function",
+        @"this",
+        @"with",
+        @"default",
+        @"if",
+        @"throw",
+        @"delete",
+        @"in",
+        @"try",
+        @"do",
+        @"instanceof",
+        @"typeof",
+        @"null",
+        @"true"
+        @"false",
+        
+    ];
+    
+    NSArray *autocompleteWords = @[
+        @"items",
+        @"at",
+        @"count",
+        @"vertexIterator",
+        @"triQuadIterator",
+        @"edgeIterator",
+        @"vertexCount",
+        @"triQuadCount",
+        @"makeEdges",
+        @"updateSelection",
+        @"addVertex",
+        @"addTriangle",
+        @"addQuad",
+        @"removeTriQuad",
+        @"selected",
+        @"setSelected",
+        @"index",
+        @"setIndex",
+        @"edgeCount",
+        @"isQuad",
+        @"vertex",
+        @"edge",
+        @"setVertex",
+        @"setEdge",
+        @"vertexNotInEdge",
+        @"x",
+        @"y",
+        @"z",
+        @"setX",
+        @"setY",
+        @"setZ",
+        @"half",
+        @"setHalf",
+        @"triangle",
+        @"setTriangle",
+        @"oppositeVertex",
+        @"finished",
+        @"moveStart",
+        @"moveNext",
+    ];
+    
+    keywords = [keywords sortedArrayUsingSelector:@selector(compare:)];
+    autocompleteWords = [autocompleteWords sortedArrayUsingSelector:@selector(compare:)];
+    
+    NSArray *keywordsAndAutocompleteWords = [keywords arrayByAddingObjectsFromArray:autocompleteWords];
+    
+    keywordsAndAutocompleteWords = [keywordsAndAutocompleteWords sortedArrayUsingSelector:@selector(compare:)];
+    
+    [syntaxColouring setValue:keywords forKey:@"keywords"];
+    [syntaxColouring setValue:autocompleteWords forKey:@"autocompleteWords"];
+    [syntaxColouring setValue:keywordsAndAutocompleteWords forKey:@"keywordsAndAutocompleteWords"];
+    
+    [outputView setFont:codeFont];
     [outputView setString:@"Output:\n"];
     
     [[self window] setDelegate:self];
@@ -115,12 +226,6 @@
 - (void)windowWillClose:(NSNotification *)notification
 {
     [self savedCodeOfScriptAtIndex:scriptsTableView.selectedRow];
-}
-
-- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
-{
-    if (sender == editorView && frame == [editorView mainFrame])
-        editorObject = (WebScriptObject *)[[editorView windowScriptObject] valueForKey:@"editor"];
 }
 
 - (void)webView:(WebView *)sender runJavaScriptAlertPanelWithMessage:(NSString *)message
@@ -196,9 +301,7 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
     NSString *code = [self loadedCodeOfScriptAtIndex:scriptsTableView.selectedRow];
-
-    [editorObject callWebScriptMethod:@"setValue" withArguments:@[code]];
-    [editorObject callWebScriptMethod:@"clearSelection" withArguments:nil];
+    [fragaria setString:code];
 }
 
 - (void)newScript:(id)sender
@@ -235,7 +338,7 @@
 
 - (NSString *)savedCodeOfScriptAtIndex:(NSInteger)index
 {
-    NSString *code = (NSString *)[editorObject callWebScriptMethod:@"getValue" withArguments:nil];
+    NSString *code = [fragaria string];
     
     if (index >= 0 && index < (NSInteger)scripts.count)
     {
