@@ -531,8 +531,6 @@ void Mesh2::fastMergeSelectedTexCoords()
 
 void Mesh2::removeDegeneratedTriangles()
 {
-    // FIXME: doesn't work as expected, cannot be run when not needed.
-    
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         if (node->data().isDegeneratedAfterCollapseToTriangle())
@@ -1586,21 +1584,4 @@ void Mesh2::computeSoftSelection()
             node->selectionWeight = 1.0f;
         }
     }
-}
-
-void Mesh2::beforeScriptAction()
-{
-    resetTriangleCache();
-    resetAlgorithmData();
-}
-
-void Mesh2::afterScriptAction()
-{
-    //removeDegeneratedTriangles();
-    //removeNonUsedVertices();
-    
-    makeTexCoords();
-    makeEdges();
-    
-    setSelectionMode(_selectionMode);
 }

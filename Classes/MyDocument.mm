@@ -165,6 +165,11 @@
 	}
 }
 
+- (void)updateManipulatedSelection
+{
+    [manipulated updateSelection];
+}
+
 - (Mesh2 *)currentMesh
 {
 	if (manipulated == meshController)

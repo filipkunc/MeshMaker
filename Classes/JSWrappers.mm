@@ -40,25 +40,30 @@
     return [[EdgeNodeIterator alloc] initWithBegin:mesh->vertexEdges().begin() end:mesh->vertexEdges().end()];
 }
 
-- (uint)vertexCount
-{
-    return mesh->vertexCount();
-}
+- (uint)vertexCount { return mesh->vertexCount(); }
+- (uint)triQuadCount { return mesh->triangleCount(); }
 
-- (uint)triQuadCount
-{
-    return mesh->triangleCount();
-}
-
-- (void)makeEdges
-{
-    mesh->makeEdges();
-}
-
-- (void)updateSelection
-{
-    mesh->setSelectionMode(mesh->selectionMode());
-}
+- (void)removeDegeneratedTriangles { mesh->removeDegeneratedTriangles(); }
+- (void)removeNonUsedVertices { mesh->removeNonUsedVertices(); }
+- (void)removeNonUsedTexCoords { mesh->removeNonUsedTexCoords(); }
+- (void)removeSelected { mesh->removeSelected(); }
+- (void)mergeSelected { mesh->mergeSelected(); }
+- (void)splitSelected { mesh->splitSelected(); }
+- (void)detachSelected { mesh->detachSelected(); }
+- (void)duplicateSelectedTriangles { mesh->duplicateSelectedTriangles(); }
+- (void)flipSelected { mesh->flipSelected(); }
+- (void)flipAllTriangles { mesh->flipAllTriangles(); }
+- (void)extrudeSelectedTriangles { mesh->extrudeSelectedTriangles(); }
+- (void)triangulate { mesh->triangulate(); }
+- (void)triangulateSelectedQuads { mesh->triangulateSelectedQuads(); }
+- (void)openSubdivision { mesh->openSubdivision(); }
+- (void)loopSubdivision { mesh->loopSubdivision(); }
+- (void)makeTexCoords { mesh->makeTexCoords(); }
+- (void)makeEdges { mesh->makeEdges(); }
+- (void)updateSelection { mesh->setSelectionMode(mesh->selectionMode()); }
+- (void)setSelectionModeVertices { mesh->setSelectionMode(MeshSelectionModeVertices); }
+- (void)setSelectionModeTriQuads { mesh->setSelectionMode(MeshSelectionModeTriangles); }
+- (void)setSelectionModeEdges { mesh->setSelectionMode(MeshSelectionModeEdges); }
 
 - (VertexWrapper *)addVertexWithX:(float)x y:(float)y z:(float)z
 {

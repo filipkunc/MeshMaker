@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1080</int>
 		<string key="IBDocument.SystemVersion">12C60</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2843</string>
+		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
 		<string key="IBDocument.AppKitVersion">1187.34</string>
 		<string key="IBDocument.HIToolboxVersion">625.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">2843</string>
+			<string key="NS.object.0">2844</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>IBNSLayoutConstraint</string>
@@ -207,19 +207,17 @@
 													<string key="NSFrameSize">{190, 490}</string>
 													<reference key="NSSuperview" ref="337264723"/>
 													<reference key="NSWindow"/>
-													<reference key="NSNextKeyView" ref="496698780"/>
+													<reference key="NSNextKeyView"/>
 													<string key="NSReuseIdentifierKey">_NS:13</string>
 													<bool key="NSEnabled">YES</bool>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 													<bool key="NSControlAllowsExpansionToolTips">YES</bool>
-													<object class="NSTableHeaderView" key="NSHeaderView" id="328331406">
-														<reference key="NSNextResponder" ref="496698780"/>
+													<object class="NSTableHeaderView" key="NSHeaderView" id="1036644476">
+														<reference key="NSNextResponder" ref="918228300"/>
 														<int key="NSvFlags">256</int>
 														<string key="NSFrameSize">{190, 17}</string>
-														<reference key="NSSuperview" ref="496698780"/>
+														<reference key="NSSuperview" ref="918228300"/>
 														<reference key="NSWindow"/>
-														<reference key="NSNextKeyView" ref="556280445"/>
-														<string key="NSReuseIdentifierKey">_NS:16</string>
 														<reference key="NSTableView" ref="57188384"/>
 													</object>
 													<object class="_NSCornerView" key="NSCornerView" id="556280445">
@@ -307,7 +305,7 @@
 														</object>
 													</object>
 													<double key="NSRowHeight">17</double>
-													<int key="NSTvFlags">-700448768</int>
+													<int key="NSTvFlags">1379926016</int>
 													<reference key="NSDelegate"/>
 													<reference key="NSDataSource"/>
 													<int key="NSColumnAutoresizingStyle">4</int>
@@ -338,7 +336,7 @@
 											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 											<reference key="NSTarget" ref="554497612"/>
 											<string key="NSAction">_doScroller:</string>
-											<double key="NSPercent">0.87179487179487181</double>
+											<double key="NSPercent">0.99796334012219956</double>
 										</object>
 										<object class="NSScroller" id="1047929339">
 											<reference key="NSNextResponder" ref="554497612"/>
@@ -352,20 +350,19 @@
 											<int key="NSsFlags">1</int>
 											<reference key="NSTarget" ref="554497612"/>
 											<string key="NSAction">_doScroller:</string>
-											<double key="NSPercent">0.25100133511348466</double>
+											<double key="NSPercent">0.99476439790575921</double>
 										</object>
-										<object class="NSClipView" id="496698780">
+										<object class="NSClipView" id="918228300">
 											<reference key="NSNextResponder" ref="554497612"/>
 											<int key="NSvFlags">2304</int>
 											<array class="NSMutableArray" key="NSSubviews">
-												<reference ref="328331406"/>
+												<reference ref="1036644476"/>
 											</array>
 											<string key="NSFrame">{{1, 0}, {190, 17}}</string>
 											<reference key="NSSuperview" ref="554497612"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="328331406"/>
-											<string key="NSReuseIdentifierKey">_NS:15</string>
-											<reference key="NSDocView" ref="328331406"/>
+											<reference key="NSNextKeyView" ref="1036644476"/>
+											<reference key="NSDocView" ref="1036644476"/>
 											<reference key="NSBGColor" ref="663641526"/>
 											<int key="NScvFlags">4</int>
 										</object>
@@ -380,7 +377,7 @@
 									<reference key="NSVScroller" ref="586829097"/>
 									<reference key="NSHScroller" ref="1047929339"/>
 									<reference key="NSContentView" ref="337264723"/>
-									<reference key="NSHeaderClipView" ref="496698780"/>
+									<reference key="NSHeaderClipView" ref="918228300"/>
 									<reference key="NSCornerView" ref="556280445"/>
 									<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 									<double key="NSMinMagnification">0.25</double>
@@ -398,7 +395,6 @@
 											<string key="NSFrameSize">{556, 432}</string>
 											<reference key="NSSuperview" ref="20317391"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView"/>
 											<string key="NSClassName">NSView</string>
 										</object>
 										<object class="NSCustomView" id="461787231">
@@ -943,20 +939,15 @@ wGw</bytes>
 						<reference key="object" ref="554497612"/>
 						<array class="NSMutableArray" key="children">
 							<reference ref="586829097"/>
-							<reference ref="328331406"/>
 							<reference ref="1047929339"/>
 							<reference ref="57188384"/>
+							<reference ref="1036644476"/>
 						</array>
 						<reference key="parent" ref="139079610"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">206</int>
 						<reference key="object" ref="586829097"/>
-						<reference key="parent" ref="554497612"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">205</int>
-						<reference key="object" ref="328331406"/>
 						<reference key="parent" ref="554497612"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -1137,6 +1128,11 @@ wGw</bytes>
 						<reference key="object" ref="953354088"/>
 						<reference key="parent" ref="461787231"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">403</int>
+						<reference key="object" ref="1036644476"/>
+						<reference key="parent" ref="554497612"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -1172,7 +1168,6 @@ wGw</bytes>
 				<string key="202.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="203.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="204.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="205.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="206.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="207.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="210.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1189,12 +1184,13 @@ wGw</bytes>
 				<string key="300.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="395.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="397.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="403.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">402</int>
+			<int key="maxID">403</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1209,17 +1205,6 @@ wGw</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">ScriptWindowController</string>
 					<string key="superclassName">NSWindowController</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">editorView</string>
-						<string key="NS.object.0">NSView</string>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">editorView</string>
-						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">editorView</string>
-							<string key="candidateClassName">NSView</string>
-						</object>
-					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/ScriptWindowController.h</string>

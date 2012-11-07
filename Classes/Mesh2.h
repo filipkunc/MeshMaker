@@ -95,19 +95,6 @@ private:
 private:
     void fastMergeSelectedVertices();
     void fastMergeSelectedTexCoords();
-    void removeDegeneratedTriangles();
-    void removeNonUsedVertices();
-    void removeNonUsedTexCoords();
-    void mergeSelectedVertices();
-    void removeSelectedVertices();
-    void removeSelectedTriangles();
-    void removeSelectedEdges();
-    void splitSelectedTriangles();
-    void splitSelectedEdges();
-    void detachSelectedVertices();
-    void detachSelectedTriangles();
-    void flipSelectedTriangles();
-    void turnSelectedEdges();
     void halfEdges();
     void repositionVertices(uint vertexCount);
     void makeSubdividedTriangles();
@@ -163,7 +150,21 @@ public:
     void setUnwrapped(bool value) { _isUnwrapped = value; }
     
     void transformAll(const Matrix4x4 &matrix);
-    void transformSelected(const Matrix4x4 &matrix);    
+    void transformSelected(const Matrix4x4 &matrix);
+    
+    void removeDegeneratedTriangles();
+    void removeNonUsedVertices();
+    void removeNonUsedTexCoords();
+    void mergeSelectedVertices();
+    void removeSelectedVertices();
+    void removeSelectedTriangles();
+    void removeSelectedEdges();
+    void splitSelectedTriangles();
+    void splitSelectedEdges();
+    void detachSelectedVertices();
+    void detachSelectedTriangles();
+    void flipSelectedTriangles();
+    void turnSelectedEdges();
     
     void removeSelected();
     void mergeSelected();
@@ -245,9 +246,6 @@ public:
     void getSelection(vector<bool> &selection) const;
     
     void fillMeshFromSelectedTriangles(Mesh2 &mesh);
-    
-    void beforeScriptAction();
-    void afterScriptAction();
 };
 
 template <>

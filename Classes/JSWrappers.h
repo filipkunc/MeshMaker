@@ -34,8 +34,28 @@
 - (TriangleWrapper *)addTriangleWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2;
 - (TriangleWrapper *)addQuadWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2 fourth:(VertexWrapper *)v3;
 - (void)removeTriQuad:(TriangleWrapper *)triQuad;
+
+- (void)removeDegeneratedTriangles;
+- (void)removeNonUsedVertices;
+- (void)removeNonUsedTexCoords;
+- (void)removeSelected;
+- (void)mergeSelected;
+- (void)splitSelected;
+- (void)detachSelected;
+- (void)duplicateSelectedTriangles;
+- (void)flipSelected;
+- (void)flipAllTriangles;
+- (void)extrudeSelectedTriangles;
+- (void)triangulate;
+- (void)triangulateSelectedQuads;
+- (void)openSubdivision;
+- (void)loopSubdivision;
+- (void)makeTexCoords;
 - (void)makeEdges;
 - (void)updateSelection;
+- (void)setSelectionModeVertices;
+- (void)setSelectionModeTriQuads;
+- (void)setSelectionModeEdges;
 
 @end
 

@@ -159,12 +159,15 @@
         @"instanceof",
         @"typeof",
         @"null",
-        @"true"
+        @"true",
         @"false",
-        
     ];
-    
+        
     NSArray *autocompleteWords = @[
+        // JavaScript
+        @"alert",
+        @"toString",
+        // MeshMaker only
         @"items",
         @"at",
         @"count",
@@ -173,6 +176,7 @@
         @"edgeIterator",
         @"vertexCount",
         @"triQuadCount",
+        @"makeTexCoords",
         @"makeEdges",
         @"updateSelection",
         @"addVertex",
@@ -204,6 +208,24 @@
         @"finished",
         @"moveStart",
         @"moveNext",
+        @"removeDegeneratedTriangles",
+        @"removeNonUsedVertices",
+        @"removeNonUsedTexCoords",
+        @"removeSelected",
+        @"mergeSelected",
+        @"splitSelected",
+        @"detachSelected",
+        @"duplicateSelectedTriangles",
+        @"flipSelected",
+        @"flipAllTriangles",
+        @"extrudeSelectedTriangles",
+        @"triangulate",
+        @"triangulateSelectedQuads",
+        @"openSubdivision",
+        @"loopSubdivision",
+        @"setSelectionModeVertices",
+        @"setSelectionModeTriQuads",
+        @"setSelectionModeEdges",
     ];
     
     keywords = [keywords sortedArrayUsingSelector:@selector(compare:)];
@@ -369,26 +391,27 @@
 - (void)runScriptCode:(NSString *)code
 {
     NSString* script = [NSString stringWithFormat:@"try { %@ } catch (e) { e.toString() }", code];
-    
     [scriptObject setValue:delegate.items forKey:@"items"];
     [outputView setString:@"Output:\n"];
     
-    [delegate allItemsActionWithName:@"Script Action" block:^
+    [delegate allItemsActionWithName:@"Script Action On Items" block:^
     {
         for (Item *item in delegate.items)
-            item.mesh->beforeScriptAction();
-
+        {
+            item.mesh->resetTriangleCache();
+            item.mesh->resetAlgorithmData();
+        }
+        
         id data = [scriptObject evaluateWebScript:script];
         if (![data isMemberOfClass:[WebUndefined class]])
         {
             [outputView setString:[NSString stringWithFormat:@"Output:\n%@", [data description]]];
             NSLog(@"%@", data);
         }
-
-        for (Item *item in delegate.items)
-            item.mesh->afterScriptAction();
+        
+        [delegate updateManipulatedSelection];
     }];
-    
+
     [delegate setNeedsDisplayOnAllViews];
 }
 

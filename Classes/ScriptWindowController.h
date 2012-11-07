@@ -14,6 +14,7 @@
 @property (readonly) ItemCollection *items;
 
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action;
+- (void)updateManipulatedSelection;
 - (void)setNeedsDisplayOnAllViews;
 
 @end

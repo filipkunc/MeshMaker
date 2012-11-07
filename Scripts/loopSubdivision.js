@@ -48,7 +48,6 @@ function halfEdges(item)
         var t0 = edge.triangle(0);
         var t1 = edge.triangle(1);
         
-        // or test with === undefined, because WebScriptObject maps nil to undefined
         if (t0 == null || t1 == null)
         {
             eX = (v1.x() + v2.x()) / 2.0;
@@ -167,10 +166,15 @@ function loopSubdivision(item)
     halfEdges(item);
     repositionVertices(item, vertexCount);
     makeSubdividedTriangles(item);
+    
+    item.makeTexCoords();
+    item.makeEdges();
+    item.updateSelection();
 }
 
 for (var i = 0; i < items.count(); i++)
 {
     var item = items.at(i);
-    loopSubdivision(item);
+    if (item.selected)
+        loopSubdivision(item);
 }
