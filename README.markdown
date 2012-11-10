@@ -1,49 +1,41 @@
 # Welcome to MeshMaker
 
-## License
+## License and submodules
 
 MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php). You find it in file "LICENSE.TXT". 
 
 MeshMaker uses:
 
  * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
- * [Ace editor](http://ace.ajax.org) located in ace folder. Ace is under BSD license.
+ * [Fragaria editor](http://www.mugginsoft.com/code/fragaria) Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/Fragaria](https://github.com/filipkunc/Fragaria)
+ 
+For working with submodules I recommend reading [Pro Git chapter about submodules](http://git-scm.com/book/en/Git-Tools-Submodules).
 
 ## About
 
 MeshMaker is very basic modeling tool focused on low poly modeling with triangles and quads.
 
-## Screenshots
+## Triangles and Quads
 
-### Chess tower
+MeshMaker supports triangles and quads in same mesh. There is no support for arbitrary polygons.
 
-Modeled with extrusion.
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/triquads.png" alt="Triangles and Quads" width="1108px" height="767px"></img>
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/chesstower.png" alt="Chess tower" width="902px" height="597px"></img>
+## Edge loops
 
-### Loop subdivision
+MeshMaker enables edge loop selection with Double Click and edge expand selection with Command Double Click. Combinations of triangle/quad extrusion and expanded edge splitting enables simple and fast  modeling.
 
-And same chess tower after four or five Loop subdivision iterations. This is before OpenSubdiv.
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/edgeloops.png" alt="Edge loops" width="1108px" height="767px"></img>
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/loopsubdivision.png" alt="Loop subdivision" width="902px" height="597px"></img>
-
-### Texture painting
-
-Texturing needs a lot of work.
-
-<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/texturepainting.png" alt="Texture painting" width="785px" height="577px"></img>
-
-## Videos
-
- * [Chess tower modeling](http://youtu.be/57d63xcT21Y)
- * [Subdivision and soft selection](http://youtu.be/65whhpqHgO4)
- * [Texture painting](http://youtu.be/nCdlcOvYr-c)
- 
 ## Scripting
 
-For scripting is used JavaScript via WebScriptObject and Ace editor for editing code. 
-Example scripts are in Scripts folder. Scripting is now work in progress.
+For scripting is used JavaScript via WebScriptObject and Fragaria editor for editing code. 
+Example scripts are in Scripts folder.
 
+All script actions are undoable.
+
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/scripting.png" alt="Scripting" width="872px" height="691px"></img>
+ 
 ## Camera manipulation
 
 Similar to Maya, Unity. 
