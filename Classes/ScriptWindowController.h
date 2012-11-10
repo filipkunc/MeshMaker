@@ -12,6 +12,7 @@
 @protocol ScriptDelegate <NSObject>
 
 @property (readonly) ItemCollection *items;
+@property (readonly) NSPopUpButton *scriptPullDown;
 
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action;
 - (void)updateManipulatedSelection;
@@ -19,7 +20,7 @@
 
 @end
 
-@interface ScriptWindowController : NSWindowController
+@interface ScriptWindowController : NSWindowController <NSMenuDelegate>
 {
 
 }
@@ -28,5 +29,6 @@
 @property (readonly) NSArray *scripts;
 
 - (void)runScriptWithName:(NSString *)scriptName;
+- (IBAction)runScriptAction:(id)sender;
 
 @end

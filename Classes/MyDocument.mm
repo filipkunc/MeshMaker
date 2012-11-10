@@ -13,7 +13,7 @@
 
 @implementation MyDocument
 
-@synthesize items;
+@synthesize items, scriptPullDown;
 
 - (id)init
 {
@@ -59,8 +59,8 @@
     
 	[editModePopUp selectItemWithTag:0];
     [scriptWindowController setDelegate:self];
-    [[scriptPullDown menu] setDelegate:self];
-    [self menuNeedsUpdate:[scriptPullDown menu]];
+    [[scriptPullDown menu] setDelegate:scriptWindowController];
+    [scriptWindowController menuNeedsUpdate:[scriptPullDown menu]];
     
 	[views addObject:viewTop];
 	[views addObject:viewLeft];
@@ -78,31 +78,6 @@
 	[viewLeft setCameraMode:CameraModeLeft];
 	[viewFront setCameraMode:CameraModeFront];
 	[viewPerspective setCameraMode:CameraModePerspective];
-}
-
-- (void)menuNeedsUpdate:(NSMenu *)menu
-{
-    NSMenuItem *firstItem = [menu itemAtIndex:0];
-    [menu removeAllItems];
-    [menu addItem:firstItem];
-    
-    NSArray *scripts = [scriptWindowController scripts];
-    NSUInteger index = 1;
-    for (NSString *script in scripts)
-    {
-        NSMenuItem *item = [menu addItemWithTitle:script action:@selector(runScriptAction:) keyEquivalent:@""];
-        item.keyEquivalentModifierMask = NSCommandKeyMask;
-        item.keyEquivalent = [NSString stringWithFormat:@"%lu", index];
-        
-        if (index != 0 && ++index > 9)
-            index = 0;
-    }
-}
-
-- (IBAction)runScriptAction:(id)sender
-{
-    NSString *scriptName = [[scriptPullDown selectedItem] title];
-    [scriptWindowController runScriptWithName:scriptName];
 }
 
 - (enum ManipulatorType)currentManipulator

@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1070</int>
 		<string key="IBDocument.SystemVersion">12C60</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2843</string>
+		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
 		<string key="IBDocument.AppKitVersion">1187.34</string>
 		<string key="IBDocument.HIToolboxVersion">625.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">2843</string>
+			<string key="NS.object.0">2844</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSColorWell</string>
@@ -163,6 +163,7 @@
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{9, 14}, {45, 25}}</string>
 								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="926969746">
@@ -419,6 +420,7 @@
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
 								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076180416</int>
@@ -584,7 +586,7 @@
 							</object>
 						</object>
 					</dictionary>
-					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
+					<array key="NSToolbarIBAllowedItems">
 						<reference ref="765707748"/>
 						<reference ref="224258111"/>
 						<reference ref="800827235"/>
@@ -1408,14 +1410,6 @@
 					<int key="connectionID">101196</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">runScriptAction:</string>
-						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="768362601"/>
-					</object>
-					<int key="connectionID">101198</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="275939982"/>
@@ -1558,6 +1552,14 @@
 						</object>
 					</object>
 					<int key="connectionID">101185</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">runScriptAction:</string>
+						<reference key="source" ref="588383302"/>
+						<reference key="destination" ref="768362601"/>
+					</object>
+					<int key="connectionID">101199</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2168,7 +2170,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101198</int>
+			<int key="maxID">101199</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2255,7 +2257,6 @@
 						<string key="invertSelection:">id</string>
 						<string key="mergeSelected:">id</string>
 						<string key="resetTexCoords:">id</string>
-						<string key="runScriptAction:">id</string>
 						<string key="selectAll:">id</string>
 						<string key="softSelection:">id</string>
 						<string key="splitSelected:">id</string>
@@ -2331,10 +2332,6 @@
 							<string key="name">resetTexCoords:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="runScriptAction:">
-							<string key="name">runScriptAction:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="selectAll:">
 							<string key="name">selectAll:</string>
 							<string key="candidateClassName">id</string>
@@ -2376,6 +2373,7 @@
 						<string key="addItemWithStepsSheetController">AddItemWithStepsSheetController</string>
 						<string key="bottomSplit">NSSplitView</string>
 						<string key="editModePopUp">NSPopUpButton</string>
+						<string key="editView">NSView</string>
 						<string key="mainSplit">NSSplitView</string>
 						<string key="scriptPullDown">NSPopUpButton</string>
 						<string key="scriptWindowController">ScriptWindowController</string>
@@ -2399,6 +2397,10 @@
 						<object class="IBToOneOutletInfo" key="editModePopUp">
 							<string key="name">editModePopUp</string>
 							<string key="candidateClassName">NSPopUpButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="editView">
+							<string key="name">editView</string>
+							<string key="candidateClassName">NSView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="mainSplit">
 							<string key="name">mainSplit</string>
@@ -2457,6 +2459,44 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">ScriptWindowController</string>
 					<string key="superclassName">NSWindowController</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="newScript:">id</string>
+						<string key="runScript:">id</string>
+						<string key="runScriptAction:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="newScript:">
+							<string key="name">newScript:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="runScript:">
+							<string key="name">runScript:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="runScriptAction:">
+							<string key="name">runScriptAction:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="editorView">NSView</string>
+						<string key="outputView">NSTextView</string>
+						<string key="scriptsTableView">NSTableView</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="editorView">
+							<string key="name">editorView</string>
+							<string key="candidateClassName">NSView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="outputView">
+							<string key="name">outputView</string>
+							<string key="candidateClassName">NSTextView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="scriptsTableView">
+							<string key="name">scriptsTableView</string>
+							<string key="candidateClassName">NSTableView</string>
+						</object>
+					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/ScriptWindowController.h</string>

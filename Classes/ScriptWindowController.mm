@@ -421,4 +421,34 @@
     [self runScriptCode:code];
 }
 
+- (void)menuNeedsUpdate:(NSMenu *)menu
+{
+    if (menu != [delegate.scriptPullDown menu])
+        return;
+    
+    NSMenuItem *firstItem = [menu itemAtIndex:0];
+    [menu removeAllItems];
+    [menu addItem:firstItem];
+    
+    NSArray *scriptArray = [self scripts];
+    NSUInteger index = 1;
+    for (NSString *script in scriptArray)
+    {
+        NSMenuItem *item = [menu addItemWithTitle:script action:@selector(runScriptAction:) keyEquivalent:@""];
+        item.target = self;
+        item.keyEquivalentModifierMask = NSCommandKeyMask;
+        item.keyEquivalent = [NSString stringWithFormat:@"%lu", index];
+        
+        if (index != 0 && ++index > 9)
+            index = 0;
+    }
+}
+
+- (IBAction)runScriptAction:(id)sender
+{
+    NSString *scriptName = [[delegate.scriptPullDown selectedItem] title];
+    [self runScriptWithName:scriptName];
+}
+
+
 @end
