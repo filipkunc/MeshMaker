@@ -19,13 +19,13 @@ MeshMaker is very basic modeling tool focused on low poly modeling with triangle
 
 MeshMaker supports triangles and quads in same mesh. There is no support for arbitrary polygons.
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/triquads.png" alt="Triangles and Quads" width="1108px" height="767px"></img>
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/triquads.png" alt="Triangles and Quads" width="874px" height="634px"></img>
 
 ## Edge loops
 
 MeshMaker enables edge loop selection with Double Click and edge expand selection with Command Double Click. Combinations of triangle/quad extrusion and expanded edge splitting enables simple and fast  modeling.
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/edgeloops.png" alt="Edge loops" width="1108px" height="767px"></img>
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/edgeloops.png" alt="Edge loops" width="872px" height="633px"></img>
 
 ## Scripting
 
