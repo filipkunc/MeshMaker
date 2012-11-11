@@ -52,7 +52,7 @@
 			<key>CFBundleTypeName</key>
 			<string>Wavefront Object</string>
 			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
+			<string>Editor</string>
 			<key>NSDocumentClass</key>
 			<string>MyDocument</string>
 		</dict>
