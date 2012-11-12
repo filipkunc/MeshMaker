@@ -1046,54 +1046,65 @@
 
 - (NSData *)dataOfWavefrontObject
 {
-    // simplified export, all items are merged first
-    
     if (items.count == 0)
         return [@"# Nothing to export" dataUsingEncoding:NSUTF8StringEncoding];
     
-    for (Item *item in items)
-        item.selected = YES;
-    [items mergeSelectedItems];
-    
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triangles;
-    
-    Mesh2 *mesh = [[items itemAtIndex:0] mesh];
-    mesh->flipAllTriangles();
-    mesh->toIndexRepresentation(vertices, texCoords, triangles);
-    mesh->flipAllTriangles();
-        
     stringstream ssfile;
     ssfile << "# Exported from MeshMaker 1.2" << endl;
     
-    ssfile << "# Number of vertices = " << vertices.size() << endl;
-    for (uint i = 0; i < vertices.size(); i++)
-    {
-        // v -5.79346 -1.38018 42.63113
-        Vector3D v = vertices[i];
-        v.z = -v.z;
-        swap(v.y, v.z);
-        ssfile << "v " << v.x << " " << v.y << " " << v.z << endl;
-    }
+    // face indices in Wavefront Object starts from 1    
+    uint vertexIndexOffset = 1;
+    uint texCoordIndexOffset = 1;
+    uint itemIndex = 0;
     
-    ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
-    for (uint i = 0; i < texCoords.size(); i++)
+    for (Item *item in items)
     {
-        // vt 0.12528 -0.64560
-        ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
-    }
-    
-    ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
-    for (uint i = 0; i < triangles.size(); i++)
-    {
-        // f  v1/vt1 v2/vt2 v3/vt3 ...
-        ssfile << "f ";
-        const TriQuad &triQuad = triangles[i];
-        uint count =  triQuad.isQuad ? 4 : 3;
-        for (uint i = 0; i < count; i++)
-            ssfile << triQuad.vertexIndices[i] + 1 << "/" << triQuad.texCoordIndices[i] + 1 << " ";
-        ssfile << endl;
+        vector<Vector3D> vertices;
+        vector<Vector3D> texCoords;
+        vector<TriQuad> triangles;
+
+        Item *duplicate = item.duplicate;
+        Mesh2 *mesh = duplicate.mesh;
+        mesh->transformAll(duplicate.transform);
+        mesh->flipAllTriangles();
+        mesh->toIndexRepresentation(vertices, texCoords, triangles);
+        
+        ssfile << "g Item_" << itemIndex << endl;
+        ssfile << "# Number of vertices = " << vertices.size() << endl;
+        for (uint i = 0; i < vertices.size(); i++)
+        {
+            // v -5.79346 -1.38018 42.63113
+            Vector3D v = vertices[i];
+            v.z = -v.z;
+            swap(v.y, v.z);
+            ssfile << "v " << v.x << " " << v.y << " " << v.z << endl;
+        }
+        
+        ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
+        for (uint i = 0; i < texCoords.size(); i++)
+        {
+            // vt 0.12528 -0.64560
+            ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
+        }
+        
+        ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
+        for (uint i = 0; i < triangles.size(); i++)
+        {
+            // f  v1/vt1 v2/vt2 v3/vt3 ...
+            ssfile << "f ";
+            const TriQuad &triQuad = triangles[i];
+            uint count =  triQuad.isQuad ? 4 : 3;
+            for (uint i = 0; i < count; i++)
+            {
+                ssfile << triQuad.vertexIndices[i] + vertexIndexOffset << "/";
+                ssfile << triQuad.texCoordIndices[i] + texCoordIndexOffset << " ";
+            }
+            ssfile << endl;
+        }
+        
+        vertexIndexOffset += vertices.size();
+        texCoordIndexOffset += texCoords.size();
+        itemIndex++;
     }
     
     string str = ssfile.str();
