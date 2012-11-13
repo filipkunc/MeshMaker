@@ -55,8 +55,6 @@
 
 - (void)awakeFromNib
 {
-    //[NSColor setIgnoresAlpha:NO];
-    
 	[editModePopUp selectItemWithTag:0];
     [scriptWindowController setDelegate:self];
     [[scriptPullDown menu] setDelegate:scriptWindowController];
@@ -1023,12 +1021,14 @@
             mesh->setSelectedAtIndex(true, j);
         
         Item *item = [[Item alloc] initFromSelectedTrianglesInMesh:mesh];
+        [item setPositionToGeometricCenter];
         [newItems addItem:item];
     }
     
     if (groups.empty())
     {
         Item *item = [[Item alloc] initWithMesh:mesh];
+        [item setPositionToGeometricCenter];
         [newItems addItem:item];
     }
     else

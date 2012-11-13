@@ -326,4 +326,21 @@
         mesh->setUnwrapped(false);
 }
 
+- (void)setPositionToGeometricCenter
+{
+    Vector3D center = Vector3D();
+    
+    for (VertexNode *node = mesh->vertices().begin(), *end = mesh->vertices().end(); node != end; node = node->next())
+        center += node->data().position;
+    
+	if (mesh->vertices().count() > 0)
+		center /= (float)mesh->vertices().count();
+    
+    Matrix4x4 inverseTranslate;
+    inverseTranslate.Translate(-center);
+    mesh->transformAll(inverseTranslate);
+    
+    *position = center;
+}
+
 @end

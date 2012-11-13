@@ -43,6 +43,7 @@
 - (void)rotateByOffset:(Quaternion)offset;
 - (void)scaleByOffset:(Vector3D)offset;
 - (Item *)duplicate;
+- (void)setPositionToGeometricCenter;
 
 @end
 
