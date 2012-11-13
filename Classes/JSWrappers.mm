@@ -46,7 +46,6 @@
 - (void)removeDegeneratedTriangles { mesh->removeDegeneratedTriangles(); }
 - (void)removeNonUsedVertices { mesh->removeNonUsedVertices(); }
 - (void)removeNonUsedTexCoords { mesh->removeNonUsedTexCoords(); }
-- (void)removeSelected { mesh->removeSelected(); }
 - (void)mergeSelected { mesh->mergeSelected(); }
 - (void)splitSelected { mesh->splitSelected(); }
 - (void)detachSelected { mesh->detachSelected(); }

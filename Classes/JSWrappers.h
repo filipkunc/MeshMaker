@@ -38,7 +38,6 @@
 - (void)removeDegeneratedTriangles;
 - (void)removeNonUsedVertices;
 - (void)removeNonUsedTexCoords;
-- (void)removeSelected;
 - (void)mergeSelected;
 - (void)splitSelected;
 - (void)detachSelected;
