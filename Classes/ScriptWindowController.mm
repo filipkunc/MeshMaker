@@ -115,6 +115,8 @@
 	
 	// embed editor in editorView
 	[fragaria embedInView:editorView];
+    
+    [fragaria.textView setUsesFindBar:YES];
 	
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     

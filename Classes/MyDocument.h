@@ -104,3 +104,7 @@
 - (IBAction)viewScriptEditor:(id)sender;
 
 @end
+
+@interface MyDocument (Archiving)
+
+@end
