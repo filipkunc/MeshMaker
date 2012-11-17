@@ -71,10 +71,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleHelpBookFolder</key>
-	<string>MeshMaker.help</string>
-	<key>CFBundleHelpBookName</key>
-	<string>com.filipkunc.MeshMaker.help</string>
 	<key>CFBundleIconFile</key>
 	<string>Application.icns</string>
 	<key>CFBundleIdentifier</key>

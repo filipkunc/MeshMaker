@@ -10,4 +10,6 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+- (IBAction)showHelp:(id)sender;
+
 @end

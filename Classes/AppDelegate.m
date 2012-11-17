@@ -15,4 +15,9 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"WebKitDeveloperExtras" : @YES }];
 }
 
+- (IBAction)showHelp:(id)sender
+{
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://filipkunc.github.com/MeshMaker/"]];
+}
+
 @end
