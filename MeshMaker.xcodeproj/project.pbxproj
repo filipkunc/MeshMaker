@@ -89,9 +89,6 @@
 		A7A4874013AE2ECA00C0C41B /* Mesh2.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
-		A7B76C9B1657CA4500CFAAE7 /* loopSubdivision.js in Sources */ = {isa = PBXBuildFile; fileRef = A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */; };
-		A7B76C9C1657CA4500CFAAE7 /* meshtest.js in Sources */ = {isa = PBXBuildFile; fileRef = A7B76C991657CA4500CFAAE7 /* meshtest.js */; };
-		A7B76C9D1657CA4500CFAAE7 /* quadify.js in Sources */ = {isa = PBXBuildFile; fileRef = A7B76C9A1657CA4500CFAAE7 /* quadify.js */; };
 		A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */; };
 		A7B76C9F1657CA6400CFAAE7 /* meshtest.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C991657CA4500CFAAE7 /* meshtest.js */; };
 		A7B76CA01657CA6400CFAAE7 /* quadify.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C9A1657CA4500CFAAE7 /* quadify.js */; };
@@ -667,9 +664,6 @@
 				A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */,
 				A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */,
 				A748E71D165667D100084D58 /* MyDocument+archiving.mm in Sources */,
-				A7B76C9B1657CA4500CFAAE7 /* loopSubdivision.js in Sources */,
-				A7B76C9C1657CA4500CFAAE7 /* meshtest.js in Sources */,
-				A7B76C9D1657CA4500CFAAE7 /* quadify.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
