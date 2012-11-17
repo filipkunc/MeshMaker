@@ -7,7 +7,8 @@ MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php)
 MeshMaker uses:
 
  * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
- * [Fragaria editor](http://www.mugginsoft.com/code/fragaria) Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/Fragaria](https://github.com/filipkunc/Fragaria)
+ * [Fragaria editor](http://www.mugginsoft.com/code/fragaria). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/Fragaria](https://github.com/filipkunc/Fragaria)
+ * [RapidXml](http://rapidxml.sourceforge.net)
  
 For working with submodules I recommend reading [Pro Git chapter about submodules](http://git-scm.com/book/en/Git-Tools-Submodules).
 
