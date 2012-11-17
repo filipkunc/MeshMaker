@@ -1,52 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>MeshMaker by filipkunc</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>MeshMaker by filipkunc</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+    <header>
+      <div class="inner">
         <h1>MeshMaker</h1>
-<p>Low poly modeler written in Objective-C++ for Mac OS X.</p>
-        <p class="view"><a href="https://github.com/filipkunc/MeshMaker">View the Project on GitHub <small>filipkunc/MeshMaker</small></a></p>
-        <ul>
-          <li><a href="https://github.com/filipkunc/MeshMaker/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/filipkunc/MeshMaker/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/filipkunc/MeshMaker">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h2>About</h2>
+        <h2>Easy to use modeling tool for Mac OS X</h2>
+        <a href="https://github.com/filipkunc/MeshMaker" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-<p>MeshMaker is very basic modeling tool focused on low poly modeling with triangles.</p>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>MeshMaker</h1>
 
-<p>There is two basic layouts - four views (Left, Top, Front, Perspective)</p>
+<p>MeshMaker is easy to use modeling tool with support for mixed triangle/quad meshes.</p>
 
-<p><img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/hound_fourviews.png" alt="Four Views"></p>
+<p>Features:</p>
 
-<p>and one active view (any of these, switched by spacebar).</p>
+<ul>
+<li>Extrusion, Split, Merge, Flip Triangle, Turn Edge, Detach, ...</li>
+<li>Manual UV unwrap mode</li>
+<li>Undo/redo support</li>
+<li>Mac OS X features: Autosave, iCloud, Fullscreen support</li>
+<li>Catmull-Clark Subdivision</li>
+<li>Wavefront Object (.obj) import/export</li>
+<li>Basic Collada (.dae) import/export</li>
+<li>Scripting via JavaScript</li>
+</ul><p>Used 3rd party libraries:</p>
 
-<p><img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/hound_closeup.png" alt="Close Up"></p>
+<ul>
+<li><a href="http://graphics.pixar.com/opensubdiv">OpenSubdiv library</a></li>
+<li><a href="http://www.mugginsoft.com/code/fragaria">Fragaria editor</a></li>
+<li><a href="http://rapidxml.sourceforge.net">RapidXml</a></li>
+</ul><h2>Triangles and Quads</h2>
+
+<p>MeshMaker supports triangles and quads in same mesh. There is no support for arbitrary polygons.</p>
+
+<p><img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/triquads.png" alt="Triangles and Quads"></p>
+
+<h2>Edge loops</h2>
+
+<p>MeshMaker enables edge loop selection with Double Click and edge expand selection with Command Double Click. Combinations of triangle/quad extrusion and expanded edge splitting enables simple and fast  modeling.</p>
+
+<p><img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/edgeloops.png" alt="Edge loops"></p>
+
+<h2>Scripting</h2>
+
+<p>Scripts are written in JavaScript. Script editor shown below is accessible from View menu.</p>
+
+<p><img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/scripting.png" alt="Scripting"></p>
 
 <h2>Camera manipulation</h2>
 
-<p>Similar to Maya, Unity.</p>
+<p>Similar to Maya, Unity. </p>
 
 <ul>
 <li>Rotation - Option + Left Mouse Button</li>
 <li>Pan - Option + Middle Mouse Button</li>
 <li>Zoom - Option + Right Mouse Button</li>
+</ul><p>Editor can be used also only with multitouch trackpad (MacBooks) and keyboard.</p>
+
+<ul>
+<li>Rotation - Option + Two Fingers</li>
+<li>Pan - Control + Option + Two Fingers</li>
+<li>Zoom - Two Fingers Zoom</li>
 </ul><h2>Selection</h2>
 
 <ul>
@@ -54,15 +88,29 @@
 <li>Select through (selects back faces for example) - Control + Left Mouse Button</li>
 <li>Adding to selection - Shift + Left Mouse Button</li>
 <li>Inverting selection - Command + Left Mouse Button</li>
-<li>Soft selection - global mode in Edit menu</li>
+<li>Vertex soft selection - global mode in Edit menu</li>
+<li>Edge loop - Double Click</li>
+<li>Opposite edge loop - Command Double Click</li>
 </ul>
-      </section>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/filipkunc/MeshMaker/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/filipkunc/MeshMaker/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/filipkunc/MeshMaker"></a> is maintained by <a href="https://github.com/filipkunc">filipkunc</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/filipkunc">filipkunc</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
-    
+
+  
   </body>
 </html>
