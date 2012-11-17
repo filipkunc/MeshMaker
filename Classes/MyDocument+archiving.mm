@@ -212,7 +212,7 @@ vector<T> *ReadValues(string s)
             TriQuad triQuad;
             for (uint i = 0; i < 4; i++)
             {
-                uint vi, ti, ni;
+                uint vi = 0, ti = 0, ni = 0;
                 char c;
                 
                 if (!hasTexCoords && !hasNormals)
@@ -224,8 +224,8 @@ vector<T> *ReadValues(string s)
                 else if (hasTexCoords && hasNormals)
                     ssline >> vi >> c >> ti >> c >> ni;
                 
-                triQuad.vertexIndices[i] = vi - 1;
-                triQuad.texCoordIndices[i] = ti - 1;
+                triQuad.vertexIndices[i] = vi == 0 ? 0 : vi - 1;
+                triQuad.texCoordIndices[i] = ti == 0 ? 0 : ti - 1;
             }
             triQuad.isQuad = ssline.good();
             triangles.push_back(triQuad);

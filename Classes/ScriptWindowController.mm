@@ -42,8 +42,9 @@
         NSURL *scriptsDirectoryURL = [self scriptsDirectoryURL];
         
         NSArray *keys = @[NSURLIsDirectoryKey, NSURLIsPackageKey, NSURLLocalizedNameKey];
+        NSFileManager* sharedFileManager = [NSFileManager defaultManager];
         
-        NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager]
+        NSDirectoryEnumerator *enumerator = [sharedFileManager
                                              enumeratorAtURL:scriptsDirectoryURL
                                              includingPropertiesForKeys:keys
                                              options:(NSDirectoryEnumerationSkipsPackageDescendants |
@@ -62,7 +63,19 @@
         }
         
         if (scripts.count == 0)
-            [scripts addObject:@"Script1"];
+        {
+            NSArray *scriptsInBundle = [[NSBundle mainBundle] URLsForResourcesWithExtension:@"js" subdirectory:nil];
+            for (NSURL *scriptURL in scriptsInBundle)
+            {
+                NSString *scriptName = [scriptURL lastPathComponent];
+                [scripts addObject:[scriptName stringByDeletingPathExtension]];
+                NSError *error = nil;
+                if (![sharedFileManager copyItemAtURL:scriptURL toURL:[scriptsDirectoryURL URLByAppendingPathComponent:scriptName] error:&error])
+                {
+                    NSLog(@"Failed to copy bundled scripts: %@", [error localizedDescription]);
+                }                
+            }
+        }
         
         [scriptView setUIDelegate:self];
         [[scriptView mainFrame] loadHTMLString:@"" baseURL:NULL];
@@ -95,6 +108,7 @@
     
     NSURL *scriptsDirectoryURL = [appDirectory URLByAppendingPathComponent:@"Scripts"];
     NSError *error = nil;
+    
     if (![sharedFileManager createDirectoryAtURL:scriptsDirectoryURL withIntermediateDirectories:YES attributes:nil error:&error])
         NSLog(@"Create Scripts directory failed: %@", [error localizedDescription]);
     
