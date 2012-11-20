@@ -261,7 +261,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection)
 {
     bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-    ShaderProgram *shader = flipped ? [ShaderProgram flippedShader] : [ShaderProgram normalShader];
+    ShaderProgram *shader = [ShaderProgram normalShader];
     
     if (viewMode == ViewModeMixedWireSolid)
     {

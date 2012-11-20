@@ -65,8 +65,8 @@ NSOpenGLContext *globalGLContext = nil;
 {
 	self = [super initWithCoder:c];
 	if (self)
-	{		
-		[self setupGL];
+	{
+        [self initView];
 	}
 	return self;
 }
@@ -76,27 +76,16 @@ NSOpenGLContext *globalGLContext = nil;
     self = [super initWithFrame:frameRect];
     if (self)
     {
-        [self setupGL];
+        [self initView];
     }
     return self;
 }
 
-- (void)setupGL
+- (void)initView
 {
     displayed = nil;
     manipulated = nil;
     delegate = nil;
-    
-    // The GL context must be active for these functions to have an effect
-    [self clearGLContext];
-    NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
-                                                          shareContext:[OpenGLSceneView sharedContext]];
-    [self setOpenGLContext:context];
-    [[self openGLContext] makeCurrentContext];
-    
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-    glShadeModel(GL_SMOOTH);
     
     selectionOffset = new Vector3D();
     isManipulating = NO;
@@ -111,18 +100,34 @@ NSOpenGLContext *globalGLContext = nil;
     
     lastPoint = NSMakePoint(0, 0);
     
-    defaultManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeDefault];		
+    defaultManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeDefault];
     translationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeTranslation];
-    rotationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeRotation];		
+    rotationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeRotation];
     scaleManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeScale];
     
     currentManipulator = defaultManipulator;
     
     cameraMode = CameraModePerspective;
     
-    glEnable(GL_VERTEX_PROGRAM_TWO_SIDE);
-    [[ShaderProgram normalShader] linkProgram];
-    [[ShaderProgram flippedShader] linkProgram];
+    [self setupGL];
+}
+
+- (void)setupGL
+{
+    //[super prepareOpenGL];
+    
+    // The GL context must be active for these functions to have an effect
+    [self clearGLContext];
+    NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:[OpenGLSceneView sharedPixelFormat]
+                                                          shareContext:[OpenGLSceneView sharedContext]];
+    [self setOpenGLContext:context];
+    [[self openGLContext] makeCurrentContext];
+    
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
+    
+    [ShaderProgram initShaders];
 }
 
 - (void)dealloc
@@ -374,7 +379,9 @@ NSOpenGLContext *globalGLContext = nil;
 }
 
 - (void)drawRect:(NSRect)rect
-{	
+{
+    [ShaderProgram resetProgram];
+    
 	float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

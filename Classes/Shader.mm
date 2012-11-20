@@ -8,24 +8,6 @@
 
 #import "Shader.h"
 
-// modified from http://www.lighthouse3d.com/opengl/glsl/index.php?oglinfo
-
-void ShaderLog(GLuint shader)
-{
-	int infoLogLength = 0;
-	int charsWritten = 0;
-	GLchar *infoLog;
-	
-	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-	
-	if (infoLogLength > 0)
-	{
-		infoLog = (GLchar *)malloc((size_t)infoLogLength);
-		glGetShaderInfoLog(shader, infoLogLength, &charsWritten, infoLog);
-		free(infoLog);
-	}
-}
-
 @implementation Shader
 
 @synthesize shader, type;
@@ -66,7 +48,24 @@ void ShaderLog(GLuint shader)
 		shader = glCreateShader(type);
 		glShaderSource(shader, 1, &shaderSource, NULL);
 		glCompileShader(shader);
-		ShaderLog(shader);
+        
+        GLint logLength, status;
+        
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0)
+        {
+            GLchar *log = (GLchar*)malloc(logLength);
+            glGetShaderInfoLog(shader, logLength, &logLength, log);
+            NSLog(@"%@ compile log:\n%s\n", path, log);
+            free(log);
+        }
+        
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+        if (status == 0)
+        {
+            NSLog(@"Failed to compile %@ shader:\n%s\n", path, shaderSource);
+            return 0;
+        }
 	}
 	return self;	
 }

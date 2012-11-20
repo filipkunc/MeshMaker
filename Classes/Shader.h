@@ -17,8 +17,6 @@
 @property (readonly, assign) GLuint shader;
 @property (readonly, assign) GLenum type;
 
-void ShaderLog(GLuint shader);
-
 + (NSString *)fileExtensionForShaderType:(GLenum)aShaderType;
 
 - (id)initWithShaderType:(GLenum)aShaderType

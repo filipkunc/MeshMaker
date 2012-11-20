@@ -32,8 +32,7 @@
 		A7064C8012BD107800B14CFA /* ShaderProgram.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6812BD107800B14CFA /* ShaderProgram.mm */; };
 		A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6912BD107800B14CFA /* Vector2D.cpp */; };
 		A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
-		A7064C8A12BD10C200B14CFA /* twoSidedLighting.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */; };
-		A7064C8B12BD10C200B14CFA /* twoSidedLightingFlipped.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */; };
+		A7064C8A12BD10C200B14CFA /* vertex.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8812BD10C200B14CFA /* vertex.vs */; };
 		A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7064C9212BD19F400B14CFA /* Cocoa.framework */; };
 		A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7064C9612BD19F400B14CFA /* InfoPlist.strings */; };
 		A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */; };
@@ -45,6 +44,7 @@
 		A73659A013D228B100F9D7D1 /* CylinderTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599D13D228B100F9D7D1 /* CylinderTemplate.png */; };
 		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
 		A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599F13D228B100F9D7D1 /* SplitTemplate.png */; };
+		A736FC26165C0B8400961DC1 /* fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = A736FC24165C0B2300961DC1 /* fragment.fs */; };
 		A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8412BD109A00B14CFA /* MeshTest.mm */; };
 		A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */; };
 		A746510912BD1C940030EEB0 /* MeshHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C5412BD107800B14CFA /* MeshHelpers.mm */; };
@@ -181,8 +181,7 @@
 		A7064C6C12BD107800B14CFA /* Vector3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector3D.h; path = Classes/Vector3D.h; sourceTree = "<group>"; };
 		A7064C8412BD109A00B14CFA /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
 		A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
-		A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLighting.vs; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twoSidedLightingFlipped.vs; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		A7064C8812BD10C200B14CFA /* vertex.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = vertex.vs; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MeshMaker-Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7064C9212BD19F400B14CFA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeshMaker_Tests-Info.plist"; sourceTree = "<group>"; };
@@ -197,6 +196,7 @@
 		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
 		A736599E13D228B100F9D7D1 /* MergeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MergeTemplate.png; sourceTree = "<group>"; };
 		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
+		A736FC24165C0B2300961DC1 /* fragment.fs */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = fragment.fs; sourceTree = "<group>"; };
 		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
 		A748E71C165667D100084D58 /* MyDocument+archiving.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "MyDocument+archiving.mm"; path = "Classes/MyDocument+archiving.mm"; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
@@ -458,8 +458,8 @@
 		A7521E8A10E675ED003D31E4 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				A7064C8812BD10C200B14CFA /* twoSidedLighting.vs */,
-				A7064C8912BD10C200B14CFA /* twoSidedLightingFlipped.vs */,
+				A7064C8812BD10C200B14CFA /* vertex.vs */,
+				A736FC24165C0B2300961DC1 /* fragment.fs */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -581,8 +581,8 @@
 				1DDD582C0DA1D0D100B32029 /* MyDocument.xib in Resources */,
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
 				A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */,
-				A7064C8A12BD10C200B14CFA /* twoSidedLighting.vs in Resources */,
-				A7064C8B12BD10C200B14CFA /* twoSidedLightingFlipped.vs in Resources */,
+				A7064C8A12BD10C200B14CFA /* vertex.vs in Resources */,
+				A736FC26165C0B8400961DC1 /* fragment.fs in Resources */,
 				A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */,
 				A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */,
 				A787CC1713CF717500D2A1FC /* ScaleTemplate.png in Resources */,
