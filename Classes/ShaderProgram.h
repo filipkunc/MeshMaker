@@ -14,6 +14,8 @@
 	GLuint program;
 }
 
+@property (readonly) GLuint program;
+
 + (void)initShaders;
 + (ShaderProgram *)normalShader;
 - (void)attachShaderWithType:(GLenum)type resourceInBundle:(NSString *)resourceInBundle;

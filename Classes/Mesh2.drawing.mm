@@ -295,6 +295,8 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glPolygonOffset(1.0f, 1.0f);
         }
         
+        GLint location = glGetUniformLocation(shader.program, "texture");
+        glUniform1i(location, 0);
         [shader useProgram];
         if (_selectionMode != MeshSelectionModeTriangles)
         {

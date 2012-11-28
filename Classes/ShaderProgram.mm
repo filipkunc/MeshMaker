@@ -67,6 +67,8 @@ ShaderProgram *globalNormalShader = nil;
 
 @implementation ShaderProgram
 
+@synthesize program = program;
+
 + (void)initShaders
 {
     [[ShaderProgram normalShader] useProgram];
@@ -159,7 +161,7 @@ ShaderProgram *globalNormalShader = nil;
 //		return;
 //	}
     
-    glUseProgram(program);
+    //glUseProgram(program);
     
     GetGLError();
 }
