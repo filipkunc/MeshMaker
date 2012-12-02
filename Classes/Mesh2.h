@@ -191,6 +191,10 @@ public:
     void resetEdgeCache();
     void fillEdgeCache();
     
+    void updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, uint cacheIndexPosition);
+    void updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *edgeNode);
+    void updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices);
+    
     void drawFill(FillMode fillMode, ViewMode viewMode);
     void draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection);
 

@@ -3,7 +3,7 @@
 //  OpenGLEditor
 //
 //  Created by Filip Kunc on 1/8/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  For license see LICENSE.TXT
 //
 
 #pragma once
@@ -82,6 +82,39 @@ typedef VEdgeNode<Vertex2> VertexEdgeNode;
 typedef VNode<TexCoord> TexCoordNode;
 typedef VEdge<TexCoord> TexCoordEdge;
 typedef VEdgeNode<TexCoord> TexCoordEdgeNode;
-
+    
 class Triangle2;
 class TriangleNode;
+    
+class VertexTriangleNode : public FPNode<VertexTriangleNode, TriangleNode *>
+{
+public:
+    uint cacheIndices[2];
+    
+    VertexTriangleNode() : FPNode<VertexTriangleNode, TriangleNode *>()
+    {
+        cacheIndices[0] = 0;
+        cacheIndices[1] = 0;
+    }
+    VertexTriangleNode(TriangleNode* const &data) : FPNode<VertexTriangleNode, TriangleNode *>(data)
+    {
+        cacheIndices[0] = 0;
+        cacheIndices[1] = 0;
+    }
+    virtual ~VertexTriangleNode() { }
+};
+
+template <class T>
+class VertexVEdgeNode : public FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>
+{
+public:
+    uint cacheIndex;
+    
+    VertexVEdgeNode() : FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>(), cacheIndex(0) { }
+    VertexVEdgeNode(VEdgeNode<T> * const &data) : FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>(data), cacheIndex(0) { }
+    virtual ~VertexVEdgeNode() { }
+};
+    
+typedef VertexVEdgeNode<Vertex2> Vertex2VEdgeNode;
+typedef VertexVEdgeNode<TexCoord> TexCoordVEdgeNode;
+

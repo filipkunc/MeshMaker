@@ -120,7 +120,7 @@
 - (uint)index { return node->algorithmData.index; }
 - (void)setIndex:(uint)index { node->algorithmData.index = index; }
 - (uint)edgeCount { return node->_edges.count(); }
-- (SimpleNodeEdgeIterator *)edgeIterator { return [[SimpleNodeEdgeIterator alloc] initWithBegin:node->_edges.begin() end:node->_edges.end()]; }
+- (VertexNodeEdgeIterator *)edgeIterator { return [[VertexNodeEdgeIterator alloc] initWithBegin:node->_edges.begin() end:node->_edges.end()]; }
 
 - (id)initWithNode:(VertexNode *)vertexNode
 {
@@ -314,20 +314,20 @@
 
 @end
 
-@implementation SimpleNodeEdgeWrapper
+@implementation VertexNodeEdgeWrapper
 
-- (SimpleNode<VertexEdgeNode *> *)simpleNode
+- (Vertex2VEdgeNode *)simpleNode
 {
     return _simpleNode;
 }
 
-- (void)setSimpleNode:(SimpleNode<VertexEdgeNode *> *)simpleNode
+- (void)setSimpleNode:(Vertex2VEdgeNode *)simpleNode
 {
     _simpleNode = simpleNode;
     self.node = _simpleNode->data();
 }
 
-- (id)initWithSimpleNode:(SimpleNode<VertexEdgeNode *> *)edgeNode
+- (id)initWithSimpleNode:(Vertex2VEdgeNode *)edgeNode
 {
     self = [self initWithNode:edgeNode->data()];
     if (self)
@@ -370,4 +370,4 @@
 ImplementIterator(VertexNodeIterator, VertexNode, node)
 ImplementIterator(TriangleNodeIterator, TriangleNode, node)
 ImplementIterator(EdgeNodeIterator, VertexEdgeNode, node)
-ImplementIterator(SimpleNodeEdgeIterator, SimpleNode<VertexEdgeNode *>, simpleNode)
+ImplementIterator(VertexNodeEdgeIterator, Vertex2VEdgeNode, simpleNode)

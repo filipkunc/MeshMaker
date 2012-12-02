@@ -30,6 +30,7 @@ private:
 public:
     bool selected;
     bool visible;
+    bool normalsAreValid;
     Vector3D vertexNormal;
     Vector3D texCoordNormal;
     
@@ -79,7 +80,7 @@ public:
     VertexEdgeNode *findSecondSplitEdgeNode(const VertexEdge &firstEdge) const;
     VertexEdgeNode *nextEdgeInQuadLoop(const VertexEdge &edge) const;
     
-    void computeNormal();
+    void computeNormalsIfNeeded();
     bool rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect);
     void convertBarycentricToUVs(float &u, float &v);
     

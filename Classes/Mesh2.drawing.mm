@@ -32,7 +32,8 @@ void Mesh2::fillTriangleCache()
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle2 &currentTriangle = node->data();
-        currentTriangle.computeNormal();
+        currentTriangle.normalsAreValid = false;
+        currentTriangle.computeNormalsIfNeeded();
     }
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
@@ -74,6 +75,7 @@ void Mesh2::fillTriangleCache()
             const Vector3D &sn = _isUnwrapped ? texCoord->algorithmData.normal : vertex->algorithmData.normal;
             
             GLTriangleVertex &cachedVertex = _cachedTriangleVertices[i];
+            vertex->setCacheIndexForTriangleNode(node, i, j < 3 ? 0 : 1);
             
             for (uint k = 0; k < 3; k++)
             {
@@ -137,10 +139,16 @@ void Mesh2::fillEdgeCache()
             }
         }
         
+        VertexNode *v0 = node->data().vertex(0);
+        VertexNode *v1 = node->data().vertex(1);
+        
+        v0->setCacheIndexForEdgeNode(node, i);
+        v1->setCacheIndexForEdgeNode(node, i + 1);
+        
         for (uint k = 0; k < 3; k++)
         {
-            _cachedEdgeVertices[i].position.coords[k] = node->data().vertex(0)->data().position[k];
-            _cachedEdgeVertices[i + 1].position.coords[k] = node->data().vertex(1)->data().position[k];
+            _cachedEdgeVertices[i].position.coords[k] = v0->data().position[k];
+            _cachedEdgeVertices[i + 1].position.coords[k] = v1->data().position[k];
         }
         
         i += 2;
@@ -184,6 +192,90 @@ void Mesh2::fillEdgeCache()
     
     _cachedEdgeTexCoords.resize(i); // resize doesn't delete [] internal array, if not needed
     _cachedEdgeTexCoords.setValid(true);
+}
+
+void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, uint cacheIndexPosition)
+{
+    const Vector3D &v = vertexNode->data().position;
+    const Vector3D &sn = vertexNode->algorithmData.normal;
+    const Vector3D &fn = triangleNode->data()->data().vertexNormal;
+    
+    GLTriangleVertex &cachedVertex = _cachedTriangleVertices[triangleNode->cacheIndices[cacheIndexPosition]];
+    
+    for (uint k = 0; k < 3; k++)
+    {
+        cachedVertex.position.coords[k] = v[k];
+        cachedVertex.smoothNormal.coords[k] = sn[k];
+        cachedVertex.flatNormal.coords[k] = fn[k];
+    }
+}
+
+void Mesh2::updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *edgeNode)
+{
+    const Vector3D &v = vertexNode->data().position;
+    
+    GLEdgeVertex &cachedVertex = _cachedEdgeVertices[edgeNode->cacheIndex];
+    
+    for (uint k = 0; k < 3; k++)
+    {
+        cachedVertex.position.coords[k] = v[k];
+    }
+}
+
+void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
+{
+    uint count = affectedVertices.size();
+    
+    if (count > vertexCount() / 3)
+    {
+        resetTriangleCache();
+        return;
+    }
+    
+    for (uint i = 0; i < count; i++)
+    {
+        VertexNode *vertexNode = affectedVertices[i];
+        vertexNode->addAffectedVertices(affectedVertices);
+    }
+    
+    count = affectedVertices.size();
+    
+    for (uint i = 0; i < count; i++)
+    {
+        VertexNode *vertexNode = affectedVertices[i];
+        vertexNode->algorithmData.clear();
+        vertexNode->updateTriangleNormals();
+    }
+    
+    for (uint i = 0; i < count; i++)
+    {
+        VertexNode *vertexNode = affectedVertices[i];
+        vertexNode->computeNormal();
+        
+        for (VertexTriangleNode
+             *triangleNode = vertexNode->_triangles.begin(),
+             *triangleEnd = vertexNode->_triangles.end();
+             triangleNode != triangleEnd;
+             triangleNode = triangleNode->next())
+        {
+            updateVertexInTriangleCache(vertexNode, triangleNode, 0);
+            if (triangleNode->data()->data().isQuad())
+                updateVertexInTriangleCache(vertexNode, triangleNode, 1);
+        }
+        
+        for (Vertex2VEdgeNode
+             *edgeNode = vertexNode->_edges.begin(),
+             *edgeEnd = vertexNode->_edges.end();
+             edgeNode != edgeEnd;
+             edgeNode = edgeNode->next())
+        {
+            updateVertexInEdgeCache(vertexNode, edgeNode);
+        }
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+    glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLTriangleVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Mesh2::initOrUpdateTexture()
@@ -365,7 +457,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
             
 			if (!forSelection)
 			{
-				glPointSize(5.0f);
+				glPointSize(4.0f);
 				if (selected)
 					glColor3f(1.0f, 0.0f, 0.0f);
 				else
@@ -458,7 +550,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 
 void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
 {
-    glPointSize(5.0f);
+    glPointSize(4.0f);
     
     if (forSelection)
     {

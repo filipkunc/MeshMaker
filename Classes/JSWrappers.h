@@ -110,14 +110,14 @@
 
 @end
 
-@interface SimpleNodeEdgeWrapper : EdgeWrapper
+@interface VertexNodeEdgeWrapper : EdgeWrapper
 {
-    SimpleNode<VertexEdgeNode *> *_simpleNode;
+    Vertex2VEdgeNode *_simpleNode;
 }
 
-@property (readwrite, assign) SimpleNode<VertexEdgeNode *> *simpleNode;
+@property (readwrite, assign) Vertex2VEdgeNode *simpleNode;
 
-- (id)initWithSimpleNode:(SimpleNode<VertexEdgeNode *> *)edgeNode;
+- (id)initWithSimpleNode:(Vertex2VEdgeNode *)edgeNode;
 
 @end
 
@@ -139,4 +139,4 @@
 DeclareIterator(VertexNodeIterator, VertexWrapper, VertexNode)
 DeclareIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode)
 DeclareIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode)
-DeclareIterator(SimpleNodeEdgeIterator, SimpleNodeEdgeWrapper, SimpleNode<VertexEdgeNode *>)
+DeclareIterator(VertexNodeEdgeIterator, VertexNodeEdgeWrapper, Vertex2VEdgeNode)

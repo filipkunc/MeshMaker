@@ -442,10 +442,10 @@ void Mesh2::transformAll(const Matrix4x4 &matrix)
 
 void Mesh2::transformSelected(const Matrix4x4 &matrix)
 {
-    resetTriangleCache();
-    
     if (_isUnwrapped)
     {
+        resetTriangleCache();
+        
         for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
         {
             if (node->data().selected)
@@ -457,12 +457,18 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
     }
     else
     {
+        if (_useSoftSelection)
+            resetTriangleCache();
+        
+        vector<VertexNode *> affectedVertices;
+        
         for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
         {
             if (node->data().selected)
             {
                 Vector3D &v = node->data().position;
                 v = matrix.Transform(v);
+                affectedVertices.push_back(node);
             }
             else if (_useSoftSelection && node->selectionWeight > 0.1f)
             {
@@ -470,6 +476,8 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
                 v = v.Lerp(matrix.Transform(v), node->selectionWeight);            
             }
         }
+        
+        updateTriangleAndEdgeCache(affectedVertices);        
     }
 }
 
@@ -944,7 +952,7 @@ void Mesh2::repositionVertices(uint vertexCount)
         
         float bon = beta / n;
         
-        for (SimpleNode<VertexEdgeNode *> *vertexEdgeNode = node->_edges.begin(), *endVertexEdgeNode = node->_edges.end(); vertexEdgeNode != endVertexEdgeNode; vertexEdgeNode = vertexEdgeNode->next())
+        for (Vertex2VEdgeNode *vertexEdgeNode = node->_edges.begin(), *endVertexEdgeNode = node->_edges.end(); vertexEdgeNode != endVertexEdgeNode; vertexEdgeNode = vertexEdgeNode->next())
         {
             VertexEdge &edge = vertexEdgeNode->data()->data();
             VertexNode *oppositeVertex = edge.opposite(node);
@@ -1032,7 +1040,7 @@ void Mesh2::detachSelectedVertices()
             
             texCoordNode->data().selected = false;
             
-            for (SimpleNode<TriangleNode *> 
+            for (VertexTriangleNode 
                  *triangleNode = texCoordNode->_triangles.begin(), 
                  *triangleEnd = texCoordNode->_triangles.end(); 
                  triangleNode != triangleEnd; 
@@ -1053,7 +1061,7 @@ void Mesh2::detachSelectedVertices()
             
             vertexNode->data().selected = false;
             
-            for (SimpleNode<TriangleNode *> 
+            for (VertexTriangleNode
                  *triangleNode = vertexNode->_triangles.begin(), 
                  *triangleEnd = vertexNode->_triangles.end(); 
                  triangleNode != triangleEnd; 
@@ -1081,7 +1089,7 @@ void Mesh2::detachSelectedTriangles()
         {
             TexCoordNode *newTexCoord = NULL;
             
-            for (SimpleNode<TriangleNode *> 
+            for (VertexTriangleNode
                  *triangleNode = texCoordNode->_triangles.begin(), 
                  *triangleEnd = texCoordNode->_triangles.end(); 
                  triangleNode != triangleEnd; 
@@ -1107,7 +1115,7 @@ void Mesh2::detachSelectedTriangles()
         {
             VertexNode *newVertex = NULL;
             
-            for (SimpleNode<TriangleNode *> 
+            for (VertexTriangleNode
                  *triangleNode = vertexNode->_triangles.begin(), 
                  *triangleEnd = vertexNode->_triangles.end(); 
                  triangleNode != triangleEnd; 

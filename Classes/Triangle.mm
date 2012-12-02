@@ -13,7 +13,8 @@ const uint Triangle2::twoTriIndices[6] = { 0, 1, 2, 0, 2, 3 };
 Triangle2::Triangle2() :
     selected(false),
     visible(true),
-    _isQuad(false)
+    _isQuad(false),
+    normalsAreValid(false)
 {
     for (uint i = 0; i < count(); i++)
     {
@@ -27,7 +28,8 @@ Triangle2::Triangle2() :
 Triangle2::Triangle2(VertexNode *vertices[], bool isQuad) :
     selected(false),
     visible(true),
-    _isQuad(isQuad)
+    _isQuad(isQuad),
+    normalsAreValid(false)
 {
     for (uint i = 0; i < count(); i++)
     {
@@ -41,7 +43,8 @@ Triangle2::Triangle2(VertexNode *vertices[], bool isQuad) :
 Triangle2::Triangle2(VertexNode *vertices[], TexCoordNode *texCoords[], bool isQuad) :
     selected(false),
     visible(true),
-    _isQuad(isQuad)
+    _isQuad(isQuad),
+    normalsAreValid(false)
 {
     for (uint i = 0; i < count(); i++)
     {
@@ -373,9 +376,11 @@ TexCoordNode *Triangle2::texCoordNotInEdge(const TexCoordEdge *edge) const
     return NULL;
 }
 
-void Triangle2::computeNormal()
+void Triangle2::computeNormalsIfNeeded()
 {
     // TODO: Make it work for polygon (tri/quad).
+    if (normalsAreValid)
+        return;
     
     Vector3D u, v;
     
@@ -385,7 +390,9 @@ void Triangle2::computeNormal()
     
     u = vertex(0)->data().position - vertex(1)->data().position;
     v = vertex(1)->data().position - vertex(2)->data().position;
-    vertexNormal = u.Cross(v);    
+    vertexNormal = u.Cross(v);
+    
+    normalsAreValid = true;
 }
 
 bool Triangle2::rayIntersect(const Vector3D &origin, const Vector3D &direction, float &u, float &v, Vector3D &intersect)

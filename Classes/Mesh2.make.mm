@@ -51,7 +51,7 @@ void Mesh2::makeTexCoords()
     {
         TexCoordNode *texCoord = _texCoords.add(vertex->data().position);
         
-        for (SimpleNode<TriangleNode *> *triangle = vertex->_triangles.begin(), 
+        for (VertexTriangleNode *triangle = vertex->_triangles.begin(),
              *triangleEnd = vertex->_triangles.end(); 
              triangle != triangleEnd; 
              triangle = triangle->next())

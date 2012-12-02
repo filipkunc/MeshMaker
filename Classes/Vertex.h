@@ -35,8 +35,8 @@ public:
     };
     
 public:
-    SimpleList<TriangleNode *> _triangles;
-    SimpleList<VEdgeNode<T> *> _edges;
+    FPList<VertexTriangleNode, TriangleNode *> _triangles;
+    FPList<VertexVEdgeNode<T>, VEdgeNode<T> *> _edges;
 public:
     float selectionWeight;
     AlgorithmData algorithmData;
@@ -53,7 +53,7 @@ public:
     void addTriangle(TriangleNode *triangle) { _triangles.add(triangle); }
     void removeTriangle(TriangleNode *triangle)
     {
-        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             if (node->data() == triangle)
                 _triangles.remove(node);
@@ -61,7 +61,7 @@ public:
     }
     void removeFromTriangles()
     {
-        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             node->data()->data().removeVertex(this);
         }
@@ -71,7 +71,7 @@ public:
     
     void removeFromSelectedTriangles()
     {
-        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             if (node->data()->data().selected)
             {
@@ -88,7 +88,7 @@ public:
     
     void removeEdge(VEdgeNode<T> *edge)
     {
-        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             if (node->data() == edge)
                 _edges.remove(node);
@@ -102,7 +102,7 @@ public:
     
     void removeFromEdges()
     {
-        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             node->data()->data().removeVertex(this);
         }
@@ -112,12 +112,12 @@ public:
     
     void replaceVertex(VNode *newVertex)
     {
-        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             node->data()->replaceVertex(this, newVertex);
         }
         
-        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             node->data()->replaceVertex(this, newVertex);
         }
@@ -128,7 +128,7 @@ public:
     
     void replaceVertexInSelectedTriangles(VNode *newVertex)
     {
-        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             if (node->data()->data().selected)
             {
@@ -138,12 +138,21 @@ public:
         } 
     }
     
+    void updateTriangleNormals()
+    {
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            node->data()->data().normalsAreValid = false;
+            node->data()->data().computeNormalsIfNeeded();
+        }
+    }    
+    
     void computeNormal()
     {
         float count = 0;
         algorithmData.normal = Vector3D();
         
-        for (SimpleNode<TriangleNode *> *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             algorithmData.normal += node->data()->data().vertexNormal;
             count++;
@@ -152,9 +161,56 @@ public:
         algorithmData.normal /= count;
     }
     
+    void setCacheIndexForTriangleNode(TriangleNode *triangleNode, uint cacheIndex, uint cacheIndexPosition)
+    {
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            if (node->data() == triangleNode)
+            {
+                node->cacheIndices[cacheIndexPosition] = cacheIndex;
+                break;
+            }
+        }
+    }
+    
+    void setCacheIndexForEdgeNode(VEdgeNode<T> *edgeNode, uint cacheIndex)
+    {
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            if (node->data() == edgeNode)
+            {
+                node->cacheIndex = cacheIndex;
+                break;
+            }
+        }
+    }
+    
+    void addAffectedVertices(vector<VNode *> &affectedVertices)
+    {
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            const Triangle2 &triangle = node->data()->data();
+            uint count = triangle.count();
+            
+            for (uint i = 0; i < count; i++)
+            {
+                VertexNode *vertexNode = triangle.vertex(i);
+                if (!vertexNode->data().selected && vertexNode->sharedEdge(this) == NULL)
+                    affectedVertices.push_back(vertexNode);
+            }
+        }
+        
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        {
+            VertexNode *vertexNode = node->data()->data().opposite(this);
+            if (!vertexNode->data().selected)
+               affectedVertices.push_back(vertexNode);
+        }
+    }
+    
     VEdgeNode<T> *sharedEdge(const VNode *otherVertex) const
     {
-        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             if (node->data()->data().containsVertex(otherVertex))
                 return node->data();
@@ -167,7 +223,7 @@ public:
         if (_edges.count() != 4)
             return NULL;
         
-        for (SimpleNode<VEdgeNode<T> *> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
+        for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
             if (node->data()->data().sharedTriangle(edge) == NULL)
                 return node->data();

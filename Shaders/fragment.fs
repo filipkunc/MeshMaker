@@ -42,7 +42,7 @@ void main()
     if (sDotN > 0.0)
         specular = material * pow(max(dot(r, v), 0.0), 40.0);
     
-    vec4 finalColor = ambient + diffuse + specular;
+    vec4 finalColor = min(ambient + diffuse + specular, baseColor * 1.8);
     finalColor.a = textureColor.a;
     gl_FragColor = finalColor;
 }
