@@ -161,6 +161,15 @@ public:
         algorithmData.normal /= count;
     }
     
+    void resetCacheIndices()
+    {
+        for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+        {
+            node->cacheIndices[0] = -1;
+            node->cacheIndices[1] = -1;
+        }
+    }
+    
     void setCacheIndexForTriangleNode(TriangleNode *triangleNode, uint cacheIndex, uint cacheIndexPosition)
     {
         for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())

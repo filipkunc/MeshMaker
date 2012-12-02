@@ -89,17 +89,17 @@ class TriangleNode;
 class VertexTriangleNode : public FPNode<VertexTriangleNode, TriangleNode *>
 {
 public:
-    uint cacheIndices[2];
+    int cacheIndices[2];
     
     VertexTriangleNode() : FPNode<VertexTriangleNode, TriangleNode *>()
     {
-        cacheIndices[0] = 0;
-        cacheIndices[1] = 0;
+        cacheIndices[0] = -1;
+        cacheIndices[1] = -1;
     }
     VertexTriangleNode(TriangleNode* const &data) : FPNode<VertexTriangleNode, TriangleNode *>(data)
     {
-        cacheIndices[0] = 0;
-        cacheIndices[1] = 0;
+        cacheIndices[0] = -1;
+        cacheIndices[1] = -1;
     }
     virtual ~VertexTriangleNode() { }
 };
@@ -108,10 +108,10 @@ template <class T>
 class VertexVEdgeNode : public FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>
 {
 public:
-    uint cacheIndex;
+    int cacheIndex;
     
-    VertexVEdgeNode() : FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>(), cacheIndex(0) { }
-    VertexVEdgeNode(VEdgeNode<T> * const &data) : FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>(data), cacheIndex(0) { }
+    VertexVEdgeNode() : FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>(), cacheIndex(-1) { }
+    VertexVEdgeNode(VEdgeNode<T> * const &data) : FPNode<VertexVEdgeNode<T>, VEdgeNode<T> *>(data), cacheIndex(-1) { }
     virtual ~VertexVEdgeNode() { }
 };
     

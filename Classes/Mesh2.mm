@@ -477,7 +477,7 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
             }
         }
         
-        updateTriangleAndEdgeCache(affectedVertices);        
+        updateTriangleAndEdgeCache(affectedVertices);
     }
 }
 

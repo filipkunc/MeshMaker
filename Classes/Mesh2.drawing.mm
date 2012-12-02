@@ -27,8 +27,6 @@ void Mesh2::fillTriangleCache()
     
     _cachedTriangleVertices.resize(_triangles.count() * 6);
     
-    resetAlgorithmData();
-    
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         Triangle2 &currentTriangle = node->data();
@@ -38,6 +36,7 @@ void Mesh2::fillTriangleCache()
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
+        node->resetCacheIndices();
         node->computeNormal();
     }
     
@@ -196,11 +195,15 @@ void Mesh2::fillEdgeCache()
 
 void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, uint cacheIndexPosition)
 {
+    int cacheIndex = triangleNode->cacheIndices[cacheIndexPosition];
+    if (cacheIndex < 0)
+        return;
+    
     const Vector3D &v = vertexNode->data().position;
     const Vector3D &sn = vertexNode->algorithmData.normal;
-    const Vector3D &fn = triangleNode->data()->data().vertexNormal;
+    const Vector3D &fn = triangleNode->data()->data().vertexNormal;    
     
-    GLTriangleVertex &cachedVertex = _cachedTriangleVertices[triangleNode->cacheIndices[cacheIndexPosition]];
+    GLTriangleVertex &cachedVertex = _cachedTriangleVertices[cacheIndex];
     
     for (uint k = 0; k < 3; k++)
     {
@@ -212,9 +215,13 @@ void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNo
 
 void Mesh2::updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *edgeNode)
 {
+    int cacheIndex = edgeNode->cacheIndex;
+    if (cacheIndex < 0)
+        return;
+    
     const Vector3D &v = vertexNode->data().position;
     
-    GLEdgeVertex &cachedVertex = _cachedEdgeVertices[edgeNode->cacheIndex];
+    GLEdgeVertex &cachedVertex = _cachedEdgeVertices[cacheIndex];
     
     for (uint k = 0; k < 3; k++)
     {
@@ -243,7 +250,6 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
     for (uint i = 0; i < count; i++)
     {
         VertexNode *vertexNode = affectedVertices[i];
-        vertexNode->algorithmData.clear();
         vertexNode->updateTriangleNormals();
     }
     
