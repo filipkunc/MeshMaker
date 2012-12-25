@@ -18,7 +18,7 @@
 {
 	IBOutlet NSWindow *documentWindow;
 	IBOutlet NSPanel *sheet;
-	
+    
 	id<AddItemWithStepsProtocol> documentProtocol;
 	
 	uint steps;
