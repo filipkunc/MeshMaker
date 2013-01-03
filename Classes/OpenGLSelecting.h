@@ -30,3 +30,19 @@
                selectionMode:(enum OpenGLSelectionMode)selectionMode;
 
 @end
+
+class IOpenGLSelecting
+{
+public:
+    virtual ~IOpenGLSelecting() { }
+    
+    virtual uint selectableCount() = 0;
+    virtual void drawForSelectionAtIndex(uint index) = 0;
+    virtual void selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode) = 0;
+};
+
+@interface OpenGLSelectingWrapper : NSObject <OpenGLSelecting>
+
+@property (readwrite, assign) IOpenGLSelecting *cppSelecting;
+
+@end

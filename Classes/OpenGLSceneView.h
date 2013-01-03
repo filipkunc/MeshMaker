@@ -53,6 +53,7 @@
 	Manipulator *rotationManipulator;
 	Manipulator *scaleManipulator;
 	Manipulator *currentManipulator;
+    OpenGLSelectingWrapper *manipulatorWrapper;
 	enum CameraMode cameraMode;
 }
 

@@ -9,17 +9,13 @@
 #import <Cocoa/Cocoa.h>
 #import "OpenGLDrawing.h"
 
-@interface ManipulatorWidget : NSObject 
+class ManipulatorWidget
 {
-	enum Axis axis;
-	enum Widget widget;
-}
-
-@property (readonly) enum Axis axis;
-@property (readonly) enum Widget widget;
-
-- (id)initWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget;
-- (void)drawCoreWithSize:(float)size;
-- (void)drawWithSize:(float)size isSelected:(BOOL)isSelected isGray:(BOOL)isGray forSelection:(BOOL)forSelection;
-
-@end
+public:
+    Widget widget;
+    Axis axis;
+    
+    ManipulatorWidget(Widget aWidget, Axis anAxis) : widget(aWidget), axis(anAxis) { }
+    void drawCore(float size);
+    void draw(float size, bool isSelected, bool isGray, bool forSelection);
+};

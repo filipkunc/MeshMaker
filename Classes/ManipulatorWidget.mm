@@ -8,22 +8,7 @@
 
 #import "ManipulatorWidget.h"
 
-@implementation ManipulatorWidget
-
-@synthesize axis, widget;
-
-- (id)initWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget
-{
-	self = [super init];
-	if (self)
-	{
-		axis = anAxis;
-		widget = aWidget;
-	}
-	return self;
-}
-
-- (void)drawCoreWithSize:(float)size
+void ManipulatorWidget::drawCore(float size)
 {
 	switch (widget)
 	{
@@ -47,7 +32,7 @@
 	}
 }
 
-- (void)drawWithSize:(float)size isSelected:(BOOL)isSelected isGray:(BOOL)isGray forSelection:(BOOL)forSelection
+void ManipulatorWidget::draw(float size, bool isSelected, bool isGray, bool forSelection)
 {
 	float alpha, angle;
 	if (widget == WidgetPlane)
@@ -74,20 +59,20 @@
 				glColor4f(1, 0, 0, alpha);
 			glPushMatrix();
 			glRotatef(-angle, 0, 0, 1);
-			[self drawCoreWithSize:size];
+            drawCore(size);
 			glPopMatrix();
 			break;
 		case AxisY:
 			if (!isSelected && !isGray && !forSelection)
 				glColor4f(0, 1, 0, alpha);
-			[self drawCoreWithSize:size];
+            drawCore(size);
 			break;
 		case AxisZ:
 			if (!isSelected && !isGray && !forSelection)
 				glColor4f(0, 0, 1, alpha);
 			glPushMatrix();
 			glRotatef(angle, 1, 0, 0);
-			[self drawCoreWithSize:size];
+            drawCore(size);
 			glPopMatrix();
 			break;
 		case Center:
@@ -99,5 +84,3 @@
 			break;
 	}
 }
-
-@end

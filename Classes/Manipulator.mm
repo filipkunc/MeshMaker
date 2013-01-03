@@ -9,115 +9,67 @@
 #import "OpenGLDrawing.h"
 #import "Manipulator.h"
 
-@implementation Manipulator
-
-@synthesize size, selectedIndex;
-
-- (id)init
+Manipulator::Manipulator(ManipulatorType type)
 {
-	self = [super init];
-	if (self)
-	{
-		widgets = [[NSMutableArray alloc] init];
-		position = new Vector3D();
-		rotation = new Quaternion();
-		size = 10.0f;
-		selectedIndex = UINT_MAX;
+    Manipulator();
+    
+    switch (type)
+    {
+        case ManipulatorTypeDefault:
+            addWidgetWithAxis(WidgetLine, AxisX);
+            addWidgetWithAxis(WidgetLine, AxisY);
+            addWidgetWithAxis(WidgetLine, AxisZ);
+            break;
+        case ManipulatorTypeTranslation:
+            addWidgetWithAxis(WidgetArrow, AxisX);
+            addWidgetWithAxis(WidgetArrow, AxisY);
+            addWidgetWithAxis(WidgetArrow, AxisZ);
+            
+            addWidgetWithAxis(WidgetPlane, AxisX);
+            addWidgetWithAxis(WidgetPlane, AxisY);
+            addWidgetWithAxis(WidgetPlane, AxisZ);
+            break;
+        case ManipulatorTypeRotation:
+            addWidgetWithAxis(WidgetCircle, AxisX);
+            addWidgetWithAxis(WidgetCircle, AxisY);
+            addWidgetWithAxis(WidgetCircle, AxisZ);
+            break;
+        case ManipulatorTypeScale:
+            addWidgetWithAxis(WidgetCube, Center);
+            addWidgetWithAxis(WidgetCube, AxisX);
+            addWidgetWithAxis(WidgetCube, AxisY);
+            addWidgetWithAxis(WidgetCube, AxisZ);
+            break;
+        default:
+            break;
     }
-	return self;
 }
 
-- (id)initWithManipulatorType:(enum ManipulatorType)type
+void Manipulator::addWidget(const ManipulatorWidget &widget)
 {
-	self = [self init];
-	if (self)
-	{
-		switch (type)
-		{
-			case ManipulatorTypeDefault:
-				[self addWidgetWithAxis:AxisX widget:WidgetLine];
-				[self addWidgetWithAxis:AxisY widget:WidgetLine];
-				[self addWidgetWithAxis:AxisZ widget:WidgetLine];
-				break;
-			case ManipulatorTypeTranslation:
-				[self addWidgetWithAxis:AxisX widget:WidgetArrow];
-				[self addWidgetWithAxis:AxisY widget:WidgetArrow];
-				[self addWidgetWithAxis:AxisZ widget:WidgetArrow];
-				[self addWidgetWithAxis:AxisX widget:WidgetPlane];
-				[self addWidgetWithAxis:AxisY widget:WidgetPlane];
-				[self addWidgetWithAxis:AxisZ widget:WidgetPlane];
-				break;
-			case ManipulatorTypeRotation:
-				[self addWidgetWithAxis:AxisX widget:WidgetCircle];
-				[self addWidgetWithAxis:AxisY widget:WidgetCircle];
-				[self addWidgetWithAxis:AxisZ widget:WidgetCircle];
-				break;
-			case ManipulatorTypeScale:
-				[self addWidgetWithAxis:Center widget:WidgetCube];
-				[self addWidgetWithAxis:AxisX widget:WidgetCube];
-				[self addWidgetWithAxis:AxisY widget:WidgetCube];
-				[self addWidgetWithAxis:AxisZ widget:WidgetCube];
-				break;
-			default:
-				break;
-		}
-	}
-	return self;
+    widgets.push_back(widget);
 }
 
-- (void)dealloc
+void Manipulator::addWidgetWithAxis(Widget widget, Axis axis)
 {
-	delete position;
-	delete rotation;
+    widgets.push_back(ManipulatorWidget(widget, axis));
 }
 
-- (Vector3D)position
+ManipulatorWidget &Manipulator::widgetAtIndex(uint index)
 {
-	return *position;
+    return widgets.at(index);
 }
 
-- (void)setPosition:(Vector3D)aPosition
+void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 {
-	*position = aPosition;
-}
-
-- (Quaternion)rotation
-{
-	return *rotation;
-}
-
-- (void)setRotation:(Quaternion)aRotation
-{
-	*rotation = aRotation;
-}
-
-- (void)addWidget:(ManipulatorWidget *)widget
-{
-	[widgets addObject:widget];
-}
-
-- (void)addWidgetWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget
-{
-	ManipulatorWidget *widget = [[ManipulatorWidget alloc] initWithAxis:anAxis widget:aWidget];
-	[widgets addObject:widget];
-}
-
-- (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center
-{
-	[self drawWithAxisZ:axisZ center:center highlightAll:NO];
-}
-
-- (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center highlightAll:(BOOL)higlightAll
-{
-	uint widgetsCount = [widgets count];
+	uint widgetsCount = widgets.size();
 	
 	if (widgetsCount == 0U)
 		return;
 	
-	Matrix4x4 rotationMatrix = rotation->ToMatrix();
+	Matrix4x4 rotationMatrix = rotation.ToMatrix();
 	
-	ManipulatorWidget *widget = (ManipulatorWidget *)[widgets objectAtIndex:0];
-	if ([widget widget] == WidgetCircle)
+	if (widgets.at(0).widget == WidgetCircle)
 	{
 		double eq[4] = { 0, 0, 0, 0 };
 		for (int j = 0; j < 3; j++)
@@ -127,12 +79,11 @@
 		glEnable(GL_CLIP_PLANE0);
 		
 		glPushMatrix();
-		glTranslatef(position->x, position->y, position->z);
+		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
 		for (uint i = 0; i < widgetsCount; i++)
 		{
-			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:YES forSelection:NO];
+            widgets[i].draw(size, highlightAll || i == selectedIndex, true, false);
 		}
 		glPopMatrix();
 		
@@ -143,7 +94,7 @@
 		
 		glColor4f(0.8f, 0.8f, 0.8f, 0.25f);
 		glPushMatrix();
-		glTranslatef(position->x, position->y, position->z);
+		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
 		DrawSphere(size * 0.7f, 20, 20);
 		glPopMatrix();
@@ -159,12 +110,11 @@
 		glEnable(GL_CLIP_PLANE0);
 		
 		glPushMatrix();
-		glTranslatef(position->x, position->y, position->z);
+		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
 		for (uint i = 0; i < widgetsCount; i++)
 		{
-			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO forSelection:NO];
+			widgets[i].draw(size, highlightAll || i == selectedIndex, false, false);
 		}
 		glPopMatrix();
 		
@@ -173,46 +123,39 @@
 	else
 	{
 		glPushMatrix();
-		glTranslatef(position->x, position->y, position->z);
+		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
 		for (uint i = 0; i < widgetsCount; i++)
 		{
-			widget = (ManipulatorWidget *)[widgets objectAtIndex:i];
-			[widget drawWithSize:size isSelected:higlightAll || i == selectedIndex isGray:NO forSelection:NO];
+            widgets[i].draw(size, highlightAll || i == selectedIndex, false, false);
 		}
 		glPopMatrix();
 	}
 }
 
-- (ManipulatorWidget *)widgetAtIndex:(uint)index
-{
-	return [widgets objectAtIndex:index];
-}
-
 #pragma mark OpenGLSelecting
 
-- (uint)selectableCount
+uint Manipulator::selectableCount()
 {
-	return [widgets count];
+    return widgets.size();
 }
 
-- (void)drawForSelectionAtIndex:(uint)index
+void Manipulator::drawForSelectionAtIndex(uint index)
 {
-	ManipulatorWidget *widget = (ManipulatorWidget *)[widgets objectAtIndex:index];
-	if ([widget widget] == WidgetLine)
+	ManipulatorWidget &widget = widgets.at(index);
+	
+    if (widget.widget == WidgetLine)
 		return;
+    
 	glPushMatrix();
-	glTranslatef(position->x, position->y, position->z);
-	Matrix4x4 rotationMatrix = rotation->ToMatrix();
+	glTranslatef(position.x, position.y, position.z);
+	Matrix4x4 rotationMatrix = rotation.ToMatrix();
 	glMultMatrixf(rotationMatrix);
-	[widget drawWithSize:size isSelected:NO isGray:NO forSelection:YES];
-	glPopMatrix();
+    widget.draw(size, false, false, true);
+    glPopMatrix();
 }
 
-- (void)selectObjectAtIndex:(uint)index 
-				   withMode:(enum OpenGLSelectionMode)selectionMode
+void Manipulator::selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode)
 {
-	selectedIndex = index;
+    selectedIndex = index;
 }
-
-@end

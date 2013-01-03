@@ -11,26 +11,28 @@
 #import "Camera.h"
 #import "OpenGLSelecting.h"
 #import "ManipulatorWidget.h"
+#import <vector>
+using namespace std;
 
-@interface Manipulator : NSObject <OpenGLSelecting>
+class Manipulator : public IOpenGLSelecting
 {
-	NSMutableArray *widgets;
-	Vector3D *position;
-	Quaternion *rotation;
-	float size;
-	uint selectedIndex;
-}
-
-@property (readwrite, assign) Vector3D position;
-@property (readwrite, assign) Quaternion rotation;
-@property (readwrite, assign) float size;
-@property (readwrite, assign) uint selectedIndex;
-
-- (id)initWithManipulatorType:(enum ManipulatorType)type;
-- (void)addWidget:(ManipulatorWidget *)widget;
-- (void)addWidgetWithAxis:(enum Axis)anAxis widget:(enum Widget)aWidget;
-- (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center;
-- (void)drawWithAxisZ:(Vector3D)axisZ center:(Vector3D)center highlightAll:(BOOL)higlightAll;
-- (ManipulatorWidget *)widgetAtIndex:(uint)index;
-
-@end
+private:
+    vector<ManipulatorWidget> widgets;
+public:
+    Vector3D position;
+    Quaternion rotation;
+    float size;
+    uint selectedIndex;
+    
+    Manipulator() : size(10.0f), selectedIndex(UINT_MAX) { }
+    Manipulator(ManipulatorType type);
+    void addWidget(const ManipulatorWidget &widget);
+    void addWidgetWithAxis(Widget widget, Axis axis);
+    void draw(Vector3D axisZ, Vector3D center, bool highlightAll=false);
+    ManipulatorWidget &widgetAtIndex(uint index);
+    
+    // IOpenGLSelecting
+    virtual uint selectableCount();
+    virtual void drawForSelectionAtIndex(uint index);
+    virtual void selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode);
+};

@@ -100,12 +100,14 @@ NSOpenGLContext *globalGLContext = nil;
     
     lastPoint = NSMakePoint(0, 0);
     
-    defaultManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeDefault];
-    translationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeTranslation];
-    rotationManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeRotation];
-    scaleManipulator = [[Manipulator alloc] initWithManipulatorType:ManipulatorTypeScale];
-    
+    defaultManipulator = new Manipulator(ManipulatorTypeDefault);
+    translationManipulator = new Manipulator(ManipulatorTypeTranslation);
+    rotationManipulator = new Manipulator(ManipulatorTypeRotation);
+    scaleManipulator = new Manipulator(ManipulatorTypeScale);
+
     currentManipulator = defaultManipulator;
+    
+    manipulatorWrapper = [[OpenGLSelectingWrapper alloc] init];
     
     cameraMode = CameraModePerspective;
     
@@ -135,6 +137,11 @@ NSOpenGLContext *globalGLContext = nil;
 	delete perspectiveRadians;
 	delete selectionOffset;
 	delete camera;
+    
+    delete defaultManipulator;
+    delete translationManipulator;
+    delete rotationManipulator;
+	delete scaleManipulator;
 }
 
 - (ManipulatorType)currentManipulator
@@ -321,11 +328,9 @@ NSOpenGLContext *globalGLContext = nil;
 	glPushMatrix();
 	glTranslatef(18.0f, 18.0f, 0.0f);
 	glMultMatrixf(camera->GetRotationQuaternion().ToMatrix());
-	[defaultManipulator setPosition:Vector3D()];
-	[defaultManipulator setSize:15.0f];
-	[defaultManipulator drawWithAxisZ:camera->GetAxisZ() 
-							   center:[defaultManipulator position] 
-						 highlightAll:highlightCameraMode];
+    defaultManipulator->position = Vector3D();
+    defaultManipulator->size = 15.0f;
+    defaultManipulator->draw(camera->GetAxisZ(), defaultManipulator->position, highlightCameraMode);
 	glPopMatrix();
 	[self endOrtho];
 }
@@ -334,7 +339,7 @@ NSOpenGLContext *globalGLContext = nil;
 {
 	if ([manipulated selectedCount] > 0)
 	{
-		[currentManipulator setPosition:[manipulated selectionCenter]];
+        currentManipulator->position = manipulated.selectionCenter;
         
 		if (cameraMode == CameraModePerspective)
         {
@@ -345,16 +350,16 @@ NSOpenGLContext *globalGLContext = nil;
             
             //debugString = [NSString stringWithFormat:@"%.2f", distance];            
 
-            [currentManipulator setSize:distance * 0.15f];            
+            currentManipulator->size = distance * 0.15f;
         }
 		else
         {
-			[currentManipulator setSize:camera->GetZoom() * 0.17f];
+            currentManipulator->size = camera->GetZoom() * 0.17f;
         }
-		
-		[scaleManipulator setRotation:[manipulated selectionRotation]];
+        
+        scaleManipulator->rotation = manipulated.selectionRotation;
         if (currentManipulator != defaultManipulator)
-            [currentManipulator drawWithAxisZ:camera->GetAxisZ() center:[manipulated selectionCenter]];
+            currentManipulator->draw(camera->GetAxisZ(), manipulated.selectionCenter);
 	}
 }
 
@@ -615,7 +620,7 @@ NSOpenGLContext *globalGLContext = nil;
         [self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
-    else if ([manipulated selectedCount] > 0 && [currentManipulator selectedIndex] < UINT_MAX)
+    else if ([manipulated selectedCount] > 0 && currentManipulator->selectedIndex < UINT_MAX)
 	{
 		if (currentManipulator == translationManipulator)
 		{
@@ -655,14 +660,15 @@ NSOpenGLContext *globalGLContext = nil;
 	{
 		if (!isManipulating)
 		{
-			[currentManipulator setSelectedIndex:UINT_MAX];
-			[currentManipulator setPosition:[manipulated selectionCenter]];
-			[self selectWithPoint:currentPoint selecting:currentManipulator selectionMode:OpenGLSelectionModeAdd];
+            currentManipulator->selectedIndex = UINT_MAX;
+            currentManipulator->position = manipulated.selectionCenter;
+            manipulatorWrapper.cppSelecting = currentManipulator;
+			[self selectWithPoint:currentPoint selecting:manipulatorWrapper selectionMode:OpenGLSelectionModeAdd];
 			[self setNeedsDisplay:YES];
 		}
 	}
 	
-	if ([currentManipulator selectedIndex] == UINT_MAX)
+	if (currentManipulator-> selectedIndex == UINT_MAX)
 	{
 		if (NSPointInRect(currentPoint, [self orthoManipulatorRect]))
 			highlightCameraMode = YES;
@@ -1160,7 +1166,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	glLoadMatrixf(camera->GetViewMatrix());
 	
 	Vector3D position = [manipulated selectionCenter];
-	uint selectedIndex = [currentManipulator selectedIndex];
+	uint selectedIndex = currentManipulator->selectedIndex;
 	
 	if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
 		return [self positionFromAxis:(Axis)selectedIndex point:point];
@@ -1176,14 +1182,14 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	glLoadMatrixf(camera->GetViewMatrix());
 	
 	Vector3D position = [manipulated selectionCenter];
-	uint selectedIndex = [currentManipulator selectedIndex];
+	uint selectedIndex = currentManipulator->selectedIndex;
 	
 	Vector3D scale = Vector3D();
 	
 	if (selectedIndex < UINT_MAX)
 	{
-		ManipulatorWidget *selectedWidget = [currentManipulator widgetAtIndex:selectedIndex];
-		enum Axis selectedAxis = [selectedWidget axis];
+		ManipulatorWidget &selectedWidget = currentManipulator->widgetAtIndex(selectedIndex);
+		Axis selectedAxis = selectedWidget.axis;
 		if (selectedAxis >= AxisX && selectedAxis <= AxisZ)
 		{
 			position = [self positionFromRotatedAxis:selectedAxis point:point rotation:[manipulated selectionRotation]];
@@ -1213,7 +1219,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	Vector3D position;
 	float angle;
 	
-	uint selectedIndex = [currentManipulator selectedIndex];
+	uint selectedIndex = currentManipulator->selectedIndex;
 	
 	position = [self positionFromPlaneAxis:(PlaneAxis)(selectedIndex + 3) point:point];
 	position -= [manipulated selectionCenter];
