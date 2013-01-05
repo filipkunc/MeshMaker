@@ -14,36 +14,56 @@
 #import "MemoryStream.h"
 #import "MemoryStreaming.h"
 
-@interface Item : NSObject <OpenGLManipulatingModelMesh, MemoryStreaming>
+class Item : public IOpenGLManipulatingModelMesh
 {
-	Vector3D *position;
-	Quaternion *rotation;
-	Vector3D *scale;
-	Mesh2 *mesh;
-	BOOL selected;
-	BOOL visible;
-    enum ViewMode viewMode;
-}
-
-@property (readwrite, copy) NSColor *selectionColor;
-@property (readwrite, assign) Vector3D position;
-@property (readwrite, assign) Quaternion rotation;
-@property (readwrite, assign) Vector3D scale;
-@property (readwrite, assign) BOOL selected;
-@property (readwrite, assign) BOOL visible;
-@property (readwrite, assign) enum ViewMode viewMode;
-@property (readonly) Mesh2 *mesh;
-@property (readonly) Matrix4x4 transform;
-
-- (id)initFromSelectedTrianglesInMesh:(Mesh2 *)aMesh;
-- (id)initWithMesh:(Mesh2 *)aMesh;
-- (id)initWithPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale;
-- (void)drawForSelection:(BOOL)forSelection;
-- (void)moveByOffset:(Vector3D)offset;
-- (void)rotateByOffset:(Quaternion)offset;
-- (void)scaleByOffset:(Vector3D)offset;
-- (Item *)duplicate;
-- (void)setPositionToGeometricCenter;
-
-@end
+public:
+    Vector3D position;
+    Quaternion rotation;
+    Vector3D scale;
+    Mesh2 *mesh;
+    bool selected;
+    bool visible;
+    ViewMode _viewMode;
+    
+    Item(Mesh2 *aMesh);
+    virtual ~Item();
+    
+    Item(MemoryReadStream *stream);
+    void encode(MemoryWriteStream *stream);
+    
+    Matrix4x4 transform();
+    
+    void drawForSelection(bool forSelection);
+    void moveByOffset(Vector3D offset);
+    void rotateByOffset(Quaternion offset);
+    void scaleByOffset(Vector3D offset);
+    Item *duplicate();
+    void setPositionToGeometricCenter();
+    
+    // IOpenGLManipulatingModel
+    
+    virtual ViewMode viewMode();
+    virtual void setViewMode(ViewMode viewMode);
+    virtual uint count();
+    virtual bool isSelectedAtIndex(uint index);
+    virtual void setSelectedAtIndex(uint index, bool selected);
+    virtual void expandSelectionFromIndex(uint index, bool invert);
+    virtual void duplicateSelected();
+    virtual void removeSelected();
+    virtual void hideSelected();
+    virtual void unhideAll();
+    
+    virtual NSColor *selectionColor(); // can be Vector4D instead of NSColor *
+    virtual void willSelectThrough(bool selectThrough);
+    virtual void didSelect();
+    virtual bool needsCullFace();
+    
+    // IOpenGLManipulatingModelMesh
+    
+    virtual void getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale);
+    virtual void transformSelectedByMatrix(Matrix4x4 &matrix);
+    virtual void drawAllForSelection(bool forSelection);
+    virtual bool useGLProject();
+    virtual void glProjectSelect(int x, int y, int width, int height, Matrix4x4 &matrix, OpenGLSelectionMode selectionMode);
+};
 

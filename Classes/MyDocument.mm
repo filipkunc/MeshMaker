@@ -21,11 +21,14 @@
 	{
         // Add your subclass-specific initialization here.
         // If an error occurs here, send a [self release] message and return nil.
-		items = [[ItemCollection alloc] init];
+		items = new ItemCollection();
 		itemsController = [[OpenGLManipulatingController alloc] init];
 		meshController = [[OpenGLManipulatingController alloc] init];
 		
-		[itemsController setModel:items];
+        OpenglManipulatingModelItemWrapper *itemsWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
+        itemsWrapper.itemModel = items;
+        
+        itemsController.model = itemsWrapper;
 		manipulated = itemsController;
 
 		[itemsController addSelectionObserver:self];
@@ -145,9 +148,9 @@
 - (Mesh2 *)currentMesh
 {
 	if (manipulated == meshController)
-		return [(Item *)[meshController model] mesh];
+        return ((Item *)((OpenglManipulatingModelMeshWrapper *)meshController.model).meshModel)->mesh;
     if (manipulated == itemsController)
-        return [(ItemCollection *)[itemsController model] currentMesh];
+        return ((ItemCollection *)((OpenglManipulatingModelItemWrapper *)itemsController.model).itemModel)->currentMesh();
 	return nil;
 }
 
@@ -162,8 +165,8 @@
 
 - (void)addItemWithType:(enum MeshType)type steps:(uint)steps;
 {
-	Item *item = [[Item alloc] init];
-	Mesh2 *mesh = [item mesh];
+	Item *item = new Item(new Mesh2());
+	Mesh2 *mesh = item->mesh;
     mesh->make(type, steps);
 	
 	NSString *name = Mesh2::descriptionOfMeshType(type);
@@ -171,10 +174,10 @@
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Add %@", name]];
 	[document removeItemWithType:type steps:steps];
 	
-	[items addItem:item];
-    [textureBrowserWindowController setItems:items];	
+    items->addItem(item);
+    [textureBrowserWindowController setItems:items];
 	[itemsController changeSelection:NO];
-	[items setSelected:YES atIndex:[items count] - 1];
+    items->setSelectedAtIndex(items->count() - 1, true);
 	[itemsController updateSelection];
 	[self setManipulated:itemsController];
 }
@@ -185,8 +188,8 @@
 	
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Remove %@", name]];
 	[document addItemWithType:type steps:steps];
-		
-	[items removeLastItem];
+
+	items->removeLastItem();
     [textureBrowserWindowController setItems:items];
 	[itemsController changeSelection:NO];
 	[self setManipulated:itemsController];
@@ -263,7 +266,7 @@
 - (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current
 {
 	NSAssert([old count] == [current count], @"old count == current count");
-	[items setCurrentManipulations:old];
+    items->setCurrentManipulations(old);
 	
 	MyDocument *document = [self prepareUndoWithName:@"Manipulations"];	
 	[document swapManipulationsWithOld:current current:old];
@@ -276,7 +279,7 @@
 					current:(NSMutableArray *)current
 				 actionName:(NSString *)actionName
 {
-	[items setAllItems:old];
+    items->setAllItems(old);
 
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapAllItemsWithOld:current
@@ -291,13 +294,16 @@
 					 current:(MeshState *)current 
 				  actionName:(NSString *)actionName
 {
-	[items setCurrentMeshState:old];
-	Item *item = [items itemAtIndex:[old itemIndex]];
+    items->setCurrentMeshState(old);
+	Item *item = items->itemAtIndex(old.itemIndex);
 	
-    [meshController setModel:item];
-    [meshController setPosition:[item position] 
-                       rotation:[item rotation] 
-                          scale:[item scale]];
+    OpenglManipulatingModelMeshWrapper *meshWrapper = [[OpenglManipulatingModelMeshWrapper alloc] init];
+    meshWrapper.meshModel = item;
+    
+    [meshController setModel:meshWrapper];
+    [meshController setPosition:item->position
+                       rotation:item->rotation
+                          scale:item->scale];
     
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapMeshStateWithOld:current
@@ -313,13 +319,13 @@
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
-	NSMutableArray *oldItems = [items allItems];
+	NSMutableArray *oldItems = items->allItems();
 
 	action();
     
     [textureBrowserWindowController setItems:items];
 	
-	NSMutableArray *currentItems = [items allItems];
+	NSMutableArray *currentItems = items->allItems();
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
 					   actionName:actionName];	
@@ -328,11 +334,11 @@
 - (void)meshActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
-	MeshState *oldState = [items currentMeshState];
+	MeshState *oldState = items->currentMeshState();
 	
 	action();
 	
-	MeshState *currentState = [items currentMeshState];
+	MeshState *currentState = items->currentMeshState();
 	[document swapMeshStateWithOld:oldState 
 						   current:currentState
 						actionName:actionName];
@@ -344,11 +350,11 @@
 	
 	if (manipulated == itemsController)
 	{
-		oldManipulations = [items currentManipulations];
+		oldManipulations = items->currentManipulations();
 	}
 	else if (manipulated == meshController)
 	{
-		oldMeshState = [items currentMeshState];
+		oldMeshState = items->currentMeshState();
 	}
 }
 
@@ -359,7 +365,7 @@
 	if (manipulated == itemsController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Manipulations"];
-		[document swapManipulationsWithOld:oldManipulations current:[items currentManipulations]];
+		[document swapManipulationsWithOld:oldManipulations current:items->currentManipulations()];
 		oldManipulations = nil;
         
         [itemsController willChangeSelection];
@@ -368,7 +374,7 @@
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
-		[document swapMeshStateWithOld:oldMeshState current:[items currentMeshState] actionName:@"Mesh Manipulation"];
+		[document swapMeshStateWithOld:oldMeshState current:items->currentMeshState() actionName:@"Mesh Manipulation"];
 		oldMeshState = nil;
         
         [meshController willChangeSelection];
@@ -430,12 +436,16 @@
 	NSInteger index = [itemsController lastSelectedIndex];
 	if (index > -1)
 	{
-		Item *item = [items itemAtIndex:index];
-        [item mesh]->setSelectionMode(mode);
-		[meshController setModel:item];
-		[meshController setPosition:[item position] 
-						   rotation:[item rotation] 
-							  scale:[item scale]];
+		Item *item = items->itemAtIndex(index);
+        item->mesh->setSelectionMode(mode);
+        
+        OpenglManipulatingModelMeshWrapper *meshWrapper = [[OpenglManipulatingModelMeshWrapper alloc] init];
+        meshWrapper.meshModel = item;
+        
+		[meshController setModel:meshWrapper];
+		[meshController setPosition:item->position
+						   rotation:item->rotation
+							  scale:item->scale];
 		[self setManipulated:meshController];
 	}
 }
@@ -445,7 +455,11 @@
     Mesh2 *currentMesh = [self currentMesh];
     if (currentMesh)
         currentMesh->setSelectionMode(MeshSelectionModeVertices);
-	[itemsController setModel:items];
+    
+    OpenglManipulatingModelItemWrapper *itemWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
+    itemWrapper.itemModel = items;
+    
+	[itemsController setModel:itemWrapper];
 	[itemsController setPosition:Vector3D()
 						rotation:Quaternion()
 						   scale:Vector3D(1, 1, 1)];
@@ -495,7 +509,7 @@
 	
 	if (manipulated == itemsController)
 	{
-		[self allItemsActionWithName:@"Merge" block:^ { [items mergeSelectedItems]; }];
+		[self allItemsActionWithName:@"Merge" block:^ { items->mergeSelectedItems(); }];
 	}
 	else if (manipulated == meshController)
 	{
@@ -553,7 +567,7 @@
 	
 	if (manipulated == itemsController)
 	{
-		NSMutableArray *selection = [items currentSelection];
+		NSMutableArray *selection = items->currentSelection();
 		MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 		[document undoDuplicateSelected:selection];
 		[manipulated duplicateSelected];
@@ -575,7 +589,7 @@
 - (void)redoDuplicateSelected:(NSMutableArray *)selection
 {
 	[self setManipulated:itemsController];
-	[items setCurrentSelection:selection];
+	items->setCurrentSelection(selection);
 	[manipulated duplicateSelected];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
@@ -589,8 +603,8 @@
 {	
 	[self setManipulated:itemsController];
 	uint duplicatedCount = [selection count];
-	[items removeItemsInRange:NSMakeRange([items count] - duplicatedCount, duplicatedCount)];
-	[items setCurrentSelection:selection];
+    items->removeItemsInRange(NSMakeRange(items->count() - duplicatedCount, duplicatedCount));
+    items->setCurrentSelection(selection);
 
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 	[document redoDuplicateSelected:selection];
@@ -606,7 +620,7 @@
 	
 	if (manipulated == itemsController)
 	{
-		NSMutableArray *currentItems = [items currentItems];
+		NSMutableArray *currentItems = items->currentItems();
 		MyDocument *document = [self prepareUndoWithName:@"Delete"];
 		[document undoDeleteSelected:currentItems];
 		[manipulated removeSelected];
@@ -623,7 +637,7 @@
 - (void)redoDeleteSelected:(NSMutableArray *)selectedItems
 {
 	[self setManipulated:itemsController];
-	[items setSelectionFromIndexedItems:selectedItems];
+    items->setSelectionFromIndexedItems(selectedItems);
 	[manipulated removeSelected];
     [textureBrowserWindowController setItems:items];
 	
@@ -637,7 +651,7 @@
 - (void)undoDeleteSelected:(NSMutableArray *)selectedItems
 {
 	[self setManipulated:itemsController];
-	[items setCurrentItems:selectedItems];
+    items->setCurrentItems(selectedItems);
     [textureBrowserWindowController setItems:items];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
@@ -743,8 +757,8 @@
     {
         [self allItemsActionWithName:@"Triangulate" block:^
         {
-            for (Item *item in items)
-                item.mesh->triangulate();
+            for (uint i = 0; i < items->count(); i++)
+                items->itemAtIndex(i)->mesh->triangulate();
         }];
     }
 }

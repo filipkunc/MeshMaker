@@ -86,7 +86,6 @@
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
          selectThrough:(BOOL)selectThrough;
 
-- (void)paintOnTextureWithFirstPoint:(NSPoint)firstPoint secondPoint:(NSPoint)secondPoint;
 - (Vector3D)positionInSpaceByPoint:(NSPoint)point;
 - (void)drawSelectionPlaneWithIndex:(int)index;
 - (Vector3D)positionFromAxis:(Axis)axis point:(NSPoint)point;

@@ -440,7 +440,7 @@ NSOpenGLContext *globalGLContext = nil;
 											   userInfo:nil];
 	[self addTrackingArea:trackingArea];
 }
-
+/*
 - (void)getCurrentTransform:(Matrix4x4 *)matrix
 {
     OpenGLManipulatingController *controller = (OpenGLManipulatingController *)manipulated;
@@ -576,7 +576,7 @@ NSOpenGLContext *globalGLContext = nil;
     [mesh->texture() updateTexture];
     [self setNeedsDisplay:YES];
 }
-
+*/
 - (void)mouseDown:(NSEvent *)e
 {
 	lastPoint = [self locationFromNSEvent:e];
@@ -617,7 +617,7 @@ NSOpenGLContext *globalGLContext = nil;
 	else if (delegate.texturePaintEnabled)
     {
         isPainting = YES;
-        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
+        //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
     else if ([manipulated selectedCount] > 0 && currentManipulator->selectedIndex < UINT_MAX)
@@ -770,7 +770,7 @@ NSOpenGLContext *globalGLContext = nil;
 	}
 	else if (delegate.texturePaintEnabled)
     {
-        [self paintOnTextureWithFirstPoint:lastPoint secondPoint:currentPoint];
+        //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:currentPoint];
         lastPoint = currentPoint;
     }
     else if (isManipulating)

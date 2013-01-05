@@ -5,7 +5,7 @@
 //  Created by Filip Kunc on 10/27/12.
 //
 //
-
+/*
 #import "ItemCollection.h"
 
 @class VertexWrapper;
@@ -140,3 +140,4 @@ DeclareIterator(VertexNodeIterator, VertexWrapper, VertexNode)
 DeclareIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode)
 DeclareIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode)
 DeclareIterator(VertexNodeEdgeIterator, VertexNodeEdgeWrapper, Vertex2VEdgeNode)
+*/

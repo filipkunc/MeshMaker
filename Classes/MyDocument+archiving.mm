@@ -39,11 +39,11 @@ vector<T> *ReadValues(string s)
     if ([typeName isEqualToString:@"model3D"])
         return [self readFromModel3D:[dirWrapper regularFileContents]];
     
-    if ([typeName isEqualToString:@"Wavefront Object"])
-        return [self readFromWavefrontObject:[dirWrapper regularFileContents]];
-    
-    if ([typeName isEqualToString:@"Collada"])
-        return [self readFromCollada:[dirWrapper regularFileContents]];
+//    if ([typeName isEqualToString:@"Wavefront Object"])
+//        return [self readFromWavefrontObject:[dirWrapper regularFileContents]];
+//    
+//    if ([typeName isEqualToString:@"Collada"])
+//        return [self readFromCollada:[dirWrapper regularFileContents]];
     
     NSFileWrapper *modelWrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3D"];
     NSData *modelData = [modelWrapper regularFileContents];
@@ -61,8 +61,8 @@ vector<T> *ReadValues(string s)
              
              NSImage *image = [[NSImage alloc] initWithData:textureData];
              uint index = [textureName substringFromIndex:@"Texture".length].integerValue;
-             Item *item = [items itemAtIndex:index];
-             FPTexture *texture = item.mesh->texture();
+             Item *item = items->itemAtIndex(index);
+             FPTexture *texture = item->mesh->texture();
              [texture setCanvas:image];
          }
      }];
@@ -75,22 +75,21 @@ vector<T> *ReadValues(string s)
     if ([typeName isEqualToString:@"model3D"])
         return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfModel3D]];
     
-    if ([typeName isEqualToString:@"Wavefront Object"])
-        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfWavefrontObject]];
-    
-    if ([typeName isEqualToString:@"Collada"])
-        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfCollada]];
+//    if ([typeName isEqualToString:@"Wavefront Object"])
+//        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfWavefrontObject]];
+//    
+//    if ([typeName isEqualToString:@"Collada"])
+//        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfCollada]];
     
     NSFileWrapper *dirWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:nil];
     
     [dirWrapper addRegularFileWithContents:[self dataOfModel3D]
                          preferredFilename:@"Geometry.model3D"];
     
-    int i = 0;
     
-    for (Item *item in items)
+    for (int i = 0; i < (int)items->count(); i++)
     {
-        NSImage *image = item.mesh->texture().canvas;
+        NSImage *image = items->itemAtIndex(i)->mesh->texture().canvas;
         NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
         
         NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
@@ -98,8 +97,6 @@ vector<T> *ReadValues(string s)
         
         [dirWrapper addRegularFileWithContents:imageData
                              preferredFilename:[NSString stringWithFormat:@"Texture%.2i.png", i]];
-        
-        i++;
     }
     
     return dirWrapper;
@@ -117,9 +114,13 @@ vector<T> *ReadValues(string s)
         return NO;
     
     [stream setVersion:version];
-    ItemCollection *newItems = [[ItemCollection alloc] initWithReadStream:stream];
+    ItemCollection *newItems = new ItemCollection(stream);
     items = newItems;
-    [itemsController setModel:items];
+    
+    OpenglManipulatingModelItemWrapper *itemsWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
+    itemsWrapper.itemModel = items;
+    
+    [itemsController setModel:itemsWrapper];
     [itemsController updateSelection];
     [self setManipulated:itemsController];
     
@@ -134,7 +135,7 @@ vector<T> *ReadValues(string s)
     unsigned int version = ModelVersionLatest;
     [stream setVersion:version];
     [stream writeBytes:&version length:sizeof(unsigned int)];
-    [items encodeWithWriteStream:stream];
+    items->encode(stream);
     return data;
 }
 
@@ -242,7 +243,7 @@ vector<T> *ReadValues(string s)
     
     mesh->setSelectionMode(MeshSelectionModeTriangles);
     
-    ItemCollection *newItems = [[ItemCollection alloc] init];
+    ItemCollection *newItems = new ItemCollection();
     
     for (uint i = 0; i < groups.size(); i++)
     {
@@ -252,16 +253,17 @@ vector<T> *ReadValues(string s)
         for (uint j = groups.at(i), end = i + 1 < groups.size() ? groups.at(i + 1) : mesh->triangleCount(); j < end; j++)
             mesh->setSelectedAtIndex(true, j);
         
-        Item *item = [[Item alloc] initFromSelectedTrianglesInMesh:mesh];
-        [item setPositionToGeometricCenter];
-        [newItems addItem:item];
+        Item *item = new Item(new Mesh2());
+        item->mesh->fillMeshFromSelectedTriangles(*mesh);
+        item->setPositionToGeometricCenter();
+        newItems->addItem(item);
     }
     
     if (groups.empty())
     {
-        Item *item = [[Item alloc] initWithMesh:mesh];
-        [item setPositionToGeometricCenter];
-        [newItems addItem:item];
+        Item *item = new Item(mesh);
+        item->setPositionToGeometricCenter();
+        newItems->addItem(item);
     }
     else
     {
@@ -269,16 +271,20 @@ vector<T> *ReadValues(string s)
     }
     
     items = newItems;
-    [itemsController setModel:items];
+    
+    OpenglManipulatingModelItemWrapper *itemWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
+    itemWrapper.itemModel = items;
+    
+    [itemsController setModel:itemWrapper];
     [itemsController updateSelection];
     [self setManipulated:itemsController];
     
     return YES;
 }
-
+/*
 - (NSData *)dataOfWavefrontObject
 {
-    if (items.count == 0)
+    if (items->count() == 0)
         return [@"# Nothing to export" dataUsingEncoding:NSUTF8StringEncoding];
     
     stringstream ssfile;
@@ -760,9 +766,6 @@ vector<T> *ReadValues(string s)
                         [colladaXml appendFormat:@"<translate sid=\"Position_%i\">%f %f %f</translate>\n",
                          itemID, 0.0f, 0.0f, 0.0f];
                         
-                        /*[colladaXml appendFormat:@"<rotate sid=\"RotationY\">0 1 0 0</rotate>\n"];
-                         [colladaXml appendFormat:@"<rotate sid=\"RotationX\">1 0 0 -5</rotate>\n"];
-                         [colladaXml appendFormat:@"<rotate sid=\"RotationZ\">0 0 1 0</rotate>\n"];*/
                         [colladaXml appendFormat:@"<instance_geometry url=\"#Geometry-Mesh_%i\">\n", itemID];
                         {
                             [colladaXml appendString:@"<bind_material>\n"];
@@ -814,6 +817,6 @@ vector<T> *ReadValues(string s)
     [colladaXml appendString:@"</COLLADA>\n"];
     
     return [colladaXml dataUsingEncoding:NSUTF8StringEncoding];
-}
+}*/
 
 @end

@@ -10,275 +10,50 @@
 #import "ItemCollection.h"
 #import "ItemManipulationState.h"
 
-@implementation ItemCollection
-
-- (id)init
+ItemCollection::ItemCollection()
 {
-	self = [super init];
-	if (self)
-	{
-		items = [[NSMutableArray alloc] init];
-	}
-	return self;
 }
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained [])buffer count:(NSUInteger)len;
+ItemCollection::~ItemCollection()
 {
-    return [items countByEnumeratingWithState:state objects:buffer count:len];
+    for (uint i = 0; i < items.size(); i++)
+        delete items[i];
+    
+    items.clear();
 }
 
-#pragma mark CppFileStreaming implementation
-
-- (id)initWithReadStream:(MemoryReadStream *)stream
+ItemCollection::ItemCollection(MemoryReadStream *stream)
 {
-	self = [super init];
-	if (self)
-	{
-		items = [[NSMutableArray alloc] init];
-		uint itemsCount;
-        [stream readBytes:&itemsCount length:sizeof(uint)];
-		for (uint i = 0; i < itemsCount; i++)
-		{
-			Item *item = [[Item alloc] initWithReadStream:stream];
-			[items addObject:item];
-		}
-	}
-	return self;
+    uint itemsCount;
+    [stream readBytes:&itemsCount length:sizeof(uint)];
+    for (uint i = 0; i < itemsCount; i++)
+    {
+        Item *item = new Item(stream);
+        items.push_back(item);
+    }
+
 }
 
-- (void)encodeWithWriteStream:(MemoryWriteStream *)stream
+void ItemCollection::encode(MemoryWriteStream *stream)
 {
-	uint itemsCount = [items count];
+    uint itemsCount = items.size();
     [stream writeBytes:&itemsCount length:sizeof(uint)];
 	for (uint i = 0; i < itemsCount; i++)
-	{		
-		Item *item = [self itemAtIndex:i];
-		[item encodeWithWriteStream:stream];
-	}
-}
-
-
-- (Item *)itemAtIndex:(uint)index
-{
-	return (Item *)[items objectAtIndex:index];
-}
-
-- (void)addItem:(Item *)item
-{
-	[items addObject:item];
-}
-
-- (void)removeItem:(Item *)item
-{
-	[items removeObject:item];
-}
-
-- (void)removeLastItem
-{
-	[items removeLastObject];
-}
-
-- (void)removeItemAtIndex:(uint)index
-{
-	[items removeObjectAtIndex:index];
-}
-
-- (void)removeItemsInRange:(NSRange)range
-{
-	[items removeObjectsInRange:range];
-}
-
-- (void)insertItem:(Item *)item atIndex:(uint)index
-{
-	[items insertObject:item atIndex:index];
-}
-
-- (uint)count
-{
-	return [items count];
-}
-
-- (Vector3D)positionAtIndex:(uint)index
-{
-	return [[self itemAtIndex:index] position];
-}
-
-- (Quaternion)rotationAtIndex:(uint)index
-{
-	return [[self itemAtIndex:index] rotation];
-}
-
-- (Vector3D)scaleAtIndex:(uint)index
-{
-	return [[self itemAtIndex:index] scale];
-}
-
-- (void)setPosition:(Vector3D)position atIndex:(uint)index
-{
-	[[self itemAtIndex:index] setPosition:position];
-}
-
-- (void)setRotation:(Quaternion)rotation atIndex:(uint)index
-{
-	[[self itemAtIndex:index] setRotation:rotation];
-}
-
-- (void)setScale:(Vector3D)scale atIndex:(uint)index
-{
-	[[self itemAtIndex:index] setScale:scale];
-}
-
-- (void)moveByOffset:(Vector3D)offset atIndex:(uint)index
-{
-	[[self itemAtIndex:index] moveByOffset:offset];
-}
-
-- (void)rotateByOffset:(Quaternion)offset atIndex:(uint)index
-{
-	[[self itemAtIndex:index] rotateByOffset:offset];
-}
-
-- (void)scaleByOffset:(Vector3D)offset atIndex:(uint)index
-{
-	[[self itemAtIndex:index] scaleByOffset:offset];
-}
-
-- (BOOL)isSelectedAtIndex:(uint)index
-{
-	return [[self itemAtIndex:index] selected];
-}
-
-- (void)setSelected:(BOOL)selected atIndex:(uint)index
-{
-	[[self itemAtIndex:index] setSelected:selected];
-}
-
-- (void)expandSelectionFromIndex:(uint)index invert:(BOOL)invert
-{
-    for (uint i = 0; i < [self count]; i++)
-		[self setSelected:YES atIndex:i];
-}
-
-- (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection
-{
-	[[self itemAtIndex:index] drawForSelection:forSelection];
-}
-
-- (void)duplicateSelected
-{
-	uint count = [self count];
-	for (uint i = 0; i < count; i++)
 	{
-		if ([self isSelectedAtIndex:i])
-		{
-			Item *oldItem = [self itemAtIndex:i];
-			Item *newItem = [oldItem duplicate];
-			[oldItem setSelected:NO];
-			[items addObject:newItem];
-		}
+		Item *item = items.at(i);
+        item->encode(stream);
 	}
+
 }
 
-- (void)removeSelected
+NSMutableArray *ItemCollection::currentManipulations()
 {
-	for (uint i = 0; i < [self count]; i++)
+    NSMutableArray *manipulations = [[NSMutableArray alloc] init];
+	
+	for (uint i = 0; i < items.size(); i++)
 	{
-		if ([self isSelectedAtIndex:i])
-		{
-			[items removeObjectAtIndex:i];
-			i--;
-		}
-	}
-}
-
-- (void)hideSelected
-{
-	for (Item *item in items)
-	{
-		if ([item selected])
-		{
-			[item setSelected:NO];
-			[item setVisible:NO];
-		}
-	}
-}
-
-- (void)unhideAll
-{
-	for	(Item *item in items)
-	{
-		[item setVisible:YES];
-	}
-}
-
-- (void)mergeSelectedItems
-{
-	Vector3D center = Vector3D();
-	uint selectedCount = 0;
-	
-	for (uint i = 0; i < [items count]; i++)
-	{
-		if ([self isSelectedAtIndex:i])
-		{
-			selectedCount++;
-			center += [[self itemAtIndex:i] position];
-		}
-	}
-	
-	if (selectedCount < 2)
-		return;
-	
-	center /= selectedCount;
-	
-	Item *newItem = [[Item alloc] initWithPosition:center rotation:Quaternion() scale:Vector3D(1, 1, 1)];
-	Mesh2 *mesh = [newItem mesh];
-	
-	Matrix4x4 firstMatrix, itemMatrix;
-	
-	firstMatrix.TranslateRotateScale([newItem position],
-									 [newItem rotation],
-									 [newItem scale]);
-	
-	firstMatrix = firstMatrix.Inverse();
-	
-	for (uint i = 0; i < [items count]; i++)
-	{
-		if ([self isSelectedAtIndex:i])
-		{
-			Item *item = [self itemAtIndex:i];
-			Vector3D scale = [item scale];
-			
-			itemMatrix.TranslateRotateScale([item position],
-											[item rotation],
-											scale);
-			
-			Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
-			Mesh2 *itemMesh = [item mesh];
-			
-			itemMesh->transformAll(finalMatrix);
-			
-			// mirror detection, some component of scale is negative
-			if (scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f)
-                itemMesh->flipAllTriangles();
-				
-            mesh->merge(itemMesh);
-			[items removeObjectAtIndex:i];
-			i--;
-		}
-	}
-	
-	[newItem setSelected:YES];
-	[self addItem:newItem];
-}
-
-- (NSMutableArray *)currentManipulations
-{
-	NSMutableArray *manipulations = [[NSMutableArray alloc] init];
-	
-	for (uint i = 0; i < [self count]; i++)
-	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
+		Item *item = items.at(i);
+		if (item->selected)
 		{
 			ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
 			[manipulations addObject:itemState];
@@ -288,76 +63,76 @@
 	return manipulations;
 }
 
-- (void)setCurrentManipulations:(NSMutableArray *)manipulations
+void ItemCollection::setCurrentManipulations(NSMutableArray *manipulations)
 {
-	[self deselectAll];
+    deselectAll();
 	
 	for (ItemManipulationState *manipulation in manipulations)
 	{
-		Item *item = [self itemAtIndex:[manipulation itemIndex]];
+		Item *item = items.at(manipulation.itemIndex);
 		[manipulation applyManipulationToItem:item];
 	}
 }
 
-- (MeshState *)currentMeshState
+MeshState *ItemCollection::currentMeshState()
 {
-	for (uint i = 0; i < [self count]; i++)
+    for (uint i = 0; i < items.size(); i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
+		Item *item = items.at(i);
+		if (item->selected)
 		{
-			MeshState *meshState = [[MeshState alloc] initWithMesh:[item mesh]
-																 itemIndex:i];
+			MeshState *meshState = [[MeshState alloc] initWithMesh:item->mesh
+                                                         itemIndex:i];
 			return meshState;
 		}
 	}
 	return nil;
 }
 
-- (void)setCurrentMeshState:(MeshState *)meshState
+void ItemCollection::setCurrentMeshState(MeshState *meshState)
 {
-	[self deselectAll];
+    deselectAll();
 	
-	Item *item = [self itemAtIndex:[meshState itemIndex]];
-	[item setSelected:YES];
-	[meshState applyToMesh:[item mesh]];
+	Item *item = items.at(meshState.itemIndex);
+    item->selected = true;
+	[meshState applyToMesh:item->mesh];
 }
 
-- (NSMutableArray *)currentSelection
+NSMutableArray *ItemCollection::currentSelection()
 {
-	NSMutableArray *selection = [[NSMutableArray alloc] init];
+    NSMutableArray *selection = [[NSMutableArray alloc] init];
 	
-	for (uint i = 0; i < [self count]; i++)
+	for (uint i = 0; i < items.size(); i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
+		Item *item = items.at(i);
+		if (item->selected)
 		{
 			NSNumber *number = [[NSNumber alloc] initWithUnsignedInt:i];
 			[selection addObject:number];
 		}
 	}
 	
-	return selection;	
+	return selection;
 }
 
-- (void)setCurrentSelection:(NSMutableArray *)selection
+void ItemCollection::setCurrentSelection(NSMutableArray *selection)
 {
-	[self deselectAll];
+    deselectAll();
 	
 	for (NSNumber *number in selection)
 	{
-		[self setSelected:YES atIndex:[number unsignedIntValue]];
+        setSelectedAtIndex(number.unsignedIntValue, true);
 	}
 }
 
-- (NSMutableArray *)currentItems
+NSMutableArray *ItemCollection::currentItems()
 {
-	NSMutableArray *anItems = [[NSMutableArray alloc] init];
+    NSMutableArray *anItems = [[NSMutableArray alloc] init];
 	
-	for (uint i = 0; i < [self count]; i++)
+	for (uint i = 0; i < items.size(); i++)
 	{
-		Item *item = [self itemAtIndex:i];
-		if ([item selected])
+		Item *item = items.at(i);
+		if (item->selected)
 		{
 			IndexedItem *indexedItem = [[IndexedItem alloc] initWithIndex:i item:item];
 			[anItems addObject:indexedItem];
@@ -367,124 +142,361 @@
 	return anItems;
 }
 
-- (void)setCurrentItems:(NSMutableArray *)anItems
+void ItemCollection::setCurrentItems(NSMutableArray *anItems)
 {
-	[self deselectAll];
+    deselectAll();
 	
 	for (IndexedItem *indexedItem in anItems)
 	{
-		[self insertItem:[indexedItem item] atIndex:[indexedItem index]];
+        insertItemAtIndex(indexedItem.index, indexedItem.item);
 	}
 }
 
-- (NSMutableArray *)allItems
+NSMutableArray *ItemCollection::allItems()
 {
-	NSMutableArray *anItems = [[NSMutableArray alloc] init];
+    NSMutableArray *anItems = [[NSMutableArray alloc] init];
 	
-	for (uint i = 0; i < [self count]; i++)
+	for (uint i = 0; i < items.size(); i++)
 	{
-		Item *duplicate = [[self itemAtIndex:i] duplicate];
-		[anItems addObject:duplicate];
+		Item *duplicate = items.at(i)->duplicate();
+		[anItems addObject:[NSValue valueWithPointer:duplicate]];
 	}
 	
 	return anItems;
 }
 
-- (void)setAllItems:(NSMutableArray *)anItems
+void ItemCollection::setAllItems(NSMutableArray *anItems)
 {
-	if (items == anItems)
+    for (uint i = 0; i < items.size(); i++)
+        delete items[i];
+    
+    items.clear();
+    
+    for (NSValue *value in anItems)
+    {
+        Item *item = (Item *)value.pointerValue;
+        items.push_back(item);
+    }
+}
+
+Item *ItemCollection::itemAtIndex(uint index)
+{
+    return items.at(index);
+}
+
+void ItemCollection::addItem(Item *item)
+{
+    items.push_back(item);
+}
+
+void ItemCollection::removeItem(Item *item)
+{
+    for (uint i = 0; i < items.size(); i++)
+    {
+        if (items[i] == item)
+        {
+            removeItemAtIndex(i);
+            break;
+        }
+    }
+}
+
+void ItemCollection::removeLastItem()
+{
+    if (items.size() > 0)
+    {
+        Item *lastItem = items[items.size() - 1];
+        delete lastItem;
+        items.pop_back();
+    }
+}
+
+void ItemCollection::removeItemAtIndex(uint index)
+{
+    Item *item = items.at(index);
+    delete item;
+    items.erase(items.begin() + index);
+
+}
+
+void ItemCollection::removeItemsInRange(NSRange range)
+{
+    for (uint i = range.location; i < range.location + range.length; i++)
+        delete items[i];
+    
+    items.erase(items.begin() + range.location, items.begin() + range.location + range.length);
+}
+
+void ItemCollection::insertItemAtIndex(uint index, Item *item)
+{
+    items.insert(items.begin() + index, item);
+}
+
+void ItemCollection::mergeSelectedItems()
+{
+    Vector3D center = Vector3D();
+	uint selectedCount = 0;
+	
+	for (uint i = 0; i < items.size(); i++)
+	{
+        Item *item = items[i];
+		if (item->selected)
+		{
+			selectedCount++;
+			center += item->position;
+		}
+	}
+	
+	if (selectedCount < 2)
 		return;
 	
-	items = anItems;
-}
-
-- (void)setSelectionFromIndexedItems:(NSMutableArray *)anItems
-{
-	[self deselectAll];
+	center /= selectedCount;
 	
-	for (IndexedItem *indexedItem in anItems)
+    Mesh2 *mesh = new Mesh2();
+	Item *newItem = new Item(mesh);
+    newItem->position = center;
+	
+	Matrix4x4 firstMatrix, itemMatrix;
+	
+	firstMatrix.TranslateRotateScale(newItem->position, newItem->rotation, newItem->scale);
+	firstMatrix = firstMatrix.Inverse();
+	
+	for (int i = 0; i < (int)items.size(); i++)
 	{
-		[self setSelected:YES atIndex:[indexedItem index]];
+        Item *item = items[i];
+		if (item->selected)
+		{
+			Vector3D scale = item->scale;
+			
+			itemMatrix.TranslateRotateScale(item->position, item->rotation, scale);
+			
+			Matrix4x4 finalMatrix = firstMatrix * itemMatrix;
+			Mesh2 *itemMesh = item->mesh;
+			
+			itemMesh->transformAll(finalMatrix);
+			
+			// mirror detection, some component of scale is negative
+			if (scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f)
+                itemMesh->flipAllTriangles();
+            
+            mesh->merge(itemMesh);
+            removeItemAtIndex(i);
+			i--;
+		}
+	}
+	
+    newItem->selected = true;
+    addItem(newItem);
+}
+
+void ItemCollection::setSelectionFromIndexedItems(NSMutableArray *indexedItems)
+{
+    deselectAll();
+	
+	for (IndexedItem *indexedItem in indexedItems)
+	{
+        setSelectedAtIndex(indexedItem.index, true);
 	}
 }
 
-- (void)deselectAll
+void ItemCollection::deselectAll()
 {
-	for (uint i = 0; i < [self count]; i++)
-		[self setSelected:NO atIndex:i];
+    for (uint i = 0; i < items.size(); i++)
+        items[i]->selected = false;
 }
 
-- (void)getVertexCount:(uint *)vertexCount triangleCount:(uint *)triangleCount
+void ItemCollection::getVertexAndTriangleCount(uint &vertexCount, uint &triangleCount)
 {
-	*vertexCount = 0;
-	*triangleCount = 0;
-	for (Item *item in items)
-	{
-		Mesh2 *mesh = [item mesh];
-		*vertexCount += mesh->vertexCount();
-		*triangleCount += mesh->triangleCount();
+    vertexCount = 0;
+	triangleCount = 0;
+	for (uint i = 0; i < items.size(); i++)
+    {
+        Mesh2 *mesh = items[i]->mesh;
+		vertexCount += mesh->vertexCount();
+		triangleCount += mesh->triangleCount();
 	}
 }
 
-- (NSString *)nameAtIndex:(uint)index
+Mesh2 *ItemCollection::currentMesh()
 {
-	return [NSString stringWithFormat:@"Item %i", index];
-}
-
-- (Mesh2 *)currentMesh
-{
-    for (Item *item in items)
-	{
-		if ([item selected])
-			return [item mesh];
+    for (uint i = 0; i < items.size(); i++)
+    {
+        Item *item = items[i];
+		if (item->selected)
+			return item->mesh;
 	}
-    return nil;
+    return NULL;
+
 }
 
-- (Item *)firstSelectedItem
+Item *ItemCollection::firstSelectedItem()
 {
-    for (Item *item in items)
-	{
-		if ([item selected])
+    for (uint i = 0; i < items.size(); i++)
+    {
+        Item *item = items[i];
+		if (item->selected)
 			return item;
 	}
-    return nil;
+    return NULL;
 }
 
-- (NSColor *)selectionColor
+ViewMode ItemCollection::viewMode()
 {
-    Item *first = [self firstSelectedItem];
-    if (first)
-        return first.selectionColor;
-    return nil;
-}
-
-- (void)setSelectionColor:(NSColor *)selectionColor
-{
-    for (Item *item in items)
-	{
-		if (item.selected)
-            item.selectionColor = selectionColor;
-	}
-}
-
-- (enum ViewMode)viewMode
-{
-    for (Item *item in items)
+    for (uint i = 0; i < items.size(); i++)
     {
-        if (item.selected)
-            return item.viewMode;
-    }
+        Item *item = items[i];
+		if (item->selected)
+			return item->viewMode();
+	}
     return ViewModeSolidFlat;
 }
 
-- (void)setViewMode:(enum ViewMode)viewMode
+void ItemCollection::setViewMode(ViewMode viewMode)
 {
-    for (Item *item in items)
+    for (uint i = 0; i < items.size(); i++)
     {
-        if (item.selected)
-            item.viewMode = viewMode;
-    }
+        Item *item = items[i];
+		if (item->selected)
+			item->setViewMode(viewMode);
+	}
 }
 
-@end
+uint ItemCollection::count()
+{
+    return items.size();
+}
+
+bool ItemCollection::isSelectedAtIndex(uint index)
+{
+    return items.at(index)->selected;
+}
+
+void ItemCollection::setSelectedAtIndex(uint index, bool selected)
+{
+    items.at(index)->selected = selected;
+}
+
+void ItemCollection::expandSelectionFromIndex(uint index, bool invert)
+{
+    for (uint i = 0; i < items.size(); i++)
+        setSelectedAtIndex(i, true);
+}
+
+void ItemCollection::duplicateSelected()
+{
+    uint count = items.size();
+	for (uint i = 0; i < count; i++)
+	{
+        Item *oldItem = items[i];
+		if (oldItem->selected)
+		{
+			Item *newItem = oldItem->duplicate();
+            oldItem->selected = false;
+            addItem(newItem);
+		}
+	}
+}
+
+void ItemCollection::removeSelected()
+{
+    for (int i = 0; i < (int)items.size(); i++)
+	{
+		if (items[i]->selected)
+		{
+            removeItemAtIndex(i);
+			i--;
+		}
+	}
+}
+
+void ItemCollection::hideSelected()
+{
+    for (uint i = 0; i < items.size(); i++)
+	{
+        Item *item = items[i];
+		if (item->selected)
+		{
+            item->selected = false;
+            item->visible = false;
+		}
+	}
+}
+
+void ItemCollection::unhideAll()
+{
+    for (uint i = 0; i < items.size(); i++)
+		items[i]->visible = true;
+}
+
+NSColor *ItemCollection::selectionColor()
+{
+    Item *first = firstSelectedItem();
+    if (first)
+        return first->selectionColor();
+    return nil;
+}
+
+void ItemCollection::willSelectThrough(bool selectThrough)
+{
+    
+}
+
+void ItemCollection::didSelect()
+{
+    
+}
+
+bool ItemCollection::needsCullFace()
+{
+    return false;
+}
+
+Vector3D ItemCollection::positionAtIndex(uint index)
+{
+    return items.at(index)->position;
+}
+
+Quaternion ItemCollection::rotationAtIndex(uint index)
+{
+    return items.at(index)->rotation;
+}
+
+Vector3D ItemCollection::scaleAtIndex(uint index)
+{
+    return items.at(index)->scale;
+}
+
+void ItemCollection::setPositionAtIndex(uint index, Vector3D position)
+{
+    items.at(index)->position = position;
+}
+
+void ItemCollection::setRotationAtIndex(uint index, Quaternion rotation)
+{
+    items.at(index)->rotation = rotation;
+}
+
+void ItemCollection::setScaleAtIndex(uint index, Vector3D scale)
+{
+    items.at(index)->scale = scale;
+}
+
+void ItemCollection::moveByOffset(uint index, Vector3D offset)
+{
+    items.at(index)->moveByOffset(offset);
+}
+
+void ItemCollection::rotateByOffset(uint index, Quaternion offset)
+{
+    items.at(index)->rotateByOffset(offset);
+}
+
+void ItemCollection::scaleByOffset(uint index, Vector3D offset)
+{
+    items.at(index)->scaleByOffset(offset);
+}
+
+void ItemCollection::drawAtIndex(uint index, bool forSelection)
+{
+    items.at(index)->drawForSelection(forSelection);
+}

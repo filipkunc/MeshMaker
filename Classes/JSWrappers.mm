@@ -5,7 +5,7 @@
 //  Created by Filip Kunc on 10/27/12.
 //
 //
-
+/*
 #import "JSWrappers.h"
 
 @implementation ItemCollection (JSWrappers)
@@ -371,3 +371,4 @@ ImplementIterator(VertexNodeIterator, VertexNode, node)
 ImplementIterator(TriangleNodeIterator, TriangleNode, node)
 ImplementIterator(EdgeNodeIterator, VertexEdgeNode, node)
 ImplementIterator(VertexNodeEdgeIterator, Vertex2VEdgeNode, simpleNode)
+*/

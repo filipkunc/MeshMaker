@@ -91,6 +91,7 @@
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
 		A7ABC1181695C3F400379569 /* OpenGLSelecting.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7ABC1171695C3F400379569 /* OpenGLSelecting.mm */; };
+		A7ABC11A1695F3D200379569 /* OpenGLManipulatingModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7ABC1191695F3D200379569 /* OpenGLManipulatingModel.mm */; };
 		A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */; };
 		A7B76C9F1657CA6400CFAAE7 /* meshtest.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C991657CA4500CFAAE7 /* meshtest.js */; };
 		A7B76CA01657CA6400CFAAE7 /* quadify.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C9A1657CA4500CFAAE7 /* quadify.js */; };
@@ -223,6 +224,7 @@
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7ABC1171695C3F400379569 /* OpenGLSelecting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenGLSelecting.mm; path = Classes/OpenGLSelecting.mm; sourceTree = "<group>"; };
+		A7ABC1191695F3D200379569 /* OpenGLManipulatingModel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenGLManipulatingModel.mm; path = Classes/OpenGLManipulatingModel.mm; sourceTree = "<group>"; };
 		A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = loopSubdivision.js; sourceTree = "<group>"; };
 		A7B76C991657CA4500CFAAE7 /* meshtest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = meshtest.js; sourceTree = "<group>"; };
 		A7B76C9A1657CA4500CFAAE7 /* quadify.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = quadify.js; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 				A7064C5D12BD107800B14CFA /* OpenGLManipulatingController.h */,
 				A7064C5E12BD107800B14CFA /* OpenGLManipulatingController.mm */,
 				A7064C5F12BD107800B14CFA /* OpenGLManipulatingModel.h */,
+				A7ABC1191695F3D200379569 /* OpenGLManipulatingModel.mm */,
 				A7064C6012BD107800B14CFA /* OpenGLSceneView.h */,
 				A7064C6112BD107800B14CFA /* OpenGLSceneView.mm */,
 				A7064C6212BD107800B14CFA /* OpenGLSelecting.h */,
@@ -672,6 +675,7 @@
 				A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */,
 				A748E71D165667D100084D58 /* MyDocument+archiving.mm in Sources */,
 				A7ABC1181695C3F400379569 /* OpenGLSelecting.mm in Sources */,
+				A7ABC11A1695F3D200379569 /* OpenGLManipulatingModel.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

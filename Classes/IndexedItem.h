@@ -16,7 +16,7 @@
 }
 
 @property (readonly, assign) uint index;
-@property (readonly, retain) Item *item;
+@property (readonly, assign) Item *item;
 
 - (id)initWithIndex:(uint)anIndex item:(Item *)anItem;
 

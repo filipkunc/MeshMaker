@@ -40,7 +40,7 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return items.count;
+    return items->count();
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
@@ -51,16 +51,16 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
     int selectedRow = textureList.selectedRow;
-    if (selectedRow >= 0 && selectedRow < (int)items.count)
-    {    
-        Mesh2 *mesh = [items itemAtIndex:selectedRow].mesh;
-        [items deselectAll];
-        [items setSelected:YES atIndex:selectedRow];
+    if (selectedRow >= 0 && selectedRow < (int)items->count())
+    {
+        Mesh2 *mesh = items->itemAtIndex(selectedRow)->mesh;
+        items->deselectAll();
+        items->setSelectedAtIndex(selectedRow, true);
         [textureView setImage:mesh->texture().canvas];
     }
     else
     {
-        [items deselectAll];
+        items->deselectAll();
         [textureView setImage:nil];
     }
 }
@@ -68,9 +68,9 @@
 - (IBAction)setTexture:(id)sender
 {
     int selectedRow = textureList.selectedRow;
-    if (selectedRow >= 0 && selectedRow < (int)items.count)
+    if (selectedRow >= 0 && selectedRow < (int)items->count())
     {    
-        Mesh2 *mesh = [items itemAtIndex:selectedRow].mesh;
+        Mesh2 *mesh = items->itemAtIndex(selectedRow)->mesh;
         [mesh->texture() setCanvas:textureView.image];
     }
 }

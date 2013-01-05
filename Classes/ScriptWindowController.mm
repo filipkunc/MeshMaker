@@ -405,7 +405,7 @@
 }
 
 - (void)runScriptCode:(NSString *)code
-{
+{/*
     NSString* script = [NSString stringWithFormat:@"try { %@ } catch (e) { e.toString() }", code];
     [scriptObject setValue:delegate.items forKey:@"items"];
     [outputView setString:@"Output:\n"];
@@ -429,7 +429,7 @@
     }];
 
     [delegate setNeedsDisplayOnAllViews];
-}
+*/}
 
 - (IBAction)runScript:(id)sender
 {

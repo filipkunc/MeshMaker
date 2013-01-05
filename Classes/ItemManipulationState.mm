@@ -17,9 +17,9 @@
 	self = [super init];
 	if (self)
 	{
-		position = new Vector3D([item position]);
-		rotation = new Quaternion([item rotation]);
-		scale = new Vector3D([item scale]);
+		position = new Vector3D(item->position);
+		rotation = new Quaternion(item->rotation);
+		scale = new Vector3D(item->scale);
 		itemIndex = index;
 	}
 	return self;
@@ -34,10 +34,10 @@
 
 - (void)applyManipulationToItem:(Item *)item
 {
-	[item setPosition:*position];
-	[item setRotation:*rotation];
-	[item setScale:*scale];
-	[item setSelected:YES];
+    item->position = *position;
+    item->rotation = *rotation;
+    item->scale = *scale;
+    item->selected = true;
 }
 
 @end
