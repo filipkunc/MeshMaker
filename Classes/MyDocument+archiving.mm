@@ -117,10 +117,7 @@ vector<T> *ReadValues(string s)
     ItemCollection *newItems = new ItemCollection(stream);
     items = newItems;
     
-    OpenglManipulatingModelItemWrapper *itemsWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
-    itemsWrapper.itemModel = items;
-    
-    [itemsController setModel:itemsWrapper];
+    [itemsController setModel:items];
     [itemsController updateSelection];
     [self setManipulated:itemsController];
     
@@ -272,10 +269,7 @@ vector<T> *ReadValues(string s)
     
     items = newItems;
     
-    OpenglManipulatingModelItemWrapper *itemWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
-    itemWrapper.itemModel = items;
-    
-    [itemsController setModel:itemWrapper];
+    [itemsController setModel:items];
     [itemsController updateSelection];
     [self setManipulated:itemsController];
     

@@ -436,6 +436,16 @@ NSColor *ItemCollection::selectionColor()
     return nil;
 }
 
+void ItemCollection::setSelectionColor(NSColor *color)
+{
+    for (uint i = 0; i < items.size(); i++)
+	{
+        Item *item = items[i];
+		if (item->selected)
+            item->setSelectionColor([color copy]);
+	}
+}
+
 void ItemCollection::willSelectThrough(bool selectThrough)
 {
     

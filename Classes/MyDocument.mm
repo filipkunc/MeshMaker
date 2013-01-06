@@ -25,10 +25,7 @@
 		itemsController = [[OpenGLManipulatingController alloc] init];
 		meshController = [[OpenGLManipulatingController alloc] init];
 		
-        OpenglManipulatingModelItemWrapper *itemsWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
-        itemsWrapper.itemModel = items;
-        
-        itemsController.model = itemsWrapper;
+        itemsController.model = items;
 		manipulated = itemsController;
 
 		[itemsController addSelectionObserver:self];
@@ -148,9 +145,15 @@
 - (Mesh2 *)currentMesh
 {
 	if (manipulated == meshController)
-        return ((Item *)((OpenglManipulatingModelMeshWrapper *)meshController.model).meshModel)->mesh;
+    {
+        Item *item = (Item *)meshController.model;
+        return item->mesh;
+    }
     if (manipulated == itemsController)
-        return ((ItemCollection *)((OpenglManipulatingModelItemWrapper *)itemsController.model).itemModel)->currentMesh();
+    {
+        ItemCollection *itemCollection = (ItemCollection *)itemsController.model;
+        return itemCollection->currentMesh();
+    }
 	return nil;
 }
 
@@ -297,10 +300,7 @@
     items->setCurrentMeshState(old);
 	Item *item = items->itemAtIndex(old.itemIndex);
 	
-    OpenglManipulatingModelMeshWrapper *meshWrapper = [[OpenglManipulatingModelMeshWrapper alloc] init];
-    meshWrapper.meshModel = item;
-    
-    [meshController setModel:meshWrapper];
+    [meshController setModel:item];
     [meshController setPosition:item->position
                        rotation:item->rotation
                           scale:item->scale];
@@ -439,10 +439,7 @@
 		Item *item = items->itemAtIndex(index);
         item->mesh->setSelectionMode(mode);
         
-        OpenglManipulatingModelMeshWrapper *meshWrapper = [[OpenglManipulatingModelMeshWrapper alloc] init];
-        meshWrapper.meshModel = item;
-        
-		[meshController setModel:meshWrapper];
+		[meshController setModel:item];
 		[meshController setPosition:item->position
 						   rotation:item->rotation
 							  scale:item->scale];
@@ -456,10 +453,7 @@
     if (currentMesh)
         currentMesh->setSelectionMode(MeshSelectionModeVertices);
     
-    OpenglManipulatingModelItemWrapper *itemWrapper = [[OpenglManipulatingModelItemWrapper alloc] init];
-    itemWrapper.itemModel = items;
-    
-	[itemsController setModel:itemWrapper];
+	[itemsController setModel:items];
 	[itemsController setPosition:Vector3D()
 						rotation:Quaternion()
 						   scale:Vector3D(1, 1, 1)];

@@ -184,6 +184,11 @@ NSColor *Item::selectionColor()
     return mesh->color();
 }
 
+void Item::setSelectionColor(NSColor *color)
+{
+    mesh->setColor([color copy]);
+}
+
 void Item::willSelectThrough(bool selectThrough)
 {
     Mesh2::setSelectThrough(selectThrough);

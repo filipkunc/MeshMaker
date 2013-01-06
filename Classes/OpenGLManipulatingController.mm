@@ -46,52 +46,47 @@
 
 - (BOOL)selectionColorEnabled
 {
-    if ([model respondsToSelector:@selector(selectionColor)])
-        return YES;
+    return YES;
     
-    return NO;
+//    if ([model respondsToSelector:@selector(selectionColor)])
+//        return YES;
+//    
+//    return NO;
 }
 
 - (NSColor *)selectionColor
 {
     if (self.selectionColorEnabled)
-        return model.selectionColor;
+        return model->selectionColor();
     return nil;
 }
 
 - (void)setSelectionColor:(NSColor *)selectionColor
 {
     if (self.selectionColorEnabled)
-        model.selectionColor = selectionColor;
+        model->setSelectionColor(selectionColor);
 }
 
 - (enum ViewMode)viewMode
 {
-    return model.viewMode;
+    return model->viewMode();
 }
 
 - (void)setViewMode:(enum ViewMode)viewMode
 {
-    model.viewMode = viewMode;
+    model->setViewMode(viewMode);
 }
 
-- (id<OpenGLManipulatingModel>)model
+- (IOpenGLManipulatingModel *)model
 {
     return model;
 }
 
-- (void)setModel:(id<OpenGLManipulatingModel>)value
+- (void)setModel:(IOpenGLManipulatingModel *)value
 {
 	model = value;
-	id newModel = value;
-	if ([newModel conformsToProtocol:@protocol(OpenGLManipulatingModelMesh)])
-		modelMesh = (id<OpenGLManipulatingModelMesh>)value;
-	else 
-		modelMesh = nil;
-	if ([newModel conformsToProtocol:@protocol(OpenGLManipulatingModelItem)])
-		modelItem = (id<OpenGLManipulatingModelItem>)value;
-	else 
-		modelItem = nil;
+    modelMesh = dynamic_cast<IOpenGLManipulatingModelMesh *>(value);
+    modelItem = dynamic_cast<IOpenGLManipulatingModelItem *>(value);
 }
 
 - (void)addObserver:(id)observer forKeyPath:(NSString *)keyPath
@@ -212,8 +207,8 @@
 			if (selectedCount == 1)
 			{
 				selectionRotation->FromEulerAngles(*selectionEuler);
-				if (lastSelectedIndex > -1 && modelItem != nil)
-					[modelItem setRotation:*selectionRotation atIndex:lastSelectedIndex];
+				if (lastSelectedIndex > -1 && modelItem != NULL)
+                    modelItem->setRotationAtIndex(lastSelectedIndex, *selectionRotation);
 			}
 			else
 			{
@@ -228,8 +223,8 @@
 			if (selectedCount == 1)
 			{
 				(*selectionScale)[index] = value;
-				if (lastSelectedIndex > -1 && modelItem != nil)
-					[modelItem setScale:*selectionScale atIndex:lastSelectedIndex];
+				if (lastSelectedIndex > -1 && modelItem != NULL)
+                    modelItem->setScaleAtIndex(lastSelectedIndex, *selectionScale);
 			}
 			else
 			{
@@ -247,29 +242,29 @@
 {
 	[self willChangeSelection];
 	
-	if (modelMesh != nil)
+	if (modelMesh != NULL)
 	{
-		[modelMesh getSelectionCenter:selectionCenter rotation:selectionRotation scale:selectionScale];
+        modelMesh->getSelectionCenterRotationScale(*selectionCenter, *selectionRotation, *selectionScale);
 		selectedCount = 0;
-		for (uint i = 0; i < [model count]; i++)
+		for (uint i = 0; i < model->count(); i++)
 		{
-			if ([model isSelectedAtIndex:i])
+            if (model->isSelectedAtIndex(i))
 				selectedCount++;
 		}
 	}
-	else if (modelItem != nil)
+	else if (modelItem != NULL)
 	{
 		*selectionCenter = Vector3D();
 		*selectionRotation = Quaternion();
 		*selectionScale = Vector3D(1, 1, 1);
 		selectedCount = 0;
 		lastSelectedIndex = -1;
-		for (uint i = 0; i < [model count]; i++)
+		for (uint i = 0; i < model->count(); i++)
 		{
-			if ([model isSelectedAtIndex:i])
+            if (model->isSelectedAtIndex(i))
 			{
 				selectedCount++;
-				*selectionCenter += [modelItem positionAtIndex:i];
+				*selectionCenter += modelItem->positionAtIndex(i);
 				lastSelectedIndex = i;
 			}
 		}
@@ -278,8 +273,8 @@
 			*selectionCenter /= (float)selectedCount;
 			if (selectedCount == 1 && lastSelectedIndex > -1)
 			{
-				*selectionRotation = [modelItem rotationAtIndex:lastSelectedIndex];
-				*selectionScale = [modelItem scaleAtIndex:lastSelectedIndex];
+				*selectionRotation = modelItem->rotationAtIndex(lastSelectedIndex);
+				*selectionScale = modelItem->scaleAtIndex(lastSelectedIndex);
 			}
 		}
 		else
@@ -364,18 +359,18 @@
 	m = s * r;
 	transformedOffset = m.Transform(offset);
 	
-	if (modelMesh != nil)
+	if (modelMesh != NULL)
 	{
         Matrix4x4 translate;
-        translate.Translate(transformedOffset);        
-		[modelMesh transformSelectedByMatrix:&translate];
+        translate.Translate(transformedOffset);
+        modelMesh->transformSelectedByMatrix(translate);
 	}
-	else if (modelItem != nil)
+	else if (modelItem != NULL)
 	{
-		for (uint i = 0; i < [model count]; i++)
+		for (uint i = 0; i < model->count(); i++)
 		{
-			if ([model isSelectedAtIndex:i])
-				[modelItem moveByOffset:transformedOffset atIndex:i];
+            if (model->isSelectedAtIndex(i))
+                modelItem->moveByOffset(i, transformedOffset);
 		}
 	}
 		
@@ -384,7 +379,7 @@
 
 - (void)rotateSelectedByOffset:(Quaternion)offset
 {	
-	if (modelMesh != nil)
+	if (modelMesh != NULL)
 	{
 		Vector3D rotationCenter = *selectionCenter;
 		rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
@@ -395,42 +390,42 @@
         r = offset.ToMatrix();
         
         Matrix4x4 m = t2 * r * t1;
-        [modelMesh transformSelectedByMatrix:&m];
+        modelMesh->transformSelectedByMatrix(m);
 
 		[self setSelectionRotation:offset * (*selectionRotation)];
 	}
-	else if (modelItem != nil)
+	else if (modelItem != NULL)
 	{
 		if ([self selectedCount] > 1)
 		{
 			Vector3D rotationCenter = *selectionCenter;
 			rotationCenter = modelTransform->Inverse().Transform(rotationCenter);            
             Matrix4x4 offsetMatrix = offset.ToMatrix();
-			for (uint i = 0; i < [model count]; i++)
+			for (uint i = 0; i < model->count(); i++)
 			{
-				if ([model isSelectedAtIndex:i])
+				if (model->isSelectedAtIndex(i))
 				{
-					Vector3D itemPosition = [modelItem positionAtIndex:i];
+					Vector3D itemPosition = modelItem->positionAtIndex(i);
 					itemPosition -= rotationCenter;
 					itemPosition = offsetMatrix.Transform(itemPosition);
 					itemPosition += rotationCenter;
-					[modelItem setPosition:itemPosition atIndex:i];
-					[modelItem rotateByOffset:offset atIndex:i];
+                    modelItem->setPositionAtIndex(i, itemPosition);
+                    modelItem->rotateByOffset(i, offset);
 				}
 			}
 			[self setSelectionRotation:offset * (*selectionRotation)];
 		}
 		else if (lastSelectedIndex > -1)
 		{
-			[modelItem rotateByOffset:offset atIndex:lastSelectedIndex];
-			[self setSelectionRotation:[modelItem rotationAtIndex:lastSelectedIndex]];
+            modelItem->rotateByOffset(lastSelectedIndex, offset);
+            [self setSelectionRotation:modelItem->rotationAtIndex(lastSelectedIndex)];
 		}		
 	}
 }
 
 - (void)scaleSelectedByOffset:(Vector3D)offset
 {
-	if (modelMesh != nil)
+	if (modelMesh != NULL)
 	{
         Vector3D rotationCenter = *selectionCenter;
 		rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
@@ -441,32 +436,32 @@
         s.Scale(offset + Vector3D(1, 1, 1));
         
         Matrix4x4 m = t2 * s * t1;
-        [modelMesh transformSelectedByMatrix:&m];
+        modelMesh->transformSelectedByMatrix(m);
 	}
-	else if (modelItem != nil)
+	else if (modelItem != NULL)
 	{
 		if ([self selectedCount] > 1)
 		{
 			Vector3D rotationCenter = *selectionCenter;
 			rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
-			for (uint i = 0; i < [model count]; i++)
+			for (uint i = 0; i < model->count(); i++)
 			{
-				if ([model isSelectedAtIndex:i])
+                if (model->isSelectedAtIndex(i))
 				{
-					Vector3D itemPosition = [modelItem positionAtIndex:i];
+					Vector3D itemPosition = modelItem->positionAtIndex(i);
 					itemPosition -= rotationCenter;
 					itemPosition.x *= 1.0f + offset.x;
 					itemPosition.y *= 1.0f + offset.y;
 					itemPosition.z *= 1.0f + offset.z;
 					itemPosition += rotationCenter;
-					[modelItem setPosition:itemPosition atIndex:i];
-					[modelItem scaleByOffset:offset atIndex:i];
+                    modelItem->setPositionAtIndex(i, itemPosition);
+                    modelItem->scaleByOffset(i, offset);
 				}
 			}
 		}
 		else if (lastSelectedIndex > -1)
 		{
-			[modelItem scaleByOffset:offset atIndex:lastSelectedIndex];
+            modelItem->scaleByOffset(lastSelectedIndex, offset);
 		}
 	}
 	[self setSelectionScale:*selectionScale + offset];
@@ -478,16 +473,16 @@
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        [modelMesh drawAllForSelection:forSelection];
+        modelMesh->drawAllForSelection(forSelection);
         glPopMatrix();
     }
     else
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        for (uint i = 0; i < [modelItem count]; i++)
+        for (uint i = 0; i < modelItem->count(); i++)
         {
-            [modelItem drawAtIndex:i forSelection:forSelection];
+            modelItem->drawAtIndex(i, forSelection);
         }
         glPopMatrix();
     }
@@ -495,55 +490,51 @@
 
 - (void)willSelectThrough:(BOOL)selectThrough
 {
-	if ([model respondsToSelector:@selector(willSelectThrough:)])
-		[model willSelectThrough:selectThrough];
+    model->willSelectThrough(selectThrough);
 }
 
 - (BOOL)needsCullFace
 {
-    if ([model respondsToSelector:@selector(needsCullFace)])
-        return [model needsCullFace];
-    return NO;
+    return model->needsCullFace();
 }
 
 - (void)didSelect
 {
-	if ([model respondsToSelector:@selector(didSelect)])
-		[model didSelect];
+    model->didSelect();
 	[self updateSelection];
 }
 
 - (uint)selectableCount
 {
-	return [model count];
+	return model->count();
 }
 
 - (void)drawForSelectionAtIndex:(uint)index
 {
 	glPushMatrix();
 	glMultMatrixf(modelTransform->m);
-	[modelItem drawAtIndex:index forSelection:YES];
+    modelItem->drawAtIndex(index, true);
 	glPopMatrix();
 }
 
 - (void)drawAllForSelection
 {
-    if (modelMesh != nil)
+    if (modelMesh != NULL)
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        [modelMesh drawAllForSelection:YES];
+        modelMesh->drawAllForSelection(true);
         glPopMatrix();
     }
     else
     {
         glPushMatrix();
         glMultMatrixf(modelTransform->m);
-        for (uint i = 0; i < [modelItem count]; i++)
+        for (uint i = 0; i < modelItem->count(); i++)
         {
             uint colorIndex = i + 1;
             glColor4ubv((GLubyte *)&colorIndex);
-            [modelItem drawAtIndex:i forSelection:YES];
+            modelItem->drawAtIndex(i, true);
         }
         glPopMatrix();        
     }
@@ -551,8 +542,8 @@
 
 - (BOOL)useGLProject
 {
-    if (modelMesh != nil)
-        return [modelMesh useGLProject];
+    if (modelMesh != NULL)
+        return modelMesh->useGLProject();
     return NO;
 }
 
@@ -562,14 +553,8 @@
                       height:(int)height 
                selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
-    if (modelMesh != nil)
-    {
-        [modelMesh glProjectSelectWithX:x 
-                                      y:y
-                                  width:width 
-                                 height:height
-                              transform:modelTransform selectionMode:selectionMode];
-    }
+    if (modelMesh != NULL)
+        modelMesh->glProjectSelect(x, y, width, height, *modelTransform, selectionMode);
 }
 
 - (void)selectObjectAtIndex:(uint)index
@@ -578,19 +563,19 @@
 	switch (selectionMode) 
 	{
 		case OpenGLSelectionModeAdd:
-			[model setSelected:YES atIndex:index];
+            model->setSelectedAtIndex(index, true);
 			break;
 		case OpenGLSelectionModeSubtract:
-			[model setSelected:NO atIndex:index];
+            model->setSelectedAtIndex(index, false);
 			break;
 		case OpenGLSelectionModeInvert:
-			[model setSelected:![model isSelectedAtIndex:index] atIndex:index];
+            model->setSelectedAtIndex(index, !model->isSelectedAtIndex(index));
 			break;
         case OpenGLSelectionModeExpand:
-            [model expandSelectionFromIndex:index invert:NO];
+            model->expandSelectionFromIndex(index, false);
             break;
         case OpenGLSelectionModeInvertExpand:
-            [model expandSelectionFromIndex:index invert:YES];
+            model->expandSelectionFromIndex(index, true);
             break;
 		default:
 			break;
@@ -599,14 +584,14 @@
 
 - (BOOL)isObjectSelectedAtIndex:(uint)index
 {
-	return [model isSelectedAtIndex:index];
+    return model->isSelectedAtIndex(index);
 }
 
 - (void)changeSelection:(BOOL)isSelected
 {
 	[self willSelectThrough:NO];
-	for (uint i = 0; i < [model count]; i++)
-		[model setSelected:isSelected atIndex:i];
+	for (uint i = 0; i < model->count(); i++)
+        model->setSelectedAtIndex(i, isSelected);
 	[self didSelect];
 	[self updateSelection];
 }
@@ -614,33 +599,33 @@
 - (void)invertSelection
 {
 	[self willSelectThrough:NO];
-	for (uint i = 0; i < [model count]; i++)
-		[model setSelected:![model isSelectedAtIndex:i] atIndex:i];
+    for (uint i = 0; i < model->count(); i++)
+        model->setSelectedAtIndex(i, !model->isSelectedAtIndex(i));
 	[self didSelect];
 	[self updateSelection];
 }
 
 - (void)duplicateSelected
 {
-	[model duplicateSelected];
+    model->duplicateSelected();
 	[self updateSelection];
 }
 
 - (void)removeSelected
-{	
-	[model removeSelected];
+{
+    model->removeSelected();
 	[self updateSelection];
 }
 
 - (void)hideSelected
 {
-	[model hideSelected];
+    model->hideSelected();
 	[self updateSelection];
 }
 
 - (void)unhideAll
 {
-	[model unhideAll];
+    model->unhideAll();
 }
 
 @end

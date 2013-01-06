@@ -10,9 +10,9 @@
 
 @interface OpenGLManipulatingController : NSObject <OpenGLManipulating>
 {
-	id<OpenGLManipulatingModel> model;
-	id<OpenGLManipulatingModelMesh> modelMesh;
-	id<OpenGLManipulatingModelItem> modelItem;
+	IOpenGLManipulatingModel *model;
+	IOpenGLManipulatingModelMesh *modelMesh;
+	IOpenGLManipulatingModelItem *modelItem;
 	
 	Vector3D *selectionCenter;
 	Quaternion *selectionRotation;
@@ -29,7 +29,7 @@
     enum ManipulatorType currentManipulator;
 }
 
-@property (readwrite, assign) id<OpenGLManipulatingModel> model;
+@property (readwrite, assign) IOpenGLManipulatingModel *model;
 @property (readonly, assign) Matrix4x4 *modelTransform;
 @property (readonly) NSInteger lastSelectedIndex;
 
