@@ -107,8 +107,6 @@ NSOpenGLContext *globalGLContext = nil;
 
     currentManipulator = defaultManipulator;
     
-    manipulatorWrapper = [[OpenGLSelectingWrapper alloc] init];
-    
     cameraMode = CameraModePerspective;
     
     [self setupGL];
@@ -318,8 +316,8 @@ NSOpenGLContext *globalGLContext = nil;
 - (void)drawManipulatedAndDisplayedForSelection:(BOOL)forSelection
 {
 	if (displayed != manipulated)
-		[displayed drawForSelection:forSelection];
-	[manipulated drawForSelection:forSelection];
+        displayed->drawForSelection(forSelection);
+    manipulated->drawForSelection(forSelection);
 }
 
 - (void)drawOrthoDefaultManipulator
@@ -337,13 +335,13 @@ NSOpenGLContext *globalGLContext = nil;
 
 - (void)drawCurrentManipulator
 {
-	if ([manipulated selectedCount] > 0)
+	if (manipulated->selectedCount() > 0)
 	{
-        currentManipulator->position = manipulated.selectionCenter;
+        currentManipulator->position = manipulated->selectionCenter();
         
 		if (cameraMode == CameraModePerspective)
         {
-            Vector3D manipulatorPosition = [manipulated selectionCenter];
+            Vector3D manipulatorPosition = manipulated->selectionCenter();
             Vector3D cameraPosition = -camera->GetCenter() + (camera->GetAxisZ() * camera->GetZoom());
             
             float distance = cameraPosition.Distance(manipulatorPosition);
@@ -357,9 +355,9 @@ NSOpenGLContext *globalGLContext = nil;
             currentManipulator->size = camera->GetZoom() * 0.17f;
         }
         
-        scaleManipulator->rotation = manipulated.selectionRotation;
+        scaleManipulator->rotation = manipulated->selectionRotation();
         if (currentManipulator != defaultManipulator)
-            currentManipulator->draw(camera->GetAxisZ(), manipulated.selectionCenter);
+            currentManipulator->draw(camera->GetAxisZ(), manipulated->selectionCenter());
 	}
 }
 
@@ -620,12 +618,12 @@ NSOpenGLContext *globalGLContext = nil;
         //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
-    else if ([manipulated selectedCount] > 0 && currentManipulator->selectedIndex < UINT_MAX)
+    else if (manipulated->selectedCount() > 0 && currentManipulator->selectedIndex < UINT_MAX)
 	{
 		if (currentManipulator == translationManipulator)
 		{
 			*selectionOffset = [self translationFromPoint:lastPoint];
-			*selectionOffset -= [manipulated selectionCenter];
+			*selectionOffset -= manipulated->selectionCenter();
 			isManipulating = YES;
 		}
 		else if (currentManipulator == rotationManipulator)
@@ -656,14 +654,13 @@ NSOpenGLContext *globalGLContext = nil;
 {
 	highlightCameraMode = NO;
 	currentPoint = [self locationFromNSEvent:e];
-	if ([manipulated selectedCount] > 0)
+	if (manipulated->selectedCount() > 0)
 	{
 		if (!isManipulating)
 		{
             currentManipulator->selectedIndex = UINT_MAX;
-            currentManipulator->position = manipulated.selectionCenter;
-            manipulatorWrapper.cppSelecting = currentManipulator;
-			[self selectWithPoint:currentPoint selecting:manipulatorWrapper selectionMode:OpenGLSelectionModeAdd];
+            currentManipulator->position = manipulated->selectionCenter();
+			[self selectWithPoint:currentPoint selecting:currentManipulator selectionMode:OpenGLSelectionModeAdd];
 			[self setNeedsDisplay:YES];
 		}
 	}
@@ -704,7 +701,7 @@ NSOpenGLContext *globalGLContext = nil;
 		else if ((flags & NSShiftKeyMask) == NSShiftKeyMask)
 			selectionMode = OpenGLSelectionModeAdd;
 		else
-			[manipulated changeSelection:NO];
+			manipulated->changeSelection(false);
 		
 		NSRect rect = [self currentRect];
 		if ([e clickCount] <= 1 && rect.size.width > 5.0f && rect.size.height > 5.0f)
@@ -780,20 +777,20 @@ NSOpenGLContext *globalGLContext = nil;
 		{
 			Vector3D move = [self translationFromPoint:currentPoint];
 			move -= *selectionOffset;
-			move -= [manipulated selectionCenter];
-			[manipulated moveSelectedByOffset:move];
+			move -= manipulated->selectionCenter();
+            manipulated->moveSelectedByOffset(move);
 			[self setNeedsDisplay:YES];
 		}
 		else if (currentManipulator == rotationManipulator)
 		{
 			Quaternion rotation = [self rotationFromPoint:currentPoint lastPosition:selectionOffset];
-			[manipulated rotateSelectedByOffset:rotation];
+            manipulated->rotateSelectedByOffset(rotation);
 			[self setNeedsDisplay:YES];
 		}
 		else if (currentManipulator == scaleManipulator)
 		{
 			Vector3D scale = [self scaleFromPoint:currentPoint lastPosition:selectionOffset];
-			[manipulated scaleSelectedByOffset:scale];
+            manipulated->scaleSelectedByOffset(scale);
 			[self setNeedsDisplay:YES];
 		}
 	}
@@ -939,8 +936,10 @@ uint selectedIndices[kMaxSelectedIndicesCount];
                                  y:(int)y
                              width:(int)width
                             height:(int)height
-                         selecting:(id<OpenGLSelecting>)selecting 
+                         selecting:(IOpenGLSelecting *)selecting 
 {
+    IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
+    
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
@@ -949,17 +948,17 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     
-    if ([selecting respondsToSelector:@selector(drawAllForSelection)])
+    if (optional != NULL)
     {
-        [selecting drawAllForSelection];
+        optional->drawAllForSelection();
     }
     else
     {
-        for (uint i = 0; i < [selecting selectableCount]; i++)
+        for (uint i = 0; i < selecting->selectableCount(); i++)
         {
             uint colorIndex = i + 1;
             glColor4ubv((GLubyte *)&colorIndex);
-            [selecting drawForSelectionAtIndex:i];
+            selecting->drawForSelectionAtIndex(i);
         }
     }
     
@@ -979,7 +978,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
         for (uint i = 0; i < selectedIndicesCount; i++)
         {
             uint selectedIndex = selectedIndices[i];
-            if (selectedIndex > 0 && selectedIndex - 1 < [selecting selectableCount])
+            if (selectedIndex > 0 && selectedIndex - 1 < selecting->selectableCount())
                 [uniqueIndices addIndex:selectedIndex - 1];
         }
         
@@ -990,15 +989,17 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 }
 
 - (void)selectWithPoint:(NSPoint)point 
-			  selecting:(id<OpenGLSelecting>)selecting 
+			  selecting:(IOpenGLSelecting *)selecting 
 		  selectionMode:(enum OpenGLSelectionMode)selectionMode
 {
-    if (selecting == nil || [selecting selectableCount] <= 0)
+    if (selecting == NULL || selecting->selectableCount() <= 0)
 		return;
     
-    if ([selecting respondsToSelector:@selector(willSelectThrough:)])
-		[selecting willSelectThrough:NO];
+    IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
     
+    if (optional != NULL)
+        optional->willSelectThrough(false);
+        
     [[self openGLContext] makeCurrentContext];
         
 	NSMutableIndexSet *uniqueIndices = [self selectWithX:point.x - 5
@@ -1009,47 +1010,42 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     
     [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) 
     {
-         [selecting selectObjectAtIndex:idx withMode:selectionMode];
-         *stop = YES;
+        selecting->selectObjectAtIndex(idx, selectionMode);
+        *stop = YES;
     }];
     
-    if ([selecting respondsToSelector:@selector(didSelect)])
-		[selecting didSelect];
+    if (optional != NULL)
+        optional->didSelect();    
 }
 
 - (void)selectWithRect:(NSRect)rect
-			 selecting:(id<OpenGLSelecting>)selecting
+			 selecting:(IOpenGLSelecting *)selecting
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
          selectThrough:(BOOL)selectThrough
 {
-    if (selecting == nil || [selecting selectableCount] <= 0)
+    if (selecting == NULL || selecting->selectableCount() <= 0)
 		return;
     
-    if ([selecting respondsToSelector:@selector(willSelectThrough:)])
-		[selecting willSelectThrough:selectThrough];
+    IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
+    
+    if (optional != NULL)
+        optional->willSelectThrough(selectThrough);
     
     [[self openGLContext] makeCurrentContext];
 
-    if ([selecting respondsToSelector:@selector(useGLProject)])
+    if (optional != NULL)
     {
-        if ([selecting useGLProject])
+        if (optional->useGLProject())
         {
-            [selecting glProjectSelectWithX:rect.origin.x
-                                          y:rect.origin.y
-                                      width:rect.size.width
-                                     height:rect.size.height
-                              selectionMode:selectionMode];
-            
-            if ([selecting respondsToSelector:@selector(didSelect)])
-                [selecting didSelect];
-            
+            optional->glProjectSelect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selectionMode);
+            optional->didSelect();
             return;
         }
     }    
     
     NSMutableIndexSet *uniqueIndices;
     
-    if ([selecting respondsToSelector:@selector(needsCullFace)] && [selecting needsCullFace])
+    if (optional != NULL && optional->needsCullFace())
     {
         glCullFace(GL_CCW);
         glEnable(GL_CULL_FACE);
@@ -1084,11 +1080,11 @@ uint selectedIndices[kMaxSelectedIndicesCount];
     
     [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) 
     {
-        [selecting selectObjectAtIndex:idx withMode:selectionMode];
+        selecting->selectObjectAtIndex(idx, selectionMode);
     }];
     
-    if ([selecting respondsToSelector:@selector(didSelect)])
-		[selecting didSelect];
+    if (optional != NULL)
+        optional->didSelect();
 }
 
 #pragma mark Position retrieve
@@ -1117,7 +1113,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 
 - (void)drawSelectionPlaneWithIndex:(int)index
 {
-	Vector3D position = [manipulated selectionCenter];
+	Vector3D position = manipulated->selectionCenter();
 	
 	glPushMatrix();
 	glTranslatef(position.x, position.y, position.z);
@@ -1131,7 +1127,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	DrawPlane(camera->GetAxisX(), camera->GetAxisY(), size);
 	
 	Vector3D position = [self positionInSpaceByPoint:point];
-	Vector3D result = [manipulated selectionCenter];
+	Vector3D result = manipulated->selectionCenter();
 	result[axis] = position[axis];
 	return result;
 }
@@ -1142,7 +1138,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	DrawPlane(camera->GetAxisX(), camera->GetAxisY(), size);
 	
 	Vector3D position = [self positionInSpaceByPoint:point];
-	Vector3D result = [manipulated selectionCenter];
+	Vector3D result = manipulated->selectionCenter();
 	position = rotation.Conjugate().ToMatrix().Transform(position);
 	result[axis] = position[axis];
 	return result;
@@ -1154,7 +1150,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	[self drawSelectionPlaneWithIndex:index];
 	Vector3D position = [self positionInSpaceByPoint:point];
 	Vector3D result = position;
-	result[index] = [manipulated selectionCenter][index];
+	result[index] = manipulated->selectionCenter()[index];
 	return result;
 }
 
@@ -1165,7 +1161,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(camera->GetViewMatrix());
 	
-	Vector3D position = [manipulated selectionCenter];
+	Vector3D position = manipulated->selectionCenter();
 	uint selectedIndex = currentManipulator->selectedIndex;
 	
 	if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
@@ -1181,7 +1177,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(camera->GetViewMatrix());
 	
-	Vector3D position = [manipulated selectionCenter];
+	Vector3D position = manipulated->selectionCenter();
 	uint selectedIndex = currentManipulator->selectedIndex;
 	
 	Vector3D scale = Vector3D();
@@ -1192,7 +1188,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 		Axis selectedAxis = selectedWidget.axis;
 		if (selectedAxis >= AxisX && selectedAxis <= AxisZ)
 		{
-			position = [self positionFromRotatedAxis:selectedAxis point:point rotation:[manipulated selectionRotation]];
+			position = [self positionFromRotatedAxis:selectedAxis point:point rotation:manipulated->selectionRotation()];
 			scale = position - *lastPosition;
 		}
 		else if (selectedAxis == Center)
@@ -1222,7 +1218,7 @@ uint selectedIndices[kMaxSelectedIndicesCount];
 	uint selectedIndex = currentManipulator->selectedIndex;
 	
 	position = [self positionFromPlaneAxis:(PlaneAxis)(selectedIndex + 3) point:point];
-	position -= [manipulated selectionCenter];
+	position -= manipulated->selectionCenter();
 	
 	switch (selectedIndex)
     {

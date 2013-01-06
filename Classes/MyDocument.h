@@ -14,14 +14,14 @@
 #import "FPTextureBrowserWindowController.h"
 #import "ScriptWindowController.h"
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, OpenGLTransforming, ScriptDelegate, NSWindowDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, ScriptDelegate, NSWindowDelegate>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;
 	ItemCollection *items;
 	OpenGLManipulatingController *itemsController;
 	OpenGLManipulatingController *meshController;
-	id<OpenGLManipulating> manipulated;
+    IOpenGLManipulating *manipulated;
 	IBOutlet OpenGLSceneView *viewLeft;
 	IBOutlet OpenGLSceneView *viewTop;
 	IBOutlet OpenGLSceneView *viewFront;
@@ -47,7 +47,7 @@
     IBOutlet NSPopUpButton *scriptPullDown;
 }
 
-@property (readwrite, assign) id<OpenGLManipulating> manipulated;
+@property (readwrite, assign) IOpenGLManipulating *manipulated;
 @property (readonly) NSPopUpButton *scriptPullDown;
 
 + (BOOL)softSelection;

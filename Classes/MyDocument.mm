@@ -22,14 +22,14 @@
         // Add your subclass-specific initialization here.
         // If an error occurs here, send a [self release] message and return nil.
 		items = new ItemCollection();
-		itemsController = [[OpenGLManipulatingController alloc] init];
-		meshController = [[OpenGLManipulatingController alloc] init];
+		itemsController = new OpenGLManipulatingController();
+		meshController = new OpenGLManipulatingController();
 		
-        itemsController.model = items;
+        itemsController->setModel(items);
 		manipulated = itemsController;
 
-		[itemsController addSelectionObserver:self];
-		[meshController addSelectionObserver:self];
+        itemsController->addSelectionObserver(self);
+        meshController->addSelectionObserver(self);
 		
 		manipulationFinished = YES;
 		oldManipulations = nil;
@@ -48,8 +48,8 @@
 						   
 - (void)dealloc
 {
-	[itemsController removeSelectionObserver:self];
-	[meshController removeSelectionObserver:self];
+    itemsController->removeSelectionObserver(self);
+    meshController->removeSelectionObserver(self);
 }
 
 - (void)awakeFromNib
@@ -85,8 +85,8 @@
 - (void)setCurrentManipulator:(enum ManipulatorType)value;
 {
     currentManipulator = value;
-    [itemsController setCurrentManipulator:value];
-    [meshController setCurrentManipulator:value];
+    itemsController->setCurrentManipulator(value);
+    meshController->setCurrentManipulator(value);
 }
 
 - (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
@@ -111,12 +111,12 @@
 	}
 }
 
-- (id<OpenGLManipulating>)manipulated
+- (IOpenGLManipulating *)manipulated
 {
 	return manipulated;
 }
 
-- (void)setManipulated:(id<OpenGLManipulating>)value
+- (void)setManipulated:(IOpenGLManipulating *)value
 {
 	manipulated = value;
 	
@@ -139,19 +139,19 @@
 
 - (void)updateManipulatedSelection
 {
-    [manipulated updateSelection];
+    manipulated->updateSelection();
 }
 
 - (Mesh2 *)currentMesh
 {
 	if (manipulated == meshController)
     {
-        Item *item = (Item *)meshController.model;
+        Item *item = (Item *)meshController->model();
         return item->mesh;
     }
     if (manipulated == itemsController)
     {
-        ItemCollection *itemCollection = (ItemCollection *)itemsController.model;
+        ItemCollection *itemCollection = (ItemCollection *)itemsController->model();
         return itemCollection->currentMesh();
     }
 	return nil;
@@ -179,10 +179,10 @@
 	
     items->addItem(item);
     [textureBrowserWindowController setItems:items];
-	[itemsController changeSelection:NO];
+    itemsController->changeSelection(false);
     items->setSelectedAtIndex(items->count() - 1, true);
-	[itemsController updateSelection];
-	[self setManipulated:itemsController];
+    itemsController->updateSelection();
+    [self setManipulated:itemsController];
 }
 
 - (void)removeItemWithType:(enum MeshType)type steps:(uint)steps
@@ -194,59 +194,59 @@
 
 	items->removeLastItem();
     [textureBrowserWindowController setItems:items];
-	[itemsController changeSelection:NO];
+    itemsController->changeSelection(false);
 	[self setManipulated:itemsController];
 }
 
 - (float)selectionX
 {
-	return [manipulated selectionX];
+	return manipulated->selectionX();
 }
 
 - (float)selectionY
 {
-	return [manipulated selectionY];
+	return manipulated->selectionY();
 }
 
 - (float)selectionZ
 {
-	return [manipulated selectionZ];
+	return manipulated->selectionZ();
 }
 
 - (void)setSelectionX:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setSelectionX:value];
+	manipulated->setSelectionX(value);
 	[self manipulationEndedInView:nil];
 }
 
 - (void)setSelectionY:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setSelectionY:value];
+	manipulated->setSelectionY(value);
 	[self manipulationEndedInView:nil];
 }
 
 - (void)setSelectionZ:(float)value
 {
 	[self manipulationStartedInView:nil];
-	[manipulated setSelectionZ:value];
+	manipulated->setSelectionZ(value);
 	[self manipulationEndedInView:nil];
 }
 
 - (BOOL)selectionColorEnabled
 {
-    return manipulated.selectionColorEnabled;
+    return manipulated->selectionColorEnabled();
 }
 
 - (NSColor *)selectionColor
 {
-    return manipulated.selectionColor;
+    return manipulated->selectionColor();
 }
 
 - (void)setSelectionColor:(NSColor *)selectionColor
 {
-    [self meshOnlyActionWithName:@"Change Color" block:^ { manipulated.selectionColor = selectionColor; }];
+    [self meshOnlyActionWithName:@"Change Color" block:^ { manipulated->setSelectionColor(selectionColor); }];
 }
 
 - (void)setNilValueForKey:(NSString *)key
@@ -274,7 +274,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Manipulations"];	
 	[document swapManipulationsWithOld:current current:old];
 	
-	[itemsController updateSelection];
+	itemsController->updateSelection();
 	[self setManipulated:itemsController];
 }
 
@@ -289,7 +289,7 @@
 						  current:old
 					   actionName:actionName];
 	
-	[itemsController updateSelection];
+	itemsController->updateSelection();
 	[self setManipulated:itemsController];
 }
 
@@ -300,18 +300,16 @@
     items->setCurrentMeshState(old);
 	Item *item = items->itemAtIndex(old.itemIndex);
 	
-    [meshController setModel:item];
-    [meshController setPosition:item->position
-                       rotation:item->rotation
-                          scale:item->scale];
+    meshController->setModel(item);
+    meshController->setPositionRotationScale(item->position, item->rotation, item->scale);
     
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapMeshStateWithOld:current
 						   current:old
 						actionName:actionName];
 	
-	[itemsController updateSelection];
-	[meshController updateSelection];
+	itemsController->updateSelection();
+	meshController->updateSelection();
     
 	[self setManipulated:meshController];
 }
@@ -368,8 +366,8 @@
 		[document swapManipulationsWithOld:oldManipulations current:items->currentManipulations()];
 		oldManipulations = nil;
         
-        [itemsController willChangeSelection];
-        [itemsController didChangeSelection];
+        itemsController->willChangeSelection();
+        itemsController->didChangeSelection();
 	}
 	else if (manipulated == meshController)
 	{
@@ -377,8 +375,8 @@
 		[document swapMeshStateWithOld:oldMeshState current:items->currentMeshState() actionName:@"Mesh Manipulation"];
 		oldMeshState = nil;
         
-        [meshController willChangeSelection];
-        [meshController didChangeSelection];
+        meshController->willChangeSelection();
+        meshController->didChangeSelection();
 	}
 	
 	[self setNeedsDisplayExceptView:view];
@@ -433,16 +431,15 @@
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode
 {
-	NSInteger index = [itemsController lastSelectedIndex];
+	NSInteger index = itemsController->lastSelectedIndex();
 	if (index > -1)
 	{
 		Item *item = items->itemAtIndex(index);
         item->mesh->setSelectionMode(mode);
         
-		[meshController setModel:item];
-		[meshController setPosition:item->position
-						   rotation:item->rotation
-							  scale:item->scale];
+		meshController->setModel(item);
+		meshController->setPositionRotationScale(item->position, item->rotation, item->scale);
+        
 		[self setManipulated:meshController];
 	}
 }
@@ -453,10 +450,9 @@
     if (currentMesh)
         currentMesh->setSelectionMode(MeshSelectionModeVertices);
     
-	[itemsController setModel:items];
-	[itemsController setPosition:Vector3D()
-						rotation:Quaternion()
-						   scale:Vector3D(1, 1, 1)];
+	itemsController->setModel(items);
+    itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
+    
 	[self setManipulated:itemsController];
 }
 
@@ -487,18 +483,18 @@
 
 - (enum ViewMode)viewMode
 {
-    return manipulated.viewMode;
+    return manipulated->viewMode();
 }
 
 - (void)setViewMode:(enum ViewMode)viewMode
 {
-    manipulated.viewMode = viewMode;
+    manipulated->setViewMode(viewMode);
     [self setNeedsDisplayOnAllViews];
 }
 
 - (IBAction)mergeSelected:(id)sender
 {
-	if ([manipulated selectedCount] <= 0)
+	if (manipulated->selectedCount() <= 0)
 		return;
 	
 	if (manipulated == itemsController)
@@ -510,7 +506,7 @@
 		[self meshActionWithName:@"Merge" block:^ { [self currentMesh]->mergeSelected(); }]; 
 	}
 	
-	[manipulated updateSelection];
+	manipulated->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
 
@@ -528,7 +524,7 @@
 	
     [self meshActionWithName:actionName block:action];
 	
-    [manipulated updateSelection];
+    manipulated->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 	
 	if (startManipulation)
@@ -549,7 +545,7 @@
 
 - (IBAction)duplicateSelected:(id)sender
 {	
-	if ([manipulated selectedCount] <= 0)
+	if (manipulated->selectedCount() <= 0)
 		return;
 	
 	BOOL startManipulation = NO;
@@ -564,14 +560,14 @@
 		NSMutableArray *selection = items->currentSelection();
 		MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 		[document undoDuplicateSelected:selection];
-		[manipulated duplicateSelected];
+		manipulated->duplicateSelected();
 	}
 	else if (manipulated == meshController)
 	{
-		[self meshActionWithName:@"Duplicate" block:^ { [manipulated duplicateSelected]; }];
+        [self meshActionWithName:@"Duplicate" block:^ { manipulated->duplicateSelected(); }];
 	}
 	
-    [manipulated updateSelection];
+    manipulated->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 	
 	if (startManipulation)
@@ -584,12 +580,12 @@
 {
 	[self setManipulated:itemsController];
 	items->setCurrentSelection(selection);
-	[manipulated duplicateSelected];
+	manipulated->duplicateSelected();
 	
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 	[document undoDuplicateSelected:selection];
 	
-	[manipulated updateSelection];
+	manipulated->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
 
@@ -603,13 +599,13 @@
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 	[document redoDuplicateSelected:selection];
 		
-	[manipulated updateSelection];
+	manipulated->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
 
 - (IBAction)deleteSelected:(id)sender
 {
-	if ([manipulated selectedCount] <= 0)
+	if (manipulated->selectedCount() <= 0)
 		return;
 	
 	if (manipulated == itemsController)
@@ -617,12 +613,12 @@
 		NSMutableArray *currentItems = items->currentItems();
 		MyDocument *document = [self prepareUndoWithName:@"Delete"];
 		[document undoDeleteSelected:currentItems];
-		[manipulated removeSelected];
+		manipulated->removeSelected();
         [textureBrowserWindowController setItems:items];
 	}
 	else if (manipulated == meshController)
 	{
-		[self meshActionWithName:@"Delete" block:^ { [manipulated removeSelected]; }];
+		[self meshActionWithName:@"Delete" block:^ { manipulated->removeSelected(); }];
 	}
 	
 	[self setNeedsDisplayOnAllViews];
@@ -632,13 +628,13 @@
 {
 	[self setManipulated:itemsController];
     items->setSelectionFromIndexedItems(selectedItems);
-	[manipulated removeSelected];
+	manipulated->removeSelected();
     [textureBrowserWindowController setItems:items];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document undoDeleteSelected:selectedItems];
 
-	[itemsController updateSelection];
+	itemsController->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
 
@@ -651,7 +647,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document redoDeleteSelected:selectedItems];
 	
-	[itemsController updateSelection];
+	itemsController->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
 
@@ -688,25 +684,25 @@
 
 - (IBAction)selectAll:(id)sender
 {
-	[[self manipulated] changeSelection:YES];
+    manipulated->changeSelection(true);
 	[self setNeedsDisplayOnAllViews];
 }
 
 - (IBAction)invertSelection:(id)sender
 {
-	[[self manipulated] invertSelection];
+    manipulated->invertSelection();
 	[self setNeedsDisplayOnAllViews];
 }
 
 - (IBAction)hideSelected:(id)sender
 {
-	[[self manipulated] hideSelected];
+    manipulated->hideSelected();
 	[self setNeedsDisplayOnAllViews];
 }
 
 - (IBAction)unhideAll:(id)sender
 {
-	[[self manipulated] unhideAll];
+    manipulated->unhideAll();
 	[self setNeedsDisplayOnAllViews];
 }
 

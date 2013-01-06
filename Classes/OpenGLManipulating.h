@@ -8,34 +8,50 @@
  */
 #import "OpenGLSelecting.h"
 
-@protocol OpenGLTransforming <NSObject>
+class IOpenGLTransforming
+{
+public:
+    virtual ~IOpenGLTransforming() { }
+    
+    virtual float selectionX() = 0;
+    virtual void setSelectionX(float x) = 0;
+    virtual float selectionY() = 0;
+    virtual void setSelectionY(float y) = 0;
+    virtual float selectionZ() = 0;
+    virtual void setSelectionZ(float z) = 0;
+    
+    virtual ManipulatorType currentManipulator() = 0;
+    virtual void setCurrentManipulator(ManipulatorType manipulator) = 0;
+    
+    virtual bool selectionColorEnabled() = 0;
+    virtual NSColor *selectionColor() = 0;
+    virtual void setSelectionColor(NSColor *color) = 0;
+};
 
-@property (readwrite, assign) float selectionX, selectionY, selectionZ;
-@property (readwrite, assign) enum ManipulatorType currentManipulator;
-
-@property (readonly, assign) BOOL selectionColorEnabled;
-@property (readwrite, assign) NSColor *selectionColor;
-
-@end
-
-@protocol OpenGLManipulating <OpenGLSelecting, OpenGLTransforming>
-
-@property (readwrite, assign) Vector3D selectionCenter;
-@property (readwrite, assign) Quaternion selectionRotation;
-@property (readwrite, assign) Vector3D selectionScale;
-@property (readonly) uint selectedCount;
-@property (readwrite, assign) enum ViewMode viewMode;
-
-- (void)moveSelectedByOffset:(Vector3D)offset;
-- (void)rotateSelectedByOffset:(Quaternion)offset;
-- (void)scaleSelectedByOffset:(Vector3D)offset;
-- (void)updateSelection;
-- (void)drawForSelection:(BOOL)forSelection;
-- (void)changeSelection:(BOOL)isSelected;
-- (void)invertSelection;
-- (void)duplicateSelected;
-- (void)removeSelected;
-- (void)hideSelected;
-- (void)unhideAll;
-
-@end
+class IOpenGLManipulating : public IOpenGLSelectingOptional, public IOpenGLTransforming
+{
+public:
+    virtual ~IOpenGLManipulating() { }
+    
+    virtual Vector3D selectionCenter() = 0;
+    virtual void setSelectionCenter(Vector3D center) = 0;
+    virtual Quaternion selectionRotation() = 0;
+    virtual void setSelectionRotation(Quaternion rotation) = 0;
+    virtual Vector3D selectionScale() = 0;
+    virtual void setSelectionScale(Vector3D scale) = 0;
+    virtual uint selectedCount() = 0;
+    virtual ViewMode viewMode() = 0;
+    virtual void setViewMode(ViewMode mode) = 0;
+    
+    virtual void moveSelectedByOffset(Vector3D offset) = 0;
+    virtual void rotateSelectedByOffset(Quaternion offset) = 0;
+    virtual void scaleSelectedByOffset(Vector3D offset) = 0;
+    virtual void updateSelection() = 0;
+    virtual void drawForSelection(bool forSelection) = 0;
+    virtual void changeSelection(bool isSelected) = 0;
+    virtual void invertSelection() = 0;
+    virtual void duplicateSelected() = 0;
+    virtual void removeSelected() = 0;
+    virtual void hideSelected() = 0;
+    virtual void unhideAll() = 0;
+};

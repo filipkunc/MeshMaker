@@ -10,27 +10,6 @@
 
 #import "Enums.h"
 
-@protocol OpenGLSelecting <NSObject>
-
-- (uint)selectableCount;
-- (void)drawForSelectionAtIndex:(uint)index;
-- (void)selectObjectAtIndex:(uint)index withMode:(enum OpenGLSelectionMode)selectionMode;
-
-@optional
-- (void)willSelectThrough:(BOOL)selectThrough;
-- (void)didSelect;
-- (BOOL)isObjectSelectedAtIndex:(uint)index;
-- (void)drawAllForSelection;
-- (BOOL)needsCullFace;
-- (BOOL)useGLProject;
-- (void)glProjectSelectWithX:(int)x  
-                           y:(int)y 
-                       width:(int)width
-                      height:(int)height
-               selectionMode:(enum OpenGLSelectionMode)selectionMode;
-
-@end
-
 class IOpenGLSelecting
 {
 public:
@@ -41,8 +20,16 @@ public:
     virtual void selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode) = 0;
 };
 
-@interface OpenGLSelectingWrapper : NSObject <OpenGLSelecting>
-
-@property (readwrite, assign) IOpenGLSelecting *cppSelecting;
-
-@end
+class IOpenGLSelectingOptional : public IOpenGLSelecting
+{
+public:
+    virtual ~IOpenGLSelectingOptional() { }
+    
+    virtual void willSelectThrough(bool selectThrough) = 0;
+    virtual void didSelect() = 0;
+    virtual bool isObjectSelectedAtIndex(uint index) = 0;
+    virtual void drawAllForSelection() = 0;
+    virtual bool needsCullFace() = 0;
+    virtual bool useGLProject() = 0;
+    virtual void glProjectSelect(int x, int y, int width, int height, OpenGLSelectionMode selectionMode) = 0;
+};

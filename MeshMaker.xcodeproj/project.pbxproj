@@ -90,7 +90,6 @@
 		A7A4874013AE2ECA00C0C41B /* Mesh2.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4873F13AE2ECA00C0C41B /* Mesh2.mm */; };
 		A7A4874313AE4E7A00C0C41B /* Mesh2.drawing.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874213AE4E7A00C0C41B /* Mesh2.drawing.mm */; };
 		A7A4874713AE4EC300C0C41B /* Mesh2.make.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */; };
-		A7ABC1181695C3F400379569 /* OpenGLSelecting.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7ABC1171695C3F400379569 /* OpenGLSelecting.mm */; };
 		A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */; };
 		A7B76C9F1657CA6400CFAAE7 /* meshtest.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C991657CA4500CFAAE7 /* meshtest.js */; };
 		A7B76CA01657CA6400CFAAE7 /* quadify.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C9A1657CA4500CFAAE7 /* quadify.js */; };
@@ -222,7 +221,6 @@
 		A7A4874613AE4EC300C0C41B /* Mesh2.make.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Mesh2.make.mm; path = Classes/Mesh2.make.mm; sourceTree = "<group>"; };
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
-		A7ABC1171695C3F400379569 /* OpenGLSelecting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenGLSelecting.mm; path = Classes/OpenGLSelecting.mm; sourceTree = "<group>"; };
 		A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = loopSubdivision.js; sourceTree = "<group>"; };
 		A7B76C991657CA4500CFAAE7 /* meshtest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = meshtest.js; sourceTree = "<group>"; };
 		A7B76C9A1657CA4500CFAAE7 /* quadify.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = quadify.js; sourceTree = "<group>"; };
@@ -373,7 +371,6 @@
 				A7064C6012BD107800B14CFA /* OpenGLSceneView.h */,
 				A7064C6112BD107800B14CFA /* OpenGLSceneView.mm */,
 				A7064C6212BD107800B14CFA /* OpenGLSelecting.h */,
-				A7ABC1171695C3F400379569 /* OpenGLSelecting.mm */,
 				A7064C6512BD107800B14CFA /* Shader.h */,
 				A7064C6612BD107800B14CFA /* Shader.mm */,
 				A7064C6712BD107800B14CFA /* ShaderProgram.h */,
@@ -671,7 +668,6 @@
 				A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */,
 				A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */,
 				A748E71D165667D100084D58 /* MyDocument+archiving.mm in Sources */,
-				A7ABC1181695C3F400379569 /* OpenGLSelecting.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -117,8 +117,8 @@ vector<T> *ReadValues(string s)
     ItemCollection *newItems = new ItemCollection(stream);
     items = newItems;
     
-    [itemsController setModel:items];
-    [itemsController updateSelection];
+    itemsController->setModel(items);
+    itemsController->updateSelection();
     [self setManipulated:itemsController];
     
     return YES;
@@ -269,8 +269,8 @@ vector<T> *ReadValues(string s)
     
     items = newItems;
     
-    [itemsController setModel:items];
-    [itemsController updateSelection];
+    itemsController->setModel(items);
+    itemsController->updateSelection();
     [self setManipulated:itemsController];
     
     return YES;

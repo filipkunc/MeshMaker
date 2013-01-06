@@ -8,85 +8,16 @@
 
 #import "OpenGLManipulatingController.h"
 
-@implementation OpenGLManipulatingController
+@implementation OpenGLManipulatingControllerKVC
 
-@synthesize selectedCount, lastSelectedIndex, modelTransform;
-
-- (id)init
+- (id)initWithController:(OpenGLManipulatingController *)controller
 {
-	self = [super init];
-	if (self)
-	{
-		selectionCenter = new Vector3D();
-		selectionRotation = new Quaternion();
-		selectionEuler = new Vector3D();
-		selectionScale = new Vector3D(1, 1, 1);
-		selectedCount = 0;
-		lastSelectedIndex = -1;
-		modelTransform = new Matrix4x4();
-		modelPosition = new Vector3D();
-		modelRotation = new Quaternion();
-		modelScale = new Vector3D(1, 1, 1);
-        currentManipulator = ManipulatorTypeDefault;
-	}
-	return self;
-}
-
-- (void)dealloc
-{
-	delete selectionCenter;
-	delete selectionRotation;
-	delete selectionEuler;
-	delete selectionScale;
-	delete modelTransform;
-	delete modelPosition;
-	delete modelRotation;
-	delete modelScale;
-}
-
-- (BOOL)selectionColorEnabled
-{
-    return YES;
-    
-//    if ([model respondsToSelector:@selector(selectionColor)])
-//        return YES;
-//    
-//    return NO;
-}
-
-- (NSColor *)selectionColor
-{
-    if (self.selectionColorEnabled)
-        return model->selectionColor();
-    return nil;
-}
-
-- (void)setSelectionColor:(NSColor *)selectionColor
-{
-    if (self.selectionColorEnabled)
-        model->setSelectionColor(selectionColor);
-}
-
-- (enum ViewMode)viewMode
-{
-    return model->viewMode();
-}
-
-- (void)setViewMode:(enum ViewMode)viewMode
-{
-    model->setViewMode(viewMode);
-}
-
-- (IOpenGLManipulatingModel *)model
-{
-    return model;
-}
-
-- (void)setModel:(IOpenGLManipulatingModel *)value
-{
-	model = value;
-    modelMesh = dynamic_cast<IOpenGLManipulatingModelMesh *>(value);
-    modelItem = dynamic_cast<IOpenGLManipulatingModelItem *>(value);
+    self = [super init];
+    if (self)
+    {
+        _controller = controller;
+    }
+    return self;
 }
 
 - (void)addObserver:(id)observer forKeyPath:(NSString *)keyPath
@@ -97,260 +28,250 @@
 			  context:NULL];
 }
 
-- (void)addSelectionObserver:(id)observer
+- (float)selectionX { return _controller->selectionX(); }
+- (float)selectionY { return _controller->selectionY(); }
+- (float)selectionZ { return _controller->selectionZ(); }
+- (void)setSelectionX:(float)selectionX { _controller->setSelectionX(selectionX); }
+- (void)setSelectionY:(float)selectionY { _controller->setSelectionY(selectionY); }
+- (void)setSelectionZ:(float)selectionZ { _controller->setSelectionZ(selectionZ); }
+- (enum ManipulatorType)currentManipulator { return _controller->currentManipulator(); }
+- (void)setCurrentManipulator:(enum ManipulatorType)currentManipulator { _controller->setCurrentManipulator(currentManipulator); }
+- (BOOL)selectionColorEnabled { return _controller->selectionColorEnabled(); }
+- (NSColor *)selectionColor { return _controller->selectionColor(); }
+- (void)setSelectionColor:(NSColor *)selectionColor { _controller->setSelectionColor(selectionColor); }
+- (enum ViewMode)viewMode { return _controller->viewMode(); }
+- (void)setViewMode:(enum ViewMode)viewMode { _controller->setViewMode(viewMode); }
+
+@end
+
+OpenGLManipulatingController::OpenGLManipulatingController()
 {
-	[self addObserver:observer forKeyPath:@"selectionX"];
-	[self addObserver:observer forKeyPath:@"selectionY"];
-	[self addObserver:observer forKeyPath:@"selectionZ"];
-    [self addObserver:observer forKeyPath:@"selectionColor"];
-    [self addObserver:observer forKeyPath:@"selectionColorEnabled"];
-    [self addObserver:observer forKeyPath:@"viewMode"];
+    _selectionScale = Vector3D(1, 1, 1);
+    _selectedCount = 0;
+    _lastSelectedIndex = -1;
+    _modelScale = Vector3D(1, 1, 1);
+    _currentManipulator = ManipulatorTypeDefault;
+    _kvc = [[OpenGLManipulatingControllerKVC alloc] initWithController:this];
 }
 
-- (void)removeSelectionObserver:(id)observer
+OpenGLManipulatingController::~OpenGLManipulatingController()
 {
-	[self removeObserver:observer forKeyPath:@"selectionX"];
-	[self removeObserver:observer forKeyPath:@"selectionY"];
-	[self removeObserver:observer forKeyPath:@"selectionZ"];
-    [self removeObserver:observer forKeyPath:@"selectionColor"];
-    [self removeObserver:observer forKeyPath:@"selectionColorEnabled"];
-    [self removeObserver:observer forKeyPath:@"viewMode"];
+    
 }
 
-- (void)setPosition:(Vector3D)aPosition rotation:(Quaternion)aRotation scale:(Vector3D)aScale
+uint OpenGLManipulatingController::selectableCount()
 {
-	*modelPosition = aPosition;
-	*modelRotation = aRotation;
-	*modelScale = aScale;
-	modelTransform->TranslateRotateScale(aPosition, aRotation, aScale);
+    return _model->count();
 }
 
-- (enum ManipulatorType)currentManipulator
+void OpenGLManipulatingController::drawForSelectionAtIndex(uint index)
 {
-    return currentManipulator;
+    glPushMatrix();
+	glMultMatrixf(_modelTransform);
+    _modelItem->drawAtIndex(index, true);
+	glPopMatrix();
 }
 
-- (void)setCurrentManipulator:(enum ManipulatorType)value
+void OpenGLManipulatingController::selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode)
 {
-    [self willChangeSelection];
-    currentManipulator = value;
-    [self didChangeSelection];
-}
-
-- (float)selectionX
-{
-	return [self transformValueAtIndex:0 withManipulator:currentManipulator];
-}
-
-- (float)selectionY
-{
-	return [self transformValueAtIndex:1 withManipulator:currentManipulator];
-}
-
-- (float)selectionZ
-{
-	return [self transformValueAtIndex:2 withManipulator:currentManipulator];
-}
-
-- (void)setSelectionX:(float)value
-{
-	[self setTransformValue:value atIndex:0 withManipulator:currentManipulator];
-}
-
-- (void)setSelectionY:(float)value
-{
-	[self setTransformValue:value atIndex:1 withManipulator:currentManipulator];
-}
-
-- (void)setSelectionZ:(float)value
-{
-	[self setTransformValue:value atIndex:2 withManipulator:currentManipulator];
-}
-
-- (void)setNilValueForKey:(NSString *)key
-{
-	[self setValue:[NSNumber numberWithFloat:0.0f] forKey:key];
-}
-
-- (float)transformValueAtIndex:(uint)index
-			   withManipulator:(enum ManipulatorType)manipulatorType
-{
-	switch (manipulatorType)
+    switch (selectionMode)
 	{
-		case ManipulatorTypeTranslation:
-			return (*selectionCenter)[index];
-		case ManipulatorTypeRotation:
-			return (*selectionEuler)[index] * RAD_TO_DEG;
-		case ManipulatorTypeScale:
-			return (*selectionScale)[index];
-		case ManipulatorTypeDefault:
-		default:
-			return 0.0f;
-	}
-}
-
-- (void)setTransformValue:(float)value 
-				  atIndex:(uint)index
-		  withManipulator:(enum ManipulatorType)manipulatorType
-{
-	switch (manipulatorType)
-	{
-		case ManipulatorTypeTranslation:
-		{
-			Vector3D offset = Vector3D();
-			offset[index] = value - (*selectionCenter)[index];
-			[self moveSelectedByOffset:offset];
-		}break;
-		case ManipulatorTypeRotation:
-		{
-			(*selectionEuler)[index] = value * DEG_TO_RAD;
-			if (selectedCount == 1)
-			{
-				selectionRotation->FromEulerAngles(*selectionEuler);
-				if (lastSelectedIndex > -1 && modelItem != NULL)
-                    modelItem->setRotationAtIndex(lastSelectedIndex, *selectionRotation);
-			}
-			else
-			{
-				Quaternion offset = Quaternion();
-				offset.FromEulerAngles(*selectionEuler);
-				offset = offset * selectionRotation->Conjugate();
-				[self rotateSelectedByOffset:offset];
-			}
-		}break;
-		case ManipulatorTypeScale:
-		{
-			if (selectedCount == 1)
-			{
-				(*selectionScale)[index] = value;
-				if (lastSelectedIndex > -1 && modelItem != NULL)
-                    modelItem->setScaleAtIndex(lastSelectedIndex, *selectionScale);
-			}
-			else
-			{
-				Vector3D offset = Vector3D();
-				offset[index] = value - (*selectionScale)[index];
-				[self scaleSelectedByOffset:offset];
-			}
-		}break;
+		case OpenGLSelectionModeAdd:
+            _model->setSelectedAtIndex(index, true);
+			break;
+		case OpenGLSelectionModeSubtract:
+            _model->setSelectedAtIndex(index, false);
+			break;
+		case OpenGLSelectionModeInvert:
+            _model->setSelectedAtIndex(index, !_model->isSelectedAtIndex(index));
+			break;
+        case OpenGLSelectionModeExpand:
+            _model->expandSelectionFromIndex(index, false);
+            break;
+        case OpenGLSelectionModeInvertExpand:
+            _model->expandSelectionFromIndex(index, true);
+            break;
 		default:
 			break;
 	}
 }
 
-- (void)updateSelection
+void OpenGLManipulatingController::willSelectThrough(bool selectThrough)
 {
-	[self willChangeSelection];
-	
-	if (modelMesh != NULL)
-	{
-        modelMesh->getSelectionCenterRotationScale(*selectionCenter, *selectionRotation, *selectionScale);
-		selectedCount = 0;
-		for (uint i = 0; i < model->count(); i++)
-		{
-            if (model->isSelectedAtIndex(i))
-				selectedCount++;
-		}
-	}
-	else if (modelItem != NULL)
-	{
-		*selectionCenter = Vector3D();
-		*selectionRotation = Quaternion();
-		*selectionScale = Vector3D(1, 1, 1);
-		selectedCount = 0;
-		lastSelectedIndex = -1;
-		for (uint i = 0; i < model->count(); i++)
-		{
-            if (model->isSelectedAtIndex(i))
-			{
-				selectedCount++;
-				*selectionCenter += modelItem->positionAtIndex(i);
-				lastSelectedIndex = i;
-			}
-		}
-		if (selectedCount > 0)
-		{
-			*selectionCenter /= (float)selectedCount;
-			if (selectedCount == 1 && lastSelectedIndex > -1)
-			{
-				*selectionRotation = modelItem->rotationAtIndex(lastSelectedIndex);
-				*selectionScale = modelItem->scaleAtIndex(lastSelectedIndex);
-			}
-		}
-		else
-		{
-			*selectionCenter = Vector3D();
-		}
-	}
-	*selectionEuler = selectionRotation->ToEulerAngles();
-    *selectionCenter = modelTransform->Transform(*selectionCenter);
-	[self didChangeSelection];
+    _model->willSelectThrough(selectThrough);
 }
 
-- (void)willChangeSelection
+void OpenGLManipulatingController::didSelect()
 {
-	[self willChangeValueForKey:@"selectionX"];
-	[self willChangeValueForKey:@"selectionY"];
-	[self willChangeValueForKey:@"selectionZ"];	
-    [self willChangeValueForKey:@"selectionColor"];	
-    [self willChangeValueForKey:@"selectionColorEnabled"];
-    [self willChangeValueForKey:@"viewMode"];
+    _model->didSelect();
+    updateSelection();
 }
 
-- (void)didChangeSelection
+bool OpenGLManipulatingController::isObjectSelectedAtIndex(uint index)
 {
-	[self didChangeValueForKey:@"selectionX"];
-	[self didChangeValueForKey:@"selectionY"];
-	[self didChangeValueForKey:@"selectionZ"];
-    [self didChangeValueForKey:@"selectionColor"];	
-    [self didChangeValueForKey:@"selectionColorEnabled"];
-    [self didChangeValueForKey:@"viewMode"];
+    return _model->isSelectedAtIndex(index);
 }
 
-- (Vector3D)selectionCenter
+void OpenGLManipulatingController::drawAllForSelection()
 {
-	return *selectionCenter;
+    if (_modelMesh != NULL)
+    {
+        glPushMatrix();
+        glMultMatrixf(_modelTransform);
+        _modelMesh->drawAllForSelection(true);
+        glPopMatrix();
+    }
+    else
+    {
+        glPushMatrix();
+        glMultMatrixf(_modelTransform);
+        for (uint i = 0; i < _modelItem->count(); i++)
+        {
+            uint colorIndex = i + 1;
+            glColor4ubv((GLubyte *)&colorIndex);
+            _modelItem->drawAtIndex(i, true);
+        }
+        glPopMatrix();
+    }
 }
 
-- (void)setSelectionCenter:(Vector3D)value
+bool OpenGLManipulatingController::needsCullFace()
 {
-	[self willChangeSelection];
-	*selectionCenter = value;
-	[self didChangeSelection];
+    return _model->needsCullFace();
 }
 
-- (Quaternion)selectionRotation
+bool OpenGLManipulatingController::useGLProject()
 {
-	return *selectionRotation;
+    if (_modelMesh != NULL)
+        return _modelMesh->useGLProject();
+    return false;
 }
 
-- (void)setSelectionRotation:(Quaternion)value
+void OpenGLManipulatingController::glProjectSelect(int x, int y, int width, int height, OpenGLSelectionMode selectionMode)
 {
-	[self willChangeSelection];
-	*selectionRotation = value;
-	*selectionEuler = selectionRotation->ToEulerAngles();
-	[self didChangeSelection];
+    if (_modelMesh != NULL)
+        _modelMesh->glProjectSelect(x, y, width, height, _modelTransform, selectionMode);
 }
 
-- (Vector3D)selectionScale
+float OpenGLManipulatingController::selectionX()
 {
-	return *selectionScale;
+    return transformValueAtIndex(0, _currentManipulator);
 }
 
-- (void)setSelectionScale:(Vector3D)value
+void OpenGLManipulatingController::setSelectionX(float x)
 {
-	[self willChangeSelection];
-	*selectionScale = value;
-	[self didChangeSelection];
+    setTransformValueAtIndex(0, _currentManipulator, x);
 }
 
-- (void)moveSelectedByOffset:(Vector3D)offset
-{	
-	Vector3D transformedOffset;
+float OpenGLManipulatingController::selectionY()
+{
+    return transformValueAtIndex(1, _currentManipulator);
+}
+
+void OpenGLManipulatingController::setSelectionY(float y)
+{
+    setTransformValueAtIndex(1, _currentManipulator, y);
+}
+
+float OpenGLManipulatingController::selectionZ()
+{
+    return transformValueAtIndex(2, _currentManipulator);
+}
+
+void OpenGLManipulatingController::setSelectionZ(float z)
+{
+    setTransformValueAtIndex(2, _currentManipulator, z);
+}
+
+ManipulatorType OpenGLManipulatingController::currentManipulator()
+{
+    return _currentManipulator;
+}
+
+void OpenGLManipulatingController::setCurrentManipulator(ManipulatorType manipulator)
+{
+    willChangeSelection();
+    _currentManipulator = manipulator;
+    didChangeSelection();
+}
+
+bool OpenGLManipulatingController::selectionColorEnabled()
+{
+    return true;
+}
+
+NSColor *OpenGLManipulatingController::selectionColor()
+{
+    if (selectionColorEnabled())
+        return _model->selectionColor();
+    return nil;
+}
+
+void OpenGLManipulatingController::setSelectionColor(NSColor *color)
+{
+    if (selectionColorEnabled())
+        _model->setSelectionColor(color);
+}
+
+Vector3D OpenGLManipulatingController::selectionCenter()
+{
+    return _selectionCenter;
+}
+
+void OpenGLManipulatingController::setSelectionCenter(Vector3D center)
+{
+    willChangeSelection();
+    _selectionCenter = center;
+    didChangeSelection();
+}
+
+Quaternion OpenGLManipulatingController::selectionRotation()
+{
+    return _selectionRotation;
+}
+
+void OpenGLManipulatingController::setSelectionRotation(Quaternion rotation)
+{
+    willChangeSelection();
+    _selectionRotation = rotation;
+    _selectionEuler = _selectionRotation.ToEulerAngles();
+    didChangeSelection();
+}
+
+Vector3D OpenGLManipulatingController::selectionScale()
+{
+    return _selectionScale;
+}
+
+void OpenGLManipulatingController::setSelectionScale(Vector3D scale)
+{
+    willChangeSelection();
+    _selectionScale = scale;
+    didChangeSelection();
+}
+
+uint OpenGLManipulatingController::selectedCount()
+{
+    return _selectedCount;
+}
+
+ViewMode OpenGLManipulatingController::viewMode()
+{
+    return _model->viewMode();
+}
+
+void OpenGLManipulatingController::setViewMode(ViewMode mode)
+{
+    _model->setViewMode(mode);
+}
+
+void OpenGLManipulatingController::moveSelectedByOffset(Vector3D offset)
+{
+    Vector3D transformedOffset;
 	Matrix4x4 m, r, s;
-	Quaternion inverseRotation = modelRotation->Conjugate();
+	Quaternion inverseRotation = _modelRotation.Conjugate();
 	
-	Vector3D inverseScale = *modelScale;
+	Vector3D inverseScale = _modelScale;
 	for (int i = 0; i < 3; i++)
 		inverseScale[i] = 1.0f / inverseScale[i];
 	
@@ -359,30 +280,30 @@
 	m = s * r;
 	transformedOffset = m.Transform(offset);
 	
-	if (modelMesh != NULL)
+	if (_modelMesh != NULL)
 	{
         Matrix4x4 translate;
         translate.Translate(transformedOffset);
-        modelMesh->transformSelectedByMatrix(translate);
+        _modelMesh->transformSelectedByMatrix(translate);
 	}
-	else if (modelItem != NULL)
+	else if (_modelItem != NULL)
 	{
-		for (uint i = 0; i < model->count(); i++)
+		for (uint i = 0; i < _model->count(); i++)
 		{
-            if (model->isSelectedAtIndex(i))
-                modelItem->moveByOffset(i, transformedOffset);
+            if (_model->isSelectedAtIndex(i))
+                _modelItem->moveByOffset(i, transformedOffset);
 		}
 	}
-		
-	[self setSelectionCenter:*selectionCenter + offset];
+    
+    setSelectionCenter(_selectionCenter + offset);
 }
 
-- (void)rotateSelectedByOffset:(Quaternion)offset
-{	
-	if (modelMesh != NULL)
+void OpenGLManipulatingController::rotateSelectedByOffset(Quaternion offset)
+{
+    if (_modelMesh != NULL)
 	{
-		Vector3D rotationCenter = *selectionCenter;
-		rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
+		Vector3D rotationCenter = _selectionCenter;
+		rotationCenter = _modelTransform.Inverse().Transform(rotationCenter);
         
         Matrix4x4 t1, t2, r;
         t1.Translate(-rotationCenter);
@@ -390,45 +311,45 @@
         r = offset.ToMatrix();
         
         Matrix4x4 m = t2 * r * t1;
-        modelMesh->transformSelectedByMatrix(m);
-
-		[self setSelectionRotation:offset * (*selectionRotation)];
+        _modelMesh->transformSelectedByMatrix(m);
+        
+        setSelectionRotation(offset * _selectionRotation);
 	}
-	else if (modelItem != NULL)
+	else if (_modelItem != NULL)
 	{
-		if ([self selectedCount] > 1)
+		if (selectedCount() > 1)
 		{
-			Vector3D rotationCenter = *selectionCenter;
-			rotationCenter = modelTransform->Inverse().Transform(rotationCenter);            
+			Vector3D rotationCenter = _selectionCenter;
+			rotationCenter = _modelTransform.Inverse().Transform(rotationCenter);
             Matrix4x4 offsetMatrix = offset.ToMatrix();
-			for (uint i = 0; i < model->count(); i++)
+			for (uint i = 0; i < _model->count(); i++)
 			{
-				if (model->isSelectedAtIndex(i))
+				if (_model->isSelectedAtIndex(i))
 				{
-					Vector3D itemPosition = modelItem->positionAtIndex(i);
+					Vector3D itemPosition = _modelItem->positionAtIndex(i);
 					itemPosition -= rotationCenter;
 					itemPosition = offsetMatrix.Transform(itemPosition);
 					itemPosition += rotationCenter;
-                    modelItem->setPositionAtIndex(i, itemPosition);
-                    modelItem->rotateByOffset(i, offset);
+                    _modelItem->setPositionAtIndex(i, itemPosition);
+                    _modelItem->rotateByOffset(i, offset);
 				}
 			}
-			[self setSelectionRotation:offset * (*selectionRotation)];
+            setSelectionRotation(offset * _selectionRotation);
 		}
-		else if (lastSelectedIndex > -1)
+		else if (_lastSelectedIndex > -1)
 		{
-            modelItem->rotateByOffset(lastSelectedIndex, offset);
-            [self setSelectionRotation:modelItem->rotationAtIndex(lastSelectedIndex)];
+            _modelItem->rotateByOffset(_lastSelectedIndex, offset);
+            setSelectionRotation(_modelItem->rotationAtIndex(_lastSelectedIndex));            
 		}		
 	}
 }
 
-- (void)scaleSelectedByOffset:(Vector3D)offset
+void OpenGLManipulatingController::scaleSelectedByOffset(Vector3D offset)
 {
-	if (modelMesh != NULL)
+    if (_modelMesh != NULL)
 	{
-        Vector3D rotationCenter = *selectionCenter;
-		rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
+        Vector3D rotationCenter = _selectionCenter;
+		rotationCenter = _modelTransform.Inverse().Transform(rotationCenter);
         
         Matrix4x4 t1, t2, s;
         t1.Translate(-rotationCenter);
@@ -436,197 +357,284 @@
         s.Scale(offset + Vector3D(1, 1, 1));
         
         Matrix4x4 m = t2 * s * t1;
-        modelMesh->transformSelectedByMatrix(m);
+        _modelMesh->transformSelectedByMatrix(m);
 	}
-	else if (modelItem != NULL)
+	else if (_modelItem != NULL)
 	{
-		if ([self selectedCount] > 1)
+		if (selectedCount() > 1)
 		{
-			Vector3D rotationCenter = *selectionCenter;
-			rotationCenter = modelTransform->Inverse().Transform(rotationCenter);
-			for (uint i = 0; i < model->count(); i++)
+			Vector3D rotationCenter = _selectionCenter;
+			rotationCenter = _modelTransform.Inverse().Transform(rotationCenter);
+			for (uint i = 0; i < _model->count(); i++)
 			{
-                if (model->isSelectedAtIndex(i))
+                if (_model->isSelectedAtIndex(i))
 				{
-					Vector3D itemPosition = modelItem->positionAtIndex(i);
+					Vector3D itemPosition = _modelItem->positionAtIndex(i);
 					itemPosition -= rotationCenter;
 					itemPosition.x *= 1.0f + offset.x;
 					itemPosition.y *= 1.0f + offset.y;
 					itemPosition.z *= 1.0f + offset.z;
 					itemPosition += rotationCenter;
-                    modelItem->setPositionAtIndex(i, itemPosition);
-                    modelItem->scaleByOffset(i, offset);
+                    _modelItem->setPositionAtIndex(i, itemPosition);
+                    _modelItem->scaleByOffset(i, offset);
 				}
 			}
 		}
-		else if (lastSelectedIndex > -1)
+		else if (_lastSelectedIndex > -1)
 		{
-            modelItem->scaleByOffset(lastSelectedIndex, offset);
+            _modelItem->scaleByOffset(_lastSelectedIndex, offset);
 		}
 	}
-	[self setSelectionScale:*selectionScale + offset];
+    setSelectionScale(_selectionScale + offset);
 }
 
-- (void)drawForSelection:(BOOL)forSelection
+void OpenGLManipulatingController::updateSelection()
 {
-    if (modelMesh != nil)
-    {
-        glPushMatrix();
-        glMultMatrixf(modelTransform->m);
-        modelMesh->drawAllForSelection(forSelection);
-        glPopMatrix();
-    }
-    else
-    {
-        glPushMatrix();
-        glMultMatrixf(modelTransform->m);
-        for (uint i = 0; i < modelItem->count(); i++)
-        {
-            modelItem->drawAtIndex(i, forSelection);
-        }
-        glPopMatrix();
-    }
-}
-
-- (void)willSelectThrough:(BOOL)selectThrough
-{
-    model->willSelectThrough(selectThrough);
-}
-
-- (BOOL)needsCullFace
-{
-    return model->needsCullFace();
-}
-
-- (void)didSelect
-{
-    model->didSelect();
-	[self updateSelection];
-}
-
-- (uint)selectableCount
-{
-	return model->count();
-}
-
-- (void)drawForSelectionAtIndex:(uint)index
-{
-	glPushMatrix();
-	glMultMatrixf(modelTransform->m);
-    modelItem->drawAtIndex(index, true);
-	glPopMatrix();
-}
-
-- (void)drawAllForSelection
-{
-    if (modelMesh != NULL)
-    {
-        glPushMatrix();
-        glMultMatrixf(modelTransform->m);
-        modelMesh->drawAllForSelection(true);
-        glPopMatrix();
-    }
-    else
-    {
-        glPushMatrix();
-        glMultMatrixf(modelTransform->m);
-        for (uint i = 0; i < modelItem->count(); i++)
-        {
-            uint colorIndex = i + 1;
-            glColor4ubv((GLubyte *)&colorIndex);
-            modelItem->drawAtIndex(i, true);
-        }
-        glPopMatrix();        
-    }
-}
-
-- (BOOL)useGLProject
-{
-    if (modelMesh != NULL)
-        return modelMesh->useGLProject();
-    return NO;
-}
-
-- (void)glProjectSelectWithX:(int)x 
-                           y:(int)y
-                       width:(int)width 
-                      height:(int)height 
-               selectionMode:(enum OpenGLSelectionMode)selectionMode
-{
-    if (modelMesh != NULL)
-        modelMesh->glProjectSelect(x, y, width, height, *modelTransform, selectionMode);
-}
-
-- (void)selectObjectAtIndex:(uint)index
-				   withMode:(enum OpenGLSelectionMode)selectionMode
-{
-	switch (selectionMode) 
+    willChangeSelection();
+	
+	if (_modelMesh != NULL)
 	{
-		case OpenGLSelectionModeAdd:
-            model->setSelectedAtIndex(index, true);
-			break;
-		case OpenGLSelectionModeSubtract:
-            model->setSelectedAtIndex(index, false);
-			break;
-		case OpenGLSelectionModeInvert:
-            model->setSelectedAtIndex(index, !model->isSelectedAtIndex(index));
-			break;
-        case OpenGLSelectionModeExpand:
-            model->expandSelectionFromIndex(index, false);
-            break;
-        case OpenGLSelectionModeInvertExpand:
-            model->expandSelectionFromIndex(index, true);
-            break;
+        _modelMesh->getSelectionCenterRotationScale(_selectionCenter, _selectionRotation, _selectionScale);
+		_selectedCount = 0;
+		for (uint i = 0; i < _model->count(); i++)
+		{
+            if (_model->isSelectedAtIndex(i))
+				_selectedCount++;
+		}
+	}
+	else if (_modelItem != NULL)
+	{
+		_selectionCenter = Vector3D();
+		_selectionRotation = Quaternion();
+		_selectionScale = Vector3D(1, 1, 1);
+		_selectedCount = 0;
+		_lastSelectedIndex = -1;
+		for (uint i = 0; i < _model->count(); i++)
+		{
+            if (_model->isSelectedAtIndex(i))
+			{
+				_selectedCount++;
+				_selectionCenter += _modelItem->positionAtIndex(i);
+				_lastSelectedIndex = i;
+			}
+		}
+		if (_selectedCount > 0)
+		{
+			_selectionCenter /= (float)_selectedCount;
+			if (_selectedCount == 1 && _lastSelectedIndex > -1)
+			{
+				_selectionRotation = _modelItem->rotationAtIndex(_lastSelectedIndex);
+				_selectionScale = _modelItem->scaleAtIndex(_lastSelectedIndex);
+			}
+		}
+		else
+		{
+			_selectionCenter = Vector3D();
+		}
+	}
+	
+    _selectionEuler = _selectionRotation.ToEulerAngles();
+    _selectionCenter = _modelTransform.Transform(_selectionCenter);
+    
+    didChangeSelection();
+}
+
+void OpenGLManipulatingController::drawForSelection(bool forSelection)
+{
+    if (_modelMesh != nil)
+    {
+        glPushMatrix();
+        glMultMatrixf(_modelTransform);
+        _modelMesh->drawAllForSelection(forSelection);
+        glPopMatrix();
+    }
+    else
+    {
+        glPushMatrix();
+        glMultMatrixf(_modelTransform);
+        for (uint i = 0; i < _modelItem->count(); i++)
+        {
+            _modelItem->drawAtIndex(i, forSelection);
+        }
+        glPopMatrix();
+    }
+}
+
+void OpenGLManipulatingController::changeSelection(bool isSelected)
+{
+    willSelectThrough(false);
+	for (uint i = 0; i < _model->count(); i++)
+        _model->setSelectedAtIndex(i, isSelected);
+    didSelect();
+    updateSelection();
+}
+
+void OpenGLManipulatingController::invertSelection()
+{
+    willSelectThrough(false);
+    for (uint i = 0; i < _model->count(); i++)
+        _model->setSelectedAtIndex(i, !_model->isSelectedAtIndex(i));
+    didSelect();
+    updateSelection();
+}
+
+void OpenGLManipulatingController::duplicateSelected()
+{
+    _model->duplicateSelected();
+    updateSelection();
+}
+
+void OpenGLManipulatingController::removeSelected()
+{
+    _model->removeSelected();
+    updateSelection();
+}
+
+void OpenGLManipulatingController::hideSelected()
+{
+    _model->hideSelected();
+    updateSelection();
+}
+
+void OpenGLManipulatingController::unhideAll()
+{
+    _model->unhideAll();
+}
+
+IOpenGLManipulatingModel *OpenGLManipulatingController::model()
+{
+    return _model;
+}
+
+void OpenGLManipulatingController::setModel(IOpenGLManipulatingModel *aModel)
+{
+    _model = aModel;
+    _modelMesh = dynamic_cast<IOpenGLManipulatingModelMesh *>(aModel);
+    _modelItem = dynamic_cast<IOpenGLManipulatingModelItem *>(aModel);
+}
+
+Matrix4x4 &OpenGLManipulatingController::modelTransform()
+{
+    return _modelTransform;
+}
+
+void OpenGLManipulatingController::setModelTransform(Matrix4x4 &transform)
+{
+    _modelTransform = transform;
+}
+
+NSInteger OpenGLManipulatingController::lastSelectedIndex()
+{
+    return _lastSelectedIndex;
+}
+
+void OpenGLManipulatingController::addSelectionObserver(id observer)
+{
+    [_kvc addObserver:observer forKeyPath:@"selectionX"];
+	[_kvc addObserver:observer forKeyPath:@"selectionY"];
+	[_kvc addObserver:observer forKeyPath:@"selectionZ"];
+    [_kvc addObserver:observer forKeyPath:@"selectionColor"];
+    [_kvc addObserver:observer forKeyPath:@"selectionColorEnabled"];
+    [_kvc addObserver:observer forKeyPath:@"viewMode"];
+}
+
+void OpenGLManipulatingController::removeSelectionObserver(id observer)
+{
+    [_kvc removeObserver:observer forKeyPath:@"selectionX"];
+	[_kvc removeObserver:observer forKeyPath:@"selectionY"];
+	[_kvc removeObserver:observer forKeyPath:@"selectionZ"];
+    [_kvc removeObserver:observer forKeyPath:@"selectionColor"];
+    [_kvc removeObserver:observer forKeyPath:@"selectionColorEnabled"];
+    [_kvc removeObserver:observer forKeyPath:@"viewMode"];
+}
+
+float OpenGLManipulatingController::transformValueAtIndex(uint index, ManipulatorType manipulator)
+{
+    switch (manipulator)
+	{
+		case ManipulatorTypeTranslation:
+			return _selectionCenter[index];
+		case ManipulatorTypeRotation:
+			return _selectionEuler[index] * RAD_TO_DEG;
+		case ManipulatorTypeScale:
+			return _selectionScale[index];
+		case ManipulatorTypeDefault:
+		default:
+			return 0.0f;
+	}
+}
+
+void OpenGLManipulatingController::setTransformValueAtIndex(uint index, ManipulatorType manipulator, float value)
+{
+    switch (manipulator)
+	{
+		case ManipulatorTypeTranslation:
+		{
+			Vector3D offset = Vector3D();
+			offset[index] = value - _selectionCenter[index];
+            moveSelectedByOffset(offset);
+		}break;
+		case ManipulatorTypeRotation:
+		{
+			_selectionEuler[index] = value * DEG_TO_RAD;
+			if (_selectedCount == 1)
+			{
+				_selectionRotation.FromEulerAngles(_selectionEuler);
+				if (_lastSelectedIndex > -1 && _modelItem != NULL)
+                    _modelItem->setRotationAtIndex(_lastSelectedIndex, _selectionRotation);
+			}
+			else
+			{
+				Quaternion offset = Quaternion();
+				offset.FromEulerAngles(_selectionEuler);
+				offset = offset * _selectionRotation.Conjugate();
+                rotateSelectedByOffset(offset);
+			}
+		}break;
+		case ManipulatorTypeScale:
+		{
+			if (_selectedCount == 1)
+			{
+				_selectionScale[index] = value;
+				if (_lastSelectedIndex > -1 && _modelItem != NULL)
+                    _modelItem->setScaleAtIndex(_lastSelectedIndex, _selectionScale);
+			}
+			else
+			{
+				Vector3D offset = Vector3D();
+				offset[index] = value - _selectionScale[index];
+                scaleSelectedByOffset(offset);
+			}
+		}break;
 		default:
 			break;
 	}
 }
 
-- (BOOL)isObjectSelectedAtIndex:(uint)index
+void OpenGLManipulatingController::willChangeSelection()
 {
-    return model->isSelectedAtIndex(index);
+    [_kvc willChangeValueForKey:@"selectionX"];
+	[_kvc willChangeValueForKey:@"selectionY"];
+	[_kvc willChangeValueForKey:@"selectionZ"];
+    [_kvc willChangeValueForKey:@"selectionColor"];
+    [_kvc willChangeValueForKey:@"selectionColorEnabled"];
+    [_kvc willChangeValueForKey:@"viewMode"];
 }
 
-- (void)changeSelection:(BOOL)isSelected
+void OpenGLManipulatingController::didChangeSelection()
 {
-	[self willSelectThrough:NO];
-	for (uint i = 0; i < model->count(); i++)
-        model->setSelectedAtIndex(i, isSelected);
-	[self didSelect];
-	[self updateSelection];
+    [_kvc didChangeValueForKey:@"selectionX"];
+	[_kvc didChangeValueForKey:@"selectionY"];
+	[_kvc didChangeValueForKey:@"selectionZ"];
+    [_kvc didChangeValueForKey:@"selectionColor"];
+    [_kvc didChangeValueForKey:@"selectionColorEnabled"];
+    [_kvc didChangeValueForKey:@"viewMode"];
 }
 
-- (void)invertSelection
+void OpenGLManipulatingController::setPositionRotationScale(Vector3D aPosition, Quaternion aRotation, Vector3D aScale)
 {
-	[self willSelectThrough:NO];
-    for (uint i = 0; i < model->count(); i++)
-        model->setSelectedAtIndex(i, !model->isSelectedAtIndex(i));
-	[self didSelect];
-	[self updateSelection];
+    _modelPosition = aPosition;
+	_modelRotation = aRotation;
+	_modelScale = aScale;
+	_modelTransform.TranslateRotateScale(aPosition, aRotation, aScale);
 }
-
-- (void)duplicateSelected
-{
-    model->duplicateSelected();
-	[self updateSelection];
-}
-
-- (void)removeSelected
-{
-    model->removeSelected();
-	[self updateSelection];
-}
-
-- (void)hideSelected
-{
-    model->hideSelected();
-	[self updateSelection];
-}
-
-- (void)unhideAll
-{
-    model->unhideAll();
-}
-
-@end
-

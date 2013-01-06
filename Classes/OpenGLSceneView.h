@@ -34,9 +34,9 @@
 
 @interface OpenGLSceneView : NSOpenGLView 
 {
-	id<OpenGLManipulating> __weak displayed;
-	id<OpenGLManipulating> __weak manipulated;
-	id<OpenGLSceneViewDelegate> __weak delegate;
+    IOpenGLManipulating *displayed;
+    IOpenGLManipulating *manipulated;
+    id<OpenGLSceneViewDelegate> __weak delegate;
 
     NSString *debugString;
 	Vector3D *selectionOffset;
@@ -53,12 +53,11 @@
 	Manipulator *rotationManipulator;
 	Manipulator *scaleManipulator;
 	Manipulator *currentManipulator;
-    OpenGLSelectingWrapper *manipulatorWrapper;
 	enum CameraMode cameraMode;
 }
 
-@property (readwrite, weak) id<OpenGLManipulating> displayed;
-@property (readwrite, weak) id<OpenGLManipulating> manipulated;
+@property (readwrite, assign) IOpenGLManipulating *displayed;
+@property (readwrite, assign) IOpenGLManipulating *manipulated;
 @property (readwrite, weak) id<OpenGLSceneViewDelegate> delegate;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 @property (readwrite, assign) enum CameraMode cameraMode;
@@ -75,14 +74,14 @@
                                  y:(int)y
                              width:(int)width 
                             height:(int)height
-                         selecting:(id<OpenGLSelecting>)selecting;
+                         selecting:(IOpenGLSelecting *)selecting;
 
 - (void)selectWithPoint:(NSPoint)point 
-			  selecting:(id<OpenGLSelecting>)selecting
+			  selecting:(IOpenGLSelecting *)selecting
 		  selectionMode:(enum OpenGLSelectionMode)selectionMode;
 
 - (void)selectWithRect:(NSRect)rect 
-			 selecting:(id<OpenGLSelecting>)selecting
+			 selecting:(IOpenGLSelecting *)selecting
 		 selectionMode:(enum OpenGLSelectionMode)selectionMode
          selectThrough:(BOOL)selectThrough;
 
