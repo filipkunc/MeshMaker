@@ -6,17 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
-#import "MathDeclaration.h"
-#import "Camera.h"
-#import "OpenGLSelecting.h"
-#import "Manipulator.h"
-#import "OpenGLManipulating.h"
-#import "Shader.h"
-#import "ShaderProgram.h"
-#import "Mesh2.h"
-#import "FPTexture.h"
-#import "ItemCollection.h"
+#import "OpenGLSceneViewCore.h"
 
 @class OpenGLSceneView;
 
@@ -32,28 +22,11 @@
 
 @end
 
-@interface OpenGLSceneView : NSOpenGLView 
+@interface OpenGLSceneView : NSOpenGLView
 {
-    IOpenGLManipulating *displayed;
-    IOpenGLManipulating *manipulated;
+    OpenGLSceneViewCore *_coreView;
+    IOpenGLSceneViewCoreDelegate *_coreDelegate;
     id<OpenGLSceneViewDelegate> __weak delegate;
-
-    NSString *debugString;
-	Vector3D *selectionOffset;
-	Camera *camera;
-	Vector2D *perspectiveRadians;
-	NSPoint lastPoint;
-	NSPoint currentPoint;
-	BOOL isManipulating;
-	BOOL isSelecting;
-    BOOL isPainting;
-	BOOL highlightCameraMode;
-	Manipulator *defaultManipulator;
-	Manipulator *translationManipulator;
-	Manipulator *rotationManipulator;
-	Manipulator *scaleManipulator;
-	Manipulator *currentManipulator;
-	enum CameraMode cameraMode;
 }
 
 @property (readwrite, assign) IOpenGLManipulating *displayed;
@@ -63,36 +36,5 @@
 @property (readwrite, assign) enum CameraMode cameraMode;
 @property (readwrite, assign) Camera camera;
 
-- (void)drawGridWithSize:(int)size step:(int)step;
-- (NSRect)orthoManipulatorRect;
-- (NSRect)currentRect;
-- (void)beginOrtho;
-- (void)endOrtho;
-- (void)applyProjectionWithRect:(NSRect)baseRect;
-
-- (NSMutableIndexSet *)selectWithX:(int)x 
-                                 y:(int)y
-                             width:(int)width 
-                            height:(int)height
-                         selecting:(IOpenGLSelecting *)selecting;
-
-- (void)selectWithPoint:(NSPoint)point 
-			  selecting:(IOpenGLSelecting *)selecting
-		  selectionMode:(enum OpenGLSelectionMode)selectionMode;
-
-- (void)selectWithRect:(NSRect)rect 
-			 selecting:(IOpenGLSelecting *)selecting
-		 selectionMode:(enum OpenGLSelectionMode)selectionMode
-         selectThrough:(BOOL)selectThrough;
-
-- (Vector3D)positionInSpaceByPoint:(NSPoint)point;
-- (void)drawSelectionPlaneWithIndex:(int)index;
-- (Vector3D)positionFromAxis:(Axis)axis point:(NSPoint)point;
-- (Vector3D)positionFromRotatedAxis:(Axis)axis point:(NSPoint)point rotation:(Quaternion)rotation;
-- (Vector3D)positionFromPlaneAxis:(PlaneAxis)plane point:(NSPoint)point;
-- (Vector3D)translationFromPoint:(NSPoint)point;
-- (Vector3D)scaleFromPoint:(NSPoint)point lastPosition:(Vector3D *)lastPosition;
-- (Quaternion)rotationFromPoint:(NSPoint)point lastPosition:(Vector3D *)lastPosition;
-- (NSRect)reshapeViewport;
-
 @end
+

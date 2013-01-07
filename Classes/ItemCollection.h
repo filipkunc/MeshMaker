@@ -50,6 +50,8 @@ public:
     Mesh2 *currentMesh();
     Item *firstSelectedItem();
     
+    // IOpenGLManipulatingModel
+    
     virtual ViewMode viewMode();
     virtual void setViewMode(ViewMode viewMode);
     virtual uint count();
@@ -66,6 +68,8 @@ public:
     virtual void willSelectThrough(bool selectThrough);
     virtual void didSelect();
     virtual bool needsCullFace();
+    
+    // IOpenGLManipulatingModelItem
     
     virtual Vector3D positionAtIndex(uint index);
     virtual Quaternion rotationAtIndex(uint index);

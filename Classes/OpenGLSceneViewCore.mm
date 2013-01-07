@@ -1,0 +1,942 @@
+//
+//  OpenGLSceneViewCore.mm
+//  MeshMaker
+//
+//  Created by Filip Kunc on 1/6/13.
+//
+//
+
+#import "OpenGLSceneViewCore.h"
+
+const float perspectiveAngle = 45.0f;
+const float minDistance = 1.0f;
+const float maxDistance = 500.0f;
+
+OpenGLSceneViewCore::OpenGLSceneViewCore(IOpenGLSceneViewCoreDelegate *delegate)
+{
+    _displayed = NULL;
+    _manipulated = NULL;
+    
+    _selectionOffset = Vector3D();
+    _isManipulating = false;
+    _isSelecting = false;
+    _highlightCameraMode = false;
+    
+    _camera = new Camera();
+    _camera->SetRadians(Vector2D(-45.0f * DEG_TO_RAD, 45.0f * DEG_TO_RAD));
+    _camera->SetZoom(20.0f);
+    
+    _perspectiveRadians = Vector2D(_camera->GetRadians());
+    
+    _lastPoint = NSMakePoint(0, 0);
+    
+    _defaultManipulator = new Manipulator(ManipulatorTypeDefault);
+    _translationManipulator = new Manipulator(ManipulatorTypeTranslation);
+    _rotationManipulator = new Manipulator(ManipulatorTypeRotation);
+    _scaleManipulator = new Manipulator(ManipulatorTypeScale);
+    
+    _currentManipulator = _defaultManipulator;
+    
+    _cameraMode = CameraModePerspective;
+    
+    _delegate = delegate;
+}
+
+OpenGLSceneViewCore::~OpenGLSceneViewCore()
+{
+    delete _camera;
+    delete _defaultManipulator;
+    delete _translationManipulator;
+    delete _rotationManipulator;
+    delete _scaleManipulator;
+}
+
+IOpenGLManipulating *OpenGLSceneViewCore::displayed()
+{
+    return _displayed;
+}
+
+void OpenGLSceneViewCore::setDisplayed(IOpenGLManipulating *displayed)
+{
+    _displayed = displayed;
+}
+
+IOpenGLManipulating *OpenGLSceneViewCore::manipulated()
+{
+    return _manipulated;
+}
+
+void OpenGLSceneViewCore::setManipulated(IOpenGLManipulating *manipulated)
+{
+    _manipulated = manipulated;
+}
+
+Camera *OpenGLSceneViewCore::camera()
+{
+    return _camera;
+}
+
+void OpenGLSceneViewCore::drawGrid(int size, int step)
+{
+    float dark = 0.1f;
+	float light = 0.4f;
+	
+	glPushMatrix();
+	
+	if (_cameraMode == CameraModeFront || _cameraMode == CameraModeBack)
+		glRotatef(90.0f, 1, 0, 0);
+	else if (_cameraMode == CameraModeLeft || _cameraMode == CameraModeRight)
+		glRotatef(90.0f, 0, 0, 1);
+	
+	glBegin(GL_LINES);
+	for (int x = -size; x <= size; x += step)
+    {
+		if (x == 0)
+			glColor3f(dark, dark, dark);
+		else
+			glColor3f(light, light, light);
+		
+        glVertex3i(x, 0, -size);
+        glVertex3i(x, 0, size);
+	}
+    for (int z = -size; z <= size; z += step)
+    {
+		if (z == 0)
+			glColor3f(dark, dark, dark);
+		else
+			glColor3f(light, light, light);
+		
+		glVertex3i(-size, 0, z);
+        glVertex3i(size, 0, z);
+    }
+	glEnd();
+	
+	glPopMatrix();
+}
+
+NSRect OpenGLSceneViewCore::orthoManipulatorRect()
+{
+    return NSMakeRect(3.0f, 3.0f, 30.0f, 30.0f);
+}
+
+NSRect OpenGLSceneViewCore::currentRect()
+{
+    float minX = Min(_lastPoint.x, _currentPoint.x);
+	float maxX = Max(_lastPoint.x, _currentPoint.x);
+	float minY = Min(_lastPoint.y, _currentPoint.y);
+	float maxY = Max(_lastPoint.y, _currentPoint.y);
+	
+	return NSMakeRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+void OpenGLSceneViewCore::beginOrtho()
+{
+    NSRect bounds = _delegate->bounds();
+	glDepthMask(GL_FALSE);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, bounds.size.width, 0, bounds.size.height, -maxDistance, maxDistance);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4f(1, 1, 1, 1);
+}
+
+void OpenGLSceneViewCore::endOrtho()
+{
+    glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glPopMatrix();
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glDepthMask(GL_TRUE);
+}
+
+void OpenGLSceneViewCore::applyProjection()
+{
+    NSRect bounds = _delegate->bounds();
+    float w_h = bounds.size.width / bounds.size.height;
+    
+	if (_cameraMode != CameraModePerspective)
+	{
+		float x = _camera->GetZoom() * w_h;
+		float y = _camera->GetZoom();
+		
+		x /= 2.0f;
+		y /= 2.0f;
+		
+		glOrtho(-x, x, -y, y, -maxDistance, maxDistance);
+	}
+	else
+	{
+		gluPerspective(perspectiveAngle, w_h, minDistance, maxDistance);
+	}
+}
+
+const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height resolution
+
+uint selectedIndices[kMaxSelectedIndicesCount];
+
+NSMutableIndexSet *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSelecting *selecting)
+{
+    IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
+    
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    setupViewportAndCamera();
+    
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+    
+    if (optional != NULL)
+    {
+        optional->drawAllForSelection();
+    }
+    else
+    {
+        for (uint i = 0; i < selecting->selectableCount(); i++)
+        {
+            uint colorIndex = i + 1;
+            glColor4ubv((GLubyte *)&colorIndex);
+            selecting->drawForSelectionAtIndex(i);
+        }
+    }
+    
+	glFinish();
+    
+    uint selectedIndicesCount = (uint)width * (uint)height;
+    
+    if (selectedIndicesCount >= kMaxSelectedIndicesCount)
+        return nil;
+    
+    if (selectedIndicesCount > 0)
+    {
+    	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
+        
+        NSMutableIndexSet *uniqueIndices = [NSMutableIndexSet indexSet];
+        
+        for (uint i = 0; i < selectedIndicesCount; i++)
+        {
+            uint selectedIndex = selectedIndices[i];
+            if (selectedIndex > 0 && selectedIndex - 1 < selecting->selectableCount())
+                [uniqueIndices addIndex:selectedIndex - 1];
+        }
+        
+        return uniqueIndices;
+    }
+    
+    return nil;
+}
+
+void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, OpenGLSelectionMode selectionMode)
+{
+    if (selecting == NULL || selecting->selectableCount() <= 0)
+		return;
+    
+    IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
+    
+    if (optional != NULL)
+        optional->willSelectThrough(false);
+    
+    _delegate->makeCurrentContext();
+    
+	NSMutableIndexSet *uniqueIndices = select(point.x - 5, point.y - 5, 10, 10, selecting);
+    
+    [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop)
+     {
+     selecting->selectObjectAtIndex(idx, selectionMode);
+     *stop = YES;
+     }];
+    
+    if (optional != NULL)
+        optional->didSelect();
+}
+
+void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenGLSelectionMode selectionMode, bool selectThrough)
+{
+    if (selecting == NULL || selecting->selectableCount() <= 0)
+		return;
+    
+    IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
+    
+    if (optional != NULL)
+        optional->willSelectThrough(selectThrough);
+    
+    _delegate->makeCurrentContext();
+    
+    if (optional != NULL)
+    {
+        if (optional->useGLProject())
+        {
+            optional->glProjectSelect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selectionMode);
+            optional->didSelect();
+            return;
+        }
+    }
+    
+    NSMutableIndexSet *uniqueIndices;
+    
+    if (optional != NULL && optional->needsCullFace())
+    {
+        glCullFace(GL_CCW);
+        glEnable(GL_CULL_FACE);
+        
+        NSMutableIndexSet *uniqueIndices1 = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
+        
+        glDisable(GL_CULL_FACE);
+        
+        NSMutableIndexSet *uniqueIndices2 = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
+        
+        uniqueIndices = [NSMutableIndexSet indexSet];
+        if (uniqueIndices1 != nil)
+            [uniqueIndices addIndexes:uniqueIndices1];
+        if (uniqueIndices2 != nil)
+            [uniqueIndices addIndexes:uniqueIndices2];
+    }
+    else
+    {
+        uniqueIndices = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
+    }
+    
+    [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop)
+    {
+        selecting->selectObjectAtIndex(idx, selectionMode);
+    }];
+    
+    if (optional != NULL)
+        optional->didSelect();
+}
+
+Vector3D OpenGLSceneViewCore::positionInSpaceByPoint(NSPoint point)
+{
+    int viewport[4];
+    double modelview[16];
+    double projection[16];
+    float winX, winY, winZ;
+    double posX = 0.0, posY = 0.0, posZ = 0.0;
+    
+    _delegate->makeCurrentContext();
+	
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+	
+    winX = point.x;
+    winY = point.y;
+    glReadPixels((int)winX, (int)winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+    gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+	
+	return Vector3D((float)posX, (float)posY, (float)posZ);
+}
+
+void OpenGLSceneViewCore::drawSelectionPlane(int index)
+{
+    Vector3D position = _manipulated->selectionCenter();
+	
+	glPushMatrix();
+	glTranslatef(position.x, position.y, position.z);
+	DrawSelectionPlane((PlaneAxis)(PlaneAxisX + index));
+	glPopMatrix();
+}
+
+Vector3D OpenGLSceneViewCore::positionFromAxisPoint(Axis axis, NSPoint point)
+{
+    const float size = 4000.0f;
+	DrawPlane(_camera->GetAxisX(), _camera->GetAxisY(), size);
+	
+	Vector3D position = positionInSpaceByPoint(point);
+	Vector3D result = _manipulated->selectionCenter();
+	result[axis] = position[axis];
+	return result;
+}
+
+Vector3D OpenGLSceneViewCore::positionFromRotatedAxisPoint(Axis axis, NSPoint point, Quaternion rotation)
+{
+    const float size = 4000.0f;
+	DrawPlane(_camera->GetAxisX(), _camera->GetAxisY(), size);
+	
+	Vector3D position = positionInSpaceByPoint(point);
+	Vector3D result = _manipulated->selectionCenter();
+	position = rotation.Conjugate().ToMatrix().Transform(position);
+	result[axis] = position[axis];
+	return result;
+}
+
+Vector3D OpenGLSceneViewCore::positionFromPlaneAxis(PlaneAxis plane, NSPoint point)
+{
+    int index = plane - PlaneAxisX;
+    drawSelectionPlane(index);
+    Vector3D position = positionInSpaceByPoint(point);
+	Vector3D result = position;
+	result[index] = _manipulated->selectionCenter()[index];
+	return result;
+}
+
+Vector3D OpenGLSceneViewCore::translationFromPoint(NSPoint point)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadMatrixf(_camera->GetViewMatrix());
+	
+	Vector3D position = _manipulated->selectionCenter();
+	uint selectedIndex = _currentManipulator->selectedIndex;
+	
+	if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
+        return positionFromAxisPoint((Axis)selectedIndex, point);
+	if (selectedIndex >= PlaneAxisX && selectedIndex <= PlaneAxisZ)
+        return positionFromPlaneAxis((PlaneAxis)selectedIndex, point);
+	
+	return position;
+}
+
+Vector3D OpenGLSceneViewCore::scaleFromPoint(NSPoint point, Vector3D &lastPosition)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadMatrixf(_camera->GetViewMatrix());
+	
+	Vector3D position = _manipulated->selectionCenter();
+	uint selectedIndex = _currentManipulator->selectedIndex;
+	
+	Vector3D scale = Vector3D();
+	
+	if (selectedIndex < UINT_MAX)
+	{
+		ManipulatorWidget &selectedWidget = _currentManipulator->widgetAtIndex(selectedIndex);
+		Axis selectedAxis = selectedWidget.axis;
+		if (selectedAxis >= AxisX && selectedAxis <= AxisZ)
+		{
+			position = positionFromRotatedAxisPoint(selectedAxis, point, _manipulated->selectionRotation());
+			scale = position - lastPosition;
+		}
+		else if (selectedAxis == Center)
+		{
+			position = positionFromPlaneAxis(PlaneAxisY, point);
+			scale = position - lastPosition;
+            scale.y = scale.x;
+            scale.z = scale.x;
+		}
+		
+		lastPosition = position;
+		scale *= 2.0f;
+	}
+    
+	return scale;
+}
+
+Quaternion OpenGLSceneViewCore::rotationFromPoint(NSPoint point, Vector3D &lastPosition)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadMatrixf(_camera->GetViewMatrix());
+	
+	Quaternion quaternion;
+	Vector3D position;
+	float angle;
+	
+	uint selectedIndex = _currentManipulator->selectedIndex;
+	
+	position = this->positionFromPlaneAxis((PlaneAxis)(selectedIndex + 3), point);
+	position -= _manipulated->selectionCenter();
+	
+	switch (selectedIndex)
+    {
+		case AxisX:
+			angle = atan2f(position.y, position.z) - atan2f(lastPosition.y, lastPosition.z);
+			quaternion.FromAngleAxis(-angle, Vector3D(1, 0, 0));
+			break;
+		case AxisY:
+			angle = atan2f(position.x, position.z) - atan2f(lastPosition.x, lastPosition.z);
+			quaternion.FromAngleAxis(angle, Vector3D(0, 1, 0));
+			break;
+		case AxisZ:
+			angle = atan2f(position.x, position.y) - atan2f(lastPosition.x, lastPosition.y);
+			quaternion.FromAngleAxis(-angle, Vector3D(0, 0, 1));
+			break;
+	}
+	
+	lastPosition = position;
+	return quaternion;
+}
+
+void OpenGLSceneViewCore::reshapeViewport()
+{
+    NSRect bounds = _delegate->bounds();
+	glViewport(0, 0, bounds.size.width, bounds.size.height);
+}
+
+void OpenGLSceneViewCore::setupViewportAndCamera()
+{
+	reshapeViewport();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+    applyProjection();
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(_camera->GetViewMatrix());
+}
+
+ManipulatorType OpenGLSceneViewCore::currentManipulator()
+{
+    if (_currentManipulator == _defaultManipulator)
+		return ManipulatorTypeDefault;
+	if (_currentManipulator == _translationManipulator)
+		return ManipulatorTypeTranslation;
+	if (_currentManipulator == _rotationManipulator)
+		return ManipulatorTypeRotation;
+	if (_currentManipulator == _scaleManipulator)
+		return ManipulatorTypeScale;
+	return ManipulatorTypeDefault;
+}
+
+void OpenGLSceneViewCore::setCurrentManipulator(ManipulatorType manipulator)
+{
+    switch (manipulator)
+	{
+		case ManipulatorTypeDefault:
+			_currentManipulator = _defaultManipulator;
+			break;
+		case ManipulatorTypeTranslation:
+			_currentManipulator = _translationManipulator;
+			break;
+		case ManipulatorTypeRotation:
+			_currentManipulator = _rotationManipulator;
+			break;
+		case ManipulatorTypeScale:
+			_currentManipulator = _scaleManipulator;
+			break;
+		default:
+			break;
+	}
+    _delegate->setNeedsDisplay();
+}
+
+CameraMode OpenGLSceneViewCore::cameraMode()
+{
+    return _cameraMode;
+}
+
+void OpenGLSceneViewCore::setCameraMode(CameraMode value)
+{
+    if (_cameraMode == CameraModePerspective)
+	{
+		_perspectiveRadians = _camera->GetRadians();
+	}
+	_cameraMode = value;
+	switch (_cameraMode)
+	{
+		case CameraModePerspective:
+			_camera->SetRadians(_perspectiveRadians);
+			break;
+		case CameraModeTop:
+			_camera->SetRadians(Vector2D(-90.0f * DEG_TO_RAD, 0));
+			break;
+		case CameraModeBottom:
+			_camera->SetRadians(Vector2D(90.0f * DEG_TO_RAD, 0));
+			break;
+		case CameraModeLeft:
+			_camera->SetRadians(Vector2D(0, -90.0f * DEG_TO_RAD));
+			break;
+		case CameraModeRight:
+			_camera->SetRadians(Vector2D(0, 90.0f * DEG_TO_RAD));
+			break;
+		case CameraModeFront:
+			_camera->SetRadians(Vector2D());
+			break;
+		case CameraModeBack:
+			_camera->SetRadians(Vector2D(0, 180.0f * DEG_TO_RAD));
+			break;
+		default:
+			break;
+	}
+    _delegate->setNeedsDisplay();
+}
+
+void OpenGLSceneViewCore::drawManipulatedAndDisplatedForSelection(bool forSelection)
+{
+    if (_displayed != _manipulated)
+    {
+        if (_displayed != NULL)
+            _displayed->drawForSelection(forSelection);
+    }
+    if (_manipulated != NULL)
+        _manipulated->drawForSelection(forSelection);
+}
+
+void OpenGLSceneViewCore::drawOrthoDefaultManipulator()
+{
+    beginOrtho();
+	glPushMatrix();
+	glTranslatef(18.0f, 18.0f, 0.0f);
+	glMultMatrixf(_camera->GetRotationQuaternion().ToMatrix());
+    _defaultManipulator->position = Vector3D();
+    _defaultManipulator->size = 15.0f;
+    _defaultManipulator->draw(_camera->GetAxisZ(), _defaultManipulator->position, _highlightCameraMode);
+	glPopMatrix();
+    endOrtho();
+}
+
+void OpenGLSceneViewCore::drawCurrentManipulator()
+{
+    if (_manipulated != NULL && _manipulated->selectedCount() > 0)
+	{
+        _currentManipulator->position = _manipulated->selectionCenter();
+        
+		if (_cameraMode == CameraModePerspective)
+        {
+            Vector3D manipulatorPosition = _manipulated->selectionCenter();
+            Vector3D cameraPosition = -_camera->GetCenter() + (_camera->GetAxisZ() * _camera->GetZoom());
+            
+            float distance = cameraPosition.Distance(manipulatorPosition);
+            
+            _currentManipulator->size = distance * 0.15f;
+        }
+		else
+        {
+            _currentManipulator->size = _camera->GetZoom() * 0.17f;
+        }
+        
+        _scaleManipulator->rotation = _manipulated->selectionRotation();
+        if (_currentManipulator != _defaultManipulator)
+            _currentManipulator->draw(_camera->GetAxisZ(), _manipulated->selectionCenter());
+	}
+}
+
+void OpenGLSceneViewCore::drawSelectionRect()
+{
+    if (_isSelecting)
+	{
+        beginOrtho();
+		glDisable(GL_TEXTURE_2D);
+		float color[4] = { 0.2f, 0.4f, 1.0f, 0.0f };
+		color[3] = 0.2f;
+		glColor4fv(color);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glRectf(_lastPoint.x, _lastPoint.y, _currentPoint.x, _currentPoint.y);
+		color[3] = 0.9f;
+		glColor4fv(color);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glRectf(_lastPoint.x, _lastPoint.y, _currentPoint.x, _currentPoint.y);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        endOrtho();
+	}
+}
+
+void OpenGLSceneViewCore::draw()
+{
+    [ShaderProgram resetProgram];
+    
+	float clearColor = 0.6f;
+	glClearColor(clearColor, clearColor, clearColor, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_TEXTURE_2D);
+
+	setupViewportAndCamera();
+    drawGrid(10, 2);
+    drawManipulatedAndDisplatedForSelection(false);
+    
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+    
+    drawCurrentManipulator();
+    
+    drawOrthoDefaultManipulator();
+    drawSelectionRect();
+	
+    glEnable(GL_DEPTH_TEST);
+}
+
+void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
+{
+    _lastPoint = point;
+    _isPainting = false;
+    
+    if (alt)
+	{
+		_isManipulating = _isSelecting = false;
+		return;
+	}
+    
+	if (_highlightCameraMode)
+	{
+		switch (_cameraMode)
+		{
+			case CameraModeTop:
+				setCameraMode(CameraModeBottom);
+				break;
+			case CameraModeBottom:
+				setCameraMode(CameraModeTop);
+				break;
+			case CameraModeLeft:
+				setCameraMode(CameraModeRight);
+				break;
+			case CameraModeRight:
+				setCameraMode(CameraModeLeft);
+				break;
+			case CameraModeFront:
+				setCameraMode(CameraModeBack);
+				break;
+			case CameraModeBack:
+                setCameraMode(CameraModeFront);
+				break;
+			default:
+				break;
+		}
+	}
+    else if (_delegate->texturePaintEnabled())
+    {
+        _isPainting = YES;
+        //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
+        return;
+    }
+	else if (_manipulated != NULL && _manipulated->selectedCount() > 0 && _currentManipulator->selectedIndex < UINT_MAX)
+	{
+		if (_currentManipulator == _translationManipulator)
+		{
+			_selectionOffset = translationFromPoint(_lastPoint);
+			_selectionOffset -= _manipulated->selectionCenter();
+			_isManipulating = true;
+		}
+		else if (_currentManipulator == _rotationManipulator)
+		{
+            rotationFromPoint(_lastPoint, _selectionOffset);
+			_isManipulating = true;
+		}
+		else if (_currentManipulator == _scaleManipulator)
+		{
+            scaleFromPoint(_lastPoint, _selectionOffset);
+			_isManipulating = true;
+		}
+
+        if (_isManipulating)
+            _delegate->manipulationStarted();
+	}
+	else
+	{
+		_isSelecting = YES;
+	}
+}
+
+void OpenGLSceneViewCore::mouseMoved(NSPoint point)
+{
+    _highlightCameraMode = NO;
+	_currentPoint = point;
+	if (_manipulated != NULL && _manipulated->selectedCount() > 0)
+	{
+		if (!_isManipulating)
+		{
+            _currentManipulator->selectedIndex = UINT_MAX;
+            _currentManipulator->position = _manipulated->selectionCenter();
+            select(_currentPoint, _currentManipulator, OpenGLSelectionModeAdd);
+            _delegate->setNeedsDisplay();
+		}
+	}
+	
+	if (_currentManipulator->selectedIndex == UINT_MAX)
+	{
+		if (NSPointInRect(_currentPoint, orthoManipulatorRect()))
+			_highlightCameraMode = YES;
+        _delegate->setNeedsDisplay();
+	}
+}
+
+void OpenGLSceneViewCore::mouseExited()
+{
+    _highlightCameraMode = false;
+    _delegate->setNeedsDisplay();
+}
+
+void OpenGLSceneViewCore::mouseUp(NSPoint point, bool alt, bool cmd, bool ctrl, bool shift, int clickCount)
+{
+    _isPainting = false;
+    
+	_currentPoint = point;
+	if (_isManipulating)
+	{
+        _delegate->manipulationEnded();
+        _isManipulating = false;
+	}
+	if (_isSelecting)
+	{
+		_isSelecting = false;
+		OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
+        
+		if (cmd)
+			selectionMode = OpenGLSelectionModeInvert;
+		else if (shift)
+			selectionMode = OpenGLSelectionModeAdd;
+		else
+			_manipulated->changeSelection(false);
+		
+		NSRect rect = currentRect();
+		if (clickCount <= 1 && rect.size.width > 5.0f && rect.size.height > 5.0f)
+		{
+            select(rect, _manipulated, selectionMode, ctrl);
+		}
+		else
+        {
+            if (clickCount == 2)
+            {
+                if (selectionMode == OpenGLSelectionModeInvert)
+                    selectionMode = OpenGLSelectionModeInvertExpand;
+                else
+                    selectionMode = OpenGLSelectionModeExpand;
+            }
+            
+            select(_currentPoint, _manipulated, selectionMode);
+        }
+		
+        _delegate->selectionChanged();
+        _delegate->setNeedsDisplay();
+	}
+}
+
+void OpenGLSceneViewCore::mouseDragged(NSPoint point, bool alt, bool cmd)
+{
+    _currentPoint = point;
+	float deltaX = _currentPoint.x - _lastPoint.x;
+	float deltaY = _currentPoint.y - _lastPoint.y;
+    
+	if (alt && cmd)
+	{
+        NSRect bounds = _delegate->bounds();
+		float w = bounds.size.width;
+		float h = bounds.size.height;
+		float sensitivity = (w + h) / 2.0f;
+		sensitivity = 1.0f / sensitivity;
+        sensitivity *= _camera->GetZoom() * 1.12f;
+		_camera->LeftRight(-deltaX * sensitivity);
+		_camera->UpDown(deltaY * sensitivity);
+		
+		_lastPoint = _currentPoint;
+        _delegate->setNeedsDisplay();
+	}
+	else if (alt)
+	{
+		if (_cameraMode == CameraModePerspective)
+		{
+			_lastPoint = _currentPoint;
+			const float sensitivity = 0.005f;
+			_camera->RotateLeftRight(deltaX * sensitivity);
+			_camera->RotateUpDown(-deltaY * sensitivity);
+            _delegate->setNeedsDisplay();
+		}
+	}
+	else if (_delegate->texturePaintEnabled())
+    {
+        //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:currentPoint];
+        _lastPoint = _currentPoint;
+    }
+    else if (_isManipulating)
+	{
+		_lastPoint = _currentPoint;
+		if (_currentManipulator == _translationManipulator)
+		{
+			Vector3D move = translationFromPoint(_currentPoint);
+			move -= _selectionOffset;
+			move -= _manipulated->selectionCenter();
+            _manipulated->moveSelectedByOffset(move);
+            _delegate->setNeedsDisplay();
+		}
+		else if (_currentManipulator == _rotationManipulator)
+		{
+			Quaternion rotation = rotationFromPoint(_currentPoint, _selectionOffset);
+            _manipulated->rotateSelectedByOffset(rotation);
+            _delegate->setNeedsDisplay();
+		}
+		else if (_currentManipulator == _scaleManipulator)
+		{
+			Vector3D scale = scaleFromPoint(_currentPoint, _selectionOffset);
+            _manipulated->scaleSelectedByOffset(scale);
+			_delegate->setNeedsDisplay();
+		}
+	}
+	else if (_isSelecting)
+	{
+        _delegate->setNeedsDisplay();
+	}
+}
+
+void OpenGLSceneViewCore::otherMouseDown(NSPoint point)
+{
+    _lastPoint = point;
+}
+
+void OpenGLSceneViewCore::otherMouseDragged(NSPoint point, bool alt)
+{
+    _currentPoint = point;
+	float deltaX = _currentPoint.x - _lastPoint.x;
+	float deltaY = _currentPoint.y - _lastPoint.y;
+	
+	if (alt)
+	{
+		NSRect bounds = _delegate->bounds();
+		float w = bounds.size.width;
+		float h = bounds.size.height;
+		float sensitivity = (w + h) / 2.0f;
+		sensitivity = 1.0f / sensitivity;
+		_camera->LeftRight(-deltaX * _camera->GetZoom() * sensitivity);
+		_camera->UpDown(deltaY * _camera->GetZoom() * sensitivity);
+		
+		_lastPoint = _currentPoint;
+        _delegate->setNeedsDisplay();
+	}
+}
+
+void OpenGLSceneViewCore::rightMouseDown(NSPoint point)
+{
+    _lastPoint = point;
+}
+
+void OpenGLSceneViewCore::rightMouseDragged(NSPoint point, bool alt)
+{
+    _currentPoint = point;
+	float deltaY = _currentPoint.y - _lastPoint.y;
+	
+	if (alt)
+	{
+		float sensitivity = _camera->GetZoom() * 0.02f;
+		
+		_camera->Zoom(-deltaY * sensitivity);
+		
+		_lastPoint = _currentPoint;
+        _delegate->setNeedsDisplay();
+	}
+}
+
+void OpenGLSceneViewCore::scrollWheel(float deltaX, float deltaY, bool alt, bool cmd)
+{
+ 	if (alt && cmd)
+	{
+		NSRect bounds = _delegate->bounds();
+		float w = bounds.size.width;
+		float h = bounds.size.height;
+		float sensitivity = (w + h) / 6.0f;
+		sensitivity = 1.0f / sensitivity;
+		_camera->LeftRight(-deltaX * _camera->GetZoom() * sensitivity);
+		_camera->UpDown(-deltaY * _camera->GetZoom() * sensitivity);
+        _delegate->setNeedsDisplay();
+	}
+	else if (alt)
+	{
+		if (_cameraMode == CameraModePerspective)
+		{
+			const float sensitivity = 0.02f;
+			_camera->RotateLeftRight(-deltaX * sensitivity);
+			_camera->RotateUpDown(-deltaY * sensitivity);
+            _delegate->setNeedsDisplay();
+		}
+	}
+	else
+	{
+		float sensitivity = _camera->GetZoom() * 0.02f;
+		_camera->Zoom(deltaY * sensitivity);
+        _delegate->setNeedsDisplay();
+	}
+}
