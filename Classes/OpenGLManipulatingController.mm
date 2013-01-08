@@ -34,11 +34,20 @@
 - (void)setSelectionX:(float)selectionX { _controller->setSelectionX(selectionX); }
 - (void)setSelectionY:(float)selectionY { _controller->setSelectionY(selectionY); }
 - (void)setSelectionZ:(float)selectionZ { _controller->setSelectionZ(selectionZ); }
-- (enum ManipulatorType)currentManipulator { return _controller->currentManipulator(); }
-- (void)setCurrentManipulator:(enum ManipulatorType)currentManipulator { _controller->setCurrentManipulator(currentManipulator); }
 - (BOOL)selectionColorEnabled { return _controller->selectionColorEnabled(); }
-- (NSColor *)selectionColor { return _controller->selectionColor(); }
-- (void)setSelectionColor:(NSColor *)selectionColor { _controller->setSelectionColor(selectionColor); }
+
+- (NSColor *)selectionColor
+{
+    Vector4D color = _controller->selectionColor();
+    return [NSColor colorWithCalibratedRed:color.x green:color.y blue:color.z alpha:color.w];
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    Vector4D color = Vector4D(selectionColor.redComponent, selectionColor.greenComponent, selectionColor.blueComponent, selectionColor.alphaComponent);
+    _controller->setSelectionColor(color);
+}
+
 - (enum ViewMode)viewMode { return _controller->viewMode(); }
 - (void)setViewMode:(enum ViewMode)viewMode { _controller->setViewMode(viewMode); }
 
@@ -46,6 +55,7 @@
 
 OpenGLManipulatingController::OpenGLManipulatingController()
 {
+    _model = NULL;
     _selectionScale = Vector3D(1, 1, 1);
     _selectedCount = 0;
     _lastSelectedIndex = -1;
@@ -188,26 +198,35 @@ ManipulatorType OpenGLManipulatingController::currentManipulator()
     return _currentManipulator;
 }
 
-void OpenGLManipulatingController::setCurrentManipulator(ManipulatorType manipulator)
+void OpenGLManipulatingController::setCurrentManipulator(ManipulatorType manipulator, bool ignoreKVC)
 {
-    willChangeSelection();
-    _currentManipulator = manipulator;
-    didChangeSelection();
+    if (ignoreKVC)
+    {
+        _currentManipulator = manipulator;
+    }
+    else
+    {
+        willChangeSelection();
+        _currentManipulator = manipulator;
+        didChangeSelection();
+    }
 }
 
 bool OpenGLManipulatingController::selectionColorEnabled()
 {
-    return true;
+    if (_model != NULL)
+        return true;
+    return false;
 }
 
-NSColor *OpenGLManipulatingController::selectionColor()
+Vector4D OpenGLManipulatingController::selectionColor()
 {
     if (selectionColorEnabled())
         return _model->selectionColor();
-    return nil;
+    return Vector4D();
 }
 
-void OpenGLManipulatingController::setSelectionColor(NSColor *color)
+void OpenGLManipulatingController::setSelectionColor(Vector4D color)
 {
     if (selectionColorEnabled())
         _model->setSelectionColor(color);
@@ -257,12 +276,15 @@ uint OpenGLManipulatingController::selectedCount()
 
 ViewMode OpenGLManipulatingController::viewMode()
 {
-    return _model->viewMode();
+    if (_model != NULL)
+        return _model->viewMode();
+    return ViewModeSolidFlat;
 }
 
 void OpenGLManipulatingController::setViewMode(ViewMode mode)
 {
-    _model->setViewMode(mode);
+    if (_model != NULL)
+        _model->setViewMode(mode);
 }
 
 void OpenGLManipulatingController::moveSelectedByOffset(Vector3D offset)

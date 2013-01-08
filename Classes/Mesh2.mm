@@ -16,16 +16,18 @@
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
 
-NSColor *generateRandomColor();
+Vector4D generateRandomColor();
 
-NSColor *generateRandomColor()
+Vector4D generateRandomColor()
 {
     float hue = (random() % 10) / 10.0f;
     
-    return [NSColor colorWithCalibratedHue:hue 
-                                saturation:0.5f
-                                brightness:0.6f 
-                                    alpha:1.0f];
+    NSColor *color = [NSColor colorWithCalibratedHue:hue
+                                          saturation:0.5f
+                                          brightness:0.6f
+                                               alpha:1.0f];
+    
+    return Vector4D(color.redComponent, color.greenComponent, color.blueComponent, color.alphaComponent);
 }
 
 NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
@@ -54,7 +56,6 @@ Mesh2::Mesh2()
     _vboID = 0U;
     _vboGenerated = false;
     
-    _texture = nil;
     _isUnwrapped = false;
     
     setColor(generateRandomColor());
@@ -62,14 +63,12 @@ Mesh2::Mesh2()
 
 Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
 {
-    NSColor *color = nil;
+    Vector4D color;
     
     if (stream.version >= ModelVersionColors)
-    {
-        Vector4D baseColor;           
-        [stream readBytes:&baseColor length:sizeof(Vector4D)];
-        color = [NSColor colorWithCalibratedRed:baseColor.x green:baseColor.y blue:baseColor.z alpha:baseColor.w];
-    }
+        [stream readBytes:&color length:sizeof(Vector4D)];
+    else
+        color = generateRandomColor();
     
     uint verticesSize;
     uint texCoordsSize;
@@ -124,20 +123,14 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
     }
     
     this->fromIndexRepresentation(vertices, texCoords, triangles);
-    if (color)
-        this->setColor(color);
+    this->setColor(color);
 }
 
 void Mesh2::encode(MemoryWriteStream *stream)
 {
     if (stream.version > ModelVersionColors)
     {
-        Vector4D baseColor;
-        baseColor.x = _color.redComponent;
-        baseColor.y = _color.greenComponent;
-        baseColor.z = _color.blueComponent;
-        baseColor.w = _color.alphaComponent;
-        [stream writeBytes:&baseColor length:sizeof(Vector4D)];
+        [stream writeBytes:&_color length:sizeof(Vector4D)];
     }
     
     vector<Vector3D> vertices;
@@ -163,13 +156,11 @@ void Mesh2::encode(MemoryWriteStream *stream)
         [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(TriQuad)];
 }
 
-void Mesh2::setColor(NSColor *color)
+void Mesh2::setColor(Vector4D color)
 {
     _color = color;
-    CGFloat colorComponents[4];
-    [_color getComponents:colorComponents];
     for (int i = 0; i < 4; i++)
-        _colorComponents[i] = (float)colorComponents[i];
+        _colorComponents[i] = _color[i];
     
     resetTriangleCache();    
 }
@@ -177,14 +168,6 @@ void Mesh2::setColor(NSColor *color)
 Mesh2::~Mesh2()
 {
     resetTriangleCache();
-    _texture = nil;
-}
-
-FPTexture *Mesh2::texture()
-{
-    if (!_texture)
-        _texture = [[FPTexture alloc] init];
-    return _texture;
 }
 
 void Mesh2::resetAlgorithmData()

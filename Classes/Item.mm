@@ -106,7 +106,6 @@ Item *Item::duplicate()
     
     newItem->mesh->merge(mesh);
     newItem->mesh->setColor(mesh->color());
-    newItem->mesh->texture().canvas = mesh->texture().canvas;
     newItem->selected = selected;
 	
 	return newItem;
@@ -179,14 +178,14 @@ void Item::unhideAll()
     mesh->unhideAll();
 }
 
-NSColor *Item::selectionColor()
+Vector4D Item::selectionColor()
 {
     return mesh->color();
 }
 
-void Item::setSelectionColor(NSColor *color)
+void Item::setSelectionColor(Vector4D color)
 {
-    mesh->setColor([color copy]);
+    mesh->setColor(color);
 }
 
 void Item::willSelectThrough(bool selectThrough)

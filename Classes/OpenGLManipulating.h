@@ -21,11 +21,11 @@ public:
     virtual void setSelectionZ(float z) = 0;
     
     virtual ManipulatorType currentManipulator() = 0;
-    virtual void setCurrentManipulator(ManipulatorType manipulator) = 0;
+    virtual void setCurrentManipulator(ManipulatorType manipulator, bool ignoreKVC) = 0;
     
     virtual bool selectionColorEnabled() = 0;
-    virtual NSColor *selectionColor() = 0;
-    virtual void setSelectionColor(NSColor *color) = 0;
+    virtual Vector4D selectionColor() = 0;
+    virtual void setSelectionColor(Vector4D color) = 0;
 };
 
 class IOpenGLManipulating : public IOpenGLSelectingOptional, public IOpenGLTransforming

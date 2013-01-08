@@ -8,7 +8,78 @@
 
 #import "OpenGLDrawing.h"
 #import "ItemCollection.h"
-#import "ItemManipulationState.h"
+
+ItemManipulationState::ItemManipulationState(ItemCollection &collection, uint index)
+{
+    _index = index;
+    Item *item = collection.itemAtIndex(_index);
+    _position = item->position;
+    _rotation = item->rotation;
+    _scale = item->scale;
+}
+
+ItemManipulationState::~ItemManipulationState()
+{
+
+}
+
+void ItemManipulationState::apply(ItemCollection &collection)
+{
+    Item *item = collection.itemAtIndex(_index);
+    item->position = _position;
+    item->rotation = _rotation;
+    item->scale = _scale;
+    item->selected = true;
+}
+
+RemovedItem::RemovedItem(ItemCollection &collection, uint index)
+{
+    _index = index;
+    _item = collection.itemAtIndex(_index)->duplicate();
+}
+
+RemovedItem::~RemovedItem()
+{
+    delete _item;
+}
+
+void RemovedItem::selectItemForRemove(ItemCollection &collection)
+{
+    collection.setSelectedAtIndex(_index, true);
+}
+
+void RemovedItem::insert(ItemCollection &collection)
+{
+    collection.insertItemAtIndex(_index, _item->duplicate());
+}
+
+MeshState::MeshState(ItemCollection &collection, uint index)
+{
+    _index = index;
+    Mesh2 *mesh = collection.itemAtIndex(_index)->mesh;
+    mesh->toIndexRepresentation(_vertices, _texCoords, _triangles);
+    _selectionMode = mesh->selectionMode();
+    mesh->getSelection(_selection);
+}
+
+MeshState::~MeshState()
+{
+}
+
+void MeshState::apply(ItemCollection &collection)
+{
+    Item *item = collection.itemAtIndex(_index);
+    item->selected = true;
+    Mesh2 *mesh = item->mesh;
+    mesh->fromIndexRepresentation(_vertices, _texCoords, _triangles);
+    mesh->setSelectionMode(_selectionMode);
+    mesh->setSelection(_selection);
+}
+
+uint MeshState::index()
+{
+    return _index;
+}
 
 ItemCollection::ItemCollection()
 {
@@ -31,7 +102,6 @@ ItemCollection::ItemCollection(MemoryReadStream *stream)
         Item *item = new Item(stream);
         items.push_back(item);
     }
-
 }
 
 void ItemCollection::encode(MemoryWriteStream *stream)
@@ -43,139 +113,143 @@ void ItemCollection::encode(MemoryWriteStream *stream)
 		Item *item = items.at(i);
         item->encode(stream);
 	}
-
 }
 
-NSMutableArray *ItemCollection::currentManipulations()
+IUndoState *ItemCollection::currentManipulations()
 {
-    NSMutableArray *manipulations = [[NSMutableArray alloc] init];
+    vector<ItemManipulationState *> *manipulations = new vector<ItemManipulationState *>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
-		{
-			ItemManipulationState *itemState = [[ItemManipulationState alloc] initWithItem:item index:i];
-			[manipulations addObject:itemState];
-		}
+            manipulations->push_back(new ItemManipulationState(*this, i));
 	}
 	
-	return manipulations;
+	return new UndoState<vector<ItemManipulationState *>>(manipulations);
 }
 
-void ItemCollection::setCurrentManipulations(NSMutableArray *manipulations)
+void ItemCollection::setCurrentManipulations(IUndoState *undoState)
 {
+    vector<ItemManipulationState *> *manipulations = dynamic_cast<UndoState<vector<ItemManipulationState *>> *>(undoState)->state();
+    
     deselectAll();
 	
-	for (ItemManipulationState *manipulation in manipulations)
-	{
-		Item *item = items.at(manipulation.itemIndex);
-		[manipulation applyManipulationToItem:item];
+    for (uint i = 0; i < manipulations->size(); i++)
+    {
+        ItemManipulationState *state = manipulations->at(i);
+        state->apply(*this);
 	}
 }
 
-MeshState *ItemCollection::currentMeshState()
+IUndoState *ItemCollection::currentMeshState()
 {
     for (uint i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
 		{
-			MeshState *meshState = [[MeshState alloc] initWithMesh:item->mesh
-                                                         itemIndex:i];
-			return meshState;
+			MeshState *meshState = new MeshState(*this, i);
+			return new UndoState<MeshState>(meshState);
 		}
 	}
-	return nil;
+	return NULL;
 }
 
-void ItemCollection::setCurrentMeshState(MeshState *meshState)
+void ItemCollection::setCurrentMeshState(IUndoState *undoState)
 {
+    if (undoState == NULL)
+        return;
+    
+    MeshState *meshState = dynamic_cast<UndoState<MeshState> *>(undoState)->state();
+    
     deselectAll();
 	
-	Item *item = items.at(meshState.itemIndex);
-    item->selected = true;
-	[meshState applyToMesh:item->mesh];
+    meshState->apply(*this);
 }
 
-NSMutableArray *ItemCollection::currentSelection()
+IUndoState *ItemCollection::currentSelection()
 {
-    NSMutableArray *selection = [[NSMutableArray alloc] init];
+    vector<uint> *selection = new vector<uint>();
+	
+	for (uint i = 0; i < items.size(); i++)
+	{
+		Item *item = items.at(i);
+		if (item->selected)
+            selection->push_back(i);
+	}
+	
+	return new UndoState<vector<uint>>(selection);
+}
+
+void ItemCollection::setCurrentSelection(IUndoState *undoState)
+{
+    vector<uint> *selection = dynamic_cast<UndoState<vector<uint>> *>(undoState)->state();
+    
+    deselectAll();
+	
+    for (uint i = 0; i < selection->size(); i++)
+    {
+        setSelectedAtIndex(selection->at(i), true);
+    }
+}
+
+IUndoState *ItemCollection::currentItems()
+{
+    vector<RemovedItem *> *removedItems = new vector<RemovedItem *>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
 		{
-			NSNumber *number = [[NSNumber alloc] initWithUnsignedInt:i];
-			[selection addObject:number];
+            RemovedItem *removedItem = new RemovedItem(*this, i);
+            removedItems->push_back(removedItem);
 		}
 	}
 	
-	return selection;
+	return new UndoState<vector<RemovedItem *>>(removedItems);
 }
 
-void ItemCollection::setCurrentSelection(NSMutableArray *selection)
+void ItemCollection::setCurrentItems(IUndoState *undoState)
 {
+    vector<RemovedItem *> *removedItems = dynamic_cast<UndoState<vector<RemovedItem *>> *>(undoState)->state();
+    
     deselectAll();
-	
-	for (NSNumber *number in selection)
-	{
-        setSelectedAtIndex(number.unsignedIntValue, true);
-	}
+    
+    for (uint i = 0; i < removedItems->size(); i++)
+    {
+        RemovedItem *removedItem = removedItems->at(i);
+        removedItem->insert(*this);
+    }
 }
 
-NSMutableArray *ItemCollection::currentItems()
+IUndoState *ItemCollection::allItems()
 {
-    NSMutableArray *anItems = [[NSMutableArray alloc] init];
-	
-	for (uint i = 0; i < items.size(); i++)
-	{
-		Item *item = items.at(i);
-		if (item->selected)
-		{
-			IndexedItem *indexedItem = [[IndexedItem alloc] initWithIndex:i item:item];
-			[anItems addObject:indexedItem];
-		}
-	}
-	
-	return anItems;
-}
-
-void ItemCollection::setCurrentItems(NSMutableArray *anItems)
-{
-    deselectAll();
-	
-	for (IndexedItem *indexedItem in anItems)
-	{
-        insertItemAtIndex(indexedItem.index, indexedItem.item);
-	}
-}
-
-NSMutableArray *ItemCollection::allItems()
-{
-    NSMutableArray *anItems = [[NSMutableArray alloc] init];
+    vector<Item *> *duplicates = new vector<Item *>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
 		Item *duplicate = items.at(i)->duplicate();
-		[anItems addObject:[NSValue valueWithPointer:duplicate]];
+        duplicates->push_back(duplicate);
 	}
 	
-	return anItems;
+	return new UndoState<vector<Item *>>(duplicates);
 }
 
-void ItemCollection::setAllItems(NSMutableArray *anItems)
+void ItemCollection::setAllItems(IUndoState *undoState)
 {
+    vector<Item *> *duplicates = dynamic_cast<UndoState<vector<Item *>> *>(undoState)->state();
+    
     for (uint i = 0; i < items.size(); i++)
         delete items[i];
     
     items.clear();
     
-    for (NSValue *value in anItems)
+    for (uint i = 0; i < duplicates->size(); i++)
     {
-        Item *item = (Item *)value.pointerValue;
-        items.push_back(item);
+        Item *duplicate = duplicates->at(i)->duplicate();
+        items.push_back(duplicate);
     }
 }
 
@@ -289,14 +363,17 @@ void ItemCollection::mergeSelectedItems()
     addItem(newItem);
 }
 
-void ItemCollection::setSelectionFromIndexedItems(NSMutableArray *indexedItems)
+void ItemCollection::setSelectionFromRemovedItems(IUndoState *undoState)
 {
+    vector<RemovedItem *> *removedItems = dynamic_cast<UndoState<vector<RemovedItem *>> *>(undoState)->state();
+    
     deselectAll();
-	
-	for (IndexedItem *indexedItem in indexedItems)
-	{
-        setSelectedAtIndex(indexedItem.index, true);
-	}
+    
+    for (uint i = 0; i < removedItems->size(); i++)
+    {
+        RemovedItem *removedItem = removedItems->at(i);
+        removedItem->selectItemForRemove(*this);
+    }
 }
 
 void ItemCollection::deselectAll()
@@ -428,21 +505,21 @@ void ItemCollection::unhideAll()
 		items[i]->visible = true;
 }
 
-NSColor *ItemCollection::selectionColor()
+Vector4D ItemCollection::selectionColor()
 {
     Item *first = firstSelectedItem();
     if (first)
         return first->selectionColor();
-    return nil;
+    return Vector4D();
 }
 
-void ItemCollection::setSelectionColor(NSColor *color)
+void ItemCollection::setSelectionColor(Vector4D color)
 {
     for (uint i = 0; i < items.size(); i++)
 	{
         Item *item = items[i];
 		if (item->selected)
-            item->setSelectionColor([color copy]);
+            item->setSelectionColor(color);
 	}
 }
 

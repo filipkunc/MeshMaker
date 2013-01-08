@@ -53,8 +53,8 @@ public:
     virtual void hideSelected();
     virtual void unhideAll();
     
-    virtual NSColor *selectionColor(); // can be Vector4D instead of NSColor *
-    virtual void setSelectionColor(NSColor *color);
+    virtual Vector4D selectionColor();
+    virtual void setSelectionColor(Vector4D color);
     virtual void willSelectThrough(bool selectThrough);
     virtual void didSelect();
     virtual bool needsCullFace();

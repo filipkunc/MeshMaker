@@ -14,6 +14,17 @@
 #import "FPTextureBrowserWindowController.h"
 #import "ScriptWindowController.h"
 
+@interface UndoStatePointer : NSObject
+{
+    IUndoState *_undoState;
+}
+
+- (id)initWithUndoState:(IUndoState *)undoState;
+
+@property (readonly, assign) IUndoState *undoState;
+
+@end
+
 @interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, ScriptDelegate, NSWindowDelegate>
 {
 @public // public for unit tests
@@ -31,8 +42,8 @@
 	enum MeshType itemWithSteps;
 	
 	NSMutableArray *views;
-	NSMutableArray *oldManipulations;
-	MeshState *oldMeshState;
+	UndoStatePointer *oldManipulations;
+	UndoStatePointer *oldMeshState;
     
     enum ManipulatorType currentManipulator;
 	
@@ -56,14 +67,15 @@
 - (void)setNeedsDisplayOnAllViews;
 - (Mesh2 *)currentMesh;
 - (MyDocument *)prepareUndoWithName:(NSString *)actionName;
-- (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current;
+- (void)swapManipulationsWithOld:(UndoStatePointer *)old
+                         current:(UndoStatePointer *)current;
 
-- (void)swapAllItemsWithOld:(NSMutableArray *)old
-					current:(NSMutableArray *)current
+- (void)swapAllItemsWithOld:(UndoStatePointer *)old
+					current:(UndoStatePointer *)current
 				 actionName:(NSString *)actionName;
 
-- (void)swapMeshStateWithOld:(MeshState *)old 
-					 current:(MeshState *)current 
+- (void)swapMeshStateWithOld:(UndoStatePointer *)old
+					 current:(UndoStatePointer *)current
 				  actionName:(NSString *)actionName;
 
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action;
@@ -82,12 +94,12 @@
 - (IBAction)mergeSelected:(id)sender;
 - (IBAction)splitSelected:(id)sender;
 - (IBAction)duplicateSelected:(id)sender;
-- (void)redoDuplicateSelected:(NSMutableArray *)selection;
-- (void)undoDuplicateSelected:(NSMutableArray *)selection;
+- (void)redoDuplicateSelected:(UndoStatePointer *)selection;
+- (void)undoDuplicateSelected:(UndoStatePointer *)selection;
 - (IBAction)flipSelected:(id)sender;
 - (IBAction)deleteSelected:(id)sender;
-- (void)redoDeleteSelected:(NSMutableArray *)selectedItems;
-- (void)undoDeleteSelected:(NSMutableArray *)selectedItems;
+- (void)redoDeleteSelected:(UndoStatePointer *)selectedItems;
+- (void)undoDeleteSelected:(UndoStatePointer *)selectedItems;
 - (IBAction)selectAll:(id)sender;
 - (IBAction)invertSelection:(id)sender;
 - (IBAction)hideSelected:(id)sender;

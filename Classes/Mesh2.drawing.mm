@@ -284,14 +284,6 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Mesh2::initOrUpdateTexture()
-{
-    if (!_texture)
-        _texture = [[FPTexture alloc] initWithFile:@"checker.png" convertToAlpha:NO];
-    else if (_texture.needUpdate)
-        [_texture updateTexture];
-}
-
 void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
@@ -299,21 +291,11 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (viewMode == ViewModeMixedWireSolid)
         glEnable(GL_BLEND);
     
-    if (fillMode.textured)
-    {
-        glEnable(GL_TEXTURE_2D);
-        initOrUpdateTexture();
-        glBindTexture(GL_TEXTURE_2D, [_texture textureID]);
-    }
-    
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     
     glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 
-    if (fillMode.textured)
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    
     if (fillMode.colored)
     {
         glEnableClientState(GL_COLOR_ARRAY);
@@ -325,9 +307,6 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     else
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, flatNormal));
     
-    if (fillMode.textured)
-        glTexCoordPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
-    
     if (viewMode == ViewModeUnwrap)
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
     else
@@ -338,20 +317,12 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (fillMode.colored)
         glDisableClientState(GL_COLOR_ARRAY);
     
-    if (fillMode.textured)
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    if (fillMode.textured)
-    {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_TEXTURE_2D); 
-    }
-    
     if (viewMode == ViewModeMixedWireSolid)
         glDisable(GL_BLEND);
 }
@@ -393,8 +364,6 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glPolygonOffset(1.0f, 1.0f);
         }
         
-        GLint location = glGetUniformLocation(shader.program, "texture");
-        glUniform1i(location, 0);
         [shader useProgram];
         if (_selectionMode != MeshSelectionModeTriangles)
         {
@@ -416,12 +385,6 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glDisable(GL_POLYGON_OFFSET_FILL);
             drawAllEdges(viewMode, forSelection);
         }        
-        
-        if (_isUnwrapped)
-        {
-            glColor3f(1.0f, 1.0f, 1.0f);
-            [_texture drawForUnwrap];
-        }
 	}
 	glPopMatrix();
     
@@ -857,10 +820,10 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
 
 void Mesh2::uvToPixels(float &u, float &v)
 {
-    u *= (float)_texture.width;
-    v *= (float)_texture.height;
-    
-    v = (float)_texture.height - v;
+//    u *= (float)_texture.width;
+//    v *= (float)_texture.height;
+//    
+//    v = (float)_texture.height - v;
 }
 
 TriangleNode *Mesh2::rayToUV(const Vector3D &origin, const Vector3D &direction, float &u, float &v)
@@ -899,17 +862,6 @@ TriangleNode *Mesh2::rayToUV(const Vector3D &origin, const Vector3D &direction, 
         uvToPixels(u, v);
     }
     return nearest;
-}
-
-void Mesh2::cleanTexture()
-{   
-    [[_texture canvas] lockFocus];
-    
-    [[NSColor whiteColor] setFill];
-    NSRectFill(NSMakeRect(0, 0, [_texture width], [_texture height]));
-    
-    [[_texture canvas] unlockFocus];
-    [_texture updateTexture]; 
 }
 
 void Mesh2::hideSelected()

@@ -1,6 +1,5 @@
 // fragment.fs
 
-uniform sampler2D texture;
 varying vec3 normal;
 varying vec3 eyeCoords;
 
@@ -8,7 +7,6 @@ void main()
 {
     vec3 l, n;
     vec4 baseColor;
-    vec4 textureColor = texture2D(texture, gl_TexCoord[0].st);
     
     if (!gl_FrontFacing)
     {
@@ -23,11 +21,7 @@ void main()
         baseColor = vec4(0.5, 0.5, 0.5, 0.0);
     }
     
-    vec4 material;
-    material.r = baseColor.r * textureColor.r;
-    material.g = baseColor.g * textureColor.g;
-    material.b = baseColor.b * textureColor.b;
-    material.a = baseColor.a * textureColor.a;
+    vec4 material = baseColor;
     
     vec3 s = normalize(l - eyeCoords);
     vec3 v = normalize(-eyeCoords);
@@ -43,6 +37,5 @@ void main()
         specular = material * pow(max(dot(r, v), 0.0), 40.0);
     
     vec4 finalColor = min(ambient + diffuse + specular, baseColor * 1.8);
-    finalColor.a = textureColor.a;
     gl_FragColor = finalColor;
 }

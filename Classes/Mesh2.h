@@ -90,8 +90,7 @@ private:
     bool _vboGenerated;
 
     float _colorComponents[4];
-    NSColor *_color;
-    FPTexture *_texture;
+    Vector4D _color;
 private:
     void fastMergeSelectedVertices();
     void fastMergeSelectedTexCoords();
@@ -99,7 +98,6 @@ private:
     void repositionVertices(uint vertexCount);
     void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
-    void initOrUpdateTexture();
     
     template <class T>
     FPList<VEdgeNode<T>, VEdge<T> > &edges();
@@ -119,9 +117,8 @@ public:
     
     void encode(MemoryWriteStream *stream);
     
-    FPTexture *texture();
-    NSColor *color() { return _color; }
-    void setColor(NSColor *color);
+    Vector4D color() { return _color; }
+    void setColor(Vector4D color);
     
     uint vertexCount() { return _vertices.count(); }
     uint triangleCount() { return _triangles.count(); }
@@ -214,8 +211,6 @@ public:
     // texturing
     
     TriangleNode *rayToUV(const Vector3D &origin, const Vector3D &direction, float &u, float &v);
-    
-    void cleanTexture();    
 
     // make
     

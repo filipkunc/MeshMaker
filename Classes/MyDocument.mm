@@ -7,8 +7,31 @@
 //
 
 #import "MyDocument.h"
-#import "ItemManipulationState.h"
-#import "IndexedItem.h"
+
+@implementation UndoStatePointer
+
+- (IUndoState *)undoState
+{
+    return _undoState;
+}
+
+- (id)initWithUndoState:(IUndoState *)undoState
+{
+    self = [super init];
+    if (self)
+    {
+        _undoState = undoState;
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    if (_undoState)
+        delete _undoState;
+}
+
+@end
 
 @implementation MyDocument
 
@@ -85,8 +108,8 @@
 - (void)setCurrentManipulator:(enum ManipulatorType)value;
 {
     currentManipulator = value;
-    itemsController->setCurrentManipulator(value);
-    meshController->setCurrentManipulator(value);
+    itemsController->setCurrentManipulator(value, manipulated != itemsController);
+    meshController->setCurrentManipulator(value, manipulated != meshController);
 }
 
 - (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
@@ -241,12 +264,14 @@
 
 - (NSColor *)selectionColor
 {
-    return manipulated->selectionColor();
+    Vector4D color = manipulated->selectionColor();
+    return [NSColor colorWithCalibratedRed:color.x green:color.y blue:color.z alpha:color.w];
 }
 
 - (void)setSelectionColor:(NSColor *)selectionColor
 {
-    [self meshOnlyActionWithName:@"Change Color" block:^ { manipulated->setSelectionColor(selectionColor); }];
+    Vector4D color = Vector4D(selectionColor.redComponent, selectionColor.greenComponent, selectionColor.blueComponent, selectionColor.alphaComponent);
+    [self meshOnlyActionWithName:@"Change Color" block:^ { manipulated->setSelectionColor(color); }];
 }
 
 - (void)setNilValueForKey:(NSString *)key
@@ -266,10 +291,10 @@
     }
 }
 
-- (void)swapManipulationsWithOld:(NSMutableArray *)old current:(NSMutableArray *)current
+- (void)swapManipulationsWithOld:(UndoStatePointer *)old
+                         current:(UndoStatePointer *)current
 {
-	NSAssert([old count] == [current count], @"old count == current count");
-    items->setCurrentManipulations(old);
+    items->setCurrentManipulations(old.undoState);
 	
 	MyDocument *document = [self prepareUndoWithName:@"Manipulations"];	
 	[document swapManipulationsWithOld:current current:old];
@@ -278,11 +303,11 @@
 	[self setManipulated:itemsController];
 }
 
-- (void)swapAllItemsWithOld:(NSMutableArray *)old
-					current:(NSMutableArray *)current
+- (void)swapAllItemsWithOld:(UndoStatePointer *)old
+					current:(UndoStatePointer *)current
 				 actionName:(NSString *)actionName
 {
-    items->setAllItems(old);
+    items->setAllItems(old.undoState);
 
 	MyDocument *document = [self prepareUndoWithName:actionName];
 	[document swapAllItemsWithOld:current
@@ -293,12 +318,17 @@
 	[self setManipulated:itemsController];
 }
 
-- (void)swapMeshStateWithOld:(MeshState *)old
-					 current:(MeshState *)current 
+- (void)swapMeshStateWithOld:(UndoStatePointer *)old
+					 current:(UndoStatePointer *)current
 				  actionName:(NSString *)actionName
 {
-    items->setCurrentMeshState(old);
-	Item *item = items->itemAtIndex(old.itemIndex);
+    if (old.undoState == NULL)
+        return;
+    
+    items->setCurrentMeshState(old.undoState);
+    
+    MeshState *meshState = dynamic_cast<UndoState<MeshState> *>(old.undoState)->state();
+	Item *item = items->itemAtIndex(meshState->index());
 	
     meshController->setModel(item);
     meshController->setPositionRotationScale(item->position, item->rotation, item->scale);
@@ -317,13 +347,13 @@
 - (void)allItemsActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
-	NSMutableArray *oldItems = items->allItems();
+	UndoStatePointer *oldItems = [[UndoStatePointer alloc] initWithUndoState:items->allItems()];
 
 	action();
     
     [textureBrowserWindowController setItems:items];
 	
-	NSMutableArray *currentItems = items->allItems();
+	UndoStatePointer *currentItems = [[UndoStatePointer alloc] initWithUndoState:items->allItems()];
 	[document swapAllItemsWithOld:oldItems 
 						  current:currentItems
 					   actionName:actionName];	
@@ -332,11 +362,11 @@
 - (void)meshActionWithName:(NSString *)actionName block:(void (^)())action
 {
 	MyDocument *document = [self prepareUndoWithName:actionName];
-	MeshState *oldState = items->currentMeshState();
+	UndoStatePointer *oldState = [[UndoStatePointer alloc] initWithUndoState:items->currentMeshState()];
 	
 	action();
 	
-	MeshState *currentState = items->currentMeshState();
+	UndoStatePointer *currentState = [[UndoStatePointer alloc] initWithUndoState:items->currentMeshState()];
 	[document swapMeshStateWithOld:oldState 
 						   current:currentState
 						actionName:actionName];
@@ -348,11 +378,11 @@
 	
 	if (manipulated == itemsController)
 	{
-		oldManipulations = items->currentManipulations();
+		oldManipulations = [[UndoStatePointer alloc] initWithUndoState:items->currentManipulations()];
 	}
 	else if (manipulated == meshController)
 	{
-		oldMeshState = items->currentMeshState();
+		oldMeshState = [[UndoStatePointer alloc] initWithUndoState:items->currentMeshState()];
 	}
 }
 
@@ -363,7 +393,8 @@
 	if (manipulated == itemsController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Manipulations"];
-		[document swapManipulationsWithOld:oldManipulations current:items->currentManipulations()];
+		[document swapManipulationsWithOld:oldManipulations
+                                   current:[[UndoStatePointer alloc] initWithUndoState:items->currentManipulations()]];
 		oldManipulations = nil;
         
         itemsController->willChangeSelection();
@@ -372,7 +403,9 @@
 	else if (manipulated == meshController)
 	{
 		MyDocument *document = [self prepareUndoWithName:@"Mesh Manipulation"];
-		[document swapMeshStateWithOld:oldMeshState current:items->currentMeshState() actionName:@"Mesh Manipulation"];
+		[document swapMeshStateWithOld:oldMeshState
+                               current:[[UndoStatePointer alloc] initWithUndoState:items->currentMeshState()]
+                            actionName:@"Mesh Manipulation"];
 		oldMeshState = nil;
         
         meshController->willChangeSelection();
@@ -557,7 +590,7 @@
 	
 	if (manipulated == itemsController)
 	{
-		NSMutableArray *selection = items->currentSelection();
+		UndoStatePointer *selection = [[UndoStatePointer alloc] initWithUndoState:items->currentSelection()];
 		MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 		[document undoDuplicateSelected:selection];
 		manipulated->duplicateSelected();
@@ -576,10 +609,10 @@
 	}
 }
 
-- (void)redoDuplicateSelected:(NSMutableArray *)selection
+- (void)redoDuplicateSelected:(UndoStatePointer *)selection
 {
 	[self setManipulated:itemsController];
-	items->setCurrentSelection(selection);
+	items->setCurrentSelection(selection.undoState);
 	manipulated->duplicateSelected();
 	
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
@@ -589,12 +622,13 @@
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (void)undoDuplicateSelected:(NSMutableArray *)selection
+- (void)undoDuplicateSelected:(UndoStatePointer *)selection
 {	
 	[self setManipulated:itemsController];
-	uint duplicatedCount = [selection count];
+    vector<uint> *selectedIndices = dynamic_cast<UndoState<vector<uint>> *>(selection.undoState)->state();
+	uint duplicatedCount = selectedIndices->size();
     items->removeItemsInRange(NSMakeRange(items->count() - duplicatedCount, duplicatedCount));
-    items->setCurrentSelection(selection);
+    items->setCurrentSelection(selection.undoState);
 
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
 	[document redoDuplicateSelected:selection];
@@ -610,7 +644,7 @@
 	
 	if (manipulated == itemsController)
 	{
-		NSMutableArray *currentItems = items->currentItems();
+		UndoStatePointer *currentItems = [[UndoStatePointer alloc] initWithUndoState:items->currentItems()];
 		MyDocument *document = [self prepareUndoWithName:@"Delete"];
 		[document undoDeleteSelected:currentItems];
 		manipulated->removeSelected();
@@ -624,10 +658,10 @@
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (void)redoDeleteSelected:(NSMutableArray *)selectedItems
+- (void)redoDeleteSelected:(UndoStatePointer *)selectedItems
 {
 	[self setManipulated:itemsController];
-    items->setSelectionFromIndexedItems(selectedItems);
+    items->setSelectionFromRemovedItems(selectedItems.undoState);
 	manipulated->removeSelected();
     [textureBrowserWindowController setItems:items];
 	
@@ -638,10 +672,10 @@
 	[self setNeedsDisplayOnAllViews];
 }
 
-- (void)undoDeleteSelected:(NSMutableArray *)selectedItems
+- (void)undoDeleteSelected:(UndoStatePointer *)selectedItems
 {
 	[self setManipulated:itemsController];
-    items->setCurrentItems(selectedItems);
+    items->setCurrentItems(selectedItems.undoState);
     [textureBrowserWindowController setItems:items];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
@@ -718,12 +752,12 @@
 
 - (IBAction)cleanTexture:(id)sender
 {
-    Mesh2 *mesh = [self currentMesh];
-    if (mesh)
-    {
-        mesh->cleanTexture();
-        [self setNeedsDisplayOnAllViews];
-    }
+//    Mesh2 *mesh = [self currentMesh];
+//    if (mesh)
+//    {
+//        mesh->cleanTexture();
+//        [self setNeedsDisplayOnAllViews];
+//    }
 }
 
 - (IBAction)resetTexCoords:(id)sender

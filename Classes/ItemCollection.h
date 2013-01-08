@@ -11,8 +11,68 @@
 #import "OpenGLSelecting.h"
 #import "OpenGLManipulating.h"
 #import "OpenGLManipulatingController.h"
-#import "IndexedItem.h"
-#import "MeshState.h"
+
+class ItemCollection;
+
+class ItemManipulationState
+{
+private:
+    uint _index;
+	Vector3D _position;
+	Quaternion _rotation;
+	Vector3D _scale;
+public:
+    ItemManipulationState(ItemCollection &collection, uint index);
+    ~ItemManipulationState();
+    
+    void apply(ItemCollection &collection);
+};
+
+class RemovedItem
+{
+private:
+    uint _index;
+    Item *_item;
+public:
+    RemovedItem(ItemCollection &collection, uint index);
+    ~RemovedItem();
+    
+    void selectItemForRemove(ItemCollection &collection);
+    void insert(ItemCollection &collection);
+};
+
+class MeshState
+{
+private:
+    uint _index;
+	vector<Vector3D> _vertices;
+    vector<Vector3D> _texCoords;
+	vector<TriQuad> _triangles;
+	vector<bool> _selection;
+	MeshSelectionMode _selectionMode;
+public:
+    MeshState(ItemCollection &collection, uint index);
+    ~MeshState();
+    
+    uint index();
+    void apply(ItemCollection &collection);
+};
+
+class IUndoState
+{
+public:
+    virtual ~IUndoState() { }
+};
+
+template <class T>
+class UndoState : public IUndoState
+{
+    T *_state;
+public:
+    UndoState(T *state) : _state(state) { }
+    T *state() { return _state; }
+    virtual ~UndoState() { delete _state; }
+};
 
 class ItemCollection : public IOpenGLManipulatingModelItem
 {
@@ -25,16 +85,16 @@ public:
     ItemCollection(MemoryReadStream *stream);
     void encode(MemoryWriteStream *stream);
     
-    NSMutableArray *currentManipulations();
-    void setCurrentManipulations(NSMutableArray *manipulations);
-    MeshState *currentMeshState();
-    void setCurrentMeshState(MeshState *meshState);
-    NSMutableArray *currentSelection();
-    void setCurrentSelection(NSMutableArray *selection);
-    NSMutableArray *currentItems();
-    void setCurrentItems(NSMutableArray *anItems);
-    NSMutableArray *allItems();
-    void setAllItems(NSMutableArray *anItems);
+    IUndoState *currentManipulations();
+    void setCurrentManipulations(IUndoState *undoState);
+    IUndoState *currentMeshState();
+    void setCurrentMeshState(IUndoState *undoState);
+    IUndoState *currentSelection();
+    void setCurrentSelection(IUndoState *undoState);
+    IUndoState *currentItems();
+    void setCurrentItems(IUndoState *undoState);
+    IUndoState *allItems();
+    void setAllItems(IUndoState *undoState);
     
     Item *itemAtIndex(uint index);
     void addItem(Item *item);
@@ -44,7 +104,7 @@ public:
     void removeItemsInRange(NSRange range);
     void insertItemAtIndex(uint index, Item *item);
     void mergeSelectedItems();
-    void setSelectionFromIndexedItems(NSMutableArray *indexedItems);
+    void setSelectionFromRemovedItems(IUndoState *undoState);
     void deselectAll();
     void getVertexAndTriangleCount(uint &vertexCount, uint &triangleCount);
     Mesh2 *currentMesh();
@@ -63,8 +123,8 @@ public:
     virtual void hideSelected();
     virtual void unhideAll();
     
-    virtual NSColor *selectionColor(); // can be Vector4D instead of NSColor *
-    virtual void setSelectionColor(NSColor *color);
+    virtual Vector4D selectionColor();
+    virtual void setSelectionColor(Vector4D color);
     virtual void willSelectThrough(bool selectThrough);
     virtual void didSelect();
     virtual bool needsCullFace();

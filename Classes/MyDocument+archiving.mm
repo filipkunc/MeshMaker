@@ -49,23 +49,23 @@ vector<T> *ReadValues(string s)
     NSData *modelData = [modelWrapper regularFileContents];
     [self readFromModel3D:modelData];
     
-    [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
-     {
-         NSString *textureName = (NSString *)key;
-         if ([textureName hasSuffix:@".png"])
-         {
-             textureName = [textureName stringByDeletingPathExtension];
-             
-             NSFileWrapper *textureWrapper = (NSFileWrapper *)obj;
-             NSData *textureData = [textureWrapper regularFileContents];
-             
-             NSImage *image = [[NSImage alloc] initWithData:textureData];
-             uint index = [textureName substringFromIndex:@"Texture".length].integerValue;
-             Item *item = items->itemAtIndex(index);
-             FPTexture *texture = item->mesh->texture();
-             [texture setCanvas:image];
-         }
-     }];
+//    [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
+//     {
+//         NSString *textureName = (NSString *)key;
+//         if ([textureName hasSuffix:@".png"])
+//         {
+//             textureName = [textureName stringByDeletingPathExtension];
+//             
+//             NSFileWrapper *textureWrapper = (NSFileWrapper *)obj;
+//             NSData *textureData = [textureWrapper regularFileContents];
+//             
+//             NSImage *image = [[NSImage alloc] initWithData:textureData];
+//             uint index = [textureName substringFromIndex:@"Texture".length].integerValue;
+//             Item *item = items->itemAtIndex(index);
+//             FPTexture *texture = item->mesh->texture();
+//             [texture setCanvas:image];
+//         }
+//     }];
     
     return YES;
 }
@@ -87,17 +87,17 @@ vector<T> *ReadValues(string s)
                          preferredFilename:@"Geometry.model3D"];
     
     
-    for (int i = 0; i < (int)items->count(); i++)
-    {
-        NSImage *image = items->itemAtIndex(i)->mesh->texture().canvas;
-        NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
-        
-        NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
-        
-        
-        [dirWrapper addRegularFileWithContents:imageData
-                             preferredFilename:[NSString stringWithFormat:@"Texture%.2i.png", i]];
-    }
+//    for (int i = 0; i < (int)items->count(); i++)
+//    {
+//        NSImage *image = items->itemAtIndex(i)->mesh->texture().canvas;
+//        NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
+//        
+//        NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
+//        
+//        
+//        [dirWrapper addRegularFileWithContents:imageData
+//                             preferredFilename:[NSString stringWithFormat:@"Texture%.2i.png", i]];
+//    }
     
     return dirWrapper;
 }
