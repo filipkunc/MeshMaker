@@ -13,18 +13,6 @@
 typedef unsigned int uint;
 #endif
 
-#ifndef BOOL
-typedef signed char BOOL;
-#endif
-
-#ifndef YES
-#define YES             (BOOL)1
-#endif
-
-#ifndef NO
-#define NO              (BOOL)0
-#endif
-
 enum MeshType
 {
     MeshTypePlane = 0,

@@ -8,7 +8,36 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MemoryReadStream : NSObject
+class MemoryReadStream
+{
+private:
+    __unsafe_unretained NSData *_data;
+    NSUInteger _lastReadPosition;
+    unsigned int _version;
+public:
+    MemoryReadStream(NSData *data);
+    ~MemoryReadStream();
+    
+    unsigned int version() { return _version; }
+    void setVersion(unsigned int value) { _version = value; }
+    void readBytes(void *buffer, uint length);
+};
+
+class MemoryWriteStream
+{
+private:
+    __unsafe_unretained NSMutableData *_data;
+    unsigned int _version;
+public:
+    MemoryWriteStream(NSMutableData *data);
+    ~MemoryWriteStream();
+    
+    unsigned int version() { return _version; }
+    void setVersion(unsigned int value) { _version = value; }
+    void writeBytes(void *buffer, uint length);
+};
+
+/*@interface MemoryReadStream : NSObject
 {
     NSData *_data;
     NSUInteger _lastReadPosition;
@@ -33,4 +62,4 @@
 - (id)initWithData:(NSMutableData *)data;
 - (void)writeBytes:(void *)buffer length:(NSUInteger)length;
 
-@end
+@end*/

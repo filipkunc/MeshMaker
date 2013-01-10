@@ -25,10 +25,10 @@ Item::~Item()
 
 Item::Item(MemoryReadStream *stream)
 {
-    [stream readBytes:&position length:sizeof(Vector3D)];
-    [stream readBytes:&rotation length:sizeof(Quaternion)];
-    [stream readBytes:&scale length:sizeof(Vector3D)];
-    [stream readBytes:&selected length:sizeof(BOOL)];
+    stream->readBytes(&position, sizeof(Vector3D));
+    stream->readBytes(&rotation, sizeof(Quaternion));
+    stream->readBytes(&scale, sizeof(Vector3D));
+    stream->readBytes(&selected, sizeof(BOOL));
     
     visible = true;
     
@@ -37,10 +37,10 @@ Item::Item(MemoryReadStream *stream)
 
 void Item::encode(MemoryWriteStream *stream)
 {
-    [stream writeBytes:&position length:sizeof(Vector3D)];
-    [stream writeBytes:&rotation length:sizeof(Quaternion)];
-    [stream writeBytes:&scale length:sizeof(Vector3D)];
-    [stream writeBytes:&selected length:sizeof(BOOL)];
+    stream->writeBytes(&position, sizeof(Vector3D));
+    stream->writeBytes(&rotation, sizeof(Quaternion));
+    stream->writeBytes(&scale, sizeof(Vector3D));
+    stream->writeBytes(&selected, sizeof(BOOL));
 	
     mesh->encode(stream);
 }

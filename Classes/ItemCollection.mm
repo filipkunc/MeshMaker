@@ -96,7 +96,7 @@ ItemCollection::~ItemCollection()
 ItemCollection::ItemCollection(MemoryReadStream *stream)
 {
     uint itemsCount;
-    [stream readBytes:&itemsCount length:sizeof(uint)];
+    stream->readBytes(&itemsCount, sizeof(uint));
     for (uint i = 0; i < itemsCount; i++)
     {
         Item *item = new Item(stream);
@@ -107,7 +107,7 @@ ItemCollection::ItemCollection(MemoryReadStream *stream)
 void ItemCollection::encode(MemoryWriteStream *stream)
 {
     uint itemsCount = items.size();
-    [stream writeBytes:&itemsCount length:sizeof(uint)];
+    stream->writeBytes(&itemsCount, sizeof(uint));
 	for (uint i = 0; i < itemsCount; i++)
 	{
 		Item *item = items.at(i);

@@ -65,8 +65,8 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
 {
     Vector4D color;
     
-    if (stream.version >= ModelVersionColors)
-        [stream readBytes:&color length:sizeof(Vector4D)];
+    if (stream->version() >= ModelVersionColors)
+        stream->readBytes(&color, sizeof(Vector4D));
     else
         color = generateRandomColor();
     
@@ -74,9 +74,9 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
     uint texCoordsSize;
     uint trianglesSize;
     
-    [stream readBytes:&verticesSize length:sizeof(uint)];
-    [stream readBytes:&texCoordsSize length:sizeof(uint)];
-    [stream readBytes:&trianglesSize length:sizeof(uint)];
+    stream->readBytes(&verticesSize, sizeof(uint));
+    stream->readBytes(&texCoordsSize, sizeof(uint));
+    stream->readBytes(&trianglesSize, sizeof(uint));
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
@@ -85,23 +85,23 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
     for (uint i = 0; i < verticesSize; i++)
     {
         Vector3D vertex;
-        [stream readBytes:&vertex length:sizeof(Vector3D)];
+        stream->readBytes(&vertex, sizeof(Vector3D));
         vertices.push_back(vertex);
     }
     
     for (uint i = 0; i < texCoordsSize; i++)
     {
         Vector3D texCoord;
-        [stream readBytes:&texCoord length:sizeof(Vector3D)];
+        stream->readBytes(&texCoord, sizeof(Vector3D));
         texCoords.push_back(texCoord);
     }
     
-    if (stream.version >= ModelVersionTriQuads)
+    if (stream->version() >= ModelVersionTriQuads)
     {
         for (uint i = 0; i < trianglesSize; i++)
         {
             TriQuad triangle;
-            [stream readBytes:&triangle length:sizeof(TriQuad)];
+            stream->readBytes(&triangle, sizeof(TriQuad));
             triangles.push_back(triangle);
         }
     }
@@ -110,7 +110,7 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
         for (uint i = 0; i < trianglesSize; i++)
         {
             Triangle triangle;
-            [stream readBytes:&triangle length:sizeof(Triangle)];
+            stream->readBytes(&triangle, sizeof(Triangle));
             TriQuad triQuad;
             triQuad.isQuad = false;
             for (uint j = 0; j < 3; j++)
@@ -128,9 +128,9 @@ Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
 
 void Mesh2::encode(MemoryWriteStream *stream)
 {
-    if (stream.version > ModelVersionColors)
+    if (stream->version() > ModelVersionColors)
     {
-        [stream writeBytes:&_color length:sizeof(Vector4D)];
+        stream->writeBytes(&_color, sizeof(Vector4D));
     }
     
     vector<Vector3D> vertices;
@@ -140,20 +140,20 @@ void Mesh2::encode(MemoryWriteStream *stream)
     this->toIndexRepresentation(vertices, texCoords, triangles);
     
 	uint size = vertices.size();
-    [stream writeBytes:&size length:sizeof(uint)];
+    stream->writeBytes(&size, sizeof(uint));
     size = texCoords.size();
-    [stream writeBytes:&size length:sizeof(uint)];
+    stream->writeBytes(&size, sizeof(uint));
 	size = triangles.size();
-    [stream writeBytes:&size length:sizeof(uint)];
+    stream->writeBytes(&size, sizeof(uint));
     
 	if (vertices.size() > 0)
-        [stream writeBytes:&vertices.at(0) length:vertices.size() * sizeof(Vector3D)];
+        stream->writeBytes(&vertices.at(0), vertices.size() * sizeof(Vector3D));
     
     if (texCoords.size() > 0)
-        [stream writeBytes:&texCoords.at(0) length:texCoords.size() * sizeof(Vector3D)];
+        stream->writeBytes(&texCoords.at(0), texCoords.size() * sizeof(Vector3D));
 	
 	if (triangles.size() > 0)
-        [stream writeBytes:&triangles.at(0) length:triangles.size() * sizeof(TriQuad)];
+        stream->writeBytes(&triangles.at(0), triangles.size() * sizeof(TriQuad));
 }
 
 void Mesh2::setColor(Vector4D color)

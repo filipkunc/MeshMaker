@@ -71,7 +71,7 @@
 		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
-		A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
+		A76AF5E8151E331A0015E5B4 /* MemoryStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.mm */; };
 		A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */; };
 		A7847C6E1658FB4D0073AB2A /* sameSize.js in Resources */ = {isa = PBXBuildFile; fileRef = A7847C6C1658FB310073AB2A /* sameSize.js */; };
 		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
@@ -98,7 +98,7 @@
 		A7E8B3711631BDF500B8599D /* ScriptWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7E8B36F1631BDF500B8599D /* ScriptWindowController.xib */; };
 		A7E8B3731631BF7F00B8599D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E8B3721631BF7F00B8599D /* WebKit.framework */; };
 		A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A7FBCD0D163B367900423D57 /* AppDelegate.m */; };
-		A7FD04DE1564508F002D0777 /* MemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.m */; };
+		A7FD04DE1564508F002D0777 /* MemoryStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = A76AF5E7151E331A0015E5B4 /* MemoryStream.mm */; };
 		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
 /* End PBXBuildFile section */
@@ -194,7 +194,7 @@
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A767E0E3153B544700A175DE /* IcosahedronTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IcosahedronTemplate.png; sourceTree = "<group>"; };
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
-		A76AF5E7151E331A0015E5B4 /* MemoryStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MemoryStream.m; path = Classes/MemoryStream.m; sourceTree = "<group>"; };
+		A76AF5E7151E331A0015E5B4 /* MemoryStream.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MemoryStream.mm; path = Classes/MemoryStream.mm; sourceTree = "<group>"; };
 		A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaneTemplate.png; sourceTree = "<group>"; };
 		A7847C6C1658FB310073AB2A /* sameSize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sameSize.js; sourceTree = "<group>"; };
 		A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RotateTemplate.png; sourceTree = "<group>"; };
@@ -379,7 +379,7 @@
 				A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */,
 				A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */,
 				A76AF5E6151E331A0015E5B4 /* MemoryStream.h */,
-				A76AF5E7151E331A0015E5B4 /* MemoryStream.m */,
+				A76AF5E7151E331A0015E5B4 /* MemoryStream.mm */,
 				A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */,
 				A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */,
 				A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */,
@@ -646,7 +646,7 @@
 				A7D0684914B9FD350091B657 /* Triangle.mm in Sources */,
 				A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */,
 				A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */,
-				A76AF5E8151E331A0015E5B4 /* MemoryStream.m in Sources */,
+				A76AF5E8151E331A0015E5B4 /* MemoryStream.mm in Sources */,
 				A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */,
 				A7E8B3701631BDF500B8599D /* ScriptWindowController.mm in Sources */,
 				A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */,
@@ -660,7 +660,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A7FD04DE1564508F002D0777 /* MemoryStream.m in Sources */,
+				A7FD04DE1564508F002D0777 /* MemoryStream.mm in Sources */,
 				A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */,
 				A74BF5A714FA9B2E006D7BA3 /* FPTexture.mm in Sources */,
 				A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */,

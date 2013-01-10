@@ -39,11 +39,11 @@ vector<T> *ReadValues(string s)
     if ([typeName isEqualToString:@"model3D"])
         return [self readFromModel3D:[dirWrapper regularFileContents]];
     
-//    if ([typeName isEqualToString:@"Wavefront Object"])
-//        return [self readFromWavefrontObject:[dirWrapper regularFileContents]];
-//    
-//    if ([typeName isEqualToString:@"Collada"])
-//        return [self readFromCollada:[dirWrapper regularFileContents]];
+    if ([typeName isEqualToString:@"Wavefront Object"])
+        return [self readFromWavefrontObject:[dirWrapper regularFileContents]];
+    
+    if ([typeName isEqualToString:@"Collada"])
+        return [self readFromCollada:[dirWrapper regularFileContents]];
     
     NSFileWrapper *modelWrapper = [[dirWrapper fileWrappers] objectForKey:@"Geometry.model3D"];
     NSData *modelData = [modelWrapper regularFileContents];
@@ -75,11 +75,11 @@ vector<T> *ReadValues(string s)
     if ([typeName isEqualToString:@"model3D"])
         return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfModel3D]];
     
-//    if ([typeName isEqualToString:@"Wavefront Object"])
-//        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfWavefrontObject]];
-//    
-//    if ([typeName isEqualToString:@"Collada"])
-//        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfCollada]];
+    if ([typeName isEqualToString:@"Wavefront Object"])
+        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfWavefrontObject]];
+    
+    if ([typeName isEqualToString:@"Collada"])
+        return [[NSFileWrapper alloc] initRegularFileWithContents:[self dataOfCollada]];
     
     NSFileWrapper *dirWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:nil];
     
@@ -104,17 +104,18 @@ vector<T> *ReadValues(string s)
 
 - (BOOL)readFromModel3D:(NSData *)data
 {
-    MemoryReadStream *stream = [[MemoryReadStream alloc] initWithData:data];
+    MemoryReadStream *stream = new MemoryReadStream(data);
     
     unsigned int version = 0;
     
-    [stream readBytes:&version length:sizeof(unsigned int)];
+    stream->readBytes(&version, sizeof(unsigned int));
     
     if (version < ModelVersionFirst || version > ModelVersionLatest)
         return NO;
     
-    [stream setVersion:version];
+    stream->setVersion(version);
     ItemCollection *newItems = new ItemCollection(stream);
+    delete stream;
     items = newItems;
     
     itemsController->setModel(items);
@@ -127,12 +128,15 @@ vector<T> *ReadValues(string s)
 - (NSData *)dataOfModel3D
 {
     NSMutableData *data = [[NSMutableData alloc] init];
-    MemoryWriteStream *stream = [[MemoryWriteStream alloc] initWithData:data];
+    MemoryWriteStream *stream = new MemoryWriteStream(data);
     
     unsigned int version = ModelVersionLatest;
-    [stream setVersion:version];
-    [stream writeBytes:&version length:sizeof(unsigned int)];
+    stream->setVersion(version);
+    stream->writeBytes(&version, sizeof(unsigned int));
     items->encode(stream);
+
+    delete stream;
+    
     return data;
 }
 
@@ -251,7 +255,7 @@ vector<T> *ReadValues(string s)
             mesh->setSelectedAtIndex(true, j);
         
         Item *item = new Item(new Mesh2());
-        item->mesh->fillMeshFromSelectedTriangles(*mesh);
+        mesh->fillMeshFromSelectedTriangles(*item->mesh);
         item->setPositionToGeometricCenter();
         newItems->addItem(item);
     }
@@ -267,6 +271,7 @@ vector<T> *ReadValues(string s)
         delete mesh;
     }
     
+    delete items;
     items = newItems;
     
     itemsController->setModel(items);
@@ -275,7 +280,7 @@ vector<T> *ReadValues(string s)
     
     return YES;
 }
-/*
+
 - (NSData *)dataOfWavefrontObject
 {
     if (items->count() == 0)
@@ -289,17 +294,18 @@ vector<T> *ReadValues(string s)
     // face indices in Wavefront Object starts from 1
     uint vertexIndexOffset = 1;
     uint texCoordIndexOffset = 1;
-    uint itemIndex = 0;
     
-    for (Item *item in items)
+    for (uint itemIndex = 0; itemIndex < items->count(); itemIndex++)
     {
+        Item *item = items->itemAtIndex(itemIndex);
+        
         vector<Vector3D> vertices;
         vector<Vector3D> texCoords;
         vector<TriQuad> triangles;
         
-        Item *duplicate = item.duplicate;
-        Mesh2 *mesh = duplicate.mesh;
-        mesh->transformAll(duplicate.transform);
+        Item *duplicate = item->duplicate();
+        Mesh2 *mesh = duplicate->mesh;
+        mesh->transformAll(duplicate->transform());
         mesh->flipAllTriangles();
         mesh->toIndexRepresentation(vertices, texCoords, triangles);
         
@@ -338,7 +344,6 @@ vector<T> *ReadValues(string s)
         
         vertexIndexOffset += vertices.size();
         texCoordIndexOffset += texCoords.size();
-        itemIndex++;
     }
     
     string str = ssfile.str();
@@ -437,14 +442,14 @@ vector<T> *ReadValues(string s)
     xml_node< > *geometries = document.first_node()->first_node("library_geometries");
     xml_node< > *visualScenes = document.first_node()->first_node("library_visual_scenes")->first_node("visual_scene");
     
-    ItemCollection *newItems = [[ItemCollection alloc] init];
+    ItemCollection *newItems = new ItemCollection();
     
     for (xml_node< > *node = visualScenes->first_node("node"); node; node = node->next_sibling())
     {
         xml_node< > *instanceGeometry = node->first_node("instance_geometry");
         if (instanceGeometry != NULL)
         {
-            Item *item = [[Item alloc] init];
+            Item *item = new Item(new Mesh2());
             
             xml_attribute< > *url = instanceGeometry->first_attribute("url");
             char *urlValue = url->value();
@@ -454,7 +459,7 @@ vector<T> *ReadValues(string s)
             {
                 if (strcmp(urlValue, geometry->first_attribute("id")->value()) == 0)
                 {
-                    [self readMesh:item.mesh fromXml:geometry->first_node("mesh")];
+                    [self readMesh:item->mesh fromXml:geometry->first_node("mesh")];
                     break;
                 }
             }
@@ -464,16 +469,17 @@ vector<T> *ReadValues(string s)
             {
                 float x, y, z;
                 sscanf(translate->value(), "%f %f %f", &x, &y, &z);
-                item.position = Vector3D(x, y, z);
+                item->position = Vector3D(x, y, z);
             }
             
-            [newItems addItem:item];
+            newItems->addItem(item);
         }
     }
     
+    delete items;
     items = newItems;
-    [itemsController setModel:items];
-    [itemsController updateSelection];
+    itemsController->setModel(items);
+    itemsController->updateSelection();
     [self setManipulated:itemsController];
     
     delete [] textBuffer;
@@ -571,17 +577,18 @@ vector<T> *ReadValues(string s)
         
         [colladaXml appendString:@"<library_geometries>\n"];
         {
-            int itemID = 0;
-            for (Item *item in items)
+            for (uint itemID = 0; itemID < items->count(); itemID++)
             {
+                Item *item = items->itemAtIndex(itemID);
+                
                 vector<Vector3D> vertices;
                 vector<Vector3D> texCoords;
                 vector<Vector3D> normals;
                 vector<TriQuad> triangles;
                 
-                Item *duplicate = [item duplicate];
-                Mesh2 *mesh = duplicate.mesh;
-                mesh->transformAll(duplicate.transform);
+                Item *duplicate = item->duplicate();
+                Mesh2 *mesh = duplicate->mesh;
+                mesh->transformAll(duplicate->transform());
                 
                 mesh->triangulate();
                 mesh->flipAllTriangles();
@@ -702,9 +709,7 @@ vector<T> *ReadValues(string s)
                     }
                     [colladaXml appendString:@"</mesh>\n"];
                 }
-                [colladaXml appendString:@"</geometry>\n"];
-                
-                itemID++;
+                [colladaXml appendString:@"</geometry>\n"];                
             }
         }
         [colladaXml appendString:@"</library_geometries>\n"];
@@ -750,8 +755,7 @@ vector<T> *ReadValues(string s)
                 }
                 [colladaXml appendString:@"</node>\n"];
                 
-                int itemID = 0;
-                for (Item *item in items)
+                for (uint itemID = 0; itemID < items->count(); itemID++)
                 {
                     [colladaXml appendFormat:@"<node id=\"Geometry-MeshNode_%i\" name=\"Mesh_%i\" type=\"NODE\">\n", itemID, itemID];
                     {
@@ -775,7 +779,6 @@ vector<T> *ReadValues(string s)
                         [colladaXml appendString:@"</instance_geometry>\n"];
                     }
                     [colladaXml appendString:@"</node>\n"];
-                    itemID++;
                 }
                 
                 [colladaXml appendString:@"<node id=\"Camera-CameraNode\" name=\"Camera\" type=\"NODE\">\n"];
@@ -811,6 +814,6 @@ vector<T> *ReadValues(string s)
     [colladaXml appendString:@"</COLLADA>\n"];
     
     return [colladaXml dataUsingEncoding:NSUTF8StringEncoding];
-}*/
+}
 
 @end
