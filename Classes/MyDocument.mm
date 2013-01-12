@@ -218,6 +218,7 @@
 	[document addItemWithType:type steps:steps];
 
 	items->removeLastItem();
+    meshController->setModel(NULL);
     [textureBrowserWindowController setItems:items];
     itemsController->changeSelection(false);
 	[self setManipulated:itemsController];

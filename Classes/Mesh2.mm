@@ -36,6 +36,42 @@ Vector4D generateRandomColor()
 #endif
 }
 
+Triangle2 makeTriangle(VertexNode *vertices[], TexCoordNode *texCoords[],
+                       uint index0, uint index1, uint index2);
+
+Triangle2 makeTriangle(VertexNode *vertices[], TexCoordNode *texCoords[],
+                       uint index0, uint index1, uint index2)
+{
+    VertexNode *triangleVertices[3];
+    triangleVertices[0] = vertices[index0];
+    triangleVertices[1] = vertices[index1];
+    triangleVertices[2] = vertices[index2];
+    TexCoordNode *triangleTexCoords[3];
+    triangleTexCoords[0] = texCoords[index0];
+    triangleTexCoords[1] = texCoords[index1];
+    triangleTexCoords[2] = texCoords[index2];
+    return Triangle2(triangleVertices, triangleTexCoords, false);
+}
+
+Triangle2 makeQuad(VertexNode *vertices[], TexCoordNode *texCoords[],
+                   uint index0, uint index1, uint index2, uint index3);
+
+Triangle2 makeQuad(VertexNode *vertices[], TexCoordNode *texCoords[],
+                   uint index0, uint index1, uint index2, uint index3)
+{
+    VertexNode *triangleVertices[4];
+    triangleVertices[0] = vertices[index0];
+    triangleVertices[1] = vertices[index1];
+    triangleVertices[2] = vertices[index2];
+    triangleVertices[3] = vertices[index3];
+    TexCoordNode *triangleTexCoords[4];
+    triangleTexCoords[0] = texCoords[index0];
+    triangleTexCoords[1] = texCoords[index1];
+    triangleTexCoords[2] = texCoords[index2];
+    triangleTexCoords[3] = texCoords[index3];
+    return Triangle2(triangleVertices, triangleTexCoords, true);
+}
+
 #if defined(__APPLE__)
 NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
 {
@@ -1023,12 +1059,11 @@ void Mesh2::makeSubdividedTriangles()
          0    *3     1
          
          */
-#if defined(__APPLE__)
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
-        subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
-#endif
+        
+        subdivided.add(makeTriangle(vertices, texCoords, 0, 3, 5));
+        subdivided.add(makeTriangle(vertices, texCoords, 3, 1, 4));
+        subdivided.add(makeTriangle(vertices, texCoords, 5, 4, 2));
+        subdivided.add(makeTriangle(vertices, texCoords, 3, 4, 5));
     }
     
     _triangles.moveFrom(subdivided);
@@ -1245,12 +1280,11 @@ void Mesh2::splitSelectedTriangles()
             
             v[8] = _vertices.add((v[7]->data().position + v[5]->data().position) / 2.0f);
             t[8] = _texCoords.add((t[7]->data().position + t[5]->data().position) / 2.0f);
-#if defined(__APPLE__)
-            subdivided.add(Triangle2((VertexNode *[4]) { v[0], v[4], v[8], v[7] }, (TexCoordNode *[4]) { t[0], t[4], t[8], t[7] }, true));
-            subdivided.add(Triangle2((VertexNode *[4]) { v[4], v[1], v[5], v[8] }, (TexCoordNode *[4]) { t[4], t[1], t[5], t[8] }, true));
-            subdivided.add(Triangle2((VertexNode *[4]) { v[8], v[5], v[2], v[6] }, (TexCoordNode *[4]) { t[8], t[5], t[2], t[6] }, true));
-            subdivided.add(Triangle2((VertexNode *[4]) { v[7], v[8], v[6], v[3] }, (TexCoordNode *[4]) { t[7], t[8], t[6], t[3] }, true));
-#endif
+            
+            subdivided.add(makeQuad(v, t, 0, 4, 8, 7));
+            subdivided.add(makeQuad(v, t, 4, 1, 5, 8));
+            subdivided.add(makeQuad(v, t, 8, 5, 2, 6));
+            subdivided.add(makeQuad(v, t, 7, 8, 6, 3));
         }
         else
         {
@@ -1265,12 +1299,11 @@ void Mesh2::splitSelectedTriangles()
              0    *3     1
              
             */
-#if defined(__APPLE__)            
-            subdivided.add(Triangle2((VertexNode *[3]) { v[0], v[3], v[5] }, (TexCoordNode *[3]) { t[0], t[3], t[5] }));
-            subdivided.add(Triangle2((VertexNode *[3]) { v[3], v[1], v[4] }, (TexCoordNode *[3]) { t[3], t[1], t[4] }));
-            subdivided.add(Triangle2((VertexNode *[3]) { v[5], v[4], v[2] }, (TexCoordNode *[3]) { t[5], t[4], t[2] }));
-            subdivided.add(Triangle2((VertexNode *[3]) { v[3], v[4], v[5] }, (TexCoordNode *[3]) { t[3], t[4], t[5] }));
-#endif
+            
+            subdivided.add(makeTriangle(v, t, 0, 3, 5));
+            subdivided.add(makeTriangle(v, t, 3, 1, 4));
+            subdivided.add(makeTriangle(v, t, 5, 4, 2));
+            subdivided.add(makeTriangle(v, t, 3, 4, 5));
         }
     }
     
