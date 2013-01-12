@@ -6,8 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
-#import "OpenGLDrawing.h"
-#import "Manipulator.h"
+#include "OpenGLDrawing.h"
+#include "Manipulator.h"
 
 Manipulator::Manipulator(ManipulatorType type)
 {

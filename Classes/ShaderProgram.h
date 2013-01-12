@@ -6,6 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
+#pragma once
+
 #import <Cocoa/Cocoa.h>
 #import "Shader.h"
 

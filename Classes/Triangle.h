@@ -8,7 +8,6 @@
 
 #pragma once
 
-
 class Triangle2
 {
 private:

@@ -8,12 +8,14 @@
 
 #pragma once
 
-#import "OpenGLDrawing.h"
-#import "ShaderProgram.h"
-#import "FPTexture.h"
-#import "MeshHelpers.h"
-#import "Camera.h"
-#import "MemoryStream.h"
+#include "OpenGLDrawing.h"
+#if defined(__APPLE__)
+#include "ShaderProgram.h"
+#include "FPTexture.h"
+#endif
+#include "MeshHelpers.h"
+#include "Camera.h"
+#include "MemoryStream.h"
 
 enum GLVertexAttribID
 {
@@ -140,8 +142,12 @@ public:
     
     static bool selectThrough() { return _selectThrough; }
     static void setSelectThrough(bool value) { _selectThrough = value; }
-    
+
+#if defined(__APPLE__)
     static NSString *descriptionOfMeshType(MeshType meshType);
+#elif defined(WIN32)
+	static System::String ^descriptionOfMeshType(MeshType meshType);
+#endif
     
     bool isUnwrapped() { return _isUnwrapped; }
     void setUnwrapped(bool value) { _isUnwrapped = value; }

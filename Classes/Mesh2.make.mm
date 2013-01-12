@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import "Mesh2.h"
+#include "Mesh2.h"
 
 VertexNode *Mesh2::addVertex(const Vector3D &position)
 {

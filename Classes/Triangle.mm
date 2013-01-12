@@ -59,14 +59,22 @@ const Triangle2::PackedNode &Triangle2::node(uint index) const
 {
     if (index < count())
         return _nodes[index];
+#if defined(__APPLE__)
     @throw [NSException exceptionWithName:@"Triangle2::node(int index) const" reason:@"index out of range" userInfo:nil];
+#elif defined(WIN32)
+	throw gcnew System::Exception(L"Triangle2::node(int index) const");
+#endif
 }
 
 Triangle2::PackedNode &Triangle2::node(uint index)
 {
     if (index < count())
         return _nodes[index];
+#if defined(__APPLE__)
     @throw [NSException exceptionWithName:@"Triangle2::node(int index)" reason:@"index out of range" userInfo:nil];
+#elif defined(WIN32)
+	throw gcnew System::Exception(L"Triangle2::node(int index)");
+#endif
 }
 
 void TriangleNode::addToVertices()

@@ -6,11 +6,53 @@
 //
 //
 
-#import "OpenGLSceneViewCore.h"
+#include "OpenGLSceneViewCore.h"
 
 const float perspectiveAngle = 45.0f;
 const float minDistance = 1.0f;
 const float maxDistance = 500.0f;
+
+#if defined(WIN32)
+
+NSPoint NSMakePoint(float x, float y)
+{
+	NSPoint point;
+	point.x = x;
+	point.y = y;
+	return point;
+}
+
+NSSize NSMakeSize(float width, float height)
+{
+	NSSize size;
+	size.width = width;
+	size.height = height;
+	return size;
+}
+
+NSRect NSMakeRect(float x, float y, float width, float height)
+{
+	NSRect rect;
+	rect.origin = NSMakePoint(x, y);
+	rect.size = NSMakeSize(width, height);
+	return rect;
+}
+
+bool NSPointInRect(NSPoint point, NSRect rect)
+{
+	if (point.x < rect.origin.x)
+		return false;
+	if (point.x > rect.origin.x + rect.size.width)
+		return false;
+	if (point.y < rect.origin.y)
+		return false;
+	if (point.y > rect.origin.y + rect.size.height)
+		return false;
+
+	return true;
+}
+
+#endif
 
 OpenGLSceneViewCore::OpenGLSceneViewCore(IOpenGLSceneViewCoreDelegate *delegate)
 {
@@ -184,9 +226,10 @@ const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height re
 
 uint selectedIndices[kMaxSelectedIndicesCount];
 
-NSMutableIndexSet *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSelecting *selecting)
+bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSelecting *selecting)
 {
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
+    uint count = selecting->selectableCount();
     
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -202,7 +245,7 @@ NSMutableIndexSet *OpenGLSceneViewCore::select(int x, int y, int width, int heig
     }
     else
     {
-        for (uint i = 0; i < selecting->selectableCount(); i++)
+        for (uint i = 0; i < count; i++)
         {
             uint colorIndex = i + 1;
             glColor4ubv((GLubyte *)&colorIndex);
@@ -215,25 +258,27 @@ NSMutableIndexSet *OpenGLSceneViewCore::select(int x, int y, int width, int heig
     uint selectedIndicesCount = (uint)width * (uint)height;
     
     if (selectedIndicesCount >= kMaxSelectedIndicesCount)
-        return nil;
+        return NULL;
     
     if (selectedIndicesCount > 0)
     {
     	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
-        
-        NSMutableIndexSet *uniqueIndices = [NSMutableIndexSet indexSet];
+
+        bool *selected = new bool[count];
+        for (uint i = 0; i < count; i++)
+            selected[i] = false;
         
         for (uint i = 0; i < selectedIndicesCount; i++)
         {
             uint selectedIndex = selectedIndices[i];
-            if (selectedIndex > 0 && selectedIndex - 1 < selecting->selectableCount())
-                [uniqueIndices addIndex:selectedIndex - 1];
+            if (selectedIndex > 0 && selectedIndex - 1 < count)
+                selected[selectedIndex - 1] = true;
         }
         
-        return uniqueIndices;
+        return selected;
     }
     
-    return nil;
+    return NULL;
 }
 
 void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, OpenGLSelectionMode selectionMode)
@@ -248,13 +293,20 @@ void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, Ope
     
     _delegate->makeCurrentContext();
     
-	NSMutableIndexSet *uniqueIndices = select(point.x - 5, point.y - 5, 10, 10, selecting);
-    
-    [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop)
-     {
-     selecting->selectObjectAtIndex(idx, selectionMode);
-     *stop = YES;
-     }];
+	bool *selected = select(point.x - 5, point.y - 5, 10, 10, selecting);
+    if (selected != NULL)
+    {
+        for (uint i = 0; i < selecting->selectableCount(); i++)
+        {
+            if (selected[i])
+            {
+                selecting->selectObjectAtIndex(i, selectionMode);
+                break;
+            }
+        }
+        
+        delete [] selected;
+    }
     
     if (optional != NULL)
         optional->didSelect();
@@ -264,6 +316,8 @@ void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenG
 {
     if (selecting == NULL || selecting->selectableCount() <= 0)
 		return;
+    
+    uint count = selecting->selectableCount();
     
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
     
@@ -282,34 +336,55 @@ void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenG
         }
     }
     
-    NSMutableIndexSet *uniqueIndices;
+    bool *selected = NULL;
     
     if (optional != NULL && optional->needsCullFace())
     {
         glCullFace(GL_CCW);
         glEnable(GL_CULL_FACE);
         
-        NSMutableIndexSet *uniqueIndices1 = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
+        bool *selected1 = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
         
         glDisable(GL_CULL_FACE);
         
-        NSMutableIndexSet *uniqueIndices2 = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
+        bool *selected2 = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
         
-        uniqueIndices = [NSMutableIndexSet indexSet];
-        if (uniqueIndices1 != nil)
-            [uniqueIndices addIndexes:uniqueIndices1];
-        if (uniqueIndices2 != nil)
-            [uniqueIndices addIndexes:uniqueIndices2];
+        if (selected1 != NULL)
+        {
+            selected = selected1;
+        }
+        if (selected2 != NULL)
+        {
+            if (selected1 != NULL)
+            {
+                for (uint i = 0; i < count; i++)
+                {
+                    if (selected2)
+                        selected[i] = selected2;
+                }
+                delete [] selected2;
+            }
+            else
+            {
+                selected = selected2;
+            }
+        }
     }
     else
     {
-        uniqueIndices = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
+        selected = select(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, selecting);
     }
     
-    [uniqueIndices enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop)
+    if (selected != NULL)
     {
-        selecting->selectObjectAtIndex(idx, selectionMode);
-    }];
+        for (uint i = 0; i < count; i++)
+        {
+            if (selected[i])
+                selecting->selectObjectAtIndex(i, selectionMode);
+        }
+        
+        delete [] selected;
+    }
     
     if (optional != NULL)
         optional->didSelect();
@@ -629,7 +704,9 @@ void OpenGLSceneViewCore::drawSelectionRect()
 
 void OpenGLSceneViewCore::draw()
 {
+#if defined(__APPLE__)
     [ShaderProgram resetProgram];
+#endif
     
 	float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
@@ -691,7 +768,7 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
 	}
     else if (_delegate->texturePaintEnabled())
     {
-        _isPainting = YES;
+        _isPainting = true;
         //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
@@ -719,13 +796,13 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
 	}
 	else
 	{
-		_isSelecting = YES;
+		_isSelecting = true;
 	}
 }
 
 void OpenGLSceneViewCore::mouseMoved(NSPoint point)
 {
-    _highlightCameraMode = NO;
+    _highlightCameraMode = false;
 	_currentPoint = point;
 	if (_manipulated != NULL && _manipulated->selectedCount() > 0)
 	{
@@ -741,7 +818,7 @@ void OpenGLSceneViewCore::mouseMoved(NSPoint point)
 	if (_currentManipulator->selectedIndex == UINT_MAX)
 	{
 		if (NSPointInRect(_currentPoint, orthoManipulatorRect()))
-			_highlightCameraMode = YES;
+			_highlightCameraMode = true;
         _delegate->setNeedsDisplay();
 	}
 }
@@ -757,42 +834,49 @@ void OpenGLSceneViewCore::mouseUp(NSPoint point, bool alt, bool cmd, bool ctrl, 
     _isPainting = false;
     
 	_currentPoint = point;
+	
 	if (_isManipulating)
 	{
         _delegate->manipulationEnded();
         _isManipulating = false;
 	}
+
 	if (_isSelecting)
 	{
 		_isSelecting = false;
-		OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
-        
-		if (cmd)
-			selectionMode = OpenGLSelectionModeInvert;
-		else if (shift)
-			selectionMode = OpenGLSelectionModeAdd;
-		else
-			_manipulated->changeSelection(false);
-		
-		NSRect rect = currentRect();
-		if (clickCount <= 1 && rect.size.width > 5.0f && rect.size.height > 5.0f)
+
+		if (_manipulated != NULL)
 		{
-            select(rect, _manipulated, selectionMode, ctrl);
+			OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
+	        
+			if (cmd)
+				selectionMode = OpenGLSelectionModeInvert;
+			else if (shift)
+				selectionMode = OpenGLSelectionModeAdd;
+			else
+				_manipulated->changeSelection(false);
+			
+			NSRect rect = currentRect();
+			if (clickCount <= 1 && rect.size.width > 5.0f && rect.size.height > 5.0f)
+			{
+				select(rect, _manipulated, selectionMode, ctrl);
+			}
+			else
+			{
+				if (clickCount == 2)
+				{
+					if (selectionMode == OpenGLSelectionModeInvert)
+						selectionMode = OpenGLSelectionModeInvertExpand;
+					else
+						selectionMode = OpenGLSelectionModeExpand;
+				}
+	            
+				select(_currentPoint, _manipulated, selectionMode);
+			}
+			
+			_delegate->selectionChanged();
 		}
-		else
-        {
-            if (clickCount == 2)
-            {
-                if (selectionMode == OpenGLSelectionModeInvert)
-                    selectionMode = OpenGLSelectionModeInvertExpand;
-                else
-                    selectionMode = OpenGLSelectionModeExpand;
-            }
-            
-            select(_currentPoint, _manipulated, selectionMode);
-        }
-		
-        _delegate->selectionChanged();
+
         _delegate->setNeedsDisplay();
 	}
 }

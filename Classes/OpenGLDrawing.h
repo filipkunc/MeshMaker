@@ -11,12 +11,18 @@
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/gl3.h>
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
-#import "MathDeclaration.h"
-#import "Enums.h"
+#if defined(__APPLE__)
+#include <Cocoa/Cocoa.h>
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#elif defined (WIN32)
+#include <windows.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
+#include "MathDeclaration.h"
+#include "Enums.h"
 
 void DrawCube(float size);
 void DrawSphere(float radius, int lats, int longs);

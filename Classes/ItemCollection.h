@@ -6,11 +6,12 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
-#import "Item.h"
-#import "OpenGLSelecting.h"
-#import "OpenGLManipulating.h"
-#import "OpenGLManipulatingController.h"
+#pragma once
+
+#include "Item.h"
+#include "OpenGLSelecting.h"
+#include "OpenGLManipulating.h"
+#include "OpenGLManipulatingController.h"
 
 class ItemCollection;
 
@@ -101,7 +102,7 @@ public:
     void removeItem(Item *item);
     void removeLastItem();
     void removeItemAtIndex(uint index);
-    void removeItemsInRange(NSRange range);
+    void removeItemsInRange(uint location, uint length);
     void insertItemAtIndex(uint index, Item *item);
     void mergeSelectedItems();
     void setSelectionFromRemovedItems(IUndoState *undoState);

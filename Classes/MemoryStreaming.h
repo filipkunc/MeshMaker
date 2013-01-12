@@ -6,7 +6,11 @@
 //  For license see LICENSE.TXT
 //
 
-#import "MemoryStream.h"
+#pragma once
+
+#if defined(__APPLE__)
+
+#include "MemoryStream.h"
 
 @protocol MemoryStreaming
 
@@ -14,3 +18,5 @@
 - (void)encodeWithWriteStream:(MemoryWriteStream *)stream;
 
 @end
+
+#endif

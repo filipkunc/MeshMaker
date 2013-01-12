@@ -6,7 +6,11 @@
 //  For license see LICENSE.TXT
 //
 
-#import "OpenGLManipulatingModel.h"
+#pragma once
+
+#include "OpenGLManipulatingModel.h"
+
+#if defined(__APPLE__)
 
 class OpenGLManipulatingController;
 
@@ -21,6 +25,12 @@ class OpenGLManipulatingController;
 - (void)addObserver:(id)observer forKeyPath:(NSString *)keyPath;
 
 @end
+
+#elif defined (WIN32)
+
+typedef int NSInteger;
+
+#endif
 
 class OpenGLManipulatingController : public IOpenGLManipulating
 {
@@ -42,8 +52,11 @@ private:
 	Vector3D _modelScale;
     
     ManipulatorType _currentManipulator;
-    
+
+#if defined(__APPLE__)
     OpenGLManipulatingControllerKVC *_kvc;
+#endif
+
 public:
     OpenGLManipulatingController();
     virtual ~OpenGLManipulatingController();
@@ -111,9 +124,11 @@ public:
     Matrix4x4 &modelTransform();
     void setModelTransform(Matrix4x4 &transform);
     NSInteger lastSelectedIndex();
-    
+
+#if defined(__APPLE__)
     void addSelectionObserver(id observer);
     void removeSelectionObserver(id observer);
+#endif
     float transformValueAtIndex(uint index, ManipulatorType manipulator);
     void setTransformValueAtIndex(uint index, ManipulatorType manipulator, float value);
     void willChangeSelection();

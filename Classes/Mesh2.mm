@@ -6,12 +6,14 @@
 //  For license see LICENSE.TXT
 //
 
-#import "Mesh2.h"
-#import <osd/mutex.h>
-#import <osd/vertex.h>
-#import <osd/mesh.h>
-#import <osd/cpuDispatcher.h>
-#import <common/shape_utils.h>
+#include "Mesh2.h"
+#if defined(__APPLE__)
+#include <osd/mutex.h>
+#include <osd/vertex.h>
+#include <osd/mesh.h>
+#include <osd/cpuDispatcher.h>
+#include <common/shape_utils.h>
+#endif
 
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
@@ -20,6 +22,7 @@ Vector4D generateRandomColor();
 
 Vector4D generateRandomColor()
 {
+#if defined(__APPLE__)
     float hue = (random() % 10) / 10.0f;
     
     NSColor *color = [NSColor colorWithCalibratedHue:hue
@@ -28,8 +31,12 @@ Vector4D generateRandomColor()
                                                alpha:1.0f];
     
     return Vector4D(color.redComponent, color.greenComponent, color.blueComponent, color.alphaComponent);
+#elif defined(WIN32)
+	return Vector4D(0.0f, 0.7f, 0.0f, 1.0f);
+#endif
 }
 
+#if defined(__APPLE__)
 NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
 {
     switch (meshType)
@@ -48,6 +55,26 @@ NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
 			return nil;
 	}
 }
+#elif defined(WIN32)
+System::String ^Mesh2::descriptionOfMeshType(MeshType meshType)
+{
+    switch (meshType)
+	{
+		case MeshTypeCube:
+			return L"Cube";
+		case MeshTypeCylinder:
+			return L"Cylinder";
+		case MeshTypeSphere:
+			return L"Sphere";
+        case MeshTypePlane:
+			return L"Plane";
+        case MeshTypeIcosahedron:
+            return L"Icosahedron";
+		default:
+			return nullptr;
+	}
+}
+#endif
 
 Mesh2::Mesh2()
 {
@@ -61,8 +88,17 @@ Mesh2::Mesh2()
     setColor(generateRandomColor());
 }
 
-Mesh2::Mesh2(MemoryReadStream *stream) : Mesh2()
+Mesh2::Mesh2(MemoryReadStream *stream)
 {
+	_selectionMode = MeshSelectionModeVertices;
+    
+    _vboID = 0U;
+    _vboGenerated = false;
+    
+    _isUnwrapped = false;
+    
+    setColor(generateRandomColor());
+
     Vector4D color;
     
     if (stream->version() >= ModelVersionColors)
@@ -746,6 +782,7 @@ void Mesh2::triangulateSelectedQuads()
 
 void Mesh2::openSubdivision()
 {
+#if defined(__APPLE__)
     OpenSubdiv::OsdCpuKernelDispatcher::Register();
     
     Scheme scheme = kCatmark;
@@ -860,6 +897,9 @@ void Mesh2::openSubdivision()
     makeEdges();
     
     setSelectionMode(_selectionMode);
+#elif defined (WIN32)
+	loopSubdivision();
+#endif
 }
 
 void Mesh2::halfEdges()
@@ -983,11 +1023,12 @@ void Mesh2::makeSubdividedTriangles()
          0    *3     1
          
          */
-        
+#if defined(__APPLE__)
         subdivided.add(Triangle2((VertexNode *[3]) { vertices[0], vertices[3], vertices[5] }, (TexCoordNode *[3]) { texCoords[0], texCoords[3], texCoords[5] }));
         subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[1], vertices[4] }, (TexCoordNode *[3]) { texCoords[3], texCoords[1], texCoords[4] }));
         subdivided.add(Triangle2((VertexNode *[3]) { vertices[5], vertices[4], vertices[2] }, (TexCoordNode *[3]) { texCoords[5], texCoords[4], texCoords[2] }));
         subdivided.add(Triangle2((VertexNode *[3]) { vertices[3], vertices[4], vertices[5] }, (TexCoordNode *[3]) { texCoords[3], texCoords[4], texCoords[5] }));
+#endif
     }
     
     _triangles.moveFrom(subdivided);
@@ -1204,11 +1245,12 @@ void Mesh2::splitSelectedTriangles()
             
             v[8] = _vertices.add((v[7]->data().position + v[5]->data().position) / 2.0f);
             t[8] = _texCoords.add((t[7]->data().position + t[5]->data().position) / 2.0f);
-            
+#if defined(__APPLE__)
             subdivided.add(Triangle2((VertexNode *[4]) { v[0], v[4], v[8], v[7] }, (TexCoordNode *[4]) { t[0], t[4], t[8], t[7] }, true));
             subdivided.add(Triangle2((VertexNode *[4]) { v[4], v[1], v[5], v[8] }, (TexCoordNode *[4]) { t[4], t[1], t[5], t[8] }, true));
             subdivided.add(Triangle2((VertexNode *[4]) { v[8], v[5], v[2], v[6] }, (TexCoordNode *[4]) { t[8], t[5], t[2], t[6] }, true));
             subdivided.add(Triangle2((VertexNode *[4]) { v[7], v[8], v[6], v[3] }, (TexCoordNode *[4]) { t[7], t[8], t[6], t[3] }, true));
+#endif
         }
         else
         {
@@ -1223,11 +1265,12 @@ void Mesh2::splitSelectedTriangles()
              0    *3     1
              
             */
-            
+#if defined(__APPLE__)            
             subdivided.add(Triangle2((VertexNode *[3]) { v[0], v[3], v[5] }, (TexCoordNode *[3]) { t[0], t[3], t[5] }));
             subdivided.add(Triangle2((VertexNode *[3]) { v[3], v[1], v[4] }, (TexCoordNode *[3]) { t[3], t[1], t[4] }));
             subdivided.add(Triangle2((VertexNode *[3]) { v[5], v[4], v[2] }, (TexCoordNode *[3]) { t[5], t[4], t[2] }));
             subdivided.add(Triangle2((VertexNode *[3]) { v[3], v[4], v[5] }, (TexCoordNode *[3]) { t[3], t[4], t[5] }));
+#endif
         }
     }
     

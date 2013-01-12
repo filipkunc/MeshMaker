@@ -6,7 +6,9 @@
 //  For license see LICENSE.TXT
 //
 
-#import "OpenGLManipulatingController.h"
+#include "OpenGLManipulatingController.h"
+
+#if defined(__APPLE__)
 
 @implementation OpenGLManipulatingControllerKVC
 
@@ -53,6 +55,8 @@
 
 @end
 
+#endif
+
 OpenGLManipulatingController::OpenGLManipulatingController()
 {
     _model = NULL;
@@ -61,7 +65,9 @@ OpenGLManipulatingController::OpenGLManipulatingController()
     _lastSelectedIndex = -1;
     _modelScale = Vector3D(1, 1, 1);
     _currentManipulator = ManipulatorTypeDefault;
+#if defined(__APPLE__)
     _kvc = [[OpenGLManipulatingControllerKVC alloc] initWithController:this];
+#endif
 }
 
 OpenGLManipulatingController::~OpenGLManipulatingController()
@@ -463,7 +469,7 @@ void OpenGLManipulatingController::updateSelection()
 
 void OpenGLManipulatingController::drawForSelection(bool forSelection)
 {
-    if (_modelMesh != nil)
+    if (_modelMesh != NULL)
     {
         glPushMatrix();
         glMultMatrixf(_modelTransform);
@@ -550,6 +556,8 @@ NSInteger OpenGLManipulatingController::lastSelectedIndex()
     return _lastSelectedIndex;
 }
 
+#if defined(__APPLE__)
+
 void OpenGLManipulatingController::addSelectionObserver(id observer)
 {
     [_kvc addObserver:observer forKeyPath:@"selectionX"];
@@ -569,6 +577,8 @@ void OpenGLManipulatingController::removeSelectionObserver(id observer)
     [_kvc removeObserver:observer forKeyPath:@"selectionColorEnabled"];
     [_kvc removeObserver:observer forKeyPath:@"viewMode"];
 }
+
+#endif
 
 float OpenGLManipulatingController::transformValueAtIndex(uint index, ManipulatorType manipulator)
 {
@@ -635,22 +645,26 @@ void OpenGLManipulatingController::setTransformValueAtIndex(uint index, Manipula
 
 void OpenGLManipulatingController::willChangeSelection()
 {
+#if defined(__APPLE__)
     [_kvc willChangeValueForKey:@"selectionX"];
 	[_kvc willChangeValueForKey:@"selectionY"];
 	[_kvc willChangeValueForKey:@"selectionZ"];
     [_kvc willChangeValueForKey:@"selectionColor"];
     [_kvc willChangeValueForKey:@"selectionColorEnabled"];
     [_kvc willChangeValueForKey:@"viewMode"];
+#endif
 }
 
 void OpenGLManipulatingController::didChangeSelection()
 {
+#if defined(__APPLE__)
     [_kvc didChangeValueForKey:@"selectionX"];
 	[_kvc didChangeValueForKey:@"selectionY"];
 	[_kvc didChangeValueForKey:@"selectionZ"];
     [_kvc didChangeValueForKey:@"selectionColor"];
     [_kvc didChangeValueForKey:@"selectionColorEnabled"];
     [_kvc didChangeValueForKey:@"viewMode"];
+#endif
 }
 
 void OpenGLManipulatingController::setPositionRotationScale(Vector3D aPosition, Quaternion aRotation, Vector3D aScale)

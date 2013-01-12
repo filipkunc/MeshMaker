@@ -7,9 +7,11 @@
  *
  */
 
-#import "OpenGLDrawing.h"
-#import "MathDeclaration.h"
-#import "OpenGLManipulating.h"
+#pragma once
+
+#include "OpenGLDrawing.h"
+#include "MathDeclaration.h"
+#include "OpenGLManipulating.h"
 
 class IOpenGLManipulatingModel
 {

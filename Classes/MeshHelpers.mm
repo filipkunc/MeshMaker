@@ -7,7 +7,7 @@
  *
  */
 
-#import "MeshHelpers.h"
+#include "MeshHelpers.h"
 
 void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint index3)
 {

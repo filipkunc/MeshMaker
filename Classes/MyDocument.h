@@ -6,6 +6,10 @@
 //  For license see LICENSE.TXT
 //
 
+#pragma once
+
+#if defined(__APPLE__)
+
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
 #import "OpenGLSceneView.h"
@@ -120,3 +124,27 @@
 @interface MyDocument (Archiving)
 
 @end
+
+#elif defined(WIN32)
+
+#include "ItemCollection.h"
+#include "OpenGLSceneView.h"
+
+namespace MeshMakerCppCLI
+{
+	public ref class MyDocument
+	{
+	private:
+		ItemCollection *items;
+		OpenGLManipulatingController *itemsController;
+		OpenGLManipulatingController *meshController;
+		IOpenGLManipulating *manipulated;
+
+		OpenGLSceneView ^sceneView;
+	public:
+		MyDocument(OpenGLSceneView ^view);
+		~MyDocument();		
+	};
+}
+
+#endif

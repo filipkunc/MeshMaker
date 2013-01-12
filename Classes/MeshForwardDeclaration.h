@@ -8,11 +8,11 @@
 
 #pragma once
 
-#import "Enums.h"
-#import "MathDeclaration.h"
-#import "FPArrayCache.h"
-#import "SimpleNodeAndList.h"
-#import <vector>
+#include "Enums.h"
+#include "MathDeclaration.h"
+#include "FPArrayCache.h"
+#include "SimpleNodeAndList.h"
+#include <vector>
 using namespace std;
 
 enum ModelVersion : uint

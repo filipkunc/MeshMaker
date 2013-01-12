@@ -7,7 +7,7 @@
  *
  */
 
-#import "OpenGLDrawing.h"
+#include "OpenGLDrawing.h"
 
 void DrawCube(float size)
 {

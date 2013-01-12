@@ -6,13 +6,19 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
-#import "MathDeclaration.h"
-#import "MeshHelpers.h"
-#import "Mesh2.h"
-#import "OpenGLManipulatingController.h"
-#import "MemoryStream.h"
-#import "MemoryStreaming.h"
+#pragma once
+
+#if defined(__APPLE__)
+#include <Cocoa/Cocoa.h>
+#elif defined(WIN32)
+#include <windows.h>
+#endif
+#include "MathDeclaration.h"
+#include "MeshHelpers.h"
+#include "Mesh2.h"
+#include "OpenGLManipulatingController.h"
+#include "MemoryStream.h"
+#include "MemoryStreaming.h"
 
 class Item : public IOpenGLManipulatingModelMesh
 {

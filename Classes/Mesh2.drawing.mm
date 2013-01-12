@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import "Mesh2.h"
+#include "Mesh2.h"
 
 void Mesh2::resetTriangleCache()
 {
@@ -71,7 +71,7 @@ void Mesh2::fillTriangleCache()
             const Vector3D &v = vertex->data().position;
             const Vector3D &t = texCoord->data().position;
             
-            const Vector3D &sn = _isUnwrapped ? texCoord->algorithmData.normal : vertex->algorithmData.normal;
+            const Vector3D &sn = _isUnwrapped ? texCoord->algorithmData.normal : vertex->algorithmData.normal;;
             
             GLTriangleVertex &cachedVertex = _cachedTriangleVertices[i];
             vertex->setCacheIndexForTriangleNode(node, i, j < 3 ? 0 : 1);
@@ -91,7 +91,8 @@ void Mesh2::fillTriangleCache()
     
     _cachedTriangleVertices.resize(i);
     _cachedTriangleVertices.setValid(true);
-    
+
+#if defined(__APPLE__)
     if (!_vboGenerated)
     {
         glGenBuffers(1, &_vboID);
@@ -101,6 +102,7 @@ void Mesh2::fillTriangleCache()
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLTriangleVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
 }
 
 void Mesh2::fillEdgeCache()
@@ -200,8 +202,8 @@ void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNo
         return;
     
     const Vector3D &v = vertexNode->data().position;
-    const Vector3D &sn = vertexNode->algorithmData.normal;
-    const Vector3D &fn = triangleNode->data()->data().vertexNormal;    
+	const Vector3D &sn = vertexNode->algorithmData.normal;
+    const Vector3D &fn = triangleNode->data()->data().vertexNormal;
     
     GLTriangleVertex &cachedVertex = _cachedTriangleVertices[cacheIndex];
     
@@ -278,17 +280,18 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
             updateVertexInEdgeCache(vertexNode, edgeNode);
         }
     }
-    
+#if defined(__APPLE__)
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLTriangleVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
 }
 
 void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
-    
-    if (viewMode == ViewModeMixedWireSolid)
+#if defined(__APPLE__)
+	if (viewMode == ViewModeMixedWireSolid)
         glEnable(GL_BLEND);
     
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
@@ -325,13 +328,29 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 
     if (viewMode == ViewModeMixedWireSolid)
         glDisable(GL_BLEND);
+#elif defined(WIN32)
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	glBegin(GL_TRIANGLES);
+	for (uint i = 0; i < _cachedTriangleVertices.count(); i++)
+	{
+		glColor3fv(_cachedTriangleVertices[i].color.coords);
+		glNormal3fv(_cachedTriangleVertices[i].smoothNormal.coords);
+		glVertex3fv(_cachedTriangleVertices[i].position.coords);
+	}
+	glEnd();
+
+	glDisable(GL_LIGHTING);
+#endif
 }
 
 void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection)
 {
     bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
+#if defined(__APPLE__)
     ShaderProgram *shader = [ShaderProgram normalShader];
-    
+#endif
     if (viewMode == ViewModeMixedWireSolid)
     {
         selected = true;
@@ -363,8 +382,9 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1.0f, 1.0f);
         }
-        
+#if defined(__APPLE__)
         [shader useProgram];
+#endif
         if (_selectionMode != MeshSelectionModeTriangles)
         {
             glColor3fv(_colorComponents);
@@ -378,8 +398,9 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             fillMode.colored = true;
             drawFill(fillMode, viewMode);
         }
+#if defined(__APPLE__)
         [ShaderProgram resetProgram];
-        
+#endif
         if (selected)
         {
             glDisable(GL_POLYGON_OFFSET_FILL);

@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#import "Enums.h"
+#include "Enums.h"
 
 class IOpenGLSelecting
 {

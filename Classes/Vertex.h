@@ -12,7 +12,12 @@ template <class T>
 class VNode : public FPNode<VNode<T>, T>
 {
 public:
-    union AlgorithmData
+#if defined(__APPLE__)
+    union
+#elif defined(WIN32)
+    struct
+#endif
+    AlgorithmData
     {
         uint index;
         Vector3D normal;
@@ -22,13 +27,13 @@ public:
         {
             memset(this, 0, sizeof(AlgorithmData));
         }
-        
-        AlgorithmData(const AlgorithmData &data)
+
+		AlgorithmData(const AlgorithmData &data)
         {
             memcpy(this, &data, sizeof(AlgorithmData));
         }
-        
-        void clear()
+
+		void clear()
         {
             memset(this, 0, sizeof(AlgorithmData));
         }
@@ -150,15 +155,16 @@ public:
     void computeNormal()
     {
         float count = 0;
-        algorithmData.normal = Vector3D();
+		Vector3D normal = Vector3D();
         
         for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
-            algorithmData.normal += node->data()->data().vertexNormal;
+            normal += node->data()->data().vertexNormal;
             count++;
         }
         
-        algorithmData.normal /= count;
+        normal /= count;
+		algorithmData.normal = normal;
     }
     
     void resetCacheIndices()

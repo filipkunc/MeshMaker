@@ -6,8 +6,9 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
-#import "OpenGLDrawing.h"
+#pragma once
+
+#include "OpenGLDrawing.h"
 
 class ManipulatorWidget
 {

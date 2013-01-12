@@ -6,6 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
+#if defined(__APPLE__)
+
 #import "MyDocument.h"
 
 @implementation UndoStatePointer
@@ -627,7 +629,7 @@
 	[self setManipulated:itemsController];
     vector<uint> *selectedIndices = dynamic_cast<UndoState<vector<uint>> *>(selection.undoState)->state();
 	uint duplicatedCount = selectedIndices->size();
-    items->removeItemsInRange(NSMakeRange(items->count() - duplicatedCount, duplicatedCount));
+    items->removeItemsInRange(items->count() - duplicatedCount, duplicatedCount);
     items->setCurrentSelection(selection.undoState);
 
 	MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
@@ -945,3 +947,43 @@ constrainSplitPosition:(CGFloat)proposedPosition
 }
 
 @end
+
+#elif defined(WIN32)
+
+#include "MyDocument.h"
+
+namespace MeshMakerCppCLI
+{
+	MyDocument::MyDocument(OpenGLSceneView ^view)
+	{
+		sceneView = view;
+
+		items = new ItemCollection();
+		itemsController = new OpenGLManipulatingController();
+		meshController = new OpenGLManipulatingController();
+		
+        itemsController->setModel(items);
+		manipulated = itemsController;
+
+		// cube
+		Item *item = new Item(new Mesh2());
+		Mesh2 *mesh = item->mesh;
+		mesh->makeCube();
+		
+		items->addItem(item);
+		itemsController->changeSelection(false);
+		items->setSelectedAtIndex(items->count() - 1, true);
+		itemsController->updateSelection();
+		//
+
+		sceneView->coreView()->setManipulated(manipulated);
+
+	}
+
+	MyDocument::~MyDocument()
+	{
+		
+	}
+}
+
+#endif

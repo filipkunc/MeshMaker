@@ -8,23 +8,56 @@
 
 #pragma once
 
-#import <Cocoa/Cocoa.h>
-#import "MathDeclaration.h"
-#import "Camera.h"
-#import "OpenGLSelecting.h"
-#import "Manipulator.h"
-#import "OpenGLManipulating.h"
-#import "Shader.h"
-#import "ShaderProgram.h"
-#import "Mesh2.h"
-#import "FPTexture.h"
-#import "ItemCollection.h"
+#if defined(__APPLE__)
+#include <Cocoa/Cocoa.h>
+#elif defined (WIN32)
+#include <windows.h>
+#endif
+#include "MathDeclaration.h"
+#include "Camera.h"
+#include "OpenGLSelecting.h"
+#include "Manipulator.h"
+#include "OpenGLManipulating.h"
+#if defined(__APPLE__)
+#include "Shader.h"
+#include "ShaderProgram.h"
+#include "FPTexture.h"
+#endif
+#include "Mesh2.h"
+#include "ItemCollection.h"
+
+#if defined(WIN32)
+
+struct NSPoint
+{
+    float x;
+    float y;
+};
+
+struct NSSize
+{
+    float width;
+    float height;
+};
+
+struct NSRect
+{
+    NSPoint origin;
+    NSSize size;
+};
+
+NSPoint NSMakePoint(float x, float y);
+NSSize NSMakeSize(float width, float height);
+NSRect NSMakeRect(float x, float y, float width, float height);
+bool NSPointInRect(NSPoint point, NSRect rect);
+
+#endif
 
 class IOpenGLSceneViewCoreDelegate
 {
 public:
     virtual ~IOpenGLSceneViewCoreDelegate() { }
-    
+
     virtual NSRect bounds() = 0;
     virtual void setNeedsDisplay() = 0;
     virtual void manipulationStarted() = 0;
@@ -71,7 +104,7 @@ public:
     void beginOrtho();
     void endOrtho();
     void applyProjection();
-    NSMutableIndexSet *select(int x, int y, int width, int height, IOpenGLSelecting *selecting);
+    bool *select(int x, int y, int width, int height, IOpenGLSelecting *selecting);
     void select(NSPoint point, IOpenGLSelecting *selecting, OpenGLSelectionMode selectionMode);
     void select(NSRect rect, IOpenGLSelecting *selecting, OpenGLSelectionMode selectionMode, bool selectThrough);
     Vector3D positionInSpaceByPoint(NSPoint point);

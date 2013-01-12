@@ -6,6 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
+#pragma once
+
 #import "OpenGLDrawing.h"
 
 void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, int height, BOOL convertToAlpha);

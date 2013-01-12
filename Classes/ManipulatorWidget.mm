@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import "ManipulatorWidget.h"
+#include "ManipulatorWidget.h"
 
 void ManipulatorWidget::drawCore(float size)
 {

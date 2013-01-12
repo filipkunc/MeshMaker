@@ -6,12 +6,18 @@
 //  For license see LICENSE.TXT
 //
 
-#import <Cocoa/Cocoa.h>
-#import "MathDeclaration.h"
-#import "Camera.h"
-#import "OpenGLSelecting.h"
-#import "ManipulatorWidget.h"
-#import <vector>
+#pragma once
+
+#if defined(__APPLE__)
+#include <Cocoa/Cocoa.h>
+#elif defined(WIN32)
+#include <windows.h>
+#endif
+#include "MathDeclaration.h"
+#include "Camera.h"
+#include "OpenGLSelecting.h"
+#include "ManipulatorWidget.h"
+#include <vector>
 using namespace std;
 
 class Manipulator : public IOpenGLSelecting

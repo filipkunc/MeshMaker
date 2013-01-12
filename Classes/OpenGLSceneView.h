@@ -6,7 +6,11 @@
 //  For license see LICENSE.TXT
 //
 
-#import "OpenGLSceneViewCore.h"
+#pragma once
+
+#include "OpenGLSceneViewCore.h"
+
+#if defined(__APPLE__)
 
 @class OpenGLSceneView;
 
@@ -38,3 +42,71 @@
 
 @end
 
+#elif defined(WIN32)
+
+using namespace System;
+using namespace System::ComponentModel;
+using namespace System::Collections;
+using namespace System::Windows::Forms;
+using namespace System::Data;
+using namespace System::Drawing;
+using namespace System::Diagnostics;
+
+namespace MeshMakerCppCLI
+{
+	/// <summary>
+	/// Summary for OpenGLSceneView
+	/// </summary>
+	///
+	/// WARNING: If you change the name of this class, you will need to change the
+	///          'Resource File Name' property for the managed resource compiler tool
+	///          associated with all .resx files this class depends on.  Otherwise,
+	///          the designers will not be able to interact properly with localized
+	///          resources associated with this form.
+	public ref class OpenGLSceneView : public System::Windows::Forms::UserControl
+	{
+	private:
+		System::ComponentModel::Container^ components;
+
+		HDC _deviceContext;
+		HGLRC _glRenderingContext;
+
+		OpenGLSceneViewCore *_coreView;
+		IOpenGLSceneViewCoreDelegate *_coreDelegate;
+
+	public:
+		OpenGLSceneView();
+
+		void BeginGL();
+		void EndGL();
+
+		OpenGLSceneViewCore *coreView();
+	protected:
+		~OpenGLSceneView();
+
+		void InitializeGL();
+		NSPoint LocationFromEvent(MouseEventArgs ^e);
+		
+		virtual void OnLoad(EventArgs ^e) override;
+		virtual void OnSizeChanged(EventArgs ^e) override;
+		virtual void OnPaintBackground(PaintEventArgs ^e) override;
+		virtual void OnPaint(PaintEventArgs ^e) override;
+		virtual void OnMouseMove(MouseEventArgs ^e) override;
+		virtual void OnMouseDown(MouseEventArgs ^e) override;
+		virtual void OnMouseUp(MouseEventArgs ^e) override;
+		virtual void OnMouseWheel(MouseEventArgs ^e) override;
+	private:
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+		}
+#pragma endregion
+	};
+}
+
+#endif

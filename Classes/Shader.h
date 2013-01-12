@@ -6,6 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
+#pragma once
+
 #import "OpenGLDrawing.h"
 
 @interface Shader : NSObject 

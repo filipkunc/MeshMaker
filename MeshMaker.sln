@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshMakerCppCLI", "MeshMakerCppCLI\MeshMakerCppCLI.vcproj", "{02E11884-12F2-4812-894E-E5417F4A7DD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshMaker", "MeshMaker\MeshMaker.csproj", "{5DCA2FB9-79D1-4FC3-947D-789523C721AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Debug|Win32.Build.0 = Debug|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Debug|x86.ActiveCfg = Debug|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Release|Any CPU.ActiveCfg = Release|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Release|Win32.ActiveCfg = Release|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Release|Win32.Build.0 = Release|Win32
+		{02E11884-12F2-4812-894E-E5417F4A7DD7}.Release|x86.ActiveCfg = Release|Win32
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Release|Win32.ActiveCfg = Release|Any CPU
+		{5DCA2FB9-79D1-4FC3-947D-789523C721AB}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

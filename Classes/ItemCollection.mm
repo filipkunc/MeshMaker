@@ -6,8 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
-#import "OpenGLDrawing.h"
-#import "ItemCollection.h"
+#include "OpenGLDrawing.h"
+#include "ItemCollection.h"
 
 ItemManipulationState::ItemManipulationState(ItemCollection &collection, uint index)
 {
@@ -293,12 +293,12 @@ void ItemCollection::removeItemAtIndex(uint index)
 
 }
 
-void ItemCollection::removeItemsInRange(NSRange range)
+void ItemCollection::removeItemsInRange(uint location, uint length)
 {
-    for (uint i = range.location; i < range.location + range.length; i++)
+    for (uint i = location; i < location + length; i++)
         delete items[i];
     
-    items.erase(items.begin() + range.location, items.begin() + range.location + range.length);
+    items.erase(items.begin() + location, items.begin() + location + length);
 }
 
 void ItemCollection::insertItemAtIndex(uint index, Item *item)

@@ -6,8 +6,8 @@
 //  For license see LICENSE.TXT
 //
 
-#import "OpenGLDrawing.h"
-#import "Item.h"
+#include "OpenGLDrawing.h"
+#include "Item.h"
 
 Item::Item(Mesh2 *aMesh)
 {
@@ -202,8 +202,8 @@ void Item::didSelect()
 bool Item::needsCullFace()
 {
     if (mesh->selectionMode() == MeshSelectionModeTriangles && Mesh2::selectThrough())
-        return YES;
-    return NO;
+        return true;
+    return false;
 }
 
 void Item::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale)

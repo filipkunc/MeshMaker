@@ -6,7 +6,10 @@
  *  For license see LICENSE.TXT
  *
  */
-#import "OpenGLSelecting.h"
+
+#pragma once
+
+#include "OpenGLSelecting.h"
 
 class IOpenGLTransforming
 {
