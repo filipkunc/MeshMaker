@@ -425,7 +425,7 @@ ViewMode ItemCollection::viewMode()
 		if (item->selected)
 			return item->viewMode();
 	}
-    return ViewModeSolidFlat;
+    return ViewMode::SolidFlat;
 }
 
 void ItemCollection::setViewMode(ViewMode viewMode)

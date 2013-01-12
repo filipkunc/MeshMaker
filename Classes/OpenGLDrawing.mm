@@ -181,7 +181,7 @@ void DrawSelectionPlane(PlaneAxis plane)
 	
 	switch (plane)
 	{
-		case PlaneAxisX:
+		case PlaneAxis::X:
 			glBegin(GL_QUADS);
 			glVertex3f(0, -size, -size);
 			glVertex3f(0, -size,  size);
@@ -189,7 +189,7 @@ void DrawSelectionPlane(PlaneAxis plane)
 			glVertex3d(0,  size, -size);
 			glEnd();
 			break;
-		case PlaneAxisY:
+		case PlaneAxis::Y:
 			glBegin(GL_QUADS);
 			glVertex3f(-size, 0, -size);
 			glVertex3f(-size, 0,  size);
@@ -197,7 +197,7 @@ void DrawSelectionPlane(PlaneAxis plane)
 			glVertex3d( size, 0, -size);
 			glEnd();
 			break;
-		case PlaneAxisZ:
+		case PlaneAxis::Z:
 			glBegin(GL_QUADS);
 			glVertex3f(-size, -size, 0);
 			glVertex3f(-size,  size, 0);

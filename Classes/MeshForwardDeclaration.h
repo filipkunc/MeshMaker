@@ -15,15 +15,6 @@
 #include <vector>
 using namespace std;
 
-enum ModelVersion : uint
-{
-    ModelVersionFirst = 1U,
-    ModelVersionColors = 2U,
-    ModelVersionTriQuads = 3U,
-    
-    ModelVersionLatest = ModelVersionTriQuads
-};
-
 struct Triangle
 {
     uint vertexIndices[3];

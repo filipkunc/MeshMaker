@@ -63,7 +63,7 @@
 		views = [[NSMutableArray alloc] init];
 		oneView = nil;
         
-        currentManipulator = ManipulatorTypeDefault;
+        currentManipulator = ManipulatorType::Default;
         
         NSUndoManager *undo = [self undoManager];
         [undo setLevelsOfUndo:100];
@@ -96,10 +96,10 @@
 		[view setDelegate:self];
 	};
 	
-	[viewTop setCameraMode:CameraModeTop];
-	[viewLeft setCameraMode:CameraModeLeft];
-	[viewFront setCameraMode:CameraModeFront];
-	[viewPerspective setCameraMode:CameraModePerspective];
+	[viewTop setCameraMode:CameraMode::Top];
+	[viewLeft setCameraMode:CameraMode::Left];
+	[viewFront setCameraMode:CameraMode::Front];
+	[viewPerspective setCameraMode:CameraMode::Perspective];
 }
 
 - (enum ManipulatorType)currentManipulator
@@ -153,11 +153,11 @@
 
 	if (manipulated == itemsController)
 	{
-		[editModePopUp selectItemWithTag:EditModeItems];
+		[editModePopUp selectItemWithTag:(int)EditMode::Items];
 	}
 	else if (manipulated == meshController)
 	{
-		int meshTag = [self currentMesh]->selectionMode() + 1;
+		int meshTag = (int)[self currentMesh]->selectionMode() + 1;
 		[editModePopUp selectItemWithTag:meshTag];
 	}
 }
@@ -435,29 +435,29 @@
 
 - (IBAction)addPlane:(id)sender
 {
-    [self addItemWithType:MeshTypePlane steps:0];
+    [self addItemWithType:MeshType::Plane steps:0];
 }
 
 - (IBAction)addCube:(id)sender
 {
-	[self addItemWithType:MeshTypeCube steps:0];
+	[self addItemWithType:MeshType::Cube steps:0];
 }
 
 - (IBAction)addCylinder:(id)sender
 {
-	itemWithSteps = MeshTypeCylinder;
+	itemWithSteps = MeshType::Cylinder;
 	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
 - (IBAction)addSphere:(id)sender
 {
-	itemWithSteps = MeshTypeSphere;
+	itemWithSteps = MeshType::Sphere;
 	[addItemWithStepsSheetController beginSheetWithProtocol:self];
 }
 
 - (void)addIcosahedron:(id)sender
 {
-    [self addItemWithType:MeshTypeIcosahedron steps:0];
+    [self addItemWithType:MeshType::Icosahedron steps:0];
 }
 
 - (void)addItemWithSteps:(uint)steps
@@ -484,7 +484,7 @@
 {
     Mesh2 *currentMesh = [self currentMesh];
     if (currentMesh)
-        currentMesh->setSelectionMode(MeshSelectionModeVertices);
+        currentMesh->setSelectionMode(MeshSelectionMode::Vertices);
     
 	itemsController->setModel(items);
     itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
@@ -498,21 +498,21 @@
     Mesh2 *currentMesh = [self currentMesh];
     
     if (!currentMesh)
-        [editModePopUp selectItemWithTag:EditModeItems];
+        [editModePopUp selectItemWithTag:(int)EditMode::Items];
     
 	switch (mode)
 	{
-		case EditModeItems:
+		case EditMode::Items:
 			[self editItems];
 			break;
-		case EditModeVertices:
-			[self editMeshWithMode:MeshSelectionModeVertices];
+		case EditMode::Vertices:
+			[self editMeshWithMode:MeshSelectionMode::Vertices];
 			break;
-		case EditModeTriangles:
-			[self editMeshWithMode:MeshSelectionModeTriangles];
+		case EditMode::Triangles:
+			[self editMeshWithMode:MeshSelectionMode::Triangles];
 			break;
-		case EditModeEdges:
-			[self editMeshWithMode:MeshSelectionModeEdges];
+		case EditMode::Edges:
+			[self editMeshWithMode:MeshSelectionMode::Edges];
 			break;
 	}
 }

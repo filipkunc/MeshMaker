@@ -72,14 +72,14 @@ OpenGLSceneViewCore::OpenGLSceneViewCore(IOpenGLSceneViewCoreDelegate *delegate)
     
     _lastPoint = NSMakePoint(0, 0);
     
-    _defaultManipulator = new Manipulator(ManipulatorTypeDefault);
-    _translationManipulator = new Manipulator(ManipulatorTypeTranslation);
-    _rotationManipulator = new Manipulator(ManipulatorTypeRotation);
-    _scaleManipulator = new Manipulator(ManipulatorTypeScale);
+    _defaultManipulator = new Manipulator(ManipulatorType::Default);
+    _translationManipulator = new Manipulator(ManipulatorType::Translation);
+    _rotationManipulator = new Manipulator(ManipulatorType::Rotation);
+    _scaleManipulator = new Manipulator(ManipulatorType::Scale);
     
     _currentManipulator = _defaultManipulator;
     
-    _cameraMode = CameraModePerspective;
+    _cameraMode = CameraMode::Perspective;
     
     _delegate = delegate;
 }
@@ -125,9 +125,9 @@ void OpenGLSceneViewCore::drawGrid(int size, int step)
 	
 	glPushMatrix();
 	
-	if (_cameraMode == CameraModeFront || _cameraMode == CameraModeBack)
+	if (_cameraMode == CameraMode::Front || _cameraMode == CameraMode::Back)
 		glRotatef(90.0f, 1, 0, 0);
-	else if (_cameraMode == CameraModeLeft || _cameraMode == CameraModeRight)
+	else if (_cameraMode == CameraMode::Left || _cameraMode == CameraMode::Right)
 		glRotatef(90.0f, 0, 0, 1);
 	
 	glBegin(GL_LINES);
@@ -206,7 +206,7 @@ void OpenGLSceneViewCore::applyProjection()
     NSRect bounds = _delegate->bounds();
     float w_h = bounds.size.width / bounds.size.height;
     
-	if (_cameraMode != CameraModePerspective)
+	if (_cameraMode != CameraMode::Perspective)
 	{
 		float x = _camera->GetZoom() * w_h;
 		float y = _camera->GetZoom();
@@ -418,7 +418,7 @@ void OpenGLSceneViewCore::drawSelectionPlane(int index)
 	
 	glPushMatrix();
 	glTranslatef(position.x, position.y, position.z);
-	DrawSelectionPlane((PlaneAxis)(PlaneAxisX + index));
+	DrawSelectionPlane((PlaneAxis)((int)PlaneAxis::X + index));
 	glPopMatrix();
 }
 
@@ -429,7 +429,7 @@ Vector3D OpenGLSceneViewCore::positionFromAxisPoint(Axis axis, NSPoint point)
 	
 	Vector3D position = positionInSpaceByPoint(point);
 	Vector3D result = _manipulated->selectionCenter();
-	result[axis] = position[axis];
+	result[(int)axis] = position[(int)axis];
 	return result;
 }
 
@@ -441,13 +441,13 @@ Vector3D OpenGLSceneViewCore::positionFromRotatedAxisPoint(Axis axis, NSPoint po
 	Vector3D position = positionInSpaceByPoint(point);
 	Vector3D result = _manipulated->selectionCenter();
 	position = rotation.Conjugate().ToMatrix().Transform(position);
-	result[axis] = position[axis];
+	result[(int)axis] = position[(int)axis];
 	return result;
 }
 
 Vector3D OpenGLSceneViewCore::positionFromPlaneAxis(PlaneAxis plane, NSPoint point)
 {
-    int index = plane - PlaneAxisX;
+    int index = (int)plane - (int)PlaneAxis::X;
     drawSelectionPlane(index);
     Vector3D position = positionInSpaceByPoint(point);
 	Vector3D result = position;
@@ -463,9 +463,9 @@ Vector3D OpenGLSceneViewCore::translationFromPoint(NSPoint point)
 	Vector3D position = _manipulated->selectionCenter();
 	uint selectedIndex = _currentManipulator->selectedIndex;
 	
-	if (selectedIndex >= AxisX && selectedIndex <= AxisZ)
+	if (selectedIndex <= (uint)Axis::Z)
         return positionFromAxisPoint((Axis)selectedIndex, point);
-	if (selectedIndex >= PlaneAxisX && selectedIndex <= PlaneAxisZ)
+	if (selectedIndex >= (uint)PlaneAxis::X && selectedIndex <= (uint)PlaneAxis::Z)
         return positionFromPlaneAxis((PlaneAxis)selectedIndex, point);
 	
 	return position;
@@ -485,14 +485,14 @@ Vector3D OpenGLSceneViewCore::scaleFromPoint(NSPoint point, Vector3D &lastPositi
 	{
 		ManipulatorWidget &selectedWidget = _currentManipulator->widgetAtIndex(selectedIndex);
 		Axis selectedAxis = selectedWidget.axis;
-		if (selectedAxis >= AxisX && selectedAxis <= AxisZ)
+		if (selectedAxis >= Axis::X && selectedAxis <= Axis::Z)
 		{
 			position = positionFromRotatedAxisPoint(selectedAxis, point, _manipulated->selectionRotation());
 			scale = position - lastPosition;
 		}
-		else if (selectedAxis == Center)
+		else if (selectedAxis == Axis::Center)
 		{
-			position = positionFromPlaneAxis(PlaneAxisY, point);
+			position = positionFromPlaneAxis(PlaneAxis::Y, point);
 			scale = position - lastPosition;
             scale.y = scale.x;
             scale.z = scale.x;
@@ -519,20 +519,22 @@ Quaternion OpenGLSceneViewCore::rotationFromPoint(NSPoint point, Vector3D &lastP
 	position = this->positionFromPlaneAxis((PlaneAxis)(selectedIndex + 3), point);
 	position -= _manipulated->selectionCenter();
 	
-	switch (selectedIndex)
+	switch ((Axis)selectedIndex)
     {
-		case AxisX:
+		case Axis::X:
 			angle = atan2f(position.y, position.z) - atan2f(lastPosition.y, lastPosition.z);
 			quaternion.FromAngleAxis(-angle, Vector3D(1, 0, 0));
 			break;
-		case AxisY:
+		case Axis::Y:
 			angle = atan2f(position.x, position.z) - atan2f(lastPosition.x, lastPosition.z);
 			quaternion.FromAngleAxis(angle, Vector3D(0, 1, 0));
 			break;
-		case AxisZ:
+		case Axis::Z:
 			angle = atan2f(position.x, position.y) - atan2f(lastPosition.x, lastPosition.y);
 			quaternion.FromAngleAxis(-angle, Vector3D(0, 0, 1));
 			break;
+        default:
+            break;
 	}
 	
 	lastPosition = position;
@@ -559,30 +561,30 @@ void OpenGLSceneViewCore::setupViewportAndCamera()
 ManipulatorType OpenGLSceneViewCore::currentManipulator()
 {
     if (_currentManipulator == _defaultManipulator)
-		return ManipulatorTypeDefault;
+		return ManipulatorType::Default;
 	if (_currentManipulator == _translationManipulator)
-		return ManipulatorTypeTranslation;
+		return ManipulatorType::Translation;
 	if (_currentManipulator == _rotationManipulator)
-		return ManipulatorTypeRotation;
+		return ManipulatorType::Rotation;
 	if (_currentManipulator == _scaleManipulator)
-		return ManipulatorTypeScale;
-	return ManipulatorTypeDefault;
+		return ManipulatorType::Scale;
+	return ManipulatorType::Default;
 }
 
 void OpenGLSceneViewCore::setCurrentManipulator(ManipulatorType manipulator)
 {
     switch (manipulator)
 	{
-		case ManipulatorTypeDefault:
+		case ManipulatorType::Default:
 			_currentManipulator = _defaultManipulator;
 			break;
-		case ManipulatorTypeTranslation:
+		case ManipulatorType::Translation:
 			_currentManipulator = _translationManipulator;
 			break;
-		case ManipulatorTypeRotation:
+		case ManipulatorType::Rotation:
 			_currentManipulator = _rotationManipulator;
 			break;
-		case ManipulatorTypeScale:
+		case ManipulatorType::Scale:
 			_currentManipulator = _scaleManipulator;
 			break;
 		default:
@@ -598,32 +600,32 @@ CameraMode OpenGLSceneViewCore::cameraMode()
 
 void OpenGLSceneViewCore::setCameraMode(CameraMode value)
 {
-    if (_cameraMode == CameraModePerspective)
+    if (_cameraMode == CameraMode::Perspective)
 	{
 		_perspectiveRadians = _camera->GetRadians();
 	}
 	_cameraMode = value;
 	switch (_cameraMode)
 	{
-		case CameraModePerspective:
+		case CameraMode::Perspective:
 			_camera->SetRadians(_perspectiveRadians);
 			break;
-		case CameraModeTop:
+		case CameraMode::Top:
 			_camera->SetRadians(Vector2D(-90.0f * DEG_TO_RAD, 0));
 			break;
-		case CameraModeBottom:
+		case CameraMode::Bottom:
 			_camera->SetRadians(Vector2D(90.0f * DEG_TO_RAD, 0));
 			break;
-		case CameraModeLeft:
+		case CameraMode::Left:
 			_camera->SetRadians(Vector2D(0, -90.0f * DEG_TO_RAD));
 			break;
-		case CameraModeRight:
+		case CameraMode::Right:
 			_camera->SetRadians(Vector2D(0, 90.0f * DEG_TO_RAD));
 			break;
-		case CameraModeFront:
+		case CameraMode::Front:
 			_camera->SetRadians(Vector2D());
 			break;
-		case CameraModeBack:
+		case CameraMode::Back:
 			_camera->SetRadians(Vector2D(0, 180.0f * DEG_TO_RAD));
 			break;
 		default:
@@ -662,7 +664,7 @@ void OpenGLSceneViewCore::drawCurrentManipulator()
 	{
         _currentManipulator->position = _manipulated->selectionCenter();
         
-		if (_cameraMode == CameraModePerspective)
+		if (_cameraMode == CameraMode::Perspective)
         {
             Vector3D manipulatorPosition = _manipulated->selectionCenter();
             Vector3D cameraPosition = -_camera->GetCenter() + (_camera->GetAxisZ() * _camera->GetZoom());
@@ -744,23 +746,23 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
 	{
 		switch (_cameraMode)
 		{
-			case CameraModeTop:
-				setCameraMode(CameraModeBottom);
+			case CameraMode::Top:
+				setCameraMode(CameraMode::Bottom);
 				break;
-			case CameraModeBottom:
-				setCameraMode(CameraModeTop);
+			case CameraMode::Bottom:
+				setCameraMode(CameraMode::Top);
 				break;
-			case CameraModeLeft:
-				setCameraMode(CameraModeRight);
+			case CameraMode::Left:
+				setCameraMode(CameraMode::Right);
 				break;
-			case CameraModeRight:
-				setCameraMode(CameraModeLeft);
+			case CameraMode::Right:
+				setCameraMode(CameraMode::Left);
 				break;
-			case CameraModeFront:
-				setCameraMode(CameraModeBack);
+			case CameraMode::Front:
+				setCameraMode(CameraMode::Back);
 				break;
-			case CameraModeBack:
-                setCameraMode(CameraModeFront);
+			case CameraMode::Back:
+                setCameraMode(CameraMode::Front);
 				break;
 			default:
 				break;
@@ -810,7 +812,7 @@ void OpenGLSceneViewCore::mouseMoved(NSPoint point)
 		{
             _currentManipulator->selectedIndex = UINT_MAX;
             _currentManipulator->position = _manipulated->selectionCenter();
-            select(_currentPoint, _currentManipulator, OpenGLSelectionModeAdd);
+            select(_currentPoint, _currentManipulator, OpenGLSelectionMode::Add);
             _delegate->setNeedsDisplay();
 		}
 	}
@@ -847,12 +849,12 @@ void OpenGLSceneViewCore::mouseUp(NSPoint point, bool alt, bool cmd, bool ctrl, 
 
 		if (_manipulated != NULL)
 		{
-			OpenGLSelectionMode selectionMode = OpenGLSelectionModeAdd;
+			OpenGLSelectionMode selectionMode = OpenGLSelectionMode::Add;
 	        
 			if (cmd)
-				selectionMode = OpenGLSelectionModeInvert;
+				selectionMode = OpenGLSelectionMode::Invert;
 			else if (shift)
-				selectionMode = OpenGLSelectionModeAdd;
+				selectionMode = OpenGLSelectionMode::Add;
 			else
 				_manipulated->changeSelection(false);
 			
@@ -865,10 +867,10 @@ void OpenGLSceneViewCore::mouseUp(NSPoint point, bool alt, bool cmd, bool ctrl, 
 			{
 				if (clickCount == 2)
 				{
-					if (selectionMode == OpenGLSelectionModeInvert)
-						selectionMode = OpenGLSelectionModeInvertExpand;
+					if (selectionMode == OpenGLSelectionMode::Invert)
+						selectionMode = OpenGLSelectionMode::InvertExpand;
 					else
-						selectionMode = OpenGLSelectionModeExpand;
+						selectionMode = OpenGLSelectionMode::Expand;
 				}
 	            
 				select(_currentPoint, _manipulated, selectionMode);
@@ -903,7 +905,7 @@ void OpenGLSceneViewCore::mouseDragged(NSPoint point, bool alt, bool cmd)
 	}
 	else if (alt)
 	{
-		if (_cameraMode == CameraModePerspective)
+		if (_cameraMode == CameraMode::Perspective)
 		{
 			_lastPoint = _currentPoint;
 			const float sensitivity = 0.005f;
@@ -1009,7 +1011,7 @@ void OpenGLSceneViewCore::scrollWheel(float deltaX, float deltaY, bool alt, bool
 	}
 	else if (alt)
 	{
-		if (_cameraMode == CameraModePerspective)
+		if (_cameraMode == CameraMode::Perspective)
 		{
 			const float sensitivity = 0.02f;
 			_camera->RotateLeftRight(-deltaX * sensitivity);

@@ -15,7 +15,7 @@ Item::Item(Mesh2 *aMesh)
     mesh = aMesh;
     selected = false;
     visible = true;
-    _viewMode = ViewModeSolidFlat;
+    _viewMode = ViewMode::SolidFlat;
 }
 
 Item::~Item()
@@ -62,11 +62,11 @@ void Item::drawForSelection(bool forSelection)
 		glMultMatrixf(rotationMatrix);
         if (forSelection)
         {
-            mesh->draw(ViewModeSolidFlat, scale, selected, forSelection);
+            mesh->draw(ViewMode::SolidFlat, scale, selected, forSelection);
         }
         else
         {
-            if (_viewMode == ViewModeMixedWireSolid)
+            if (_viewMode == ViewMode::MixedWireSolid)
             {
                 glDisable(GL_DEPTH_TEST);
                 mesh->draw(_viewMode, scale, selected, forSelection);
@@ -201,7 +201,7 @@ void Item::didSelect()
 
 bool Item::needsCullFace()
 {
-    if (mesh->selectionMode() == MeshSelectionModeTriangles && Mesh2::selectThrough())
+    if (mesh->selectionMode() == MeshSelectionMode::Triangles && Mesh2::selectThrough())
         return true;
     return false;
 }
@@ -220,11 +220,11 @@ void Item::drawAllForSelection(bool forSelection)
 {
     if (forSelection)
     {
-        mesh->drawAll(ViewModeSolidFlat, forSelection);
+        mesh->drawAll(ViewMode::SolidFlat, forSelection);
     }
     else
     {
-        if (_viewMode == ViewModeMixedWireSolid)
+        if (_viewMode == ViewMode::MixedWireSolid)
         {
             glDisable(GL_DEPTH_TEST);
             mesh->drawAll(_viewMode, forSelection);

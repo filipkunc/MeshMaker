@@ -291,7 +291,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
 #if defined(__APPLE__)
-	if (viewMode == ViewModeMixedWireSolid)
+	if (viewMode == ViewMode::MixedWireSolid)
         glEnable(GL_BLEND);
     
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
@@ -305,12 +305,12 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
         glColorPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, color));
     }
     
-    if (viewMode == ViewModeSolidSmooth)
+    if (viewMode == ViewMode::SolidSmooth)
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, smoothNormal));
     else
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, flatNormal));
     
-    if (viewMode == ViewModeUnwrap)
+    if (viewMode == ViewMode::Unwrap)
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
     else
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
@@ -326,7 +326,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    if (viewMode == ViewModeMixedWireSolid)
+    if (viewMode == ViewMode::MixedWireSolid)
         glDisable(GL_BLEND);
 #elif defined(WIN32)
 	glEnable(GL_LIGHTING);
@@ -351,7 +351,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
 #if defined(__APPLE__)
     ShaderProgram *shader = [ShaderProgram normalShader];
 #endif
-    if (viewMode == ViewModeMixedWireSolid)
+    if (viewMode == ViewMode::MixedWireSolid)
     {
         selected = true;
         glEnable(GL_CULL_FACE);
@@ -365,7 +365,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
 	
 	glPushMatrix();
 	glScalef(scale.x, scale.y, scale.z);
-	if (viewMode == ViewModeWireframe)
+	if (viewMode == ViewMode::Wireframe)
 	{
         drawAllEdges(viewMode, forSelection);
 	}
@@ -385,7 +385,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
 #if defined(__APPLE__)
         [shader useProgram];
 #endif
-        if (_selectionMode != MeshSelectionModeTriangles)
+        if (_selectionMode != MeshSelectionMode::Triangles)
         {
             glColor3fv(_colorComponents);
             fillMode.textured = true;
@@ -409,7 +409,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
 	}
 	glPopMatrix();
     
-    if (viewMode == ViewModeMixedWireSolid)
+    if (viewMode == ViewMode::MixedWireSolid)
     {
         glDisable(GL_CULL_FACE);
     }
@@ -419,7 +419,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 {
     switch (_selectionMode) 
 	{
-		case MeshSelectionModeVertices:
+		case MeshSelectionMode::Vertices:
 		{
             bool selected;
             Vector3D v;
@@ -457,7 +457,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 			glVertex3f(v.x, v.y, v.z);
 			glEnd();
 		} break;
-		case MeshSelectionModeTriangles:
+		case MeshSelectionMode::Triangles:
 		{
 			if (forSelection)
 			{
@@ -486,7 +486,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 				glEnd();
 			}
 		} break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
         {
             if (_isUnwrapped)
             {
@@ -689,13 +689,13 @@ void Mesh2::glProjectSelect(int x, int y, int width, int height, const Matrix4x4
         {
             switch (selectionMode) 
             {
-                case OpenGLSelectionModeAdd:
+                case OpenGLSelectionMode::Add:
                     node->data().selected = true;
                     break;
-                case OpenGLSelectionModeSubtract:
+                case OpenGLSelectionMode::Subtract:
                     node->data().selected = false;
                     break;
-                case OpenGLSelectionModeInvert:
+                case OpenGLSelectionMode::Invert:
                     node->data().selected = !node->data().selected;
                     break;
                 default:
@@ -827,13 +827,13 @@ void Mesh2::drawAll(ViewMode viewMode, bool forSelection)
 {
     switch (_selectionMode) 
 	{
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             drawAllVertices(viewMode, forSelection);
             break;
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             drawAllTriangles(viewMode, forSelection);
             break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             drawAllEdges(viewMode, forSelection);
             break;
     }
@@ -891,7 +891,7 @@ void Mesh2::hideSelected()
     
     switch (_selectionMode)
     {
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             
             for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
             {
@@ -921,7 +921,7 @@ void Mesh2::hideSelected()
             }
             
             break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             if (_isUnwrapped)
             {
                 for (TexCoordEdgeNode *node = _texCoordEdges.begin(), *end = _texCoordEdges.end(); node != end; node = node->next())
@@ -945,7 +945,7 @@ void Mesh2::hideSelected()
                 }
             }
             break;
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             if (_isUnwrapped)
             {
                 for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())

@@ -12,19 +12,19 @@ void ManipulatorWidget::drawCore(float size)
 {
 	switch (widget)
 	{
-		case WidgetLine:
+		case Widget::Line:
 			DrawLine(size);
 			break;
-		case WidgetArrow:
+		case Widget::Arrow:
 			DrawArrow(size);
 			break;
-		case WidgetCircle:
+		case Widget::Circle:
 			DrawCircle(size * 0.7f);
 			break;
-		case WidgetPlane:
+		case Widget::Plane:
 			DrawPlane(size * 0.3f, size * 0.2f);
 			break;
-		case WidgetCube:
+		case Widget::Cube:
 			DrawCubeArrow(size);
 			break;
 		default:
@@ -35,7 +35,7 @@ void ManipulatorWidget::drawCore(float size)
 void ManipulatorWidget::draw(float size, bool isSelected, bool isGray, bool forSelection)
 {
 	float alpha, angle;
-	if (widget == WidgetPlane)
+	if (widget == Widget::Plane)
 	{
 		alpha = 0.5f;
 		angle = -90.0f;
@@ -54,7 +54,7 @@ void ManipulatorWidget::draw(float size, bool isSelected, bool isGray, bool forS
     }
 	switch (axis)
 	{
-		case AxisX:
+		case Axis::X:
 			if (!isSelected && !isGray && !forSelection)
 				glColor4f(1, 0, 0, alpha);
 			glPushMatrix();
@@ -62,12 +62,12 @@ void ManipulatorWidget::draw(float size, bool isSelected, bool isGray, bool forS
             drawCore(size);
 			glPopMatrix();
 			break;
-		case AxisY:
+		case Axis::Y:
 			if (!isSelected && !isGray && !forSelection)
 				glColor4f(0, 1, 0, alpha);
             drawCore(size);
 			break;
-		case AxisZ:
+		case Axis::Z:
 			if (!isSelected && !isGray && !forSelection)
 				glColor4f(0, 0, 1, alpha);
 			glPushMatrix();
@@ -75,7 +75,7 @@ void ManipulatorWidget::draw(float size, bool isSelected, bool isGray, bool forS
             drawCore(size);
 			glPopMatrix();
 			break;
-		case Center:
+		case Axis::Center:
 			if (!isSelected && !isGray && !forSelection)
 				glColor4f(1, 1, 1, 0.4f);
 			DrawCenterCube(size);

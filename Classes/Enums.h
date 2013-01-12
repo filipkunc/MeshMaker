@@ -13,87 +13,105 @@
 typedef unsigned int uint;
 #endif
 
-enum MeshType
+#if defined(__APPLE__)
+#define EnumClass enum class
+#elif defined(WIN32)
+#include <windows.h>
+using namespace System;
+#define EnumClass public enum struct
+#endif
+
+EnumClass MeshType
 {
-    MeshTypePlane = 0,
-	MeshTypeCube,
-	MeshTypeCylinder,
-	MeshTypeSphere,
-    MeshTypeIcosahedron
+    Plane = 0,
+	Cube,
+	Cylinder,
+	Sphere,
+    Icosahedron
 };
 	
-enum MeshSelectionMode
+EnumClass MeshSelectionMode
 {
-	MeshSelectionModeVertices = 0,
-	MeshSelectionModeTriangles,
-	MeshSelectionModeEdges,
+	Vertices = 0,
+	Triangles,
+	Edges,
 };
 
-enum ManipulatorType
+EnumClass ManipulatorType
 {
-	ManipulatorTypeDefault = 0,
-	ManipulatorTypeTranslation = 1, 
-	ManipulatorTypeRotation = 2,
-	ManipulatorTypeScale = 3
+	Default = 0,
+	Translation = 1,
+	Rotation = 2,
+	Scale = 3
 };
 
-enum ViewMode
+EnumClass ViewMode
 {
-	ViewModeSolidFlat = 0,
-    ViewModeSolidSmooth = 1,
-    ViewModeMixedWireSolid = 2,
-	ViewModeWireframe = 3,
-    ViewModeUnwrap = 4
+	SolidFlat = 0,
+    SolidSmooth = 1,
+    MixedWireSolid = 2,
+	Wireframe = 3,
+    Unwrap = 4
 };
 
-enum EditMode
+EnumClass EditMode
 {
-	EditModeItems = 0,
-	EditModeVertices = 1,
-	EditModeTriangles = 2,
-	EditModeEdges = 3
+	Items = 0,
+	Vertices = 1,
+	Triangles = 2,
+	Edges = 3
 };
 
-enum CameraMode
+EnumClass CameraMode
 {
-	CameraModePerspective = 0,
-	CameraModeLeft = 1,
-	CameraModeRight = 2,
-	CameraModeTop = 3,
-	CameraModeBottom = 4,
-	CameraModeFront = 5,
-	CameraModeBack = 6
+	Perspective = 0,
+	Left = 1,
+	Right = 2,
+	Top = 3,
+	Bottom = 4,
+	Front = 5,
+	Back = 6
 };
 
-enum Axis
+EnumClass Axis
 {
 	Center = -1,
-	AxisX = 0,
-	AxisY = 1,
-	AxisZ = 2,
+	X = 0,
+	Y = 1,
+	Z = 2,
 };
 
-enum PlaneAxis
+EnumClass PlaneAxis
 {
-	PlaneAxisX = 3,
-	PlaneAxisY = 4,
-	PlaneAxisZ = 5,
+	X = 3,
+	Y = 4,
+	Z = 5,
 };
 
-enum Widget
+EnumClass Widget
 {
-	WidgetLine,
-	WidgetArrow,
-	WidgetPlane,
-	WidgetCircle,
-	WidgetCube,
+	Line,
+	Arrow,
+	Plane,
+	Circle,
+	Cube,
 };
 
-enum OpenGLSelectionMode
+EnumClass OpenGLSelectionMode
 {
-	OpenGLSelectionModeAdd,
-	OpenGLSelectionModeSubtract,
-	OpenGLSelectionModeInvert,
-    OpenGLSelectionModeExpand,
-    OpenGLSelectionModeInvertExpand,
+	Add,
+	Subtract,
+	Invert,
+    Expand,
+    InvertExpand,
 };
+    
+EnumClass ModelVersion : uint
+{
+    First = 1U,
+    Colors = 2U,
+    TriQuads = 3U,
+
+    Latest = TriQuads
+};
+

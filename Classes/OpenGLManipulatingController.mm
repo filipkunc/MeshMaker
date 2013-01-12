@@ -64,7 +64,7 @@ OpenGLManipulatingController::OpenGLManipulatingController()
     _selectedCount = 0;
     _lastSelectedIndex = -1;
     _modelScale = Vector3D(1, 1, 1);
-    _currentManipulator = ManipulatorTypeDefault;
+    _currentManipulator = ManipulatorType::Default;
 #if defined(__APPLE__)
     _kvc = [[OpenGLManipulatingControllerKVC alloc] initWithController:this];
 #endif
@@ -92,19 +92,19 @@ void OpenGLManipulatingController::selectObjectAtIndex(uint index, OpenGLSelecti
 {
     switch (selectionMode)
 	{
-		case OpenGLSelectionModeAdd:
+		case OpenGLSelectionMode::Add:
             _model->setSelectedAtIndex(index, true);
 			break;
-		case OpenGLSelectionModeSubtract:
+		case OpenGLSelectionMode::Subtract:
             _model->setSelectedAtIndex(index, false);
 			break;
-		case OpenGLSelectionModeInvert:
+		case OpenGLSelectionMode::Invert:
             _model->setSelectedAtIndex(index, !_model->isSelectedAtIndex(index));
 			break;
-        case OpenGLSelectionModeExpand:
+        case OpenGLSelectionMode::Expand:
             _model->expandSelectionFromIndex(index, false);
             break;
-        case OpenGLSelectionModeInvertExpand:
+        case OpenGLSelectionMode::InvertExpand:
             _model->expandSelectionFromIndex(index, true);
             break;
 		default:
@@ -284,7 +284,7 @@ ViewMode OpenGLManipulatingController::viewMode()
 {
     if (_model != NULL)
         return _model->viewMode();
-    return ViewModeSolidFlat;
+    return ViewMode::SolidFlat;
 }
 
 void OpenGLManipulatingController::setViewMode(ViewMode mode)
@@ -584,13 +584,13 @@ float OpenGLManipulatingController::transformValueAtIndex(uint index, Manipulato
 {
     switch (manipulator)
 	{
-		case ManipulatorTypeTranslation:
+		case ManipulatorType::Translation:
 			return _selectionCenter[index];
-		case ManipulatorTypeRotation:
+		case ManipulatorType::Rotation:
 			return _selectionEuler[index] * RAD_TO_DEG;
-		case ManipulatorTypeScale:
+		case ManipulatorType::Scale:
 			return _selectionScale[index];
-		case ManipulatorTypeDefault:
+		case ManipulatorType::Default:
 		default:
 			return 0.0f;
 	}
@@ -600,13 +600,13 @@ void OpenGLManipulatingController::setTransformValueAtIndex(uint index, Manipula
 {
     switch (manipulator)
 	{
-		case ManipulatorTypeTranslation:
+		case ManipulatorType::Translation:
 		{
 			Vector3D offset = Vector3D();
 			offset[index] = value - _selectionCenter[index];
             moveSelectedByOffset(offset);
 		}break;
-		case ManipulatorTypeRotation:
+		case ManipulatorType::Rotation:
 		{
 			_selectionEuler[index] = value * DEG_TO_RAD;
 			if (_selectedCount == 1)
@@ -623,7 +623,7 @@ void OpenGLManipulatingController::setTransformValueAtIndex(uint index, Manipula
                 rotateSelectedByOffset(offset);
 			}
 		}break;
-		case ManipulatorTypeScale:
+		case ManipulatorType::Scale:
 		{
 			if (_selectedCount == 1)
 			{

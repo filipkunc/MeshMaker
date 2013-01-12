@@ -77,15 +77,15 @@ NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
 {
     switch (meshType)
 	{
-		case MeshTypeCube:
+		case MeshType::Cube:
 			return @"Cube";
-		case MeshTypeCylinder:
+		case MeshType::Cylinder:
 			return @"Cylinder";
-		case MeshTypeSphere:
+		case MeshType::Sphere:
 			return @"Sphere";
-        case MeshTypePlane:
+        case MeshType::Plane:
             return @"Plane";
-        case MeshTypeIcosahedron:
+        case MeshType::Icosahedron:
             return @"Icosahedron";
 		default:
 			return nil;
@@ -96,15 +96,15 @@ System::String ^Mesh2::descriptionOfMeshType(MeshType meshType)
 {
     switch (meshType)
 	{
-		case MeshTypeCube:
+		case MeshType::Cube:
 			return L"Cube";
-		case MeshTypeCylinder:
+		case MeshType::Cylinder:
 			return L"Cylinder";
-		case MeshTypeSphere:
+		case MeshType::Sphere:
 			return L"Sphere";
-        case MeshTypePlane:
+        case MeshType::Plane:
 			return L"Plane";
-        case MeshTypeIcosahedron:
+        case MeshType::Icosahedron:
             return L"Icosahedron";
 		default:
 			return nullptr;
@@ -114,7 +114,7 @@ System::String ^Mesh2::descriptionOfMeshType(MeshType meshType)
 
 Mesh2::Mesh2()
 {
-    _selectionMode = MeshSelectionModeVertices;
+    _selectionMode = MeshSelectionMode::Vertices;
     
     _vboID = 0U;
     _vboGenerated = false;
@@ -126,7 +126,7 @@ Mesh2::Mesh2()
 
 Mesh2::Mesh2(MemoryReadStream *stream)
 {
-	_selectionMode = MeshSelectionModeVertices;
+	_selectionMode = MeshSelectionMode::Vertices;
     
     _vboID = 0U;
     _vboGenerated = false;
@@ -137,7 +137,7 @@ Mesh2::Mesh2(MemoryReadStream *stream)
 
     Vector4D color;
     
-    if (stream->version() >= ModelVersionColors)
+    if (stream->version() >= (uint)ModelVersion::Colors)
         stream->readBytes(&color, sizeof(Vector4D));
     else
         color = generateRandomColor();
@@ -168,7 +168,7 @@ Mesh2::Mesh2(MemoryReadStream *stream)
         texCoords.push_back(texCoord);
     }
     
-    if (stream->version() >= ModelVersionTriQuads)
+    if (stream->version() >= (uint)ModelVersion::TriQuads)
     {
         for (uint i = 0; i < trianglesSize; i++)
         {
@@ -200,7 +200,7 @@ Mesh2::Mesh2(MemoryReadStream *stream)
 
 void Mesh2::encode(MemoryWriteStream *stream)
 {
-    if (stream->version() > ModelVersionColors)
+    if (stream->version() > (uint)ModelVersion::Colors)
     {
         stream->writeBytes(&_color, sizeof(Vector4D));
     }
@@ -264,7 +264,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
     
     switch (_selectionMode)
     {
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 _cachedVertexSelection.push_back(node);
@@ -272,7 +272,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
             for (TexCoordNode *node = _texCoords.begin(), *end = _texCoords.end(); node != end; node = node->next())
                 _cachedTexCoordSelection.push_back(node);            
         } break;
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 node->data().selected = false;
@@ -295,7 +295,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                 }
             }
         } break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
         {
             for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
                 node->data().selected = false;
@@ -341,13 +341,13 @@ uint Mesh2::selectedCount() const
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             if (_isUnwrapped)
                 return _cachedTexCoordSelection.size();
             return _cachedVertexSelection.size();            
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             return _cachedTriangleSelection.size();
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             if (_isUnwrapped)
                 return _cachedTexCoordEdgeSelection.size();
             return _cachedVertexEdgeSelection.size();
@@ -360,13 +360,13 @@ bool Mesh2::isSelectedAtIndex(uint index) const
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             if (_isUnwrapped)
                 return _cachedTexCoordSelection.at(index)->data().selected;
             return _cachedVertexSelection.at(index)->data().selected;
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             return _cachedTriangleSelection.at(index)->data().selected;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             if (_isUnwrapped)
                 return _cachedTexCoordEdgeSelection.at(index)->data().selected;
             return _cachedVertexEdgeSelection.at(index)->data().selected;
@@ -379,13 +379,13 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             if (_isUnwrapped)
                 _cachedTexCoordSelection.at(index)->data().selected = selected;
             else
                 _cachedVertexSelection.at(index)->data().selected = selected;
             break;
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
         {
             Triangle2 &triangle = _cachedTriangleSelection.at(index)->data();
             triangle.selected = selected;
@@ -395,7 +395,7 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
                 triangle.texCoord(i)->data().selected = selected;
             }                
         } break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
         {
             if (_isUnwrapped)
             {
@@ -421,7 +421,7 @@ void Mesh2::expandSelectionFromIndex(uint index, bool invert)
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
         {
             VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
 
@@ -722,13 +722,13 @@ void Mesh2::removeSelected()
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             removeSelectedTriangles();
             break;
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             removeSelectedVertices();
             break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             removeSelectedEdges();
             break;
         default:
@@ -740,7 +740,7 @@ void Mesh2::mergeSelected()
 {
     switch (_selectionMode)
 	{
-		case MeshSelectionModeVertices:
+		case MeshSelectionMode::Vertices:
 			mergeSelectedVertices();
 			break;
 		default:
@@ -1420,10 +1420,10 @@ void Mesh2::splitSelected()
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             splitSelectedTriangles();
             break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             splitSelectedEdges();
             break;
         default:
@@ -1435,10 +1435,10 @@ void Mesh2::detachSelected()
 {
     switch (_selectionMode)
     {
-        case MeshSelectionModeVertices:
+        case MeshSelectionMode::Vertices:
             detachSelectedVertices();
             break;
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             detachSelectedTriangles();
             break;
         default:
@@ -1510,10 +1510,10 @@ void Mesh2::flipSelected()
 {
     switch (_selectionMode) 
     {
-        case MeshSelectionModeTriangles:
+        case MeshSelectionMode::Triangles:
             flipSelectedTriangles();
             break;
-        case MeshSelectionModeEdges:
+        case MeshSelectionMode::Edges:
             turnSelectedEdges();
             break;
         default:

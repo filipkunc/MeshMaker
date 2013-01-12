@@ -15,30 +15,30 @@ Manipulator::Manipulator(ManipulatorType type)
     
     switch (type)
     {
-        case ManipulatorTypeDefault:
-            addWidgetWithAxis(WidgetLine, AxisX);
-            addWidgetWithAxis(WidgetLine, AxisY);
-            addWidgetWithAxis(WidgetLine, AxisZ);
+        case ManipulatorType::Default:
+            addWidgetWithAxis(Widget::Line, Axis::X);
+            addWidgetWithAxis(Widget::Line, Axis::Y);
+            addWidgetWithAxis(Widget::Line, Axis::Z);
             break;
-        case ManipulatorTypeTranslation:
-            addWidgetWithAxis(WidgetArrow, AxisX);
-            addWidgetWithAxis(WidgetArrow, AxisY);
-            addWidgetWithAxis(WidgetArrow, AxisZ);
+        case ManipulatorType::Translation:
+            addWidgetWithAxis(Widget::Arrow, Axis::X);
+            addWidgetWithAxis(Widget::Arrow, Axis::Y);
+            addWidgetWithAxis(Widget::Arrow, Axis::Z);
             
-            addWidgetWithAxis(WidgetPlane, AxisX);
-            addWidgetWithAxis(WidgetPlane, AxisY);
-            addWidgetWithAxis(WidgetPlane, AxisZ);
+            addWidgetWithAxis(Widget::Plane, Axis::X);
+            addWidgetWithAxis(Widget::Plane, Axis::Y);
+            addWidgetWithAxis(Widget::Plane, Axis::Z);
             break;
-        case ManipulatorTypeRotation:
-            addWidgetWithAxis(WidgetCircle, AxisX);
-            addWidgetWithAxis(WidgetCircle, AxisY);
-            addWidgetWithAxis(WidgetCircle, AxisZ);
+        case ManipulatorType::Rotation:
+            addWidgetWithAxis(Widget::Circle, Axis::X);
+            addWidgetWithAxis(Widget::Circle, Axis::Y);
+            addWidgetWithAxis(Widget::Circle, Axis::Z);
             break;
-        case ManipulatorTypeScale:
-            addWidgetWithAxis(WidgetCube, Center);
-            addWidgetWithAxis(WidgetCube, AxisX);
-            addWidgetWithAxis(WidgetCube, AxisY);
-            addWidgetWithAxis(WidgetCube, AxisZ);
+        case ManipulatorType::Scale:
+            addWidgetWithAxis(Widget::Cube, Axis::Center);
+            addWidgetWithAxis(Widget::Cube, Axis::X);
+            addWidgetWithAxis(Widget::Cube, Axis::Y);
+            addWidgetWithAxis(Widget::Cube, Axis::Z);
             break;
         default:
             break;
@@ -69,7 +69,7 @@ void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 	
 	Matrix4x4 rotationMatrix = rotation.ToMatrix();
 	
-	if (widgets.at(0).widget == WidgetCircle)
+	if (widgets.at(0).widget == Widget::Circle)
 	{
 		double eq[4] = { 0, 0, 0, 0 };
 		for (int j = 0; j < 3; j++)
@@ -144,7 +144,7 @@ void Manipulator::drawForSelectionAtIndex(uint index)
 {
 	ManipulatorWidget &widget = widgets.at(index);
 	
-    if (widget.widget == WidgetLine)
+    if (widget.widget == Widget::Line)
 		return;
     
 	glPushMatrix();

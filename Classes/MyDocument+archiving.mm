@@ -106,11 +106,11 @@ vector<T> *ReadValues(string s)
 {
     MemoryReadStream *stream = new MemoryReadStream(data);
     
-    unsigned int version = 0;
+    uint version = 0;
     
     stream->readBytes(&version, sizeof(unsigned int));
     
-    if (version < ModelVersionFirst || version > ModelVersionLatest)
+    if (version < (uint)ModelVersion::First || version > (uint)ModelVersion::Latest)
         return NO;
     
     stream->setVersion(version);
@@ -130,7 +130,7 @@ vector<T> *ReadValues(string s)
     NSMutableData *data = [[NSMutableData alloc] init];
     MemoryWriteStream *stream = new MemoryWriteStream(data);
     
-    unsigned int version = ModelVersionLatest;
+    uint version = (uint)ModelVersion::Latest;
     stream->setVersion(version);
     stream->writeBytes(&version, sizeof(unsigned int));
     items->encode(stream);
@@ -242,7 +242,7 @@ vector<T> *ReadValues(string s)
     
     mesh->flipAllTriangles();
     
-    mesh->setSelectionMode(MeshSelectionModeTriangles);
+    mesh->setSelectionMode(MeshSelectionMode::Triangles);
     
     ItemCollection *newItems = new ItemCollection();
     

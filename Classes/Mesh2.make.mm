@@ -546,19 +546,19 @@ void Mesh2::make(MeshType meshType, uint steps)
 {
 	switch (meshType) 
 	{
-        case MeshTypePlane:
+        case MeshType::Plane:
             this->makePlane();
             break;
-		case MeshTypeCube:
+		case MeshType::Cube:
             this->makeCube();
 			break;
-		case MeshTypeCylinder:
+		case MeshType::Cylinder:
             this->makeCylinder(steps);
 			break;
-		case MeshTypeSphere:
+		case MeshType::Sphere:
             this->makeSphere(steps);
 			break;
-        case MeshTypeIcosahedron:
+        case MeshType::Icosahedron:
             this->makeIcosahedron();
             break;
 		default:
