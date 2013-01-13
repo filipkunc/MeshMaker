@@ -82,6 +82,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Chocolate\Chocolate.csproj">
+      <Project>{AB6308D6-747B-43E0-B191-7163768E0C74}</Project>
+      <Name>Chocolate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MeshMakerCppCLI\MeshMakerCppCLI.vcproj">
       <Project>{02E11884-12F2-4812-894E-E5417F4A7DD7}</Project>
       <Name>MeshMakerCppCLI</Name>
@@ -131,4 +135,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy $(SolutionDir)MeshMakerCppCLI\glew $(TargetDir)
+xcopy $(SolutionDir)Shaders $(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

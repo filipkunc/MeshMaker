@@ -6,7 +6,18 @@
 //  For license see LICENSE.TXT
 //
 
+#if defined(__APPLE__) || defined(SHADERS)
+
 #include "Shader.h"
+#include <stdio.h>
+
+#if defined(WIN32)
+
+#include <string>
+#include <fstream>
+using namespace std;
+
+#endif
 
 Shader::Shader(GLenum shaderType, const char *fileName)
 {
@@ -26,8 +37,8 @@ Shader::Shader(GLenum shaderType, const char *fileName)
 
     const GLchar *shaderSource = [contents cStringUsingEncoding:NSASCIIStringEncoding];
 #elif defined(WIN32)
-    string buffer;
-    ifstream fin(fileName);
+	string buffer;
+	ifstream fin(fileName);
     getline(fin, buffer, char(-1));
     fin.close();
     const GLchar *shaderSource = buffer.c_str();
@@ -43,14 +54,14 @@ Shader::Shader(GLenum shaderType, const char *fileName)
     {
         GLchar *log = (GLchar*)malloc(logLength);
         glGetShaderInfoLog(shader, logLength, &logLength, log);
-        NSLog(@"%@ compile log:\n%s\n", path, log);
+		printf("%s compile log:\n%s\n", fileName, log);
         free(log);
     }
     
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (status == 0)
     {
-        NSLog(@"Failed to compile %@ shader:\n%s\n", path, shaderSource);
+		printf("Failed to compile %s shader:\n%s\n", fileName, shaderSource);
     }
 }
 
@@ -58,3 +69,5 @@ Shader::~Shader()
 {
     glDeleteShader(shader);
 }
+
+#endif

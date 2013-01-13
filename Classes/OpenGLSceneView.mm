@@ -359,7 +359,7 @@ namespace MeshMakerCppCLI
 	void OpenGLSceneView::OnLoad(EventArgs ^e)
 	{
 		UserControl::OnLoad(e);
-		if (this->DesignMode)
+		if (Tools::SafeDesignMode)
 			return;
 		
 		InitializeGL();
@@ -373,13 +373,13 @@ namespace MeshMakerCppCLI
 
 	void OpenGLSceneView::OnPaintBackground(PaintEventArgs ^e)
 	{
-		if (this->DesignMode)
+		if (Tools::SafeDesignMode)
 			UserControl::OnPaintBackground(e);
 	}
 
 	void OpenGLSceneView::OnPaint(PaintEventArgs ^e)
 	{
-		if (this->DesignMode)
+		if (Tools::SafeDesignMode)
 			return;
 
 		if (!_deviceContext || !_glRenderingContext)
@@ -444,10 +444,20 @@ namespace MeshMakerCppCLI
 		UserControl::OnMouseUp(e);
 		_coreView->mouseUp(LocationFromEvent(e),
 			(Control::ModifierKeys & Keys::Alt) == Keys::Alt,
-			(Control::ModifierKeys & Keys::Control) == Keys::Alt, // Command
+			(Control::ModifierKeys & Keys::Control) == Keys::Control, // Command
 			false, // Control is disabled (select through)
 			(Control::ModifierKeys & Keys::Shift) == Keys::Shift,
-			e->Clicks);
+			1);
+	}
+
+	void OpenGLSceneView::OnMouseDoubleClick(MouseEventArgs ^e)
+	{
+		_coreView->mouseUp(LocationFromEvent(e),
+			(Control::ModifierKeys & Keys::Alt) == Keys::Alt,
+			(Control::ModifierKeys & Keys::Control) == Keys::Control, // Command
+			false, // Control is disabled (select through)
+			(Control::ModifierKeys & Keys::Shift) == Keys::Shift,
+			2);
 	}
 
 	void OpenGLSceneView::OnMouseWheel(MouseEventArgs ^e)
@@ -471,9 +481,9 @@ namespace MeshMakerCppCLI
 
 	void OpenGLSceneView::InitializeGL()
 	{
-        if (this->DesignMode)
+		if (Tools::SafeDesignMode)
 			return;
-        
+
 		_deviceContext = GetDC((HWND)this->Handle.ToPointer());
         // CAUTION: Not doing the following SwapBuffers() on the DC will
         // result in a failure to subsequently create the RC.
@@ -502,8 +512,15 @@ namespace MeshMakerCppCLI
 			Trace::WriteLine("Unable to set pixel format");
             return;
         }
+		
+		EndGL();
+
         //Create rendering context
         _glRenderingContext = wglCreateContext(_deviceContext);
+
+		if (SharedContextView != nullptr)
+			wglShareLists(SharedContextView->_glRenderingContext, _glRenderingContext); 
+
         if (!_glRenderingContext)
         {
 			Trace::WriteLine("Unable to get rendering context");
@@ -516,6 +533,9 @@ namespace MeshMakerCppCLI
         }
         //Set up OpenGL related characteristics
         BeginGL();
+#if defined(SHADERS)
+		glewInit();
+#endif
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -523,8 +543,9 @@ namespace MeshMakerCppCLI
 		// Configure the view
 		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 		glShadeModel(GL_SMOOTH);
-		/*glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);*/
+#if defined(SHADERS)
+		ShaderProgram::initShaders();
+#endif
 	}	
 }
 

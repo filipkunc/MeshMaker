@@ -9,8 +9,8 @@
 #pragma once
 
 #include "OpenGLDrawing.h"
-#if defined(__APPLE__)
 #include "ShaderProgram.h"
+#if defined(__APPLE__)
 #include "FPTexture.h"
 #endif
 #include "MeshHelpers.h"

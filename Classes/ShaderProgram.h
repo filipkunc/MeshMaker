@@ -8,6 +8,8 @@
 
 #pragma once
 
+#if defined(__APPLE__) || defined(SHADERS)
+
 #include "Shader.h"
 
 class ShaderProgram
@@ -25,3 +27,5 @@ public:
     void useProgram();
     static void resetProgram();
 };
+
+#endif

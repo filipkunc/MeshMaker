@@ -6,7 +6,10 @@
 //  For license see LICENSE.TXT
 //
 
+#if defined(__APPLE__) || defined(SHADERS)
+
 #include "ShaderProgram.h"
+#include <stdio.h>
 
 static inline const char * GetGLErrorString(GLenum error)
 {
@@ -55,7 +58,7 @@ static inline const char * GetGLErrorString(GLenum error)
 {														\
 	GLenum err = glGetError();							\
 	while (err != GL_NO_ERROR) {						\
-		NSLog(@"GLError %s set in File:%s Line:%d\n",	\
+		printf("GLError %s set in File:%s Line:%d\n",	\
 				GetGLErrorString(err),					\
 				__FILE__,								\
 				__LINE__);								\
@@ -109,22 +112,14 @@ void ShaderProgram::linkProgram()
 	{
 		GLchar *log = (GLchar*)malloc(logLength);
 		glGetProgramInfoLog(program, logLength, &logLength, log);
-#if defined(__APPLE__)
-		NSLog(@"Program link log:\n%s\n", log);
-#elif defined(WIN32)
         printf("Program link log:\n%s\n", log);
-#endif
 		free(log);
 	}
 	
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (status == 0)
 	{
-#if defined(__APPLE__)
-		NSLog(@"Failed to link program");
-#elif defined(WIN32)
         printf("Failed to link program");
-#endif
 		return;
 	}
 	
@@ -140,3 +135,5 @@ void ShaderProgram::resetProgram()
 {
     glUseProgram(0);
 }
+
+#endif

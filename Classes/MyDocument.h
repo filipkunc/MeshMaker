@@ -233,9 +233,37 @@ namespace MeshMakerCppCLI
 			}
 		}
 
+		property ViewMode viewMode
+		{
+			ViewMode get()
+			{
+			    return manipulated->viewMode();
+			}
+			void set(ViewMode value)
+			{
+				manipulated->setViewMode(value);
+				this->setNeedsDisplayOnAllViews();
+			}
+		}
+
+		property Color color
+		{
+			Color get()
+			{
+				Vector4D color = manipulated->selectionColor() * 255.0f;
+				return Color::FromArgb(color.w, color.x, color.y, color.z);
+			}
+			void set(Color value)
+			{
+				Vector4D color = Vector4D(value.R, value.G, value.B, value.A);
+				color /= 255.0f;
+				manipulated->setSelectionColor(color);
+			}
+		}
+
 		void setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective);
 		void addItem(MeshType meshType, uint steps);
-		void changeEditMode();
+		void changeEditMode();		
 		void setNeedsDisplayExceptView(OpenGLSceneView ^except);
 		void setNeedsDisplayOnAllViews();
 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using MeshMakerCppCLI;
 using System.Diagnostics;
+using Chocolate;
 
 namespace MeshMaker
 {
@@ -19,13 +20,21 @@ namespace MeshMaker
         public DocumentForm()
         {
             InitializeComponent();
-
+            perspectiveView.SharedContextView = leftView;
+            topView.SharedContextView = leftView;
+            frontView.SharedContextView = leftView;
             this.Load += new EventHandler(DocumentForm_Load);
+            this.FormClosing += new FormClosingEventHandler(DocumentForm_FormClosing);
+        }
+
+        void DocumentForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Process.GetCurrentProcess().Kill();
         }
 
         void DocumentForm_Load(object sender, EventArgs e)
         {
-            if (DesignMode)
+            if (Tools.SafeDesignMode)
                 return;
 
             toolStripButtonAddCube.Tag = MeshType.Cube;
@@ -58,6 +67,20 @@ namespace MeshMaker
 
             document = new MyDocument(this);
             document.setViews(leftView, topView, frontView, perspectiveView);
+
+            toolStripComboBoxViewMode.Items.Add(ViewMode.SolidFlat);
+            toolStripComboBoxViewMode.Items.Add(ViewMode.SolidSmooth);
+            toolStripComboBoxViewMode.Items.Add(ViewMode.MixedWireSolid);
+            toolStripComboBoxViewMode.Items.Add(ViewMode.Wireframe);
+            toolStripComboBoxViewMode.Items.Add(ViewMode.Unwrap);
+
+            toolStripComboBoxViewMode.SelectedItem = document.viewMode;
+            toolStripComboBoxViewMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxViewMode_SelectedIndexChanged);            
+        }
+
+        void toolStripComboBoxViewMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            document.viewMode = (ViewMode)toolStripComboBoxViewMode.SelectedItem;
         }
 
         void toolStripComboBoxEditMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -222,6 +245,8 @@ namespace MeshMaker
             toolStripTextBoxSelectionX.Text = document.selectionX.ToString("f2");
             toolStripTextBoxSelectionY.Text = document.selectionY.ToString("f2");
             toolStripTextBoxSelectionZ.Text = document.selectionZ.ToString("f2");
+            toolStripButtonColor.BackColor = document.color;
+            toolStripButtonColor.Invalidate();
         }
 
         #endregion        
@@ -338,7 +363,20 @@ namespace MeshMaker
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Process.GetCurrentProcess().Kill();
+        }
 
+        private void toolStripButtonColor_Click(object sender, EventArgs e)
+        {
+            using (ColorDialog dlg = new ColorDialog())
+            {
+                dlg.Color = document.color;
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    document.color = dlg.Color;
+                    toolStripButtonColor.BackColor = document.color;
+                }
+            }
         }
     }
 }

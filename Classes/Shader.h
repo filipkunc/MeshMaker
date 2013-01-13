@@ -8,6 +8,8 @@
 
 #pragma once
 
+#if defined(__APPLE__) || defined(SHADERS)
+
 #include "OpenGLDrawing.h"
 
 class Shader
@@ -19,3 +21,5 @@ public:
     Shader(GLenum shaderType, const char *fileName);
     ~Shader();
 };
+
+#endif

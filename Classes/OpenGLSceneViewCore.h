@@ -18,9 +18,9 @@
 #include "OpenGLSelecting.h"
 #include "Manipulator.h"
 #include "OpenGLManipulating.h"
-#if defined(__APPLE__)
 #include "Shader.h"
 #include "ShaderProgram.h"
+#if defined(__APPLE__)
 #include "FPTexture.h"
 #endif
 #include "Mesh2.h"

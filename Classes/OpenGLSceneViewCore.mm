@@ -11,6 +11,7 @@
 const float perspectiveAngle = 45.0f;
 const float minDistance = 1.0f;
 const float maxDistance = 500.0f;
+const float planeSize = 4000.0f;
 
 #if defined(WIN32)
 
@@ -426,8 +427,7 @@ void OpenGLSceneViewCore::drawSelectionPlane(int index)
 
 Vector3D OpenGLSceneViewCore::positionFromAxisPoint(Axis axis, NSPoint point)
 {
-    const float size = 4000.0f;
-	DrawPlane(_camera->GetAxisX(), _camera->GetAxisY(), size);
+	DrawPlane(_camera->GetAxisX(), _camera->GetAxisY(), planeSize);
 	
 	Vector3D position = positionInSpaceByPoint(point);
 	Vector3D result = _manipulated->selectionCenter();
@@ -437,8 +437,7 @@ Vector3D OpenGLSceneViewCore::positionFromAxisPoint(Axis axis, NSPoint point)
 
 Vector3D OpenGLSceneViewCore::positionFromRotatedAxisPoint(Axis axis, NSPoint point, Quaternion rotation)
 {
-    const float size = 4000.0f;
-	DrawPlane(_camera->GetAxisX(), _camera->GetAxisY(), size);
+    DrawPlane(_camera->GetAxisX(), _camera->GetAxisY(), planeSize);
 	
 	Vector3D position = positionInSpaceByPoint(point);
 	Vector3D result = _manipulated->selectionCenter();
@@ -459,6 +458,7 @@ Vector3D OpenGLSceneViewCore::positionFromPlaneAxis(PlaneAxis plane, NSPoint poi
 
 Vector3D OpenGLSceneViewCore::translationFromPoint(NSPoint point)
 {
+	_delegate->makeCurrentContext();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(_camera->GetViewMatrix());
 	
@@ -475,6 +475,7 @@ Vector3D OpenGLSceneViewCore::translationFromPoint(NSPoint point)
 
 Vector3D OpenGLSceneViewCore::scaleFromPoint(NSPoint point, Vector3D &lastPosition)
 {
+	_delegate->makeCurrentContext();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(_camera->GetViewMatrix());
 	
@@ -509,6 +510,7 @@ Vector3D OpenGLSceneViewCore::scaleFromPoint(NSPoint point, Vector3D &lastPositi
 
 Quaternion OpenGLSceneViewCore::rotationFromPoint(NSPoint point, Vector3D &lastPosition)
 {
+	_delegate->makeCurrentContext();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadMatrixf(_camera->GetViewMatrix());
 	
@@ -708,8 +710,9 @@ void OpenGLSceneViewCore::drawSelectionRect()
 
 void OpenGLSceneViewCore::draw()
 {
+#if defined(__APPLE__) || defined(SHADERS)
     ShaderProgram::resetProgram();
-    
+#endif
 	float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

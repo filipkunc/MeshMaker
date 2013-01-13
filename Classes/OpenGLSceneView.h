@@ -51,6 +51,7 @@ using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
 using namespace System::Diagnostics;
+using namespace Chocolate;
 
 namespace MeshMakerCppCLI
 {
@@ -98,6 +99,7 @@ namespace MeshMakerCppCLI
 		}
 		
 		property IOpenGLSceneViewDelegate ^Delegate;
+		property OpenGLSceneView ^SharedContextView;
 
 	protected:
 		~OpenGLSceneView();
@@ -111,6 +113,7 @@ namespace MeshMakerCppCLI
 		virtual void OnPaint(PaintEventArgs ^e) override;
 		virtual void OnMouseMove(MouseEventArgs ^e) override;
 		virtual void OnMouseDown(MouseEventArgs ^e) override;
+		virtual void OnMouseDoubleClick(MouseEventArgs ^e) override;
 		virtual void OnMouseUp(MouseEventArgs ^e) override;
 		virtual void OnMouseWheel(MouseEventArgs ^e) override;
 	private:

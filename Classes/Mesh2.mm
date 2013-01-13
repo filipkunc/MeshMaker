@@ -32,7 +32,7 @@ Vector4D generateRandomColor()
     
     return Vector4D(color.redComponent, color.greenComponent, color.blueComponent, color.alphaComponent);
 #elif defined(WIN32)
-	return Vector4D(0.0f, 0.7f, 0.0f, 1.0f);
+	return Vector4D(0.5f, 0.7f, 0.8f, 1.0f);
 #endif
 }
 

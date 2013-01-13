@@ -92,7 +92,7 @@ void Mesh2::fillTriangleCache()
     _cachedTriangleVertices.resize(i);
     _cachedTriangleVertices.setValid(true);
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(SHADERS)
     if (!_vboGenerated)
     {
         glGenBuffers(1, &_vboID);
@@ -280,7 +280,7 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
             updateVertexInEdgeCache(vertexNode, edgeNode);
         }
     }
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(SHADERS)
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLTriangleVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -290,7 +290,7 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
 void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(SHADERS)
 	if (viewMode == ViewMode::MixedWireSolid)
         glEnable(GL_BLEND);
     
@@ -328,7 +328,7 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 
     if (viewMode == ViewMode::MixedWireSolid)
         glDisable(GL_BLEND);
-#elif defined(WIN32)
+#else
 	if (!fillMode.colored && !fillMode.textured)
 	{
 		glBegin(GL_TRIANGLES);
@@ -360,9 +360,9 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection)
 {
     bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-
+#if defined(__APPLE__) || defined(SHADERS)
     ShaderProgram *shader = ShaderProgram::normalShader();
-    
+#endif    
     if (viewMode == ViewMode::MixedWireSolid)
     {
         selected = true;
@@ -395,9 +395,9 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glPolygonOffset(1.0f, 1.0f);
 
         }
-        
+#if defined(__APPLE__) || defined(SHADERS)
         shader->useProgram();
-        
+#endif        
         if (_selectionMode != MeshSelectionMode::Triangles)
         {
             glColor3fv(_colorComponents);
@@ -411,9 +411,9 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             fillMode.colored = true;
             drawFill(fillMode, viewMode);
         }
-        
+#if defined(__APPLE__) || defined(SHADERS)
         ShaderProgram::resetProgram();
-        
+#endif        
         if (selected)
         {
             glDisable(GL_POLYGON_OFFSET_FILL);
