@@ -285,6 +285,8 @@ void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, Ope
 {
     if (selecting == NULL || selecting->selectableCount() <= 0)
 		return;
+
+	uint count = selecting->selectableCount();
     
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
     
@@ -296,7 +298,7 @@ void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, Ope
 	bool *selected = select(point.x - 5, point.y - 5, 10, 10, selecting);
     if (selected != NULL)
     {
-        for (uint i = 0; i < selecting->selectableCount(); i++)
+        for (uint i = 0; i < count; i++)
         {
             if (selected[i])
             {

@@ -329,19 +329,31 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     if (viewMode == ViewMode::MixedWireSolid)
         glDisable(GL_BLEND);
 #elif defined(WIN32)
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-
-	glBegin(GL_TRIANGLES);
-	for (uint i = 0; i < _cachedTriangleVertices.count(); i++)
+	if (!fillMode.colored && !fillMode.textured)
 	{
-		glColor3fv(_cachedTriangleVertices[i].color.coords);
-		glNormal3fv(_cachedTriangleVertices[i].smoothNormal.coords);
-		glVertex3fv(_cachedTriangleVertices[i].position.coords);
+		glBegin(GL_TRIANGLES);
+		for (uint i = 0; i < _cachedTriangleVertices.count(); i++)
+		{
+			glVertex3fv(_cachedTriangleVertices[i].position.coords);
+		}
+		glEnd();
 	}
-	glEnd();
+	else
+	{
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
 
-	glDisable(GL_LIGHTING);
+		glBegin(GL_TRIANGLES);
+		for (uint i = 0; i < _cachedTriangleVertices.count(); i++)
+		{
+			glColor3fv(_cachedTriangleVertices[i].color.coords);
+			glNormal3fv(_cachedTriangleVertices[i].smoothNormal.coords);
+			glVertex3fv(_cachedTriangleVertices[i].position.coords);
+		}
+		glEnd();
+
+		glDisable(GL_LIGHTING);
+	}
 #endif
 }
 

@@ -140,10 +140,48 @@ namespace MeshMakerCppCLI
 		OpenGLManipulatingController *meshController;
 		IOpenGLManipulating *manipulated;
 
-		OpenGLSceneView ^sceneView;
+		array<OpenGLSceneView ^> ^views;
+		OpenGLSceneView ^viewLeft;
+		OpenGLSceneView ^viewTop;
+		OpenGLSceneView ^viewFront;
+		OpenGLSceneView ^viewPerspective;
+
+		ManipulatorType currentManipulator;
+
+	private:
+		void setManipulated(IOpenGLManipulating *value);
+
 	public:
-		MyDocument(OpenGLSceneView ^view);
-		~MyDocument();		
+		MyDocument();
+		~MyDocument();
+
+
+		property array<OpenGLSceneView^ > ^Views 
+		{
+			array<OpenGLSceneView^ > ^get() { return views; }
+		}
+
+		property ManipulatorType CurrentManipulator
+		{
+			ManipulatorType get() 
+			{
+				return currentManipulator; 
+			}
+			void set(ManipulatorType value)
+			{
+				currentManipulator = value;
+				itemsController->setCurrentManipulator(value, manipulated != itemsController);
+				meshController->setCurrentManipulator(value, manipulated != meshController);
+
+				for each (OpenGLSceneView ^view in views)
+				{
+					view->coreView()->setCurrentManipulator(value);
+				}
+			}
+		}
+
+		void setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective);
+		void addItem(MeshType meshType, uint steps);
 	};
 }
 

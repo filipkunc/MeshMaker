@@ -69,6 +69,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -85,6 +86,42 @@
       <Project>{02E11884-12F2-4812-894E-E5417F4A7DD7}</Project>
       <Name>MeshMakerCppCLI</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CubeTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CylinderTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IcosahedronTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MergeTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlaneTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\RotateTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ScaleTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SelectTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SphereTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SplitTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubdivisionTemplate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TranslateTemplate.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

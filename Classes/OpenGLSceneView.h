@@ -81,6 +81,12 @@ namespace MeshMakerCppCLI
 		void EndGL();
 
 		OpenGLSceneViewCore *coreView();
+
+ 		property CameraMode CurrentCameraMode 
+		{
+			CameraMode get() { return _coreView->cameraMode(); }
+			void set(CameraMode value) { _coreView->setCameraMode(value); }
+		}
 	protected:
 		~OpenGLSceneView();
 

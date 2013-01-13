@@ -149,7 +149,7 @@
 	{ 
 		[view setManipulated:value];
 		[view setNeedsDisplay:YES];
-	};
+	}
 
 	if (manipulated == itemsController)
 	{
@@ -955,35 +955,71 @@ constrainSplitPosition:(CGFloat)proposedPosition
 
 namespace MeshMakerCppCLI
 {
-	MyDocument::MyDocument(OpenGLSceneView ^view)
+	MyDocument::MyDocument()
 	{
-		sceneView = view;
-
 		items = new ItemCollection();
 		itemsController = new OpenGLManipulatingController();
 		meshController = new OpenGLManipulatingController();
 		
         itemsController->setModel(items);
 		manipulated = itemsController;
-
-		// cube
-		Item *item = new Item(new Mesh2());
-		Mesh2 *mesh = item->mesh;
-		mesh->makeCube();
 		
-		items->addItem(item);
-		itemsController->changeSelection(false);
-		items->setSelectedAtIndex(items->count() - 1, true);
-		itemsController->updateSelection();
-		//
-
-		sceneView->coreView()->setManipulated(manipulated);
-
+		currentManipulator = ManipulatorType::Default;
 	}
 
 	MyDocument::~MyDocument()
 	{
 		
+	}
+
+	void MyDocument::setManipulated(IOpenGLManipulating *value)
+	{
+		manipulated = value;
+	
+		for each (OpenGLSceneView ^view in views)
+		{
+			view->coreView()->setManipulated(manipulated);
+			view->Refresh();			
+		}
+
+		/*if (manipulated == itemsController)
+		{
+			[editModePopUp selectItemWithTag:(int)EditMode::Items];
+		}
+		else if (manipulated == meshController)
+		{
+			int meshTag = (int)[self currentMesh]->selectionMode() + 1;
+			[editModePopUp selectItemWithTag:meshTag];
+		}*/
+	}
+
+	void MyDocument::setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective)
+	{
+		viewLeft = left;
+		viewTop = top;
+		viewFront = front;
+		viewPerspective = perspective;
+
+		views = gcnew array<OpenGLSceneView ^>(4) { viewLeft, viewTop, viewFront, viewPerspective };
+
+		viewLeft->CurrentCameraMode = CameraMode::Left;
+		viewTop->CurrentCameraMode = CameraMode::Top;
+		viewFront->CurrentCameraMode = CameraMode::Front;
+		viewPerspective->CurrentCameraMode = CameraMode::Perspective;
+	}
+
+	void MyDocument::addItem(MeshType meshType, uint steps)
+	{
+		Item *item = new Item(new Mesh2());
+		Mesh2 *mesh = item->mesh;
+		mesh->make(meshType, steps);
+		
+		items->addItem(item);
+		itemsController->changeSelection(false);
+		items->setSelectedAtIndex(items->count() - 1, true);
+		itemsController->updateSelection();
+
+		setManipulated(itemsController);
 	}
 }
 
