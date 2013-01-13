@@ -136,7 +136,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(SolutionDir)MeshMakerCppCLI\glew $(TargetDir)
-xcopy $(SolutionDir)Shaders $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y /R $(SolutionDir)MeshMakerCppCLI\glew $(TargetDir)
+xcopy /Y /R $(SolutionDir)Shaders $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
 </Project>
