@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using MeshMakerCppCLI;
 using System.Diagnostics;
 using Chocolate;
+using System.IO;
 
 namespace MeshMaker
 {
@@ -75,7 +76,7 @@ namespace MeshMaker
             toolStripComboBoxViewMode.Items.Add(ViewMode.Unwrap);
 
             toolStripComboBoxViewMode.SelectedItem = document.viewMode;
-            toolStripComboBoxViewMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxViewMode_SelectedIndexChanged);            
+            toolStripComboBoxViewMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxViewMode_SelectedIndexChanged);
         }
 
         void toolStripComboBoxViewMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -205,7 +206,7 @@ namespace MeshMaker
         }
 
         #endregion
-        
+
         #region Keyboard
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -227,12 +228,12 @@ namespace MeshMaker
             {
                 case Keys.Space:
                     toggleOneViewFourViewMenuItem_Click(this, EventArgs.Empty);
-                    break;                
+                    break;
             }
         }
 
-        #endregion              
-    
+        #endregion
+
         #region IDocumentDelegate Members
 
         public ToolStripComboBox editModePopup
@@ -249,7 +250,7 @@ namespace MeshMaker
             toolStripButtonColor.Invalidate();
         }
 
-        #endregion        
+        #endregion
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -343,22 +344,96 @@ namespace MeshMaker
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            document = new MyDocument(this);
+            document.setViews(leftView, topView, frontView, perspectiveView);
+        }
 
+        string _lastFileName = null;
+
+        string lastFileName
+        {
+            get { return _lastFileName; }
+            set
+            {
+                _lastFileName = value;
+                this.Text = "MeshMaker - " + lastFileName;
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Filter = "Model 3D (.model3D)|*.model3D|Wavefront Object (*.obj)|*.obj|Collada (*.dae)|*.dae";
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    lastFileName = dlg.FileName;
+                    ReadDocument();
+                }
+            }
+        }
 
+        private void ReadDocument()
+        {
+            document = new MyDocument(this);
+            document.setViews(leftView, topView, frontView, perspectiveView);
+            if (Path.GetExtension(lastFileName).Equals(".model3D", StringComparison.InvariantCultureIgnoreCase))
+            {
+                using (MemoryStream stream = new MemoryStream(File.ReadAllBytes(lastFileName)))
+                {
+                    document.readModel3D(stream);
+                }
+            }
+            else if (Path.GetExtension(lastFileName).Equals(".obj", StringComparison.InvariantCultureIgnoreCase))
+            {
+                document.readWavefrontObject(File.ReadAllText(lastFileName));
+            }
+            else
+            {
+                MessageBox.Show("Unknown extension: " + Path.GetExtension(lastFileName));
+            }
+        }
+
+        private void WriteDocument()
+        {
+            if (Path.GetExtension(lastFileName).Equals(".model3D", StringComparison.InvariantCultureIgnoreCase))
+            {
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    document.writeModel3D(stream);
+                    File.WriteAllBytes(lastFileName, stream.GetBuffer());
+                }
+            }
+            else if (Path.GetExtension(lastFileName).Equals(".obj", StringComparison.InvariantCultureIgnoreCase))
+            {
+                string contents = document.writeWavefrontObject();
+                File.WriteAllText(lastFileName, contents);
+            }
+            else
+            {
+                MessageBox.Show("Unknown extension: " + Path.GetExtension(lastFileName));
+            }
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            if (lastFileName == null)
+                saveAsToolStripMenuItem_Click(sender, e);
+            else
+                WriteDocument();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Filter = "Model 3D (.model3D)|*.model3D|Wavefront Object (*.obj)|*.obj|Collada (*.dae)|*.dae";
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    lastFileName = dlg.FileName;
+                    WriteDocument();
+                }
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)

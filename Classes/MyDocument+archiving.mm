@@ -6,12 +6,12 @@
 //
 //
 
-#import "MyDocument.h"
-#import <sstream>
+#include "MyDocument.h"
+#include <sstream>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-conversion"
-#import "rapidxml.hpp"
+#include "rapidxml.hpp"
 #pragma clang diagnostic pop
 
 using namespace std;
@@ -31,6 +31,8 @@ vector<T> *ReadValues(string s)
     
     return values;
 }
+
+#if defined(__APPLE__)
 
 @implementation MyDocument (Archiving)
 
@@ -817,3 +819,259 @@ vector<T> *ReadValues(string s)
 }
 
 @end
+
+#elif defined(WIN32)
+
+using namespace System::Text;
+
+namespace MeshMakerCppCLI
+{
+	string NativeString(String ^managedString)
+	{
+		array<Byte> ^chars = Encoding::ASCII->GetBytes(managedString);
+		pin_ptr<Byte> charsPointer = &(chars[0]);
+		char *nativeCharsPointer = reinterpret_cast<char *>(static_cast<unsigned char *>(charsPointer));
+		string native(nativeCharsPointer, chars->Length);
+		return native;
+	}
+
+	void MyDocument::readModel3D(MemoryStream ^memoryStream)
+	{
+		MemoryReadStream *stream = new MemoryReadStream(memoryStream);
+    
+		uint version = 0;
+    
+		stream->readBytes(&version, sizeof(unsigned int));
+    
+		if (version < (uint)ModelVersion::First || version > (uint)ModelVersion::Latest)
+			return;
+    
+		stream->setVersion(version);
+		ItemCollection *newItems = new ItemCollection(stream);
+		delete stream;
+		items = newItems;
+    
+		itemsController->setModel(items);
+		itemsController->updateSelection();
+		this->setManipulated(itemsController);		
+	}
+
+	void MyDocument::writeModel3D(MemoryStream ^memoryStream)
+	{
+		MemoryWriteStream *stream = new MemoryWriteStream(memoryStream);
+    
+		uint version = (uint)ModelVersion::Latest;
+		stream->setVersion(version);
+		stream->writeBytes(&version, sizeof(unsigned int));
+		items->encode(stream);
+
+		delete stream;
+	}
+
+	void MyDocument::readWavefrontObject(String ^asciiString)
+	{
+		string str = NativeString(asciiString);
+		stringstream ssfile;
+		ssfile << str;
+	    
+		vector<Vector3D> vertices;
+		vector<Vector3D> texCoords;
+		vector<TriQuad> triangles;
+		vector<uint> groups;
+	    
+		bool hasTexCoords = false;
+		bool hasNormals = false;
+	    
+		while (!ssfile.eof())
+		{
+			string line;
+			getline(ssfile, line);
+			stringstream ssline;
+			ssline << line;
+	        
+			string prefix;
+			ssline >> prefix;
+	        
+			if (prefix == "#")
+			{
+				// # This is a comment
+				continue;
+			}
+			else if (prefix == "g")
+			{
+				// g group_name
+				groups.push_back(triangles.size());
+			}
+			else if (prefix == "v")
+			{
+				// v -5.79346 -1.38018 42.63113
+				Vector3D v;
+				ssline >> v.x >> v.y >> v.z;
+	            
+				swap(v.y, v.z);
+				v.z = -v.z;
+	            
+				vertices.push_back(v);
+			}
+			else if (prefix == "vt")
+			{
+				// vt 0.12528 -0.64560
+				Vector3D vt;
+				ssline >> vt.x >> vt.y >> vt.z;
+	            
+				vt.z = 0.0f;
+	            
+				texCoords.push_back(vt);
+				hasTexCoords = true;
+			}
+			else if (prefix == "vn")
+			{
+				// vn -0.78298 -0.13881 -0.60637
+				hasNormals = true;
+			}
+			else if (prefix == "f")
+			{
+				// f  v1 v2 v3 v4 ...
+				// f  v1/vt1 v2/vt2 v3/vt3 ...
+				// f  v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+				// f  v1//vn1 v2//vn2 v3//vn3 ...
+	            
+				// f  187/1/1 204/2/2 185/3/3
+	            
+				TriQuad triQuad;
+				for (uint i = 0; i < 4; i++)
+				{
+					uint vi = 0, ti = 0, ni = 0;
+					char c;
+	                
+					if (!hasTexCoords && !hasNormals)
+						ssline >> vi;
+					else if (hasTexCoords && !hasNormals)
+						ssline >> vi >> c >> ti;
+					else if (!hasTexCoords && hasNormals)
+						ssline >> vi >> c >> c >> ni;
+					else if (hasTexCoords && hasNormals)
+						ssline >> vi >> c >> ti >> c >> ni;
+	                
+					triQuad.vertexIndices[i] = vi == 0 ? 0 : vi - 1;
+					triQuad.texCoordIndices[i] = ti == 0 ? 0 : ti - 1;
+				}
+				triQuad.isQuad = ssline.good();
+				triangles.push_back(triQuad);
+			}
+		}
+	    
+		Mesh2 *mesh = new Mesh2();
+		if (!hasTexCoords)
+			mesh->fromIndexRepresentation(vertices, vertices, triangles);
+		else
+			mesh->fromIndexRepresentation(vertices, texCoords, triangles);
+	    
+		mesh->flipAllTriangles();
+	    
+		mesh->setSelectionMode(MeshSelectionMode::Triangles);
+	    
+		ItemCollection *newItems = new ItemCollection();
+	    
+		for (uint i = 0; i < groups.size(); i++)
+		{
+			for (uint j = 0; j < mesh->triangleCount(); j++)
+				mesh->setSelectedAtIndex(false, j);
+	        
+			for (uint j = groups.at(i), end = i + 1 < groups.size() ? groups.at(i + 1) : mesh->triangleCount(); j < end; j++)
+				mesh->setSelectedAtIndex(true, j);
+	        
+			Item *item = new Item(new Mesh2());
+			mesh->fillMeshFromSelectedTriangles(*item->mesh);
+			item->setPositionToGeometricCenter();
+			newItems->addItem(item);
+		}
+	    
+		if (groups.empty())
+		{
+			Item *item = new Item(mesh);
+			item->setPositionToGeometricCenter();
+			newItems->addItem(item);
+		}
+		else
+		{
+			delete mesh;
+		}
+	    
+		delete items;
+		items = newItems;
+	    
+		itemsController->setModel(items);
+		itemsController->updateSelection();
+		this->setManipulated(itemsController);	
+	}
+
+	String ^MyDocument::writeWavefrontObject()
+	{
+		stringstream ssfile;
+	    
+		//NSString *version = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleVersion"];
+		ssfile << "# Exported from MeshMaker " << "1.3" << endl;
+	    
+		// face indices in Wavefront Object starts from 1
+		uint vertexIndexOffset = 1;
+		uint texCoordIndexOffset = 1;
+	    
+		for (uint itemIndex = 0; itemIndex < items->count(); itemIndex++)
+		{
+			Item *item = items->itemAtIndex(itemIndex);
+	        
+			vector<Vector3D> vertices;
+			vector<Vector3D> texCoords;
+			vector<TriQuad> triangles;
+	        
+			Item *duplicate = item->duplicate();
+			Mesh2 *mesh = duplicate->mesh;
+			mesh->transformAll(duplicate->transform());
+			mesh->flipAllTriangles();
+			mesh->toIndexRepresentation(vertices, texCoords, triangles);
+	        
+			ssfile << "g Item_" << itemIndex << endl;
+			ssfile << "# Number of vertices = " << vertices.size() << endl;
+			for (uint i = 0; i < vertices.size(); i++)
+			{
+				// v -5.79346 -1.38018 42.63113
+				Vector3D v = vertices[i];
+				v.z = -v.z;
+				swap(v.y, v.z);
+				ssfile << "v " << v.x << " " << v.y << " " << v.z << endl;
+			}
+	        
+			ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
+			for (uint i = 0; i < texCoords.size(); i++)
+			{
+				// vt 0.12528 -0.64560
+				ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
+			}
+	        
+			ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
+			for (uint i = 0; i < triangles.size(); i++)
+			{
+				// f  v1/vt1 v2/vt2 v3/vt3 ...
+				ssfile << "f ";
+				const TriQuad &triQuad = triangles[i];
+				uint count =  triQuad.isQuad ? 4 : 3;
+				for (uint i = 0; i < count; i++)
+				{
+					ssfile << triQuad.vertexIndices[i] + vertexIndexOffset << "/";
+					ssfile << triQuad.texCoordIndices[i] + texCoordIndexOffset << " ";
+				}
+				ssfile << endl;
+			}
+	        
+			vertexIndexOffset += vertices.size();
+			texCoordIndexOffset += texCoords.size();
+		}
+	    
+		string str = ssfile.str();
+		String ^managedString = gcnew String(str.c_str());
+		return managedString;
+	}
+}
+
+#endif

@@ -379,6 +379,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\Classes\MyDocument+archiving.mm"
+				FileType="0"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Classes\MyDocument.mm"
 				FileType="0"
 				>

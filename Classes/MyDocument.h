@@ -292,6 +292,11 @@ namespace MeshMakerCppCLI
 		void detachSelected();
 		void extrudeSelected();
 		void triangulateSelected();
+
+		void readModel3D(MemoryStream ^memoryStream);
+		void writeModel3D(MemoryStream ^memoryStream);
+		void readWavefrontObject(String ^asciiString);
+		String ^writeWavefrontObject();
 	};
 }
 
