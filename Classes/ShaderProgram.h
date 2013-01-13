@@ -8,23 +8,20 @@
 
 #pragma once
 
-#import <Cocoa/Cocoa.h>
-#import "Shader.h"
+#include "Shader.h"
 
-@interface ShaderProgram : NSObject
+class ShaderProgram
 {
-	GLuint program;
-}
-
-@property (readonly) GLuint program;
-
-+ (void)initShaders;
-+ (ShaderProgram *)normalShader;
-- (void)attachShaderWithType:(GLenum)type resourceInBundle:(NSString *)resourceInBundle;
-- (void)attachShader:(Shader *)aShader; // attachShader sends release to aShader object
-- (void)setGeometryInput:(GLenum)input output:(GLenum)output;
-- (void)linkProgram;
-- (void)useProgram;
-+ (void)resetProgram;
-
-@end
+public:
+    GLuint program;
+    
+    ShaderProgram();
+    ~ShaderProgram();
+    
+    static void initShaders();
+    static ShaderProgram *normalShader();
+    void attachShader(GLenum type, const char *fileName);
+    void linkProgram();
+    void useProgram();
+    static void resetProgram();
+};

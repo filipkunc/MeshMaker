@@ -6,7 +6,7 @@
 //  For license see LICENSE.TXT
 //
 
-#import "ShaderProgram.h"
+#include "ShaderProgram.h"
 
 static inline const char * GetGLErrorString(GLenum error)
 {
@@ -63,67 +63,43 @@ static inline const char * GetGLErrorString(GLenum error)
 	}													\
 }
 
-ShaderProgram *globalNormalShader = nil;
+ShaderProgram *globalNormalShader = NULL;
 
-@implementation ShaderProgram
-
-@synthesize program = program;
-
-+ (void)initShaders
+void ShaderProgram::initShaders()
 {
-    [[ShaderProgram normalShader] useProgram];
+    ShaderProgram::normalShader()->useProgram();
 }
 
-+ (ShaderProgram *)normalShader
+ShaderProgram *ShaderProgram::normalShader()
 {
-	if (!globalNormalShader)
+    if (!globalNormalShader)
 	{
-		globalNormalShader = [[ShaderProgram alloc] init];
-		[globalNormalShader attachShaderWithType:GL_VERTEX_SHADER resourceInBundle:@"vertex"];
-        [globalNormalShader attachShaderWithType:GL_FRAGMENT_SHADER resourceInBundle:@"fragment"];
-        [globalNormalShader linkProgram];
+		globalNormalShader = new ShaderProgram();
+        globalNormalShader->attachShader(GL_VERTEX_SHADER, "vertex.vs");
+        globalNormalShader->attachShader(GL_FRAGMENT_SHADER, "fragment.fs");
+        globalNormalShader->linkProgram();
 	}
 	return globalNormalShader;
 }
 
-- (id)init
+ShaderProgram::ShaderProgram()
 {
-	self = [super init];
-	if (self)
-	{
-		program = glCreateProgram();
-	}
-	return self;
+    program = glCreateProgram();
 }
 
-- (void)dealloc
+ShaderProgram::~ShaderProgram()
 {
-	glDeleteProgram(program);
+    glDeleteProgram(program);
 }
 
-- (void)attachShaderWithType:(GLenum)type resourceInBundle:(NSString *)resourceInBundle
+void ShaderProgram::attachShader(GLenum type, const char *fileName)
 {
-	Shader *shader = [[Shader alloc] initWithShaderType:type resourceInBundle:resourceInBundle];
-	[self attachShader:shader]; // performs shader release
+    Shader *shader = new Shader(type, fileName);
+    glAttachShader(program, shader->shader);
+    delete shader;
 }
 
-- (void)attachShader:(Shader *)aShader
-{
-	glAttachShader(program, [aShader shader]);
-}
-
-// GL_TRIANGLES, GL_TRIANGLE_STRIP
-- (void)setGeometryInput:(GLenum)input output:(GLenum)output
-{
-	glProgramParameteriEXT(program, GL_GEOMETRY_INPUT_TYPE_EXT, (int)input);
-	glProgramParameteriEXT(program, GL_GEOMETRY_OUTPUT_TYPE_EXT, (int)output);
-	
-	int temp;
-	glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT, &temp);
-	glProgramParameteriEXT(program, GL_GEOMETRY_VERTICES_OUT_EXT, temp);
-}
-
-- (void)linkProgram
+void ShaderProgram::linkProgram()
 {
 	glLinkProgram(program);	
 	GLint logLength, status;
@@ -133,47 +109,34 @@ ShaderProgram *globalNormalShader = nil;
 	{
 		GLchar *log = (GLchar*)malloc(logLength);
 		glGetProgramInfoLog(program, logLength, &logLength, log);
+#if defined(__APPLE__)
 		NSLog(@"Program link log:\n%s\n", log);
+#elif defined(WIN32)
+        printf("Program link log:\n%s\n", log);
+#endif
 		free(log);
 	}
 	
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (status == 0)
 	{
+#if defined(__APPLE__)
 		NSLog(@"Failed to link program");
+#elif defined(WIN32)
+        printf("Failed to link program");
+#endif
 		return;
 	}
 	
-//	glValidateProgram(program);
-//	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
-//	if (logLength > 0)
-//	{
-//		GLchar *log = (GLchar*)malloc(logLength);
-//		glGetProgramInfoLog(program, logLength, &logLength, log);
-//		NSLog(@"Program validate log:\n%s\n", log);
-//		free(log);
-//	}
-//	
-//	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
-//	if (status == 0)
-//	{
-//		NSLog(@"Failed to validate program");
-//		return;
-//	}
-    
-    //glUseProgram(program);
-    
     GetGLError();
 }
 
-- (void)useProgram
+void ShaderProgram::useProgram()
 {
-	glUseProgram(program);
+    glUseProgram(program);
 }
 
-+ (void)resetProgram
+void ShaderProgram::resetProgram()
 {
-	glUseProgram(0);
+    glUseProgram(0);
 }
-
-@end

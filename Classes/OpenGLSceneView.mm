@@ -174,7 +174,7 @@ public:
     glDisable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
     
-    [ShaderProgram initShaders];
+    ShaderProgram::initShaders();
 }
 
 - (void)dealloc

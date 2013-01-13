@@ -8,20 +8,14 @@
 
 #pragma once
 
-#import "OpenGLDrawing.h"
+#include "OpenGLDrawing.h"
 
-@interface Shader : NSObject 
+class Shader
 {
-	GLuint shader;
-	GLenum type;
-}
-
-@property (readonly, assign) GLuint shader;
-@property (readonly, assign) GLenum type;
-
-+ (NSString *)fileExtensionForShaderType:(GLenum)aShaderType;
-
-- (id)initWithShaderType:(GLenum)aShaderType
-		resourceInBundle:(NSString *)resourceInBundle;
-
-@end
+public:
+    GLuint shader;
+    GLenum type;
+    
+    Shader(GLenum shaderType, const char *fileName);
+    ~Shader();
+};

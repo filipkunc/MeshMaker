@@ -360,9 +360,9 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection)
 {
     bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-#if defined(__APPLE__)
-    ShaderProgram *shader = [ShaderProgram normalShader];
-#endif
+
+    ShaderProgram *shader = ShaderProgram::normalShader();
+    
     if (viewMode == ViewMode::MixedWireSolid)
     {
         selected = true;
@@ -393,10 +393,11 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1.0f, 1.0f);
+
         }
-#if defined(__APPLE__)
-        [shader useProgram];
-#endif
+        
+        shader->useProgram();
+        
         if (_selectionMode != MeshSelectionMode::Triangles)
         {
             glColor3fv(_colorComponents);
@@ -410,9 +411,9 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             fillMode.colored = true;
             drawFill(fillMode, viewMode);
         }
-#if defined(__APPLE__)
-        [ShaderProgram resetProgram];
-#endif
+        
+        ShaderProgram::resetProgram();
+        
         if (selected)
         {
             glDisable(GL_POLYGON_OFFSET_FILL);

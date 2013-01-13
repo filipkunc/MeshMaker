@@ -708,9 +708,7 @@ void OpenGLSceneViewCore::drawSelectionRect()
 
 void OpenGLSceneViewCore::draw()
 {
-#if defined(__APPLE__)
-    [ShaderProgram resetProgram];
-#endif
+    ShaderProgram::resetProgram();
     
 	float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
