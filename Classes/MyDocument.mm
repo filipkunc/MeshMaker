@@ -955,21 +955,92 @@ constrainSplitPosition:(CGFloat)proposedPosition
 
 namespace MeshMakerCppCLI
 {
-	MyDocument::MyDocument()
+	MyDocument::MyDocument(IDocumentDelegate ^documentForm)
 	{
+		documentDelegate = documentForm;
+
 		items = new ItemCollection();
-		itemsController = new OpenGLManipulatingController();
-		meshController = new OpenGLManipulatingController();
+		itemsController = new OpenGLManipulatingController(this);
+		meshController = new OpenGLManipulatingController(this);
 		
         itemsController->setModel(items);
 		manipulated = itemsController;
 		
 		currentManipulator = ManipulatorType::Default;
+
+		manipulationFinished = false;
 	}
 
 	MyDocument::~MyDocument()
 	{
 		
+	}
+
+	Mesh2 *MyDocument::currentMesh()
+	{
+		if (manipulated == meshController)
+		{
+			Item *item = (Item *)meshController->model();
+			return item->mesh;
+		}
+		if (manipulated == itemsController)
+		{
+			ItemCollection *itemCollection = (ItemCollection *)itemsController->model();
+			return itemCollection->currentMesh();
+		}
+		return NULL;
+	}
+
+	void MyDocument::editMesh(MeshSelectionMode mode)
+	{
+		NSInteger index = itemsController->lastSelectedIndex();
+		if (index > -1)
+		{
+			Item *item = items->itemAtIndex(index);
+			item->mesh->setSelectionMode(mode);
+	        
+			meshController->setModel(item);
+			meshController->setPositionRotationScale(item->position, item->rotation, item->scale);
+	        
+			this->setManipulated(meshController);			
+		}
+	}
+
+	void MyDocument::editItems()
+	{
+		Mesh2 *currentMesh = this->currentMesh();
+		if (currentMesh)
+			currentMesh->setSelectionMode(MeshSelectionMode::Vertices);
+	    
+		itemsController->setModel(items);
+		itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
+	    
+		this->setManipulated(itemsController);		
+	}
+
+	void MyDocument::changeEditMode()
+	{
+		EditMode mode = (EditMode)documentDelegate->editModePopup->SelectedItem;
+		Mesh2 *currentMesh = this->currentMesh();
+	    
+		if (!currentMesh)
+			documentDelegate->editModePopup->SelectedItem = EditMode::Items;			
+	    
+		switch (mode)
+		{
+			case EditMode::Items:
+				editItems();
+				break;
+			case EditMode::Vertices:
+				editMesh(MeshSelectionMode::Vertices);
+				break;
+			case EditMode::Triangles:
+				editMesh(MeshSelectionMode::Triangles);
+				break;
+			case EditMode::Edges:
+				editMesh(MeshSelectionMode::Edges);
+				break;
+		}
 	}
 
 	void MyDocument::setManipulated(IOpenGLManipulating *value)
@@ -982,15 +1053,14 @@ namespace MeshMakerCppCLI
 			view->Refresh();			
 		}
 
-		/*if (manipulated == itemsController)
+		if (manipulated == itemsController)
 		{
-			[editModePopUp selectItemWithTag:(int)EditMode::Items];
+			documentDelegate->editModePopup->SelectedItem = EditMode::Items;
 		}
 		else if (manipulated == meshController)
 		{
-			int meshTag = (int)[self currentMesh]->selectionMode() + 1;
-			[editModePopUp selectItemWithTag:meshTag];
-		}*/
+			documentDelegate->editModePopup->SelectedItem = (EditMode)((int)currentMesh()->selectionMode() + 1);
+		}
 	}
 
 	void MyDocument::setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective)
@@ -1006,6 +1076,13 @@ namespace MeshMakerCppCLI
 		viewTop->CurrentCameraMode = CameraMode::Top;
 		viewFront->CurrentCameraMode = CameraMode::Front;
 		viewPerspective->CurrentCameraMode = CameraMode::Perspective;
+
+		for each (OpenGLSceneView ^view in views)
+		{
+			view->coreView()->setManipulated(manipulated);
+			view->coreView()->setDisplayed(itemsController);
+			view->Delegate = this;			
+		}
 	}
 
 	void MyDocument::addItem(MeshType meshType, uint steps)
@@ -1019,7 +1096,227 @@ namespace MeshMakerCppCLI
 		items->setSelectedAtIndex(items->count() - 1, true);
 		itemsController->updateSelection();
 
-		setManipulated(itemsController);
+		this->setManipulated(itemsController);
+	}
+
+	void MyDocument::setNeedsDisplayExceptView(OpenGLSceneView ^except)
+	{
+		for each (OpenGLSceneView ^view in views)
+		{
+			if (view != except)
+				view->Refresh();
+		}
+	}
+
+	void MyDocument::setNeedsDisplayOnAllViews()
+	{
+		for each (OpenGLSceneView ^view in views)
+		{
+			view->Refresh();
+		}
+	}
+
+	void MyDocument::manipulationStartedInView(OpenGLSceneView ^view)
+	{
+		manipulationFinished = false;
+	}
+
+	void MyDocument::manipulationEndedInView(OpenGLSceneView ^view)
+	{
+		manipulationFinished = true;
+		this->setNeedsDisplayExceptView(view);
+		documentDelegate->updateSelectionValues();
+	}
+
+	void MyDocument::selectionChangedInView(OpenGLSceneView ^view)
+	{
+		this->setNeedsDisplayExceptView(view);
+		documentDelegate->updateSelectionValues();
+	}
+
+	void MyDocument::willChangeSelection()
+	{
+
+	}
+
+	void MyDocument::didChangeSelection()
+	{
+		documentDelegate->updateSelectionValues();
+	}
+
+	void MyDocument::undo()
+	{
+		
+	}
+
+	void MyDocument::redo()
+	{
+
+	}
+
+	void MyDocument::cut()
+	{
+
+	}
+
+	void MyDocument::copy()
+	{
+
+	}
+
+	void MyDocument::paste()
+	{
+
+	}
+
+	void MyDocument::duplicateSelected()
+	{
+		if (manipulated->selectedCount() <= 0)
+			return;
+		
+		bool startManipulation = false;
+		if (!manipulationFinished)
+		{
+			startManipulation = true;
+			this->manipulationEndedInView(nullptr);			
+		}
+		
+		if (manipulated == itemsController)
+		{
+			/*UndoStatePointer *selection = [[UndoStatePointer alloc] initWithUndoState:items->currentSelection()];
+			MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
+			[document undoDuplicateSelected:selection];*/
+			manipulated->duplicateSelected();
+		}
+		else if (manipulated == meshController)
+		{
+			//[self meshActionWithName:@"Duplicate" block:^ { manipulated->duplicateSelected(); }];
+			manipulated->duplicateSelected();
+		}
+		
+		manipulated->updateSelection();
+		this->setNeedsDisplayOnAllViews();
+		
+		if (startManipulation)
+		{
+			this->manipulationStartedInView(nullptr);
+		}
+	}
+
+	void MyDocument::deleteSelected()
+	{
+		if (manipulated->selectedCount() <= 0)
+			return;
+		
+		if (manipulated == itemsController)
+		{
+			/*UndoStatePointer *currentItems = [[UndoStatePointer alloc] initWithUndoState:items->currentItems()];
+			MyDocument *document = [self prepareUndoWithName:@"Delete"];
+			[document undoDeleteSelected:currentItems];*/
+			manipulated->removeSelected();
+			//[textureBrowserWindowController setItems:items];
+		}
+		else if (manipulated == meshController)
+		{
+			//[self meshActionWithName:@"Delete" block:^ { manipulated->removeSelected(); }];
+			manipulated->removeSelected();
+		}
+		
+		this->setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::selectAll()
+	{
+		manipulated->changeSelection(true);
+		this->setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::invertSelection()
+	{
+		manipulated->invertSelection();
+		this->setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::hideSelected()
+	{
+		manipulated->hideSelected();
+		this->setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::unhideAll()
+	{
+		manipulated->unhideAll();
+		this->setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::mergeSelected()
+	{
+		if (manipulated->selectedCount() <= 0)
+			return;
+		
+		if (manipulated == itemsController)
+		{
+			//[self allItemsActionWithName:@"Merge" block:^ { items->mergeSelectedItems(); }];
+			items->mergeSelectedItems();
+		}
+		else if (manipulated == meshController)
+		{
+			//[self meshActionWithName:@"Merge" block:^ { [self currentMesh]->mergeSelected(); }]; 
+			currentMesh()->mergeSelected();
+		}
+		
+		manipulated->updateSelection();
+		this->setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::splitSelected()
+	{
+		//[self meshOnlyActionWithName:@"Split" block:^ { [self currentMesh]->splitSelected(); }];
+		currentMesh()->splitSelected();
+	}
+
+	void MyDocument::flipSelected()
+	{
+		//[self meshOnlyActionWithName:@"Flip" block:^ { [self currentMesh]->flipSelected(); }];
+		currentMesh()->flipSelected();
+	}
+
+	void MyDocument::subdivision()
+	{
+		//[self meshOnlyActionWithName:@"Subdivision" block:^ { [self currentMesh]->openSubdivision(); }];
+		currentMesh()->openSubdivision();
+	}
+
+	void MyDocument::detachSelected()
+	{
+		//[self meshOnlyActionWithName:@"Detach" block:^ { [self currentMesh]->detachSelected(); }];
+		currentMesh()->detachSelected();
+	}
+
+	void MyDocument::extrudeSelected()
+	{
+		//[self meshOnlyActionWithName:@"Extrude" block:^ { [self currentMesh]->extrudeSelectedTriangles(); }];
+		currentMesh()->extrudeSelectedTriangles();
+	}
+
+	void MyDocument::triangulateSelected()
+	{
+		if (manipulated == meshController)
+		{
+			//[self meshOnlyActionWithName:@"Triangulate" block:^ { [self currentMesh]->triangulateSelectedQuads(); }];
+			currentMesh()->triangulateSelectedQuads();
+		}
+		else if (manipulated == itemsController)
+		{
+			/*[self allItemsActionWithName:@"Triangulate" block:^
+			{
+				for (uint i = 0; i < items->count(); i++)
+					items->itemAtIndex(i)->mesh->triangulate();
+			}];*/
+
+			for (uint i = 0; i < items->count(); i++)
+				items->itemAtIndex(i)->mesh->triangulate();
+		}
 	}
 }
 

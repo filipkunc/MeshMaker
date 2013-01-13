@@ -132,13 +132,23 @@
 
 namespace MeshMakerCppCLI
 {
-	public ref class MyDocument
+	public interface class IDocumentDelegate
+	{
+		property ToolStripComboBox ^editModePopup { ToolStripComboBox ^ get(); }
+		void updateSelectionValues();
+	};
+
+	public ref class MyDocument : public IOpenGLSceneViewDelegate, public IOpenGLManipulatingControllerKVC
 	{
 	private:
+		IDocumentDelegate ^documentDelegate;
+
 		ItemCollection *items;
 		OpenGLManipulatingController *itemsController;
 		OpenGLManipulatingController *meshController;
 		IOpenGLManipulating *manipulated;
+
+		bool manipulationFinished;
 
 		array<OpenGLSceneView ^> ^views;
 		OpenGLSceneView ^viewLeft;
@@ -147,12 +157,13 @@ namespace MeshMakerCppCLI
 		OpenGLSceneView ^viewPerspective;
 
 		ManipulatorType currentManipulator;
-
 	private:
 		void setManipulated(IOpenGLManipulating *value);
-
+		Mesh2 *currentMesh();
+		void editItems();
+		void editMesh(MeshSelectionMode mode);
 	public:
-		MyDocument();
+		MyDocument(IDocumentDelegate ^documentForm);
 		~MyDocument();
 
 
@@ -180,8 +191,79 @@ namespace MeshMakerCppCLI
 			}
 		}
 
+		property float selectionX
+		{
+			float get()
+			{
+				return manipulated->selectionX(); 
+			}
+			void set(float value)
+			{
+				this->manipulationStartedInView(nullptr);
+				manipulated->setSelectionX(value);
+				this->manipulationEndedInView(nullptr);
+			}
+		}
+
+		property float selectionY
+		{
+			float get()
+			{
+				return manipulated->selectionY(); 
+			}
+			void set(float value)
+			{
+				this->manipulationStartedInView(nullptr);
+				manipulated->setSelectionY(value);
+				this->manipulationEndedInView(nullptr);
+			}
+		}
+
+		property float selectionZ
+		{
+			float get()
+			{
+				return manipulated->selectionZ(); 
+			}
+			void set(float value)
+			{
+				this->manipulationStartedInView(nullptr);
+				manipulated->setSelectionZ(value);
+				this->manipulationEndedInView(nullptr);
+			}
+		}
+
 		void setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective);
 		void addItem(MeshType meshType, uint steps);
+		void changeEditMode();
+		void setNeedsDisplayExceptView(OpenGLSceneView ^except);
+		void setNeedsDisplayOnAllViews();
+
+		virtual void manipulationStartedInView(OpenGLSceneView ^view);
+		virtual void manipulationEndedInView(OpenGLSceneView ^view);
+		virtual void selectionChangedInView(OpenGLSceneView ^view);
+
+		virtual void willChangeSelection();
+		virtual void didChangeSelection();
+
+		void undo();
+		void redo();
+		void cut();
+		void copy();
+		void paste();
+		void duplicateSelected();
+		void deleteSelected();
+		void selectAll();
+		void invertSelection();
+		void hideSelected();
+		void unhideAll();
+		void mergeSelected();
+		void splitSelected();
+		void flipSelected();
+		void subdivision();
+		void detachSelected();
+		void extrudeSelected();
+		void triangulateSelected();
 	};
 }
 

@@ -30,6 +30,17 @@ class OpenGLManipulatingController;
 
 typedef int NSInteger;
 
+#include <vcclr.h>
+
+namespace MeshMakerCppCLI
+{
+	public interface class IOpenGLManipulatingControllerKVC
+	{
+		void willChangeSelection();
+		void didChangeSelection();
+	};
+}
+
 #endif
 
 class OpenGLManipulatingController : public IOpenGLManipulating
@@ -55,10 +66,16 @@ private:
 
 #if defined(__APPLE__)
     OpenGLManipulatingControllerKVC *_kvc;
+#elif defined(WIN32)
+	gcroot<MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^> _kvc;
 #endif
 
 public:
+#if defined(__APPLE__)
     OpenGLManipulatingController();
+#elif defined(WIN32)
+	OpenGLManipulatingController(MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^kvc);
+#endif
     virtual ~OpenGLManipulatingController();
     
     // IOpenGLSelecting

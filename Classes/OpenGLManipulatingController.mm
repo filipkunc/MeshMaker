@@ -57,7 +57,11 @@
 
 #endif
 
+#if defined(__APPLE__)
 OpenGLManipulatingController::OpenGLManipulatingController()
+#elif defined(WIN32)
+OpenGLManipulatingController::OpenGLManipulatingController(MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^kvc)
+#endif
 {
     _model = NULL;
     _selectionScale = Vector3D(1, 1, 1);
@@ -67,6 +71,8 @@ OpenGLManipulatingController::OpenGLManipulatingController()
     _currentManipulator = ManipulatorType::Default;
 #if defined(__APPLE__)
     _kvc = [[OpenGLManipulatingControllerKVC alloc] initWithController:this];
+#elif defined(WIN32)
+	_kvc = kvc;
 #endif
 }
 
@@ -652,6 +658,8 @@ void OpenGLManipulatingController::willChangeSelection()
     [_kvc willChangeValueForKey:@"selectionColor"];
     [_kvc willChangeValueForKey:@"selectionColorEnabled"];
     [_kvc willChangeValueForKey:@"viewMode"];
+#elif defined(WIN32)
+	_kvc->willChangeSelection();
 #endif
 }
 
@@ -664,6 +672,8 @@ void OpenGLManipulatingController::didChangeSelection()
     [_kvc didChangeValueForKey:@"selectionColor"];
     [_kvc didChangeValueForKey:@"selectionColorEnabled"];
     [_kvc didChangeValueForKey:@"viewMode"];
+#elif defined(WIN32)
+	_kvc->didChangeSelection();
 #endif
 }
 

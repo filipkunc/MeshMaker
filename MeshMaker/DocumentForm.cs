@@ -11,14 +11,15 @@ using System.Diagnostics;
 
 namespace MeshMaker
 {
-    public partial class DocumentForm : Form
+    public partial class DocumentForm : Form, IDocumentDelegate
     {
-        MyDocument document = new MyDocument();
+        MyDocument document;
         ToolStripButton[] manipulatorButtons;
 
         public DocumentForm()
         {
             InitializeComponent();
+
             this.Load += new EventHandler(DocumentForm_Load);
         }
 
@@ -33,6 +34,12 @@ namespace MeshMaker
             toolStripButtonAddPlane.Tag = MeshType.Plane;
             toolStripButtonAddSphere.Tag = MeshType.Sphere;
 
+            cubeToolStripMenuItem.Tag = MeshType.Cube;
+            cylinderToolStripMenuItem.Tag = MeshType.Cylinder;
+            icosahedronToolStripMenuItem.Tag = MeshType.Icosahedron;
+            planeToolStripMenuItem.Tag = MeshType.Plane;
+            sphereToolStripMenuItem.Tag = MeshType.Sphere;
+
             toolStripButtonSelect.Tag = ManipulatorType.Default;
             toolStripButtonTranslate.Tag = ManipulatorType.Translation;
             toolStripButtonRotate.Tag = ManipulatorType.Rotation;
@@ -41,12 +48,26 @@ namespace MeshMaker
             manipulatorButtons = new ToolStripButton[] { toolStripButtonSelect, 
                 toolStripButtonTranslate, toolStripButtonRotate, toolStripButtonScale };
 
+            toolStripComboBoxEditMode.Items.Add(EditMode.Items);
+            toolStripComboBoxEditMode.Items.Add(EditMode.Vertices);
+            toolStripComboBoxEditMode.Items.Add(EditMode.Triangles);
+            toolStripComboBoxEditMode.Items.Add(EditMode.Edges);
+
+            toolStripComboBoxEditMode.SelectedItem = EditMode.Items;
+            toolStripComboBoxEditMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxEditMode_SelectedIndexChanged);
+
+            document = new MyDocument(this);
             document.setViews(leftView, topView, frontView, perspectiveView);
+        }
+
+        void toolStripComboBoxEditMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            document.changeEditMode();
         }
 
         private void addItem(object sender, EventArgs e)
         {
-            var button = (ToolStripButton)sender;
+            var button = (ToolStripItem)sender;
             document.addItem((MeshType)button.Tag, 20);
         }
 
@@ -63,6 +84,40 @@ namespace MeshMaker
                 {
                     button.Checked = false;
                 }
+            }
+        }
+
+        private void selectionLeave(object sender, EventArgs e)
+        {
+            parseSelectionValue(sender);
+        }
+
+        private void selectionKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            parseSelectionValue(sender);
+        }
+
+        void parseSelectionValue(object sender)
+        {
+            float selectionValue;
+
+            if (sender == toolStripTextBoxSelectionX)
+            {
+                if (float.TryParse(toolStripTextBoxSelectionX.Text, out selectionValue))
+                    document.selectionX = selectionValue;
+            }
+            else if (sender == toolStripTextBoxSelectionY)
+            {
+                if (float.TryParse(toolStripTextBoxSelectionY.Text, out selectionValue))
+                    document.selectionY = selectionValue;
+            }
+            else if (sender == toolStripTextBoxSelectionZ)
+            {
+                if (float.TryParse(toolStripTextBoxSelectionZ.Text, out selectionValue))
+                    document.selectionZ = selectionValue;
             }
         }
 
@@ -153,6 +208,137 @@ namespace MeshMaker
             }
         }
 
-        #endregion      
+        #endregion              
+    
+        #region IDocumentDelegate Members
+
+        public ToolStripComboBox editModePopup
+        {
+            get { return toolStripComboBoxEditMode; }
+        }
+
+        public void updateSelectionValues()
+        {
+            toolStripTextBoxSelectionX.Text = document.selectionX.ToString("f2");
+            toolStripTextBoxSelectionY.Text = document.selectionY.ToString("f2");
+            toolStripTextBoxSelectionZ.Text = document.selectionZ.ToString("f2");
+        }
+
+        #endregion        
+
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.undo();
+        }
+
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.redo();
+        }
+
+        private void cutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.cut();
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.copy();
+        }
+
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.paste();
+        }
+
+        private void duplicateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.duplicateSelected();
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.deleteSelected();
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.selectAll();
+        }
+
+        private void invertSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.invertSelection();
+        }
+
+        private void hideSelectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.hideSelected();
+        }
+
+        private void unhideAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.unhideAll();
+        }
+
+        private void mergeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.mergeSelected();
+        }
+
+        private void splitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.splitSelected();
+        }
+
+        private void flipToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.flipSelected();
+        }
+
+        private void subdivisionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.subdivision();
+        }
+
+        private void detachToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.detachSelected();
+        }
+
+        private void extrudeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.extrudeSelected();
+        }
+
+        private void triangulateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            document.triangulateSelected();
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

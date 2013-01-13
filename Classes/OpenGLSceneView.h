@@ -54,6 +54,15 @@ using namespace System::Diagnostics;
 
 namespace MeshMakerCppCLI
 {
+	ref class OpenGLSceneView;
+
+	public interface class IOpenGLSceneViewDelegate
+	{
+		void manipulationStartedInView(OpenGLSceneView ^view);
+		void manipulationEndedInView(OpenGLSceneView ^view);
+		void selectionChangedInView(OpenGLSceneView ^view);
+	};
+
 	/// <summary>
 	/// Summary for OpenGLSceneView
 	/// </summary>
@@ -87,6 +96,9 @@ namespace MeshMakerCppCLI
 			CameraMode get() { return _coreView->cameraMode(); }
 			void set(CameraMode value) { _coreView->setCameraMode(value); }
 		}
+		
+		property IOpenGLSceneViewDelegate ^Delegate;
+
 	protected:
 		~OpenGLSceneView();
 

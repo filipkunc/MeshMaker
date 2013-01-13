@@ -312,17 +312,17 @@ namespace MeshMakerCppCLI
 
 		virtual void manipulationStarted() 
 		{ 
-			
+			_sceneView->Delegate->manipulationStartedInView(_sceneView);			
 		}
 		
 		virtual void manipulationEnded() 
 		{ 
-		
+			_sceneView->Delegate->manipulationEndedInView(_sceneView);		
 		}
 		
 		virtual void selectionChanged() 
 		{ 
-		
+			_sceneView->Delegate->selectionChangedInView(_sceneView);
 		}
 
 		virtual bool texturePaintEnabled() { return false; }
