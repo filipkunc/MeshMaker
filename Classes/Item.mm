@@ -25,10 +25,30 @@ Item::~Item()
 
 Item::Item(MemoryReadStream *stream)
 {
-    stream->readBytes(&position, sizeof(Vector3D));
-    stream->readBytes(&rotation, sizeof(Quaternion));
-    stream->readBytes(&scale, sizeof(Vector3D));
-    stream->readBytes(&selected, sizeof(BOOL));
+    if (stream->version() >= (uint)ModelVersion::CrossPlatform)
+    {
+        position.x = stream->read<float>();
+        position.y = stream->read<float>();
+        position.z = stream->read<float>();
+        
+        rotation.x = stream->read<float>();
+        rotation.y = stream->read<float>();
+        rotation.z = stream->read<float>();
+        rotation.w = stream->read<float>();
+        
+        scale.x = stream->read<float>();
+        scale.y = stream->read<float>();
+        scale.z = stream->read<float>();
+        
+        selected = stream->read<bool>();
+    }
+    else
+    {
+        position = stream->read<Vector3D>();
+        rotation = stream->read<Quaternion>();
+        scale = stream->read<Vector3D>();
+        selected = stream->read<bool>();        
+    }
     
     visible = true;
     
@@ -37,11 +57,21 @@ Item::Item(MemoryReadStream *stream)
 
 void Item::encode(MemoryWriteStream *stream)
 {
-    stream->writeBytes(&position, sizeof(Vector3D));
-    stream->writeBytes(&rotation, sizeof(Quaternion));
-    stream->writeBytes(&scale, sizeof(Vector3D));
-    stream->writeBytes(&selected, sizeof(BOOL));
-	
+    stream->write<float>(position.x);
+    stream->write<float>(position.y);
+    stream->write<float>(position.z);
+
+    stream->write<float>(rotation.x);
+    stream->write<float>(rotation.y);
+    stream->write<float>(rotation.z);
+    stream->write<float>(rotation.w);
+    
+    stream->write<float>(scale.x);
+    stream->write<float>(scale.y);
+    stream->write<float>(scale.z);
+    
+    stream->write<bool>(selected);
+
     mesh->encode(stream);
 }
 

@@ -111,7 +111,8 @@ EnumClass ModelVersion : uint
     First = 1U,
     Colors = 2U,
     TriQuads = 3U,
+    CrossPlatform = 4U,
 
-    Latest = TriQuads
+    Latest = CrossPlatform
 };
 

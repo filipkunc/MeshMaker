@@ -136,61 +136,100 @@ Mesh2::Mesh2(MemoryReadStream *stream)
     setColor(generateRandomColor());
 
     Vector4D color;
-    
-    if (stream->version() >= (uint)ModelVersion::Colors)
-        stream->readBytes(&color, sizeof(Vector4D));
+
+    if (stream->version() >= (uint)ModelVersion::CrossPlatform)
+    {
+        color.x = stream->read<float>();
+        color.y = stream->read<float>();
+        color.z = stream->read<float>();
+        color.w = stream->read<float>();
+    }
+    else if (stream->version() >= (uint)ModelVersion::Colors)
+    {
+        color = stream->read<Vector4D>();
+    }
     else
+    {
         color = generateRandomColor();
+    }
     
-    uint verticesSize;
-    uint texCoordsSize;
-    uint trianglesSize;
-    
-    stream->readBytes(&verticesSize, sizeof(uint));
-    stream->readBytes(&texCoordsSize, sizeof(uint));
-    stream->readBytes(&trianglesSize, sizeof(uint));
+    uint verticesSize = stream->read<uint>();
+    uint texCoordsSize = stream->read<uint>();
+    uint trianglesSize = stream->read<uint>();
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
     vector<TriQuad> triangles;
     
-    for (uint i = 0; i < verticesSize; i++)
+    if (stream->version() >= (uint)ModelVersion::CrossPlatform)
     {
-        Vector3D vertex;
-        stream->readBytes(&vertex, sizeof(Vector3D));
-        vertices.push_back(vertex);
-    }
-    
-    for (uint i = 0; i < texCoordsSize; i++)
-    {
-        Vector3D texCoord;
-        stream->readBytes(&texCoord, sizeof(Vector3D));
-        texCoords.push_back(texCoord);
-    }
-    
-    if (stream->version() >= (uint)ModelVersion::TriQuads)
-    {
+        for (uint i = 0; i < verticesSize; i++)
+        {
+            Vector3D vertex;
+            vertex.x = stream->read<float>();
+            vertex.y = stream->read<float>();
+            vertex.z = stream->read<float>();
+            vertices.push_back(vertex);
+        }
+        
+        for (uint i = 0; i < texCoordsSize; i++)
+        {
+            Vector3D texCoord;
+            texCoord.x = stream->read<float>();
+            texCoord.y = stream->read<float>();
+            texCoord.z = stream->read<float>();
+            texCoords.push_back(texCoord);
+        }
+        
         for (uint i = 0; i < trianglesSize; i++)
         {
             TriQuad triangle;
-            stream->readBytes(&triangle, sizeof(TriQuad));
+            triangle.isQuad = stream->read<bool>();
+            uint count = triangle.isQuad ? 4 : 3;
+            for (uint j = 0; j < count; j++)
+            {
+                triangle.vertexIndices[j] = stream->read<uint>();
+                triangle.texCoordIndices[j] = stream->read<uint>();
+            }
             triangles.push_back(triangle);
         }
     }
     else
     {
-        for (uint i = 0; i < trianglesSize; i++)
+        for (uint i = 0; i < verticesSize; i++)
         {
-            Triangle triangle;
-            stream->readBytes(&triangle, sizeof(Triangle));
-            TriQuad triQuad;
-            triQuad.isQuad = false;
-            for (uint j = 0; j < 3; j++)
+            Vector3D vertex = stream->read<Vector3D>();
+            vertices.push_back(vertex);
+        }
+        
+        for (uint i = 0; i < texCoordsSize; i++)
+        {
+            Vector3D texCoord = stream->read<Vector3D>();
+            texCoords.push_back(texCoord);
+        }
+        
+        if (stream->version() >= (uint)ModelVersion::TriQuads)
+        {
+            for (uint i = 0; i < trianglesSize; i++)
             {
-                triQuad.vertexIndices[j] = triangle.vertexIndices[j];
-                triQuad.texCoordIndices[j] = triangle.texCoordIndices[j];
+                TriQuad triangle = stream->read<TriQuad>();
+                triangles.push_back(triangle);
             }
-            triangles.push_back(triQuad);
+        }
+        else
+        {
+            for (uint i = 0; i < trianglesSize; i++)
+            {
+                Triangle triangle = stream->read<Triangle>();
+                TriQuad triQuad;
+                triQuad.isQuad = false;
+                for (uint j = 0; j < 3; j++)
+                {
+                    triQuad.vertexIndices[j] = triangle.vertexIndices[j];
+                    triQuad.texCoordIndices[j] = triangle.texCoordIndices[j];
+                }
+                triangles.push_back(triQuad);
+            }
         }
     }
     
@@ -200,32 +239,52 @@ Mesh2::Mesh2(MemoryReadStream *stream)
 
 void Mesh2::encode(MemoryWriteStream *stream)
 {
-    if (stream->version() > (uint)ModelVersion::Colors)
-    {
-        stream->writeBytes(&_color, sizeof(Vector4D));
-    }
-    
+    stream->write<float>(_color.x);
+    stream->write<float>(_color.y);
+    stream->write<float>(_color.z);
+    stream->write<float>(_color.w);
+        
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
     vector<TriQuad> triangles;
     
     this->toIndexRepresentation(vertices, texCoords, triangles);
     
-	uint size = vertices.size();
-    stream->writeBytes(&size, sizeof(uint));
-    size = texCoords.size();
-    stream->writeBytes(&size, sizeof(uint));
-	size = triangles.size();
-    stream->writeBytes(&size, sizeof(uint));
+    uint vertexCount = vertices.size();
+    uint texCoordCount = texCoords.size();
+    uint triangleCount = triangles.size();
     
-	if (vertices.size() > 0)
-        stream->writeBytes(&vertices.at(0), vertices.size() * sizeof(Vector3D));
+    stream->write<uint>(vertexCount);
+    stream->write<uint>(texCoordCount);
+    stream->write<uint>(triangleCount);
     
-    if (texCoords.size() > 0)
-        stream->writeBytes(&texCoords.at(0), texCoords.size() * sizeof(Vector3D));
+    for (uint i = 0; i < vertexCount; i++)
+    {
+        const Vector3D &v = vertices[i];
+        stream->write<float>(v.x);
+        stream->write<float>(v.y);
+        stream->write<float>(v.z);        
+    }
+
+    for (uint i = 0; i < texCoordCount; i++)
+    {
+        const Vector3D &v = texCoords[i];
+        stream->write<float>(v.x);
+        stream->write<float>(v.y);
+        stream->write<float>(v.z);
+    }
 	
-	if (triangles.size() > 0)
-        stream->writeBytes(&triangles.at(0), triangles.size() * sizeof(TriQuad));
+	for (uint i = 0; i < triangleCount; i++)
+    {
+        const TriQuad &t = triangles[i];
+        stream->write<bool>(t.isQuad);
+        uint count = t.isQuad ? 4 : 3;
+        for (uint j = 0; j < count; j++)
+        {
+            stream->write(t.vertexIndices[j]);
+            stream->write(t.texCoordIndices[j]);
+        }
+    }
 }
 
 void Mesh2::setColor(Vector4D color)

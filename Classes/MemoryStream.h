@@ -38,6 +38,14 @@ public:
     unsigned int version() { return _version; }
     void setVersion(unsigned int value) { _version = value; }
     void readBytes(void *buffer, unsigned int length);
+
+    template <class T>
+    T read()
+    {
+        T t;
+        readBytes(&t, sizeof(T));
+        return t;
+    }
 };
 
 class MemoryWriteStream
@@ -59,5 +67,11 @@ public:
 #endif
     unsigned int version() { return _version; }
     void setVersion(unsigned int value) { _version = value; }
-    void writeBytes(void *buffer, unsigned int length);
+    void writeBytes(const void *buffer, unsigned int length);
+    
+    template <class T>
+    void write(const T &value)
+    {
+        writeBytes(&value, sizeof(T));
+    }
 };

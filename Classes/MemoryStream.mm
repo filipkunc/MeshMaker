@@ -38,7 +38,7 @@ MemoryWriteStream::~MemoryWriteStream()
     
 }
 
-void MemoryWriteStream::writeBytes(void *buffer, uint length)
+void MemoryWriteStream::writeBytes(const void *buffer, uint length)
 {
     [_data appendBytes:buffer length:length];
 }
@@ -75,7 +75,7 @@ MemoryWriteStream::~MemoryWriteStream()
     
 }
 
-void MemoryWriteStream::writeBytes(void *buffer, unsigned int length)
+void MemoryWriteStream::writeBytes(const void *buffer, unsigned int length)
 {
 	array<Byte> ^bytes = gcnew array<Byte>(length);
 	pin_ptr<Byte> bytesPointer = &bytes[0];

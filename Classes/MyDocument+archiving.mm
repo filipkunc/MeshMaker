@@ -108,9 +108,7 @@ vector<T> *ReadValues(string s)
 {
     MemoryReadStream *stream = new MemoryReadStream(data);
     
-    uint version = 0;
-    
-    stream->readBytes(&version, sizeof(unsigned int));
+    uint version = stream->read<uint>();
     
     if (version < (uint)ModelVersion::First || version > (uint)ModelVersion::Latest)
         return NO;
@@ -134,7 +132,7 @@ vector<T> *ReadValues(string s)
     
     uint version = (uint)ModelVersion::Latest;
     stream->setVersion(version);
-    stream->writeBytes(&version, sizeof(unsigned int));
+    stream->write<uint>(version);
     items->encode(stream);
 
     delete stream;
@@ -839,9 +837,7 @@ namespace MeshMakerCppCLI
 	{
 		MemoryReadStream *stream = new MemoryReadStream(memoryStream);
     
-		uint version = 0;
-    
-		stream->readBytes(&version, sizeof(unsigned int));
+		uint version = stream->read<uint>();
     
 		if (version < (uint)ModelVersion::First || version > (uint)ModelVersion::Latest)
 			return;
@@ -862,7 +858,7 @@ namespace MeshMakerCppCLI
     
 		uint version = (uint)ModelVersion::Latest;
 		stream->setVersion(version);
-		stream->writeBytes(&version, sizeof(unsigned int));
+		stream->write<uint>(version);
 		items->encode(stream);
 
 		delete stream;
