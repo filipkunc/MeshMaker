@@ -20,6 +20,8 @@ obj
 *.ncb
 *.user
 *.suo
+*.opensdf
+*.sdf
 
 # windows noise
 Thumbs.db

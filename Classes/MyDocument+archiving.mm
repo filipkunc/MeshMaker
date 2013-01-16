@@ -9,10 +9,14 @@
 #include "MyDocument.h"
 #include <sstream>
 
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #include "rapidxml.hpp"
 #pragma clang diagnostic pop
+#else
+#include "rapidxml.hpp"
+#endif
 
 using namespace std;
 using namespace rapidxml;
@@ -824,15 +828,6 @@ using namespace System::Text;
 
 namespace MeshMakerCppCLI
 {
-	string NativeString(String ^managedString)
-	{
-		array<Byte> ^chars = Encoding::ASCII->GetBytes(managedString);
-		pin_ptr<Byte> charsPointer = &(chars[0]);
-		char *nativeCharsPointer = reinterpret_cast<char *>(static_cast<unsigned char *>(charsPointer));
-		string native(nativeCharsPointer, chars->Length);
-		return native;
-	}
-
 	void MyDocument::readModel3D(MemoryStream ^memoryStream)
 	{
 		MemoryReadStream *stream = new MemoryReadStream(memoryStream);
@@ -866,7 +861,7 @@ namespace MeshMakerCppCLI
 
 	void MyDocument::readWavefrontObject(String ^asciiString)
 	{
-		string str = NativeString(asciiString);
+		string str = MarshalHelpers::NativeString(asciiString);
 		stringstream ssfile;
 		ssfile << str;
 	    
@@ -1064,9 +1059,7 @@ namespace MeshMakerCppCLI
 			texCoordIndexOffset += texCoords.size();
 		}
 	    
-		string str = ssfile.str();
-		String ^managedString = gcnew String(str.c_str());
-		return managedString;
+		return MarshalHelpers::ManagedString(ssfile.str());
 	}
 }
 

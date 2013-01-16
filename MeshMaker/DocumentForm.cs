@@ -66,8 +66,7 @@ namespace MeshMaker
             toolStripComboBoxEditMode.SelectedItem = EditMode.Items;
             toolStripComboBoxEditMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxEditMode_SelectedIndexChanged);
 
-            document = new MyDocument(this);
-            document.setViews(leftView, topView, frontView, perspectiveView);
+            CreateDocument();
 
             toolStripComboBoxViewMode.Items.Add(ViewMode.SolidFlat);
             toolStripComboBoxViewMode.Items.Add(ViewMode.SolidSmooth);
@@ -77,6 +76,31 @@ namespace MeshMaker
 
             toolStripComboBoxViewMode.SelectedItem = document.viewMode;
             toolStripComboBoxViewMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxViewMode_SelectedIndexChanged);
+        }
+
+        private void CreateDocument()
+        {
+            if (document != null)
+                document.DocumentUndoManager.NeedsSaveChanged -= DocumentUndoManager_NeedsSaveChanged;
+
+            document = new MyDocument(this);
+            document.DocumentUndoManager.NeedsSaveChanged += DocumentUndoManager_NeedsSaveChanged;
+            document.setViews(leftView, topView, frontView, perspectiveView);
+
+            DocumentUndoManager_NeedsSaveChanged(this, EventArgs.Empty);
+        }
+
+        void DocumentUndoManager_NeedsSaveChanged(object sender, EventArgs e)
+        {
+            StringBuilder formTitle = new StringBuilder();
+            formTitle.Append("MeshMaker - ");
+            if (string.IsNullOrEmpty(lastFileName))
+                formTitle.Append("Untitled");
+            else
+                formTitle.Append(Path.GetFileNameWithoutExtension(lastFileName));
+            if (document.DocumentUndoManager.NeedsSave)
+                formTitle.Append(" *");
+            this.Text = formTitle.ToString();
         }
 
         void toolStripComboBoxViewMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -262,21 +286,6 @@ namespace MeshMaker
             document.redo();
         }
 
-        private void cutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            document.cut();
-        }
-
-        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            document.copy();
-        }
-
-        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            document.paste();
-        }
-
         private void duplicateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             document.duplicateSelected();
@@ -344,8 +353,7 @@ namespace MeshMaker
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            document = new MyDocument(this);
-            document.setViews(leftView, topView, frontView, perspectiveView);
+            CreateDocument();
         }
 
         string _lastFileName = null;
@@ -375,8 +383,8 @@ namespace MeshMaker
 
         private void ReadDocument()
         {
-            document = new MyDocument(this);
-            document.setViews(leftView, topView, frontView, perspectiveView);
+            CreateDocument();
+
             if (Path.GetExtension(lastFileName).Equals(".model3D", StringComparison.InvariantCultureIgnoreCase))
             {
                 using (MemoryStream stream = new MemoryStream(File.ReadAllBytes(lastFileName)))

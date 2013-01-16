@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshMakerCppCLI", "MeshMakerCppCLI\MeshMakerCppCLI.vcproj", "{02E11884-12F2-4812-894E-E5417F4A7DD7}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshMakerCppCLI", "MeshMakerCppCLI\MeshMakerCppCLI.vcxproj", "{02E11884-12F2-4812-894E-E5417F4A7DD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshMaker", "MeshMaker\MeshMaker.csproj", "{5DCA2FB9-79D1-4FC3-947D-789523C721AB}"
 EndProject

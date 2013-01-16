@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{02E11884-12F2-4812-894E-E5417F4A7DD7}</ProjectGuid>
+    <RootNamespace>MeshMakerCppCLI</RootNamespace>
+    <Keyword>ManagedCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;SHADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>OpenGL32.lib;GLU32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>OpenGL32.lib;GLU32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Data">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Xml">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Core">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Chocolate\Chocolate.csproj">
+      <Project>{ab6308d6-747b-43e0-b191-7163768e0c74}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="..\Classes\Camera.cpp" />
+    <ClCompile Include="..\Classes\Matrix4x4.cpp" />
+    <ClCompile Include="..\Classes\Quaternion.cpp" />
+    <ClCompile Include="..\Classes\Vector2D.cpp" />
+    <ClCompile Include="..\Classes\Vector3D.cpp" />
+    <ClCompile Include="..\Classes\Vector4D.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Classes\Item.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\ItemCollection.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Manipulator.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\ManipulatorWidget.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\MemoryStream.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Mesh2.drawing.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Mesh2.make.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Mesh2.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\MeshHelpers.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\MyDocument+archiving.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\MyDocument.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLDrawing.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLManipulatingController.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLSceneView.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLSceneViewCore.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Shader.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\ShaderProgram.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Triangle.mm">
+      <FileType>CppCode</FileType>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Classes\Camera.h" />
+    <ClInclude Include="..\Classes\Enums.h" />
+    <ClInclude Include="..\Classes\FPArrayCache.h" />
+    <ClInclude Include="..\Classes\FPList.h" />
+    <ClInclude Include="..\Classes\FPNode.h" />
+    <ClInclude Include="..\Classes\Item.h" />
+    <ClInclude Include="..\Classes\ItemCollection.h" />
+    <ClInclude Include="..\Classes\Manipulator.h" />
+    <ClInclude Include="..\Classes\ManipulatorWidget.h" />
+    <ClInclude Include="MarshalHelpers.h" />
+    <ClInclude Include="..\Classes\MathDeclaration.h" />
+    <ClInclude Include="..\Classes\MathForwardDeclaration.h" />
+    <ClInclude Include="..\Classes\Matrix4x4.h" />
+    <ClInclude Include="..\Classes\MemoryStream.h" />
+    <ClInclude Include="..\Classes\MemoryStreaming.h" />
+    <ClInclude Include="..\Classes\Mesh2.h" />
+    <ClInclude Include="..\Classes\MeshForwardDeclaration.h" />
+    <ClInclude Include="..\Classes\MeshHelpers.h" />
+    <ClInclude Include="..\Classes\MyDocument.h" />
+    <ClInclude Include="..\Classes\OpenGLDrawing.h" />
+    <ClInclude Include="..\Classes\OpenGLManipulating.h" />
+    <ClInclude Include="..\Classes\OpenGLManipulatingController.h" />
+    <ClInclude Include="..\Classes\OpenGLManipulatingModel.h" />
+    <ClInclude Include="..\Classes\OpenGLSceneView.h" />
+    <ClInclude Include="..\Classes\OpenGLSceneViewCore.h" />
+    <ClInclude Include="..\Classes\OpenGLSelecting.h" />
+    <ClInclude Include="..\Classes\Quaternion.h" />
+    <ClInclude Include="..\Classes\rapidxml.hpp" />
+    <ClInclude Include="..\Classes\rapidxml_iterators.hpp" />
+    <ClInclude Include="..\Classes\rapidxml_print.hpp" />
+    <ClInclude Include="..\Classes\rapidxml_utils.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\Classes\Shader.h" />
+    <ClInclude Include="..\Classes\ShaderProgram.h" />
+    <ClInclude Include="..\Classes\SimpleNodeAndList.h" />
+    <ClInclude Include="..\Classes\Triangle.h" />
+    <ClInclude Include="..\Classes\Vector2D.h" />
+    <ClInclude Include="..\Classes\Vector3D.h" />
+    <ClInclude Include="..\Classes\Vector4D.h" />
+    <ClInclude Include="..\Classes\Vertex.h" />
+    <ClInclude Include="..\Classes\VertexEdge.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

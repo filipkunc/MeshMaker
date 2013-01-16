@@ -129,6 +129,7 @@
 
 #include "ItemCollection.h"
 #include "OpenGLSceneView.h"
+#include "../MeshMakerCppCLI/MarshalHelpers.h"
 
 namespace MeshMakerCppCLI
 {
@@ -137,6 +138,27 @@ namespace MeshMakerCppCLI
 		property ToolStripComboBox ^editModePopup { ToolStripComboBox ^ get(); }
 		void updateSelectionValues();
 	};
+	
+	public ref class UndoStatePointer
+	{
+	public:
+		 IUndoState *_undoState;
+
+		 UndoStatePointer(IUndoState *undoState)
+		 {
+			 _undoState = undoState;
+		 }
+
+		 ~UndoStatePointer()
+		 {
+			 if (_undoState)
+				 delete _undoState;
+		 }
+	};
+
+	delegate void SwapOldCurrent(UndoStatePointer ^old, UndoStatePointer ^current);
+	delegate void SwapOldCurrentNamed(UndoStatePointer ^old, UndoStatePointer ^current, String ^actionName);
+	delegate void AddRemoveItem(MeshType meshType, uint steps);
 
 	public ref class MyDocument : public IOpenGLSceneViewDelegate, public IOpenGLManipulatingControllerKVC
 	{
@@ -157,15 +179,33 @@ namespace MeshMakerCppCLI
 		OpenGLSceneView ^viewPerspective;
 
 		ManipulatorType currentManipulator;
+
+		UndoManager ^undoManager;
+
+		UndoStatePointer ^oldManipulations;
+		UndoStatePointer ^oldMeshState;
+
 	private:
 		void setManipulated(IOpenGLManipulating *value);
 		Mesh2 *currentMesh();
 		void editItems();
 		void editMesh(MeshSelectionMode mode);
+
+		void swapMeshStateAction(UndoStatePointer ^old, UndoStatePointer ^current, String ^actionName);
+		void swapAllItemsAction(UndoStatePointer ^old, UndoStatePointer ^current, String ^actionName);
+		void swapManipulationsAction(UndoStatePointer ^old, UndoStatePointer ^current);
+
+		void allItemsAction(String ^actionName, Action ^action);
+		void meshAction(String ^actionName, Action ^action);
+		void meshOnlyAction(String ^actionName, Action ^action);
 	public:
 		MyDocument(IDocumentDelegate ^documentForm);
 		~MyDocument();
 
+		property UndoManager ^DocumentUndoManager
+		{
+			UndoManager ^get() { return undoManager; }
+		}
 
 		property array<OpenGLSceneView^ > ^Views 
 		{
@@ -263,6 +303,7 @@ namespace MeshMakerCppCLI
 
 		void setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective);
 		void addItem(MeshType meshType, uint steps);
+		void removeItem(MeshType meshType, uint steps);
 		void changeEditMode();		
 		void setNeedsDisplayExceptView(OpenGLSceneView ^except);
 		void setNeedsDisplayOnAllViews();
@@ -272,13 +313,21 @@ namespace MeshMakerCppCLI
 		virtual void selectionChangedInView(OpenGLSceneView ^view);
 
 		virtual void willChangeSelection();
-		virtual void didChangeSelection();
+		virtual void didChangeSelection();	
 
+	private:
+		void duplicateSelectedCore();
+		void removeSelectedCore(); 
+		void mergeSelectedCore();
+		void splitSelectedCore();
+		void flipSelectedCore();
+		void subdivisionCore();
+		void detachSelectedCore();
+		void extrudeSelectedCore();
+		void triangulateSelectedCore();
+	public:
 		void undo();
 		void redo();
-		void cut();
-		void copy();
-		void paste();
 		void duplicateSelected();
 		void deleteSelected();
 		void selectAll();

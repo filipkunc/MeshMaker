@@ -969,6 +969,8 @@ namespace MeshMakerCppCLI
 		currentManipulator = ManipulatorType::Default;
 
 		manipulationFinished = false;
+
+		undoManager = gcnew UndoManager();
 	}
 
 	MyDocument::~MyDocument()
@@ -1090,6 +1092,12 @@ namespace MeshMakerCppCLI
 		Item *item = new Item(new Mesh2());
 		Mesh2 *mesh = item->mesh;
 		mesh->make(meshType, steps);
+
+		String ^actionName = String::Format(L"Add {0}", Mesh2::descriptionOfMeshType(meshType));
+
+		undoManager->PrepareUndo(actionName, gcnew Invocation(
+			gcnew AddRemoveItem(this, &MyDocument::removeItem),
+			meshType, steps));
 		
 		items->addItem(item);
 		itemsController->changeSelection(false);
@@ -1097,6 +1105,21 @@ namespace MeshMakerCppCLI
 		itemsController->updateSelection();
 
 		this->setManipulated(itemsController);
+	}
+
+	void MyDocument::removeItem(MeshType meshType, uint steps)
+	{
+		String ^actionName = String::Format(L"Remove {0}", Mesh2::descriptionOfMeshType(meshType));
+	
+		undoManager->PrepareUndo(actionName, gcnew Invocation(
+			gcnew AddRemoveItem(this, &MyDocument::addItem),
+			meshType, steps));
+
+		items->removeLastItem();
+		meshController->setModel(NULL);
+		itemsController->changeSelection(false);
+
+		this->setManipulated(itemsController);		
 	}
 
 	void MyDocument::setNeedsDisplayExceptView(OpenGLSceneView ^except)
@@ -1119,13 +1142,45 @@ namespace MeshMakerCppCLI
 	void MyDocument::manipulationStartedInView(OpenGLSceneView ^view)
 	{
 		manipulationFinished = false;
+	
+		if (manipulated == itemsController)
+		{
+			oldManipulations = gcnew UndoStatePointer(items->currentManipulations());
+		}
+		else if (manipulated == meshController)
+		{
+			oldMeshState = gcnew UndoStatePointer(items->currentMeshState());
+		}
 	}
 
 	void MyDocument::manipulationEndedInView(OpenGLSceneView ^view)
 	{
 		manipulationFinished = true;
+	
+		if (manipulated == itemsController)
+		{
+			undoManager->PrepareUndo(L"Manipulations", gcnew Invocation(
+				gcnew SwapOldCurrent(this, &MyDocument::swapManipulationsAction),
+				oldManipulations, gcnew UndoStatePointer(items->currentManipulations())));
+
+			oldManipulations = nullptr;
+	        
+			itemsController->willChangeSelection();
+			itemsController->didChangeSelection();
+		}
+		else if (manipulated == meshController)
+		{
+			undoManager->PrepareUndo(L"Mesh Manipulation", gcnew Invocation(
+				gcnew SwapOldCurrentNamed(this, &MyDocument::swapMeshStateAction),
+				oldMeshState, gcnew UndoStatePointer(items->currentMeshState()), L"Mesh Manipulation"));
+
+			oldMeshState = nullptr;
+	        
+			meshController->willChangeSelection();
+			meshController->didChangeSelection();
+		}
+		
 		this->setNeedsDisplayExceptView(view);
-		documentDelegate->updateSelectionValues();
 	}
 
 	void MyDocument::selectionChangedInView(OpenGLSceneView ^view)
@@ -1143,32 +1198,120 @@ namespace MeshMakerCppCLI
 	{
 		documentDelegate->updateSelectionValues();
 	}
+	
+	void MyDocument::swapManipulationsAction(UndoStatePointer ^old, UndoStatePointer ^current)
+	{
+		items->setCurrentManipulations(old->_undoState);
+
+		undoManager->PrepareUndo(L"Manipulations", gcnew Invocation(
+				gcnew SwapOldCurrent(this, &MyDocument::swapManipulationsAction),
+				current, old));
+
+		itemsController->updateSelection();
+		this->setManipulated(itemsController);
+	}
+
+	void MyDocument::swapAllItemsAction(UndoStatePointer ^old, UndoStatePointer ^current, String ^actionName)
+	{
+		items->setAllItems(old->_undoState);
+
+		undoManager->PrepareUndo(actionName, gcnew Invocation(
+				gcnew SwapOldCurrentNamed(this, &MyDocument::swapAllItemsAction),
+				current, old, actionName));
+
+		itemsController->updateSelection();
+		this->setManipulated(itemsController);
+	}
+
+	void MyDocument::swapMeshStateAction(UndoStatePointer ^old, UndoStatePointer ^current, String ^actionName)
+	{
+		if (old->_undoState == NULL)
+			return;
+	    
+		items->setCurrentMeshState(old->_undoState);
+	    
+		MeshState *meshState = dynamic_cast<UndoState<MeshState> *>(old->_undoState)->state();
+		Item *item = items->itemAtIndex(meshState->index());
+		
+		meshController->setModel(item);
+		meshController->setPositionRotationScale(item->position, item->rotation, item->scale);
+	    
+		undoManager->PrepareUndo(actionName, gcnew Invocation(
+				gcnew SwapOldCurrentNamed(this, &MyDocument::swapMeshStateAction),
+				current, old, actionName));
+		
+		itemsController->updateSelection();
+		meshController->updateSelection();
+
+		this->setManipulated(meshController);
+	}
+
+	void MyDocument::allItemsAction(String ^actionName, Action ^action)
+	{
+		UndoStatePointer ^oldItems = gcnew UndoStatePointer(items->allItems());
+
+		action();
+    
+		UndoStatePointer ^currentItems =  gcnew UndoStatePointer(items->allItems());
+
+		undoManager->PrepareUndo(actionName, gcnew Invocation(
+			gcnew SwapOldCurrentNamed(this, &MyDocument::swapAllItemsAction),
+			oldItems, currentItems, actionName));
+	}
+		
+	void MyDocument::meshAction(String ^actionName, Action ^action)
+	{
+		UndoStatePointer ^oldState = gcnew UndoStatePointer(items->currentMeshState());
+		
+		action();
+		
+		UndoStatePointer ^currentState = gcnew UndoStatePointer(items->currentMeshState());
+
+		undoManager->PrepareUndo(actionName, gcnew Invocation(
+			gcnew SwapOldCurrentNamed(this, &MyDocument::swapMeshStateAction),
+			oldState, currentState, actionName));
+	}
+		
+	void MyDocument::meshOnlyAction(String ^actionName, Action ^action)
+	{
+		if (this->currentMesh() == nullptr)
+			return;			 
+		
+		bool startManipulation = false;
+		if (!manipulationFinished)
+		{
+			startManipulation = true;
+			this->manipulationEndedInView(nullptr);			
+		}
+
+		this->meshAction(actionName, action);
+		
+		manipulated->updateSelection();
+		this->setNeedsDisplayOnAllViews();
+		
+		if (startManipulation)
+		{
+			this->manipulationStartedInView(nullptr);
+		}
+	}
 
 	void MyDocument::undo()
 	{
-		
+		if (undoManager->CanUndo)
+			undoManager->Undo();
 	}
 
 	void MyDocument::redo()
 	{
-
+		if (undoManager->CanRedo)
+			undoManager->Redo();
 	}
 
-	void MyDocument::cut()
+	void MyDocument::duplicateSelectedCore()
 	{
-
+		manipulated->duplicateSelected();
 	}
-
-	void MyDocument::copy()
-	{
-
-	}
-
-	void MyDocument::paste()
-	{
-
-	}
-
+	
 	void MyDocument::duplicateSelected()
 	{
 		if (manipulated->selectedCount() <= 0)
@@ -1183,15 +1326,11 @@ namespace MeshMakerCppCLI
 		
 		if (manipulated == itemsController)
 		{
-			/*UndoStatePointer *selection = [[UndoStatePointer alloc] initWithUndoState:items->currentSelection()];
-			MyDocument *document = [self prepareUndoWithName:@"Duplicate"];
-			[document undoDuplicateSelected:selection];*/
-			manipulated->duplicateSelected();
+			this->allItemsAction(L"Duplicate", gcnew Action(this, &MyDocument::duplicateSelectedCore));
 		}
 		else if (manipulated == meshController)
 		{
-			//[self meshActionWithName:@"Duplicate" block:^ { manipulated->duplicateSelected(); }];
-			manipulated->duplicateSelected();
+			this->meshOnlyAction(L"Duplicate", gcnew Action(this, &MyDocument::duplicateSelectedCore));			
 		}
 		
 		manipulated->updateSelection();
@@ -1203,6 +1342,11 @@ namespace MeshMakerCppCLI
 		}
 	}
 
+	void MyDocument::removeSelectedCore()
+	{
+		manipulated->removeSelected();
+	}
+
 	void MyDocument::deleteSelected()
 	{
 		if (manipulated->selectedCount() <= 0)
@@ -1210,16 +1354,11 @@ namespace MeshMakerCppCLI
 		
 		if (manipulated == itemsController)
 		{
-			/*UndoStatePointer *currentItems = [[UndoStatePointer alloc] initWithUndoState:items->currentItems()];
-			MyDocument *document = [self prepareUndoWithName:@"Delete"];
-			[document undoDeleteSelected:currentItems];*/
-			manipulated->removeSelected();
-			//[textureBrowserWindowController setItems:items];
+			this->allItemsAction(L"Delete", gcnew Action(this, &MyDocument::removeSelectedCore));
 		}
 		else if (manipulated == meshController)
 		{
-			//[self meshActionWithName:@"Delete" block:^ { manipulated->removeSelected(); }];
-			manipulated->removeSelected();
+			this->meshAction(L"Delete", gcnew Action(this, &MyDocument::removeSelectedCore));
 		}
 		
 		this->setNeedsDisplayOnAllViews();
@@ -1249,6 +1388,18 @@ namespace MeshMakerCppCLI
 		this->setNeedsDisplayOnAllViews();
 	}
 
+	void MyDocument::mergeSelectedCore()
+	{
+		if (manipulated == itemsController)
+		{
+			items->mergeSelectedItems();
+		}
+		else if (manipulated == meshController)
+		{
+			currentMesh()->mergeSelected();
+		}
+	}
+
 	void MyDocument::mergeSelected()
 	{
 		if (manipulated->selectedCount() <= 0)
@@ -1256,66 +1407,89 @@ namespace MeshMakerCppCLI
 		
 		if (manipulated == itemsController)
 		{
-			//[self allItemsActionWithName:@"Merge" block:^ { items->mergeSelectedItems(); }];
-			items->mergeSelectedItems();
+			this->allItemsAction(L"Merge", gcnew Action(this, &MyDocument::mergeSelectedCore));			
 		}
 		else if (manipulated == meshController)
 		{
-			//[self meshActionWithName:@"Merge" block:^ { [self currentMesh]->mergeSelected(); }]; 
-			currentMesh()->mergeSelected();
+			this->meshAction(L"Merge", gcnew Action(this, &MyDocument::mergeSelectedCore));
 		}
 		
 		manipulated->updateSelection();
 		this->setNeedsDisplayOnAllViews();
 	}
 
+	void MyDocument::splitSelectedCore()
+	{
+		currentMesh()->splitSelected();
+	}
+
 	void MyDocument::splitSelected()
 	{
-		//[self meshOnlyActionWithName:@"Split" block:^ { [self currentMesh]->splitSelected(); }];
-		currentMesh()->splitSelected();
+		this->meshOnlyAction(L"Split", gcnew Action(this, &MyDocument::splitSelectedCore));		
+	}
+
+	void MyDocument::flipSelectedCore()
+	{
+		currentMesh()->flipSelected();
 	}
 
 	void MyDocument::flipSelected()
 	{
-		//[self meshOnlyActionWithName:@"Flip" block:^ { [self currentMesh]->flipSelected(); }];
-		currentMesh()->flipSelected();
+		this->meshOnlyAction(L"Flip", gcnew Action(this, &MyDocument::flipSelectedCore));		
+	}
+
+	void MyDocument::subdivisionCore()
+	{
+		currentMesh()->openSubdivision();
 	}
 
 	void MyDocument::subdivision()
 	{
-		//[self meshOnlyActionWithName:@"Subdivision" block:^ { [self currentMesh]->openSubdivision(); }];
-		currentMesh()->openSubdivision();
+		this->meshOnlyAction(L"Subdivision", gcnew Action(this, &MyDocument::subdivisionCore));
+	}
+
+	void MyDocument::detachSelectedCore()
+	{
+		currentMesh()->detachSelected();
 	}
 
 	void MyDocument::detachSelected()
 	{
-		//[self meshOnlyActionWithName:@"Detach" block:^ { [self currentMesh]->detachSelected(); }];
-		currentMesh()->detachSelected();
+		this->meshOnlyAction(L"Detach", gcnew Action(this, &MyDocument::detachSelectedCore));		
+	}
+
+	void MyDocument::extrudeSelectedCore()
+	{
+		currentMesh()->extrudeSelectedTriangles();
 	}
 
 	void MyDocument::extrudeSelected()
 	{
-		//[self meshOnlyActionWithName:@"Extrude" block:^ { [self currentMesh]->extrudeSelectedTriangles(); }];
-		currentMesh()->extrudeSelectedTriangles();
+		this->meshOnlyAction(L"Extrude", gcnew Action(this, &MyDocument::extrudeSelectedCore));	
+	}
+
+	void MyDocument::triangulateSelectedCore()
+	{
+		if (manipulated == meshController)
+		{
+			currentMesh()->triangulateSelectedQuads();
+		}
+		else if (manipulated == itemsController)
+		{
+			for (uint i = 0; i < items->count(); i++)
+				items->itemAtIndex(i)->mesh->triangulate();
+		}
 	}
 
 	void MyDocument::triangulateSelected()
 	{
 		if (manipulated == meshController)
 		{
-			//[self meshOnlyActionWithName:@"Triangulate" block:^ { [self currentMesh]->triangulateSelectedQuads(); }];
-			currentMesh()->triangulateSelectedQuads();
+			this->meshOnlyAction(L"Triangulate", gcnew Action(this, &MyDocument::triangulateSelectedCore));
 		}
 		else if (manipulated == itemsController)
 		{
-			/*[self allItemsActionWithName:@"Triangulate" block:^
-			{
-				for (uint i = 0; i < items->count(); i++)
-					items->itemAtIndex(i)->mesh->triangulate();
-			}];*/
-
-			for (uint i = 0; i < items->count(); i++)
-				items->itemAtIndex(i)->mesh->triangulate();
+			this->allItemsAction(L"Triangulate", gcnew Action(this, &MyDocument::triangulateSelectedCore));
 		}
 	}
 }
