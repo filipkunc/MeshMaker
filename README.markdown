@@ -36,19 +36,25 @@ Example scripts are in Scripts folder.
 All script actions are undoable.
 
 <img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/scripting.png" alt="Scripting" width="833px" height="652px"></img>
+
+## Windows port
+
+MeshMaker is now mostly C++ project with Objective-C++ on Mac part and C++/CLI and C# on Windows part.
+
+<img src="https://github.com/filipkunc/MeshMaker/raw/more_cpp/Screenshots/triquads_win.png" alt="Triangles and Quads" width="715px" height="541px"></img>
  
 ## Camera manipulation
 
 Similar to Maya, Unity. 
 
-* Rotation - Option + Left Mouse Button
-* Pan - Option + Middle Mouse Button
-* Zoom - Option + Right Mouse Button
+* Rotation - Alt + Left Mouse Button
+* Pan - Alt + Middle Mouse Button
+* Zoom - Alt + Right Mouse Button
 
 Editor can be used also only with multitouch trackpad (MacBooks) and keyboard.
 
-* Rotation - Option + Two Fingers
-* Pan - Control + Option + Two Fingers
+* Rotation - Alt + Two Fingers
+* Pan - Control + Alt + Two Fingers
 * Zoom - Two Fingers Zoom
 
 ## Selection
