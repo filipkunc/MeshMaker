@@ -9,6 +9,7 @@ MeshMaker uses:
  * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
  * [Fragaria editor](http://www.mugginsoft.com/code/fragaria). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/Fragaria](https://github.com/filipkunc/Fragaria)
  * [RapidXml](http://rapidxml.sourceforge.net)
+ * [glew](http://glew.sourceforge.net)
  
 For working with submodules I recommend reading [Pro Git chapter about submodules](http://git-scm.com/book/en/Git-Tools-Submodules).
 
@@ -41,7 +42,7 @@ All script actions are undoable.
 
 MeshMaker is now mostly C++ project with Objective-C++ on Mac part and C++/CLI and C# on Windows part.
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/more_cpp/Screenshots/triquads_win.png" alt="Triangles and Quads" width="715px" height="541px"></img>
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/triquads_win.png" alt="Triangles and Quads" width="715px" height="541px"></img>
  
 ## Camera manipulation
 
