@@ -405,17 +405,22 @@
 }
 
 - (void)runScriptCode:(NSString *)code
-{/*
+{
+    ItemCollectionWrapper *wrapper = [[ItemCollectionWrapper alloc] initWithItemCollection:delegate.items];
+    
     NSString* script = [NSString stringWithFormat:@"try { %@ } catch (e) { e.toString() }", code];
-    [scriptObject setValue:delegate.items forKey:@"items"];
+    [scriptObject setValue:wrapper forKey:@"items"];
     [outputView setString:@"Output:\n"];
     
     [delegate allItemsActionWithName:@"Script Action On Items" block:^
     {
-        for (Item *item in delegate.items)
+        ItemCollection *items = delegate.items;
+        
+        for (uint i = 0; i < items->count(); i++)
         {
-            item.mesh->resetTriangleCache();
-            item.mesh->resetAlgorithmData();
+            Item *item = items->itemAtIndex(i);
+            item->mesh->resetTriangleCache();
+            item->mesh->resetAlgorithmData();
         }
         
         id data = [scriptObject evaluateWebScript:script];
@@ -429,7 +434,7 @@
     }];
 
     [delegate setNeedsDisplayOnAllViews];
-*/}
+}
 
 - (IBAction)runScript:(id)sender
 {

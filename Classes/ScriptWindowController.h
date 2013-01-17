@@ -6,8 +6,11 @@
 //
 //
 
+#pragma once
+
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
+#import "JSWrappers.h"
 
 @protocol ScriptDelegate <NSObject>
 

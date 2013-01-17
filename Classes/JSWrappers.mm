@@ -5,84 +5,116 @@
 //  Created by Filip Kunc on 10/27/12.
 //
 //
-/*
+
 #import "JSWrappers.h"
 
-@implementation ItemCollection (JSWrappers)
+@implementation ItemCollectionWrapper
 
 + (NSString *)webScriptNameForSelector:(SEL)sel
 {
-    if (sel == @selector(itemAtIndex:))
+    if (sel == @selector(at:))
         return @"at";
-    
     return nil;
 }
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector { return NO; }
 + (BOOL)isKeyExcludedFromWebScript:(const char *)name { return NO; }
 
+- (id)initWithItemCollection:(ItemCollection *)itemCollection
+{
+    self = [super init];
+    if (self)
+    {
+        _itemCollection = itemCollection;
+    }
+    return self;
+}
+
+- (uint)count
+{
+    return _itemCollection->count();
+}
+
+- (ItemWrapper *)at:(uint)index
+{
+    return [[ItemWrapper alloc] initWithItem:_itemCollection->itemAtIndex(index)];
+}
+
 @end
 
-@implementation Item (JSWrappers)
+@implementation ItemWrapper
+
+- (id)initWithItem:(Item *)item
+{
+    self = [super init];
+    if (self)
+    {
+        _item = item;
+    }
+    return self;
+}
 
 - (VertexNodeIterator *)vertexIterator
 {
-    return [[VertexNodeIterator alloc] initWithBegin:mesh->vertices().begin() end:mesh->vertices().end()];
+    return [[VertexNodeIterator alloc] initWithBegin:_item->mesh->vertices().begin() end:_item->mesh->vertices().end()];
 }
 
 - (TriangleNodeIterator *)triQuadIterator
 {
-    return [[TriangleNodeIterator alloc] initWithBegin:mesh->triangles().begin() end:mesh->triangles().end()];
+    return [[TriangleNodeIterator alloc] initWithBegin:_item->mesh->triangles().begin() end:_item->mesh->triangles().end()];
 }
 
 - (EdgeNodeIterator *)edgeIterator
 {
-    return [[EdgeNodeIterator alloc] initWithBegin:mesh->vertexEdges().begin() end:mesh->vertexEdges().end()];
+    return [[EdgeNodeIterator alloc] initWithBegin:_item->mesh->vertexEdges().begin() end:_item->mesh->vertexEdges().end()];
 }
 
-- (uint)vertexCount { return mesh->vertexCount(); }
-- (uint)triQuadCount { return mesh->triangleCount(); }
+- (uint)vertexCount { return _item->mesh->vertexCount(); }
+- (uint)triQuadCount { return _item->mesh->triangleCount(); }
+- (BOOL)selected { return _item->selected; }
+- (void)setSelected:(BOOL)value { _item->selected = value; }
 
-- (void)removeDegeneratedTriangles { mesh->removeDegeneratedTriangles(); }
-- (void)removeNonUsedVertices { mesh->removeNonUsedVertices(); }
-- (void)removeNonUsedTexCoords { mesh->removeNonUsedTexCoords(); }
-- (void)mergeSelected { mesh->mergeSelected(); }
-- (void)splitSelected { mesh->splitSelected(); }
-- (void)detachSelected { mesh->detachSelected(); }
-- (void)duplicateSelectedTriangles { mesh->duplicateSelectedTriangles(); }
-- (void)flipSelected { mesh->flipSelected(); }
-- (void)flipAllTriangles { mesh->flipAllTriangles(); }
-- (void)extrudeSelectedTriangles { mesh->extrudeSelectedTriangles(); }
-- (void)triangulate { mesh->triangulate(); }
-- (void)triangulateSelectedQuads { mesh->triangulateSelectedQuads(); }
-- (void)openSubdivision { mesh->openSubdivision(); }
-- (void)loopSubdivision { mesh->loopSubdivision(); }
-- (void)makeTexCoords { mesh->makeTexCoords(); }
-- (void)makeEdges { mesh->makeEdges(); }
-- (void)updateSelection { mesh->setSelectionMode(mesh->selectionMode()); }
-- (void)setSelectionModeVertices { mesh->setSelectionMode(MeshSelectionModeVertices); }
-- (void)setSelectionModeTriQuads { mesh->setSelectionMode(MeshSelectionModeTriangles); }
-- (void)setSelectionModeEdges { mesh->setSelectionMode(MeshSelectionModeEdges); }
+- (void)removeDegeneratedTriangles { _item->mesh->removeDegeneratedTriangles(); }
+- (void)removeNonUsedVertices { _item->mesh->removeNonUsedVertices(); }
+- (void)removeNonUsedTexCoords { _item->mesh->removeNonUsedTexCoords(); }
+- (void)mergeSelected { _item->mesh->mergeSelected(); }
+- (void)splitSelected { _item->mesh->splitSelected(); }
+- (void)detachSelected { _item->mesh->detachSelected(); }
+- (void)duplicateSelectedTriangles { _item->mesh->duplicateSelectedTriangles(); }
+- (void)flipSelected { _item->mesh->flipSelected(); }
+- (void)flipAllTriangles { _item->mesh->flipAllTriangles(); }
+- (void)extrudeSelectedTriangles { _item->mesh->extrudeSelectedTriangles(); }
+- (void)triangulate { _item->mesh->triangulate(); }
+- (void)triangulateSelectedQuads { _item->mesh->triangulateSelectedQuads(); }
+- (void)openSubdivision { _item->mesh->openSubdivision(); }
+- (void)loopSubdivision { _item->mesh->loopSubdivision(); }
+- (void)makeTexCoords { _item->mesh->makeTexCoords(); }
+- (void)makeEdges { _item->mesh->makeEdges(); }
+- (void)updateSelection { _item->mesh->setSelectionMode(_item->mesh->selectionMode()); }
+- (void)setSelectionModeVertices { _item->mesh->setSelectionMode(MeshSelectionMode::Vertices); }
+- (void)setSelectionModeTriQuads { _item->mesh->setSelectionMode(MeshSelectionMode::Triangles); }
+- (void)setSelectionModeEdges { _item->mesh->setSelectionMode(MeshSelectionMode::Edges); }
+- (void)removeSelected { _item->removeSelected(); }
 
 - (VertexWrapper *)addVertexWithX:(float)x y:(float)y z:(float)z
 {
-    return [[VertexWrapper alloc] initWithNode:mesh->addVertex(Vector3D(x, y, z))];
+    return [[VertexWrapper alloc] initWithNode:_item->mesh->addVertex(Vector3D(x, y, z))];
 }
 
 - (TriangleWrapper *)addTriangleWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2
 {
-    return [[TriangleWrapper alloc] initWithNode:mesh->addTriangle(v0.node, v1.node, v2.node)];
+    return [[TriangleWrapper alloc] initWithNode:_item->mesh->addTriangle(v0.node, v1.node, v2.node)];
 }
 
 - (TriangleWrapper *)addQuadWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2 fourth:(VertexWrapper *)v3
 {
-    return [[TriangleWrapper alloc] initWithNode:mesh->addQuad(v0.node, v1.node, v2.node, v3.node)];
+    return [[TriangleWrapper alloc] initWithNode:_item->mesh->addQuad(v0.node, v1.node, v2.node, v3.node)];
 }
 
 - (void)removeTriQuad:(TriangleWrapper *)triQuad
 {
     TriangleNode *current = triQuad.node;
-    mesh->removeTriQuad(current);
+    _item->mesh->removeTriQuad(current);
     triQuad.node = current;
 }
 
@@ -371,4 +403,3 @@ ImplementIterator(VertexNodeIterator, VertexNode, node)
 ImplementIterator(TriangleNodeIterator, TriangleNode, node)
 ImplementIterator(EdgeNodeIterator, VertexEdgeNode, node)
 ImplementIterator(VertexNodeEdgeIterator, Vertex2VEdgeNode, simpleNode)
-*/

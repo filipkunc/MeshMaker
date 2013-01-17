@@ -5,7 +5,9 @@
 //  Created by Filip Kunc on 10/27/12.
 //
 //
-/*
+
+#pragma once
+
 #import "ItemCollection.h"
 
 @class VertexWrapper;
@@ -16,12 +18,27 @@
 @class TriangleNodeIterator;
 @class EdgeNodeIterator;
 @class SimpleNodeEdgeIterator;
+@class ItemWrapper;
 
-@interface ItemCollection (JSWrappers)
+@interface ItemCollectionWrapper : NSObject
+{
+    ItemCollection *_itemCollection;
+}
+
+- (id)initWithItemCollection:(ItemCollection *)itemCollection;
+
+@property (readonly) uint count;
+
+- (ItemWrapper *)at:(uint)index;
 
 @end
 
-@interface Item (JSWrappers)
+@interface ItemWrapper : NSObject
+{
+    Item *_item;
+}
+
+- (id)initWithItem:(Item *)item;
 
 @property (readonly) VertexNodeIterator *vertexIterator;
 @property (readonly) TriangleNodeIterator *triQuadIterator;
@@ -29,6 +46,7 @@
 
 @property (readonly) uint vertexCount;
 @property (readonly) uint triQuadCount;
+@property (readwrite, assign) BOOL selected;
 
 - (VertexWrapper *)addVertexWithX:(float)x y:(float)y z:(float)z;
 - (TriangleWrapper *)addTriangleWithFirst:(VertexWrapper *)v0 second:(VertexWrapper *)v1 third:(VertexWrapper *)v2;
@@ -140,4 +158,3 @@ DeclareIterator(VertexNodeIterator, VertexWrapper, VertexNode)
 DeclareIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode)
 DeclareIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode)
 DeclareIterator(VertexNodeEdgeIterator, VertexNodeEdgeWrapper, Vertex2VEdgeNode)
-*/
