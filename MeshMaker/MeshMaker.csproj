@@ -55,6 +55,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddItemWithStepsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddItemWithStepsForm.Designer.cs">
+      <DependentUpon>AddItemWithStepsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DocumentForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,6 +69,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddItemWithStepsForm.resx">
+      <DependentUpon>AddItemWithStepsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DocumentForm.resx">
       <DependentUpon>DocumentForm.cs</DependentUpon>
     </EmbeddedResource>

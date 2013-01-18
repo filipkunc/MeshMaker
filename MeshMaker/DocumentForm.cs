@@ -138,7 +138,22 @@ namespace MeshMaker
         private void addItem(object sender, EventArgs e)
         {
             var button = (ToolStripItem)sender;
-            document.addItem((MeshType)button.Tag, 20);
+            var meshType = (MeshType)button.Tag;
+            if (meshType == MeshType.Cylinder ||
+                meshType == MeshType.Sphere)
+            {
+                using (AddItemWithStepsForm dlg = new AddItemWithStepsForm())
+                {
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        document.addItem(meshType, dlg.steps);
+                    }
+                }
+            }
+            else
+            {
+                document.addItem(meshType, 0);
+            }
         }
 
         private void currentManipulatorClicked(object sender, EventArgs e)
@@ -277,6 +292,9 @@ namespace MeshMaker
 
                         switch (e.KeyCode)
                         {
+                            case Keys.Back:
+                                deleteToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
                             case Keys.Space:
                                 toggleOneViewFourViewMenuItem_Click(this, EventArgs.Empty);
                                 break;
