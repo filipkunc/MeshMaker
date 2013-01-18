@@ -13,10 +13,12 @@ namespace Chocolate
         public RunningVisualStudio()
         {
             Process currentProcess = Process.GetCurrentProcess();
-            if (string.Equals(currentProcess.ProcessName.ToLowerInvariant(), "devenv")) //!-!
+            var currentProcessName = currentProcess.ProcessName.ToLowerInvariant();
+            if (string.Equals(currentProcessName, "devenv") ||
+                string.Equals(currentProcessName, "wdexpress"))
                 IsRunningVisualStudio = true;
             else
-                IsRunningVisualStudio = false;            
+                IsRunningVisualStudio = false;
         }
     }
 }

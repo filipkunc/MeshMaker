@@ -968,7 +968,7 @@ namespace MeshMakerCppCLI
 		
 		currentManipulator = ManipulatorType::Default;
 
-		manipulationFinished = false;
+		manipulationFinished = true;
 
 		undoManager = gcnew UndoManager();
 	}

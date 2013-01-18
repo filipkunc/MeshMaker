@@ -101,6 +101,28 @@ namespace MeshMaker
             if (document.DocumentUndoManager.NeedsSave)
                 formTitle.Append(" *");
             this.Text = formTitle.ToString();
+
+            if (document.DocumentUndoManager.CanUndo)
+            {
+                undoToolStripMenuItem.Text = "Undo " + document.DocumentUndoManager.UndoName;
+                undoToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                undoToolStripMenuItem.Text = "Undo";
+                undoToolStripMenuItem.Enabled = false;
+            }
+
+            if (document.DocumentUndoManager.CanRedo)
+            {
+                redoToolStripMenuItem.Text = "Redo " + document.DocumentUndoManager.RedoName;
+                redoToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                redoToolStripMenuItem.Text = "Redo";
+                redoToolStripMenuItem.Enabled = false;
+            }
         }
 
         void toolStripComboBoxViewMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -248,11 +270,69 @@ namespace MeshMaker
 
         void DocumentForm_KeyDown(object sender, KeyEventArgs e)
         {
-            switch (e.KeyCode)
+            switch (e.Modifiers)
             {
-                case Keys.Space:
-                    toggleOneViewFourViewMenuItem_Click(this, EventArgs.Empty);
-                    break;
+                case Keys.None:
+                    {
+
+                        switch (e.KeyCode)
+                        {
+                            case Keys.Space:
+                                toggleOneViewFourViewMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.I:
+                                editModePopup.SelectedItem = EditMode.Items;
+                                break;
+                            case Keys.E:
+                                editModePopup.SelectedItem = EditMode.Edges;
+                                break;
+                            case Keys.V:
+                                editModePopup.SelectedItem = EditMode.Vertices;
+                                break;
+                            case Keys.T:
+                                editModePopup.SelectedItem = EditMode.Triangles;
+                                break;
+                            case Keys.D1:
+                                currentManipulatorClicked(manipulatorButtons.First(x => (ManipulatorType)x.Tag == ManipulatorType.Default), EventArgs.Empty);
+                                break;
+                            case Keys.D2:
+                                currentManipulatorClicked(manipulatorButtons.First(x => (ManipulatorType)x.Tag == ManipulatorType.Translation), EventArgs.Empty);
+                                break;
+                            case Keys.D3:
+                                currentManipulatorClicked(manipulatorButtons.First(x => (ManipulatorType)x.Tag == ManipulatorType.Rotation), EventArgs.Empty);
+                                break;
+                            case Keys.D4:
+                                currentManipulatorClicked(manipulatorButtons.First(x => (ManipulatorType)x.Tag == ManipulatorType.Scale), EventArgs.Empty);
+                                break;
+                        }
+                    } break;
+                case Keys.Shift:
+                    {
+                        switch (e.KeyCode)
+                        {
+                            case Keys.M:
+                                mergeToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.S:
+                                splitToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.F:
+                                flipToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.U:
+                                subdivisionToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.D:
+                                detachToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.E:
+                                extrudeToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                            case Keys.T:
+                                triangulateToolStripMenuItem_Click(this, EventArgs.Empty);
+                                break;
+                        }
+                    }break;
             }
         }
 
