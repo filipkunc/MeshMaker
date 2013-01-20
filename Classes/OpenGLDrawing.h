@@ -42,3 +42,4 @@ void DrawPlane(float size, float sizeOffset);
 void DrawCircle(float size);
 void DrawPlane(Vector3D a, Vector3D b, float size);
 void DrawSelectionPlane(PlaneAxis plane);
+void ColorIndex(uint colorIndex);

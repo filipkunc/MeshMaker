@@ -566,7 +566,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
-            glColor4ubv((GLubyte *)&colorIndex);
+            ColorIndex(colorIndex);
             FillMode fillMode;
             fillMode.textured = false;
             fillMode.colored = false;
@@ -583,7 +583,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 if (!node->data().visible)
                     continue;
                 
-                tempColors.push_back(colorIndex);
+                tempColors.push_back(colorIndex << 8);
                 tempVertices.push_back(node->data().position);
             }
         }
@@ -596,7 +596,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 if (!node->data().visible)
                     continue;
                 
-                tempColors.push_back(colorIndex);            
+                tempColors.push_back(colorIndex << 8);
                 tempVertices.push_back(node->data().position);            
             }
         }
@@ -605,7 +605,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         glEnableClientState(GL_COLOR_ARRAY);
         
         GLubyte *colorPtr = (GLubyte *)&tempColors[0];
-        glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
+        glColorPointer(3, GL_UNSIGNED_BYTE, 4, colorPtr);
         
         float *vertexPtr = (float *)&tempVertices[0];        
         glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
@@ -723,7 +723,7 @@ void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
     for (uint i = 0; i < _triangles.count(); i++)
     {
         uint colorIndex = i + 1;
-        glColor4ubv((GLubyte *)&colorIndex);
+        ColorIndex(colorIndex);
         drawAtIndex(i, forSelection, viewMode);
     }
 }
@@ -742,7 +742,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(1.0f, 1.0f);
-            glColor4ubv((GLubyte *)&colorIndex);
+            ColorIndex(colorIndex);
             FillMode fillMode;
             fillMode.textured = false;
             fillMode.colored = false;
@@ -761,8 +761,8 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
                 }
                 
                 colorIndex++;
-                tempColors.push_back(colorIndex);
-                tempColors.push_back(colorIndex);
+                tempColors.push_back(colorIndex << 8);
+                tempColors.push_back(colorIndex << 8);
             }
         }
         else
@@ -776,8 +776,8 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
                 }
                 
                 colorIndex++;
-                tempColors.push_back(colorIndex);
-                tempColors.push_back(colorIndex);
+                tempColors.push_back(colorIndex << 8);
+                tempColors.push_back(colorIndex << 8);
             }
         }
         
@@ -785,7 +785,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
         glEnableClientState(GL_COLOR_ARRAY);
         
         GLubyte *colorPtr = (GLubyte *)&tempColors[0];
-        glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
+        glColorPointer(3, GL_UNSIGNED_BYTE, 4, colorPtr);
         
         if (_isUnwrapped)
         {

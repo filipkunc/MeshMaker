@@ -150,7 +150,7 @@ void OpenGLManipulatingController::drawAllForSelection()
         for (uint i = 0; i < _modelItem->count(); i++)
         {
             uint colorIndex = i + 1;
-            glColor4ubv((GLubyte *)&colorIndex);
+            ColorIndex(colorIndex);
             _modelItem->drawAtIndex(i, true);
         }
         glPopMatrix();

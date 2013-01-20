@@ -224,3 +224,9 @@ void DrawCircle(float size)
     //glDisable(GL_LINE_SMOOTH);
     //glDisable(GL_BLEND);
 }
+
+void ColorIndex(uint colorIndex)
+{
+    colorIndex <<= 8;
+    glColor3ubv((const GLubyte *)&colorIndex);
+}

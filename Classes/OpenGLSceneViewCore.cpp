@@ -249,8 +249,8 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     {
         for (uint i = 0; i < count; i++)
         {
-            uint colorIndex = (i + 1) << 8;
-            glColor3ubv((GLubyte *)&colorIndex);
+            uint colorIndex = i + 1;
+            ColorIndex(colorIndex);
             selecting->drawForSelectionAtIndex(i);
         }
     }
@@ -264,7 +264,8 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
     if (selectedIndicesCount > 0)
     {
-        glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, selectedIndices);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
 
         bool *selected = new bool[count];
         for (uint i = 0; i < count; i++)
@@ -272,9 +273,14 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
         
         for (uint i = 0; i < selectedIndicesCount; i++)
         {
-            uint selectedIndex = selectedIndices[i];
-            if (selectedIndex > 0 && selectedIndex - 1 < count)
-                selected[selectedIndex - 1] = true;
+            uint selectedIndex = (selectedIndices[i] & 0x00FFFFFF) >> 8;
+            if (selectedIndex > 0)
+            {
+                if (selectedIndex - 1 < count)
+                    selected[selectedIndex - 1] = true;
+                else
+                    NSLog(@"selectedIndex: %x", selectedIndex);
+            }
         }
         
         return selected;
@@ -817,8 +823,11 @@ void OpenGLSceneViewCore::mouseMoved(NSPoint point)
 		{
             _currentManipulator->selectedIndex = UINT_MAX;
             _currentManipulator->position = _manipulated->selectionCenter();
-            select(_currentPoint, _currentManipulator, OpenGLSelectionMode::Add);
-            _delegate->setNeedsDisplay();
+            if (_currentManipulator != _defaultManipulator)
+            {
+                select(_currentPoint, _currentManipulator, OpenGLSelectionMode::Add);
+                _delegate->setNeedsDisplay();
+            }
 		}
 	}
 	
