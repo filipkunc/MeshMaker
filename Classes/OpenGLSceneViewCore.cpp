@@ -278,8 +278,8 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
             {
                 if (selectedIndex - 1 < count)
                     selected[selectedIndex - 1] = true;
-                else
-                    NSLog(@"selectedIndex: %x", selectedIndex);
+//                else
+//                    NSLog(@"selectedIndex: %x", selectedIndex);
             }
         }
         
