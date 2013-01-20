@@ -36,58 +36,58 @@
     <ClCompile Include="..\Classes\Vector4D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\Item.mm">
+    <ClCompile Include="..\Classes\Item.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\ItemCollection.mm">
+    <ClCompile Include="..\Classes\ItemCollection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\Manipulator.mm">
+    <ClCompile Include="..\Classes\Manipulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\ManipulatorWidget.mm">
+    <ClCompile Include="..\Classes\ManipulatorWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\MemoryStream.mm">
+    <ClCompile Include="..\Classes\MemoryStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\Mesh2.drawing.mm">
+    <ClCompile Include="..\Classes\Mesh2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\Mesh2.make.mm">
+    <ClCompile Include="..\Classes\Mesh2.drawing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\Mesh2.mm">
+    <ClCompile Include="..\Classes\Mesh2.make.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\MeshHelpers.mm">
+    <ClCompile Include="..\Classes\MeshHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLDrawing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLManipulatingController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLSceneView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\OpenGLSceneViewCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Triangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\MyDocument+archiving.mm">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\MyDocument.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLDrawing.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLManipulatingController.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLSceneView.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLSceneViewCore.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Shader.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ShaderProgram.mm">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Triangle.mm">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

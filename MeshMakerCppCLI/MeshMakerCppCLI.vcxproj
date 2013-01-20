@@ -116,6 +116,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Classes\Item.cpp" />
+    <ClCompile Include="..\Classes\ItemCollection.cpp" />
+    <ClCompile Include="..\Classes\Manipulator.cpp" />
+    <ClCompile Include="..\Classes\ManipulatorWidget.cpp" />
+    <ClCompile Include="..\Classes\MemoryStream.cpp" />
+    <ClCompile Include="..\Classes\Mesh2.cpp" />
+    <ClCompile Include="..\Classes\Mesh2.drawing.cpp" />
+    <ClCompile Include="..\Classes\Mesh2.make.cpp" />
+    <ClCompile Include="..\Classes\MeshHelpers.cpp" />
+    <ClCompile Include="..\Classes\OpenGLDrawing.cpp" />
+    <ClCompile Include="..\Classes\OpenGLManipulatingController.cpp" />
+    <ClCompile Include="..\Classes\OpenGLSceneView.cpp" />
+    <ClCompile Include="..\Classes\OpenGLSceneViewCore.cpp" />
+    <ClCompile Include="..\Classes\Shader.cpp" />
+    <ClCompile Include="..\Classes\ShaderProgram.cpp" />
+    <ClCompile Include="..\Classes\Triangle.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="..\Classes\Camera.cpp" />
     <ClCompile Include="..\Classes\Matrix4x4.cpp" />
@@ -123,62 +139,6 @@
     <ClCompile Include="..\Classes\Vector2D.cpp" />
     <ClCompile Include="..\Classes\Vector3D.cpp" />
     <ClCompile Include="..\Classes\Vector4D.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\Classes\Item.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ItemCollection.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Manipulator.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ManipulatorWidget.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\MemoryStream.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Mesh2.drawing.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Mesh2.make.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Mesh2.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\MeshHelpers.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\MyDocument+archiving.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\MyDocument.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLDrawing.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLManipulatingController.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLSceneView.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\OpenGLSceneViewCore.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Shader.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ShaderProgram.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Triangle.mm">
-      <FileType>CppCode</FileType>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\Camera.h" />
@@ -228,6 +188,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Classes\MyDocument+archiving.mm" />
+    <ClCompile Include="..\Classes\MyDocument.mm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
