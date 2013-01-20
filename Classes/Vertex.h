@@ -14,7 +14,7 @@ class VNode : public FPNode<VNode<T>, T>
 public:
 #if defined(__APPLE__)
     union
-#elif defined(WIN32)
+        #elif defined(WIN32) || defined(__linux__)
     struct
 #endif
     AlgorithmData

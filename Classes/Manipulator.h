@@ -12,6 +12,8 @@
 #include <Cocoa/Cocoa.h>
 #elif defined(WIN32)
 #include <windows.h>
+#elif defined(__linux__)
+#include <limits.h>
 #endif
 #include "MathDeclaration.h"
 #include "Camera.h"

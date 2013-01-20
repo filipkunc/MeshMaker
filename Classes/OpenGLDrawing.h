@@ -24,6 +24,9 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
+#elif defined(__linux__)
+#include <GL/gl.h>
+#include <GL/glu.h>
 #endif
 #include "MathDeclaration.h"
 #include "Enums.h"

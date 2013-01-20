@@ -29,3 +29,7 @@ Thumbs.db
 # videos - too large to be practical
 *.mp4
 *.mov
+
+# linux/qt noise
+*.pro.user
+*.pro.user.*

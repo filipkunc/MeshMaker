@@ -83,5 +83,40 @@ void MemoryWriteStream::writeBytes(const void *buffer, unsigned int length)
 	_stream->Write(bytes, 0, length);
 }
 
+#elif defined(__linux__)
+
+MemoryReadStream::MemoryReadStream(vector<unsigned char> *bytes)
+{
+    _bytes = bytes;
+    _lastReadPosition = 0;
+    _version = 0;
+}
+
+MemoryReadStream::~MemoryReadStream()
+{
+
+}
+
+void MemoryReadStream::readBytes(void *buffer, unsigned int length)
+{
+
+}
+
+MemoryWriteStream::MemoryWriteStream(vector<unsigned char> *bytes)
+{
+    _bytes = bytes;
+    _lastWritePosition = 0;
+    _version = 0;
+}
+
+MemoryWriteStream::~MemoryWriteStream()
+{
+
+}
+
+void MemoryWriteStream::writeBytes(const void *buffer, unsigned int length)
+{
+
+}
 
 #endif

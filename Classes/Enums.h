@@ -15,6 +15,9 @@ typedef unsigned int uint;
 
 #if defined(__APPLE__)
 #define EnumClass enum class
+#elif defined(__linux__)
+#define EnumClass enum class
+#include <limits.h>
 #elif defined(WIN32)
 #include <windows.h>
 using namespace System;

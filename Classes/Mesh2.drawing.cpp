@@ -510,7 +510,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
                 
                 if (!forSelection)
                 {
-                    BOOL isSelected = edge.selected;
+                    bool isSelected = edge.selected;
                     if (isSelected)
                         glColor3f(0.8f, 0.0f, 0.0f);
                     else
@@ -533,7 +533,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
                 
                 if (!forSelection)
                 {
-                    BOOL isSelected = edge.selected;
+                    bool isSelected = edge.selected;
                     if (isSelected)
                         glColor3f(0.8f, 0.0f, 0.0f);
                     else

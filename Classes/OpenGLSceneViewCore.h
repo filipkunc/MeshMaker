@@ -26,7 +26,7 @@
 #include "Mesh2.h"
 #include "ItemCollection.h"
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__linux__)
 
 struct NSPoint
 {
@@ -79,10 +79,10 @@ public:
 	Vector2D _perspectiveRadians;
 	NSPoint _lastPoint;
 	NSPoint _currentPoint;
-	BOOL _isManipulating;
-	BOOL _isSelecting;
-    BOOL _isPainting;
-	BOOL _highlightCameraMode;
+    bool _isManipulating;
+    bool _isSelecting;
+    bool _isPainting;
+    bool _highlightCameraMode;
 	Manipulator *_defaultManipulator;
 	Manipulator *_translationManipulator;
 	Manipulator *_rotationManipulator;

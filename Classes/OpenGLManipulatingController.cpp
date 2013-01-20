@@ -57,7 +57,7 @@
 
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__linux__)
 OpenGLManipulatingController::OpenGLManipulatingController()
 #elif defined(WIN32)
 OpenGLManipulatingController::OpenGLManipulatingController(MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^kvc)

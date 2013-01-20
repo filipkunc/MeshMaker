@@ -31,7 +31,7 @@ Vector4D generateRandomColor()
                                                alpha:1.0f];
     
     return Vector4D(color.redComponent, color.greenComponent, color.blueComponent, color.alphaComponent);
-#elif defined(WIN32)
+#elif defined(WIN32) || defined(__linux__)
 	return Vector4D(0.5f, 0.7f, 0.8f, 1.0f);
 #endif
 }

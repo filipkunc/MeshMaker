@@ -41,6 +41,10 @@ namespace MeshMakerCppCLI
 	};
 }
 
+#elif defined (__linux__)
+
+typedef int NSInteger;
+
 #endif
 
 class OpenGLManipulatingController : public IOpenGLManipulating
@@ -71,7 +75,7 @@ private:
 #endif
 
 public:
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__linux__)
     OpenGLManipulatingController();
 #elif defined(WIN32)
 	OpenGLManipulatingController(MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^kvc);

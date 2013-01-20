@@ -13,7 +13,7 @@ const float minDistance = 1.0f;
 const float maxDistance = 500.0f;
 const float planeSize = 4000.0f;
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__linux__)
 
 NSPoint NSMakePoint(float x, float y)
 {
@@ -239,7 +239,8 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
-    
+    glDisable(GL_BLEND);
+
     if (optional != NULL)
     {
         optional->drawAllForSelection();
@@ -248,8 +249,8 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     {
         for (uint i = 0; i < count; i++)
         {
-            uint colorIndex = i + 1;
-            glColor4ubv((GLubyte *)&colorIndex);
+            uint colorIndex = (i + 1) << 8;
+            glColor3ubv((GLubyte *)&colorIndex);
             selecting->drawForSelectionAtIndex(i);
         }
     }
@@ -263,7 +264,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
     if (selectedIndicesCount > 0)
     {
-    	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
+        glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, selectedIndices);
 
         bool *selected = new bool[count];
         for (uint i = 0; i < count; i++)
@@ -278,7 +279,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
         
         return selected;
     }
-    
+
     return NULL;
 }
 
@@ -717,6 +718,7 @@ void OpenGLSceneViewCore::draw()
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
 
 	setupViewportAndCamera();
     drawGrid(10, 2);

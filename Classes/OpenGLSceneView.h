@@ -130,4 +130,45 @@ namespace MeshMakerCppCLI
 	};
 }
 
+#elif defined(__linux__)
+
+#include <QtGui>
+#include <QtOpenGL>
+#include <QGLWidget>
+
+class OpenGLSceneView : public QGLWidget, public IOpenGLSceneViewCoreDelegate
+{
+    //Q_OBJECT
+
+public:
+    OpenGLSceneView(QWidget *parent = 0);
+    ~OpenGLSceneView();
+
+    OpenGLSceneViewCore *coreView();
+
+    QSize minimumSizeHint() const;
+    QSize sizeHint() const;
+
+    virtual NSRect bounds();
+    virtual void setNeedsDisplay();
+    virtual void manipulationStarted();
+    virtual void manipulationEnded();
+    virtual void selectionChanged();
+    virtual bool texturePaintEnabled();
+    virtual void makeCurrentContext();   
+
+protected:
+    void initializeGL();
+    void paintGL();
+    void resizeGL(int width, int height);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    NSPoint locationFromMouseEvent(QMouseEvent *event);
+
+private:
+    OpenGLSceneViewCore *_coreView;
+};
+
 #endif

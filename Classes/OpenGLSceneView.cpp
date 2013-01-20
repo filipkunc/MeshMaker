@@ -365,7 +365,7 @@ namespace MeshMakerCppCLI
 		InitializeGL();
 	}
 
-	void OpenGLSceneView::OnSizeChanged(EventArgs ^e)
+    void OpenGLSceneView::OnSizeChanged(EventArgs ^e)
 	{
 		UserControl::OnSizeChanged(e);
 		Invalidate();
@@ -547,6 +547,162 @@ namespace MeshMakerCppCLI
 		ShaderProgram::initShaders();
 #endif
 	}	
+}
+
+#elif defined(__linux__)
+
+OpenGLSceneView::OpenGLSceneView(QWidget *parent)
+    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+{
+    _coreView = new OpenGLSceneViewCore(this);
+    this->setMouseTracking(true);
+}
+
+OpenGLSceneView::~OpenGLSceneView()
+{
+    delete _coreView;
+}
+
+OpenGLSceneViewCore *OpenGLSceneView::coreView()
+{
+    return _coreView;
+}
+
+QSize OpenGLSceneView::minimumSizeHint() const
+{
+    return QSize(50, 50);
+}
+
+QSize OpenGLSceneView::sizeHint() const
+{
+    return QSize(400, 400);
+}
+
+NSRect OpenGLSceneView::bounds()
+{
+    return NSMakeRect(0, 0, this->size().width(), this->size().height());
+}
+
+void OpenGLSceneView::setNeedsDisplay()
+{
+    this->update();
+}
+
+void OpenGLSceneView::manipulationStarted()
+{
+
+}
+
+void OpenGLSceneView::manipulationEnded()
+{
+
+}
+
+void OpenGLSceneView::selectionChanged()
+{
+
+}
+
+bool OpenGLSceneView::texturePaintEnabled()
+{
+    return false;
+}
+
+void OpenGLSceneView::makeCurrentContext()
+{
+    this->makeCurrent();
+}
+
+void OpenGLSceneView::initializeGL()
+{
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+}
+
+void OpenGLSceneView::paintGL()
+{
+    _coreView->draw();
+}
+
+void OpenGLSceneView::resizeGL(int width, int height)
+{
+
+}
+
+NSPoint OpenGLSceneView::locationFromMouseEvent(QMouseEvent *event)
+{
+    NSPoint point = NSMakePoint(event->posF().x(), event->posF().y());
+    point.y = this->bounds().size.height - point.y;
+    return point;
+}
+
+void OpenGLSceneView::mousePressEvent(QMouseEvent *event)
+{
+    NSPoint point = locationFromMouseEvent(event);
+    if (event->buttons() & Qt::LeftButton)
+    {
+        _coreView->mouseDown(point, event->modifiers() & Qt::AltModifier);
+    }
+    else if (event->buttons() & Qt::RightButton)
+    {
+        _coreView->rightMouseDown(point);
+    }
+    else if (event->buttons() & Qt::MiddleButton)
+    {
+        _coreView->otherMouseDown(point);
+    }
+}
+
+void OpenGLSceneView::mouseMoveEvent(QMouseEvent *event)
+{
+    NSPoint point = locationFromMouseEvent(event);
+    if (event->buttons() & Qt::LeftButton)
+    {
+        _coreView->mouseDragged(point,
+                                event->modifiers() & Qt::AltModifier,
+                                event->modifiers() & Qt::ControlModifier); // Command
+    }
+    else if (event->buttons() & Qt::RightButton)
+    {
+        _coreView->rightMouseDragged(point, event->modifiers() & Qt::AltModifier);
+    }
+    else if (event->buttons() & Qt::MiddleButton)
+    {
+        _coreView->otherMouseDragged(point, event->modifiers() & Qt::AltModifier);
+    }
+    else
+    {
+        _coreView->mouseMoved(point);
+    }
+}
+
+void OpenGLSceneView::mouseReleaseEvent(QMouseEvent *event)
+{
+    NSPoint point = locationFromMouseEvent(event);
+    if (event->button() == Qt::LeftButton)
+    {
+        _coreView->mouseUp(point,
+                           event->modifiers() & Qt::AltModifier,
+                           event->modifiers() & Qt::ControlModifier, // Command
+                           false, // Control select through is disabled
+                           event->modifiers() & Qt::ShiftModifier,
+                           1);
+    }
+}
+
+void OpenGLSceneView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    NSPoint point = locationFromMouseEvent(event);
+    _coreView->mouseUp(point,
+                       event->modifiers() & Qt::AltModifier,
+                       event->modifiers() & Qt::ControlModifier, // Command
+                       false, // Control select through is disabled
+                       event->modifiers() & Qt::ShiftModifier,
+                       2);
 }
 
 #endif

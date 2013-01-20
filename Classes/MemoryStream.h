@@ -15,6 +15,9 @@
 #include <vcclr.h>
 using namespace System;
 using namespace System::IO;
+#elif defined(__linux__)
+#include <vector>
+using namespace std;
 #endif
 
 class MemoryReadStream
@@ -34,6 +37,14 @@ private:
 public:
 	MemoryReadStream(System::IO::MemoryStream ^stream);
 	~MemoryReadStream();
+#elif defined(__linux__)
+private:
+    vector<unsigned char> *_bytes;
+    unsigned int _lastReadPosition;
+    unsigned int _version;
+public:
+    MemoryReadStream(vector<unsigned char> *bytes);
+    ~MemoryReadStream();
 #endif    
     unsigned int version() { return _version; }
     void setVersion(unsigned int value) { _version = value; }
@@ -63,6 +74,14 @@ private:
     unsigned int _version;
 public:
 	MemoryWriteStream(System::IO::MemoryStream ^stream);
+    ~MemoryWriteStream();
+#elif defined(__linux__)
+private:
+    vector<unsigned char> *_bytes;
+    unsigned int _lastWritePosition;
+    unsigned int _version;
+public:
+    MemoryWriteStream(vector<unsigned char> *bytes);
     ~MemoryWriteStream();
 #endif
     unsigned int version() { return _version; }
