@@ -43,6 +43,12 @@ All script actions are undoable.
 MeshMaker is now mostly C++ project with Objective-C++ on Mac part and C++/CLI and C# on Windows part.
 
 <img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/triquads_win.png" alt="Triangles and Quads" width="715px" height="541px"></img>
+
+## Linux port
+
+I like to learn new things so I started porting MeshMaker also to Linux. I decided to reuse a lot of code from Mac and Windows part so I stick with C++ 11 and Qt for GUI.
+
+<img src="https://github.com/filipkunc/MeshMaker/raw/master/Screenshots/LinuxQt.png" alt="Linux Qt" width="744px" height="494px"></img>
  
 ## Camera manipulation
 
