@@ -99,7 +99,7 @@ MemoryReadStream::~MemoryReadStream()
 
 void MemoryReadStream::readBytes(void *buffer, unsigned int length)
 {
-
+#warning TODO: readBytes
 }
 
 MemoryWriteStream::MemoryWriteStream(vector<unsigned char> *bytes)
@@ -116,7 +116,7 @@ MemoryWriteStream::~MemoryWriteStream()
 
 void MemoryWriteStream::writeBytes(const void *buffer, unsigned int length)
 {
-
+#warning TODO: readBytes
 }
 
 #endif

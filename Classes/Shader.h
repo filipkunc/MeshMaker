@@ -8,9 +8,9 @@
 
 #pragma once
 
-#if defined(__APPLE__) || defined(SHADERS)
-
 #include "OpenGLDrawing.h"
+
+#if defined(__APPLE__) || defined(SHADERS)
 
 class Shader
 {

@@ -32,7 +32,9 @@ SOURCES += main.cpp\
     ../Classes/ShaderProgram.cpp \
     ../Classes/Triangle.cpp \
     ../Classes/OpenGLSceneViewCore.cpp \
-    ../Classes/OpenGLSceneView.cpp
+    ../Classes/OpenGLSceneView.cpp \
+    ../Classes/MyDocument+archiving.cpp \
+    ../Classes/MyDocument.cpp
 
 HEADERS  += mainwindow.h \
     ../Classes/VertexEdge.h \
@@ -72,8 +74,14 @@ HEADERS  += mainwindow.h \
     ../Classes/Enums.h \
     ../Classes/Camera.h \
     ../Classes/OpenGLSceneViewCore.h \
-    ../Classes/OpenGLSceneView.h
+    ../Classes/OpenGLSceneView.h \
+    ../Classes/MyDocument.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
-LIBS += -L/usr/local/lib -lGLU
+LIBS += -L/usr/local/lib -lGLU -lGLEW
+
+RESOURCES += \
+    resources.qrc
+
+OTHER_FILES +=

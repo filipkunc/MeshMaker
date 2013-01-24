@@ -6,9 +6,10 @@
 //  For license see LICENSE.TXT
 //
 
+#include "ShaderProgram.h"
+
 #if defined(__APPLE__) || defined(SHADERS)
 
-#include "ShaderProgram.h"
 #include <stdio.h>
 
 static inline const char * GetGLErrorString(GLenum error)

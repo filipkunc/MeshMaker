@@ -6,15 +6,23 @@
 //  For license see LICENSE.TXT
 //
 
+#include "Shader.h"
+
 #if defined(__APPLE__) || defined(SHADERS)
 
-#include "Shader.h"
 #include <stdio.h>
 
 #if defined(WIN32)
 
 #include <string>
 #include <fstream>
+using namespace std;
+
+#elif defined(__linux__)
+
+#include <QFile>
+#include <QTextStream>
+#include <string>
 using namespace std;
 
 #endif
@@ -41,6 +49,16 @@ Shader::Shader(GLenum shaderType, const char *fileName)
 	ifstream fin(fileName);
     getline(fin, buffer, char(-1));
     fin.close();
+    const GLchar *shaderSource = buffer.c_str();
+#elif defined(__linux__)
+    QString resourceName = ":/Shaders/";
+    resourceName += fileName;
+    QFile file(resourceName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QTextStream in(&file);
+    QString fileContents = in.readAll();
+    string buffer = fileContents.toStdString();
     const GLchar *shaderSource = buffer.c_str();
 #endif
     shader = glCreateShader(type);

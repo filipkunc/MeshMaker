@@ -25,6 +25,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #elif defined(__linux__)
+#define SHADERS 1
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif

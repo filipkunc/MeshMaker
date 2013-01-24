@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Icons/CubeTemplate.png</file>
+        <file>Icons/CylinderTemplate.png</file>
+        <file>Icons/IcosahedronTemplate.png</file>
+        <file>Icons/MergeTemplate.png</file>
+        <file>Icons/PlaneTemplate.png</file>
+        <file>Icons/RotateTemplate.png</file>
+        <file>Icons/ScaleTemplate.png</file>
+        <file>Icons/SelectTemplate.png</file>
+        <file>Icons/SphereTemplate.png</file>
+        <file>Icons/SplitTemplate.png</file>
+        <file>Icons/SubdivisionTemplate.png</file>
+        <file>Icons/TranslateTemplate.png</file>
+        <file>Shaders/fragment.fs</file>
+        <file>Shaders/vertex.vs</file>
+    </qresource>
+</RCC>

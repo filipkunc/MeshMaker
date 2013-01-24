@@ -186,7 +186,7 @@ namespace MeshMakerCppCLI
 		UndoStatePointer ^oldMeshState;
 
 	private:
-		void setManipulated(IOpenGLManipulating *value);
+        void setManipulated(IOpenGLManipulating *value);
 		Mesh2 *currentMesh();
 		void editItems();
 		void editMesh(MeshSelectionMode mode);
@@ -348,5 +348,77 @@ namespace MeshMakerCppCLI
 		String ^writeWavefrontObject();
 	};
 }
+
+#elif defined(__linux__)
+
+#include "ItemCollection.h"
+#include "OpenGLSceneView.h"
+
+class MyDocument
+{
+private:
+    ItemCollection *items;
+    OpenGLManipulatingController *itemsController;
+    OpenGLManipulatingController *meshController;
+    IOpenGLManipulating *manipulated;
+
+    bool manipulationFinished;
+
+    vector<OpenGLSceneView *> views;
+    OpenGLSceneView *viewLeft;
+    OpenGLSceneView *viewTop;
+    OpenGLSceneView *viewFront;
+    OpenGLSceneView *viewPerspective;
+
+    ManipulatorType _currentManipulator;
+public:
+    MyDocument();
+    ~MyDocument();
+
+    void setManipulated(IOpenGLManipulating *value);
+    Mesh2 *currentMesh();
+    void editItems();
+    void editMesh(MeshSelectionMode mode);    
+
+    ManipulatorType currentManipulator();
+    void setCurrentManipulator(ManipulatorType value);
+
+    void allItemsAction(string actionName, function<void ()> action);
+    void meshAction(string actionName, function<void ()> action);
+    void meshOnlyAction(string actionName, function<void ()> action);
+
+    virtual void manipulationStartedInView(OpenGLSceneView *view);
+    virtual void manipulationEndedInView(OpenGLSceneView *view);
+    virtual void selectionChangedInView(OpenGLSceneView *view);
+
+    virtual void willChangeSelection();
+    virtual void didChangeSelection();
+
+    void setViews(OpenGLSceneView *left,
+                  OpenGLSceneView *top,
+                  OpenGLSceneView *front,
+                  OpenGLSceneView *perspective);
+
+    void setNeedsDisplayExceptView(OpenGLSceneView *except);
+    void setNeedsDisplayOnAllViews();
+
+    void undo();
+    void redo();
+    void addItem(MeshType meshType, uint steps);
+    void removeItem(MeshType meshType, uint steps);
+    void duplicateSelected();
+    void deleteSelected();
+    void selectAll();
+    void invertSelection();
+    void hideSelected();
+    void unhideAll();
+    void mergeSelected();
+    void splitSelected();
+    void flipSelected();
+    void subdivision();
+    void detachSelected();
+    void extrudeSelected();
+    void triangulateSelected();
+};
 
 #endif

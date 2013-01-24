@@ -6,6 +6,7 @@
 class ItemCollection;
 class OpenGLManipulatingController;
 class OpenGLSceneView;
+class MyDocument;
 
 class MainWindow : public QMainWindow
 {
@@ -15,9 +16,22 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void setSelect();
+    void setTranslate();
+    void setRotate();
+    void setScale();
+
+    void addPlane();
+    void addCube();
+    void addCylinder();
+    void addSphere();
+    void addIcosahedron();
+signals:
+
+
 private:
-    ItemCollection *items;
-    OpenGLManipulatingController *itemsController;
+    MyDocument *document;
     OpenGLSceneView *perspectiveView;
 };
 

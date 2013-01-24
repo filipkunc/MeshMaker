@@ -615,6 +615,8 @@ void OpenGLSceneView::makeCurrentContext()
 
 void OpenGLSceneView::initializeGL()
 {
+    glewInit();
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);

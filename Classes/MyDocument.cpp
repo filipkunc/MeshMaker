@@ -1065,7 +1065,7 @@ namespace MeshMakerCppCLI
 		}
 	}
 
-	void MyDocument::setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective)
+    void MyDocument::setViews(OpenGLSceneView ^left, OpenGLSceneView ^top, OpenGLSceneView ^front, OpenGLSceneView ^perspective)
 	{
 		viewLeft = left;
 		viewTop = top;
@@ -1492,6 +1492,371 @@ namespace MeshMakerCppCLI
 			this->allItemsAction(L"Triangulate", gcnew Action(this, &MyDocument::triangulateSelectedCore));
 		}
 	}
+}
+
+#elif defined(__linux__)
+
+#include "MyDocument.h"
+
+MyDocument::MyDocument()
+{
+    items = new ItemCollection();
+    itemsController = new OpenGLManipulatingController();
+    meshController = new OpenGLManipulatingController();
+
+    itemsController->setModel(items);
+    manipulated = itemsController;
+
+    _currentManipulator = ManipulatorType::Default;
+
+    manipulationFinished = true;
+}
+
+MyDocument::~MyDocument()
+{
+    delete items;
+    delete itemsController;
+    delete meshController;
+}
+
+void MyDocument::setManipulated(IOpenGLManipulating *value)
+{
+    manipulated = value;
+
+    for (uint i = 0; i < views.size(); i++)
+    {
+        OpenGLSceneView *view = views[i];
+        view->coreView()->setManipulated(manipulated);
+        view->setNeedsDisplay();
+    }
+
+    if (manipulated == itemsController)
+    {
+        //documentDelegate->editModePopup->SelectedItem = EditMode::Items;
+    }
+    else if (manipulated == meshController)
+    {
+        //documentDelegate->editModePopup->SelectedItem = (EditMode)((int)currentMesh()->selectionMode() + 1);
+    }
+}
+
+Mesh2 *MyDocument::currentMesh()
+{
+    if (manipulated == meshController)
+    {
+        Item *item = (Item *)meshController->model();
+        return item->mesh;
+    }
+    if (manipulated == itemsController)
+    {
+        ItemCollection *itemCollection = (ItemCollection *)itemsController->model();
+        return itemCollection->currentMesh();
+    }
+    return NULL;
+}
+
+void MyDocument::editItems()
+{
+    Mesh2 *currentMesh = this->currentMesh();
+    if (currentMesh)
+        currentMesh->setSelectionMode(MeshSelectionMode::Vertices);
+
+    itemsController->setModel(items);
+    itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
+
+    this->setManipulated(itemsController);
+}
+
+void MyDocument::editMesh(MeshSelectionMode mode)
+{
+    NSInteger index = itemsController->lastSelectedIndex();
+    if (index > -1)
+    {
+        Item *item = items->itemAtIndex(index);
+        item->mesh->setSelectionMode(mode);
+
+        meshController->setModel(item);
+        meshController->setPositionRotationScale(item->position, item->rotation, item->scale);
+
+        this->setManipulated(meshController);
+    }
+}
+
+ManipulatorType MyDocument::currentManipulator()
+{
+    return _currentManipulator;
+}
+
+void MyDocument::setCurrentManipulator(ManipulatorType value)
+{
+    _currentManipulator = value;
+    itemsController->setCurrentManipulator(value, manipulated != itemsController);
+    meshController->setCurrentManipulator(value, manipulated != meshController);
+
+    for (uint i = 0; i < views.size(); i++)
+    {
+        OpenGLSceneView *view = views[i];
+        view->coreView()->setCurrentManipulator(value);
+    }
+}
+
+void MyDocument::allItemsAction(string actionName, function<void ()> action)
+{
+    action();
+}
+
+void MyDocument::meshAction(string actionName, function<void ()> action)
+{
+    action();
+}
+
+void MyDocument::meshOnlyAction(string actionName, function<void ()> action)
+{
+    action();
+}
+
+void MyDocument::manipulationStartedInView(OpenGLSceneView *view)
+{
+
+}
+
+void MyDocument::manipulationEndedInView(OpenGLSceneView *view)
+{
+
+}
+
+void MyDocument::selectionChangedInView(OpenGLSceneView *view)
+{
+
+}
+
+void MyDocument::willChangeSelection()
+{
+
+}
+
+void MyDocument::didChangeSelection()
+{
+
+}
+
+void MyDocument::setViews(OpenGLSceneView *left,
+                          OpenGLSceneView *top,
+                          OpenGLSceneView *front,
+                          OpenGLSceneView *perspective)
+{
+    views.clear();
+    views.push_back(viewLeft = left);
+    views.push_back(viewTop = top);
+    views.push_back(viewFront = front);
+    views.push_back(viewPerspective = perspective);
+
+    viewLeft->coreView()->setCameraMode(CameraMode::Left);
+    viewTop->coreView()->setCameraMode(CameraMode::Top);
+    viewFront->coreView()->setCameraMode(CameraMode::Front);
+    viewPerspective->coreView()->setCameraMode(CameraMode::Perspective);
+
+    for (uint i = 0; i < views.size(); i++)
+    {
+        OpenGLSceneView *view = views[i];
+
+        view->coreView()->setManipulated(manipulated);
+        view->coreView()->setDisplayed(itemsController);
+
+#warning TODO: view delegate
+    }
+}
+
+void MyDocument::setNeedsDisplayExceptView(OpenGLSceneView *except)
+{
+    for (uint i = 0; i < views.size(); i++)
+    {
+        if (views[i] != except)
+            views[i]->setNeedsDisplay();
+    }
+}
+
+void MyDocument::setNeedsDisplayOnAllViews()
+{
+    for (uint i = 0; i < views.size(); i++)
+    {
+        views[i]->setNeedsDisplay();
+    }
+}
+
+void MyDocument::undo()
+{
+#warning TODO: undo
+}
+
+void MyDocument::redo()
+{
+#warning TODO: redo
+}
+
+void MyDocument::addItem(MeshType meshType, uint steps)
+{
+    Item *item = new Item(new Mesh2());
+    Mesh2 *mesh = item->mesh;
+    mesh->make(meshType, steps);
+
+//    String ^actionName = String::Format(L"Add {0}", Mesh2::descriptionOfMeshType(meshType));
+
+//    undoManager->PrepareUndo(actionName, gcnew Invocation(
+//        gcnew AddRemoveItem(this, &MyDocument::removeItem),
+//        meshType, steps));
+
+    items->addItem(item);
+    itemsController->changeSelection(false);
+    items->setSelectedAtIndex(items->count() - 1, true);
+    itemsController->updateSelection();
+
+    this->setManipulated(itemsController);
+}
+
+void MyDocument::removeItem(MeshType meshType, uint steps)
+{
+//    String ^actionName = String::Format(L"Remove {0}", Mesh2::descriptionOfMeshType(meshType));
+
+//    undoManager->PrepareUndo(actionName, gcnew Invocation(
+//        gcnew AddRemoveItem(this, &MyDocument::addItem),
+//        meshType, steps));
+
+    items->removeLastItem();
+    meshController->setModel(NULL);
+    itemsController->changeSelection(false);
+
+    this->setManipulated(itemsController);
+}
+
+void MyDocument::duplicateSelected()
+{
+    if (manipulated->selectedCount() <= 0)
+        return;
+
+    bool startManipulation = false;
+    if (!manipulationFinished)
+    {
+        startManipulation = true;
+        this->manipulationEndedInView(nullptr);
+    }
+
+    if (manipulated == itemsController)
+    {
+        this->allItemsAction("Duplicate", [this] { this->manipulated->duplicateSelected(); });
+    }
+    else if (manipulated == meshController)
+    {
+        this->meshOnlyAction("Duplicate", [this] { this->manipulated->duplicateSelected(); });
+    }
+
+    manipulated->updateSelection();
+    this->setNeedsDisplayOnAllViews();
+
+    if (startManipulation)
+    {
+        this->manipulationStartedInView(nullptr);
+    }
+}
+
+void MyDocument::deleteSelected()
+{
+    if (manipulated->selectedCount() <= 0)
+        return;
+
+    if (manipulated == itemsController)
+    {
+        this->allItemsAction("Delete", [this] { this->manipulated->removeSelected(); });
+    }
+    else if (manipulated == meshController)
+    {
+        this->meshAction("Delete", [this] { this->manipulated->removeSelected(); });
+    }
+
+    this->setNeedsDisplayOnAllViews();
+}
+
+void MyDocument::selectAll()
+{
+    manipulated->changeSelection(true);
+    this->setNeedsDisplayOnAllViews();
+}
+
+void MyDocument::invertSelection()
+{
+    manipulated->invertSelection();
+    this->setNeedsDisplayOnAllViews();
+}
+
+void MyDocument::hideSelected()
+{
+    manipulated->hideSelected();
+    this->setNeedsDisplayOnAllViews();
+}
+
+void MyDocument::unhideAll()
+{
+    manipulated->unhideAll();
+    this->setNeedsDisplayOnAllViews();
+}
+
+void MyDocument::mergeSelected()
+{
+    if (manipulated->selectedCount() <= 0)
+        return;
+
+    if (manipulated == itemsController)
+    {
+        this->allItemsAction("Merge", [this] { this->items->mergeSelectedItems(); });
+    }
+    else if (manipulated == meshController)
+    {
+        this->meshAction("Merge", [this] { this->currentMesh()->mergeSelected(); });
+    }
+
+    manipulated->updateSelection();
+    this->setNeedsDisplayOnAllViews();
+}
+
+void MyDocument::splitSelected()
+{
+    this->meshOnlyAction("Split", [this] { this->currentMesh()->splitSelected(); });
+}
+
+void MyDocument::flipSelected()
+{
+    this->meshOnlyAction("Flip", [this] { this->currentMesh()->flipSelected(); });
+}
+
+void MyDocument::subdivision()
+{
+    this->meshOnlyAction("Subdivision", [this] { this->currentMesh()->openSubdivision(); });
+}
+
+void MyDocument::detachSelected()
+{
+    this->meshOnlyAction("Detach", [this] { this->currentMesh()->detachSelected(); });
+}
+
+void MyDocument::extrudeSelected()
+{
+    this->meshOnlyAction("Extrude", [this] { this->currentMesh()->extrudeSelectedTriangles(); });
+}
+
+void MyDocument::triangulateSelected()
+{
+    if (manipulated == meshController)
+    {
+        this->meshOnlyAction("Triangulate", [this] { this->currentMesh()->triangulateSelectedQuads(); });
+    }
+    else if (manipulated == itemsController)
+    {
+        this->allItemsAction("Triangulate", [this]
+        {
+            for (uint i = 0; i < this->items->count(); i++)
+                this->items->itemAtIndex(i)->mesh->triangulate();
+        });
+    }
 }
 
 #endif
