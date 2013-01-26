@@ -21,7 +21,7 @@
 #include "Shader.h"
 #include "ShaderProgram.h"
 #if defined(__APPLE__)
-#include "FPTexture.h"
+#include "Texture.h"
 #endif
 #include "Mesh2.h"
 #include "ItemCollection.h"

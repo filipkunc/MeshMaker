@@ -8,12 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ItemCollection.h"
+#import "TextureCollection.h"
 
 @interface FPTextureBrowserWindowController : NSWindowController
 {
     ItemCollection *items;
+    TextureCollection *textures;
 }
 
-- (void)setItems:(ItemCollection *)anItems;
+- (void)setItems:(ItemCollection *)anItems textures:(TextureCollection *)aTextures;
 
 @end

@@ -8,6 +8,7 @@ void main()
 	normal = normalize(gl_NormalMatrix * gl_Normal);
     eyeCoords = vec3(gl_ModelViewMatrix * gl_Vertex);
     
+    gl_TexCoord[0] = gl_MultiTexCoord0;
 	gl_FrontColor = gl_Color;
     gl_Position = ftransform();
 }

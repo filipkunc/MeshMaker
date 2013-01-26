@@ -7,14 +7,16 @@
 //
 
 #import "FPTextureBrowserWindowController.h"
+#import "FPImageView.h"
 
 @interface FPTextureBrowserWindowController ()  <NSTableViewDataSource, NSTableViewDelegate>
 {
     IBOutlet NSTableView *textureList;
-    IBOutlet NSImageView *textureView;
+    IBOutlet FPImageView *textureView;
 }
 
 - (IBAction)setTexture:(id)sender;
+- (IBAction)addTexture:(id)sender;
 
 @end
 
@@ -32,47 +34,59 @@
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
 }
-- (void)setItems:(ItemCollection *)anItems
+- (void)setItems:(ItemCollection *)anItems textures:(TextureCollection *)aTextures
 {
     items = anItems;
+    textures = aTextures;
     [textureList reloadData];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return items->count();
+    return textures->count();
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    return [NSString stringWithFormat:@"Texture%.2li.png", row];
+    NSString *name = textures->textureAtIndex(row)->name();
+    if (name != nil)
+        return name;
+    return @"<Empty>";
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
-//    int selectedRow = textureList.selectedRow;
-//    if (selectedRow >= 0 && selectedRow < (int)items->count())
-//    {
-//        Mesh2 *mesh = items->itemAtIndex(selectedRow)->mesh;
-//        items->deselectAll();
-//        items->setSelectedAtIndex(selectedRow, true);
-//        [textureView setImage:mesh->texture().canvas];
-//    }
-//    else
-//    {
-//        items->deselectAll();
-//        [textureView setImage:nil];
-//    }
+    int selectedRow = textureList.selectedRow;
+    if (selectedRow >= 0 && selectedRow < (int)textures->count())
+    {
+        [textureView setImage:textures->textureAtIndex(selectedRow)->image()];
+    }
+    else
+    {
+        [textureView setImage:nil];
+    }
 }
 
 - (IBAction)setTexture:(id)sender
 {
-//    int selectedRow = textureList.selectedRow;
-//    if (selectedRow >= 0 && selectedRow < (int)items->count())
-//    {    
-//        Mesh2 *mesh = items->itemAtIndex(selectedRow)->mesh;
-//        [mesh->texture() setCanvas:textureView.image];
-//    }
+    int selectedRow = textureList.selectedRow;
+    if (selectedRow >= 0 && selectedRow < (int)textures->count())
+    {
+        Mesh2 *mesh = items->currentMesh();
+        if (mesh != NULL)
+        {
+            Texture *texture = textures->textureAtIndex(selectedRow);
+            texture->setName([textureView imageName]);
+            texture->setImage([textureView image]);
+            mesh->setTexture(texture);
+        }
+    }
+}
+
+- (IBAction)addTexture:(id)sender
+{
+    textures->addTexture(new Texture());
+    [textureList reloadData];
 }
 
 @end

@@ -68,10 +68,12 @@ static inline const char * GetGLErrorString(GLenum error)
 }
 
 ShaderProgram *globalNormalShader = NULL;
+ShaderProgram *globalTexturedShader = NULL;
 
 void ShaderProgram::initShaders()
 {
     ShaderProgram::normalShader()->useProgram();
+    ShaderProgram::texturedShader()->useProgram();
 }
 
 ShaderProgram *ShaderProgram::normalShader()
@@ -84,6 +86,18 @@ ShaderProgram *ShaderProgram::normalShader()
         globalNormalShader->linkProgram();
 	}
 	return globalNormalShader;
+}
+
+ShaderProgram *ShaderProgram::texturedShader()
+{
+    if (!globalTexturedShader)
+	{
+		globalTexturedShader = new ShaderProgram();
+        globalTexturedShader->attachShader(GL_VERTEX_SHADER, "vertex.vs");
+        globalTexturedShader->attachShader(GL_FRAGMENT_SHADER, "textured_frag.fs");
+        globalTexturedShader->linkProgram();
+	}
+	return globalTexturedShader;
 }
 
 ShaderProgram::ShaderProgram()

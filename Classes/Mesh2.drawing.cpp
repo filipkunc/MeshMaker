@@ -291,14 +291,24 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
 #if defined(__APPLE__) || defined(SHADERS)
-	if (viewMode == ViewMode::MixedWireSolid)
+    if (viewMode == ViewMode::MixedWireSolid)
         glEnable(GL_BLEND);
+    
+    if (fillMode.textured && _texture != NULL)
+    {
+        glEnable(GL_TEXTURE_2D);
+        _texture->updateTexture();
+        glBindTexture(GL_TEXTURE_2D, _texture->textureID());
+    }
     
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     
     glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-
+    
+    if (fillMode.textured && _texture != NULL)
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
     if (fillMode.colored)
     {
         glEnableClientState(GL_COLOR_ARRAY);
@@ -310,22 +320,33 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     else
         glNormalPointer(GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, flatNormal));
     
+    if (fillMode.textured && _texture != NULL)
+        glTexCoordPointer(2, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
+    
     if (viewMode == ViewMode::Unwrap)
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, texCoord));
     else
         glVertexPointer(3, GL_FLOAT, sizeof(GLTriangleVertex), (void *)offsetof(GLTriangleVertex, position));
-
+    
     glDrawArrays(GL_TRIANGLES, 0, (int)_cachedTriangleVertices.count());
-
+    
     if (fillMode.colored)
         glDisableClientState(GL_COLOR_ARRAY);
     
+    if (fillMode.textured && _texture != NULL)
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+    
+    if (fillMode.textured && _texture != NULL)
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
+    }
+    
     if (viewMode == ViewMode::MixedWireSolid)
         glDisable(GL_BLEND);
 #else
@@ -361,7 +382,11 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
 {
     bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
 #if defined(__APPLE__) || defined(SHADERS)
-    ShaderProgram *shader = ShaderProgram::normalShader();
+    ShaderProgram *shader;
+    if (_texture != NULL)
+        shader = ShaderProgram::texturedShader();
+    else
+        shader = ShaderProgram::normalShader();
 #endif    
     if (viewMode == ViewMode::MixedWireSolid)
     {
@@ -396,6 +421,11 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
 
         }
 #if defined(__APPLE__) || defined(SHADERS)
+        if (_texture != NULL)
+        {
+            GLint textureLocation = glGetUniformLocation(shader->program, "texture");
+            glUniform1i(textureLocation, 0);
+        }
         shader->useProgram();
 #endif        
         if (_selectionMode != MeshSelectionMode::Triangles)
@@ -418,7 +448,14 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
         {
             glDisable(GL_POLYGON_OFFSET_FILL);
             drawAllEdges(viewMode, forSelection);
-        }        
+        }
+        
+        if (_isUnwrapped)
+        {
+            glColor3f(1.0f, 1.0f, 1.0f);
+            _texture->drawForUnwrap();
+        }
+
 	}
 	glPopMatrix();
     

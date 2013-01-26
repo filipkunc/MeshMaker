@@ -31,6 +31,7 @@
 		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
 		A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599F13D228B100F9D7D1 /* SplitTemplate.png */; };
 		A736FC26165C0B8400961DC1 /* fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = A736FC24165C0B2300961DC1 /* fragment.fs */; };
+		A7425A3F16B32EEE00440E61 /* TextureCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */; };
 		A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8412BD109A00B14CFA /* MeshTest.mm */; };
 		A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */; };
 		A746510B12BD1C940030EEB0 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6312BD107800B14CFA /* Quaternion.cpp */; };
@@ -38,12 +39,14 @@
 		A746510F12BD1C940030EEB0 /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
 		A746511312BD1CB30030EEB0 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */; };
 		A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3C12BD107800B14CFA /* Camera.cpp */; };
-		A74BF5A714FA9B2E006D7BA3 /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
+		A74BF5A714FA9B2E006D7BA3 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* Texture.cpp */; };
 		A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */; };
 		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
 		A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */; };
+		A7777AB316B483F400FF965A /* FPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A7777AB216B483F400FF965A /* FPImageView.m */; };
+		A7777AB616B493CA00FF965A /* textured_frag.fs in Resources */ = {isa = PBXBuildFile; fileRef = A7777AB416B492FD00FF965A /* textured_frag.fs */; };
 		A7847C6E1658FB4D0073AB2A /* sameSize.js in Resources */ = {isa = PBXBuildFile; fileRef = A7847C6C1658FB310073AB2A /* sameSize.js */; };
 		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
 		A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1113CF717500D2A1FC /* CubeTemplate.png */; };
@@ -83,7 +86,7 @@
 		A7E8B3711631BDF500B8599D /* ScriptWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7E8B36F1631BDF500B8599D /* ScriptWindowController.xib */; };
 		A7E8B3731631BF7F00B8599D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E8B3721631BF7F00B8599D /* WebKit.framework */; };
 		A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A7FBCD0D163B367900423D57 /* AppDelegate.m */; };
-		A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* FPTexture.mm */; };
+		A7FEB1FD13FF002E00473F8D /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* Texture.cpp */; };
 		A7FEB20213FF01D200473F8D /* checker.png in Resources */ = {isa = PBXBuildFile; fileRef = A7FEB20113FF01D200473F8D /* checker.png */; };
 /* End PBXBuildFile section */
 
@@ -161,11 +164,16 @@
 		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
 		A736FC24165C0B2300961DC1 /* fragment.fs */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = fragment.fs; sourceTree = "<group>"; };
 		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
+		A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = TextureCollection.cpp; path = Classes/TextureCollection.cpp; sourceTree = "<group>"; };
+		A7425A3E16B32EEE00440E61 /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureCollection.h; path = Classes/TextureCollection.h; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A767E0E3153B544700A175DE /* IcosahedronTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IcosahedronTemplate.png; sourceTree = "<group>"; };
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
 		A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaneTemplate.png; sourceTree = "<group>"; };
+		A7777AB116B483F400FF965A /* FPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPImageView.h; path = Classes/FPImageView.h; sourceTree = "<group>"; };
+		A7777AB216B483F400FF965A /* FPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPImageView.m; path = Classes/FPImageView.m; sourceTree = "<group>"; };
+		A7777AB416B492FD00FF965A /* textured_frag.fs */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = textured_frag.fs; sourceTree = "<group>"; };
 		A7847C6C1658FB310073AB2A /* sameSize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sameSize.js; sourceTree = "<group>"; };
 		A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RotateTemplate.png; sourceTree = "<group>"; };
 		A787CC1113CF717500D2A1FC /* CubeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CubeTemplate.png; sourceTree = "<group>"; };
@@ -223,8 +231,8 @@
 		A7E8B3721631BF7F00B8599D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		A7FBCD0C163B367900423D57 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
 		A7FBCD0D163B367900423D57 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Classes/AppDelegate.m; sourceTree = "<group>"; };
-		A7FEB1FB13FF002E00473F8D /* FPTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexture.h; path = Classes/FPTexture.h; sourceTree = "<group>"; };
-		A7FEB1FC13FF002E00473F8D /* FPTexture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTexture.mm; path = Classes/FPTexture.mm; sourceTree = "<group>"; };
+		A7FEB1FB13FF002E00473F8D /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = Classes/Texture.h; sourceTree = "<group>"; };
+		A7FEB1FC13FF002E00473F8D /* Texture.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = Texture.cpp; path = Classes/Texture.cpp; sourceTree = "<group>"; };
 		A7FEB20113FF01D200473F8D /* checker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checker.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -300,86 +308,90 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				A796A31F16AC59FA00339A58 /* Item.cpp */,
-				A796A32016AC59FA00339A58 /* ItemCollection.cpp */,
-				A796A32116AC59FA00339A58 /* Manipulator.cpp */,
-				A796A32216AC59FA00339A58 /* ManipulatorWidget.cpp */,
-				A796A32316AC59FA00339A58 /* MemoryStream.cpp */,
-				A796A32416AC59FA00339A58 /* Mesh2.cpp */,
-				A796A32516AC59FA00339A58 /* Mesh2.drawing.cpp */,
-				A796A32616AC59FA00339A58 /* Mesh2.make.cpp */,
-				A796A32716AC59FA00339A58 /* MeshHelpers.cpp */,
-				A796A32816AC59FA00339A58 /* OpenGLDrawing.cpp */,
-				A796A32916AC59FA00339A58 /* OpenGLManipulatingController.cpp */,
-				A796A32A16AC59FA00339A58 /* OpenGLSceneView.cpp */,
-				A796A32B16AC59FA00339A58 /* OpenGLSceneViewCore.cpp */,
-				A796A32C16AC59FA00339A58 /* rapidxml_iterators.hpp */,
-				A796A32D16AC59FA00339A58 /* rapidxml_print.hpp */,
-				A796A32E16AC59FA00339A58 /* rapidxml_utils.hpp */,
-				A796A32F16AC59FA00339A58 /* rapidxml.hpp */,
-				A796A33016AC59FA00339A58 /* Shader.cpp */,
-				A796A33116AC59FA00339A58 /* ShaderProgram.cpp */,
-				A796A33216AC59FA00339A58 /* Triangle.cpp */,
-				A7FBCD0C163B367900423D57 /* AppDelegate.h */,
-				A7FBCD0D163B367900423D57 /* AppDelegate.m */,
-				A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */,
-				A7FEB1FB13FF002E00473F8D /* FPTexture.h */,
-				A7FEB1FC13FF002E00473F8D /* FPTexture.mm */,
-				A7A9695913DB328F0091975A /* FPArrayCache.h */,
-				A74FBFF5139A74AC00349A4C /* FPNode.h */,
-				A79F521E1394161B00CF7DBE /* FPList.h */,
-				A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */,
 				A7064C3A12BD107800B14CFA /* AddItemWithStepsSheetController.h */,
 				A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */,
+				A7FBCD0C163B367900423D57 /* AppDelegate.h */,
+				A7FBCD0D163B367900423D57 /* AppDelegate.m */,
 				A7064C3C12BD107800B14CFA /* Camera.cpp */,
 				A7064C3D12BD107800B14CFA /* Camera.h */,
 				A7064C3F12BD107800B14CFA /* Enums.h */,
-				A7064C4212BD107800B14CFA /* Item.h */,
-				A7064C4412BD107800B14CFA /* ItemCollection.h */,
-				A7064C4812BD107800B14CFA /* Manipulator.h */,
-				A7064C4A12BD107800B14CFA /* ManipulatorWidget.h */,
-				A7064C4C12BD107800B14CFA /* MathDeclaration.h */,
-				A7064C4D12BD107800B14CFA /* MathForwardDeclaration.h */,
-				A7064C4F12BD107800B14CFA /* Matrix4x4.h */,
-				A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */,
-				A7064C6A12BD107800B14CFA /* Vector2D.h */,
-				A7064C6912BD107800B14CFA /* Vector2D.cpp */,
-				A7064C6C12BD107800B14CFA /* Vector3D.h */,
-				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
-				A7C692B514CDBFCC00180CA4 /* Vector4D.h */,
-				A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */,
-				A7064C6412BD107800B14CFA /* Quaternion.h */,
-				A7064C6312BD107800B14CFA /* Quaternion.cpp */,
-				A7064C5812BD107800B14CFA /* MyDocument.h */,
-				A7ABF52F16B1CF1E00EA8CC5 /* MyDocument.cpp */,
-				A7ABF53016B1CF1E00EA8CC5 /* MyDocument+archiving.cpp */,
-				A7064C5B12BD107800B14CFA /* OpenGLDrawing.h */,
-				A7064C5C12BD107800B14CFA /* OpenGLManipulating.h */,
-				A7064C5D12BD107800B14CFA /* OpenGLManipulatingController.h */,
-				A7064C5F12BD107800B14CFA /* OpenGLManipulatingModel.h */,
-				A7064C6012BD107800B14CFA /* OpenGLSceneView.h */,
-				A7041936169A140E0082864F /* OpenGLSceneViewCore.h */,
-				A7064C6212BD107800B14CFA /* OpenGLSelecting.h */,
-				A7064C6512BD107800B14CFA /* Shader.h */,
-				A7064C6712BD107800B14CFA /* ShaderProgram.h */,
-				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
-				A7D0684E14B9FF300091B657 /* MeshForwardDeclaration.h */,
-				A7A4874113AE2EF100C0C41B /* Mesh2.h */,
-				A7D0684C14B9FEC90091B657 /* Vertex.h */,
-				A7D0685014B9FFE90091B657 /* Triangle.h */,
-				A7D0685114BA00340091B657 /* VertexEdge.h */,
-				A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */,
-				A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */,
-				A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */,
-				A76AF5E6151E331A0015E5B4 /* MemoryStream.h */,
+				A7A9695913DB328F0091975A /* FPArrayCache.h */,
+				A79F521E1394161B00CF7DBE /* FPList.h */,
+				A74FBFF5139A74AC00349A4C /* FPNode.h */,
 				A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */,
 				A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */,
 				A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */,
+				A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */,
+				A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */,
+				A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */,
+				A796A31F16AC59FA00339A58 /* Item.cpp */,
+				A7064C4212BD107800B14CFA /* Item.h */,
+				A796A32016AC59FA00339A58 /* ItemCollection.cpp */,
+				A7064C4412BD107800B14CFA /* ItemCollection.h */,
+				A78BDDDB163BF7D800FFFACD /* JSWrappers.h */,
+				A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */,
+				A796A32116AC59FA00339A58 /* Manipulator.cpp */,
+				A7064C4812BD107800B14CFA /* Manipulator.h */,
+				A796A32216AC59FA00339A58 /* ManipulatorWidget.cpp */,
+				A7064C4A12BD107800B14CFA /* ManipulatorWidget.h */,
+				A7064C4C12BD107800B14CFA /* MathDeclaration.h */,
+				A7064C4D12BD107800B14CFA /* MathForwardDeclaration.h */,
+				A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */,
+				A7064C4F12BD107800B14CFA /* Matrix4x4.h */,
+				A796A32316AC59FA00339A58 /* MemoryStream.cpp */,
+				A76AF5E6151E331A0015E5B4 /* MemoryStream.h */,
+				A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */,
+				A796A32416AC59FA00339A58 /* Mesh2.cpp */,
+				A796A32516AC59FA00339A58 /* Mesh2.drawing.cpp */,
+				A7A4874113AE2EF100C0C41B /* Mesh2.h */,
+				A796A32616AC59FA00339A58 /* Mesh2.make.cpp */,
+				A7D0684E14B9FF300091B657 /* MeshForwardDeclaration.h */,
+				A796A32716AC59FA00339A58 /* MeshHelpers.cpp */,
+				A7064C5512BD107800B14CFA /* MeshHelpers.h */,
+				A7ABF53016B1CF1E00EA8CC5 /* MyDocument+archiving.cpp */,
+				A7ABF52F16B1CF1E00EA8CC5 /* MyDocument.cpp */,
+				A7064C5812BD107800B14CFA /* MyDocument.h */,
+				A796A32816AC59FA00339A58 /* OpenGLDrawing.cpp */,
+				A7064C5B12BD107800B14CFA /* OpenGLDrawing.h */,
+				A7064C5C12BD107800B14CFA /* OpenGLManipulating.h */,
+				A796A32916AC59FA00339A58 /* OpenGLManipulatingController.cpp */,
+				A7064C5D12BD107800B14CFA /* OpenGLManipulatingController.h */,
+				A7064C5F12BD107800B14CFA /* OpenGLManipulatingModel.h */,
+				A796A32A16AC59FA00339A58 /* OpenGLSceneView.cpp */,
+				A7064C6012BD107800B14CFA /* OpenGLSceneView.h */,
+				A796A32B16AC59FA00339A58 /* OpenGLSceneViewCore.cpp */,
+				A7041936169A140E0082864F /* OpenGLSceneViewCore.h */,
+				A7064C6212BD107800B14CFA /* OpenGLSelecting.h */,
+				A7064C6312BD107800B14CFA /* Quaternion.cpp */,
+				A7064C6412BD107800B14CFA /* Quaternion.h */,
+				A796A32F16AC59FA00339A58 /* rapidxml.hpp */,
+				A796A32C16AC59FA00339A58 /* rapidxml_iterators.hpp */,
+				A796A32D16AC59FA00339A58 /* rapidxml_print.hpp */,
+				A796A32E16AC59FA00339A58 /* rapidxml_utils.hpp */,
 				A7E8B36D1631BDF500B8599D /* ScriptWindowController.h */,
 				A7E8B36E1631BDF500B8599D /* ScriptWindowController.mm */,
 				A7E8B36F1631BDF500B8599D /* ScriptWindowController.xib */,
-				A78BDDDB163BF7D800FFFACD /* JSWrappers.h */,
-				A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */,
+				A796A33016AC59FA00339A58 /* Shader.cpp */,
+				A7064C6512BD107800B14CFA /* Shader.h */,
+				A796A33116AC59FA00339A58 /* ShaderProgram.cpp */,
+				A7064C6712BD107800B14CFA /* ShaderProgram.h */,
+				A7E44512139B999B00FEB4A6 /* SimpleNodeAndList.h */,
+				A7FEB1FC13FF002E00473F8D /* Texture.cpp */,
+				A7FEB1FB13FF002E00473F8D /* Texture.h */,
+				A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */,
+				A7425A3E16B32EEE00440E61 /* TextureCollection.h */,
+				A796A33216AC59FA00339A58 /* Triangle.cpp */,
+				A7D0685014B9FFE90091B657 /* Triangle.h */,
+				A7064C6912BD107800B14CFA /* Vector2D.cpp */,
+				A7064C6A12BD107800B14CFA /* Vector2D.h */,
+				A7064C6B12BD107800B14CFA /* Vector3D.cpp */,
+				A7064C6C12BD107800B14CFA /* Vector3D.h */,
+				A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */,
+				A7C692B514CDBFCC00180CA4 /* Vector4D.h */,
+				A7D0684C14B9FEC90091B657 /* Vertex.h */,
+				A7D0685114BA00340091B657 /* VertexEdge.h */,
+				A7777AB116B483F400FF965A /* FPImageView.h */,
+				A7777AB216B483F400FF965A /* FPImageView.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -439,6 +451,7 @@
 			children = (
 				A7064C8812BD10C200B14CFA /* vertex.vs */,
 				A736FC24165C0B2300961DC1 /* fragment.fs */,
+				A7777AB416B492FD00FF965A /* textured_frag.fs */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -552,6 +565,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7777AB616B493CA00FF965A /* textured_frag.fs in Resources */,
 				A7847C6E1658FB4D0073AB2A /* sameSize.js in Resources */,
 				A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */,
 				A7B76C9F1657CA6400CFAAE7 /* meshtest.js in Resources */,
@@ -620,7 +634,7 @@
 				A7064C7E12BD107800B14CFA /* Quaternion.cpp in Sources */,
 				A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */,
 				A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */,
-				A7FEB1FD13FF002E00473F8D /* FPTexture.mm in Sources */,
+				A7FEB1FD13FF002E00473F8D /* Texture.cpp in Sources */,
 				A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */,
 				A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */,
 				A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */,
@@ -645,6 +659,8 @@
 				A796A34216AC59FA00339A58 /* Triangle.cpp in Sources */,
 				A7ABF53116B1CF1E00EA8CC5 /* MyDocument.cpp in Sources */,
 				A7ABF53216B1CF1E00EA8CC5 /* MyDocument+archiving.cpp in Sources */,
+				A7425A3F16B32EEE00440E61 /* TextureCollection.cpp in Sources */,
+				A7777AB316B483F400FF965A /* FPImageView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -653,7 +669,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */,
-				A74BF5A714FA9B2E006D7BA3 /* FPTexture.mm in Sources */,
+				A74BF5A714FA9B2E006D7BA3 /* Texture.cpp in Sources */,
 				A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */,
 				A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */,
 				A746511312BD1CB30030EEB0 /* Matrix4x4.cpp in Sources */,

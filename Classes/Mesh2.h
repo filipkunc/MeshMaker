@@ -11,7 +11,7 @@
 #include "OpenGLDrawing.h"
 #include "ShaderProgram.h"
 #if defined(__APPLE__)
-#include "FPTexture.h"
+#include "Texture.h"
 #endif
 #include "MeshHelpers.h"
 #include "Camera.h"
@@ -93,6 +93,7 @@ private:
 
     float _colorComponents[4];
     Vector4D _color;
+    Texture *_texture;
 private:
     void fastMergeSelectedVertices();
     void fastMergeSelectedTexCoords();
@@ -121,6 +122,9 @@ public:
     
     Vector4D color() { return _color; }
     void setColor(Vector4D color);
+    
+    Texture *texture() { return _texture; }
+    void setTexture(Texture *texture) { _texture = texture; }
     
     uint vertexCount() { return _vertices.count(); }
     uint triangleCount() { return _triangles.count(); }

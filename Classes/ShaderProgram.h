@@ -22,6 +22,8 @@ public:
     
     static void initShaders();
     static ShaderProgram *normalShader();
+    static ShaderProgram *texturedShader();
+    
     void attachShader(GLenum type, const char *fileName);
     void linkProgram();
     void useProgram();

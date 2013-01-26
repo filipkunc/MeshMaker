@@ -121,6 +121,8 @@ Mesh2::Mesh2()
     
     _isUnwrapped = false;
     
+    _texture = NULL;
+    
     setColor(generateRandomColor());
 }
 
@@ -132,6 +134,8 @@ Mesh2::Mesh2(MemoryReadStream *stream)
     _vboGenerated = false;
     
     _isUnwrapped = false;
+    
+    _texture = NULL;
     
     setColor(generateRandomColor());
 

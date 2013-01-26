@@ -47,6 +47,7 @@
         // Add your subclass-specific initialization here.
         // If an error occurs here, send a [self release] message and return nil.
 		items = new ItemCollection();
+        textures = new TextureCollection();
 		itemsController = new OpenGLManipulatingController();
 		meshController = new OpenGLManipulatingController();
 		
@@ -75,6 +76,11 @@
 {
     itemsController->removeSelectionObserver(self);
     meshController->removeSelectionObserver(self);
+    
+    delete items;
+    delete textures;
+    delete itemsController;
+    delete meshController;
 }
 
 - (void)awakeFromNib
@@ -203,7 +209,7 @@
 	[document removeItemWithType:type steps:steps];
 	
     items->addItem(item);
-    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController setItems:items textures:textures];
     itemsController->changeSelection(false);
     items->setSelectedAtIndex(items->count() - 1, true);
     itemsController->updateSelection();
@@ -219,7 +225,7 @@
 
 	items->removeLastItem();
     meshController->setModel(NULL);
-    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController setItems:items textures:textures];
     itemsController->changeSelection(false);
 	[self setManipulated:itemsController];
 }
@@ -354,7 +360,7 @@
 
 	action();
     
-    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController setItems:items textures:textures];
 	
 	UndoStatePointer *currentItems = [[UndoStatePointer alloc] initWithUndoState:items->allItems()];
 	[document swapAllItemsWithOld:oldItems 
@@ -651,7 +657,7 @@
 		MyDocument *document = [self prepareUndoWithName:@"Delete"];
 		[document undoDeleteSelected:currentItems];
 		manipulated->removeSelected();
-        [textureBrowserWindowController setItems:items];
+        [textureBrowserWindowController setItems:items textures:textures];
 	}
 	else if (manipulated == meshController)
 	{
@@ -666,7 +672,7 @@
 	[self setManipulated:itemsController];
     items->setSelectionFromRemovedItems(selectedItems.undoState);
 	manipulated->removeSelected();
-    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController setItems:items textures:textures];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document undoDeleteSelected:selectedItems];
@@ -679,7 +685,7 @@
 {
 	[self setManipulated:itemsController];
     items->setCurrentItems(selectedItems.undoState);
-    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController setItems:items textures:textures];
 	
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document redoDeleteSelected:selectedItems];
@@ -797,7 +803,7 @@
 
 - (IBAction)viewTextureBrowser:(id)sender
 {
-    [textureBrowserWindowController setItems:items];
+    [textureBrowserWindowController setItems:items textures:textures];
     [textureBrowserWindowController showWindow:nil];
 }
 

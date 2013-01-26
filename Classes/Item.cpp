@@ -136,6 +136,7 @@ Item *Item::duplicate()
     
     newItem->mesh->merge(mesh);
     newItem->mesh->setColor(mesh->color());
+    newItem->mesh->setTexture(mesh->texture());
     newItem->selected = selected;
 	
 	return newItem;
@@ -166,6 +167,7 @@ ViewMode Item::viewMode()
 void Item::setViewMode(ViewMode viewMode)
 {
     _viewMode = viewMode;
+    mesh->setUnwrapped(_viewMode == ViewMode::Unwrap);
 }
 
 uint Item::count()

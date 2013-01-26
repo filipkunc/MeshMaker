@@ -1,5 +1,6 @@
-// fragment.fs
+// textured_frag.fs
 
+uniform sampler2D texture;
 varying vec3 normal;
 varying vec3 eyeCoords;
 
@@ -22,6 +23,12 @@ void main()
     }
     
     vec4 material = baseColor;
+    
+    vec4 textureColor = texture2D(texture, gl_TexCoord[0].st);
+    material.r *= textureColor.r;
+    material.g *= textureColor.g;
+    material.b *= textureColor.b;
+    material.a *= textureColor.a;
     
     vec3 s = normalize(l - eyeCoords);
     vec3 v = normalize(-eyeCoords);

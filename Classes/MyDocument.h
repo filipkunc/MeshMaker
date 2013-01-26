@@ -34,6 +34,7 @@
 @public // public for unit tests
 	BOOL manipulationFinished;
 	ItemCollection *items;
+    TextureCollection *textures;
 	OpenGLManipulatingController *itemsController;
 	OpenGLManipulatingController *meshController;
     IOpenGLManipulating *manipulated;
