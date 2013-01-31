@@ -34,7 +34,7 @@ void main()
     vec4 specular = vec4(0.0, 0.0, 0.0, 0.0);
     
     if (sDotN > 0.0)
-        specular = vec4(1.0, 1.0, 1.0, 1.0) * pow(max(dot(r, v), 0.0), 40.0);
+        specular = vec4(0.3, 0.3, 0.3, 0.0) * pow(max(dot(r, v), 0.0), 20.0);
     
     vec4 finalColor = min(ambient + diffuse + specular, baseColor * 1.8);
     gl_FragColor = finalColor;

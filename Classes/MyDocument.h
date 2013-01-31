@@ -29,7 +29,7 @@
 
 @end
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, ScriptDelegate, NSWindowDelegate>
+@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, ScriptDelegate, FPTextureBrowserDelegate, NSWindowDelegate>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;

@@ -12,6 +12,8 @@
 
 void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, int height, bool convertToAlpha);
 
+class ItemCollection;
+
 class Texture
 {
 private:
@@ -36,4 +38,6 @@ public:
     
     void drawForUnwrap();
     void updateTexture();
+    
+    void removeFromItems(ItemCollection &items);
 };

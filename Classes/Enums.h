@@ -115,7 +115,8 @@ EnumClass ModelVersion : uint
     Colors = 2U,
     TriQuads = 3U,
     CrossPlatform = 4U,
+    TextureNames = 5U,
 
-    Latest = CrossPlatform
+    Latest = TextureNames
 };
 

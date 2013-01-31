@@ -93,24 +93,24 @@ ItemCollection::~ItemCollection()
     items.clear();
 }
 
-ItemCollection::ItemCollection(MemoryReadStream *stream)
+ItemCollection::ItemCollection(MemoryReadStream *stream, TextureCollection &textures)
 {
     uint itemsCount = stream->read<uint>();
     for (uint i = 0; i < itemsCount; i++)
     {
-        Item *item = new Item(stream);
+        Item *item = new Item(stream, textures);
         items.push_back(item);
     }
 }
 
-void ItemCollection::encode(MemoryWriteStream *stream)
+void ItemCollection::encode(MemoryWriteStream *stream, TextureCollection &textures)
 {
     uint itemsCount = items.size();
     stream->write<uint>(itemsCount);
 	for (uint i = 0; i < itemsCount; i++)
 	{
 		Item *item = items.at(i);
-        item->encode(stream);
+        item->encode(stream, textures);
 	}
 }
 

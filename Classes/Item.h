@@ -34,8 +34,8 @@ public:
     Item(Mesh2 *aMesh);
     virtual ~Item();
     
-    Item(MemoryReadStream *stream);
-    void encode(MemoryWriteStream *stream);
+    Item(MemoryReadStream *stream, TextureCollection &textures);
+    void encode(MemoryWriteStream *stream, TextureCollection &textures);
     
     Matrix4x4 transform();
     

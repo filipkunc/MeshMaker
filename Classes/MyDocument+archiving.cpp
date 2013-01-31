@@ -55,23 +55,19 @@ vector<T> *ReadValues(string s)
     NSData *modelData = [modelWrapper regularFileContents];
     [self readFromModel3D:modelData];
     
-//    [[dirWrapper fileWrappers] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
-//     {
-//         NSString *textureName = (NSString *)key;
-//         if ([textureName hasSuffix:@".png"])
-//         {
-//             textureName = [textureName stringByDeletingPathExtension];
-//             
-//             NSFileWrapper *textureWrapper = (NSFileWrapper *)obj;
-//             NSData *textureData = [textureWrapper regularFileContents];
-//             
-//             NSImage *image = [[NSImage alloc] initWithData:textureData];
-//             uint index = [textureName substringFromIndex:@"Texture".length].integerValue;
-//             Item *item = items->itemAtIndex(index);
-//             FPTexture *texture = item->mesh->texture();
-//             [texture setCanvas:image];
-//         }
-//     }];
+    for (uint i = 0; i < textures->count(); i++)
+    {
+        Texture *texture = textures->textureAtIndex(i);
+        NSString *name = [[texture->name() lastPathComponent] stringByDeletingPathExtension];
+        name = [name stringByAppendingPathExtension:@"png"];
+        NSFileWrapper *textureWrapper = [[dirWrapper fileWrappers] objectForKey:name];
+        if (textureWrapper != nil)
+        {
+            NSData *textureData = [textureWrapper regularFileContents];
+            NSImage *image = [[NSImage alloc] initWithData:textureData];
+            texture->setImage(image);
+        }
+    }
     
     return YES;
 }
@@ -92,18 +88,22 @@ vector<T> *ReadValues(string s)
     [dirWrapper addRegularFileWithContents:[self dataOfModel3D]
                          preferredFilename:@"Geometry.model3D"];
     
-    
-//    for (int i = 0; i < (int)items->count(); i++)
-//    {
-//        NSImage *image = items->itemAtIndex(i)->mesh->texture().canvas;
-//        NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
-//        
-//        NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
-//        
-//        
-//        [dirWrapper addRegularFileWithContents:imageData
-//                             preferredFilename:[NSString stringWithFormat:@"Texture%.2i.png", i]];
-//    }
+    for (uint i = 0; i < textures->count(); i++)
+    {
+        Texture *texture = textures->textureAtIndex(i);
+        NSImage *image = texture->image();
+        if (image != nil)
+        {
+            NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
+            NSData *imageData = [bitmap representationUsingType:NSPNGFileType properties:nil];
+        
+            NSString *name = [[texture->name() lastPathComponent] stringByDeletingPathExtension];
+            name = [name stringByAppendingPathExtension:@"png"];
+            
+            [dirWrapper addRegularFileWithContents:imageData
+                                 preferredFilename:name];
+        }
+    }
     
     return dirWrapper;
 }
@@ -112,19 +112,31 @@ vector<T> *ReadValues(string s)
 {
     MemoryReadStream *stream = new MemoryReadStream(data);
     
-    uint version = stream->read<uint>();
+    ModelVersion version = (ModelVersion)stream->read<uint>();
     
-    if (version < (uint)ModelVersion::First || version > (uint)ModelVersion::Latest)
+    if (version < ModelVersion::First || version > ModelVersion::Latest)
         return NO;
     
-    stream->setVersion(version);
-    ItemCollection *newItems = new ItemCollection(stream);
+    stream->setVersion((uint)version);
+    TextureCollection *newTextures;
+    
+    if (version >= ModelVersion::TextureNames)
+        newTextures = new TextureCollection(stream);
+    else
+        newTextures = new TextureCollection();
+    
+    ItemCollection *newItems = new ItemCollection(stream, *newTextures);
+
     delete stream;
+    delete items;
+    delete textures;
+    
     items = newItems;
+    textures = newTextures;
     
     itemsController->setModel(items);
     itemsController->updateSelection();
-    [self setManipulated:itemsController];
+    [self setManipulated:itemsController];    
     
     return YES;
 }
@@ -137,7 +149,8 @@ vector<T> *ReadValues(string s)
     uint version = (uint)ModelVersion::Latest;
     stream->setVersion(version);
     stream->write<uint>(version);
-    items->encode(stream);
+    textures->encode(stream);
+    items->encode(stream, *textures);
 
     delete stream;
     

@@ -15,9 +15,6 @@
     IBOutlet FPImageView *textureView;
 }
 
-- (IBAction)setTexture:(id)sender;
-- (IBAction)addTexture:(id)sender;
-
 @end
 
 @implementation FPTextureBrowserWindowController
@@ -34,59 +31,82 @@
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
 }
-- (void)setItems:(ItemCollection *)anItems textures:(TextureCollection *)aTextures
+
+- (void)reloadData
 {
-    items = anItems;
-    textures = aTextures;
     [textureList reloadData];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return textures->count();
+    return _delegate.textures->count();
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    NSString *name = textures->textureAtIndex(row)->name();
+    NSString *name = _delegate.textures->textureAtIndex(row)->name();
     if (name != nil)
-        return name;
+        return [name lastPathComponent];
     return @"<Empty>";
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
     int selectedRow = textureList.selectedRow;
-    if (selectedRow >= 0 && selectedRow < (int)textures->count())
+    if (selectedRow >= 0 && selectedRow < (int)_delegate.textures->count())
     {
-        [textureView setImage:textures->textureAtIndex(selectedRow)->image()];
+        Texture *texture = _delegate.textures->textureAtIndex(selectedRow);
+        
+        [textureView setImageName:texture->name()];
+        [textureView setImage:texture->image()];
     }
     else
     {
+        [textureView setImageName:nil];
         [textureView setImage:nil];
     }
 }
 
 - (IBAction)setTexture:(id)sender
 {
+    Texture *texture;
+    
     int selectedRow = textureList.selectedRow;
-    if (selectedRow >= 0 && selectedRow < (int)textures->count())
+    if (selectedRow >= 0 && selectedRow < (int)_delegate.textures->count())
     {
-        Mesh2 *mesh = items->currentMesh();
-        if (mesh != NULL)
-        {
-            Texture *texture = textures->textureAtIndex(selectedRow);
-            texture->setName([textureView imageName]);
-            texture->setImage([textureView image]);
-            mesh->setTexture(texture);
-        }
+        texture = _delegate.textures->textureAtIndex(selectedRow);
     }
+    else
+    {
+        texture = new Texture();
+        _delegate.textures->addTexture(texture);
+    }
+    
+    texture->setName([textureView imageName]);
+    texture->setImage([textureView image]);
+    [textureList reloadData];
+        
+    Mesh2 *mesh = _delegate.items->currentMesh();
+    if (mesh != NULL)
+        mesh->setTexture(texture);
+    
+    [_delegate setNeedsDisplayOnAllViews];
 }
 
-- (IBAction)addTexture:(id)sender
+- (IBAction)newTexture:(id)sender
 {
-    textures->addTexture(new Texture());
+    _delegate.textures->addTexture(new Texture());
     [textureList reloadData];
+}
+
+- (IBAction)deleteTexture:(id)sender
+{
+    int selectedRow = textureList.selectedRow;
+    if (selectedRow >= 0 && selectedRow < (int)_delegate.textures->count())
+    {
+        _delegate.textures->removeTextureAtIndex(selectedRow, *_delegate.items);
+        [textureList reloadData];
+    }
 }
 
 @end

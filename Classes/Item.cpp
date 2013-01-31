@@ -23,7 +23,7 @@ Item::~Item()
     delete mesh;
 }
 
-Item::Item(MemoryReadStream *stream)
+Item::Item(MemoryReadStream *stream, TextureCollection &textures)
 {
     if (stream->version() >= (uint)ModelVersion::CrossPlatform)
     {
@@ -52,10 +52,10 @@ Item::Item(MemoryReadStream *stream)
     
     visible = true;
     
-    mesh = new Mesh2(stream);
+    mesh = new Mesh2(stream, textures);
 }
 
-void Item::encode(MemoryWriteStream *stream)
+void Item::encode(MemoryWriteStream *stream, TextureCollection &textures)
 {
     stream->write<float>(position.x);
     stream->write<float>(position.y);
@@ -72,7 +72,7 @@ void Item::encode(MemoryWriteStream *stream)
     
     stream->write<bool>(selected);
 
-    mesh->encode(stream);
+    mesh->encode(stream, textures);
 }
 
 Matrix4x4 Item::transform()

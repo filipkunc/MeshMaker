@@ -7,6 +7,7 @@
 //
 
 #include "Mesh2.h"
+#include "Texture.h"
 
 void Mesh2::resetTriangleCache()
 {

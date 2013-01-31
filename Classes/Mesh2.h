@@ -10,9 +10,6 @@
 
 #include "OpenGLDrawing.h"
 #include "ShaderProgram.h"
-#if defined(__APPLE__)
-#include "Texture.h"
-#endif
 #include "MeshHelpers.h"
 #include "Camera.h"
 #include "MemoryStream.h"
@@ -60,6 +57,9 @@ struct FillMode
     bool colored;
     bool textured;
 };
+
+class Texture;
+class TextureCollection;
 
 class Mesh2
 {
@@ -115,10 +115,10 @@ private:
     VNode<T> *duplicateVertex(VNode<T> *original);    
 public:
     Mesh2();
-    Mesh2(MemoryReadStream *stream);
+    Mesh2(MemoryReadStream *stream, TextureCollection &textures);
     ~Mesh2();
     
-    void encode(MemoryWriteStream *stream);
+    void encode(MemoryWriteStream *stream, TextureCollection &textures);
     
     Vector4D color() { return _color; }
     void setColor(Vector4D color);

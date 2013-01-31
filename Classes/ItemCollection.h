@@ -83,8 +83,8 @@ public:
     ItemCollection();
     virtual ~ItemCollection();
 
-    ItemCollection(MemoryReadStream *stream);
-    void encode(MemoryWriteStream *stream);
+    ItemCollection(MemoryReadStream *stream, TextureCollection &textures);
+    void encode(MemoryWriteStream *stream, TextureCollection &textures);
     
     IUndoState *currentManipulations();
     void setCurrentManipulations(IUndoState *undoState);

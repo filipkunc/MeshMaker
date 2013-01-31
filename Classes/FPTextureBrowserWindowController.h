@@ -10,12 +10,19 @@
 #import "ItemCollection.h"
 #import "TextureCollection.h"
 
-@interface FPTextureBrowserWindowController : NSWindowController
-{
-    ItemCollection *items;
-    TextureCollection *textures;
-}
+@protocol FPTextureBrowserDelegate <NSObject>
 
-- (void)setItems:(ItemCollection *)anItems textures:(TextureCollection *)aTextures;
+@property (readonly) ItemCollection *items;
+@property (readonly) TextureCollection *textures;
+
+- (void)setNeedsDisplayOnAllViews;
+
+@end
+
+@interface FPTextureBrowserWindowController : NSWindowController
+
+@property (readwrite, weak) id<FPTextureBrowserDelegate> delegate;
+
+- (void)reloadData;
 
 @end

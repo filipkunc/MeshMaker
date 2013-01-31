@@ -7,6 +7,7 @@
 //
 
 #include "Texture.h"
+#include "ItemCollection.h"
 
 void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, int height, bool convertToAlpha)
 {
@@ -160,4 +161,14 @@ void Texture::updateTexture()
     }
     
     _needUpdate = false;
+}
+
+void Texture::removeFromItems(ItemCollection &items)
+{
+    for (uint i = 0; i < items.count(); i++)
+    {
+        Item *item = items.itemAtIndex(i);
+        if (item->mesh->texture() == this)
+            item->mesh->setTexture(NULL);
+    }
 }

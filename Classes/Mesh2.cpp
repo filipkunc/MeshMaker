@@ -8,6 +8,7 @@
 
 #include "Mesh2.h"
 #if defined(__APPLE__)
+#include "TextureCollection.h"
 #include <osd/mutex.h>
 #include <osd/vertex.h>
 #include <osd/mesh.h>
@@ -126,7 +127,7 @@ Mesh2::Mesh2()
     setColor(generateRandomColor());
 }
 
-Mesh2::Mesh2(MemoryReadStream *stream)
+Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
 {
 	_selectionMode = MeshSelectionMode::Vertices;
     
@@ -138,17 +139,28 @@ Mesh2::Mesh2(MemoryReadStream *stream)
     _texture = NULL;
     
     setColor(generateRandomColor());
-
+    
+    const ModelVersion version = (ModelVersion)stream->version();
+    
+    if (version >= ModelVersion::TextureNames)
+    {
+        uint textureIndex = stream->read<uint>();
+        if (textureIndex < textures.count())
+            _texture = textures.textureAtIndex(textureIndex);
+        else
+            _texture = NULL;
+    }
+    
     Vector4D color;
 
-    if (stream->version() >= (uint)ModelVersion::CrossPlatform)
+    if (version >= ModelVersion::CrossPlatform)
     {
         color.x = stream->read<float>();
         color.y = stream->read<float>();
         color.z = stream->read<float>();
         color.w = stream->read<float>();
     }
-    else if (stream->version() >= (uint)ModelVersion::Colors)
+    else if (version >= ModelVersion::Colors)
     {
         color = stream->read<Vector4D>();
     }
@@ -165,7 +177,7 @@ Mesh2::Mesh2(MemoryReadStream *stream)
     vector<Vector3D> texCoords;
     vector<TriQuad> triangles;
     
-    if (stream->version() >= (uint)ModelVersion::CrossPlatform)
+    if (version >= ModelVersion::CrossPlatform)
     {
         for (uint i = 0; i < verticesSize; i++)
         {
@@ -212,7 +224,7 @@ Mesh2::Mesh2(MemoryReadStream *stream)
             texCoords.push_back(texCoord);
         }
         
-        if (stream->version() >= (uint)ModelVersion::TriQuads)
+        if (version >= ModelVersion::TriQuads)
         {
             for (uint i = 0; i < trianglesSize; i++)
             {
@@ -241,8 +253,13 @@ Mesh2::Mesh2(MemoryReadStream *stream)
     this->setColor(color);
 }
 
-void Mesh2::encode(MemoryWriteStream *stream)
+void Mesh2::encode(MemoryWriteStream *stream, TextureCollection &textures)
 {
+    if (_texture == NULL)
+        stream->write<uint>(UINT_MAX);
+    else
+        stream->write<uint>(textures.indexOfTexture(_texture));
+    
     stream->write<float>(_color.x);
     stream->write<float>(_color.y);
     stream->write<float>(_color.z);
