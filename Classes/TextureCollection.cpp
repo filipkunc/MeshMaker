@@ -59,7 +59,8 @@ TextureCollection::TextureCollection(MemoryReadStream *stream)
             Texture *texture = new Texture();
             texture->setName(name);
 
-            // image is always nil because it is blocked by App Sandbox
+            // image will be opened if it is in Pictures folder or inside .folder3D
+            // there is currently no security scoped bookmarks to image file
             NSImage *image = [[NSImage alloc] initWithContentsOfFile:name];
             if (image)
                 texture->setImage(image);
