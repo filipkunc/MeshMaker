@@ -8,12 +8,33 @@
 
 #include "Mesh2.h"
 #if defined(__APPLE__)
+
 #include "TextureCollection.h"
-#include <osd/mutex.h>
+
+#include <osd/error.h>
 #include <osd/vertex.h>
-#include <osd/mesh.h>
+#include <osd/drawContext.h>
+
 #include <osd/cpuDispatcher.h>
+#include <osd/cpuVertexBuffer.h>
+//#include <osd/cpuGLVertexBuffer.h>
+#include <osd/cpuComputeContext.h>
+#include <osd/cpuComputeController.h>
+
+#include <osd/mesh.h>
+
 #include <common/shape_utils.h>
+
+typedef OpenSubdiv::HbrMesh<OpenSubdiv::OsdVertex>     OsdHbrMesh;
+typedef OpenSubdiv::HbrVertex<OpenSubdiv::OsdVertex>   OsdHbrVertex;
+typedef OpenSubdiv::HbrFace<OpenSubdiv::OsdVertex>     OsdHbrFace;
+typedef OpenSubdiv::HbrHalfedge<OpenSubdiv::OsdVertex> OsdHbrHalfedge;
+
+typedef OpenSubdiv::OsdMesh<
+    OpenSubdiv::OsdCpuVertexBuffer,
+    OpenSubdiv::OsdCpuComputeController,
+    OpenSubdiv::MeshMakerDrawContext> MeshMakerOsdMesh;
+
 #endif
 
 bool Mesh2::_useSoftSelection = false;
@@ -899,7 +920,7 @@ void Mesh2::triangulateSelectedQuads()
 void Mesh2::openSubdivision()
 {
 #if defined(__APPLE__)
-    OpenSubdiv::OsdCpuKernelDispatcher::Register();
+    //OpenSubdiv::OsdCpuKernelDispatcher::Register();
     
     Scheme scheme = kCatmark;
     
@@ -930,18 +951,17 @@ void Mesh2::openSubdivision()
             faceverts.push_back(triQuads[i].vertexIndices[j]);
     }
     
-    OpenSubdiv::OsdHbrMesh *hbrMesh = simpleHbr2<OpenSubdiv::OsdVertex>(verts, faceverts, nvertsPerFace, scheme);
+    OsdHbrMesh *hbrMesh = simpleHbr2<OpenSubdiv::OsdVertex>(verts, faceverts, nvertsPerFace, scheme);
     
-    OpenSubdiv::OsdMesh * osdMesh = new OpenSubdiv::OsdMesh();
+    OpenSubdiv::OsdMeshBitset bits;
+    bits.set(OpenSubdiv::MeshAdaptive, false);
     
-    int level = 1;
-    int kernel = OpenSubdiv::OsdKernelDispatcher::kCPU;
+    const int level = 1;
+    const int numElements = 3;
     
-    osdMesh->Create(hbrMesh, level, kernel);
+    MeshMakerOsdMesh *osdMesh = new MeshMakerOsdMesh(hbrMesh, numElements, level, bits);
     
     delete hbrMesh;
-    
-    const std::vector<int> &indices = osdMesh->GetFarMesh()->GetFaceVertices(level);
     
     int nverts = (int)verts.size() / 3;
     
@@ -958,14 +978,9 @@ void Mesh2::openSubdivision()
         p += 3;
     }
     
-    OpenSubdiv::OsdCpuVertexBuffer *osdVertexBuffer = (OpenSubdiv::OsdCpuVertexBuffer *)osdMesh->InitializeVertexBuffer(3);
-    
-    osdVertexBuffer->UpdateData(&vertex[0], nverts);
-    
-    osdMesh->Subdivide(osdVertexBuffer, NULL);
-    osdMesh->Synchronize();
-    
-    const float *cpuBuffer = osdVertexBuffer->GetCpuBuffer();
+    osdMesh->UpdateVertexBuffer(&vertex[0], nverts);
+    osdMesh->Refine();
+    osdMesh->Synchronize();    
     
     uint numVerts = scheme == kLoop ? 3 : 4;
     
@@ -973,8 +988,12 @@ void Mesh2::openSubdivision()
     texCoords.clear();
     triQuads.clear();
     
-    int vertexCount = osdVertexBuffer->VboSize() / osdVertexBuffer->GetNumElements();
-    const float *vPos = cpuBuffer;
+    const std::vector<int> &indices = osdMesh->GetFarMesh()->GetFaceVertices(level);
+    
+    OpenSubdiv::OsdCpuVertexBuffer *cpuBuffer = dynamic_cast<OpenSubdiv::OsdCpuVertexBuffer *>(osdMesh->GetVertexBuffer());
+    
+    int vertexCount = cpuBuffer->GetNumVertices();
+    const float *vPos = cpuBuffer->BindCpuBuffer();
     
     for (int i = 0; i < vertexCount; i++)
     {
@@ -1001,7 +1020,6 @@ void Mesh2::openSubdivision()
         triQuads.push_back(triQuad);
     }
     
-    delete osdVertexBuffer;
     delete osdMesh;
     
     fromIndexRepresentation(vertices, texCoords, triQuads);

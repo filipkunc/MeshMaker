@@ -23,10 +23,10 @@
 		A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7064C9612BD19F400B14CFA /* InfoPlist.strings */; };
 		A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */; };
 		A718D5F91539714000589FFF /* FPTextureBrowserWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */; };
+		A719914016BD82EB00197729 /* libosdCPU.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A719913F16BD82EB00197729 /* libosdCPU.a */; };
 		A720B09616470FFA00FDCC97 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A720B09416470E9600FDCC97 /* MGSFragaria.framework */; };
 		A720B0971647100100FDCC97 /* MGSFragaria.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = A720B09416470E9600FDCC97 /* MGSFragaria.framework */; };
 		A729F1791538B038002759BB /* SubdivisionTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A729F1781538B038002759BB /* SubdivisionTemplate.png */; };
-		A72F429C15F3CD8F008524C1 /* libosd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A72F429B15F3CD8F008524C1 /* libosd.a */; };
 		A73659A013D228B100F9D7D1 /* CylinderTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599D13D228B100F9D7D1 /* CylinderTemplate.png */; };
 		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
 		A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599F13D228B100F9D7D1 /* SplitTemplate.png */; };
@@ -156,9 +156,9 @@
 		A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTextureBrowserWindowController.h; path = Classes/FPTextureBrowserWindowController.h; sourceTree = "<group>"; };
 		A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTextureBrowserWindowController.mm; path = Classes/FPTextureBrowserWindowController.mm; sourceTree = "<group>"; };
 		A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTextureBrowserWindowController.xib; path = Classes/FPTextureBrowserWindowController.xib; sourceTree = "<group>"; };
+		A719913F16BD82EB00197729 /* libosdCPU.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libosdCPU.a; path = Submodules/OpenSubdiv/lib/Debug/libosdCPU.a; sourceTree = "<group>"; };
 		A720B09416470E9600FDCC97 /* MGSFragaria.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = MGSFragaria.framework; path = "/Users/filipkunc/Library/Developer/Xcode/DerivedData/MeshMaker-baqktewznrqnwkchvptjdgcqmovn/Build/Products/Debug/MGSFragaria.framework"; sourceTree = "<absolute>"; };
 		A729F1781538B038002759BB /* SubdivisionTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SubdivisionTemplate.png; sourceTree = "<group>"; };
-		A72F429B15F3CD8F008524C1 /* libosd.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libosd.a; path = Submodules/OpenSubdiv/lib/Debug/libosd.a; sourceTree = "<group>"; };
 		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
 		A736599E13D228B100F9D7D1 /* MergeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MergeTemplate.png; sourceTree = "<group>"; };
 		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
@@ -241,9 +241,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A719914016BD82EB00197729 /* libosdCPU.a in Frameworks */,
 				A720B09616470FFA00FDCC97 /* MGSFragaria.framework in Frameworks */,
 				A7E8B3731631BF7F00B8599D /* WebKit.framework in Frameworks */,
-				A72F429C15F3CD8F008524C1 /* libosd.a in Frameworks */,
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */,
 			);
@@ -429,7 +429,7 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A72F429B15F3CD8F008524C1 /* libosd.a */,
+				A719913F16BD82EB00197729 /* libosdCPU.a */,
 				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
 				A7064C9212BD19F400B14CFA /* Cocoa.framework */,
@@ -913,6 +913,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Release\"",
+					"\"$(SRCROOT)/Submodules/OpenSubdiv/lib/Debug\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;

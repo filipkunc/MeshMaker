@@ -451,7 +451,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             drawAllEdges(viewMode, forSelection);
         }
         
-        if (_isUnwrapped)
+        if (_isUnwrapped && _texture != NULL)
         {
             glColor3f(1.0f, 1.0f, 1.0f);
             _texture->drawForUnwrap();
