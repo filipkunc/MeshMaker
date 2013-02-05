@@ -17,10 +17,11 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #elif defined (WIN32)
+#define NOMINMAX
 #include <windows.h>
 #if defined(SHADERS)
-#include "../MeshMakerCppCLI/GL/glew.h"
-#pragma comment(lib, "../MeshMakerCppCLI/glew/glew32.lib")
+#include "../MeshMakerCppCLI/glew/include/GL/glew.h"
+#pragma comment(lib, "../MeshMakerCppCLI/glew/lib/glew32.lib")
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>

@@ -8,6 +8,10 @@
  */
 #pragma once
 
+#if defined(WIN32)
+#define _USE_MATH_DEFINES
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>

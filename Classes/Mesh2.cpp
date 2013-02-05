@@ -9,7 +9,11 @@
 #include "Mesh2.h"
 #include "TextureCollection.h"
 
-#if defined(__APPLE__)
+#if defined(WIN32)
+#include <ciso646>
+#endif
+
+#if defined(__APPLE__) || defined(WIN32)
 
 #include <osd/error.h>
 #include <osd/vertex.h>
@@ -17,7 +21,6 @@
 
 #include <osd/cpuDispatcher.h>
 #include <osd/cpuVertexBuffer.h>
-//#include <osd/cpuGLVertexBuffer.h>
 #include <osd/cpuComputeContext.h>
 #include <osd/cpuComputeController.h>
 
@@ -35,6 +38,14 @@ typedef OpenSubdiv::OsdMesh<
     OpenSubdiv::OsdCpuComputeController,
     OpenSubdiv::MeshMakerDrawContext> MeshMakerOsdMesh;
 
+#endif
+
+#if defined(WIN32)
+#if defined(_DEBUG)
+#pragma comment(lib, "../Submodules/OpenSubdiv/lib/Debug/OsdCpu.lib")
+#else
+#pragma comment(lib, "../Submodules/OpenSubdiv/lib/Release/OsdCpu.lib")
+#endif
 #endif
 
 bool Mesh2::_useSoftSelection = false;
@@ -919,8 +930,7 @@ void Mesh2::triangulateSelectedQuads()
 
 void Mesh2::openSubdivision()
 {
-#if defined(__APPLE__)
-    //OpenSubdiv::OsdCpuKernelDispatcher::Register();
+#if defined(__APPLE__) || defined(WIN32)
     
     Scheme scheme = kCatmark;
     
@@ -1031,7 +1041,7 @@ void Mesh2::openSubdivision()
     makeEdges();
     
     setSelectionMode(_selectionMode);
-#elif defined (WIN32)
+#else
 	loopSubdivision();
 #endif
 }
