@@ -101,7 +101,7 @@
       <Name>Chocolate</Name>
     </ProjectReference>
     <ProjectReference Include="..\MeshMakerCppCLI\MeshMakerCppCLI.vcxproj">
-      <Project>{02E11884-12F2-4812-894E-E5417F4A7DD7}</Project>
+      <Project>{02e11884-12f2-4812-894e-e5417f4a7dd7}</Project>
       <Name>MeshMakerCppCLI</Name>
     </ProjectReference>
   </ItemGroup>
