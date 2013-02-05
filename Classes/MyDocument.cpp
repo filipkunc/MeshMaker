@@ -973,6 +973,7 @@ namespace MeshMakerCppCLI
 		documentDelegate = documentForm;
 
 		items = new ItemCollection();
+		textures = new TextureCollection();
 		itemsController = new OpenGLManipulatingController(this);
 		meshController = new OpenGLManipulatingController(this);
 		
@@ -988,7 +989,10 @@ namespace MeshMakerCppCLI
 
 	MyDocument::~MyDocument()
 	{
-		
+		delete items;
+		delete textures;
+		delete itemsController;
+		delete meshController;
 	}
 
 	Mesh2 *MyDocument::currentMesh()

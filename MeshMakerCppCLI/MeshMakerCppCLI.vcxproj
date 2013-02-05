@@ -125,12 +125,16 @@
     <ClCompile Include="..\Classes\Mesh2.drawing.cpp" />
     <ClCompile Include="..\Classes\Mesh2.make.cpp" />
     <ClCompile Include="..\Classes\MeshHelpers.cpp" />
+    <ClCompile Include="..\Classes\MyDocument+archiving.cpp" />
+    <ClCompile Include="..\Classes\MyDocument.cpp" />
     <ClCompile Include="..\Classes\OpenGLDrawing.cpp" />
     <ClCompile Include="..\Classes\OpenGLManipulatingController.cpp" />
     <ClCompile Include="..\Classes\OpenGLSceneView.cpp" />
     <ClCompile Include="..\Classes\OpenGLSceneViewCore.cpp" />
     <ClCompile Include="..\Classes\Shader.cpp" />
     <ClCompile Include="..\Classes\ShaderProgram.cpp" />
+    <ClCompile Include="..\Classes\Texture.cpp" />
+    <ClCompile Include="..\Classes\TextureCollection.cpp" />
     <ClCompile Include="..\Classes\Triangle.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="..\Classes\Camera.cpp" />
@@ -150,6 +154,8 @@
     <ClInclude Include="..\Classes\ItemCollection.h" />
     <ClInclude Include="..\Classes\Manipulator.h" />
     <ClInclude Include="..\Classes\ManipulatorWidget.h" />
+    <ClInclude Include="..\Classes\Texture.h" />
+    <ClInclude Include="..\Classes\TextureCollection.h" />
     <ClInclude Include="MarshalHelpers.h" />
     <ClInclude Include="..\Classes\MathDeclaration.h" />
     <ClInclude Include="..\Classes\MathForwardDeclaration.h" />
@@ -188,10 +194,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\Classes\MyDocument+archiving.mm" />
-    <ClCompile Include="..\Classes\MyDocument.mm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

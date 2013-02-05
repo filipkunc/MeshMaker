@@ -7,9 +7,9 @@
 //
 
 #include "Mesh2.h"
-#if defined(__APPLE__)
-
 #include "TextureCollection.h"
+
+#if defined(__APPLE__)
 
 #include <osd/error.h>
 #include <osd/vertex.h>

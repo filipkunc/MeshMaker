@@ -130,6 +130,7 @@
 
 #include "ItemCollection.h"
 #include "OpenGLSceneView.h"
+#include "TextureCollection.h"
 #include "../MeshMakerCppCLI/MarshalHelpers.h"
 
 namespace MeshMakerCppCLI
@@ -167,6 +168,7 @@ namespace MeshMakerCppCLI
 		IDocumentDelegate ^documentDelegate;
 
 		ItemCollection *items;
+		TextureCollection *textures;
 		OpenGLManipulatingController *itemsController;
 		OpenGLManipulatingController *meshController;
 		IOpenGLManipulating *manipulated;

@@ -20,7 +20,7 @@
 #include "OpenGLManipulating.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined (WIN32)
 #include "Texture.h"
 #endif
 #include "Mesh2.h"

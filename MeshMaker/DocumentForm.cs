@@ -30,6 +30,28 @@ namespace MeshMaker
 
         void DocumentForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (document != null &&  document.DocumentUndoManager != null && document.DocumentUndoManager.CanUndo)
+            {
+                var result = MessageBox.Show(
+                    "Document contains unsaved changes." + Environment.NewLine +
+                    "Do you want to save them before closing application?", 
+                    Application.ProductName,
+                    MessageBoxButtons.YesNoCancel);
+
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        this.saveToolStripMenuItem_Click(this, EventArgs.Empty);
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                    default:
+                        e.Cancel = true;
+                        return;
+                }
+
+            }
             Process.GetCurrentProcess().Kill();
         }
 
@@ -350,7 +372,7 @@ namespace MeshMaker
                                 triangulateToolStripMenuItem_Click(this, EventArgs.Empty);
                                 break;
                         }
-                    }break;
+                    } break;
             }
         }
 

@@ -54,15 +54,29 @@ TextureCollection::TextureCollection(MemoryReadStream *stream)
             char *utf8String = (char *)malloc(charCount + 1);
             memset(utf8String, 0, charCount + 1);
             stream->readBytes(utf8String, charCount);
+#if defined(__APPLE__)
             NSString *name = [NSString stringWithUTF8String:utf8String];
+#elif defined(WIN32)
+			String ^name = gcnew String(utf8String);
+#elif defined(__linux__)
+#warning "TextureCollection(stream), name"
+#endif
             free(utf8String);
             Texture *texture = new Texture();
             texture->setName(name);
 
+#if defined(__APPLE__)
             // image will be opened if it is in Pictures folder or inside .folder3D
             // there is currently no security scoped bookmarks to image file
             NSImage *image = [[NSImage alloc] initWithContentsOfFile:name];
-            if (image)
+#elif defined(WIN32)
+			Bitmap ^image = nullptr;
+			if (File::Exists(name))
+				image = gcnew Bitmap(name);
+#elif defined(__linux__)
+#warning "TextureCollection(stream), image"
+#endif
+			if (image)
                 texture->setImage(image);
             
             addTexture(texture);
@@ -76,12 +90,21 @@ void TextureCollection::encode(MemoryWriteStream *stream)
     stream->write<uint>(textureCount);
     for (uint i = 0; i < textureCount; i++)
     {
+#if defined(__APPLE__)
         NSString *name = _textures[i]->name();
         
         uint charCount = [name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        const char *utf8String = [name UTF8String];
-        
-        stream->write<uint>(charCount);
+        const char *utf8String = [name UTF8String];		
+#elif defined(WIN32)
+		String ^name = _textures[i]->name();
+
+		array<Byte> ^bytes = System::Text::Encoding::UTF8->GetBytes(name);
+		uint charCount = bytes->Length;
+		pin_ptr<Byte> utf8String = &bytes[0];		
+#elif defined(__linux__)
+#warning "TextureCollection::encode(stream)"
+#endif  
+		stream->write<uint>(charCount);
         stream->writeBytes(utf8String, charCount);
     }
 }

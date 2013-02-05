@@ -845,15 +845,27 @@ namespace MeshMakerCppCLI
 	{
 		MemoryReadStream *stream = new MemoryReadStream(memoryStream);
     
-		uint version = stream->read<uint>();
+		 ModelVersion version = (ModelVersion)stream->read<uint>();
     
-		if (version < (uint)ModelVersion::First || version > (uint)ModelVersion::Latest)
+		if (version < ModelVersion::First || version > ModelVersion::Latest)
 			return;
     
-		stream->setVersion(version);
-		ItemCollection *newItems = new ItemCollection(stream);
+		stream->setVersion((uint)version);
+		TextureCollection *newTextures;
+
+		if (version >= ModelVersion::TextureNames)
+			newTextures = new TextureCollection(stream);
+		else
+			newTextures = new TextureCollection();
+
+		ItemCollection *newItems = new ItemCollection(stream, *newTextures);
+		
 		delete stream;
+		delete items;
+		delete textures;
+		
 		items = newItems;
+		textures = newTextures;
     
 		itemsController->setModel(items);
 		itemsController->updateSelection();
@@ -867,7 +879,8 @@ namespace MeshMakerCppCLI
 		uint version = (uint)ModelVersion::Latest;
 		stream->setVersion(version);
 		stream->write<uint>(version);
-		items->encode(stream);
+		textures->encode(stream);
+		items->encode(stream, *textures);
 
 		delete stream;
 	}

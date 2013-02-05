@@ -12,7 +12,8 @@
 void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, int height, bool convertToAlpha)
 {
 	glEnable(GL_TEXTURE_2D);
-	glGenTextures(1, textureID);
+	if (*textureID == 0)
+		glGenTextures(1, textureID);
 	glBindTexture(GL_TEXTURE_2D, *textureID);
 	
 	if (convertToAlpha)
@@ -31,8 +32,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 		else if (components == 4)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		else
-			@throw [NSException exceptionWithName:@"Unsupported image format" reason:nil userInfo:nil];
-
+			throw std::exception("Unsupported image format");
 	}
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -40,6 +40,8 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
+
+#if defined(__APPLE__)
 
 NSBitmapImageRep *BitmapImageRepFromImage(NSImage *image);
 
@@ -57,13 +59,17 @@ NSBitmapImageRep *BitmapImageRepFromImage(NSImage *image)
     return bitmap;
 }
 
+#endif
+
 Texture::Texture()
 {
     _textureID = 0;
-    _name = nil;
-    _image = nil;
+	_name = nullptr;
+    _image = nullptr;
     _needUpdate = false;    
 }
+
+#if defined(__APPLE__)
 
 Texture::Texture(NSString *name, NSImage *image, bool convertToAlpha)
 {
@@ -80,6 +86,25 @@ Texture::Texture(NSString *name, NSImage *image, bool convertToAlpha)
     CreateTexture(data, components, &_textureID, _image.size.width, _image.size.height, convertToAlpha);
 }
 
+#elif defined(WIN32)
+
+Texture::Texture(System::String ^name, Bitmap ^image, bool convertToAlpha)
+{
+	_name = name;
+	_image = image;
+
+	_needUpdate = false;
+
+	System::Drawing::Rectangle rect = System::Drawing::Rectangle(0, 0, _image->Width, _image->Height);
+	BitmapData ^data = _image->LockBits(rect, ImageLockMode::ReadOnly, PixelFormat::Format32bppArgb);
+
+	CreateTexture((GLubyte *)data->Scan0.ToPointer(), 4, &_textureID, rect.Width, rect.Height, false);
+}
+
+#elif defined(__linux__)
+#warning "Implement Texture(name, image, convertToAlpha)"
+#endif
+
 Texture::~Texture()
 {
     if (_textureID > 0U)
@@ -89,23 +114,49 @@ Texture::~Texture()
 Texture::Texture(const Texture& other)
 {
     _textureID = other._textureID;
+#if defined(__APPLE__)
     _image = [other._image copy];
+#elif defined(WIN32)
+	_image = other._image;
+#elif defined(__linux__)
+#warning "Implement _image = other._image in Texture(const Texture& other)"
+#endif
     _needUpdate = other._needUpdate;
 }
 
 Texture &Texture::operator=(const Texture &other)
 {
     _textureID = other._textureID;
+#if defined(__APPLE__)
     _image = [other._image copy];
+#elif defined(WIN32)
+	_image = other._image;
+#elif defined(__linux__)
+#warning "Implement _image = other._image in operator=(const Texture& other)"
+#endif
     _needUpdate = other._needUpdate;
     return *this;
 }
 
+#if defined(__APPLE__)
+
 void Texture::setImage(NSImage *image)
 {
-    _image = [image copy];
-    _needUpdate = true;
+    _image = [other._image copy];
+	_needUpdate = true;
 }
+
+#elif defined(WIN32)
+
+void Texture::setImage(Bitmap ^image)
+{
+    _image = image;
+	_needUpdate = true;
+}
+
+#elif defined(__linux__)
+#warning "Implement setImage"
+#endif
 
 struct TexturedVertex2D
 {
@@ -139,27 +190,28 @@ void Texture::updateTexture()
 {
     if (!_needUpdate)
         return;
+
+#if defined(__APPLE__)
         
     NSBitmapImageRep *bitmap = BitmapImageRepFromImage(_image);
 
-    if (_textureID == 0)
-    {
-        GLubyte *data = [bitmap bitmapData];
-		NSInteger bitsPerPixel = [bitmap bitsPerPixel];
-		int components = bitsPerPixel / 8;
+    GLubyte *data = [bitmap bitmapData];
+	NSInteger bitsPerPixel = [bitmap bitsPerPixel];
+	int components = bitsPerPixel / 8;
         
-		CreateTexture(data, components, &_textureID, _image.size.width, _image.size.height, NO);
-    }
-    else
-    {
-        glBindTexture(GL_TEXTURE_2D, _textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, _image.size.width, _image.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
-    
+	CreateTexture(data, components, &_textureID, _image.size.width, _image.size.height, NO);  
+
+#elif defined(WIN32)
+
+    System::Drawing::Rectangle rect = System::Drawing::Rectangle(0, 0, _image->Width, _image->Height);
+	BitmapData ^data = _image->LockBits(rect, ImageLockMode::ReadOnly, PixelFormat::Format32bppArgb);
+
+	CreateTexture((GLubyte *)data->Scan0.ToPointer(), 4, &_textureID, rect.Width, rect.Height, false);    
+
+#elif defined(__linux__)
+#warning "Implement updateTexture()"
+#endif
+
     _needUpdate = false;
 }
 

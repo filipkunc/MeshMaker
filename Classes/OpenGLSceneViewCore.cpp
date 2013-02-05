@@ -369,8 +369,7 @@ void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenG
             {
                 for (uint i = 0; i < count; i++)
                 {
-                    if (selected2)
-                        selected[i] = selected2;
+					selected[i] = selected[i] || selected2[i];
                 }
                 delete [] selected2;
             }
