@@ -32,7 +32,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 		else if (components == 4)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		else
-			throw std::exception("Unsupported image format");
+			throw UnsupportedImageFormatException();
 	}
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -142,7 +142,7 @@ Texture &Texture::operator=(const Texture &other)
 
 void Texture::setImage(NSImage *image)
 {
-    _image = [other._image copy];
+    _image = [image copy];
 	_needUpdate = true;
 }
 

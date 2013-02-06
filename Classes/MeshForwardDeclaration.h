@@ -9,6 +9,7 @@
 #pragma once
 
 #include "Enums.h"
+#include "Exceptions.h"
 #include "MathDeclaration.h"
 #include "FPArrayCache.h"
 #include "SimpleNodeAndList.h"

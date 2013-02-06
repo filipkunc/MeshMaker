@@ -60,7 +60,7 @@ const Triangle2::PackedNode &Triangle2::node(uint index) const
     if (index < count())
         return _nodes[index];
 
-	throw std::exception("index out of range in Triangle2::node(int index) const");
+    throw IndexOutOfRangeException();
 }
 
 Triangle2::PackedNode &Triangle2::node(uint index)
@@ -68,7 +68,7 @@ Triangle2::PackedNode &Triangle2::node(uint index)
     if (index < count())
         return _nodes[index];
 
-	throw std::exception("index out of range in Triangle2::node(int index)");
+	throw IndexOutOfRangeException();
 }
 
 void TriangleNode::addToVertices()

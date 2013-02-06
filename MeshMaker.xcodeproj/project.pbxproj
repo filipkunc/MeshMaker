@@ -156,7 +156,7 @@
 		A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTextureBrowserWindowController.h; path = Classes/FPTextureBrowserWindowController.h; sourceTree = "<group>"; };
 		A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPTextureBrowserWindowController.mm; path = Classes/FPTextureBrowserWindowController.mm; sourceTree = "<group>"; };
 		A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPTextureBrowserWindowController.xib; path = Classes/FPTextureBrowserWindowController.xib; sourceTree = "<group>"; };
-		A719913F16BD82EB00197729 /* libosdCPU.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libosdCPU.a; path = Submodules/OpenSubdiv/lib/Debug/libosdCPU.a; sourceTree = "<group>"; };
+		A719913F16BD82EB00197729 /* libosdCPU.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libosdCPU.a; path = Submodules/OpenSubdiv/lib/Debug/libosdCPU.a; sourceTree = "<group>"; };
 		A720B09416470E9600FDCC97 /* MGSFragaria.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = MGSFragaria.framework; path = "/Users/filipkunc/Library/Developer/Xcode/DerivedData/MeshMaker-baqktewznrqnwkchvptjdgcqmovn/Build/Products/Debug/MGSFragaria.framework"; sourceTree = "<absolute>"; };
 		A729F1781538B038002759BB /* SubdivisionTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SubdivisionTemplate.png; sourceTree = "<group>"; };
 		A736599D13D228B100F9D7D1 /* CylinderTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CylinderTemplate.png; sourceTree = "<group>"; };
@@ -166,6 +166,7 @@
 		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
 		A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = TextureCollection.cpp; path = Classes/TextureCollection.cpp; sourceTree = "<group>"; };
 		A7425A3E16B32EEE00440E61 /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureCollection.h; path = Classes/TextureCollection.h; sourceTree = "<group>"; };
+		A74BB39816C2FFC900B9C624 /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Exceptions.h; path = Classes/Exceptions.h; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A767E0E3153B544700A175DE /* IcosahedronTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IcosahedronTemplate.png; sourceTree = "<group>"; };
@@ -392,6 +393,7 @@
 				A7D0685114BA00340091B657 /* VertexEdge.h */,
 				A7777AB116B483F400FF965A /* FPImageView.h */,
 				A7777AB216B483F400FF965A /* FPImageView.m */,
+				A74BB39816C2FFC900B9C624 /* Exceptions.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";

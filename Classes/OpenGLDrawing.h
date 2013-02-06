@@ -33,6 +33,7 @@
 #endif
 #include "MathDeclaration.h"
 #include "Enums.h"
+#include "Exceptions.h"
 
 void DrawCube(float size);
 void DrawSphere(float radius, int lats, int longs);
