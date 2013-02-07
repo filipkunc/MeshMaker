@@ -15,44 +15,21 @@ namespace MeshMaker
 {
     public partial class DocumentForm : Form, IDocumentDelegate
     {
+        OpenGLSceneView frontView;
+        OpenGLSceneView leftView;
+        OpenGLSceneView topView;
+        OpenGLSceneView perspectiveView;
+
         MyDocument document;
         ToolStripButton[] manipulatorButtons;
 
+        TextureBrowser textureBrowser;
+        
         public DocumentForm()
         {
             InitializeComponent();
-            perspectiveView.SharedContextView = leftView;
-            topView.SharedContextView = leftView;
-            frontView.SharedContextView = leftView;
             this.Load += new EventHandler(DocumentForm_Load);
             this.FormClosing += new FormClosingEventHandler(DocumentForm_FormClosing);
-        }
-
-        void DocumentForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (document != null &&  document.DocumentUndoManager != null && document.DocumentUndoManager.CanUndo)
-            {
-                var result = MessageBox.Show(
-                    "Document contains unsaved changes." + Environment.NewLine +
-                    "Do you want to save them before closing application?", 
-                    Application.ProductName,
-                    MessageBoxButtons.YesNoCancel);
-
-                switch (result)
-                {
-                    case DialogResult.Yes:
-                        this.saveToolStripMenuItem_Click(this, EventArgs.Empty);
-                        break;
-                    case DialogResult.No:
-                        break;
-                    case DialogResult.Cancel:
-                    default:
-                        e.Cancel = true;
-                        return;
-                }
-
-            }
-            Process.GetCurrentProcess().Kill();
         }
 
         void DocumentForm_Load(object sender, EventArgs e)
@@ -60,6 +37,20 @@ namespace MeshMaker
             if (Tools.SafeDesignMode)
                 return;
 
+            frontView = new OpenGLSceneView() { Dock = DockStyle.Fill };
+            leftView = new OpenGLSceneView() { Dock = DockStyle.Fill };
+            topView = new OpenGLSceneView() { Dock = DockStyle.Fill };
+            perspectiveView = new OpenGLSceneView() { Dock = DockStyle.Fill };
+
+            perspectiveView.SharedContextView = frontView;
+            topView.SharedContextView = frontView;
+            leftView.SharedContextView = frontView;
+
+            frontViewPanel.Controls.Add(frontView);
+            leftViewPanel.Controls.Add(leftView);
+            topViewPanel.Controls.Add(topView);
+            perspectiveViewPanel.Controls.Add(perspectiveView);
+            
             toolStripButtonAddCube.Tag = MeshType.Cube;
             toolStripButtonAddCylinder.Tag = MeshType.Cylinder;
             toolStripButtonAddIcosahedron.Tag = MeshType.Icosahedron;
@@ -99,6 +90,33 @@ namespace MeshMaker
             toolStripComboBoxViewMode.SelectedItem = document.viewMode;
             toolStripComboBoxViewMode.SelectedIndexChanged += new EventHandler(toolStripComboBoxViewMode_SelectedIndexChanged);
         }
+
+        void DocumentForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (document != null &&  document.DocumentUndoManager != null && document.DocumentUndoManager.CanUndo)
+            {
+                var result = MessageBox.Show(
+                    "Document contains unsaved changes." + Environment.NewLine +
+                    "Do you want to save them before closing application?", 
+                    Application.ProductName,
+                    MessageBoxButtons.YesNoCancel);
+
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        this.saveToolStripMenuItem_Click(this, EventArgs.Empty);
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                    default:
+                        e.Cancel = true;
+                        return;
+                }
+
+            }
+            Process.GetCurrentProcess().Kill();
+        }        
 
         private void CreateDocument()
         {
@@ -580,6 +598,15 @@ namespace MeshMaker
                     toolStripButtonColor.BackColor = document.color;
                 }
             }
+        }
+
+        private void textureBrowserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (textureBrowser == null || textureBrowser.IsDisposed)
+                textureBrowser = new TextureBrowser(document);
+            
+            if (!textureBrowser.Visible)
+                textureBrowser.Show();
         }
     }
 }

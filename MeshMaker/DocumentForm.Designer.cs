@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DocumentForm));
-            this.frontView = new MeshMakerCppCLI.OpenGLSceneView();
+            this.frontViewPanel = new System.Windows.Forms.Panel();
             this.mainSplit = new System.Windows.Forms.SplitContainer();
             this.topSplit = new System.Windows.Forms.SplitContainer();
-            this.leftView = new MeshMakerCppCLI.OpenGLSceneView();
-            this.topView = new MeshMakerCppCLI.OpenGLSceneView();
+            this.leftViewPanel = new System.Windows.Forms.Panel();
+            this.topViewPanel = new System.Windows.Forms.Panel();
             this.bottomSplit = new System.Windows.Forms.SplitContainer();
-            this.perspectiveView = new MeshMakerCppCLI.OpenGLSceneView();
+            this.perspectiveViewPanel = new System.Windows.Forms.Panel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -104,6 +104,7 @@
             this.toolStripTextBoxSelectionY = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripTextBoxSelectionZ = new System.Windows.Forms.ToolStripTextBox();
+            this.textureBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplit)).BeginInit();
             this.mainSplit.Panel1.SuspendLayout();
             this.mainSplit.Panel2.SuspendLayout();
@@ -121,17 +122,13 @@
             this.toolStripBottom.SuspendLayout();
             this.SuspendLayout();
             // 
-            // frontView
+            // frontViewPanel
             // 
-            this.frontView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.frontView.CurrentCameraMode = CameraMode.Perspective;
-            this.frontView.Delegate = null;
-            this.frontView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.frontView.Location = new System.Drawing.Point(0, 0);
-            this.frontView.Name = "frontView";
-            this.frontView.SharedContextView = null;
-            this.frontView.Size = new System.Drawing.Size(395, 165);
-            this.frontView.TabIndex = 0;
+            this.frontViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.frontViewPanel.Location = new System.Drawing.Point(0, 0);
+            this.frontViewPanel.Name = "frontViewPanel";
+            this.frontViewPanel.Size = new System.Drawing.Size(431, 229);
+            this.frontViewPanel.TabIndex = 0;
             // 
             // mainSplit
             // 
@@ -147,8 +144,8 @@
             // mainSplit.Panel2
             // 
             this.mainSplit.Panel2.Controls.Add(this.bottomSplit);
-            this.mainSplit.Size = new System.Drawing.Size(843, 400);
-            this.mainSplit.SplitterDistance = 231;
+            this.mainSplit.Size = new System.Drawing.Size(862, 461);
+            this.mainSplit.SplitterDistance = 228;
             this.mainSplit.TabIndex = 1;
             // 
             // topSplit
@@ -159,40 +156,32 @@
             // 
             // topSplit.Panel1
             // 
-            this.topSplit.Panel1.Controls.Add(this.leftView);
+            this.topSplit.Panel1.Controls.Add(this.leftViewPanel);
             // 
             // topSplit.Panel2
             // 
-            this.topSplit.Panel2.Controls.Add(this.topView);
-            this.topSplit.Size = new System.Drawing.Size(843, 231);
-            this.topSplit.SplitterDistance = 395;
+            this.topSplit.Panel2.Controls.Add(this.topViewPanel);
+            this.topSplit.Size = new System.Drawing.Size(862, 228);
+            this.topSplit.SplitterDistance = 431;
             this.topSplit.TabIndex = 2;
             this.topSplit.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.topSplit_SplitterMoving);
             this.topSplit.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.topSplit_SplitterMoved);
             // 
-            // leftView
+            // leftViewPanel
             // 
-            this.leftView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.leftView.CurrentCameraMode = CameraMode.Perspective;
-            this.leftView.Delegate = null;
-            this.leftView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.leftView.Location = new System.Drawing.Point(0, 0);
-            this.leftView.Name = "leftView";
-            this.leftView.SharedContextView = null;
-            this.leftView.Size = new System.Drawing.Size(395, 231);
-            this.leftView.TabIndex = 0;
+            this.leftViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.leftViewPanel.Location = new System.Drawing.Point(0, 0);
+            this.leftViewPanel.Name = "leftViewPanel";
+            this.leftViewPanel.Size = new System.Drawing.Size(431, 228);
+            this.leftViewPanel.TabIndex = 0;
             // 
-            // topView
+            // topViewPanel
             // 
-            this.topView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.topView.CurrentCameraMode = CameraMode.Perspective;
-            this.topView.Delegate = null;
-            this.topView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.topView.Location = new System.Drawing.Point(0, 0);
-            this.topView.Name = "topView";
-            this.topView.SharedContextView = null;
-            this.topView.Size = new System.Drawing.Size(444, 231);
-            this.topView.TabIndex = 0;
+            this.topViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.topViewPanel.Location = new System.Drawing.Point(0, 0);
+            this.topViewPanel.Name = "topViewPanel";
+            this.topViewPanel.Size = new System.Drawing.Size(427, 228);
+            this.topViewPanel.TabIndex = 0;
             // 
             // bottomSplit
             // 
@@ -202,28 +191,24 @@
             // 
             // bottomSplit.Panel1
             // 
-            this.bottomSplit.Panel1.Controls.Add(this.frontView);
+            this.bottomSplit.Panel1.Controls.Add(this.frontViewPanel);
             // 
             // bottomSplit.Panel2
             // 
-            this.bottomSplit.Panel2.Controls.Add(this.perspectiveView);
-            this.bottomSplit.Size = new System.Drawing.Size(843, 165);
-            this.bottomSplit.SplitterDistance = 395;
+            this.bottomSplit.Panel2.Controls.Add(this.perspectiveViewPanel);
+            this.bottomSplit.Size = new System.Drawing.Size(862, 229);
+            this.bottomSplit.SplitterDistance = 431;
             this.bottomSplit.TabIndex = 2;
             this.bottomSplit.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.bottomSplit_SplitterMoving);
             this.bottomSplit.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.bottomSplit_SplitterMoved);
             // 
-            // perspectiveView
+            // perspectiveViewPanel
             // 
-            this.perspectiveView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.perspectiveView.CurrentCameraMode = CameraMode.Perspective;
-            this.perspectiveView.Delegate = null;
-            this.perspectiveView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.perspectiveView.Location = new System.Drawing.Point(0, 0);
-            this.perspectiveView.Name = "perspectiveView";
-            this.perspectiveView.SharedContextView = null;
-            this.perspectiveView.Size = new System.Drawing.Size(444, 165);
-            this.perspectiveView.TabIndex = 0;
+            this.perspectiveViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.perspectiveViewPanel.Location = new System.Drawing.Point(0, 0);
+            this.perspectiveViewPanel.Name = "perspectiveViewPanel";
+            this.perspectiveViewPanel.Size = new System.Drawing.Size(427, 229);
+            this.perspectiveViewPanel.TabIndex = 0;
             // 
             // menuStrip1
             // 
@@ -233,7 +218,7 @@
             this.viewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(843, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(862, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -426,35 +411,35 @@
             // planeToolStripMenuItem
             // 
             this.planeToolStripMenuItem.Name = "planeToolStripMenuItem";
-            this.planeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.planeToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.planeToolStripMenuItem.Text = "Plane";
             this.planeToolStripMenuItem.Click += new System.EventHandler(this.addItem);
             // 
             // cubeToolStripMenuItem
             // 
             this.cubeToolStripMenuItem.Name = "cubeToolStripMenuItem";
-            this.cubeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.cubeToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.cubeToolStripMenuItem.Text = "Cube";
             this.cubeToolStripMenuItem.Click += new System.EventHandler(this.addItem);
             // 
             // cylinderToolStripMenuItem
             // 
             this.cylinderToolStripMenuItem.Name = "cylinderToolStripMenuItem";
-            this.cylinderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.cylinderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.cylinderToolStripMenuItem.Text = "Cylinder";
             this.cylinderToolStripMenuItem.Click += new System.EventHandler(this.addItem);
             // 
             // sphereToolStripMenuItem
             // 
             this.sphereToolStripMenuItem.Name = "sphereToolStripMenuItem";
-            this.sphereToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.sphereToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.sphereToolStripMenuItem.Text = "Sphere";
             this.sphereToolStripMenuItem.Click += new System.EventHandler(this.addItem);
             // 
             // icosahedronToolStripMenuItem
             // 
             this.icosahedronToolStripMenuItem.Name = "icosahedronToolStripMenuItem";
-            this.icosahedronToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.icosahedronToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.icosahedronToolStripMenuItem.Text = "Icosahedron";
             this.icosahedronToolStripMenuItem.Click += new System.EventHandler(this.addItem);
             // 
@@ -522,7 +507,8 @@
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toggleOneViewFourViewsToolStripMenuItem});
+            this.toggleOneViewFourViewsToolStripMenuItem,
+            this.textureBrowserToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -558,7 +544,7 @@
             this.toolStripButtonSubdivide});
             this.toolStripTop.Location = new System.Drawing.Point(0, 24);
             this.toolStripTop.Name = "toolStripTop";
-            this.toolStripTop.Size = new System.Drawing.Size(843, 54);
+            this.toolStripTop.Size = new System.Drawing.Size(862, 54);
             this.toolStripTop.TabIndex = 3;
             this.toolStripTop.Text = "toolStrip1";
             // 
@@ -723,9 +709,9 @@
             this.toolStripTextBoxSelectionY,
             this.toolStripLabel3,
             this.toolStripTextBoxSelectionZ});
-            this.toolStripBottom.Location = new System.Drawing.Point(0, 478);
+            this.toolStripBottom.Location = new System.Drawing.Point(0, 539);
             this.toolStripBottom.Name = "toolStripBottom";
-            this.toolStripBottom.Size = new System.Drawing.Size(843, 25);
+            this.toolStripBottom.Size = new System.Drawing.Size(862, 25);
             this.toolStripBottom.TabIndex = 4;
             this.toolStripBottom.Text = "toolStrip2";
             // 
@@ -813,11 +799,19 @@
             this.toolStripTextBoxSelectionZ.Leave += new System.EventHandler(this.selectionLeave);
             this.toolStripTextBoxSelectionZ.KeyDown += new System.Windows.Forms.KeyEventHandler(this.selectionKeyDown);
             // 
+            // textureBrowserToolStripMenuItem
+            // 
+            this.textureBrowserToolStripMenuItem.Name = "textureBrowserToolStripMenuItem";
+            this.textureBrowserToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
+            this.textureBrowserToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
+            this.textureBrowserToolStripMenuItem.Text = "Texture Browser";
+            this.textureBrowserToolStripMenuItem.Click += new System.EventHandler(this.textureBrowserToolStripMenuItem_Click);
+            // 
             // DocumentForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(843, 503);
+            this.ClientSize = new System.Drawing.Size(862, 564);
             this.Controls.Add(this.mainSplit);
             this.Controls.Add(this.toolStripBottom);
             this.Controls.Add(this.toolStripTop);
@@ -851,13 +845,14 @@
 
         #endregion
 
-        private MeshMakerCppCLI.OpenGLSceneView frontView;
+        private System.Windows.Forms.Panel frontViewPanel;
+        private System.Windows.Forms.Panel leftViewPanel;
+        private System.Windows.Forms.Panel topViewPanel;
+        private System.Windows.Forms.Panel perspectiveViewPanel;
+        
         private System.Windows.Forms.SplitContainer mainSplit;
         private System.Windows.Forms.SplitContainer topSplit;
-        private MeshMakerCppCLI.OpenGLSceneView leftView;
-        private MeshMakerCppCLI.OpenGLSceneView topView;
         private System.Windows.Forms.SplitContainer bottomSplit;
-        private MeshMakerCppCLI.OpenGLSceneView perspectiveView;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStrip toolStripTop;
@@ -926,6 +921,7 @@
         private System.Windows.Forms.ToolStripLabel toolStripLabel5;
         private System.Windows.Forms.ToolStripButton toolStripButtonColor;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
+        private System.Windows.Forms.ToolStripMenuItem textureBrowserToolStripMenuItem;
     }
 }
 

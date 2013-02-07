@@ -30,7 +30,22 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 		if (components == 3)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		else if (components == 4)
+		{
+#if defined (WIN32)
+			GLubyte *rgbaData = (GLubyte *)malloc(width * height * components);
+			for (int i = 0; i < width * height; i++)
+			{
+				rgbaData[i * components + 0] = data[i * components + 2];
+				rgbaData[i * components + 1] = data[i * components + 1];
+				rgbaData[i * components + 2] = data[i * components + 0];
+				rgbaData[i * components + 3] = data[i * components + 3];
+			}
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgbaData);
+			free(rgbaData);
+#else
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+#endif
+		}
 		else
 			throw MeshMaker::UnsupportedImageFormatException();
 	}

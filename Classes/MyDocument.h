@@ -349,6 +349,13 @@ namespace MeshMakerCppCLI
 		void writeModel3D(MemoryStream ^memoryStream);
 		void readWavefrontObject(String ^asciiString);
 		String ^writeWavefrontObject();
+
+		uint textureCount();
+		void addTexture(String ^fileName);
+		void removeTextureAtIndex(uint index);
+		String ^textureNameAtIndex(uint index);
+		Bitmap ^textureImageAtIndex(uint index);
+		void setTextureAtIndex(uint index);
 	};
 }
 

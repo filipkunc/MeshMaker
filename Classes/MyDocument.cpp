@@ -1509,6 +1509,46 @@ namespace MeshMakerCppCLI
 			this->allItemsAction(L"Triangulate", gcnew Action(this, &MyDocument::triangulateSelectedCore));
 		}
 	}
+
+	uint MyDocument::textureCount()
+	{
+		return textures->count();
+	}
+
+	void MyDocument::addTexture(String ^fileName)
+	{
+		Texture *texture = new Texture();
+		texture->setName(fileName);
+		texture->setImage(gcnew Bitmap(fileName));
+		textures->addTexture(texture);
+	}
+
+	void MyDocument::removeTextureAtIndex(uint index)
+	{
+		textures->removeTextureAtIndex(index, *items);
+		setNeedsDisplayOnAllViews();
+	}
+
+	String ^MyDocument::textureNameAtIndex(uint index)
+	{
+		return textures->textureAtIndex(index)->name();
+	}
+
+	Bitmap ^MyDocument::textureImageAtIndex(uint index)
+	{
+		return textures->textureAtIndex(index)->image();
+	}
+
+	void MyDocument::setTextureAtIndex(uint index)
+	{
+		Texture *texture = textures->textureAtIndex(index);
+		Mesh2 *mesh = currentMesh();
+		if (mesh != NULL)
+		{
+			mesh->setTexture(texture);
+			setNeedsDisplayOnAllViews();
+		}
+	}
 }
 
 #elif defined(__linux__)
