@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="..\Classes\Camera.h" />
     <ClInclude Include="..\Classes\Enums.h" />
+    <ClInclude Include="..\Classes\Exceptions.h" />
     <ClInclude Include="..\Classes\FPArrayCache.h" />
     <ClInclude Include="..\Classes\FPList.h" />
     <ClInclude Include="..\Classes\FPNode.h" />

@@ -227,6 +227,9 @@
     <ClInclude Include="..\Classes\TextureCollection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\Exceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico">

@@ -10,13 +10,16 @@
 
 #include <exception>
 
-struct UnsupportedImageFormatException : std::exception
+namespace MeshMaker
 {
-    virtual const char* what() const throw() { return "UnsupportedImageFormat"; }
-};
+	struct UnsupportedImageFormatException : std::exception
+	{
+		virtual const char* what() const throw() { return "UnsupportedImageFormat"; }
+	};
 
-struct IndexOutOfRangeException : std::exception
-{
-    virtual const char* what() const throw() { return "IndexOutOfRangeException"; }
-};
+	struct IndexOutOfRangeException : std::exception
+	{
+		virtual const char* what() const throw() { return "IndexOutOfRangeException"; }
+	};
+}
 

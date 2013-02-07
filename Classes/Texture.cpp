@@ -32,7 +32,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 		else if (components == 4)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		else
-			throw UnsupportedImageFormatException();
+			throw MeshMaker::UnsupportedImageFormatException();
 	}
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
