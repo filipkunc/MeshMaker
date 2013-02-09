@@ -28,20 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ScriptEditor));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonNewScript = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonRunScript = new System.Windows.Forms.ToolStripButton();
-            this.textBoxCode = new System.Windows.Forms.TextBox();
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.listBoxScripts = new System.Windows.Forms.ListBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.textBoxCode = new FastColoredTextBoxNS.FastColoredTextBox();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textBoxCode)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -77,18 +79,6 @@
             this.toolStripButtonRunScript.Size = new System.Drawing.Size(81, 22);
             this.toolStripButtonRunScript.Text = "Run Script";
             this.toolStripButtonRunScript.Click += new System.EventHandler(this.toolStripButtonRunScript_Click);
-            // 
-            // textBoxCode
-            // 
-            this.textBoxCode.AcceptsReturn = true;
-            this.textBoxCode.AcceptsTab = true;
-            this.textBoxCode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxCode.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.textBoxCode.Location = new System.Drawing.Point(0, 0);
-            this.textBoxCode.Multiline = true;
-            this.textBoxCode.Name = "textBoxCode";
-            this.textBoxCode.Size = new System.Drawing.Size(686, 437);
-            this.textBoxCode.TabIndex = 1;
             // 
             // textBoxOutput
             // 
@@ -130,6 +120,23 @@
             this.splitContainer1.SplitterDistance = 437;
             this.splitContainer1.TabIndex = 4;
             // 
+            // textBoxCode
+            // 
+            this.textBoxCode.AutoScrollMinSize = new System.Drawing.Size(27, 14);
+            this.textBoxCode.BackBrush = null;
+            this.textBoxCode.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.textBoxCode.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.textBoxCode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxCode.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textBoxCode.IsReplaceMode = false;
+            this.textBoxCode.Language = FastColoredTextBoxNS.Language.JS;
+            this.textBoxCode.Location = new System.Drawing.Point(0, 0);
+            this.textBoxCode.Name = "textBoxCode";
+            this.textBoxCode.Paddings = new System.Windows.Forms.Padding(0);
+            this.textBoxCode.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.textBoxCode.Size = new System.Drawing.Size(686, 437);
+            this.textBoxCode.TabIndex = 1;
+            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -159,11 +166,11 @@
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.textBoxCode)).EndInit();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
@@ -178,10 +185,10 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButtonNewScript;
         private System.Windows.Forms.ToolStripButton toolStripButtonRunScript;
-        private System.Windows.Forms.TextBox textBoxCode;
         private System.Windows.Forms.TextBox textBoxOutput;
         private System.Windows.Forms.ListBox listBoxScripts;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer splitContainer2;
+        private FastColoredTextBoxNS.FastColoredTextBox textBoxCode;
     }
 }

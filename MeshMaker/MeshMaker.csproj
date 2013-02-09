@@ -38,6 +38,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FastColoredTextBox">
+      <HintPath>Dependencies\FastColoredTextBox.dll</HintPath>
+    </Reference>
     <Reference Include="Noesis.Javascript">
       <HintPath>Dependencies\Noesis.Javascript.dll</HintPath>
     </Reference>
