@@ -8,7 +8,9 @@
 
 #pragma once
 
-#import "ItemCollection.h"
+#include "ItemCollection.h"
+
+#if defined (__APPLE__)
 
 @class VertexWrapper;
 @class TriangleWrapper;
@@ -17,7 +19,7 @@
 @class VertexNodeIterator;
 @class TriangleNodeIterator;
 @class EdgeNodeIterator;
-@class SimpleNodeEdgeIterator;
+@class VertexNodeEdgeIterator;
 @class ItemWrapper;
 
 @interface ItemCollectionWrapper : NSObject
@@ -85,7 +87,7 @@
 @property (readwrite, assign) float z;
 @property (readwrite, assign) uint index;
 @property (readonly) uint edgeCount;
-@property (readonly) SimpleNodeEdgeIterator *edgeIterator;
+@property (readonly) VertexNodeEdgeIterator *edgeIterator;
 
 - (id)initWithNode:(VertexNode *)vertexNode;
 
@@ -158,3 +160,193 @@ DeclareIterator(VertexNodeIterator, VertexWrapper, VertexNode)
 DeclareIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode)
 DeclareIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode)
 DeclareIterator(VertexNodeEdgeIterator, VertexNodeEdgeWrapper, Vertex2VEdgeNode)
+
+#elif defined(WIN32)
+
+namespace MeshMakerCppCLI
+{
+
+using namespace System;
+using namespace System::Runtime::InteropServices;
+
+ref class VertexWrapper;
+ref class TriangleWrapper;
+ref class EdgeWrapper;
+ref class SimpleNodeEdgeWrapper;
+ref class VertexNodeIterator;
+ref class TriangleNodeIterator;
+ref class EdgeNodeIterator;
+ref class VertexNodeEdgeIterator;
+ref class ItemWrapper;
+
+[ComVisibleAttribute(true)]
+public ref class ItemCollectionWrapper
+{
+private:
+    ItemCollection *_itemCollection;
+public:
+	ItemCollectionWrapper(ItemCollection *itemCollection);
+	int count();
+	ItemWrapper ^at(int index);
+};
+
+[ComVisibleAttribute(true)]
+public ref class ItemWrapper
+{
+private:
+    Item *_item;
+public:
+	ItemWrapper(Item *item);
+	VertexNodeIterator ^vertexIterator();
+	TriangleNodeIterator ^triQuadIterator();
+	EdgeNodeIterator ^edgeIterator();
+
+	int vertexCount();
+	int triQuadCount();
+	bool selected();
+	void setSelected(bool selected);
+
+	VertexWrapper ^addVertex(float x, float y, float z);
+	TriangleWrapper ^addTriangle(VertexWrapper ^v0, VertexWrapper ^v1, VertexWrapper ^v2);
+	TriangleWrapper ^addQuad(VertexWrapper ^v0, VertexWrapper ^v1, VertexWrapper ^v2, VertexWrapper ^v3);
+	void removeTriQuad(TriangleWrapper ^triQuad);
+
+	void removeDegeneratedTriangles();
+	void removeNonUsedVertices();
+	void removeNonUsedTexCoords();
+	void mergeSelected();
+	void splitSelected();
+	void detachSelected();
+	void duplicateSelectedTriangles();
+	void flipSelected();
+	void flipAllTriangles();
+	void extrudeSelectedTriangles();
+	void triangulate();
+	void triangulateSelectedQuads();
+	void openSubdivision();
+	void loopSubdivision();
+	void makeTexCoords();
+	void makeEdges();
+	void updateSelection();
+	void setSelectionModeVertices();
+	void setSelectionModeTriQuads();
+	void setSelectionModeEdges();
+	void removeSelected();
+};
+
+[ComVisibleAttribute(true)]
+public ref class VertexWrapper
+{
+private:
+	VertexNode *_node;
+public:
+	VertexWrapper(VertexNode *node);
+
+	VertexNode *node();
+	void setNode(VertexNode *node);
+
+	bool selected();
+	void setSelected(bool selected);
+
+	float x();
+	void setX(float x);
+
+	float y();
+	void setY(float y);
+
+	float z();
+	void setZ(float z);
+
+	int index();
+	void setIndex(int index);
+
+	int edgeCount();
+	VertexNodeEdgeIterator ^edgeIterator();
+};
+
+[ComVisibleAttribute(true)]
+public ref class TriangleWrapper
+{
+private:
+	TriangleNode *_node;
+public:
+	TriangleWrapper(TriangleNode *node);
+
+	TriangleNode *node();
+	void setNode(TriangleNode *node);
+
+	bool selected();
+	void setSelected(bool selected);
+
+	bool isQuad();
+	int count();
+
+	VertexWrapper ^vertex(int index);
+	void setVertex(VertexWrapper ^vertex, int index);
+
+	EdgeWrapper ^edge(int index);
+	void setEdge(EdgeWrapper ^edge, int index);
+
+	VertexWrapper ^vertexNotInEdge(EdgeWrapper ^edge);
+};
+
+[ComVisibleAttribute(true)]
+public ref class EdgeWrapper
+{
+private:
+	VertexEdgeNode *_node;
+public:
+	EdgeWrapper(VertexEdgeNode *node);
+
+	VertexEdgeNode *node();
+	void setNode(VertexEdgeNode *node);
+
+	bool selected();
+	void setSelected(bool selected);
+
+	VertexWrapper ^half();
+	void setHalf(VertexWrapper ^half);
+
+	VertexWrapper ^vertex(int index);
+	void setVertex(VertexWrapper ^vertex, int index);
+
+	TriangleWrapper ^triangle(int index);
+	void setTriangle(TriangleWrapper ^triangle, int index);
+
+	VertexWrapper ^oppositeVertex(VertexWrapper ^vertex);
+};
+
+[ComVisibleAttribute(true)]
+public ref class VertexNodeEdgeWrapper : public EdgeWrapper
+{
+private:
+    Vertex2VEdgeNode *_simpleNode;
+public:
+	VertexNodeEdgeWrapper(Vertex2VEdgeNode *edgeNode);
+
+	Vertex2VEdgeNode *simpleNode();
+	void setSimpleNode(Vertex2VEdgeNode *simpleNode);
+};
+
+#define DeclareIterator(Name, TBase, TNode) \
+[ComVisibleAttribute(true)] \
+public ref class Name : public TBase \
+{ \
+private: \
+    TNode *begin; \
+    TNode *end; \
+public: \
+	Name(TNode *theBegin, TNode *theEnd); \
+	bool finished(); \
+	void moveStart(); \
+	void moveNext(); \
+};
+
+DeclareIterator(VertexNodeIterator, VertexWrapper, VertexNode)
+DeclareIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode)
+DeclareIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode)
+DeclareIterator(VertexNodeEdgeIterator, VertexNodeEdgeWrapper, Vertex2VEdgeNode)
+
+}
+
+#endif

@@ -6,7 +6,9 @@
 //
 //
 
-#import "JSWrappers.h"
+#include "JSWrappers.h"
+
+#if defined(__APPLE__)
 
 @implementation ItemCollectionWrapper
 
@@ -403,3 +405,250 @@ ImplementIterator(VertexNodeIterator, VertexNode, node)
 ImplementIterator(TriangleNodeIterator, TriangleNode, node)
 ImplementIterator(EdgeNodeIterator, VertexEdgeNode, node)
 ImplementIterator(VertexNodeEdgeIterator, Vertex2VEdgeNode, simpleNode)
+
+#elif defined(WIN32)
+
+namespace MeshMakerCppCLI
+{
+
+ItemCollectionWrapper::ItemCollectionWrapper(ItemCollection *itemCollection)
+{
+	_itemCollection = itemCollection;
+}
+
+int ItemCollectionWrapper::count()
+{
+    return _itemCollection->count();
+}
+
+ItemWrapper ^ItemCollectionWrapper::at(int index)
+{
+	return gcnew ItemWrapper(_itemCollection->itemAtIndex(index));
+}
+
+ItemWrapper::ItemWrapper(Item *item)
+{
+	_item = item;
+}
+
+VertexNodeIterator ^ItemWrapper::vertexIterator()
+{
+	return gcnew VertexNodeIterator(_item->mesh->vertices().begin(), _item->mesh->vertices().end());
+}
+
+TriangleNodeIterator ^ItemWrapper::triQuadIterator()
+{
+	return gcnew TriangleNodeIterator(_item->mesh->triangles().begin(), _item->mesh->triangles().end());
+}
+
+EdgeNodeIterator ^ItemWrapper::edgeIterator()
+{
+	return gcnew EdgeNodeIterator(_item->mesh->vertexEdges().begin(), _item->mesh->vertexEdges().end());
+}
+
+int ItemWrapper::vertexCount() { return _item->mesh->vertexCount(); }
+int ItemWrapper::triQuadCount() { return _item->mesh->triangleCount(); }
+bool ItemWrapper::selected() { return _item->selected; }
+void ItemWrapper::setSelected(bool selected) { _item->selected = selected; }
+
+void ItemWrapper::removeDegeneratedTriangles() { _item->mesh->removeDegeneratedTriangles(); }
+void ItemWrapper::removeNonUsedVertices() { _item->mesh->removeNonUsedVertices(); }
+void ItemWrapper::removeNonUsedTexCoords() { _item->mesh->removeNonUsedTexCoords(); }
+void ItemWrapper::mergeSelected() { _item->mesh->mergeSelected(); }
+void ItemWrapper::splitSelected() { _item->mesh->splitSelected(); }
+void ItemWrapper::detachSelected() { _item->mesh->detachSelected(); }
+void ItemWrapper::duplicateSelectedTriangles() { _item->mesh->duplicateSelectedTriangles(); }
+void ItemWrapper::flipSelected() { _item->mesh->flipSelected(); }
+void ItemWrapper::flipAllTriangles() { _item->mesh->flipAllTriangles(); }
+void ItemWrapper::extrudeSelectedTriangles() { _item->mesh->extrudeSelectedTriangles(); }
+void ItemWrapper::triangulate() { _item->mesh->triangulate(); }
+void ItemWrapper::triangulateSelectedQuads() { _item->mesh->triangulateSelectedQuads(); }
+void ItemWrapper::openSubdivision() { _item->mesh->openSubdivision(); }
+void ItemWrapper::loopSubdivision() { _item->mesh->loopSubdivision(); }
+void ItemWrapper::makeTexCoords() { _item->mesh->makeTexCoords(); }
+void ItemWrapper::makeEdges() { _item->mesh->makeEdges(); }
+void ItemWrapper::updateSelection() { _item->mesh->setSelectionMode(_item->mesh->selectionMode()); }
+void ItemWrapper::setSelectionModeVertices() { _item->mesh->setSelectionMode(MeshSelectionMode::Vertices); }
+void ItemWrapper::setSelectionModeTriQuads() { _item->mesh->setSelectionMode(MeshSelectionMode::Triangles); }
+void ItemWrapper::setSelectionModeEdges() { _item->mesh->setSelectionMode(MeshSelectionMode::Edges); }
+void ItemWrapper::removeSelected() { _item->removeSelected(); }
+
+VertexWrapper ^ItemWrapper::addVertex(float x, float y, float z)
+{
+	return gcnew VertexWrapper(_item->mesh->addVertex(Vector3D(x, y, z)));
+}
+
+TriangleWrapper ^ItemWrapper::addTriangle(VertexWrapper ^v0, VertexWrapper ^v1, VertexWrapper ^v2)
+{
+	return gcnew TriangleWrapper(_item->mesh->addTriangle(v0->node(), v1->node(), v2->node()));
+}
+
+TriangleWrapper ^ItemWrapper::addQuad(VertexWrapper ^v0, VertexWrapper ^v1, VertexWrapper ^v2, VertexWrapper ^v3)
+{
+	return gcnew TriangleWrapper(_item->mesh->addQuad(v0->node(), v1->node(), v2->node(), v3->node()));
+}
+
+void ItemWrapper::removeTriQuad(TriangleWrapper ^triQuad)
+{
+    TriangleNode *current = triQuad->node();
+    _item->mesh->removeTriQuad(current);
+	triQuad->setNode(current);
+}
+
+VertexWrapper::VertexWrapper(VertexNode *node)
+{
+	_node = node;
+}
+
+VertexNode *VertexWrapper::node() {	return _node; }
+void VertexWrapper::setNode(VertexNode *value) { _node = value; }
+bool VertexWrapper::selected() { return _node->data().selected; }
+void VertexWrapper::setSelected(bool selected) { _node->data().selected = selected; }
+float VertexWrapper::x() { return _node->data().position.x; }
+void VertexWrapper::setX(float x) { _node->data().position.x = x; }
+float VertexWrapper::y() { return _node->data().position.y; }
+void VertexWrapper::setY(float y) { _node->data().position.y = y; }
+float VertexWrapper::z() { return _node->data().position.z; }
+void VertexWrapper::setZ(float z) { _node->data().position.z = z; }
+int VertexWrapper::index() { return _node->algorithmData.index; }
+void VertexWrapper::setIndex(int index) { _node->algorithmData.index = index; }
+int VertexWrapper::edgeCount() { return _node->_edges.count(); }
+VertexNodeEdgeIterator ^VertexWrapper::edgeIterator() { return gcnew VertexNodeEdgeIterator(_node->_edges.begin(), _node->_edges.end()); }
+
+TriangleWrapper::TriangleWrapper(TriangleNode *node)
+{
+	_node = node;
+}
+
+TriangleNode *TriangleWrapper::node() { return _node; }
+void TriangleWrapper::setNode(TriangleNode *node) { _node = node; }
+bool TriangleWrapper::isQuad() { return _node->data().isQuad(); }
+int TriangleWrapper::count() { return _node->data().count(); }
+bool TriangleWrapper::selected() { return _node->data().selected; }
+void TriangleWrapper::setSelected(bool selected) { _node->data().selected = selected; }
+
+VertexWrapper ^TriangleWrapper::vertex(int index)
+{
+	return gcnew VertexWrapper(_node->data().vertex(index));
+}
+
+void TriangleWrapper::setVertex(VertexWrapper ^vertex, int index)
+{
+	_node->data().setVertex(index, vertex->node());
+}
+
+EdgeWrapper ^TriangleWrapper::edge(int index)
+{
+	return gcnew EdgeWrapper(_node->data().vertexEdge(index));
+}
+
+void TriangleWrapper::setEdge(EdgeWrapper ^edge, int index)
+{
+	_node->data().setVertexEdge(index, edge->node());
+}
+
+VertexWrapper ^TriangleWrapper::vertexNotInEdge(EdgeWrapper ^edge)
+{
+	return gcnew VertexWrapper(_node->data().vertexNotInEdge(&edge->node()->data()));
+}
+
+EdgeWrapper::EdgeWrapper(VertexEdgeNode *node)
+{
+	_node = node;
+}
+
+VertexEdgeNode *EdgeWrapper::node() { return _node; }
+void EdgeWrapper::setNode(VertexEdgeNode *node) { _node = node; }
+bool EdgeWrapper::selected() { return _node->data().selected; }
+void EdgeWrapper::setSelected(bool selected) { _node->data().selected = selected; }
+
+VertexWrapper ^EdgeWrapper::half()
+{
+	if (_node->data().half)
+        return gcnew VertexWrapper(_node->data().half);
+    return nullptr;
+}
+
+void EdgeWrapper::setHalf(VertexWrapper ^half)
+{
+    if (half)
+        _node->data().half = half->node();
+    else
+        _node->data().half = NULL;
+}
+
+VertexWrapper ^EdgeWrapper::vertex(int index)
+{
+    VertexNode *vertex = _node->data().vertex(index);
+    if (vertex)
+        return gcnew VertexWrapper(vertex);
+    return nullptr;
+}
+
+void EdgeWrapper::setVertex(VertexWrapper ^vertex, int index)
+{
+    if (vertex)
+        _node->data().setVertex(index, vertex->node());
+    else
+        _node->data().setVertex(index, NULL);
+}
+
+TriangleWrapper ^EdgeWrapper::triangle(int index)
+{
+    TriangleNode *triangle = _node->data().triangle(index);
+    if (triangle)
+        return gcnew TriangleWrapper(triangle);
+    return nullptr;
+}
+
+void EdgeWrapper::setTriangle(TriangleWrapper ^triangle, int index)
+{
+    if (triangle)
+        _node->data().setTriangle(index, triangle->node());
+    else
+        _node->data().setTriangle(index, NULL);
+}
+
+VertexWrapper ^EdgeWrapper::oppositeVertex(VertexWrapper ^vertex)
+{
+	return gcnew VertexWrapper(_node->data().opposite(vertex->node()));
+}
+
+VertexNodeEdgeWrapper::VertexNodeEdgeWrapper(Vertex2VEdgeNode *edgeNode)
+	: EdgeWrapper(edgeNode->data())
+{
+	_simpleNode = edgeNode;
+}
+
+Vertex2VEdgeNode *VertexNodeEdgeWrapper::simpleNode()
+{
+	return _simpleNode;
+}
+
+void VertexNodeEdgeWrapper::setSimpleNode(Vertex2VEdgeNode *simpleNode)
+{
+    _simpleNode = simpleNode;
+    setNode(_simpleNode->data());
+}
+
+#define ImplementIterator(Name, TBase, TNode, nodeProperty, setNodeProperty) \
+\
+Name::Name(TNode *theBegin, TNode *theEnd) \
+	: TBase(theBegin) \
+{ \
+	begin = theBegin; \
+	end = theEnd; \
+} \
+\
+bool Name::finished() { return this->nodeProperty() == end; } \
+void Name::moveStart() { this->setNodeProperty(begin); } \
+void Name::moveNext() { this->setNodeProperty(this->nodeProperty()->next()); }
+
+ImplementIterator(VertexNodeIterator, VertexWrapper, VertexNode, node, setNode)
+ImplementIterator(TriangleNodeIterator, TriangleWrapper, TriangleNode, node, setNode)
+ImplementIterator(EdgeNodeIterator, EdgeWrapper, VertexEdgeNode, node, setNode)
+ImplementIterator(VertexNodeEdgeIterator, VertexNodeEdgeWrapper, Vertex2VEdgeNode, simpleNode, setSimpleNode)
+
+}
+
+#endif

@@ -120,6 +120,7 @@
   <ItemGroup>
     <ClCompile Include="..\Classes\Item.cpp" />
     <ClCompile Include="..\Classes\ItemCollection.cpp" />
+    <ClCompile Include="..\Classes\JSWrappers.cpp" />
     <ClCompile Include="..\Classes\Manipulator.cpp" />
     <ClCompile Include="..\Classes\ManipulatorWidget.cpp" />
     <ClCompile Include="..\Classes\MemoryStream.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="..\Classes\FPNode.h" />
     <ClInclude Include="..\Classes\Item.h" />
     <ClInclude Include="..\Classes\ItemCollection.h" />
+    <ClInclude Include="..\Classes\JSWrappers.h" />
     <ClInclude Include="..\Classes\Manipulator.h" />
     <ClInclude Include="..\Classes\ManipulatorWidget.h" />
     <ClInclude Include="..\Classes\Texture.h" />

@@ -74,6 +74,7 @@
             this.triangulateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleOneViewFourViewsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textureBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripTop = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonSelect = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonTranslate = new System.Windows.Forms.ToolStripButton();
@@ -104,7 +105,7 @@
             this.toolStripTextBoxSelectionY = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripTextBoxSelectionZ = new System.Windows.Forms.ToolStripTextBox();
-            this.textureBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scriptEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplit)).BeginInit();
             this.mainSplit.Panel1.SuspendLayout();
             this.mainSplit.Panel2.SuspendLayout();
@@ -127,7 +128,7 @@
             this.frontViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.frontViewPanel.Location = new System.Drawing.Point(0, 0);
             this.frontViewPanel.Name = "frontViewPanel";
-            this.frontViewPanel.Size = new System.Drawing.Size(431, 229);
+            this.frontViewPanel.Size = new System.Drawing.Size(431, 230);
             this.frontViewPanel.TabIndex = 0;
             // 
             // mainSplit
@@ -145,7 +146,7 @@
             // 
             this.mainSplit.Panel2.Controls.Add(this.bottomSplit);
             this.mainSplit.Size = new System.Drawing.Size(862, 461);
-            this.mainSplit.SplitterDistance = 228;
+            this.mainSplit.SplitterDistance = 227;
             this.mainSplit.TabIndex = 1;
             // 
             // topSplit
@@ -161,7 +162,7 @@
             // topSplit.Panel2
             // 
             this.topSplit.Panel2.Controls.Add(this.topViewPanel);
-            this.topSplit.Size = new System.Drawing.Size(862, 228);
+            this.topSplit.Size = new System.Drawing.Size(862, 227);
             this.topSplit.SplitterDistance = 431;
             this.topSplit.TabIndex = 2;
             this.topSplit.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.topSplit_SplitterMoving);
@@ -172,7 +173,7 @@
             this.leftViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftViewPanel.Location = new System.Drawing.Point(0, 0);
             this.leftViewPanel.Name = "leftViewPanel";
-            this.leftViewPanel.Size = new System.Drawing.Size(431, 228);
+            this.leftViewPanel.Size = new System.Drawing.Size(431, 227);
             this.leftViewPanel.TabIndex = 0;
             // 
             // topViewPanel
@@ -180,7 +181,7 @@
             this.topViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.topViewPanel.Location = new System.Drawing.Point(0, 0);
             this.topViewPanel.Name = "topViewPanel";
-            this.topViewPanel.Size = new System.Drawing.Size(427, 228);
+            this.topViewPanel.Size = new System.Drawing.Size(427, 227);
             this.topViewPanel.TabIndex = 0;
             // 
             // bottomSplit
@@ -196,7 +197,7 @@
             // bottomSplit.Panel2
             // 
             this.bottomSplit.Panel2.Controls.Add(this.perspectiveViewPanel);
-            this.bottomSplit.Size = new System.Drawing.Size(862, 229);
+            this.bottomSplit.Size = new System.Drawing.Size(862, 230);
             this.bottomSplit.SplitterDistance = 431;
             this.bottomSplit.TabIndex = 2;
             this.bottomSplit.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.bottomSplit_SplitterMoving);
@@ -207,7 +208,7 @@
             this.perspectiveViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.perspectiveViewPanel.Location = new System.Drawing.Point(0, 0);
             this.perspectiveViewPanel.Name = "perspectiveViewPanel";
-            this.perspectiveViewPanel.Size = new System.Drawing.Size(427, 229);
+            this.perspectiveViewPanel.Size = new System.Drawing.Size(427, 230);
             this.perspectiveViewPanel.TabIndex = 0;
             // 
             // menuStrip1
@@ -508,7 +509,8 @@
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toggleOneViewFourViewsToolStripMenuItem,
-            this.textureBrowserToolStripMenuItem});
+            this.textureBrowserToolStripMenuItem,
+            this.scriptEditorToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -520,6 +522,14 @@
             this.toggleOneViewFourViewsToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.toggleOneViewFourViewsToolStripMenuItem.Text = "Toggle One View/Four Views";
             this.toggleOneViewFourViewsToolStripMenuItem.Click += new System.EventHandler(this.toggleOneViewFourViewMenuItem_Click);
+            // 
+            // textureBrowserToolStripMenuItem
+            // 
+            this.textureBrowserToolStripMenuItem.Name = "textureBrowserToolStripMenuItem";
+            this.textureBrowserToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
+            this.textureBrowserToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
+            this.textureBrowserToolStripMenuItem.Text = "Texture Browser";
+            this.textureBrowserToolStripMenuItem.Click += new System.EventHandler(this.textureBrowserToolStripMenuItem_Click);
             // 
             // toolStripTop
             // 
@@ -799,13 +809,13 @@
             this.toolStripTextBoxSelectionZ.Leave += new System.EventHandler(this.selectionLeave);
             this.toolStripTextBoxSelectionZ.KeyDown += new System.Windows.Forms.KeyEventHandler(this.selectionKeyDown);
             // 
-            // textureBrowserToolStripMenuItem
+            // scriptEditorToolStripMenuItem
             // 
-            this.textureBrowserToolStripMenuItem.Name = "textureBrowserToolStripMenuItem";
-            this.textureBrowserToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
-            this.textureBrowserToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
-            this.textureBrowserToolStripMenuItem.Text = "Texture Browser";
-            this.textureBrowserToolStripMenuItem.Click += new System.EventHandler(this.textureBrowserToolStripMenuItem_Click);
+            this.scriptEditorToolStripMenuItem.Name = "scriptEditorToolStripMenuItem";
+            this.scriptEditorToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.scriptEditorToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
+            this.scriptEditorToolStripMenuItem.Text = "Script Editor";
+            this.scriptEditorToolStripMenuItem.Click += new System.EventHandler(this.scriptEditorToolStripMenuItem_Click);
             // 
             // DocumentForm
             // 
@@ -922,6 +932,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButtonColor;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
         private System.Windows.Forms.ToolStripMenuItem textureBrowserToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scriptEditorToolStripMenuItem;
     }
 }
 

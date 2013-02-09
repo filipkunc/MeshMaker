@@ -1549,6 +1549,27 @@ namespace MeshMakerCppCLI
 			setNeedsDisplayOnAllViews();
 		}
 	}
+
+	void MyDocument::runScriptAction(Action<ItemCollectionWrapper ^> ^scriptAction)
+	{
+		this->scriptAction = scriptAction;
+		allItemsAction(L"Script Action", gcnew Action(this, &MyDocument::runScriptActionCore));
+		setNeedsDisplayOnAllViews();
+	}
+
+	void MyDocument::runScriptActionCore()
+	{
+		for (uint i = 0; i < items->count(); i++)
+        {
+            Item *item = items->itemAtIndex(i);
+            item->mesh->resetTriangleCache();
+            item->mesh->resetAlgorithmData();
+        }
+        
+		scriptAction(gcnew ItemCollectionWrapper(items));
+        
+		manipulated->updateSelection();
+	}
 }
 
 #elif defined(__linux__)

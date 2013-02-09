@@ -131,6 +131,7 @@
 #include "ItemCollection.h"
 #include "OpenGLSceneView.h"
 #include "TextureCollection.h"
+#include "JSWrappers.h"
 #include "../MeshMakerCppCLI/MarshalHelpers.h"
 
 namespace MeshMakerCppCLI
@@ -188,6 +189,7 @@ namespace MeshMakerCppCLI
 		UndoStatePointer ^oldManipulations;
 		UndoStatePointer ^oldMeshState;
 
+		Action<ItemCollectionWrapper ^> ^scriptAction;
 	private:
         void setManipulated(IOpenGLManipulating *value);
 		Mesh2 *currentMesh();
@@ -201,6 +203,7 @@ namespace MeshMakerCppCLI
 		void allItemsAction(String ^actionName, Action ^action);
 		void meshAction(String ^actionName, Action ^action);
 		void meshOnlyAction(String ^actionName, Action ^action);
+		void runScriptActionCore();
 	public:
 		MyDocument(IDocumentDelegate ^documentForm);
 		~MyDocument();
@@ -356,6 +359,8 @@ namespace MeshMakerCppCLI
 		String ^textureNameAtIndex(uint index);
 		Bitmap ^textureImageAtIndex(uint index);
 		void setTextureAtIndex(uint index);
+
+		void runScriptAction(Action<ItemCollectionWrapper ^> ^scriptAction);
 	};
 }
 

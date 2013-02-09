@@ -24,6 +24,7 @@ namespace MeshMaker
         ToolStripButton[] manipulatorButtons;
 
         TextureBrowser textureBrowser;
+        ScriptEditor scriptEditor;
         
         public DocumentForm()
         {
@@ -607,6 +608,15 @@ namespace MeshMaker
             
             if (!textureBrowser.Visible)
                 textureBrowser.Show();
+        }
+
+        private void scriptEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (scriptEditor == null || scriptEditor.IsDisposed)
+                scriptEditor = new ScriptEditor(document);
+
+            if (!scriptEditor.Visible)
+                scriptEditor.Show();
         }
     }
 }
