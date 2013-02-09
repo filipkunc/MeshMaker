@@ -55,7 +55,6 @@
 		A787CC1913CF717500D2A1FC /* SphereTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1413CF717500D2A1FC /* SphereTemplate.png */; };
 		A787CC1A13CF717500D2A1FC /* TranslateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1513CF717500D2A1FC /* TranslateTemplate.png */; };
 		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
-		A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */ = {isa = PBXBuildFile; fileRef = A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */; };
 		A796A33316AC59FA00339A58 /* Item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A31F16AC59FA00339A58 /* Item.cpp */; };
 		A796A33416AC59FA00339A58 /* ItemCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A32016AC59FA00339A58 /* ItemCollection.cpp */; };
 		A796A33516AC59FA00339A58 /* Manipulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A32116AC59FA00339A58 /* Manipulator.cpp */; };
@@ -72,6 +71,7 @@
 		A796A34016AC59FA00339A58 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A33016AC59FA00339A58 /* Shader.cpp */; };
 		A796A34116AC59FA00339A58 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A33116AC59FA00339A58 /* ShaderProgram.cpp */; };
 		A796A34216AC59FA00339A58 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A33216AC59FA00339A58 /* Triangle.cpp */; };
+		A79F677216C6F8AC00BD3F9E /* JSWrappers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A79F677116C6F8AC00BD3F9E /* JSWrappers.cpp */; };
 		A7ABF53116B1CF1E00EA8CC5 /* MyDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7ABF52F16B1CF1E00EA8CC5 /* MyDocument.cpp */; };
 		A7ABF53216B1CF1E00EA8CC5 /* MyDocument+archiving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7ABF53016B1CF1E00EA8CC5 /* MyDocument+archiving.cpp */; };
 		A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */; };
@@ -183,7 +183,6 @@
 		A787CC1413CF717500D2A1FC /* SphereTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SphereTemplate.png; sourceTree = "<group>"; };
 		A787CC1513CF717500D2A1FC /* TranslateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TranslateTemplate.png; sourceTree = "<group>"; };
 		A78BDDDB163BF7D800FFFACD /* JSWrappers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSWrappers.h; path = Classes/JSWrappers.h; sourceTree = "<group>"; };
-		A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = JSWrappers.mm; path = Classes/JSWrappers.mm; sourceTree = "<group>"; };
 		A796A31F16AC59FA00339A58 /* Item.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = Item.cpp; path = Classes/Item.cpp; sourceTree = "<group>"; };
 		A796A32016AC59FA00339A58 /* ItemCollection.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = ItemCollection.cpp; path = Classes/ItemCollection.cpp; sourceTree = "<group>"; };
 		A796A32116AC59FA00339A58 /* Manipulator.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = Manipulator.cpp; path = Classes/Manipulator.cpp; sourceTree = "<group>"; };
@@ -205,6 +204,7 @@
 		A796A33116AC59FA00339A58 /* ShaderProgram.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = ShaderProgram.cpp; path = Classes/ShaderProgram.cpp; sourceTree = "<group>"; };
 		A796A33216AC59FA00339A58 /* Triangle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = Triangle.cpp; path = Classes/Triangle.cpp; sourceTree = "<group>"; };
 		A79F521E1394161B00CF7DBE /* FPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPList.h; path = Classes/FPList.h; sourceTree = "<group>"; };
+		A79F677116C6F8AC00BD3F9E /* JSWrappers.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = JSWrappers.cpp; path = Classes/JSWrappers.cpp; sourceTree = "<group>"; };
 		A7A4874113AE2EF100C0C41B /* Mesh2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mesh2.h; path = Classes/Mesh2.h; sourceTree = "<group>"; };
 		A7A9695913DB328F0091975A /* FPArrayCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPArrayCache.h; path = Classes/FPArrayCache.h; sourceTree = "<group>"; };
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
@@ -330,7 +330,7 @@
 				A796A32016AC59FA00339A58 /* ItemCollection.cpp */,
 				A7064C4412BD107800B14CFA /* ItemCollection.h */,
 				A78BDDDB163BF7D800FFFACD /* JSWrappers.h */,
-				A78BDDDC163BF7D800FFFACD /* JSWrappers.mm */,
+				A79F677116C6F8AC00BD3F9E /* JSWrappers.cpp */,
 				A796A32116AC59FA00339A58 /* Manipulator.cpp */,
 				A7064C4812BD107800B14CFA /* Manipulator.h */,
 				A796A32216AC59FA00339A58 /* ManipulatorWidget.cpp */,
@@ -642,7 +642,6 @@
 				A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */,
 				A7E8B3701631BDF500B8599D /* ScriptWindowController.mm in Sources */,
 				A7FBCD0E163B367900423D57 /* AppDelegate.m in Sources */,
-				A78BDDDD163BF7D800FFFACD /* JSWrappers.mm in Sources */,
 				A796A33316AC59FA00339A58 /* Item.cpp in Sources */,
 				A796A33416AC59FA00339A58 /* ItemCollection.cpp in Sources */,
 				A796A33516AC59FA00339A58 /* Manipulator.cpp in Sources */,
@@ -663,6 +662,7 @@
 				A7ABF53216B1CF1E00EA8CC5 /* MyDocument+archiving.cpp in Sources */,
 				A7425A3F16B32EEE00440E61 /* TextureCollection.cpp in Sources */,
 				A7777AB316B483F400FF965A /* FPImageView.m in Sources */,
+				A79F677216C6F8AC00BD3F9E /* JSWrappers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
