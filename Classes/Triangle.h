@@ -120,6 +120,6 @@ public:
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
     void replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord);
     
-    void softSelectNeighbours();
+    void softSelect(const float weights[], uint weightCount);
 };
 

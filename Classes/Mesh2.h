@@ -85,6 +85,7 @@ private:
     
     static bool _useSoftSelection;
     static bool _selectThrough;
+    static float _minimumSelectionWeight;
     
     bool _isUnwrapped;
     
@@ -189,9 +190,9 @@ public:
     void merge(Mesh2 *mesh);
     
     void computeSoftSelection();
-    void computeSoftSelectionVertices();
-    void computeSoftSelectionEdges();
-    void computeSoftSelectionTriangles();
+    void computeSoftSelectionVertices(const float weights[], uint weightCount);
+    void computeSoftSelectionEdges(const float weights[], uint weightCount);
+    void computeSoftSelectionTriangles(const float weights[], uint weightCount);
     
     // drawing
     

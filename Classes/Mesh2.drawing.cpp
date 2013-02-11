@@ -46,6 +46,7 @@ void Mesh2::fillTriangleCache()
         node->computeNormal();
     }
 
+    float weightedComponents[] = { 0.0f, 0.0f, 0.0f };
     const float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
     const uint *twoTriIndices = Triangle2::twoTriIndices;
     uint i = 0;
@@ -57,7 +58,24 @@ void Mesh2::fillTriangleCache()
         if (!currentTriangle.visible)
             continue;
         
-        const float *c = currentTriangle.selected ? selectedComponents : _colorComponents;
+        const float *c;
+        if (currentTriangle.selected)
+        {
+            c = selectedComponents;
+        }
+        else
+        {
+            if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
+            {
+                weightedComponents[0] = 1.0f;
+                weightedComponents[1] = 1.0f - node->selectionWeight;
+                c = weightedComponents;
+            }
+            else
+            {
+                c = _colorComponents;
+            }
+        }
         
         Vector3D fn = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
         
@@ -132,7 +150,7 @@ void Mesh2::fillEdgeCache()
                 _cachedEdgeVertices[i + 1].color.coords[k] = selectedColor[k];
             }
         }
-        else if (_useSoftSelection && node->selectionWeight > 0.0f)
+        else if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
         {
             Vector3D softSelectedColor = Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f);
             
@@ -695,7 +713,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 
                 if (node->data().selected)
                     tempColors.push_back(selectedColor); 
-                else if (_useSoftSelection && node->selectionWeight > 0.0f)
+                else if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
                     tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
                 else
                     tempColors.push_back(normalColor);

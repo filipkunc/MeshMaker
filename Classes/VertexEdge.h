@@ -290,19 +290,18 @@ public:
         }
     }
     
-    void softSelectNeighbours()
+    void softSelect(const float weights[], uint weightCount)
     {
-        float weight = 1.0f;
-        const float weightStep = 0.1f;
+        selectionWeight = 1.0f;
         
         vector<VertexEdgeNode *> currentStepNodes;
         currentStepNodes.push_back(this);
         
         vector<VertexEdgeNode *> nextStepNodes;
         
-        while (weight > weightStep)
+        for (uint w = 0; w < weightCount; w++)
         {
-            weight -= weightStep;
+            float weight = weights[w];
             
             nextStepNodes.clear();
             
