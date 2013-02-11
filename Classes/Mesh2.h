@@ -189,6 +189,9 @@ public:
     void merge(Mesh2 *mesh);
     
     void computeSoftSelection();
+    void computeSoftSelectionVertices();
+    void computeSoftSelectionEdges();
+    void computeSoftSelectionTriangles();
     
     // drawing
     

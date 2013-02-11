@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1070</int>
 		<string key="IBDocument.SystemVersion">12C60</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
+		<string key="IBDocument.InterfaceBuilderVersion">3084</string>
 		<string key="IBDocument.AppKitVersion">1187.34</string>
 		<string key="IBDocument.HIToolboxVersion">625.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">2844</string>
+			<string key="NS.object.0">3084</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSColorWell</string>
@@ -159,11 +159,9 @@
 							<string key="NSToolbarItemPaletteLabel">Run Script</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="768362601">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{9, 14}, {45, 25}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="926969746">
@@ -416,11 +414,9 @@
 							<string key="NSToolbarItemPaletteLabel">Edit Mode</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="631661131">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSWindow"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="857395174">
 									<int key="NSCellFlags">-2076180416</int>
@@ -948,6 +944,7 @@
 							<string key="NSFrame">{{878, 4}, {96, 22}}</string>
 							<reference key="NSSuperview" ref="568628114"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="801101494">
@@ -1190,6 +1187,9 @@
 			<object class="NSCustomObject" id="588383302">
 				<string key="NSClassName">ScriptWindowController</string>
 			</object>
+			<object class="NSCustomObject" id="144252658">
+				<string key="NSClassName">FPSelectionWindowController</string>
+			</object>
 		</array>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
 			<array class="NSMutableArray" key="connectionRecords">
@@ -1408,6 +1408,14 @@
 						<reference key="destination" ref="768362601"/>
 					</object>
 					<int key="connectionID">101196</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">selectionWindowController</string>
+						<reference key="source" ref="512844837"/>
+						<reference key="destination" ref="144252658"/>
+					</object>
+					<int key="connectionID">101201</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2078,6 +2086,11 @@
 						<reference key="object" ref="912296229"/>
 						<reference key="parent" ref="320808127"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">101200</int>
+						<reference key="object" ref="144252658"/>
+						<reference key="parent" ref="0"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2162,6 +2175,7 @@
 				<string key="101191.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101192.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101195.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="101200.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="5.IBWindowTemplateEditedContentRect">{{381, 488}, {739, 467}}</string>
 				<string key="6.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2170,7 +2184,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101199</int>
+			<int key="maxID">101201</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2205,6 +2219,14 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/AddItemWithStepsSheetController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">FPSelectionWindowController</string>
+					<string key="superclassName">NSWindowController</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/FPSelectionWindowController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2244,6 +2266,7 @@
 						<string key="addCube:">id</string>
 						<string key="addCylinder:">id</string>
 						<string key="addIcosahedron:">id</string>
+						<string key="addPlane:">id</string>
 						<string key="addSphere:">id</string>
 						<string key="changeEditMode:">id</string>
 						<string key="changeManipulator:">id</string>
@@ -2264,6 +2287,7 @@
 						<string key="triangulate:">id</string>
 						<string key="unhideAll:">id</string>
 						<string key="viewScriptEditor:">id</string>
+						<string key="viewSelectionTool:">id</string>
 						<string key="viewTextureBrowser:">id</string>
 						<string key="viewTexturePaintTool:">id</string>
 					</dictionary>
@@ -2278,6 +2302,10 @@
 						</object>
 						<object class="IBActionInfo" key="addIcosahedron:">
 							<string key="name">addIcosahedron:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="addPlane:">
+							<string key="name">addPlane:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="addSphere:">
@@ -2360,6 +2388,10 @@
 							<string key="name">viewScriptEditor:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="viewSelectionTool:">
+							<string key="name">viewSelectionTool:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="viewTextureBrowser:">
 							<string key="name">viewTextureBrowser:</string>
 							<string key="candidateClassName">id</string>
@@ -2377,6 +2409,7 @@
 						<string key="mainSplit">NSSplitView</string>
 						<string key="scriptPullDown">NSPopUpButton</string>
 						<string key="scriptWindowController">ScriptWindowController</string>
+						<string key="selectionWindowController">FPSelectionWindowController</string>
 						<string key="textureBrowserWindowController">FPTextureBrowserWindowController</string>
 						<string key="texturePaintToolWindowController">FPTexturePaintToolWindowController</string>
 						<string key="topSplit">NSSplitView</string>
@@ -2413,6 +2446,10 @@
 						<object class="IBToOneOutletInfo" key="scriptWindowController">
 							<string key="name">scriptWindowController</string>
 							<string key="candidateClassName">ScriptWindowController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionWindowController">
+							<string key="name">selectionWindowController</string>
+							<string key="candidateClassName">FPSelectionWindowController</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="textureBrowserWindowController">
 							<string key="name">textureBrowserWindowController</string>
@@ -2459,44 +2496,17 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">ScriptWindowController</string>
 					<string key="superclassName">NSWindowController</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="newScript:">id</string>
-						<string key="runScript:">id</string>
-						<string key="runScriptAction:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="newScript:">
-							<string key="name">newScript:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="runScript:">
-							<string key="name">runScript:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="runScriptAction:">
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">runScriptAction:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">runScriptAction:</string>
+						<object class="IBActionInfo" key="NS.object.0">
 							<string key="name">runScriptAction:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="editorView">NSView</string>
-						<string key="outputView">NSTextView</string>
-						<string key="scriptsTableView">NSTableView</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="editorView">
-							<string key="name">editorView</string>
-							<string key="candidateClassName">NSView</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="outputView">
-							<string key="name">outputView</string>
-							<string key="candidateClassName">NSTextView</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="scriptsTableView">
-							<string key="name">scriptsTableView</string>
-							<string key="candidateClassName">NSTableView</string>
-						</object>
-					</dictionary>
+					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/ScriptWindowController.h</string>

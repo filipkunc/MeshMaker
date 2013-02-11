@@ -450,3 +450,8 @@ void Triangle2::convertBarycentricToUVs(float &u, float &v)
     u = final.x;
     v = final.y;
 }
+
+void TriangleNode::softSelectNeighbours()
+{
+    
+}

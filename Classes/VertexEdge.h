@@ -223,6 +223,8 @@ template <class T>
 class VEdgeNode : public FPNode<VEdgeNode<T>, VEdge<T> >
 {
 public:
+    float selectionWeight;
+    
     VEdgeNode() : FPNode<VEdgeNode<T>, VEdge<T> >() { }
     
     VEdgeNode(const VEdge<T> &edge) : FPNode<VEdgeNode<T>, VEdge<T> >(edge)
@@ -285,6 +287,48 @@ public:
                 newVertex->addEdge(this);
                 break;
             }
+        }
+    }
+    
+    void softSelectNeighbours()
+    {
+        float weight = 1.0f;
+        const float weightStep = 0.1f;
+        
+        vector<VertexEdgeNode *> currentStepNodes;
+        currentStepNodes.push_back(this);
+        
+        vector<VertexEdgeNode *> nextStepNodes;
+        
+        while (weight > weightStep)
+        {
+            weight -= weightStep;
+            
+            nextStepNodes.clear();
+            
+            for (uint i = 0; i < currentStepNodes.size(); i++)
+            {
+                VertexEdgeNode *currentNode = currentStepNodes[i];
+                VertexEdge &edge = currentNode->data();
+                
+                for (uint j = 0; j < 2; j++)
+                {
+                    TriangleNode *quad = edge.triangle(j);
+                    
+                    if (quad != NULL && quad->data().isQuad())
+                    {
+                        VertexEdgeNode *edgeNode = quad->data().nextEdgeInQuadLoop(edge);
+                        if (edgeNode != NULL)
+                        {
+                            nextStepNodes.push_back(edgeNode);
+                            if (edgeNode->selectionWeight < weight)
+                                edgeNode->selectionWeight = weight;
+                        }
+                    }
+                }
+            }
+            
+            currentStepNodes = nextStepNodes;
         }
     }
 };

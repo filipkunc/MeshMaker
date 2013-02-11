@@ -246,4 +246,39 @@ public:
         
         return NULL;
     }
+    
+    void softSelectNeighbours()
+    {
+        float weight = 1.0f;
+        const float weightStep = 0.1f;
+        
+        vector<VertexNode *> currentStepNodes;
+        currentStepNodes.push_back(this);
+        
+        vector<VertexNode *> nextStepNodes;
+        
+        while (weight > weightStep)
+        {
+            weight -= weightStep;
+            
+            nextStepNodes.clear();
+            
+            for (uint i = 0; i < currentStepNodes.size(); i++)
+            {
+                VertexNode *currentNode = currentStepNodes[i];
+                for (VertexVEdgeNode<T> *node = currentNode->_edges.begin(), *end = currentNode->_edges.end(); node != end; node = node->next())
+                {
+                    VertexNode *vertexNode = node->data()->data().opposite(currentNode);
+                    if (!vertexNode->data().selected)
+                    {
+                        nextStepNodes.push_back(vertexNode);
+                        if (vertexNode->selectionWeight < weight)
+                            vertexNode->selectionWeight = weight;
+                    }
+                }
+            }
+            
+            currentStepNodes = nextStepNodes;
+        }
+    }
 };

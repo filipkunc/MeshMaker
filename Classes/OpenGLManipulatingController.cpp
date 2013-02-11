@@ -233,6 +233,7 @@ bool OpenGLManipulatingController::selectionColorEnabled()
 
 Vector4D OpenGLManipulatingController::selectionColor()
 {
+    // TODO: often crashes here, find why...
     if (selectionColorEnabled())
         return _model->selectionColor();
     return Vector4D();

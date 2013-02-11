@@ -1734,29 +1734,82 @@ void Mesh2::computeSoftSelection()
     if (!_useSoftSelection)
         return;
     
-    Vector3D center;
-    Quaternion rotation;
-    Vector3D scale;
-    
-    getSelectionCenterRotationScale(center, rotation, scale);
+    switch (_selectionMode)
+    {
+        case MeshSelectionMode::Vertices:
+            computeSoftSelectionVertices();
+            break;
+        case MeshSelectionMode::Triangles:
+            computeSoftSelectionTriangles();
+            break;
+        case MeshSelectionMode::Edges:
+            computeSoftSelectionEdges();
+            break;
+    }
+}
+
+void Mesh2::computeSoftSelectionVertices()
+{
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        node->selectionWeight = 0.0f;
+    }
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
-        if (!node->data().selected)
-        {
-            float sqDistance = center.SqDistance(node->data().position);
-            
-            node->selectionWeight = 1.0f / expf(sqDistance);
-            
-            if (node->selectionWeight < 0.1f)
-                node->selectionWeight = 0.0f;
-
-            if (node->selectionWeight > 1.0f)
-                node->selectionWeight = 1.0f;
-        }
-        else
+        if (node->data().selected)
         {
             node->selectionWeight = 1.0f;
+            node->softSelectNeighbours();
+        }
+    }
+}
+
+void Mesh2::computeSoftSelectionTriangles()
+{
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        node->selectionWeight = 0.0f;
+    }
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        if (node->data().selected)
+        {
+            node->selectionWeight = 1.0f;
+            node->softSelectNeighbours();
+        }
+    }
+}
+
+void Mesh2::computeSoftSelectionEdges()
+{
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        node->selectionWeight = 0.0f;
+    }
+    
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+    {
+        node->selectionWeight = 0.0f;
+    }
+    
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+    {
+        if (node->data().selected)
+        {
+            node->selectionWeight = 1.0f;
+            node->softSelectNeighbours();
+        }
+    }
+    
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+    {
+        for (uint i = 0; i < 2; i++)
+        {
+            VertexNode *vertexNode = node->data().vertex(i);
+            if (vertexNode->selectionWeight < node->selectionWeight)
+                vertexNode->selectionWeight = node->selectionWeight;
         }
     }
 }

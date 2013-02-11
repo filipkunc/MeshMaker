@@ -134,6 +134,7 @@ vector<T> *ReadValues(string s)
     items = newItems;
     textures = newTextures;
     
+    meshController->setModel(NULL);
     itemsController->setModel(items);
     itemsController->updateSelection();
     [self setManipulated:itemsController];    
@@ -291,6 +292,7 @@ vector<T> *ReadValues(string s)
     delete items;
     items = newItems;
     
+    meshController->setModel(NULL);
     itemsController->setModel(items);
     itemsController->updateSelection();
     [self setManipulated:itemsController];
@@ -495,6 +497,8 @@ vector<T> *ReadValues(string s)
     
     delete items;
     items = newItems;
+    
+    meshController->setModel(NULL);
     itemsController->setModel(items);
     itemsController->updateSelection();
     [self setManipulated:itemsController];
@@ -867,6 +871,7 @@ namespace MeshMakerCppCLI
 		items = newItems;
 		textures = newTextures;
     
+        meshController->setModel(NULL);
 		itemsController->setModel(items);
 		itemsController->updateSelection();
 		this->setManipulated(itemsController);		
@@ -1018,6 +1023,7 @@ namespace MeshMakerCppCLI
 		delete items;
 		items = newItems;
 	    
+        meshController->setModel(NULL);
 		itemsController->setModel(items);
 		itemsController->updateSelection();
 		this->setManipulated(itemsController);	

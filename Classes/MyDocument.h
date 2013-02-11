@@ -17,6 +17,7 @@
 #import "FPTexturePaintToolWindowController.h"
 #import "FPTextureBrowserWindowController.h"
 #import "ScriptWindowController.h"
+#import "FPSelectionWindowController.h"
 
 @interface UndoStatePointer : NSObject
 {
@@ -29,7 +30,14 @@
 
 @end
 
-@interface MyDocument : NSDocument <AddItemWithStepsProtocol, OpenGLSceneViewDelegate, ScriptDelegate, FPTextureBrowserDelegate, NSWindowDelegate>
+@interface MyDocument : NSDocument <
+    AddItemWithStepsProtocol,
+    OpenGLSceneViewDelegate,
+	ScriptDelegate,
+    FPTextureBrowserDelegate,
+    FPSelectionWindowDelegate,
+    NSWindowDelegate
+>
 {
 @public // public for unit tests
 	BOOL manipulationFinished;
@@ -59,6 +67,7 @@
     IBOutlet FPTexturePaintToolWindowController *texturePaintToolWindowController;
     IBOutlet FPTextureBrowserWindowController *textureBrowserWindowController;
     IBOutlet ScriptWindowController *scriptWindowController;
+    IBOutlet FPSelectionWindowController *selectionWindowController;
     
     IBOutlet NSPopUpButton *scriptPullDown;
 }
@@ -119,6 +128,7 @@
 - (IBAction)viewTexturePaintTool:(id)sender;
 - (IBAction)viewTextureBrowser:(id)sender;
 - (IBAction)viewScriptEditor:(id)sender;
+- (IBAction)viewSelectionTool:(id)sender;
 
 @end
 

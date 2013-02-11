@@ -55,6 +55,8 @@ bool NSPointInRect(NSPoint point, NSRect rect)
 
 #endif
 
+bool OpenGLSceneViewCore::_alwaysSelectThrough = false;
+
 OpenGLSceneViewCore::OpenGLSceneViewCore(IOpenGLSceneViewCoreDelegate *delegate)
 {
     _displayed = NULL;
@@ -874,7 +876,7 @@ void OpenGLSceneViewCore::mouseUp(NSPoint point, bool alt, bool cmd, bool ctrl, 
 			NSRect rect = currentRect();
 			if (clickCount <= 1 && rect.size.width > 5.0f && rect.size.height > 5.0f)
 			{
-				select(rect, _manipulated, selectionMode, ctrl);
+				select(rect, _manipulated, selectionMode, ctrl || _alwaysSelectThrough);
 			}
 			else
 			{

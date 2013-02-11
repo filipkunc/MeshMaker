@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
 		<string key="IBDocument.SystemVersion">12C60</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
+		<string key="IBDocument.InterfaceBuilderVersion">3084</string>
 		<string key="IBDocument.AppKitVersion">1187.34</string>
 		<string key="IBDocument.HIToolboxVersion">625.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">2844</string>
+			<string key="NS.object.0">3084</string>
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -663,24 +663,6 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="688132746">
-									<reference key="NSMenu" ref="789758025"/>
-									<bool key="NSIsDisabled">YES</bool>
-									<bool key="NSIsSeparator">YES</bool>
-									<string key="NSTitle"/>
-									<string key="NSKeyEquiv"/>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="1033313550"/>
-									<reference key="NSMixedImage" ref="310636482"/>
-								</object>
-								<object class="NSMenuItem" id="728674801">
-									<reference key="NSMenu" ref="789758025"/>
-									<string key="NSTitle">Soft Selection</string>
-									<string key="NSKeyEquiv"/>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="1033313550"/>
-									<reference key="NSMixedImage" ref="310636482"/>
-								</object>
 							</object>
 						</object>
 					</object>
@@ -766,6 +748,15 @@
 									<string key="NSTitle">Script Editor...</string>
 									<string key="NSKeyEquiv">E</string>
 									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
+								<object class="NSMenuItem" id="999660025">
+									<reference key="NSMenu" ref="466310130"/>
+									<string key="NSTitle">Selection Tool...</string>
+									<string key="NSKeyEquiv">S</string>
+									<int key="NSKeyEquivModMask">262144</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
@@ -1222,14 +1213,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">softSelection:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="728674801"/>
-					</object>
-					<int key="connectionID">539</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">addPlane:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="587810936"/>
@@ -1379,6 +1362,14 @@
 						<reference key="destination" ref="981774318"/>
 					</object>
 					<int key="connectionID">841</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">viewSelectionTool:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="999660025"/>
+					</object>
+					<int key="connectionID">845</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -1721,10 +1712,8 @@
 							<reference ref="538534421"/>
 							<reference ref="697313994"/>
 							<reference ref="390290735"/>
-							<reference ref="728674801"/>
 							<reference ref="405873908"/>
 							<reference ref="1040535638"/>
-							<reference ref="688132746"/>
 							<reference ref="677131346"/>
 							<reference ref="225566444"/>
 							<reference ref="1031602533"/>
@@ -1851,6 +1840,7 @@
 							<reference ref="779212391"/>
 							<reference ref="586266"/>
 							<reference ref="417741643"/>
+							<reference ref="999660025"/>
 						</object>
 						<reference key="parent" ref="586577488"/>
 					</object>
@@ -1936,11 +1926,6 @@
 						<reference key="parent" ref="789758025"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">536</int>
-						<reference key="object" ref="728674801"/>
-						<reference key="parent" ref="789758025"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">540</int>
 						<reference key="object" ref="587810936"/>
 						<reference key="parent" ref="511267261"/>
@@ -1953,11 +1938,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">544</int>
 						<reference key="object" ref="1040535638"/>
-						<reference key="parent" ref="789758025"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">545</int>
-						<reference key="object" ref="688132746"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -2092,6 +2072,11 @@
 						<reference key="object" ref="733747620"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">844</int>
+						<reference key="object" ref="999660025"/>
+						<reference key="parent" ref="466310130"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -2160,11 +2145,9 @@
 					<string>527.IBPluginDependency</string>
 					<string>533.IBPluginDependency</string>
 					<string>535.IBPluginDependency</string>
-					<string>536.IBPluginDependency</string>
 					<string>540.IBPluginDependency</string>
 					<string>542.IBPluginDependency</string>
 					<string>544.IBPluginDependency</string>
-					<string>545.IBPluginDependency</string>
 					<string>547.IBPluginDependency</string>
 					<string>549.IBPluginDependency</string>
 					<string>550.IBPluginDependency</string>
@@ -2200,11 +2183,11 @@
 					<string>835.IBPluginDependency</string>
 					<string>836.IBPluginDependency</string>
 					<string>842.IBPluginDependency</string>
+					<string>844.IBPluginDependency</string>
 					<string>92.IBPluginDependency</string>
 				</object>
 				<object class="NSArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2321,7 +2304,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">843</int>
+			<int key="maxID">845</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2397,6 +2380,14 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
+					<string key="className">FPSelectionWindowController</string>
+					<string key="superclassName">NSWindowController</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/FPSelectionWindowController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
 					<string key="className">FPTextureBrowserWindowController</string>
 					<string key="superclassName">NSWindowController</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
@@ -2454,6 +2445,7 @@
 							<string>addCube:</string>
 							<string>addCylinder:</string>
 							<string>addIcosahedron:</string>
+							<string>addPlane:</string>
 							<string>addSphere:</string>
 							<string>changeEditMode:</string>
 							<string>changeManipulator:</string>
@@ -2474,11 +2466,14 @@
 							<string>triangulate:</string>
 							<string>unhideAll:</string>
 							<string>viewScriptEditor:</string>
+							<string>viewSelectionTool:</string>
 							<string>viewTextureBrowser:</string>
 							<string>viewTexturePaintTool:</string>
 						</object>
 						<object class="NSArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -2513,6 +2508,7 @@
 							<string>addCube:</string>
 							<string>addCylinder:</string>
 							<string>addIcosahedron:</string>
+							<string>addPlane:</string>
 							<string>addSphere:</string>
 							<string>changeEditMode:</string>
 							<string>changeManipulator:</string>
@@ -2533,6 +2529,7 @@
 							<string>triangulate:</string>
 							<string>unhideAll:</string>
 							<string>viewScriptEditor:</string>
+							<string>viewSelectionTool:</string>
 							<string>viewTextureBrowser:</string>
 							<string>viewTexturePaintTool:</string>
 						</object>
@@ -2548,6 +2545,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">addIcosahedron:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">addPlane:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -2631,6 +2632,10 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
+								<string key="name">viewSelectionTool:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
 								<string key="name">viewTextureBrowser:</string>
 								<string key="candidateClassName">id</string>
 							</object>
@@ -2651,6 +2656,7 @@
 							<string>mainSplit</string>
 							<string>scriptPullDown</string>
 							<string>scriptWindowController</string>
+							<string>selectionWindowController</string>
 							<string>textureBrowserWindowController</string>
 							<string>texturePaintToolWindowController</string>
 							<string>topSplit</string>
@@ -2668,6 +2674,7 @@
 							<string>NSSplitView</string>
 							<string>NSPopUpButton</string>
 							<string>ScriptWindowController</string>
+							<string>FPSelectionWindowController</string>
 							<string>FPTextureBrowserWindowController</string>
 							<string>FPTexturePaintToolWindowController</string>
 							<string>NSSplitView</string>
@@ -2688,6 +2695,7 @@
 							<string>mainSplit</string>
 							<string>scriptPullDown</string>
 							<string>scriptWindowController</string>
+							<string>selectionWindowController</string>
 							<string>textureBrowserWindowController</string>
 							<string>texturePaintToolWindowController</string>
 							<string>topSplit</string>
@@ -2725,6 +2733,10 @@
 							<object class="IBToOneOutletInfo">
 								<string key="name">scriptWindowController</string>
 								<string key="candidateClassName">ScriptWindowController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">selectionWindowController</string>
+								<string key="candidateClassName">FPSelectionWindowController</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">textureBrowserWindowController</string>

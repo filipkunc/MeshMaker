@@ -89,6 +89,8 @@ public:
 	Manipulator *_scaleManipulator;
 	Manipulator *_currentManipulator;
 	CameraMode _cameraMode;
+    
+    static bool _alwaysSelectThrough;    
 public:
     OpenGLSceneViewCore(IOpenGLSceneViewCoreDelegate *delegate);
     ~OpenGLSceneViewCore();

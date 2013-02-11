@@ -132,6 +132,16 @@ void Mesh2::fillEdgeCache()
                 _cachedEdgeVertices[i + 1].color.coords[k] = selectedColor[k];
             }
         }
+        else if (_useSoftSelection && node->selectionWeight > 0.0f)
+        {
+            Vector3D softSelectedColor = Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f);
+            
+            for (uint k = 0; k < 3; k++)
+            {
+                _cachedEdgeVertices[i].color.coords[k] = softSelectedColor[k];
+                _cachedEdgeVertices[i + 1].color.coords[k] = softSelectedColor[k];
+            }
+        }
         else
         {
             for (uint k = 0; k < 3; k++)

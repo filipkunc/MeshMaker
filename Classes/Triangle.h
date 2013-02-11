@@ -89,6 +89,8 @@ public:
 class TriangleNode : public FPNode<TriangleNode, Triangle2>
 {
 public:
+    float selectionWeight;
+    
     TriangleNode() : FPNode<TriangleNode, Triangle2>() { }
     TriangleNode(const Triangle2 &triangle) : FPNode<TriangleNode, Triangle2>(triangle)
     {
@@ -117,5 +119,7 @@ public:
     
     void replaceVertex(VertexNode *currentVertex, VertexNode *newVertex);
     void replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord);
+    
+    void softSelectNeighbours();
 };
 

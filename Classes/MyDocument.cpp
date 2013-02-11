@@ -90,6 +90,8 @@
     [[scriptPullDown menu] setDelegate:scriptWindowController];
     [scriptWindowController menuNeedsUpdate:[scriptPullDown menu]];
     
+    [selectionWindowController setDelegate:self];
+    
 	[views addObject:viewTop];
 	[views addObject:viewLeft];
 	[views addObject:viewFront];
@@ -208,6 +210,7 @@
 	MyDocument *document = [self prepareUndoWithName:[NSString stringWithFormat:@"Add %@", name]];
 	[document removeItemWithType:type steps:steps];
 	
+    meshController->setModel(NULL);
     items->addItem(item);
     [textureBrowserWindowController setDelegate:self];
     [textureBrowserWindowController reloadData];
@@ -310,6 +313,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Manipulations"];	
 	[document swapManipulationsWithOld:current current:old];
 	
+    meshController->setModel(NULL);
 	itemsController->updateSelection();
 	[self setManipulated:itemsController];
 }
@@ -325,6 +329,7 @@
 						  current:old
 					   actionName:actionName];
 	
+    meshController->setModel(NULL);
 	itemsController->updateSelection();
 	[self setManipulated:itemsController];
 }
@@ -495,6 +500,7 @@
     if (currentMesh)
         currentMesh->setSelectionMode(MeshSelectionMode::Vertices);
     
+    meshController->setModel(NULL);
 	itemsController->setModel(items);
     itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
     
@@ -682,6 +688,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document undoDeleteSelected:selectedItems];
 
+    meshController->setModel(NULL);
 	itemsController->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
@@ -696,6 +703,7 @@
 	MyDocument *document = [self prepareUndoWithName:@"Delete"];
 	[document redoDeleteSelected:selectedItems];
 	
+    meshController->setModel(NULL);
 	itemsController->updateSelection();
 	[self setNeedsDisplayOnAllViews];
 }
@@ -705,21 +713,24 @@
     [self meshOnlyActionWithName:@"Subdivision" block:^ { [self currentMesh]->openSubdivision(); }];
 }
 
-+ (BOOL)softSelection
+- (BOOL)useSoftSelection
 {
     return Mesh2::useSoftSelection();
 }
 
-+ (void)setSoftSelection:(BOOL)value
+- (void)setUseSoftSelection:(BOOL)value
 {
     Mesh2::setUseSoftSelection(value);
 }
 
-- (IBAction)softSelection:(id)sender
+- (BOOL)selectThrough
 {
-    NSMenuItem *menuItem = (NSMenuItem *)sender;
-    [MyDocument setSoftSelection:![MyDocument softSelection]];
-    [menuItem setState:[MyDocument softSelection]];
+    return OpenGLSceneViewCore::_alwaysSelectThrough;
+}
+
+- (void)setSelectThrough:(BOOL)selectThrough
+{
+    OpenGLSceneViewCore::_alwaysSelectThrough = selectThrough;
 }
 
 - (IBAction)changeManipulator:(id)sender
@@ -817,6 +828,11 @@
 - (void)viewScriptEditor:(id)sender
 {
     [scriptWindowController showWindow:nil];
+}
+
+- (void)viewSelectionTool:(id)sender
+{
+    [selectionWindowController showWindow:nil];
 }
 
 - (BOOL)texturePaintEnabled
@@ -1031,6 +1047,7 @@ namespace MeshMakerCppCLI
 		if (currentMesh)
 			currentMesh->setSelectionMode(MeshSelectionMode::Vertices);
 	    
+        meshController->setModel(NULL);
 		itemsController->setModel(items);
 		itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
 	    
@@ -1117,6 +1134,7 @@ namespace MeshMakerCppCLI
 			meshType, steps));
 		
 		items->addItem(item);
+        meshController->setModel(NULL);
 		itemsController->changeSelection(false);
 		items->setSelectedAtIndex(items->count() - 1, true);
 		itemsController->updateSelection();
@@ -1224,6 +1242,7 @@ namespace MeshMakerCppCLI
 				gcnew SwapOldCurrent(this, &MyDocument::swapManipulationsAction),
 				current, old));
 
+        meshController->setModel(NULL);
 		itemsController->updateSelection();
 		this->setManipulated(itemsController);
 	}
@@ -1236,6 +1255,7 @@ namespace MeshMakerCppCLI
 				gcnew SwapOldCurrentNamed(this, &MyDocument::swapAllItemsAction),
 				current, old, actionName));
 
+        meshController->setModel(NULL);
 		itemsController->updateSelection();
 		this->setManipulated(itemsController);
 	}
@@ -1639,6 +1659,7 @@ void MyDocument::editItems()
     if (currentMesh)
         currentMesh->setSelectionMode(MeshSelectionMode::Vertices);
 
+    meshController->setModel(NULL);
     itemsController->setModel(items);
     itemsController->setPositionRotationScale(Vector3D(), Quaternion(), Vector3D(1, 1, 1));
 
@@ -1785,6 +1806,7 @@ void MyDocument::addItem(MeshType meshType, uint steps)
 //        meshType, steps));
 
     items->addItem(item);
+    meshController->setModel(NULL);
     itemsController->changeSelection(false);
     items->setSelectedAtIndex(items->count() - 1, true);
     itemsController->updateSelection();
