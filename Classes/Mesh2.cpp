@@ -51,6 +51,20 @@ typedef OpenSubdiv::OsdMesh<
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
 float Mesh2::_minimumSelectionWeight = 0.1f;
+vector<float> *Mesh2::_selectionWeights = NULL;
+
+vector<float> &Mesh2::selectionWeights()
+{
+    if (_selectionWeights == NULL)
+    {
+        _selectionWeights = new vector<float>();
+        _selectionWeights->push_back(1.0f);
+        _selectionWeights->push_back(0.75f);
+        _selectionWeights->push_back(0.5f);
+        _selectionWeights->push_back(0.2f);
+    }
+    return *_selectionWeights;
+}
 
 Vector4D generateRandomColor();
 
@@ -625,23 +639,31 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
     }
     else
     {
-        if (_useSoftSelection)
-            resetTriangleCache();
-        
         vector<VertexNode *> affectedVertices;
         
-        for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+        if (_useSoftSelection)
         {
-            if (node->data().selected)
+            resetTriangleCache();
+            
+            for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
             {
-                Vector3D &v = node->data().position;
-                v = matrix.Transform(v);
-                affectedVertices.push_back(node);
+                if (node->selectionWeight > _minimumSelectionWeight)
+                {
+                    Vector3D &v = node->data().position;
+                    v = v.Lerp(matrix.Transform(v), node->selectionWeight);
+                }
             }
-            else if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
+        }
+        else
+        {
+            for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
             {
-                Vector3D &v = node->data().position;
-                v = v.Lerp(matrix.Transform(v), node->selectionWeight);            
+                if (node->data().selected)
+                {
+                    Vector3D &v = node->data().position;
+                    v = matrix.Transform(v);
+                    affectedVertices.push_back(node);
+                }
             }
         }
         
@@ -1735,9 +1757,6 @@ void Mesh2::computeSoftSelection()
     if (!_useSoftSelection)
         return;
     
-    const int weightCount = 3;
-    float weights[weightCount] = { 0.75f, 0.5f, 0.2f };
-    
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
         node->selectionWeight = 0.0f;
     
@@ -1750,32 +1769,32 @@ void Mesh2::computeSoftSelection()
     switch (_selectionMode)
     {
         case MeshSelectionMode::Vertices:
-            computeSoftSelectionVertices(weights, weightCount);
+            computeSoftSelectionVertices();
             break;
         case MeshSelectionMode::Triangles:
-            computeSoftSelectionTriangles(weights, weightCount);
+            computeSoftSelectionTriangles();
             break;
         case MeshSelectionMode::Edges:
-            computeSoftSelectionEdges(weights, weightCount);
+            computeSoftSelectionEdges();
             break;
     }
 }
 
-void Mesh2::computeSoftSelectionVertices(const float weights[], uint weightCount)
+void Mesh2::computeSoftSelectionVertices()
 {
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
         if (node->data().selected)
-            node->softSelect(weights, weightCount);
+            node->softSelect(*_selectionWeights);
     }
 }
 
-void Mesh2::computeSoftSelectionTriangles(const float weights[], uint weightCount)
+void Mesh2::computeSoftSelectionTriangles()
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
         if (node->data().selected)
-            node->softSelect(weights, weightCount);
+            node->softSelect(*_selectionWeights);
     }
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
@@ -1790,12 +1809,12 @@ void Mesh2::computeSoftSelectionTriangles(const float weights[], uint weightCoun
     }
 }
 
-void Mesh2::computeSoftSelectionEdges(const float weights[], uint weightCount)
+void Mesh2::computeSoftSelectionEdges()
 {
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
         if (node->data().selected)
-            node->softSelect(weights, weightCount);
+            node->softSelect(*_selectionWeights);
     }
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())

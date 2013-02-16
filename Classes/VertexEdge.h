@@ -290,16 +290,16 @@ public:
         }
     }
     
-    void softSelect(const float weights[], uint weightCount)
+    void softSelect(const vector<float> &weights)
     {
-        selectionWeight = 1.0f;
+        selectionWeight = weights[0];
         
         vector<VertexEdgeNode *> currentStepNodes;
         currentStepNodes.push_back(this);
         
         vector<VertexEdgeNode *> nextStepNodes;
         
-        for (uint w = 0; w < weightCount; w++)
+        for (uint w = 1; w < weights.size(); w++)
         {
             float weight = weights[w];
             

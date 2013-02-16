@@ -86,6 +86,7 @@ private:
     static bool _useSoftSelection;
     static bool _selectThrough;
     static float _minimumSelectionWeight;
+    static vector<float> *_selectionWeights;
     
     bool _isUnwrapped;
     
@@ -147,6 +148,8 @@ public:
     
     static bool selectThrough() { return _selectThrough; }
     static void setSelectThrough(bool value) { _selectThrough = value; }
+    
+    static vector<float> &selectionWeights();
 
 #if defined(__APPLE__)
     static NSString *descriptionOfMeshType(MeshType meshType);
@@ -190,9 +193,9 @@ public:
     void merge(Mesh2 *mesh);
     
     void computeSoftSelection();
-    void computeSoftSelectionVertices(const float weights[], uint weightCount);
-    void computeSoftSelectionEdges(const float weights[], uint weightCount);
-    void computeSoftSelectionTriangles(const float weights[], uint weightCount);
+    void computeSoftSelectionVertices();
+    void computeSoftSelectionEdges();
+    void computeSoftSelectionTriangles();
     
     // drawing
     

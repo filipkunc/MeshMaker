@@ -733,6 +733,12 @@
     OpenGLSceneViewCore::_alwaysSelectThrough = selectThrough;
 }
 
+- (void)weightsChanged
+{
+    meshController->didSelect();
+    [self setNeedsDisplayOnAllViews];
+}
+
 - (IBAction)changeManipulator:(id)sender
 {
 	self.currentManipulator = (ManipulatorType)[sender tag];

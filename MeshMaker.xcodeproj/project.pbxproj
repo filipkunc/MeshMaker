@@ -43,6 +43,7 @@
 		A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */; };
 		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
+		A758EC8016CD12C0001C246E /* FPCurveView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A758EC7F16CD12C0001C246E /* FPCurveView.cpp */; };
 		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
 		A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */; };
 		A7777AB316B483F400FF965A /* FPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A7777AB216B483F400FF965A /* FPImageView.m */; };
@@ -80,7 +81,7 @@
 		A7BFCC101538D12A0076B712 /* Application.icns in Resources */ = {isa = PBXBuildFile; fileRef = A7BFCC0F1538D12A0076B712 /* Application.icns */; };
 		A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
-		A7DACB9D16C7D66800FAF8ED /* FPSelectionWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7DACB9B16C7D66800FAF8ED /* FPSelectionWindowController.m */; };
+		A7DACB9D16C7D66800FAF8ED /* FPSelectionWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7DACB9B16C7D66800FAF8ED /* FPSelectionWindowController.mm */; };
 		A7DACB9E16C7D66800FAF8ED /* FPSelectionWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7DACB9C16C7D66800FAF8ED /* FPSelectionWindowController.xib */; };
 		A7DF92C41514D352005E7EFC /* FPTexturePaintToolWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */; };
 		A7DF92C51514D352005E7EFC /* FPTexturePaintToolWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */; };
@@ -171,6 +172,8 @@
 		A74BB39816C2FFC900B9C624 /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Exceptions.h; path = Classes/Exceptions.h; sourceTree = "<group>"; };
 		A74FBFF5139A74AC00349A4C /* FPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPNode.h; path = Classes/FPNode.h; sourceTree = "<group>"; };
 		A754C41D0FF92F8600A48E13 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		A758EC7E16CD12C0001C246E /* FPCurveView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPCurveView.h; path = Classes/FPCurveView.h; sourceTree = "<group>"; };
+		A758EC7F16CD12C0001C246E /* FPCurveView.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = FPCurveView.cpp; path = Classes/FPCurveView.cpp; sourceTree = "<group>"; };
 		A767E0E3153B544700A175DE /* IcosahedronTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IcosahedronTemplate.png; sourceTree = "<group>"; };
 		A76AF5E6151E331A0015E5B4 /* MemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStream.h; path = Classes/MemoryStream.h; sourceTree = "<group>"; };
 		A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaneTemplate.png; sourceTree = "<group>"; };
@@ -217,6 +220,7 @@
 		A7B76C9A1657CA4500CFAAE7 /* quadify.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = quadify.js; sourceTree = "<group>"; };
 		A7BFCC0F1538D12A0076B712 /* Application.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Application.icns; sourceTree = "<group>"; };
 		A7BFCC111538D6060076B712 /* MeshMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MeshMaker.entitlements; sourceTree = "<group>"; };
+		A7C0BE2116CE755F006B5B3D /* Drawing2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Drawing2D.h; path = Classes/Drawing2D.h; sourceTree = "<group>"; };
 		A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector4D.cpp; path = Classes/Vector4D.cpp; sourceTree = "<group>"; };
 		A7C692B514CDBFCC00180CA4 /* Vector4D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector4D.h; path = Classes/Vector4D.h; sourceTree = "<group>"; };
 		A7C6FEE91090D627008A55E1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AddItemWithStepsSheet.xib; sourceTree = "<group>"; };
@@ -225,7 +229,7 @@
 		A7D0685014B9FFE90091B657 /* Triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Triangle.h; path = Classes/Triangle.h; sourceTree = "<group>"; };
 		A7D0685114BA00340091B657 /* VertexEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VertexEdge.h; path = Classes/VertexEdge.h; sourceTree = "<group>"; };
 		A7DACB9A16C7D66800FAF8ED /* FPSelectionWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPSelectionWindowController.h; path = Classes/FPSelectionWindowController.h; sourceTree = "<group>"; };
-		A7DACB9B16C7D66800FAF8ED /* FPSelectionWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPSelectionWindowController.m; path = Classes/FPSelectionWindowController.m; sourceTree = "<group>"; };
+		A7DACB9B16C7D66800FAF8ED /* FPSelectionWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FPSelectionWindowController.mm; path = Classes/FPSelectionWindowController.mm; sourceTree = "<group>"; };
 		A7DACB9C16C7D66800FAF8ED /* FPSelectionWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FPSelectionWindowController.xib; path = Classes/FPSelectionWindowController.xib; sourceTree = "<group>"; };
 		A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPTexturePaintToolWindowController.h; path = Classes/FPTexturePaintToolWindowController.h; sourceTree = "<group>"; };
 		A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPTexturePaintToolWindowController.m; path = Classes/FPTexturePaintToolWindowController.m; sourceTree = "<group>"; };
@@ -323,12 +327,14 @@
 				A7064C3F12BD107800B14CFA /* Enums.h */,
 				A74BB39816C2FFC900B9C624 /* Exceptions.h */,
 				A7A9695913DB328F0091975A /* FPArrayCache.h */,
+				A758EC7E16CD12C0001C246E /* FPCurveView.h */,
+				A758EC7F16CD12C0001C246E /* FPCurveView.cpp */,
 				A7777AB116B483F400FF965A /* FPImageView.h */,
 				A7777AB216B483F400FF965A /* FPImageView.m */,
 				A79F521E1394161B00CF7DBE /* FPList.h */,
 				A74FBFF5139A74AC00349A4C /* FPNode.h */,
 				A7DACB9A16C7D66800FAF8ED /* FPSelectionWindowController.h */,
-				A7DACB9B16C7D66800FAF8ED /* FPSelectionWindowController.m */,
+				A7DACB9B16C7D66800FAF8ED /* FPSelectionWindowController.mm */,
 				A7DACB9C16C7D66800FAF8ED /* FPSelectionWindowController.xib */,
 				A718D5F51539714000589FFF /* FPTextureBrowserWindowController.h */,
 				A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */,
@@ -402,6 +408,7 @@
 				A7C692B514CDBFCC00180CA4 /* Vector4D.h */,
 				A7D0684C14B9FEC90091B657 /* Vertex.h */,
 				A7D0685114BA00340091B657 /* VertexEdge.h */,
+				A7C0BE2116CE755F006B5B3D /* Drawing2D.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -672,7 +679,8 @@
 				A7425A3F16B32EEE00440E61 /* TextureCollection.cpp in Sources */,
 				A7777AB316B483F400FF965A /* FPImageView.m in Sources */,
 				A79F677216C6F8AC00BD3F9E /* JSWrappers.cpp in Sources */,
-				A7DACB9D16C7D66800FAF8ED /* FPSelectionWindowController.m in Sources */,
+				A7DACB9D16C7D66800FAF8ED /* FPSelectionWindowController.mm in Sources */,
+				A758EC8016CD12C0001C246E /* FPCurveView.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

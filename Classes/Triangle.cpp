@@ -451,16 +451,16 @@ void Triangle2::convertBarycentricToUVs(float &u, float &v)
     v = final.y;
 }
 
-void TriangleNode::softSelect(const float weights[], uint weightCount)
+void TriangleNode::softSelect(const vector<float> &weights)
 {
-    selectionWeight = 1.0f;
+    selectionWeight = weights[0];
     
     vector<TriangleNode *> currentStepNodes;
     currentStepNodes.push_back(this);
     
     vector<TriangleNode *> nextStepNodes;
     
-    for (uint w = 0; w < weightCount; w++)
+    for (uint w = 1; w < weights.size(); w++)
     {
         float weight = weights[w];
         

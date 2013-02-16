@@ -59,13 +59,9 @@ void Mesh2::fillTriangleCache()
             continue;
         
         const float *c;
-        if (currentTriangle.selected)
+        if (_useSoftSelection)
         {
-            c = selectedComponents;
-        }
-        else
-        {
-            if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
+            if (node->selectionWeight > _minimumSelectionWeight)
             {
                 weightedComponents[0] = 1.0f;
                 weightedComponents[1] = 1.0f - node->selectionWeight;
@@ -75,6 +71,13 @@ void Mesh2::fillTriangleCache()
             {
                 c = _colorComponents;
             }
+        }
+        else
+        {
+            if (currentTriangle.selected)
+                c = selectedComponents;
+            else
+                c = _colorComponents;
         }
         
         Vector3D fn = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
@@ -142,30 +145,44 @@ void Mesh2::fillEdgeCache()
         if (!node->data().visible)
             continue;
         
-        if (node->data().selected)
+        if (_useSoftSelection)
         {
-            for (uint k = 0; k < 3; k++)
+            if (node->selectionWeight > _minimumSelectionWeight)
             {
-                _cachedEdgeVertices[i].color.coords[k] = selectedColor[k];
-                _cachedEdgeVertices[i + 1].color.coords[k] = selectedColor[k];
+                Vector3D softSelectedColor = Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f);
+                
+                for (uint k = 0; k < 3; k++)
+                {
+                    _cachedEdgeVertices[i].color.coords[k] = softSelectedColor[k];
+                    _cachedEdgeVertices[i + 1].color.coords[k] = softSelectedColor[k];
+                }
             }
-        }
-        else if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
-        {
-            Vector3D softSelectedColor = Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f);
-            
-            for (uint k = 0; k < 3; k++)
+            else
             {
-                _cachedEdgeVertices[i].color.coords[k] = softSelectedColor[k];
-                _cachedEdgeVertices[i + 1].color.coords[k] = softSelectedColor[k];
+                for (uint k = 0; k < 3; k++)
+                {
+                    _cachedEdgeVertices[i].color.coords[k] = normalColor[k];
+                    _cachedEdgeVertices[i + 1].color.coords[k] = normalColor[k];
+                }
             }
         }
         else
         {
-            for (uint k = 0; k < 3; k++)
+            if (node->data().selected)
             {
-                _cachedEdgeVertices[i].color.coords[k] = normalColor[k];
-                _cachedEdgeVertices[i + 1].color.coords[k] = normalColor[k];
+                for (uint k = 0; k < 3; k++)
+                {
+                    _cachedEdgeVertices[i].color.coords[k] = selectedColor[k];
+                    _cachedEdgeVertices[i + 1].color.coords[k] = selectedColor[k];
+                }
+            }
+            else
+            {
+                for (uint k = 0; k < 3; k++)
+                {
+                    _cachedEdgeVertices[i].color.coords[k] = normalColor[k];
+                    _cachedEdgeVertices[i + 1].color.coords[k] = normalColor[k];
+                }
             }
         }
         
@@ -649,7 +666,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 if (!node->data().visible)
                     continue;
                 
-                tempColors.push_back(colorIndex << 8);
+                tempColors.push_back(colorIndex);
                 tempVertices.push_back(node->data().position);
             }
         }
@@ -662,7 +679,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 if (!node->data().visible)
                     continue;
                 
-                tempColors.push_back(colorIndex << 8);
+                tempColors.push_back(colorIndex);
                 tempVertices.push_back(node->data().position);            
             }
         }
@@ -670,8 +687,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         
-        GLubyte *colorPtr = (GLubyte *)&tempColors[0];
-        glColorPointer(3, GL_UNSIGNED_BYTE, 4, colorPtr);
+        ColorIndices(tempColors);
         
         float *vertexPtr = (float *)&tempVertices[0];        
         glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
@@ -711,12 +727,21 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
                 if (!node->data().visible)
                     continue;
                 
-                if (node->data().selected)
-                    tempColors.push_back(selectedColor); 
-                else if (_useSoftSelection && node->selectionWeight > _minimumSelectionWeight)
-                    tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
+                if (_useSoftSelection)
+                {
+                    if (node->selectionWeight > _minimumSelectionWeight)
+                        tempColors.push_back(Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f));
+                    else
+                        tempColors.push_back(normalColor);
+                }
                 else
-                    tempColors.push_back(normalColor);
+                {
+                    if (node->data().selected)
+                        tempColors.push_back(selectedColor);
+                    else
+                        tempColors.push_back(normalColor);
+
+                }
                 
                 tempVertices.push_back(node->data().position);            
             }
@@ -827,8 +852,8 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
                 }
                 
                 colorIndex++;
-                tempColors.push_back(colorIndex << 8);
-                tempColors.push_back(colorIndex << 8);
+                tempColors.push_back(colorIndex);
+                tempColors.push_back(colorIndex);
             }
         }
         else
@@ -842,16 +867,15 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
                 }
                 
                 colorIndex++;
-                tempColors.push_back(colorIndex << 8);
-                tempColors.push_back(colorIndex << 8);
+                tempColors.push_back(colorIndex);
+                tempColors.push_back(colorIndex);
             }
         }
         
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         
-        GLubyte *colorPtr = (GLubyte *)&tempColors[0];
-        glColorPointer(3, GL_UNSIGNED_BYTE, 4, colorPtr);
+        ColorIndices(tempColors);
         
         if (_isUnwrapped)
         {

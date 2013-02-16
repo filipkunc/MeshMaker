@@ -266,16 +266,15 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
     if (selectedIndicesCount > 0)
     {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
-
+        ReadSelectedIndices(x, y, width, height, selectedIndices);
+        
         bool *selected = new bool[count];
         for (uint i = 0; i < count; i++)
             selected[i] = false;
         
         for (uint i = 0; i < selectedIndicesCount; i++)
         {
-            uint selectedIndex = (selectedIndices[i] & 0x00FFFFFF) >> 8;
+            uint selectedIndex = selectedIndices[i];
             if (selectedIndex > 0)
             {
                 if (selectedIndex - 1 < count)
