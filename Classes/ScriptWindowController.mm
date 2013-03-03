@@ -234,7 +234,7 @@
         @"duplicateSelectedTriangles",
         @"flipSelected",
         @"flipAllTriangles",
-        @"extrudeSelectedTriangles",
+        @"extrudeSelected",
         @"triangulate",
         @"triangulateSelectedQuads",
         @"openSubdivision",

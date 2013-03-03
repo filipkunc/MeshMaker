@@ -184,6 +184,8 @@ public:
     void duplicateSelectedTriangles();
     void flipSelected();
     void flipAllTriangles();
+    void extrudeSelected();
+    void extrudeSelectedEdges();
     void extrudeSelectedTriangles();
     void triangulate();
     void triangulateSelectedQuads();

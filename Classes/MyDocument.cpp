@@ -779,7 +779,7 @@
 
 - (IBAction)extrudeSelected:(id)sender
 {
-    [self meshOnlyActionWithName:@"Extrude" block:^ { [self currentMesh]->extrudeSelectedTriangles(); }];
+    [self meshOnlyActionWithName:@"Extrude" block:^ { [self currentMesh]->extrudeSelected(); }];
 }
 
 - (IBAction)cleanTexture:(id)sender
@@ -1503,7 +1503,7 @@ namespace MeshMakerCppCLI
 
 	void MyDocument::extrudeSelectedCore()
 	{
-		currentMesh()->extrudeSelectedTriangles();
+		currentMesh()->extrudeSelected();
 	}
 
 	void MyDocument::extrudeSelected()
@@ -1946,7 +1946,7 @@ void MyDocument::detachSelected()
 
 void MyDocument::extrudeSelected()
 {
-    this->meshOnlyAction("Extrude", [this] { this->currentMesh()->extrudeSelectedTriangles(); });
+    this->meshOnlyAction("Extrude", [this] { this->currentMesh()->extrudeSelected(); });
 }
 
 void MyDocument::triangulateSelected()

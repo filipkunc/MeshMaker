@@ -64,7 +64,7 @@
 - (void)duplicateSelectedTriangles;
 - (void)flipSelected;
 - (void)flipAllTriangles;
-- (void)extrudeSelectedTriangles;
+- (void)extrudeSelected;
 - (void)triangulate;
 - (void)triangulateSelectedQuads;
 - (void)openSubdivision;
@@ -220,7 +220,7 @@ public:
 	void duplicateSelectedTriangles();
 	void flipSelected();
 	void flipAllTriangles();
-	void extrudeSelectedTriangles();
+	void extrudeSelected();
 	void triangulate();
 	void triangulateSelectedQuads();
 	void openSubdivision();

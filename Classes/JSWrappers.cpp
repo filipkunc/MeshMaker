@@ -85,7 +85,7 @@
 - (void)duplicateSelectedTriangles { _item->mesh->duplicateSelectedTriangles(); }
 - (void)flipSelected { _item->mesh->flipSelected(); }
 - (void)flipAllTriangles { _item->mesh->flipAllTriangles(); }
-- (void)extrudeSelectedTriangles { _item->mesh->extrudeSelectedTriangles(); }
+- (void)extrudeSelected { _item->mesh->extrudeSelected(); }
 - (void)triangulate { _item->mesh->triangulate(); }
 - (void)triangulateSelectedQuads { _item->mesh->triangulateSelectedQuads(); }
 - (void)openSubdivision { _item->mesh->openSubdivision(); }
@@ -460,7 +460,7 @@ void ItemWrapper::detachSelected() { _item->mesh->detachSelected(); }
 void ItemWrapper::duplicateSelectedTriangles() { _item->mesh->duplicateSelectedTriangles(); }
 void ItemWrapper::flipSelected() { _item->mesh->flipSelected(); }
 void ItemWrapper::flipAllTriangles() { _item->mesh->flipAllTriangles(); }
-void ItemWrapper::extrudeSelectedTriangles() { _item->mesh->extrudeSelectedTriangles(); }
+void ItemWrapper::extrudeSelected() { _item->mesh->extrudeSelected(); }
 void ItemWrapper::triangulate() { _item->mesh->triangulate(); }
 void ItemWrapper::triangulateSelectedQuads() { _item->mesh->triangulateSelectedQuads(); }
 void ItemWrapper::openSubdivision() { _item->mesh->openSubdivision(); }

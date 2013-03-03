@@ -1662,6 +1662,80 @@ void Mesh2::flipAllTriangles()
     }
 }
 
+void Mesh2::extrudeSelected()
+{
+    switch (_selectionMode)
+    {
+        case MeshSelectionMode::Triangles:
+            extrudeSelectedTriangles();
+            break;
+        case MeshSelectionMode::Edges:
+            extrudeSelectedEdges();
+            break;
+        default:
+            break;
+    }
+}
+
+void Mesh2::extrudeSelectedEdges()
+{
+    vector<VertexNode *> extrudedVertices;
+    
+    resetTriangleCache();
+    resetAlgorithmData();
+    
+    for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
+    {
+        node->data().selected = false;
+    }
+    
+    for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
+    {
+        VertexEdge &vertexEdge = node->data();
+        
+        if (!vertexEdge.selected)
+            continue;
+        
+        if (vertexEdge.isNotShared())
+        {
+            Triangle2 &triQuad = vertexEdge.triangle(0)->data();
+            triQuad.selected = true;
+            
+            VertexNode *original0 = vertexEdge.vertex(0);
+            VertexNode *original1 = vertexEdge.vertex(1);
+            
+            if (triQuad.shouldSwapVertices(original0, original1))
+                swap(original0, original1);
+            
+            VertexNode *extruded0 = duplicateVertex(original0);
+            VertexNode *extruded1 = duplicateVertex(original1);
+            
+            addQuad(original0, original1, extruded1, extruded0);
+            
+            extrudedVertices.push_back(original0);
+            extrudedVertices.push_back(original1);
+        }
+        
+        vertexEdge.selected = false;
+    }
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        if (node->algorithmData.duplicatePair != NULL)
+            node->replaceVertexInSelectedTriangles(node->algorithmData.duplicatePair);
+    }
+    
+    makeEdges();
+    
+    for (uint i = 0; i < extrudedVertices.size(); i += 2)
+    {
+        VertexEdgeNode *node = extrudedVertices[i]->sharedEdge(extrudedVertices[i + 1]);
+        node->data().selected = true;
+    }
+    
+    setSelectionMode(_selectionMode);
+}
+
 void Mesh2::extrudeSelectedTriangles()
 {
     resetTriangleCache();
