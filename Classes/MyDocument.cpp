@@ -851,6 +851,18 @@
     return NO;
 }
 
+- (BOOL)addVertexEnabled
+{
+    // TODO: add tool window
+    return YES;
+}
+
+- (void)addVertex:(Vector3D)position
+{
+    Mesh2 *mesh = [self currentMesh];
+    mesh->addVertex(position);
+}
+
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document

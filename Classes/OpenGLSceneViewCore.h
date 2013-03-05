@@ -38,6 +38,8 @@ public:
     virtual void manipulationEnded() = 0;
     virtual void selectionChanged() = 0;
     virtual bool texturePaintEnabled() = 0;
+    virtual bool addVertexEnabled() = 0;
+    virtual void addVertex(Vector3D position) = 0;
     virtual void makeCurrentContext() = 0;
 };
 
@@ -88,6 +90,7 @@ public:
     Vector3D positionFromAxisPoint(Axis axis, NSPoint point);
     Vector3D positionFromRotatedAxisPoint(Axis axis, NSPoint point, Quaternion rotation);
     Vector3D positionFromPlaneAxis(PlaneAxis plane, NSPoint point);
+    Vector3D addVertexPositionFromPoint(NSPoint point);
     Vector3D translationFromPoint(NSPoint point);
     Vector3D scaleFromPoint(NSPoint point, Vector3D &lastPosition);
     Quaternion rotationFromPoint(NSPoint point, Vector3D &lastPosition);

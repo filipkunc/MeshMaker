@@ -23,6 +23,9 @@
 @property (readonly) NSColor *brushColor;
 @property (readonly) float brushSize;
 @property (readonly) BOOL texturePaintEnabled;
+@property (readonly) BOOL addVertexEnabled;
+
+- (void)addVertex:(Vector3D)position;
 
 @end
 

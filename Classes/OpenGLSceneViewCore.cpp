@@ -157,6 +157,15 @@ void OpenGLSceneViewCore::drawGrid(int size, int step)
 	glEnd();
 	
 	glPopMatrix();
+    
+//    glPushMatrix();
+//    glMultMatrixf(_camera->GetRotationQuaternion().Conjugate().ToMatrix());
+//    
+//    int index = (int)PlaneAxis::Z - (int)PlaneAxis::X;
+//    
+//    drawSelectionPlane(index);
+//    
+//    glPopMatrix();
 }
 
 NSRect OpenGLSceneViewCore::orthoManipulatorRect()
@@ -461,6 +470,25 @@ Vector3D OpenGLSceneViewCore::positionFromPlaneAxis(PlaneAxis plane, NSPoint poi
 	Vector3D result = position;
 	result[index] = _manipulated->selectionCenter()[index];
 	return result;
+}
+
+Vector3D OpenGLSceneViewCore::addVertexPositionFromPoint(NSPoint point)
+{
+    _delegate->makeCurrentContext();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadMatrixf(_camera->GetViewMatrix());
+    
+    Vector3D position = _manipulated->selectionCenter();
+	
+	glPushMatrix();
+	glTranslatef(position.x, position.y, position.z);
+    glMultMatrixf(_camera->GetRotationQuaternion().Conjugate().ToMatrix());
+	DrawSelectionPlane(PlaneAxis::Z);
+	glPopMatrix();
+    
+    position = positionInSpaceByPoint(point);
+    
+    return position;
 }
 
 Vector3D OpenGLSceneViewCore::translationFromPoint(NSPoint point)
@@ -784,6 +812,11 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
         _isPainting = true;
         //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
+    }
+    else if (_delegate->addVertexEnabled())
+    {
+        Vector3D position = addVertexPositionFromPoint(point);
+        _delegate->addVertex(position);
     }
 	else if (_manipulated != NULL && _manipulated->selectedCount() > 0 && _currentManipulator->selectedIndex < UINT_MAX)
 	{

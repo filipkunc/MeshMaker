@@ -33,6 +33,8 @@ public:
     virtual void manipulationEnded() { [_sceneView.delegate manipulationEndedInView:_sceneView]; }
     virtual void selectionChanged() { [_sceneView.delegate selectionChangedInView:_sceneView]; }
     virtual bool texturePaintEnabled() { return [_sceneView.delegate texturePaintEnabled]; }
+    virtual bool addVertexEnabled() { return [_sceneView.delegate addVertexEnabled]; }
+    virtual void addVertex(Vector3D position) { [_sceneView.delegate addVertex:position]; }
     virtual void makeCurrentContext() { [[_sceneView openGLContext] makeCurrentContext]; }
 };
 
