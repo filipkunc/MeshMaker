@@ -120,3 +120,9 @@ EnumClass ModelVersion : uint
     Latest = TextureNames
 };
 
+EnumClass VertexWindowMode
+{
+    Add = 0,
+    Connect = 1,
+};
+

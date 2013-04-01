@@ -851,16 +851,39 @@
     return NO;
 }
 
+- (void)viewVertexTool:(id)sender
+{
+    [vertexWindowController showWindow:nil];
+}
+
 - (BOOL)addVertexEnabled
 {
-    // TODO: add tool window
-    return YES;
+    if (vertexWindowController.isWindowLoaded)
+    {
+        if (vertexWindowController.window.isVisible)
+            return YES;
+    }
+    return NO;
 }
 
 - (void)addVertex:(Vector3D)position
 {
-    Mesh2 *mesh = [self currentMesh];
-    mesh->addVertex(position);
+    if (vertexWindowController.isWindowLoaded && vertexWindowController.window.isVisible)
+    {
+        Mesh2 *mesh = [self currentMesh];
+        switch (vertexWindowController.vertexMode)
+        {
+            case VertexWindowMode::Add:
+                mesh->addVertex(position);
+                break;
+            case VertexWindowMode::Connect:
+                mesh->connectVerticesNearPosition(position);
+                mesh->resetTriangleCache();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 - (NSString *)windowNibName

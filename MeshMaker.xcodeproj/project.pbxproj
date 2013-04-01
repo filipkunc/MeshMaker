@@ -31,6 +31,8 @@
 		A73659A113D228B100F9D7D1 /* MergeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599E13D228B100F9D7D1 /* MergeTemplate.png */; };
 		A73659A213D228B100F9D7D1 /* SplitTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A736599F13D228B100F9D7D1 /* SplitTemplate.png */; };
 		A736FC26165C0B8400961DC1 /* fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = A736FC24165C0B2300961DC1 /* fragment.fs */; };
+		A73FE08B16ECF4A7002A3B20 /* VertexWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A73FE08916ECF4A7002A3B20 /* VertexWindowController.mm */; };
+		A73FE08C16ECF4A7002A3B20 /* VertexWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A73FE08A16ECF4A7002A3B20 /* VertexWindowController.xib */; };
 		A7425A3F16B32EEE00440E61 /* TextureCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */; };
 		A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8412BD109A00B14CFA /* MeshTest.mm */; };
 		A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */; };
@@ -167,6 +169,9 @@
 		A736599F13D228B100F9D7D1 /* SplitTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SplitTemplate.png; sourceTree = "<group>"; };
 		A736FC24165C0B2300961DC1 /* fragment.fs */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = fragment.fs; sourceTree = "<group>"; };
 		A73E3190151E409A00BCCEC2 /* MemoryStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStreaming.h; path = Classes/MemoryStreaming.h; sourceTree = "<group>"; };
+		A73FE08816ECF4A7002A3B20 /* VertexWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VertexWindowController.h; path = Classes/VertexWindowController.h; sourceTree = "<group>"; };
+		A73FE08916ECF4A7002A3B20 /* VertexWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VertexWindowController.mm; path = Classes/VertexWindowController.mm; sourceTree = "<group>"; };
+		A73FE08A16ECF4A7002A3B20 /* VertexWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = VertexWindowController.xib; path = Classes/VertexWindowController.xib; sourceTree = "<group>"; };
 		A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = TextureCollection.cpp; path = Classes/TextureCollection.cpp; sourceTree = "<group>"; };
 		A7425A3E16B32EEE00440E61 /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureCollection.h; path = Classes/TextureCollection.h; sourceTree = "<group>"; };
 		A74BB39816C2FFC900B9C624 /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Exceptions.h; path = Classes/Exceptions.h; sourceTree = "<group>"; };
@@ -342,6 +347,9 @@
 				A7DF92C11514D352005E7EFC /* FPTexturePaintToolWindowController.h */,
 				A7DF92C21514D352005E7EFC /* FPTexturePaintToolWindowController.m */,
 				A7DF92C31514D352005E7EFC /* FPTexturePaintToolWindowController.xib */,
+				A73FE08816ECF4A7002A3B20 /* VertexWindowController.h */,
+				A73FE08916ECF4A7002A3B20 /* VertexWindowController.mm */,
+				A73FE08A16ECF4A7002A3B20 /* VertexWindowController.xib */,
 				A796A31F16AC59FA00339A58 /* Item.cpp */,
 				A7064C4212BD107800B14CFA /* Item.h */,
 				A796A32016AC59FA00339A58 /* ItemCollection.cpp */,
@@ -611,6 +619,7 @@
 				A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */,
 				A7E8B3711631BDF500B8599D /* ScriptWindowController.xib in Resources */,
 				A7DACB9E16C7D66800FAF8ED /* FPSelectionWindowController.xib in Resources */,
+				A73FE08C16ECF4A7002A3B20 /* VertexWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -681,6 +690,7 @@
 				A79F677216C6F8AC00BD3F9E /* JSWrappers.cpp in Sources */,
 				A7DACB9D16C7D66800FAF8ED /* FPSelectionWindowController.mm in Sources */,
 				A758EC8016CD12C0001C246E /* FPCurveView.cpp in Sources */,
+				A73FE08B16ECF4A7002A3B20 /* VertexWindowController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

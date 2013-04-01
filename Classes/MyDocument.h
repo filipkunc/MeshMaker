@@ -18,6 +18,7 @@
 #import "FPTextureBrowserWindowController.h"
 #import "ScriptWindowController.h"
 #import "FPSelectionWindowController.h"
+#import "VertexWindowController.h"
 
 @interface UndoStatePointer : NSObject
 {
@@ -68,6 +69,7 @@
     IBOutlet FPTextureBrowserWindowController *textureBrowserWindowController;
     IBOutlet ScriptWindowController *scriptWindowController;
     IBOutlet FPSelectionWindowController *selectionWindowController;
+    IBOutlet VertexWindowController *vertexWindowController;
     
     IBOutlet NSPopUpButton *scriptPullDown;
 }
@@ -75,8 +77,6 @@
 @property (readwrite, assign) IOpenGLManipulating *manipulated;
 @property (readonly) NSPopUpButton *scriptPullDown;
 
-+ (BOOL)softSelection;
-+ (void)setSoftSelection:(BOOL)value;
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view;
 - (void)setNeedsDisplayOnAllViews;
 - (Mesh2 *)currentMesh;
@@ -121,7 +121,6 @@
 - (IBAction)extrudeSelected:(id)sender;
 - (IBAction)detachSelected:(id)sender;
 - (IBAction)subdivision:(id)sender;
-- (IBAction)softSelection:(id)sender;
 - (IBAction)cleanTexture:(id)sender;
 - (IBAction)resetTexCoords:(id)sender;
 - (IBAction)triangulate:(id)sender;
@@ -129,6 +128,7 @@
 - (IBAction)viewTextureBrowser:(id)sender;
 - (IBAction)viewScriptEditor:(id)sender;
 - (IBAction)viewSelectionTool:(id)sender;
+- (IBAction)viewVertexTool:(id)sender;
 
 @end
 

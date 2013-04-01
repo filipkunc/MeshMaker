@@ -234,9 +234,12 @@ public:
     // make
     
     VertexNode *addVertex(const Vector3D &position);
+    TriangleNode *connectVerticesNearPosition(const Vector3D &position);
+    VertexNode *findNearestVertex(const Vector3D &position, const vector<VertexNode *> &skipVertices) const;
+
     TriangleNode *addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2);
     TriangleNode *addQuad(VertexNode *v0, VertexNode *v1, VertexNode *v2, VertexNode *v3);
-    void removeTriQuad(TriangleNode *&triQuad);
+    void removeTriQuad(TriangleNode *&triQuad);    
     
     const FPList<VertexNode, Vertex2> &vertices() const { return _vertices; }
 	const FPList<TriangleNode, Triangle2> &triangles() const { return _triangles; }

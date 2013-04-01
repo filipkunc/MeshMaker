@@ -7,10 +7,50 @@
 //
 
 #include "Mesh2.h"
+#include <algorithm>
 
 VertexNode *Mesh2::addVertex(const Vector3D &position)
 {
     return _vertices.add(position);
+}
+
+TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position)
+{
+    vector<VertexNode *> vertices;
+    
+    for (uint i = 0; i < 4; i++)
+    {
+        vertices.push_back(findNearestVertex(position, vertices));
+    }
+    
+    TriangleNode *quad = addQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+    
+    makeEdges();
+    
+    setSelectionMode(_selectionMode);
+    
+    return quad;
+}
+
+VertexNode *Mesh2::findNearestVertex(const Vector3D &position, const vector<VertexNode *> &skipVertices) const
+{
+    VertexNode *nearest = NULL;
+    
+    for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
+    {
+        if (find(skipVertices.begin(), skipVertices.end(), node) != skipVertices.end())
+        {
+            continue;
+        }
+        
+        if (nearest == NULL ||
+            node->data().position.Distance(position) < nearest->data().position.Distance(position))
+        {
+            nearest = node;
+        }
+    }
+    
+    return nearest;
 }
 
 TriangleNode *Mesh2::addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2)
