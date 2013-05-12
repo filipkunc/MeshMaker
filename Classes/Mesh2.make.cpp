@@ -17,13 +17,46 @@ VertexNode *Mesh2::addVertex(const Vector3D &position)
 TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position)
 {
     vector<VertexNode *> vertices;
+    Vector3D center = Vector3D();
     
     for (uint i = 0; i < 4; i++)
     {
-        vertices.push_back(findNearestVertex(position, vertices));
+        VertexNode *nearestVertex = findNearestVertex(position, vertices);
+        vertices.push_back(nearestVertex);
+        center += nearestVertex->data().position;
     }
     
-    TriangleNode *quad = addQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+    center /= 4.0f;
+    
+    Vector3D v0_center = vertices[0]->data().position - center;
+    uint oppositeIndex_v0 = UINT_MAX;
+    float smallestAngle = 0.0f;
+    
+    for (uint i = 1; i < 4; i++)
+    {
+        Vector3D v0_vi = vertices[0]->data().position - vertices[i]->data().position;
+        float angle = fabsf(v0_vi.GetAngle(v0_center));
+        if (oppositeIndex_v0 == UINT_MAX || smallestAngle > angle)
+        {
+            smallestAngle = angle;
+            oppositeIndex_v0 = i;
+        }
+    }
+    
+    TriangleNode *quad = NULL;
+    
+    switch (oppositeIndex_v0)
+    {
+        case 1:
+            quad = addQuad(vertices[0], vertices[3], vertices[1], vertices[2]);
+            break;
+        case 3:
+            quad = addQuad(vertices[0], vertices[1], vertices[3], vertices[2]);
+            break;
+        case 2:
+            quad = addQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+            break;
+    }
     
     makeEdges();
     
