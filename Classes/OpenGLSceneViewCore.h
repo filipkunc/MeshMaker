@@ -39,7 +39,7 @@ public:
     virtual void selectionChanged() = 0;
     virtual bool texturePaintEnabled() = 0;
     virtual bool addVertexEnabled() = 0;
-    virtual void addVertex(Vector3D position) = 0;
+    virtual void addVertex(Vector3D position, Camera *camera) = 0;
     virtual void makeCurrentContext() = 0;
 };
 

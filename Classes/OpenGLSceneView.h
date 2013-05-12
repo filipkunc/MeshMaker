@@ -25,7 +25,7 @@
 @property (readonly) BOOL texturePaintEnabled;
 @property (readonly) BOOL addVertexEnabled;
 
-- (void)addVertex:(Vector3D)position;
+- (void)addVertex:(Vector3D)position fromCamera:(Camera *)camera;
 
 @end
 

@@ -14,7 +14,7 @@ VertexNode *Mesh2::addVertex(const Vector3D &position)
     return _vertices.add(position);
 }
 
-TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position)
+TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector)
 {
     vector<VertexNode *> vertices;
     Vector3D center = Vector3D();
@@ -56,6 +56,13 @@ TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position)
         case 2:
             quad = addQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
             break;
+    }
+    
+    if (quad)
+    {
+        quad->data().computeNormalsIfNeeded();
+        if (quad->data().vertexNormal.Dot(eyeVector) > 0.0f)
+            quad->data().flip();
     }
     
     makeEdges();

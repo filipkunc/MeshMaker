@@ -866,7 +866,7 @@
     return NO;
 }
 
-- (void)addVertex:(Vector3D)position
+- (void)addVertex:(Vector3D)position fromCamera:(Camera *)camera
 {
     if (vertexWindowController.isWindowLoaded && vertexWindowController.window.isVisible)
     {
@@ -877,7 +877,7 @@
                 mesh->addVertex(position);
                 break;
             case VertexWindowMode::Connect:
-                mesh->connectVerticesNearPosition(position);
+                mesh->connectVerticesNearPosition(position, camera->GetAxisZ());
                 mesh->resetTriangleCache();
                 break;
             default:

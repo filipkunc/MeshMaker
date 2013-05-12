@@ -816,7 +816,7 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
     else if (_delegate->addVertexEnabled())
     {
         Vector3D position = addVertexPositionFromPoint(point);
-        _delegate->addVertex(position);
+        _delegate->addVertex(position, _camera);
     }
 	else if (_manipulated != NULL && _manipulated->selectedCount() > 0 && _currentManipulator->selectedIndex < UINT_MAX)
 	{
