@@ -38,8 +38,9 @@ public:
     virtual void manipulationEnded() = 0;
     virtual void selectionChanged() = 0;
     virtual bool texturePaintEnabled() = 0;
-    virtual bool addVertexEnabled() = 0;
-    virtual void addVertex(Vector3D position, Camera *camera) = 0;
+    virtual bool vertexToolEnabled() = 0;
+    virtual void vertexAddOrConnect(Vector3D position, Camera *camera) = 0;
+    virtual void vertexAddOrConnectHint(Vector3D position, Camera *camera, vector<Vector3D> &vertices) = 0;
     virtual void makeCurrentContext() = 0;
 };
 
@@ -65,6 +66,7 @@ public:
 	Manipulator *_scaleManipulator;
 	Manipulator *_currentManipulator;
 	CameraMode _cameraMode;
+    vector<Vector3D> _vertexHints;
     
     static bool _alwaysSelectThrough;    
 public:

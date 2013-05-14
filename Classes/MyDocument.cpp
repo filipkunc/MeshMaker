@@ -856,7 +856,7 @@
     [vertexWindowController showWindow:nil];
 }
 
-- (BOOL)addVertexEnabled
+- (BOOL)vertexToolEnabled
 {
     if (vertexWindowController.isWindowLoaded)
     {
@@ -866,7 +866,7 @@
     return NO;
 }
 
-- (void)addVertex:(Vector3D)position fromCamera:(Camera *)camera
+- (void)vertexAddOrConnect:(Vector3D)position fromCamera:(Camera *)camera
 {
     if (vertexWindowController.isWindowLoaded && vertexWindowController.window.isVisible)
     {
@@ -879,6 +879,33 @@
             case VertexWindowMode::Connect:
                 mesh->connectVerticesNearPosition(position, camera->GetAxisZ());
                 mesh->resetTriangleCache();
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+- (void)vertexAddOrConnectHint:(Vector3D)position fromCamera:(Camera *)camera vertices:(vector<Vector3D> *)vertices
+{
+    if (vertexWindowController.isWindowLoaded && vertexWindowController.window.isVisible)
+    {
+        Mesh2 *mesh = [self currentMesh];
+        switch (vertexWindowController.vertexMode)
+        {
+            case VertexWindowMode::Add:
+                vertices->push_back(position);
+                break;
+            case VertexWindowMode::Connect:
+            {
+                vector<VertexNode *> vertexNodes;
+                for (uint i = 0; i < 4; i++)
+                {
+                    VertexNode *nearestVertex = mesh->findNearestVertex(position, vertexNodes);
+                    vertexNodes.push_back(nearestVertex);
+                    vertices->push_back(nearestVertex->data().position);
+                }
+            }
                 break;
             default:
                 break;

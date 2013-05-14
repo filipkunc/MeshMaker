@@ -23,9 +23,10 @@
 @property (readonly) NSColor *brushColor;
 @property (readonly) float brushSize;
 @property (readonly) BOOL texturePaintEnabled;
-@property (readonly) BOOL addVertexEnabled;
+@property (readonly) BOOL vertexToolEnabled;
 
-- (void)addVertex:(Vector3D)position fromCamera:(Camera *)camera;
+- (void)vertexAddOrConnect:(Vector3D)position fromCamera:(Camera *)camera;
+- (void)vertexAddOrConnectHint:(Vector3D)position fromCamera:(Camera *)camera vertices:(vector<Vector3D> *)vertices;
 
 @end
 

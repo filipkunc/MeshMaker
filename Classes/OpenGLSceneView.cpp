@@ -33,8 +33,9 @@ public:
     virtual void manipulationEnded() { [_sceneView.delegate manipulationEndedInView:_sceneView]; }
     virtual void selectionChanged() { [_sceneView.delegate selectionChangedInView:_sceneView]; }
     virtual bool texturePaintEnabled() { return [_sceneView.delegate texturePaintEnabled]; }
-    virtual bool addVertexEnabled() { return [_sceneView.delegate addVertexEnabled]; }
-    virtual void addVertex(Vector3D position, Camera *camera) { [_sceneView.delegate addVertex:position fromCamera:camera]; }
+    virtual bool vertexToolEnabled() { return [_sceneView.delegate vertexToolEnabled]; }
+    virtual void vertexAddOrConnect(Vector3D position, Camera *camera) { [_sceneView.delegate vertexAddOrConnect:position fromCamera:camera]; }
+    virtual void vertexAddOrConnectHint(Vector3D position, Camera *camera, vector<Vector3D> &vertices) { [_sceneView.delegate vertexAddOrConnectHint:position fromCamera:camera vertices:&vertices]; }
     virtual void makeCurrentContext() { [[_sceneView openGLContext] makeCurrentContext]; }
 };
 

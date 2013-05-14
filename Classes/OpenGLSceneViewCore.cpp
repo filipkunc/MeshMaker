@@ -762,6 +762,14 @@ void OpenGLSceneViewCore::draw()
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
     
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glBegin(GL_POINTS);
+    for (uint i = 0; i < _vertexHints.size(); i++)
+    {
+        glVertex3f(_vertexHints[i].x, _vertexHints[i].y, _vertexHints[i].z);
+    }
+    glEnd();
+    
     drawCurrentManipulator();
     
     drawOrthoDefaultManipulator();
@@ -813,10 +821,10 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
         //[self paintOnTextureWithFirstPoint:lastPoint secondPoint:lastPoint];
         return;
     }
-    else if (_delegate->addVertexEnabled())
+    else if (_delegate->vertexToolEnabled())
     {
         Vector3D position = addVertexPositionFromPoint(point);
-        _delegate->addVertex(position, _camera);
+        _delegate->vertexAddOrConnect(position, _camera);
     }
 	else if (_manipulated != NULL && _manipulated->selectedCount() > 0 && _currentManipulator->selectedIndex < UINT_MAX)
 	{
@@ -848,6 +856,7 @@ void OpenGLSceneViewCore::mouseDown(NSPoint point, bool alt)
 
 void OpenGLSceneViewCore::mouseMoved(NSPoint point)
 {
+    _vertexHints.clear();
     _highlightCameraMode = false;
 	_currentPoint = point;
 	if (_manipulated != NULL && _manipulated->selectedCount() > 0)
@@ -870,6 +879,13 @@ void OpenGLSceneViewCore::mouseMoved(NSPoint point)
 			_highlightCameraMode = true;
         _delegate->setNeedsDisplay();
 	}
+    
+    if (_delegate->vertexToolEnabled())
+    {
+        Vector3D position = addVertexPositionFromPoint(point);
+        _delegate->vertexAddOrConnectHint(position, _camera, _vertexHints);
+        _delegate->setNeedsDisplay();
+    }
 }
 
 void OpenGLSceneViewCore::mouseExited()
