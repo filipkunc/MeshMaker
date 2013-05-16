@@ -876,8 +876,12 @@
             case VertexWindowMode::Add:
                 mesh->addVertex(position);
                 break;
-            case VertexWindowMode::Connect:
-                mesh->connectVerticesNearPosition(position, camera->GetAxisZ());
+            case VertexWindowMode::TriangleConnect:
+                mesh->triangleConnectVerticesNearPosition(position, camera->GetAxisZ());
+                mesh->resetTriangleCache();
+                break;
+            case VertexWindowMode::QuadConnect:
+                mesh->quadConnectVerticesNearPosition(position, camera->GetAxisZ());
                 mesh->resetTriangleCache();
                 break;
             default:
@@ -896,17 +900,20 @@
             case VertexWindowMode::Add:
                 vertices->push_back(position);
                 break;
-            case VertexWindowMode::Connect:
+            case VertexWindowMode::TriangleConnect:
             {
                 vector<VertexNode *> vertexNodes;
-                for (uint i = 0; i < 4; i++)
-                {
-                    VertexNode *nearestVertex = mesh->findNearestVertex(position, vertexNodes);
-                    vertexNodes.push_back(nearestVertex);
-                    vertices->push_back(nearestVertex->data().position);
-                }
-            }
-                break;
+                mesh->triangleVertexNodesNearPosition(position, camera->GetAxisZ(), vertexNodes);
+                for (uint i = 0; i < vertexNodes.size(); i++)
+                    vertices->push_back(vertexNodes[i]->data().position);
+            } break;
+            case VertexWindowMode::QuadConnect:
+            {
+                vector<VertexNode *> vertexNodes;
+                mesh->quadVertexNodesNearPosition(position, camera->GetAxisZ(), vertexNodes);
+                for (uint i = 0; i < vertexNodes.size(); i++)
+                    vertices->push_back(vertexNodes[i]->data().position);
+            } break;
             default:
                 break;
         }

@@ -14,9 +14,8 @@ VertexNode *Mesh2::addVertex(const Vector3D &position)
     return _vertices.add(position);
 }
 
-TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector)
+void Mesh2::quadVertexNodesNearPosition(const Vector3D &position, const Vector3D &eyeVector, vector<VertexNode *> &vertices)
 {
-    vector<VertexNode *> vertices;
     Vector3D center = Vector3D();
     
     for (uint i = 0; i < 4; i++)
@@ -43,33 +42,67 @@ TriangleNode *Mesh2::connectVerticesNearPosition(const Vector3D &position, const
         }
     }
     
-    TriangleNode *quad = NULL;
-    
     switch (oppositeIndex_v0)
     {
         case 1:
-            quad = addQuad(vertices[0], vertices[3], vertices[1], vertices[2]);
+            swap(vertices[1], vertices[3]);
+            swap(vertices[2], vertices[3]);
             break;
         case 3:
-            quad = addQuad(vertices[0], vertices[1], vertices[3], vertices[2]);
-            break;
-        case 2:
-            quad = addQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+            swap(vertices[2], vertices[3]);
             break;
     }
     
-    if (quad)
-    {
-        quad->data().computeNormalsIfNeeded();
-        if (quad->data().vertexNormal.Dot(eyeVector) > 0.0f)
-            quad->data().flip();
-    }
+    Vector3D u, v;
+    u = vertices[0]->data().position - vertices[1]->data().position;
+    v = vertices[1]->data().position - vertices[2]->data().position;
+    Vector3D vertexNormal = u.Cross(v);
+    
+    if (vertexNormal.Dot(eyeVector) > 0.0f)
+        swap(vertices[0], vertices[2]);
+}
+
+TriangleNode *Mesh2::quadConnectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector)
+{
+    vector<VertexNode *> vertices;
+    quadVertexNodesNearPosition(position, eyeVector, vertices);
+    
+    TriangleNode *quad = addQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
     
     makeEdges();
-    
     setSelectionMode(_selectionMode);
     
     return quad;
+}
+
+void Mesh2::triangleVertexNodesNearPosition(const Vector3D &position, const Vector3D &eyeVector, vector<VertexNode *> &vertices)
+{
+    for (uint i = 0; i < 3; i++)
+    {
+        VertexNode *nearestVertex = findNearestVertex(position, vertices);
+        vertices.push_back(nearestVertex);
+    }
+    
+    Vector3D u, v;
+    u = vertices[0]->data().position - vertices[1]->data().position;
+    v = vertices[1]->data().position - vertices[2]->data().position;
+    Vector3D vertexNormal = u.Cross(v);
+    
+    if (vertexNormal.Dot(eyeVector) > 0.0f)
+        swap(vertices[0], vertices[2]);
+}
+
+TriangleNode *Mesh2::triangleConnectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector)
+{
+    vector<VertexNode *> vertices;
+    triangleVertexNodesNearPosition(position, eyeVector, vertices);
+    
+    TriangleNode *triangle = addTriangle(vertices[0], vertices[1], vertices[2]);
+    
+    makeEdges();
+    setSelectionMode(_selectionMode);
+    
+    return triangle;
 }
 
 VertexNode *Mesh2::findNearestVertex(const Vector3D &position, const vector<VertexNode *> &skipVertices) const

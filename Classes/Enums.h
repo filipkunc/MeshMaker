@@ -123,6 +123,7 @@ EnumClass ModelVersion : uint
 EnumClass VertexWindowMode
 {
     Add = 0,
-    Connect = 1,
+    TriangleConnect = 1,
+    QuadConnect = 2,
 };
 

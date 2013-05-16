@@ -55,6 +55,21 @@ Triangle2::Triangle2(VertexNode *vertices[], TexCoordNode *texCoords[], bool isQ
     }
 }
 
+Triangle2::Triangle2(const vector<VertexNode *> &vertices) :
+    selected(false),
+    visible(true),
+    _isQuad(vertices.size() == 4),
+    normalsAreValid(false)
+{
+    for (uint i = 0; i < count(); i++)
+    {
+        setVertex(i, vertices[i]);
+        setVertexEdge(i, NULL);
+        setTexCoord(i, NULL);
+        setTexCoordEdge(i, NULL);
+    }
+}
+
 const Triangle2::PackedNode &Triangle2::node(uint index) const
 {
     if (index < count())

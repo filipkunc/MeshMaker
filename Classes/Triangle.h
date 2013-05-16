@@ -38,6 +38,7 @@ public:
     Triangle2();
     Triangle2(VertexNode *vertices[], bool isQuad=false);
     Triangle2(VertexNode *vertices[], TexCoordNode *texCoords[], bool isQuad=false);
+    Triangle2(const vector<VertexNode *> &vertices);
 
     bool isQuad() const { return _isQuad; }
     uint count() const { return isQuad() ? 4U : 3U; }

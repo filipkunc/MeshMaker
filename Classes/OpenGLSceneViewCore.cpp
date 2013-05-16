@@ -763,12 +763,23 @@ void OpenGLSceneViewCore::draw()
 	glEnable(GL_BLEND);
     
     glColor3f(1.0f, 0.0f, 0.0f);
+    
     glBegin(GL_POINTS);
     for (uint i = 0; i < _vertexHints.size(); i++)
     {
         glVertex3f(_vertexHints[i].x, _vertexHints[i].y, _vertexHints[i].z);
     }
     glEnd();
+    
+    if (_vertexHints.size() > 1)
+    {
+        glBegin(GL_LINE_LOOP);
+        for (uint i = 0; i < _vertexHints.size(); i++)
+        {
+            glVertex3f(_vertexHints[i].x, _vertexHints[i].y, _vertexHints[i].z);
+        }
+        glEnd();
+    }
     
     drawCurrentManipulator();
     

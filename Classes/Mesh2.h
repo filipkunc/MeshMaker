@@ -234,7 +234,10 @@ public:
     // make
     
     VertexNode *addVertex(const Vector3D &position);
-    TriangleNode *connectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector);
+    void quadVertexNodesNearPosition(const Vector3D &position, const Vector3D &eyeVector, vector<VertexNode *> &vertices);
+    TriangleNode *quadConnectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector);
+    void triangleVertexNodesNearPosition(const Vector3D &position, const Vector3D &eyeVector, vector<VertexNode *> &vertices);
+    TriangleNode *triangleConnectVerticesNearPosition(const Vector3D &position, const Vector3D &eyeVector);
     VertexNode *findNearestVertex(const Vector3D &position, const vector<VertexNode *> &skipVertices) const;
 
     TriangleNode *addTriangle(VertexNode *v0, VertexNode *v1, VertexNode *v2);
