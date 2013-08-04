@@ -27,6 +27,7 @@
 
 - (void)vertexAddOrConnect:(Vector3D)position fromCamera:(Camera *)camera;
 - (void)vertexAddOrConnectHint:(Vector3D)position fromCamera:(Camera *)camera vertices:(vector<Vector3D> *)vertices;
+- (void)updateCameraZoomAndCenter:(Camera *)camera fromView:(OpenGLSceneView *)view;
 
 @end
 
@@ -42,7 +43,7 @@
 @property (readwrite, weak) id<OpenGLSceneViewDelegate> delegate;
 @property (readwrite, assign) enum ManipulatorType currentManipulator;
 @property (readwrite, assign) enum CameraMode cameraMode;
-@property (readwrite, assign) Camera camera;
+@property (readonly, assign) Camera *camera;
 
 @end
 

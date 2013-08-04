@@ -76,6 +76,7 @@
 
 @property (readwrite, assign) IOpenGLManipulating *manipulated;
 @property (readonly) NSPopUpButton *scriptPullDown;
+@property (readwrite, assign) BOOL syncCameraZoomAndPosition;
 
 - (void)setNeedsDisplayExceptView:(OpenGLSceneView *)view;
 - (void)setNeedsDisplayOnAllViews;

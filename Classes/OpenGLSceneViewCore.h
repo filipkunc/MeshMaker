@@ -42,6 +42,7 @@ public:
     virtual void vertexAddOrConnect(Vector3D position, Camera *camera) = 0;
     virtual void vertexAddOrConnectHint(Vector3D position, Camera *camera, vector<Vector3D> &vertices) = 0;
     virtual void makeCurrentContext() = 0;
+    virtual void updateCameraZoomAndCenter(Camera *camera) = 0;
 };
 
 class OpenGLSceneViewCore

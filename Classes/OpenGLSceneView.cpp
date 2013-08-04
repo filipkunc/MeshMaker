@@ -37,6 +37,7 @@ public:
     virtual void vertexAddOrConnect(Vector3D position, Camera *camera) { [_sceneView.delegate vertexAddOrConnect:position fromCamera:camera]; }
     virtual void vertexAddOrConnectHint(Vector3D position, Camera *camera, vector<Vector3D> &vertices) { [_sceneView.delegate vertexAddOrConnectHint:position fromCamera:camera vertices:&vertices]; }
     virtual void makeCurrentContext() { [[_sceneView openGLContext] makeCurrentContext]; }
+    virtual void updateCameraZoomAndCenter(Camera *camera) { [_sceneView.delegate updateCameraZoomAndCenter:camera fromView:_sceneView]; }
 };
 
 @implementation OpenGLSceneView
@@ -83,14 +84,9 @@ public:
     _coreView->setCameraMode(cameraMode);
 }
 
-- (Camera)camera
+- (Camera *)camera
 {
-    return *_coreView->camera();
-}
-
-- (void)setCamera:(Camera)camera
-{
-    *_coreView->camera() = camera;
+    return _coreView->camera();
 }
 
 + (NSOpenGLPixelFormat *)sharedPixelFormat

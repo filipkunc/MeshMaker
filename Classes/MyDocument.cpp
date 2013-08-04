@@ -920,6 +920,23 @@
     }
 }
 
+- (void)updateCameraZoomAndCenter:(Camera *)camera fromView:(OpenGLSceneView *)view
+{
+    if (!self.syncCameraZoomAndPosition)
+        return;
+    
+    for (OpenGLSceneView *otherView in views)
+    {
+        if (otherView != view)
+        {
+            Camera *otherCamera = [otherView camera];
+            otherCamera->SetZoom(camera->GetZoom());
+            otherCamera->SetCenter(camera->GetCenter());
+            [otherView setNeedsDisplay:YES];
+        }
+    }
+}
+
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document
@@ -1003,14 +1020,14 @@ constrainSplitPosition:(CGFloat)proposedPosition
 
 - (void)swapCamerasBetweenFirst:(OpenGLSceneView *)first second:(OpenGLSceneView *)second
 {
-	Camera firstCamera = [first camera];
-	Camera secondCamera = [second camera];
+	Camera firstCamera = *[first camera];
+	Camera secondCamera = *[second camera];
 	CameraMode firstMode = [first cameraMode];
 	CameraMode secondMode = [second cameraMode];
 	[second setCameraMode:firstMode];
 	[first setCameraMode:secondMode];
-	[second setCamera:firstCamera];
-	[first setCamera:secondCamera];
+    *[second camera] = firstCamera;
+    *[first camera] = secondCamera;
 }
 
 - (void)toggleOneViewFourView:(id)sender

@@ -976,6 +976,7 @@ void OpenGLSceneViewCore::mouseDragged(NSPoint point, bool alt, bool cmd)
 		
 		_lastPoint = _currentPoint;
         _delegate->setNeedsDisplay();
+        _delegate->updateCameraZoomAndCenter(_camera);
 	}
 	else if (alt)
 	{
@@ -1046,6 +1047,7 @@ void OpenGLSceneViewCore::otherMouseDragged(NSPoint point, bool alt)
 		
 		_lastPoint = _currentPoint;
         _delegate->setNeedsDisplay();
+        _delegate->updateCameraZoomAndCenter(_camera);
 	}
 }
 
@@ -1067,6 +1069,7 @@ void OpenGLSceneViewCore::rightMouseDragged(NSPoint point, bool alt)
 		
 		_lastPoint = _currentPoint;
         _delegate->setNeedsDisplay();
+        _delegate->updateCameraZoomAndCenter(_camera);
 	}
 }
 
@@ -1082,6 +1085,7 @@ void OpenGLSceneViewCore::scrollWheel(float deltaX, float deltaY, bool alt, bool
 		_camera->LeftRight(-deltaX * _camera->GetZoom() * sensitivity);
 		_camera->UpDown(-deltaY * _camera->GetZoom() * sensitivity);
         _delegate->setNeedsDisplay();
+        _delegate->updateCameraZoomAndCenter(_camera);
 	}
 	else if (alt)
 	{
@@ -1098,5 +1102,6 @@ void OpenGLSceneViewCore::scrollWheel(float deltaX, float deltaY, bool alt, bool
 		float sensitivity = _camera->GetZoom() * 0.02f;
 		_camera->Zoom(deltaY * sensitivity);
         _delegate->setNeedsDisplay();
+        _delegate->updateCameraZoomAndCenter(_camera);
 	}
 }
