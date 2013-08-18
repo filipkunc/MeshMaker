@@ -158,7 +158,7 @@ vector<T> *ReadValues(string s)
     return data;
 }
 
-- (BOOL)readFromWavefrontObject:(NSData *)data
++ (ItemCollection *)readItemsFromWavefrontObject:(NSData *)data
 {
     NSString *fileContents = [NSString stringWithUTF8String:(const char *)[data bytes]];
     string str = [fileContents UTF8String];
@@ -288,6 +288,13 @@ vector<T> *ReadValues(string s)
     {
         delete mesh;
     }
+    
+    return newItems;
+}
+
+- (BOOL)readFromWavefrontObject:(NSData *)data
+{
+    ItemCollection *newItems = [MyDocument readItemsFromWavefrontObject:data];
     
     delete items;
     items = newItems;

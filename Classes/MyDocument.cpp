@@ -44,8 +44,6 @@
     self = [super init];
     if (self) 
 	{
-        // Add your subclass-specific initialization here.
-        // If an error occurs here, send a [self release] message and return nil.
 		items = new ItemCollection();
         textures = new TextureCollection();
 		itemsController = new OpenGLManipulatingController();
@@ -829,6 +827,25 @@
     [textureBrowserWindowController setDelegate:self];
     [textureBrowserWindowController reloadData];
     [textureBrowserWindowController showWindow:nil];
+}
+
+- (IBAction)importPointCloud:(id)sender
+{
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    
+    // This method displays the panel and returns immediately.
+    // The completion handler is called when the user selects an
+    // item or cancels the panel.
+    [panel beginWithCompletionHandler:^(NSInteger result)
+    {
+        if (result == NSFileHandlingPanelOKButton)
+        {
+            NSURL *url = panel.URL;
+            ItemCollection *pointCloud = [MyDocument readItemsFromWavefrontObject:[NSData dataWithContentsOfURL:url]];
+            self->items->addItem(pointCloud->itemAtIndex(0)->duplicate());
+            delete pointCloud;
+        }
+    }];
 }
 
 - (void)viewScriptEditor:(id)sender

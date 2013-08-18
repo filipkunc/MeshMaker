@@ -130,10 +130,13 @@
 - (IBAction)viewScriptEditor:(id)sender;
 - (IBAction)viewSelectionTool:(id)sender;
 - (IBAction)viewVertexTool:(id)sender;
+- (IBAction)importPointCloud:(id)sender;
 
 @end
 
 @interface MyDocument (Archiving)
+
++ (ItemCollection *)readItemsFromWavefrontObject:(NSData *)data;
 
 @end
 

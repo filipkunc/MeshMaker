@@ -19,8 +19,6 @@
 		A7064C8112BD107800B14CFA /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6912BD107800B14CFA /* Vector2D.cpp */; };
 		A7064C8212BD107800B14CFA /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
 		A7064C8A12BD10C200B14CFA /* vertex.vs in Resources */ = {isa = PBXBuildFile; fileRef = A7064C8812BD10C200B14CFA /* vertex.vs */; };
-		A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7064C9212BD19F400B14CFA /* Cocoa.framework */; };
-		A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7064C9612BD19F400B14CFA /* InfoPlist.strings */; };
 		A718D5F81539714000589FFF /* FPTextureBrowserWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A718D5F61539714000589FFF /* FPTextureBrowserWindowController.mm */; };
 		A718D5F91539714000589FFF /* FPTextureBrowserWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A718D5F71539714000589FFF /* FPTextureBrowserWindowController.xib */; };
 		A719914016BD82EB00197729 /* libosdCPU.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A719913F16BD82EB00197729 /* libosdCPU.a */; };
@@ -34,16 +32,6 @@
 		A73FE08B16ECF4A7002A3B20 /* VertexWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A73FE08916ECF4A7002A3B20 /* VertexWindowController.mm */; };
 		A73FE08C16ECF4A7002A3B20 /* VertexWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A73FE08A16ECF4A7002A3B20 /* VertexWindowController.xib */; };
 		A7425A3F16B32EEE00440E61 /* TextureCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7425A3D16B32EEE00440E61 /* TextureCollection.cpp */; };
-		A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8412BD109A00B14CFA /* MeshTest.mm */; };
-		A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */; };
-		A746510B12BD1C940030EEB0 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6312BD107800B14CFA /* Quaternion.cpp */; };
-		A746510D12BD1C940030EEB0 /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6912BD107800B14CFA /* Vector2D.cpp */; };
-		A746510F12BD1C940030EEB0 /* Vector3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C6B12BD107800B14CFA /* Vector3D.cpp */; };
-		A746511312BD1CB30030EEB0 /* Matrix4x4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C4E12BD107800B14CFA /* Matrix4x4.cpp */; };
-		A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3C12BD107800B14CFA /* Camera.cpp */; };
-		A74BF5A714FA9B2E006D7BA3 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FEB1FC13FF002E00473F8D /* Texture.cpp */; };
-		A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = A7064C3B12BD107800B14CFA /* AddItemWithStepsSheetController.m */; };
-		A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A754C41E0FF92F8600A48E13 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A758EC8016CD12C0001C246E /* FPCurveView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A758EC7F16CD12C0001C246E /* FPCurveView.cpp */; };
 		A767E0E4153B544700A175DE /* IcosahedronTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A767E0E3153B544700A175DE /* IcosahedronTemplate.png */; };
@@ -57,7 +45,6 @@
 		A787CC1813CF717500D2A1FC /* SelectTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1313CF717500D2A1FC /* SelectTemplate.png */; };
 		A787CC1913CF717500D2A1FC /* SphereTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1413CF717500D2A1FC /* SphereTemplate.png */; };
 		A787CC1A13CF717500D2A1FC /* TranslateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1513CF717500D2A1FC /* TranslateTemplate.png */; };
-		A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A754C41D0FF92F8600A48E13 /* OpenGL.framework */; };
 		A796A33316AC59FA00339A58 /* Item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A31F16AC59FA00339A58 /* Item.cpp */; };
 		A796A33416AC59FA00339A58 /* ItemCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A32016AC59FA00339A58 /* ItemCollection.cpp */; };
 		A796A33516AC59FA00339A58 /* Manipulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A32116AC59FA00339A58 /* Manipulator.cpp */; };
@@ -150,10 +137,7 @@
 		A7064C6A12BD107800B14CFA /* Vector2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector2D.h; path = Classes/Vector2D.h; sourceTree = "<group>"; };
 		A7064C6B12BD107800B14CFA /* Vector3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector3D.cpp; path = Classes/Vector3D.cpp; sourceTree = "<group>"; };
 		A7064C6C12BD107800B14CFA /* Vector3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector3D.h; path = Classes/Vector3D.h; sourceTree = "<group>"; };
-		A7064C8412BD109A00B14CFA /* MeshTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MeshTest.mm; sourceTree = "<group>"; };
-		A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocumentTest.mm; sourceTree = "<group>"; };
 		A7064C8812BD10C200B14CFA /* vertex.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = vertex.vs; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MeshMaker-Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7064C9212BD19F400B14CFA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A7064C9412BD19F400B14CFA /* MeshMaker_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeshMaker_Tests-Info.plist"; sourceTree = "<group>"; };
 		A7064C9512BD19F400B14CFA /* MeshMaker_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MeshMaker_Tests-Prefix.pch"; sourceTree = "<group>"; };
@@ -264,15 +248,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A7064C8D12BD19F400B14CFA /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A7064C9312BD19F400B14CFA /* Cocoa.framework in Frameworks */,
-				A78921A112BE507E006E1811 /* OpenGL.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -301,7 +276,6 @@
 			isa = PBXGroup;
 			children = (
 				8D15AC370486D014006FF6A4 /* MeshMaker.app */,
-				A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -309,7 +283,6 @@
 		2A37F4AAFDCFA73011CA2CEA /* OpenGLEditor */ = {
 			isa = PBXGroup;
 			children = (
-				A7064C8312BD109A00B14CFA /* Tests */,
 				A7521E8A10E675ED003D31E4 /* Shaders */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
@@ -462,15 +435,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		A7064C8312BD109A00B14CFA /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				A7064C8412BD109A00B14CFA /* MeshTest.mm */,
-				A7064C8512BD109A00B14CFA /* MyDocumentTest.mm */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
 		A7521E8A10E675ED003D31E4 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
@@ -541,24 +505,6 @@
 			productReference = 8D15AC370486D014006FF6A4 /* MeshMaker.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A7064C9012BD19F400B14CFA /* MeshMaker-Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A7064C9F12BD19F400B14CFA /* Build configuration list for PBXNativeTarget "MeshMaker-Tests" */;
-			buildPhases = (
-				A7064C8C12BD19F400B14CFA /* Sources */,
-				A7064C8D12BD19F400B14CFA /* Frameworks */,
-				A7064C8E12BD19F400B14CFA /* Resources */,
-				A7064C8F12BD19F400B14CFA /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "MeshMaker-Tests";
-			productName = "OpenGLEditor-Tests";
-			productReference = A7064C9112BD19F400B14CFA /* MeshMaker-Tests.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -566,6 +512,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0460;
+				TargetAttributes = {
+					8D15AC270486D014006FF6A4 = {
+						DevelopmentTeam = 9AG4EWQ4PB;
+					};
+				};
 			};
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "MeshMaker" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -580,7 +531,6 @@
 			projectRoot = "";
 			targets = (
 				8D15AC270486D014006FF6A4 /* MeshMaker */,
-				A7064C9012BD19F400B14CFA /* MeshMaker-Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -623,31 +573,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A7064C8E12BD19F400B14CFA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A7064C9812BD19F400B14CFA /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		A7064C8F12BD19F400B14CFA /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8D15AC300486D014006FF6A4 /* Sources */ = {
@@ -691,23 +617,6 @@
 				A7DACB9D16C7D66800FAF8ED /* FPSelectionWindowController.mm in Sources */,
 				A758EC8016CD12C0001C246E /* FPCurveView.cpp in Sources */,
 				A73FE08B16ECF4A7002A3B20 /* VertexWindowController.mm in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A7064C8C12BD19F400B14CFA /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A74BF5DE14FA9B6F006D7BA3 /* Vector4D.cpp in Sources */,
-				A74BF5A714FA9B2E006D7BA3 /* Texture.cpp in Sources */,
-				A74BF5B114FA9B2E006D7BA3 /* AddItemWithStepsSheetController.m in Sources */,
-				A746511712BD1CCD0030EEB0 /* Camera.cpp in Sources */,
-				A746511312BD1CB30030EEB0 /* Matrix4x4.cpp in Sources */,
-				A746510B12BD1C940030EEB0 /* Quaternion.cpp in Sources */,
-				A746510D12BD1C940030EEB0 /* Vector2D.cpp in Sources */,
-				A746510F12BD1C940030EEB0 /* Vector3D.cpp in Sources */,
-				A746510512BD1C5A0030EEB0 /* MeshTest.mm in Sources */,
-				A746510612BD1C5A0030EEB0 /* MyDocumentTest.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -769,96 +678,6 @@
 			};
 			name = Release;
 		};
-		A7064CA012BD19F400B14CFA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeshMaker_Tests-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
-				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OpenSubdiv\"",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = (
-					"-framework",
-					SenTestingKit,
-				);
-				PRODUCT_NAME = "MeshMaker-Tests";
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		A7064CA112BD19F400B14CFA /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeshMaker_Tests-Prefix.pch";
-				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OpenSubdiv\"",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = (
-					"-framework",
-					SenTestingKit,
-				);
-				PRODUCT_NAME = "MeshMaker-Tests";
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Release;
-		};
-		A7064CA212BD19F400B14CFA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OpenSubdiv\"",
-				);
-				PRODUCT_NAME = "MeshMaker-Tests";
-			};
-			name = Debug;
-		};
-		A7064CA312BD19F400B14CFA /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				INFOPLIST_FILE = "MeshMaker_Tests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OpenSubdiv\"",
-				);
-				PRODUCT_NAME = "MeshMaker-Tests";
-			};
-			name = Release;
-		};
 		C05733C808A9546B00998B17 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -870,6 +689,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = MeshMaker.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -901,7 +721,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
-				PROVISIONING_PROFILE = "1914166A-FE7D-4240-873D-5A2062592B39";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -917,6 +737,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = MeshMaker.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -947,7 +768,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MeshMaker;
-				PROVISIONING_PROFILE = "1914166A-FE7D-4240-873D-5A2062592B39";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -1021,17 +842,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A7064C9F12BD19F400B14CFA /* Build configuration list for PBXNativeTarget "MeshMaker-Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A7064CA012BD19F400B14CFA /* Debug */,
-				A7064CA112BD19F400B14CFA /* Release */,
-				A7064CA212BD19F400B14CFA /* Debug */,
-				A7064CA312BD19F400B14CFA /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		C05733C708A9546B00998B17 /* Build configuration list for PBXNativeTarget "MeshMaker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
