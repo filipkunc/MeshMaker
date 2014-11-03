@@ -35,7 +35,6 @@
 		A76C2D271568F07200FEAAD5 /* PlaneTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A76C2D261568F07200FEAAD5 /* PlaneTemplate.png */; };
 		A7777AB316B483F400FF965A /* FPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A7777AB216B483F400FF965A /* FPImageView.m */; };
 		A7777AB616B493CA00FF965A /* textured_frag.fs in Resources */ = {isa = PBXBuildFile; fileRef = A7777AB416B492FD00FF965A /* textured_frag.fs */; };
-		A7847C6E1658FB4D0073AB2A /* sameSize.js in Resources */ = {isa = PBXBuildFile; fileRef = A7847C6C1658FB310073AB2A /* sameSize.js */; };
 		A787CC1013CF6F2C00D2A1FC /* RotateTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */; };
 		A787CC1613CF717500D2A1FC /* CubeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1113CF717500D2A1FC /* CubeTemplate.png */; };
 		A787CC1713CF717500D2A1FC /* ScaleTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = A787CC1213CF717500D2A1FC /* ScaleTemplate.png */; };
@@ -60,9 +59,6 @@
 		A796A34216AC59FA00339A58 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A796A33216AC59FA00339A58 /* Triangle.cpp */; };
 		A7ABF53116B1CF1E00EA8CC5 /* MyDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7ABF52F16B1CF1E00EA8CC5 /* MyDocument.cpp */; };
 		A7ABF53216B1CF1E00EA8CC5 /* MyDocument+archiving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7ABF53016B1CF1E00EA8CC5 /* MyDocument+archiving.cpp */; };
-		A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */; };
-		A7B76C9F1657CA6400CFAAE7 /* meshtest.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C991657CA4500CFAAE7 /* meshtest.js */; };
-		A7B76CA01657CA6400CFAAE7 /* quadify.js in Resources */ = {isa = PBXBuildFile; fileRef = A7B76C9A1657CA4500CFAAE7 /* quadify.js */; };
 		A7BFCC101538D12A0076B712 /* Application.icns in Resources */ = {isa = PBXBuildFile; fileRef = A7BFCC0F1538D12A0076B712 /* Application.icns */; };
 		A7C692B414CDBFAA00180CA4 /* Vector4D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */; };
 		A7C6FEEA1090D627008A55E1 /* AddItemWithStepsSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A7C6FEE81090D627008A55E1 /* AddItemWithStepsSheet.xib */; };
@@ -149,7 +145,6 @@
 		A7777AB116B483F400FF965A /* FPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPImageView.h; path = Classes/FPImageView.h; sourceTree = "<group>"; };
 		A7777AB216B483F400FF965A /* FPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPImageView.m; path = Classes/FPImageView.m; sourceTree = "<group>"; };
 		A7777AB416B492FD00FF965A /* textured_frag.fs */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = textured_frag.fs; sourceTree = "<group>"; };
-		A7847C6C1658FB310073AB2A /* sameSize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sameSize.js; sourceTree = "<group>"; };
 		A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RotateTemplate.png; sourceTree = "<group>"; };
 		A787CC1113CF717500D2A1FC /* CubeTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CubeTemplate.png; sourceTree = "<group>"; };
 		A787CC1213CF717500D2A1FC /* ScaleTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScaleTemplate.png; sourceTree = "<group>"; };
@@ -182,9 +177,6 @@
 		A7A96A4910222EE2003110A1 /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		A7ABF52F16B1CF1E00EA8CC5 /* MyDocument.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = MyDocument.cpp; path = Classes/MyDocument.cpp; sourceTree = "<group>"; };
 		A7ABF53016B1CF1E00EA8CC5 /* MyDocument+archiving.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = "MyDocument+archiving.cpp"; path = "Classes/MyDocument+archiving.cpp"; sourceTree = "<group>"; };
-		A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = loopSubdivision.js; sourceTree = "<group>"; };
-		A7B76C991657CA4500CFAAE7 /* meshtest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = meshtest.js; sourceTree = "<group>"; };
-		A7B76C9A1657CA4500CFAAE7 /* quadify.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = quadify.js; sourceTree = "<group>"; };
 		A7BFCC0F1538D12A0076B712 /* Application.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Application.icns; sourceTree = "<group>"; };
 		A7BFCC111538D6060076B712 /* MeshMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MeshMaker.entitlements; sourceTree = "<group>"; };
 		A7C692B314CDBFAA00180CA4 /* Vector4D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vector4D.cpp; path = Classes/Vector4D.cpp; sourceTree = "<group>"; };
@@ -372,7 +364,6 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				A7B76C971657CA4500CFAAE7 /* Scripts */,
 				A7FEB20013FF01D200473F8D /* Textures */,
 				A787CC0C13CF6F0400D2A1FC /* Icons */,
 				A7BFCC0F1538D12A0076B712 /* Application.icns */,
@@ -427,17 +418,6 @@
 				A787CC0F13CF6F2C00D2A1FC /* RotateTemplate.png */,
 			);
 			path = Icons;
-			sourceTree = "<group>";
-		};
-		A7B76C971657CA4500CFAAE7 /* Scripts */ = {
-			isa = PBXGroup;
-			children = (
-				A7847C6C1658FB310073AB2A /* sameSize.js */,
-				A7B76C981657CA4500CFAAE7 /* loopSubdivision.js */,
-				A7B76C991657CA4500CFAAE7 /* meshtest.js */,
-				A7B76C9A1657CA4500CFAAE7 /* quadify.js */,
-			);
-			path = Scripts;
 			sourceTree = "<group>";
 		};
 		A7FEB20013FF01D200473F8D /* Textures */ = {
@@ -513,10 +493,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A7777AB616B493CA00FF965A /* textured_frag.fs in Resources */,
-				A7847C6E1658FB4D0073AB2A /* sameSize.js in Resources */,
-				A7B76C9E1657CA6400CFAAE7 /* loopSubdivision.js in Resources */,
-				A7B76C9F1657CA6400CFAAE7 /* meshtest.js in Resources */,
-				A7B76CA01657CA6400CFAAE7 /* quadify.js in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
 				1DDD582C0DA1D0D100B32029 /* MyDocument.xib in Resources */,
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
