@@ -8,8 +8,6 @@
 
 #include "ShaderProgram.h"
 
-#if defined(__APPLE__) || defined(SHADERS)
-
 #include <stdio.h>
 
 ShaderProgram *globalNormalShader = NULL;
@@ -95,5 +93,3 @@ void ShaderProgram::resetProgram()
 {
     glUseProgram(0);
 }
-
-#endif

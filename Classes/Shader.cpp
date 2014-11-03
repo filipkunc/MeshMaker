@@ -7,31 +7,12 @@
 //
 
 #include "Shader.h"
-
-#if defined(__APPLE__) || defined(SHADERS)
-
 #include <stdio.h>
-
-#if defined(WIN32)
-
-#include <string>
-#include <fstream>
-using namespace std;
-
-#elif defined(__linux__)
-
-#include <QFile>
-#include <QTextStream>
-#include <string>
-using namespace std;
-
-#endif
 
 Shader::Shader(GLenum shaderType, const char *fileName)
 {
     type = shaderType;
     
-#if defined(__APPLE__)
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *file = [NSString stringWithUTF8String:fileName];
     NSString *extension = [file pathExtension];
@@ -44,23 +25,7 @@ Shader::Shader(GLenum shaderType, const char *fileName)
                                             error:NULL];
 
     const GLchar *shaderSource = [contents cStringUsingEncoding:NSASCIIStringEncoding];
-#elif defined(WIN32)
-	string buffer;
-	ifstream fin(fileName);
-    getline(fin, buffer, char(-1));
-    fin.close();
-    const GLchar *shaderSource = buffer.c_str();
-#elif defined(__linux__)
-    QString resourceName = ":/Shaders/";
-    resourceName += fileName;
-    QFile file(resourceName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-    QTextStream in(&file);
-    QString fileContents = in.readAll();
-    string buffer = fileContents.toStdString();
-    const GLchar *shaderSource = buffer.c_str();
-#endif
+
     shader = glCreateShader(type);
     glShaderSource(shader, 1, &shaderSource, NULL);
     glCompileShader(shader);
@@ -87,5 +52,3 @@ Shader::~Shader()
 {
     glDeleteShader(shader);
 }
-
-#endif

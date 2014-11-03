@@ -11,7 +11,7 @@
 
 void DrawCube(float size)
 {
-	static uint indices[36] =
+	static unsigned int indices[36] =
 	{
 		0, 1, 2,
 		3, 2, 1,
@@ -225,90 +225,19 @@ void DrawCircle(float size)
     //glDisable(GL_BLEND);
 }
 
-#if defined(__APPLE__)
-#define RGBA_SELECTION
-#elif defined(WIN32) || defined(__linux__)
-#define RGB_SELECTION
-#endif
-
-#if defined(RGB_SELECTION)
-
-union RgbColor
+void ColorIndex(unsigned int colorIndex)
 {
-    GLuint colorIndex : 24;
-    GLubyte components[3];
-    struct
-    {
-        GLubyte r;
-        GLubyte g;
-        GLubyte b;
-    };
-};
-
-#endif
-
-void ColorIndex(uint colorIndex)
-{
-#if defined(RGB_SELECTION)
-    RgbColor color;
-    color.colorIndex = colorIndex;
-    glColor3ubv(color.components);
-#elif defined(RGBA_SELECTION)
     glColor4ubv((GLubyte *)&colorIndex);
-#endif
 }
 
-void ColorIndices(vector<uint> &colorIndices)
+void ColorIndices(vector<unsigned int> &colorIndices)
 {
-#if defined(RGB_SELECTION)
-    vector<GLubyte> colorComponents;
-    
-    for (uint i = 0; i < colorIndices.size(); i++)
-    {
-        RgbColor color;
-        color.colorIndex = colorIndices[i];
-
-        colorComponents.push_back(color.components[0]);
-        colorComponents.push_back(color.components[1]);
-        colorComponents.push_back(color.components[2]);
-    }
-    
-    GLubyte *colorPtr = (GLubyte *)&colorComponents[0];
-    glColorPointer(3, GL_UNSIGNED_BYTE, 0, colorPtr);
-#elif defined(RGBA_SELECTION)
     GLubyte *colorPtr = (GLubyte *)&colorIndices[0];
     glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorPtr);
-#endif
 }
 
-#if defined(RGB_SELECTION)
-const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height resolution
-
-GLubyte colorBuffer[kMaxSelectedIndicesCount * 3];
-#endif
-
-void ReadSelectedIndices(int x, int y, int width, int height, uint *selectedIndices)
+void ReadSelectedIndices(int x, int y, int width, int height, unsigned int *selectedIndices)
 {
-#if defined(RGB_SELECTION)
-    uint count = (uint)width * (uint)height;
-    
-    memset(colorBuffer, 0, count * 3);
-        
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, colorBuffer);
-    GetGLError();
-
-    for (uint i = 0; i < count; i++)
-    {
-        RgbColor color;
-        color.components[0] = colorBuffer[i * 3 + 0];
-        color.components[1] = colorBuffer[i * 3 + 1];
-        color.components[2] = colorBuffer[i * 3 + 2];
-        
-        selectedIndices[i] = color.colorIndex;
-    }
-#elif defined(RGBA_SELECTION)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
-#endif
 }

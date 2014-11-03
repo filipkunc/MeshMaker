@@ -14,7 +14,7 @@
 #include "Vertex.h"
 #include "VertexEdge.h"
 
-void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint index3);
-void AddTriangle(vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoordIndices[3]);
-void AddQuad(vector<TriQuad> &triangles, uint index1, uint index2, uint index3, uint index4);
+void AddTriangle(vector<TriQuad> &triangles, unsigned int index1, unsigned int index2, unsigned int index3);
+void AddTriangle(vector<TriQuad> &triangles, unsigned int vertexIndices[3], unsigned int texCoordIndices[3]);
+void AddQuad(vector<TriQuad> &triangles, unsigned int index1, unsigned int index2, unsigned int index3, unsigned int index4);
 void FlipTriangle(TriQuad &triangle);

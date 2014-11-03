@@ -13,48 +13,6 @@ const float minDistance = 1.0f;
 const float maxDistance = 500.0f;
 const float planeSize = 4000.0f;
 
-#if defined(WIN32) || defined(__linux__)
-
-NSPoint NSMakePoint(float x, float y)
-{
-	NSPoint point;
-	point.x = x;
-	point.y = y;
-	return point;
-}
-
-NSSize NSMakeSize(float width, float height)
-{
-	NSSize size;
-	size.width = width;
-	size.height = height;
-	return size;
-}
-
-NSRect NSMakeRect(float x, float y, float width, float height)
-{
-	NSRect rect;
-	rect.origin = NSMakePoint(x, y);
-	rect.size = NSMakeSize(width, height);
-	return rect;
-}
-
-bool NSPointInRect(NSPoint point, NSRect rect)
-{
-	if (point.x < rect.origin.x)
-		return false;
-	if (point.x > rect.origin.x + rect.size.width)
-		return false;
-	if (point.y < rect.origin.y)
-		return false;
-	if (point.y > rect.origin.y + rect.size.height)
-		return false;
-
-	return true;
-}
-
-#endif
-
 bool OpenGLSceneViewCore::_alwaysSelectThrough = false;
 
 OpenGLSceneViewCore::OpenGLSceneViewCore(IOpenGLSceneViewCoreDelegate *delegate)
@@ -234,14 +192,14 @@ void OpenGLSceneViewCore::applyProjection()
 	}
 }
 
-const uint kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height resolution
+const unsigned int kMaxSelectedIndicesCount = 2000 * 2000;  // max width * max height resolution
 
-uint selectedIndices[kMaxSelectedIndicesCount];
+unsigned int selectedIndices[kMaxSelectedIndicesCount];
 
 bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSelecting *selecting)
 {
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
-    uint count = selecting->selectableCount();
+    unsigned int count = selecting->selectableCount();
     
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -258,9 +216,9 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     }
     else
     {
-        for (uint i = 0; i < count; i++)
+        for (unsigned int i = 0; i < count; i++)
         {
-            uint colorIndex = i + 1;
+            unsigned int colorIndex = i + 1;
             ColorIndex(colorIndex);
             selecting->drawForSelectionAtIndex(i);
         }
@@ -268,7 +226,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
 	glFinish();
     
-    uint selectedIndicesCount = (uint)width * (uint)height;
+    unsigned int selectedIndicesCount = (unsigned int)width * (unsigned int)height;
     
     if (selectedIndicesCount >= kMaxSelectedIndicesCount)
         return NULL;
@@ -278,12 +236,12 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
         ReadSelectedIndices(x, y, width, height, selectedIndices);
         
         bool *selected = new bool[count];
-        for (uint i = 0; i < count; i++)
+        for (unsigned int i = 0; i < count; i++)
             selected[i] = false;
         
-        for (uint i = 0; i < selectedIndicesCount; i++)
+        for (unsigned int i = 0; i < selectedIndicesCount; i++)
         {
-            uint selectedIndex = selectedIndices[i];
+            unsigned int selectedIndex = selectedIndices[i];
             if (selectedIndex > 0)
             {
                 if (selectedIndex - 1 < count)
@@ -304,7 +262,7 @@ void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, Ope
     if (selecting == NULL || selecting->selectableCount() <= 0)
 		return;
 
-	uint count = selecting->selectableCount();
+	unsigned int count = selecting->selectableCount();
     
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
     
@@ -316,7 +274,7 @@ void OpenGLSceneViewCore::select(NSPoint point, IOpenGLSelecting *selecting, Ope
 	bool *selected = select(point.x - 5, point.y - 5, 10, 10, selecting);
     if (selected != NULL)
     {
-        for (uint i = 0; i < count; i++)
+        for (unsigned int i = 0; i < count; i++)
         {
             if (selected[i])
             {
@@ -337,7 +295,7 @@ void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenG
     if (selecting == NULL || selecting->selectableCount() <= 0)
 		return;
     
-    uint count = selecting->selectableCount();
+    unsigned int count = selecting->selectableCount();
     
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
     
@@ -377,7 +335,7 @@ void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenG
         {
             if (selected1 != NULL)
             {
-                for (uint i = 0; i < count; i++)
+                for (unsigned int i = 0; i < count; i++)
                 {
 					selected[i] = selected[i] || selected2[i];
                 }
@@ -396,7 +354,7 @@ void OpenGLSceneViewCore::select(NSRect rect, IOpenGLSelecting *selecting, OpenG
     
     if (selected != NULL)
     {
-        for (uint i = 0; i < count; i++)
+        for (unsigned int i = 0; i < count; i++)
         {
             if (selected[i])
                 selecting->selectObjectAtIndex(i, selectionMode);
@@ -498,11 +456,11 @@ Vector3D OpenGLSceneViewCore::translationFromPoint(NSPoint point)
 	glLoadMatrixf(_camera->GetViewMatrix());
 	
 	Vector3D position = _manipulated->selectionCenter();
-	uint selectedIndex = _currentManipulator->selectedIndex;
+	unsigned int selectedIndex = _currentManipulator->selectedIndex;
 	
-	if (selectedIndex <= (uint)Axis::Z)
+	if (selectedIndex <= (unsigned int)Axis::Z)
         return positionFromAxisPoint((Axis)selectedIndex, point);
-	if (selectedIndex >= (uint)PlaneAxis::X && selectedIndex <= (uint)PlaneAxis::Z)
+	if (selectedIndex >= (unsigned int)PlaneAxis::X && selectedIndex <= (unsigned int)PlaneAxis::Z)
         return positionFromPlaneAxis((PlaneAxis)selectedIndex, point);
 	
 	return position;
@@ -515,7 +473,7 @@ Vector3D OpenGLSceneViewCore::scaleFromPoint(NSPoint point, Vector3D &lastPositi
 	glLoadMatrixf(_camera->GetViewMatrix());
 	
 	Vector3D position = _manipulated->selectionCenter();
-	uint selectedIndex = _currentManipulator->selectedIndex;
+	unsigned int selectedIndex = _currentManipulator->selectedIndex;
 	
 	Vector3D scale = Vector3D();
 	
@@ -553,7 +511,7 @@ Quaternion OpenGLSceneViewCore::rotationFromPoint(NSPoint point, Vector3D &lastP
 	Vector3D position;
 	float angle;
 	
-	uint selectedIndex = _currentManipulator->selectedIndex;
+	unsigned int selectedIndex = _currentManipulator->selectedIndex;
 	
 	position = this->positionFromPlaneAxis((PlaneAxis)(selectedIndex + 3), point);
 	position -= _manipulated->selectionCenter();
@@ -745,10 +703,9 @@ void OpenGLSceneViewCore::drawSelectionRect()
 
 void OpenGLSceneViewCore::draw()
 {
-#if defined(__APPLE__) || defined(SHADERS)
     ShaderProgram::resetProgram();
-#endif
-	float clearColor = 0.6f;
+
+    float clearColor = 0.6f;
 	glClearColor(clearColor, clearColor, clearColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_TEXTURE_2D);
@@ -765,7 +722,7 @@ void OpenGLSceneViewCore::draw()
     glColor3f(1.0f, 0.0f, 0.0f);
     
     glBegin(GL_POINTS);
-    for (uint i = 0; i < _vertexHints.size(); i++)
+    for (unsigned int i = 0; i < _vertexHints.size(); i++)
     {
         glVertex3f(_vertexHints[i].x, _vertexHints[i].y, _vertexHints[i].z);
     }
@@ -774,7 +731,7 @@ void OpenGLSceneViewCore::draw()
     if (_vertexHints.size() > 1)
     {
         glBegin(GL_LINE_LOOP);
-        for (uint i = 0; i < _vertexHints.size(); i++)
+        for (unsigned int i = 0; i < _vertexHints.size(); i++)
         {
             glVertex3f(_vertexHints[i].x, _vertexHints[i].y, _vertexHints[i].z);
         }

@@ -18,7 +18,7 @@ void Mesh2::quadVertexNodesNearPosition(const Vector3D &position, const Vector3D
 {
     Vector3D center = Vector3D();
     
-    for (uint i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < 4; i++)
     {
         VertexNode *nearestVertex = findNearestVertex(position, vertices);
         vertices.push_back(nearestVertex);
@@ -28,10 +28,10 @@ void Mesh2::quadVertexNodesNearPosition(const Vector3D &position, const Vector3D
     center /= 4.0f;
     
     Vector3D v0_center = vertices[0]->data().position - center;
-    uint oppositeIndex_v0 = UINT_MAX;
+    unsigned int oppositeIndex_v0 = UINT_MAX;
     float smallestAngle = 0.0f;
     
-    for (uint i = 1; i < 4; i++)
+    for (unsigned int i = 1; i < 4; i++)
     {
         Vector3D v0_vi = vertices[0]->data().position - vertices[i]->data().position;
         float angle = fabsf(v0_vi.GetAngle(v0_center));
@@ -77,7 +77,7 @@ TriangleNode *Mesh2::quadConnectVerticesNearPosition(const Vector3D &position, c
 
 void Mesh2::triangleVertexNodesNearPosition(const Vector3D &position, const Vector3D &eyeVector, vector<VertexNode *> &vertices)
 {
-    for (uint i = 0; i < 3; i++)
+    for (unsigned int i = 0; i < 3; i++)
     {
         VertexNode *nearestVertex = findNearestVertex(position, vertices);
         vertices.push_back(nearestVertex);
@@ -180,9 +180,9 @@ void Mesh2::makeEdges(TriangleNode *node)
     Triangle2 &triangle = node->data();
     triangle.removeEdges();
     
-    for (uint i = 0; i < triangle.count(); i++)
+    for (unsigned int i = 0; i < triangle.count(); i++)
     {
-        uint j = i + 1;
+        unsigned int j = i + 1;
         if (j == triangle.count())
             j = 0;
         
@@ -281,7 +281,7 @@ void Mesh2::makeCube()
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::makeCylinder(uint steps)
+void Mesh2::makeCylinder(unsigned int steps)
 {
     _vertices.removeAll();
     _triangles.removeAll();
@@ -292,10 +292,10 @@ void Mesh2::makeCylinder(uint steps)
     VertexNode *node2 = _vertices.add(Vector3D(cosf(0.0f), -1, sinf(0.0f))); // 2
     VertexNode *node3 = _vertices.add(Vector3D(cosf(0.0f),  1, sinf(0.0f))); // 3
     
-    uint max = steps;
+    unsigned int max = steps;
     float step = (FLOAT_PI * 2.0f) / max;
     float angle = step;
-    for (uint i = 1; i < max; i++)
+    for (unsigned int i = 1; i < max; i++)
     {
         VertexNode *last1 = _vertices.add(Vector3D(cosf(angle), -1, sinf(angle))); // 4
         VertexNode *last0 = _vertices.add(Vector3D(cosf(angle),  1, sinf(angle))); // 5
@@ -325,12 +325,12 @@ void Mesh2::makeCylinder(uint steps)
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::makeSphere(uint steps)
+void Mesh2::makeSphere(unsigned int steps)
 {
     _vertices.removeAll();
     _triangles.removeAll();
     
-    uint max = steps;
+    unsigned int max = steps;
     
     vector<VertexNode *> tempVertices;
     vector<TriQuad> tempTriangles;
@@ -340,11 +340,11 @@ void Mesh2::makeSphere(uint steps)
     
     float step = FLOAT_PI / max;
     
-    for (uint i = 0; i < max; i++)
+    for (unsigned int i = 0; i < max; i++)
     {
         float beta = i * step * 2.0f;
         
-        for (uint j = 1; j < max; j++)
+        for (unsigned int j = 1; j < max; j++)
         {
             float alpha = 0.5f * FLOAT_PI + j * step;
             float y0 = sinf(alpha);
@@ -357,7 +357,7 @@ void Mesh2::makeSphere(uint steps)
             
             if (i > 0 && j < max - 1)
             {
-                uint index = (i - 1) * (max - 1);
+                unsigned int index = (i - 1) * (max - 1);
                 
                 AddQuad(tempTriangles, 
                         1 + max + j + index, 
@@ -367,7 +367,7 @@ void Mesh2::makeSphere(uint steps)
             }
         }
         
-        uint index = i * (max - 1);
+        unsigned int index = i * (max - 1);
         if (i < max - 1)
         {
             AddTriangle(tempTriangles,
@@ -395,9 +395,9 @@ void Mesh2::makeSphere(uint steps)
         }
     }
     
-    for (uint j = 1; j < max - 1; j++)
+    for (unsigned int j = 1; j < max - 1; j++)
     {
-        uint index = (max - 1) * (max - 1);
+        unsigned int index = (max - 1) * (max - 1);
         AddQuad(tempTriangles,
                 1 + j + index,
                 1 + j,
@@ -407,12 +407,12 @@ void Mesh2::makeSphere(uint steps)
     
     VertexNode *triQuadVertices[4];
     
-    for (uint i = 0; i < tempTriangles.size(); i++)
+    for (unsigned int i = 0; i < tempTriangles.size(); i++)
     {
         TriQuad indexTriangle = tempTriangles[i];
         if (indexTriangle.isQuad)
         {
-            for (uint j = 0; j < 4; j++)
+            for (unsigned int j = 0; j < 4; j++)
             {
                 VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
                 triQuadVertices[j] = node;
@@ -421,7 +421,7 @@ void Mesh2::makeSphere(uint steps)
         }
         else
         {
-            for (uint j = 0; j < 3; j++)
+            for (unsigned int j = 0; j < 3; j++)
             {
                 VertexNode *node = tempVertices.at(indexTriangle.vertexIndices[j]);
                 triQuadVertices[j] = node;
@@ -448,7 +448,7 @@ void Mesh2::makeIcosahedron()
         {Z, X, 0.0}, {-Z, X, 0.0}, {Z, -X, 0.0}, {-Z, -X, 0.0} 
     };
     
-    static uint tindices[20][3] =
+    static unsigned int tindices[20][3] =
     { 
         {0,4,1}, {0,9,4}, {9,5,4}, {4,5,8}, {4,8,1},    
         {8,10,1}, {8,3,10}, {5,3,8}, {5,2,3}, {2,7,3},    
@@ -458,15 +458,15 @@ void Mesh2::makeIcosahedron()
     
     vector<VertexNode *> vertexNodes;
     
-    for (uint i = 0; i < 12; i++)
+    for (unsigned int i = 0; i < 12; i++)
     {
         vertexNodes.push_back(_vertices.add(Vector3D(vdata[i])));
     }
     
-    for (uint i = 0; i < 20; i++)
+    for (unsigned int i = 0; i < 20; i++)
     {
         VertexNode *triangleVertices[3];
-        for (uint j = 0; j < 3; j++)
+        for (unsigned int j = 0; j < 3; j++)
             triangleVertices[j] = vertexNodes[tindices[i][j]];
         _triangles.add(Triangle2(triangleVertices));
     }
@@ -487,13 +487,13 @@ void Mesh2::fromVertices(const vector<Vector3D> &vertices)
     vector<VertexNode *> tempVertices;
     vector<VertexNode *> uniqueVertices;
     
-    uint verticesSize = vertices.size();
+    unsigned int verticesSize = vertices.size();
     
-    for (uint i = 0; i < verticesSize; i++)
+    for (unsigned int i = 0; i < verticesSize; i++)
     {
         bool found = false;
         
-        for (uint j = 0; j < uniqueVertices.size(); j++)
+        for (unsigned int j = 0; j < uniqueVertices.size(); j++)
         {
             if (uniqueVertices[j]->data().position.SqDistance(vertices[i]) < FLOAT_EPS)
             {
@@ -519,9 +519,9 @@ void Mesh2::fromVertices(const vector<Vector3D> &vertices)
     
     VertexNode *triangleVertices[3];
     
-    for (uint i = 0; i < verticesSize; i += 3)
+    for (unsigned int i = 0; i < verticesSize; i += 3)
     {
-        for (uint j = 0; j < 3; j++)
+        for (unsigned int j = 0; j < 3; j++)
         {
             triangleVertices[j] = tempVertices.at(i + j);
         }        
@@ -538,7 +538,7 @@ void Mesh2::toVertices(vector<Vector3D> &vertices)
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        for (uint j = 0; j < 3; j++)
+        for (unsigned int j = 0; j < 3; j++)
         {
             Vector3D vertex = node->data().vertex(j)->data().position;
             vertices.push_back(vertex);
@@ -556,12 +556,12 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
     vector<VertexNode *> tempVertices;
     vector<TexCoordNode *> tempTexCoords;
     
-    for (uint i = 0; i < vertices.size(); i++)
+    for (unsigned int i = 0; i < vertices.size(); i++)
     {
         tempVertices.push_back(_vertices.add(vertices[i]));
     }
     
-    for (uint i = 0; i < texCoords.size(); i++)
+    for (unsigned int i = 0; i < texCoords.size(); i++)
     {
         tempTexCoords.push_back(_texCoords.add(texCoords[i]));
     }
@@ -569,12 +569,12 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
     VertexNode *triangleVertices[4];
     TexCoordNode *triangleTexCoords[4];
     
-    for (uint i = 0; i < triangles.size(); i++)
+    for (unsigned int i = 0; i < triangles.size(); i++)
     {
         const TriQuad &indexTriangle = triangles[i];
         if (indexTriangle.isQuad)
         {
-            for (uint j = 0; j < 4; j++)
+            for (unsigned int j = 0; j < 4; j++)
             {
                 triangleVertices[j] = tempVertices.at(indexTriangle.vertexIndices[j]);
                 triangleTexCoords[j] = tempTexCoords.at(indexTriangle.texCoordIndices[j]);
@@ -583,7 +583,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
         }
         else
         {
-            for (uint j = 0; j < 3; j++)
+            for (unsigned int j = 0; j < 3; j++)
             {
                 triangleVertices[j] = tempVertices.at(indexTriangle.vertexIndices[j]);
                 triangleTexCoords[j] = tempTexCoords.at(indexTriangle.texCoordIndices[j]);
@@ -599,7 +599,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
 
 void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles) const
 {
-    uint index = 0;
+    unsigned int index = 0;
     
     for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
     {
@@ -623,7 +623,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
     {
         TriQuad indexTriangle;
         indexTriangle.isQuad = node->data().isQuad();
-        for (uint j = 0; j < node->data().count(); j++)
+        for (unsigned int j = 0; j < node->data().count(); j++)
         {
             indexTriangle.vertexIndices[j] = node->data().vertex(j)->algorithmData.index;
             indexTriangle.texCoordIndices[j] = node->data().texCoord(j)->algorithmData.index;
@@ -634,13 +634,13 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
 
 void Mesh2::setSelection(const vector<bool> &selection)
 {
-    for (uint i = 0; i < selection.size(); i++)
+    for (unsigned int i = 0; i < selection.size(); i++)
     {
         if (!selection[i])
             setSelectedAtIndex(selection[i], i);
     }
     
-    for (uint i = 0; i < selection.size(); i++)
+    for (unsigned int i = 0; i < selection.size(); i++)
     {
         if (selection[i])
             setSelectedAtIndex(selection[i], i);
@@ -650,12 +650,12 @@ void Mesh2::setSelection(const vector<bool> &selection)
 void Mesh2::getSelection(vector<bool> &selection) const
 {
     selection.clear();
-    for (uint i = 0; i < selectedCount(); i++)
+    for (unsigned int i = 0; i < selectedCount(); i++)
         selection.push_back(isSelectedAtIndex(i));
 }
 
 
-void Mesh2::make(MeshType meshType, uint steps)
+void Mesh2::make(MeshType meshType, unsigned int steps)
 {
 	switch (meshType) 
 	{
@@ -694,7 +694,7 @@ void Mesh2::fillMeshFromSelectedTriangles(Mesh2 &mesh)
         {
             VertexNode *vertices[4];
             TexCoordNode *texCoords[4];
-            for (uint i = 0; i < triangle.count(); i++)
+            for (unsigned int i = 0; i < triangle.count(); i++)
             {
                 VertexNode *vertex = triangle.vertex(i);
                 TexCoordNode *texCoord = triangle.texCoord(i);

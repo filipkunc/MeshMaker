@@ -18,20 +18,20 @@ using namespace std;
 
 struct Triangle
 {
-    uint vertexIndices[3];
-    uint texCoordIndices[3];
+    unsigned int vertexIndices[3];
+    unsigned int texCoordIndices[3];
 };
 
 struct TriQuad
 {
-	uint vertexIndices[4];
-    uint texCoordIndices[4];
+	unsigned int vertexIndices[4];
+    unsigned int texCoordIndices[4];
     bool isQuad;
 };
 
 struct Edge
 {
-	uint vertexIndices[2];
+	unsigned int vertexIndices[2];
 };
 
 class Vertex2

@@ -8,11 +8,7 @@
 
 #pragma once
 
-#if defined(__APPLE__)
 #include <Cocoa/Cocoa.h>
-#elif defined(WIN32)
-#include <windows.h>
-#endif
 #include "MathDeclaration.h"
 #include "MeshHelpers.h"
 #include "Mesh2.h"
@@ -50,10 +46,10 @@ public:
     
     virtual ViewMode viewMode();
     virtual void setViewMode(ViewMode viewMode);
-    virtual uint count();
-    virtual bool isSelectedAtIndex(uint index);
-    virtual void setSelectedAtIndex(uint index, bool selected);
-    virtual void expandSelectionFromIndex(uint index, bool invert);
+    virtual unsigned int count();
+    virtual bool isSelectedAtIndex(unsigned int index);
+    virtual void setSelectedAtIndex(unsigned int index, bool selected);
+    virtual void expandSelectionFromIndex(unsigned int index, bool invert);
     virtual void duplicateSelected();
     virtual void removeSelected();
     virtual void hideSelected();

@@ -8,8 +8,6 @@
 
 #pragma once
 
-#if defined(__APPLE__)
-
 #include "MemoryStream.h"
 
 @protocol MemoryStreaming
@@ -18,5 +16,3 @@
 - (void)encodeWithWriteStream:(MemoryWriteStream *)stream;
 
 @end
-
-#endif

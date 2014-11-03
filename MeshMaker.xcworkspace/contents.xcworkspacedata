@@ -4,16 +4,4 @@
    <FileRef
       location = "container:MeshMaker.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:OpenCLPlayground/OpenCLPlayground.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:OpenGL32Playground/OpenGL32Playground.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:Submodules/OpenSubdiv/OpenSubdiv.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:Submodules/fragaria/Fragaria.xcodeproj">
-   </FileRef>
 </Workspace>

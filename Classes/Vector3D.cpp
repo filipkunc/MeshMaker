@@ -195,11 +195,7 @@ float Vector3D::GetAngle(const Vector3D & v) const
 	float len = this->GetLength() * v.GetLength();
 	float angle = acosf(dot / len);
 
-#if defined(__APPLE__)
 	if (isnan(angle))
-#elif defined(WIN32)
-	if (_isnan(angle))
-#endif
-		return 0.0f;
+        return 0.0f;
 	return angle;
 }

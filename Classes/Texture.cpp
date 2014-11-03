@@ -31,20 +31,7 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		else if (components == 4)
 		{
-#if defined (WIN32)
-			GLubyte *rgbaData = (GLubyte *)malloc(width * height * components);
-			for (int i = 0; i < width * height; i++)
-			{
-				rgbaData[i * components + 0] = data[i * components + 2];
-				rgbaData[i * components + 1] = data[i * components + 1];
-				rgbaData[i * components + 2] = data[i * components + 0];
-				rgbaData[i * components + 3] = data[i * components + 3];
-			}
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgbaData);
-			free(rgbaData);
-#else
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-#endif
 		}
 		else
 			throw MeshMaker::UnsupportedImageFormatException();
@@ -55,8 +42,6 @@ void CreateTexture(GLubyte *data, int components, GLuint *textureID, int width, 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
-
-#if defined(__APPLE__)
 
 NSBitmapImageRep *BitmapImageRepFromImage(NSImage *image);
 
@@ -74,8 +59,6 @@ NSBitmapImageRep *BitmapImageRepFromImage(NSImage *image)
     return bitmap;
 }
 
-#endif
-
 Texture::Texture()
 {
     _textureID = 0;
@@ -83,8 +66,6 @@ Texture::Texture()
     _image = nullptr;
     _needUpdate = false;    
 }
-
-#if defined(__APPLE__)
 
 Texture::Texture(NSString *name, NSImage *image, bool convertToAlpha)
 {
@@ -101,25 +82,6 @@ Texture::Texture(NSString *name, NSImage *image, bool convertToAlpha)
     CreateTexture(data, components, &_textureID, _image.size.width, _image.size.height, convertToAlpha);
 }
 
-#elif defined(WIN32)
-
-Texture::Texture(System::String ^name, Bitmap ^image, bool convertToAlpha)
-{
-	_name = name;
-	_image = image;
-
-	_needUpdate = false;
-
-	System::Drawing::Rectangle rect = System::Drawing::Rectangle(0, 0, _image->Width, _image->Height);
-	BitmapData ^data = _image->LockBits(rect, ImageLockMode::ReadOnly, PixelFormat::Format32bppArgb);
-
-	CreateTexture((GLubyte *)data->Scan0.ToPointer(), 4, &_textureID, rect.Width, rect.Height, false);
-}
-
-#elif defined(__linux__)
-#warning "Implement Texture(name, image, convertToAlpha)"
-#endif
-
 Texture::~Texture()
 {
     if (_textureID > 0U)
@@ -129,49 +91,23 @@ Texture::~Texture()
 Texture::Texture(const Texture& other)
 {
     _textureID = other._textureID;
-#if defined(__APPLE__)
     _image = [other._image copy];
-#elif defined(WIN32)
-	_image = other._image;
-#elif defined(__linux__)
-#warning "Implement _image = other._image in Texture(const Texture& other)"
-#endif
     _needUpdate = other._needUpdate;
 }
 
 Texture &Texture::operator=(const Texture &other)
 {
     _textureID = other._textureID;
-#if defined(__APPLE__)
     _image = [other._image copy];
-#elif defined(WIN32)
-	_image = other._image;
-#elif defined(__linux__)
-#warning "Implement _image = other._image in operator=(const Texture& other)"
-#endif
     _needUpdate = other._needUpdate;
     return *this;
 }
-
-#if defined(__APPLE__)
 
 void Texture::setImage(NSImage *image)
 {
     _image = [image copy];
 	_needUpdate = true;
 }
-
-#elif defined(WIN32)
-
-void Texture::setImage(Bitmap ^image)
-{
-    _image = image;
-	_needUpdate = true;
-}
-
-#elif defined(__linux__)
-#warning "Implement setImage"
-#endif
 
 struct TexturedVertex2D
 {
@@ -206,8 +142,6 @@ void Texture::updateTexture()
     if (!_needUpdate)
         return;
 
-#if defined(__APPLE__)
-        
     NSBitmapImageRep *bitmap = BitmapImageRepFromImage(_image);
 
     GLubyte *data = [bitmap bitmapData];
@@ -215,17 +149,6 @@ void Texture::updateTexture()
 	int components = bitsPerPixel / 8;
         
 	CreateTexture(data, components, &_textureID, _image.size.width, _image.size.height, NO);  
-
-#elif defined(WIN32)
-
-    System::Drawing::Rectangle rect = System::Drawing::Rectangle(0, 0, _image->Width, _image->Height);
-	BitmapData ^data = _image->LockBits(rect, ImageLockMode::ReadOnly, PixelFormat::Format32bppArgb);
-
-	CreateTexture((GLubyte *)data->Scan0.ToPointer(), 4, &_textureID, rect.Width, rect.Height, false);    
-
-#elif defined(__linux__)
-#warning "Implement updateTexture()"
-#endif
 
     _needUpdate = false;
 }

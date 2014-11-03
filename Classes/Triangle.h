@@ -24,8 +24,8 @@ private:
     PackedNode _nodes[4];
     bool _isQuad;
     
-    const PackedNode &node(uint index) const;
-    PackedNode &node(uint index);
+    const PackedNode &node(unsigned int index) const;
+    PackedNode &node(unsigned int index);
 public:
     bool selected;
     bool visible;
@@ -33,7 +33,7 @@ public:
     Vector3D vertexNormal;
     Vector3D texCoordNormal;
     
-    static const uint twoTriIndices[6];
+    static const unsigned int twoTriIndices[6];
     
     Triangle2();
     Triangle2(VertexNode *vertices[], bool isQuad=false);
@@ -41,18 +41,18 @@ public:
     Triangle2(const vector<VertexNode *> &vertices);
 
     bool isQuad() const { return _isQuad; }
-    uint count() const { return isQuad() ? 4U : 3U; }
+    unsigned int count() const { return isQuad() ? 4U : 3U; }
     
-    VertexNode *vertex(uint index) const { return node(index).vertex; }
-    VertexEdgeNode *vertexEdge(uint index) const { return node(index).vertexEdge; }
-    TexCoordNode *texCoord(uint index) const { return node(index).texCoord; }
-    TexCoordEdgeNode *texCoordEdge(uint index) const { return node(index).texCoordEdge; }
+    VertexNode *vertex(unsigned int index) const { return node(index).vertex; }
+    VertexEdgeNode *vertexEdge(unsigned int index) const { return node(index).vertexEdge; }
+    TexCoordNode *texCoord(unsigned int index) const { return node(index).texCoord; }
+    TexCoordEdgeNode *texCoordEdge(unsigned int index) const { return node(index).texCoordEdge; }
     
-    void setVertex(uint index, VertexNode *value) { node(index).vertex = value; }
-    void setTexCoord(uint index, TexCoordNode *value) { node(index).texCoord = value; }
+    void setVertex(unsigned int index, VertexNode *value) { node(index).vertex = value; }
+    void setTexCoord(unsigned int index, TexCoordNode *value) { node(index).texCoord = value; }
     void setTexCoordByVertex(TexCoordNode * texCoord, VertexNode *vertex);
-    void setVertexEdge(uint index, VertexEdgeNode *value) { node(index).vertexEdge = value; }
-    void setTexCoordEdge(uint index, TexCoordEdgeNode *value) { node(index).texCoordEdge = value; }
+    void setVertexEdge(unsigned int index, VertexEdgeNode *value) { node(index).vertexEdge = value; }
+    void setTexCoordEdge(unsigned int index, TexCoordEdgeNode *value) { node(index).texCoordEdge = value; }
     
     void removeVertex(TexCoordNode *texCoord) { removeTexCoord(texCoord); }
     void removeEdge(VertexEdgeNode *edge) { removeVertexEdge(edge); }
@@ -72,7 +72,7 @@ public:
     bool containsTexCoordEdge(const TexCoordEdgeNode *edge) const;
     void flip();
     
-    uint indexOfVertex(const VertexNode *vertex) const;
+    unsigned int indexOfVertex(const VertexNode *vertex) const;
     bool shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) const;
     VertexNode *vertexNotInEdge(const VertexEdge *edge) const;
     TexCoordNode *texCoordNotInEdge(const TexCoordEdge *edge) const;

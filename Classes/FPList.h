@@ -14,7 +14,7 @@ class FPList
 private:
     TNode *_begin;
     TNode *_end;
-    uint _count;
+    unsigned int _count;
 public:
     FPList()
     {
@@ -75,7 +75,7 @@ public:
         return NULL;
     }
     
-    uint count() const
+    unsigned int count() const
     {
         return _count;
     }

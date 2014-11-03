@@ -9,14 +9,7 @@
 #include "MyDocument.h"
 #include <sstream>
 
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
 #include "rapidxml.hpp"
-#pragma clang diagnostic pop
-#else
-#include "rapidxml.hpp"
-#endif
 
 using namespace std;
 using namespace rapidxml;
@@ -36,8 +29,6 @@ vector<T> *ReadValues(string s)
     return values;
 }
 
-#if defined(__APPLE__)
-
 @implementation MyDocument (Archiving)
 
 - (BOOL)readFromFileWrapper:(NSFileWrapper *)dirWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
@@ -55,7 +46,7 @@ vector<T> *ReadValues(string s)
     NSData *modelData = [modelWrapper regularFileContents];
     [self readFromModel3D:modelData];
     
-    for (uint i = 0; i < textures->count(); i++)
+    for (unsigned int i = 0; i < textures->count(); i++)
     {
         Texture *texture = textures->textureAtIndex(i);
         NSString *name = [[texture->name() lastPathComponent] stringByDeletingPathExtension];
@@ -88,7 +79,7 @@ vector<T> *ReadValues(string s)
     [dirWrapper addRegularFileWithContents:[self dataOfModel3D]
                          preferredFilename:@"Geometry.model3D"];
     
-    for (uint i = 0; i < textures->count(); i++)
+    for (unsigned int i = 0; i < textures->count(); i++)
     {
         Texture *texture = textures->textureAtIndex(i);
         NSImage *image = texture->image();
@@ -112,12 +103,12 @@ vector<T> *ReadValues(string s)
 {
     MemoryReadStream *stream = new MemoryReadStream(data);
     
-    ModelVersion version = (ModelVersion)stream->read<uint>();
+    ModelVersion version = (ModelVersion)stream->read<unsigned int>();
     
     if (version < ModelVersion::First || version > ModelVersion::Latest)
         return NO;
     
-    stream->setVersion((uint)version);
+    stream->setVersion((unsigned int)version);
     TextureCollection *newTextures;
     
     if (version >= ModelVersion::TextureNames)
@@ -147,9 +138,9 @@ vector<T> *ReadValues(string s)
     NSMutableData *data = [[NSMutableData alloc] init];
     MemoryWriteStream *stream = new MemoryWriteStream(data);
     
-    uint version = (uint)ModelVersion::Latest;
+    unsigned int version = (unsigned int)ModelVersion::Latest;
     stream->setVersion(version);
-    stream->write<uint>(version);
+    stream->write<unsigned int>(version);
     textures->encode(stream);
     items->encode(stream, *textures);
 
@@ -168,7 +159,7 @@ vector<T> *ReadValues(string s)
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
     vector<TriQuad> triangles;
-    vector<uint> groups;
+    vector<unsigned int> groups;
     
     bool hasTexCoords = false;
     bool hasNormals = false;
@@ -230,9 +221,9 @@ vector<T> *ReadValues(string s)
             // f  187/1/1 204/2/2 185/3/3
             
             TriQuad triQuad;
-            for (uint i = 0; i < 4; i++)
+            for (unsigned int i = 0; i < 4; i++)
             {
-                uint vi = 0, ti = 0, ni = 0;
+                unsigned int vi = 0, ti = 0, ni = 0;
                 char c;
                 
                 if (!hasTexCoords && !hasNormals)
@@ -264,12 +255,12 @@ vector<T> *ReadValues(string s)
     
     ItemCollection *newItems = new ItemCollection();
     
-    for (uint i = 0; i < groups.size(); i++)
+    for (unsigned int i = 0; i < groups.size(); i++)
     {
-        for (uint j = 0; j < mesh->triangleCount(); j++)
+        for (unsigned int j = 0; j < mesh->triangleCount(); j++)
             mesh->setSelectedAtIndex(false, j);
         
-        for (uint j = groups.at(i), end = i + 1 < groups.size() ? groups.at(i + 1) : mesh->triangleCount(); j < end; j++)
+        for (unsigned int j = groups.at(i), end = i + 1 < groups.size() ? groups.at(i + 1) : mesh->triangleCount(); j < end; j++)
             mesh->setSelectedAtIndex(true, j);
         
         Item *item = new Item(new Mesh2());
@@ -318,10 +309,10 @@ vector<T> *ReadValues(string s)
     ssfile << "# Exported from MeshMaker " << [version UTF8String] << endl;
     
     // face indices in Wavefront Object starts from 1
-    uint vertexIndexOffset = 1;
-    uint texCoordIndexOffset = 1;
+    unsigned int vertexIndexOffset = 1;
+    unsigned int texCoordIndexOffset = 1;
     
-    for (uint itemIndex = 0; itemIndex < items->count(); itemIndex++)
+    for (unsigned int itemIndex = 0; itemIndex < items->count(); itemIndex++)
     {
         Item *item = items->itemAtIndex(itemIndex);
         
@@ -337,7 +328,7 @@ vector<T> *ReadValues(string s)
         
         ssfile << "g Item_" << itemIndex << endl;
         ssfile << "# Number of vertices = " << vertices.size() << endl;
-        for (uint i = 0; i < vertices.size(); i++)
+        for (unsigned int i = 0; i < vertices.size(); i++)
         {
             // v -5.79346 -1.38018 42.63113
             Vector3D v = vertices[i];
@@ -347,20 +338,20 @@ vector<T> *ReadValues(string s)
         }
         
         ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
-        for (uint i = 0; i < texCoords.size(); i++)
+        for (unsigned int i = 0; i < texCoords.size(); i++)
         {
             // vt 0.12528 -0.64560
             ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
         }
         
         ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
-        for (uint i = 0; i < triangles.size(); i++)
+        for (unsigned int i = 0; i < triangles.size(); i++)
         {
             // f  v1/vt1 v2/vt2 v3/vt3 ...
             ssfile << "f ";
             const TriQuad &triQuad = triangles[i];
-            uint count =  triQuad.isQuad ? 4 : 3;
-            for (uint i = 0; i < count; i++)
+            unsigned int count =  triQuad.isQuad ? 4 : 3;
+            for (unsigned int i = 0; i < count; i++)
             {
                 ssfile << triQuad.vertexIndices[i] + vertexIndexOffset << "/";
                 ssfile << triQuad.texCoordIndices[i] + texCoordIndexOffset << " ";
@@ -386,7 +377,7 @@ vector<T> *ReadValues(string s)
     
     xml_node< > *triNode = meshXml->first_node("source")->next_sibling("triangles")->first_node();
     
-    uint inputTypesCount = 0;
+    unsigned int inputTypesCount = 0;
     string trianglesString;
     
     while (true)
@@ -403,40 +394,40 @@ vector<T> *ReadValues(string s)
         }
     }
     
-    vector<uint> *indices = ReadValues<uint>(trianglesString);
+    vector<unsigned int> *indices = ReadValues<unsigned int>(trianglesString);
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
     vector<TriQuad> triangles;
     
-    uint pointsSize = points->size();
+    unsigned int pointsSize = points->size();
     
-    for (uint i = 0; i < pointsSize; i += 3)
+    for (unsigned int i = 0; i < pointsSize; i += 3)
     {
         Vector3D point;
-        for (uint j = 0; j < 3; j++)
+        for (unsigned int j = 0; j < 3; j++)
             point[j] = points->at(i + j);
         
         vertices.push_back(point);
     }
     
-    for (uint i = 0; i < uvCoords->size(); i += 2)
+    for (unsigned int i = 0; i < uvCoords->size(); i += 2)
     {
         Vector3D uvCoord;
-        for (uint j = 0; j < 2; j++)
+        for (unsigned int j = 0; j < 2; j++)
             uvCoord[j] = (*uvCoords)[i + j];
         
         texCoords.push_back(uvCoord);
     }
     
-    vector<uint> &trianglesRef = *indices;
+    vector<unsigned int> &trianglesRef = *indices;
     
-    for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
+    for (unsigned int i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
     {
-        uint vertexIndices[3];
-        uint texCoordIndices[3];
+        unsigned int vertexIndices[3];
+        unsigned int texCoordIndices[3];
         
-        for (uint j = 0; j < 3; j++)
+        for (unsigned int j = 0; j < 3; j++)
         {
             vertexIndices[j] = trianglesRef.at(i + j * inputTypesCount);
             texCoordIndices[j] = trianglesRef.at(i + j * inputTypesCount + inputTypesCount - 1);
@@ -457,7 +448,7 @@ vector<T> *ReadValues(string s)
 {
     NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    uint length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    unsigned int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     char *textBuffer = new char [length + 1];
     memset(textBuffer, 0, length + 1);
     memcpy(textBuffer, [xmlData UTF8String], length);
@@ -605,7 +596,7 @@ vector<T> *ReadValues(string s)
         
         [colladaXml appendString:@"<library_geometries>\n"];
         {
-            for (uint itemID = 0; itemID < items->count(); itemID++)
+            for (unsigned int itemID = 0; itemID < items->count(); itemID++)
             {
                 Item *item = items->itemAtIndex(itemID);
                 
@@ -637,7 +628,7 @@ vector<T> *ReadValues(string s)
                             [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-positions-array\" count=\"%li\">\n",
                              itemID, vertices.size() * 3];
                             {
-                                for (uint i = 0; i < vertices.size(); i++)
+                                for (unsigned int i = 0; i < vertices.size(); i++)
                                     [colladaXml appendFormat:@"%f %f %f\n", vertices[i].x, vertices[i].y, vertices[i].z];
                             }
                             [colladaXml appendString:@"</float_array>\n"];
@@ -663,7 +654,7 @@ vector<T> *ReadValues(string s)
                             [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-normals-array\" count=\"%li\">\n",
                              itemID, normals.size() * 3];
                             {
-                                for (uint i = 0; i < normals.size(); i++)
+                                for (unsigned int i = 0; i < normals.size(); i++)
                                     [colladaXml appendFormat:@"%f %f %f\n", normals[i].x, normals[i].y, normals[i].z];
                             }
                             [colladaXml appendString:@"</float_array>\n"];
@@ -689,7 +680,7 @@ vector<T> *ReadValues(string s)
                             [colladaXml appendFormat:@"<float_array id=\"Geometry-Mesh_%i-Texture-array\" count=\"%li\">\n",
                              itemID, texCoords.size() * 2];
                             {
-                                for (uint i = 0; i < texCoords.size(); i++)
+                                for (unsigned int i = 0; i < texCoords.size(); i++)
                                     [colladaXml appendFormat:@"%f %f\n", texCoords[i].x, texCoords[i].y];
                             }
                             [colladaXml appendString:@"</float_array>\n"];
@@ -722,12 +713,12 @@ vector<T> *ReadValues(string s)
                             
                             [colladaXml appendString:@"<p>"];
                             {
-                                for (uint i = 0; i < triangles.size(); i++)
+                                for (unsigned int i = 0; i < triangles.size(); i++)
                                 {
                                     const TriQuad &t = triangles[i];
                                     // TODO: implement tri/quads.
                                     
-                                    for (uint j = 0; j < 3; j++)
+                                    for (unsigned int j = 0; j < 3; j++)
                                         [colladaXml appendFormat:@"%i %i %i ", t.vertexIndices[j], t.vertexIndices[j], t.texCoordIndices[j]];
                                 }
                             }
@@ -783,7 +774,7 @@ vector<T> *ReadValues(string s)
                 }
                 [colladaXml appendString:@"</node>\n"];
                 
-                for (uint itemID = 0; itemID < items->count(); itemID++)
+                for (unsigned int itemID = 0; itemID < items->count(); itemID++)
                 {
                     [colladaXml appendFormat:@"<node id=\"Geometry-MeshNode_%i\" name=\"Mesh_%i\" type=\"NODE\">\n", itemID, itemID];
                     {
@@ -845,261 +836,3 @@ vector<T> *ReadValues(string s)
 }
 
 @end
-
-#elif defined(WIN32)
-
-using namespace System::Text;
-
-namespace MeshMakerCppCLI
-{
-	void MyDocument::readModel3D(MemoryStream ^memoryStream)
-	{
-		MemoryReadStream *stream = new MemoryReadStream(memoryStream);
-    
-		 ModelVersion version = (ModelVersion)stream->read<uint>();
-    
-		if (version < ModelVersion::First || version > ModelVersion::Latest)
-			return;
-    
-		stream->setVersion((uint)version);
-		TextureCollection *newTextures;
-
-		if (version >= ModelVersion::TextureNames)
-			newTextures = new TextureCollection(stream);
-		else
-			newTextures = new TextureCollection();
-
-		ItemCollection *newItems = new ItemCollection(stream, *newTextures);
-		
-		delete stream;
-		delete items;
-		delete textures;
-		
-		items = newItems;
-		textures = newTextures;
-    
-        meshController->setModel(NULL);
-		itemsController->setModel(items);
-		itemsController->updateSelection();
-		this->setManipulated(itemsController);		
-	}
-
-	void MyDocument::writeModel3D(MemoryStream ^memoryStream)
-	{
-		MemoryWriteStream *stream = new MemoryWriteStream(memoryStream);
-    
-		uint version = (uint)ModelVersion::Latest;
-		stream->setVersion(version);
-		stream->write<uint>(version);
-		textures->encode(stream);
-		items->encode(stream, *textures);
-
-		delete stream;
-	}
-
-	void MyDocument::readWavefrontObject(String ^asciiString)
-	{
-		string str = MarshalHelpers::NativeString(asciiString);
-		stringstream ssfile;
-		ssfile << str;
-	    
-		vector<Vector3D> vertices;
-		vector<Vector3D> texCoords;
-		vector<TriQuad> triangles;
-		vector<uint> groups;
-	    
-		bool hasTexCoords = false;
-		bool hasNormals = false;
-	    
-		while (!ssfile.eof())
-		{
-			string line;
-			getline(ssfile, line);
-			stringstream ssline;
-			ssline << line;
-	        
-			string prefix;
-			ssline >> prefix;
-	        
-			if (prefix == "#")
-			{
-				// # This is a comment
-				continue;
-			}
-			else if (prefix == "g")
-			{
-				// g group_name
-				groups.push_back(triangles.size());
-			}
-			else if (prefix == "v")
-			{
-				// v -5.79346 -1.38018 42.63113
-				Vector3D v;
-				ssline >> v.x >> v.y >> v.z;
-	            
-				swap(v.y, v.z);
-				v.z = -v.z;
-	            
-				vertices.push_back(v);
-			}
-			else if (prefix == "vt")
-			{
-				// vt 0.12528 -0.64560
-				Vector3D vt;
-				ssline >> vt.x >> vt.y >> vt.z;
-	            
-				vt.z = 0.0f;
-	            
-				texCoords.push_back(vt);
-				hasTexCoords = true;
-			}
-			else if (prefix == "vn")
-			{
-				// vn -0.78298 -0.13881 -0.60637
-				hasNormals = true;
-			}
-			else if (prefix == "f")
-			{
-				// f  v1 v2 v3 v4 ...
-				// f  v1/vt1 v2/vt2 v3/vt3 ...
-				// f  v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
-				// f  v1//vn1 v2//vn2 v3//vn3 ...
-	            
-				// f  187/1/1 204/2/2 185/3/3
-	            
-				TriQuad triQuad;
-				for (uint i = 0; i < 4; i++)
-				{
-					uint vi = 0, ti = 0, ni = 0;
-					char c;
-	                
-					if (!hasTexCoords && !hasNormals)
-						ssline >> vi;
-					else if (hasTexCoords && !hasNormals)
-						ssline >> vi >> c >> ti;
-					else if (!hasTexCoords && hasNormals)
-						ssline >> vi >> c >> c >> ni;
-					else if (hasTexCoords && hasNormals)
-						ssline >> vi >> c >> ti >> c >> ni;
-	                
-					triQuad.vertexIndices[i] = vi == 0 ? 0 : vi - 1;
-					triQuad.texCoordIndices[i] = ti == 0 ? 0 : ti - 1;
-				}
-				triQuad.isQuad = ssline.good();
-				triangles.push_back(triQuad);
-			}
-		}
-	    
-		Mesh2 *mesh = new Mesh2();
-		if (!hasTexCoords)
-			mesh->fromIndexRepresentation(vertices, vertices, triangles);
-		else
-			mesh->fromIndexRepresentation(vertices, texCoords, triangles);
-	    
-		mesh->flipAllTriangles();
-	    
-		mesh->setSelectionMode(MeshSelectionMode::Triangles);
-	    
-		ItemCollection *newItems = new ItemCollection();
-	    
-		for (uint i = 0; i < groups.size(); i++)
-		{
-			for (uint j = 0; j < mesh->triangleCount(); j++)
-				mesh->setSelectedAtIndex(false, j);
-	        
-			for (uint j = groups.at(i), end = i + 1 < groups.size() ? groups.at(i + 1) : mesh->triangleCount(); j < end; j++)
-				mesh->setSelectedAtIndex(true, j);
-	        
-			Item *item = new Item(new Mesh2());
-			mesh->fillMeshFromSelectedTriangles(*item->mesh);
-			item->setPositionToGeometricCenter();
-			newItems->addItem(item);
-		}
-	    
-		if (groups.empty())
-		{
-			Item *item = new Item(mesh);
-			item->setPositionToGeometricCenter();
-			newItems->addItem(item);
-		}
-		else
-		{
-			delete mesh;
-		}
-	    
-		delete items;
-		items = newItems;
-	    
-        meshController->setModel(NULL);
-		itemsController->setModel(items);
-		itemsController->updateSelection();
-		this->setManipulated(itemsController);	
-	}
-
-	String ^MyDocument::writeWavefrontObject()
-	{
-		stringstream ssfile;
-	    
-		//NSString *version = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleVersion"];
-		ssfile << "# Exported from MeshMaker " << "1.3" << endl;
-	    
-		// face indices in Wavefront Object starts from 1
-		uint vertexIndexOffset = 1;
-		uint texCoordIndexOffset = 1;
-	    
-		for (uint itemIndex = 0; itemIndex < items->count(); itemIndex++)
-		{
-			Item *item = items->itemAtIndex(itemIndex);
-	        
-			vector<Vector3D> vertices;
-			vector<Vector3D> texCoords;
-			vector<TriQuad> triangles;
-	        
-			Item *duplicate = item->duplicate();
-			Mesh2 *mesh = duplicate->mesh;
-			mesh->transformAll(duplicate->transform());
-			mesh->flipAllTriangles();
-			mesh->toIndexRepresentation(vertices, texCoords, triangles);
-	        
-			ssfile << "g Item_" << itemIndex << endl;
-			ssfile << "# Number of vertices = " << vertices.size() << endl;
-			for (uint i = 0; i < vertices.size(); i++)
-			{
-				// v -5.79346 -1.38018 42.63113
-				Vector3D v = vertices[i];
-				v.z = -v.z;
-				swap(v.y, v.z);
-				ssfile << "v " << v.x << " " << v.y << " " << v.z << endl;
-			}
-	        
-			ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
-			for (uint i = 0; i < texCoords.size(); i++)
-			{
-				// vt 0.12528 -0.64560
-				ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
-			}
-	        
-			ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
-			for (uint i = 0; i < triangles.size(); i++)
-			{
-				// f  v1/vt1 v2/vt2 v3/vt3 ...
-				ssfile << "f ";
-				const TriQuad &triQuad = triangles[i];
-				uint count =  triQuad.isQuad ? 4 : 3;
-				for (uint i = 0; i < count; i++)
-				{
-					ssfile << triQuad.vertexIndices[i] + vertexIndexOffset << "/";
-					ssfile << triQuad.texCoordIndices[i] + texCoordIndexOffset << " ";
-				}
-				ssfile << endl;
-			}
-	        
-			vertexIndexOffset += vertices.size();
-			texCoordIndexOffset += texCoords.size();
-		}
-	    
-		return MarshalHelpers::ManagedString(ssfile.str());
-	}
-}
-
-#endif

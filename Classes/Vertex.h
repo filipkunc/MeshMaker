@@ -12,14 +12,9 @@ template <class T>
 class VNode : public FPNode<VNode<T>, T>
 {
 public:
-#if defined(__APPLE__)
-    union
-        #elif defined(WIN32) || defined(__linux__)
-    struct
-#endif
-    AlgorithmData
+    union AlgorithmData
     {
-        uint index;
+        unsigned int index;
         Vector3D normal;
         VNode *duplicatePair;
         
@@ -176,7 +171,7 @@ public:
         }
     }
     
-    void setCacheIndexForTriangleNode(TriangleNode *triangleNode, uint cacheIndex, uint cacheIndexPosition)
+    void setCacheIndexForTriangleNode(TriangleNode *triangleNode, unsigned int cacheIndex, unsigned int cacheIndexPosition)
     {
         for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
@@ -188,7 +183,7 @@ public:
         }
     }
     
-    void setCacheIndexForEdgeNode(VEdgeNode<T> *edgeNode, uint cacheIndex)
+    void setCacheIndexForEdgeNode(VEdgeNode<T> *edgeNode, unsigned int cacheIndex)
     {
         for (VertexVEdgeNode<T> *node = _edges.begin(), *end = _edges.end(); node != end; node = node->next())
         {
@@ -205,9 +200,9 @@ public:
         for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {
             const Triangle2 &triangle = node->data()->data();
-            uint count = triangle.count();
+            unsigned int count = triangle.count();
             
-            for (uint i = 0; i < count; i++)
+            for (unsigned int i = 0; i < count; i++)
             {
                 VertexNode *vertexNode = triangle.vertex(i);
                 if (!vertexNode->data().selected && vertexNode->sharedEdge(this) == NULL)
@@ -256,13 +251,13 @@ public:
         
         vector<VertexNode *> nextStepNodes;
         
-        for (uint w = 1; w < weights.size(); w++)
+        for (unsigned int w = 1; w < weights.size(); w++)
         {
             float weight = weights[w];
             
             nextStepNodes.clear();
             
-            for (uint i = 0; i < currentStepNodes.size(); i++)
+            for (unsigned int i = 0; i < currentStepNodes.size(); i++)
             {
                 VertexNode *currentNode = currentStepNodes[i];
                 for (VertexVEdgeNode<T> *node = currentNode->_edges.begin(), *end = currentNode->_edges.end(); node != end; node = node->next())

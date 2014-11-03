@@ -8,11 +8,7 @@
 
 #pragma once
 
-#if defined(__APPLE__)
 #include <Cocoa/Cocoa.h>
-#elif defined (WIN32)
-#include <windows.h>
-#endif
 #include "MathDeclaration.h"
 #include "Camera.h"
 #include "OpenGLSelecting.h"
@@ -20,12 +16,9 @@
 #include "OpenGLManipulating.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
-#if defined(__APPLE__) || defined (WIN32)
 #include "Texture.h"
-#endif
 #include "Mesh2.h"
 #include "ItemCollection.h"
-#include "Drawing2D.h"
 
 class IOpenGLSceneViewCoreDelegate
 {

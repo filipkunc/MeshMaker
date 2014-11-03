@@ -9,22 +9,7 @@
 
 #pragma once
 
-#ifndef uint
-typedef unsigned int uint;
-#endif
-
-#if defined(__APPLE__)
-#define EnumClass enum class
-#elif defined(__linux__)
-#define EnumClass enum class
-#include <limits.h>
-#elif defined(WIN32)
-#include <windows.h>
-using namespace System;
-#define EnumClass public enum struct
-#endif
-
-EnumClass MeshType
+enum class MeshType
 {
     Plane = 0,
 	Cube,
@@ -33,14 +18,14 @@ EnumClass MeshType
     Icosahedron
 };
 	
-EnumClass MeshSelectionMode
+enum class MeshSelectionMode
 {
 	Vertices = 0,
 	Triangles,
 	Edges,
 };
 
-EnumClass ManipulatorType
+enum class ManipulatorType
 {
 	Default = 0,
 	Translation = 1,
@@ -48,7 +33,7 @@ EnumClass ManipulatorType
 	Scale = 3
 };
 
-EnumClass ViewMode
+enum class ViewMode
 {
 	SolidFlat = 0,
     SolidSmooth = 1,
@@ -57,7 +42,7 @@ EnumClass ViewMode
     Unwrap = 4
 };
 
-EnumClass EditMode
+enum class EditMode
 {
 	Items = 0,
 	Vertices = 1,
@@ -65,7 +50,7 @@ EnumClass EditMode
 	Edges = 3
 };
 
-EnumClass CameraMode
+enum class CameraMode
 {
 	Perspective = 0,
 	Left = 1,
@@ -76,7 +61,7 @@ EnumClass CameraMode
 	Back = 6
 };
 
-EnumClass Axis
+enum class Axis
 {
 	Center = -1,
 	X = 0,
@@ -84,14 +69,14 @@ EnumClass Axis
 	Z = 2,
 };
 
-EnumClass PlaneAxis
+enum class PlaneAxis
 {
 	X = 3,
 	Y = 4,
 	Z = 5,
 };
 
-EnumClass Widget
+enum class Widget
 {
 	Line,
 	Arrow,
@@ -100,7 +85,7 @@ EnumClass Widget
 	Cube,
 };
 
-EnumClass OpenGLSelectionMode
+enum class OpenGLSelectionMode
 {
 	Add,
 	Subtract,
@@ -109,7 +94,7 @@ EnumClass OpenGLSelectionMode
     InvertExpand,
 };
     
-EnumClass ModelVersion : uint
+enum class ModelVersion : unsigned int
 {
     First = 1U,
     Colors = 2U,
@@ -120,7 +105,7 @@ EnumClass ModelVersion : uint
     Latest = TextureNames
 };
 
-EnumClass VertexWindowMode
+enum class VertexWindowMode
 {
     Add = 0,
     TriangleConnect = 1,

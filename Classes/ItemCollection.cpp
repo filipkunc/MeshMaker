@@ -9,7 +9,7 @@
 #include "OpenGLDrawing.h"
 #include "ItemCollection.h"
 
-ItemManipulationState::ItemManipulationState(ItemCollection &collection, uint index)
+ItemManipulationState::ItemManipulationState(ItemCollection &collection, unsigned int index)
 {
     _index = index;
     Item *item = collection.itemAtIndex(_index);
@@ -32,7 +32,7 @@ void ItemManipulationState::apply(ItemCollection &collection)
     item->selected = true;
 }
 
-RemovedItem::RemovedItem(ItemCollection &collection, uint index)
+RemovedItem::RemovedItem(ItemCollection &collection, unsigned int index)
 {
     _index = index;
     _item = collection.itemAtIndex(_index)->duplicate();
@@ -53,7 +53,7 @@ void RemovedItem::insert(ItemCollection &collection)
     collection.insertItemAtIndex(_index, _item->duplicate());
 }
 
-MeshState::MeshState(ItemCollection &collection, uint index)
+MeshState::MeshState(ItemCollection &collection, unsigned int index)
 {
     _index = index;
     Mesh2 *mesh = collection.itemAtIndex(_index)->mesh;
@@ -76,7 +76,7 @@ void MeshState::apply(ItemCollection &collection)
     mesh->setSelection(_selection);
 }
 
-uint MeshState::index()
+unsigned int MeshState::index()
 {
     return _index;
 }
@@ -87,7 +87,7 @@ ItemCollection::ItemCollection()
 
 ItemCollection::~ItemCollection()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
         delete items[i];
     
     items.clear();
@@ -95,8 +95,8 @@ ItemCollection::~ItemCollection()
 
 ItemCollection::ItemCollection(MemoryReadStream *stream, TextureCollection &textures)
 {
-    uint itemsCount = stream->read<uint>();
-    for (uint i = 0; i < itemsCount; i++)
+    unsigned int itemsCount = stream->read<unsigned int>();
+    for (unsigned int i = 0; i < itemsCount; i++)
     {
         Item *item = new Item(stream, textures);
         items.push_back(item);
@@ -105,9 +105,9 @@ ItemCollection::ItemCollection(MemoryReadStream *stream, TextureCollection &text
 
 void ItemCollection::encode(MemoryWriteStream *stream, TextureCollection &textures)
 {
-    uint itemsCount = items.size();
-    stream->write<uint>(itemsCount);
-	for (uint i = 0; i < itemsCount; i++)
+    unsigned int itemsCount = items.size();
+    stream->write<unsigned int>(itemsCount);
+	for (unsigned int i = 0; i < itemsCount; i++)
 	{
 		Item *item = items.at(i);
         item->encode(stream, textures);
@@ -118,7 +118,7 @@ IUndoState *ItemCollection::currentManipulations()
 {
     vector<ItemManipulationState *> *manipulations = new vector<ItemManipulationState *>();
 	
-	for (uint i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
@@ -134,7 +134,7 @@ void ItemCollection::setCurrentManipulations(IUndoState *undoState)
     
     deselectAll();
 	
-    for (uint i = 0; i < manipulations->size(); i++)
+    for (unsigned int i = 0; i < manipulations->size(); i++)
     {
         ItemManipulationState *state = manipulations->at(i);
         state->apply(*this);
@@ -143,7 +143,7 @@ void ItemCollection::setCurrentManipulations(IUndoState *undoState)
 
 IUndoState *ItemCollection::currentMeshState()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
@@ -169,25 +169,25 @@ void ItemCollection::setCurrentMeshState(IUndoState *undoState)
 
 IUndoState *ItemCollection::currentSelection()
 {
-    vector<uint> *selection = new vector<uint>();
+    vector<unsigned int> *selection = new vector<unsigned int>();
 	
-	for (uint i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
             selection->push_back(i);
 	}
 	
-	return new UndoState<vector<uint>>(selection);
+	return new UndoState<vector<unsigned int>>(selection);
 }
 
 void ItemCollection::setCurrentSelection(IUndoState *undoState)
 {
-    vector<uint> *selection = dynamic_cast<UndoState<vector<uint>> *>(undoState)->state();
+    vector<unsigned int> *selection = dynamic_cast<UndoState<vector<unsigned int>> *>(undoState)->state();
     
     deselectAll();
 	
-    for (uint i = 0; i < selection->size(); i++)
+    for (unsigned int i = 0; i < selection->size(); i++)
     {
         setSelectedAtIndex(selection->at(i), true);
     }
@@ -197,7 +197,7 @@ IUndoState *ItemCollection::currentItems()
 {
     vector<RemovedItem *> *removedItems = new vector<RemovedItem *>();
 	
-	for (uint i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
 		Item *item = items.at(i);
 		if (item->selected)
@@ -216,7 +216,7 @@ void ItemCollection::setCurrentItems(IUndoState *undoState)
     
     deselectAll();
     
-    for (uint i = 0; i < removedItems->size(); i++)
+    for (unsigned int i = 0; i < removedItems->size(); i++)
     {
         RemovedItem *removedItem = removedItems->at(i);
         removedItem->insert(*this);
@@ -227,7 +227,7 @@ IUndoState *ItemCollection::allItems()
 {
     vector<Item *> *duplicates = new vector<Item *>();
 	
-	for (uint i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
 		Item *duplicate = items.at(i)->duplicate();
         duplicates->push_back(duplicate);
@@ -240,19 +240,19 @@ void ItemCollection::setAllItems(IUndoState *undoState)
 {
     vector<Item *> *duplicates = dynamic_cast<UndoState<vector<Item *>> *>(undoState)->state();
     
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
         delete items[i];
     
     items.clear();
     
-    for (uint i = 0; i < duplicates->size(); i++)
+    for (unsigned int i = 0; i < duplicates->size(); i++)
     {
         Item *duplicate = duplicates->at(i)->duplicate();
         items.push_back(duplicate);
     }
 }
 
-Item *ItemCollection::itemAtIndex(uint index)
+Item *ItemCollection::itemAtIndex(unsigned int index)
 {
     return items.at(index);
 }
@@ -264,7 +264,7 @@ void ItemCollection::addItem(Item *item)
 
 void ItemCollection::removeItem(Item *item)
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
     {
         if (items[i] == item)
         {
@@ -284,7 +284,7 @@ void ItemCollection::removeLastItem()
     }
 }
 
-void ItemCollection::removeItemAtIndex(uint index)
+void ItemCollection::removeItemAtIndex(unsigned int index)
 {
     Item *item = items.at(index);
     delete item;
@@ -292,15 +292,15 @@ void ItemCollection::removeItemAtIndex(uint index)
 
 }
 
-void ItemCollection::removeItemsInRange(uint location, uint length)
+void ItemCollection::removeItemsInRange(unsigned int location, unsigned int length)
 {
-    for (uint i = location; i < location + length; i++)
+    for (unsigned int i = location; i < location + length; i++)
         delete items[i];
     
     items.erase(items.begin() + location, items.begin() + location + length);
 }
 
-void ItemCollection::insertItemAtIndex(uint index, Item *item)
+void ItemCollection::insertItemAtIndex(unsigned int index, Item *item)
 {
     items.insert(items.begin() + index, item);
 }
@@ -308,9 +308,9 @@ void ItemCollection::insertItemAtIndex(uint index, Item *item)
 void ItemCollection::mergeSelectedItems()
 {
     Vector3D center = Vector3D();
-	uint selectedCount = 0;
+	unsigned int selectedCount = 0;
 	
-	for (uint i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
 	{
         Item *item = items[i];
 		if (item->selected)
@@ -368,7 +368,7 @@ void ItemCollection::setSelectionFromRemovedItems(IUndoState *undoState)
     
     deselectAll();
     
-    for (uint i = 0; i < removedItems->size(); i++)
+    for (unsigned int i = 0; i < removedItems->size(); i++)
     {
         RemovedItem *removedItem = removedItems->at(i);
         removedItem->selectItemForRemove(*this);
@@ -377,15 +377,15 @@ void ItemCollection::setSelectionFromRemovedItems(IUndoState *undoState)
 
 void ItemCollection::deselectAll()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
         items[i]->selected = false;
 }
 
-void ItemCollection::getVertexAndTriangleCount(uint &vertexCount, uint &triangleCount)
+void ItemCollection::getVertexAndTriangleCount(unsigned int &vertexCount, unsigned int &triangleCount)
 {
     vertexCount = 0;
 	triangleCount = 0;
-	for (uint i = 0; i < items.size(); i++)
+	for (unsigned int i = 0; i < items.size(); i++)
     {
         Mesh2 *mesh = items[i]->mesh;
 		vertexCount += mesh->vertexCount();
@@ -395,7 +395,7 @@ void ItemCollection::getVertexAndTriangleCount(uint &vertexCount, uint &triangle
 
 Mesh2 *ItemCollection::currentMesh()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
     {
         Item *item = items[i];
 		if (item->selected)
@@ -407,7 +407,7 @@ Mesh2 *ItemCollection::currentMesh()
 
 Item *ItemCollection::firstSelectedItem()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
     {
         Item *item = items[i];
 		if (item->selected)
@@ -418,7 +418,7 @@ Item *ItemCollection::firstSelectedItem()
 
 ViewMode ItemCollection::viewMode()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
     {
         Item *item = items[i];
 		if (item->selected)
@@ -429,7 +429,7 @@ ViewMode ItemCollection::viewMode()
 
 void ItemCollection::setViewMode(ViewMode viewMode)
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
     {
         Item *item = items[i];
 		if (item->selected)
@@ -437,31 +437,31 @@ void ItemCollection::setViewMode(ViewMode viewMode)
 	}
 }
 
-uint ItemCollection::count()
+unsigned int ItemCollection::count()
 {
     return items.size();
 }
 
-bool ItemCollection::isSelectedAtIndex(uint index)
+bool ItemCollection::isSelectedAtIndex(unsigned int index)
 {
     return items.at(index)->selected;
 }
 
-void ItemCollection::setSelectedAtIndex(uint index, bool selected)
+void ItemCollection::setSelectedAtIndex(unsigned int index, bool selected)
 {
     items.at(index)->selected = selected;
 }
 
-void ItemCollection::expandSelectionFromIndex(uint index, bool invert)
+void ItemCollection::expandSelectionFromIndex(unsigned int index, bool invert)
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
         setSelectedAtIndex(i, true);
 }
 
 void ItemCollection::duplicateSelected()
 {
-    uint count = items.size();
-	for (uint i = 0; i < count; i++)
+    unsigned int count = items.size();
+	for (unsigned int i = 0; i < count; i++)
 	{
         Item *oldItem = items[i];
 		if (oldItem->selected)
@@ -487,7 +487,7 @@ void ItemCollection::removeSelected()
 
 void ItemCollection::hideSelected()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
 	{
         Item *item = items[i];
 		if (item->selected)
@@ -500,7 +500,7 @@ void ItemCollection::hideSelected()
 
 void ItemCollection::unhideAll()
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
 		items[i]->visible = true;
 }
 
@@ -514,7 +514,7 @@ Vector4D ItemCollection::selectionColor()
 
 void ItemCollection::setSelectionColor(Vector4D color)
 {
-    for (uint i = 0; i < items.size(); i++)
+    for (unsigned int i = 0; i < items.size(); i++)
 	{
         Item *item = items[i];
 		if (item->selected)
@@ -537,52 +537,52 @@ bool ItemCollection::needsCullFace()
     return false;
 }
 
-Vector3D ItemCollection::positionAtIndex(uint index)
+Vector3D ItemCollection::positionAtIndex(unsigned int index)
 {
     return items.at(index)->position;
 }
 
-Quaternion ItemCollection::rotationAtIndex(uint index)
+Quaternion ItemCollection::rotationAtIndex(unsigned int index)
 {
     return items.at(index)->rotation;
 }
 
-Vector3D ItemCollection::scaleAtIndex(uint index)
+Vector3D ItemCollection::scaleAtIndex(unsigned int index)
 {
     return items.at(index)->scale;
 }
 
-void ItemCollection::setPositionAtIndex(uint index, Vector3D position)
+void ItemCollection::setPositionAtIndex(unsigned int index, Vector3D position)
 {
     items.at(index)->position = position;
 }
 
-void ItemCollection::setRotationAtIndex(uint index, Quaternion rotation)
+void ItemCollection::setRotationAtIndex(unsigned int index, Quaternion rotation)
 {
     items.at(index)->rotation = rotation;
 }
 
-void ItemCollection::setScaleAtIndex(uint index, Vector3D scale)
+void ItemCollection::setScaleAtIndex(unsigned int index, Vector3D scale)
 {
     items.at(index)->scale = scale;
 }
 
-void ItemCollection::moveByOffset(uint index, Vector3D offset)
+void ItemCollection::moveByOffset(unsigned int index, Vector3D offset)
 {
     items.at(index)->moveByOffset(offset);
 }
 
-void ItemCollection::rotateByOffset(uint index, Quaternion offset)
+void ItemCollection::rotateByOffset(unsigned int index, Quaternion offset)
 {
     items.at(index)->rotateByOffset(offset);
 }
 
-void ItemCollection::scaleByOffset(uint index, Vector3D offset)
+void ItemCollection::scaleByOffset(unsigned int index, Vector3D offset)
 {
     items.at(index)->scaleByOffset(offset);
 }
 
-void ItemCollection::drawAtIndex(uint index, bool forSelection)
+void ItemCollection::drawAtIndex(unsigned int index, bool forSelection)
 {
     items.at(index)->drawForSelection(forSelection);
 }

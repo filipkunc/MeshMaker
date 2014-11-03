@@ -8,8 +8,6 @@
 
 #include "FPCurveView.h"
 
-#if defined(__APPLE__)
-
 CurveView::CurveView()
 {
     _lastPoint = NSZeroPoint;
@@ -31,7 +29,7 @@ void CurveView::draw(NSRect bounds)
     
     vector<NSRect> rects;
     
-    for (uint i = 0; i < weights.size(); i++)
+    for (unsigned int i = 0; i < weights.size(); i++)
     {
         float x = bounds.origin.x + i * scaleX;
         float y = NSMaxY(bounds) - weights[i] * scaleY;
@@ -48,7 +46,7 @@ void CurveView::draw(NSRect bounds)
     [[NSColor grayColor] setStroke];
     [pathLines stroke];
     
-    for (uint i = 0; i < rects.size(); i++)
+    for (unsigned int i = 0; i < rects.size(); i++)
     {
         NSRect pointRect = rects[i];
         
@@ -76,7 +74,7 @@ void CurveView::mouseMoved(NSPoint point)
     float scaleX = bounds.size.width / (float)weights.size();
     float scaleY = bounds.size.height;
     
-    for (uint i = 0; i < weights.size(); i++)
+    for (unsigned int i = 0; i < weights.size(); i++)
     {
         float x = bounds.origin.x + i * scaleX;
         float y = NSMaxY(bounds) - weights[i] * scaleY;
@@ -194,5 +192,3 @@ void CurveView::mouseDown(NSPoint point)
 }
 
 @end
-
-#endif

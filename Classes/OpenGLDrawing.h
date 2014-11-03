@@ -11,26 +11,10 @@
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 
-#if defined(__APPLE__)
 #include <Cocoa/Cocoa.h>
 #include <OpenGL/gl3.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#elif defined (WIN32)
-#define NOMINMAX
-#include <windows.h>
-#if defined(SHADERS)
-#include "../MeshMakerCppCLI/glew/include/GL/glew.h"
-#pragma comment(lib, "../MeshMakerCppCLI/glew/lib/glew32.lib")
-#endif
-#include <GL/gl.h>
-#include <GL/glu.h>
-#elif defined(__linux__)
-#define SHADERS 1
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
 #include "MathDeclaration.h"
 #include "Enums.h"
 #include "Exceptions.h"
@@ -103,6 +87,6 @@ void DrawPlane(float size, float sizeOffset);
 void DrawCircle(float size);
 void DrawPlane(Vector3D a, Vector3D b, float size);
 void DrawSelectionPlane(PlaneAxis plane);
-void ColorIndex(uint colorIndex);
-void ColorIndices(vector<uint> &colorIndices);
-void ReadSelectedIndices(int x, int y, int width, int height, uint *selectedIndices);
+void ColorIndex(unsigned int colorIndex);
+void ColorIndices(vector<unsigned int> &colorIndices);
+void ReadSelectedIndices(int x, int y, int width, int height, unsigned int *selectedIndices);

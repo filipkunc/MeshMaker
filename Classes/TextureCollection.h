@@ -27,8 +27,8 @@ public:
     void encode(MemoryWriteStream *stream);
     
     void addTexture(Texture *texture) { _textures.push_back(texture); }
-    void removeTextureAtIndex(uint index, ItemCollection &items);
-    Texture *textureAtIndex(uint index) { return _textures.at(index); }
-    uint indexOfTexture(Texture *texture);
-    uint count() { return _textures.size(); }
+    void removeTextureAtIndex(unsigned int index, ItemCollection &items);
+    Texture *textureAtIndex(unsigned int index) { return _textures.at(index); }
+    unsigned int indexOfTexture(Texture *texture);
+    unsigned int count() { return _textures.size(); }
 };

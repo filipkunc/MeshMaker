@@ -8,7 +8,7 @@
 
 #include "MeshHelpers.h"
 
-const uint Triangle2::twoTriIndices[6] = { 0, 1, 2, 0, 2, 3 };
+const unsigned int Triangle2::twoTriIndices[6] = { 0, 1, 2, 0, 2, 3 };
 
 Triangle2::Triangle2() :
     selected(false),
@@ -16,7 +16,7 @@ Triangle2::Triangle2() :
     _isQuad(false),
     normalsAreValid(false)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         setVertex(i, NULL);
         setVertexEdge(i, NULL);
@@ -31,7 +31,7 @@ Triangle2::Triangle2(VertexNode *vertices[], bool isQuad) :
     _isQuad(isQuad),
     normalsAreValid(false)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);
@@ -46,7 +46,7 @@ Triangle2::Triangle2(VertexNode *vertices[], TexCoordNode *texCoords[], bool isQ
     _isQuad(isQuad),
     normalsAreValid(false)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);
@@ -61,7 +61,7 @@ Triangle2::Triangle2(const vector<VertexNode *> &vertices) :
     _isQuad(vertices.size() == 4),
     normalsAreValid(false)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         setVertex(i, vertices[i]);
         setVertexEdge(i, NULL);
@@ -70,7 +70,7 @@ Triangle2::Triangle2(const vector<VertexNode *> &vertices) :
     }
 }
 
-const Triangle2::PackedNode &Triangle2::node(uint index) const
+const Triangle2::PackedNode &Triangle2::node(unsigned int index) const
 {
     if (index < count())
         return _nodes[index];
@@ -78,7 +78,7 @@ const Triangle2::PackedNode &Triangle2::node(uint index) const
     throw MeshMaker::IndexOutOfRangeException();
 }
 
-Triangle2::PackedNode &Triangle2::node(uint index)
+Triangle2::PackedNode &Triangle2::node(unsigned int index)
 {
     if (index < count())
         return _nodes[index];
@@ -88,7 +88,7 @@ Triangle2::PackedNode &Triangle2::node(uint index)
 
 void TriangleNode::addToVertices()
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().vertex(i))
             data().vertex(i)->addTriangle(this);
@@ -97,7 +97,7 @@ void TriangleNode::addToVertices()
 
 void TriangleNode::addToTexCoords()
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().texCoord(i))
             data().texCoord(i)->addTriangle(this);
@@ -106,7 +106,7 @@ void TriangleNode::addToTexCoords()
 
 void TriangleNode::removeFromVertices()
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().vertex(i))
         {
@@ -118,7 +118,7 @@ void TriangleNode::removeFromVertices()
 
 void TriangleNode::removeFromTexCoords()
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().texCoord(i))
         {
@@ -130,7 +130,7 @@ void TriangleNode::removeFromTexCoords()
 
 void TriangleNode::removeFromEdges()
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().vertexEdge(i))
         {
@@ -148,7 +148,7 @@ void TriangleNode::removeFromEdges()
 
 void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVertex)
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().vertex(i) == currentVertex)
         {
@@ -161,7 +161,7 @@ void TriangleNode::replaceVertex(VertexNode *currentVertex, VertexNode *newVerte
 
 void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *newTexCoord)
 {
-    for (uint i = 0; i < data().count(); i++)
+    for (unsigned int i = 0; i < data().count(); i++)
     {
         if (data().texCoord(i) == currentTexCoord)
         {
@@ -174,7 +174,7 @@ void TriangleNode::replaceTexCoord(TexCoordNode *currentTexCoord, TexCoordNode *
 
 void Triangle2::setTexCoordByVertex(TexCoordNode *texCoord, VertexNode *vertex)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     { 
         if (this->vertex(i) == vertex)
         {
@@ -186,7 +186,7 @@ void Triangle2::setTexCoordByVertex(TexCoordNode *texCoord, VertexNode *vertex)
 
 void Triangle2::removeVertex(VertexNode *vertex)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (this->vertex(i) == vertex)
         {
@@ -198,7 +198,7 @@ void Triangle2::removeVertex(VertexNode *vertex)
 
 void Triangle2::removeTexCoord(TexCoordNode *texCoord)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (this->texCoord(i) == texCoord)
         {
@@ -210,7 +210,7 @@ void Triangle2::removeTexCoord(TexCoordNode *texCoord)
 
 void Triangle2::removeVertexEdge(VertexEdgeNode *edge)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (vertexEdge(i) == edge)
         {
@@ -222,7 +222,7 @@ void Triangle2::removeVertexEdge(VertexEdgeNode *edge)
 
 void Triangle2::removeTexCoordEdge(TexCoordEdgeNode *edge)
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (texCoordEdge(i) == edge)
         {
@@ -234,7 +234,7 @@ void Triangle2::removeTexCoordEdge(TexCoordEdgeNode *edge)
 
 void Triangle2::removeEdges()
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         setVertexEdge(i, NULL);
         setTexCoordEdge(i, NULL);
@@ -249,9 +249,9 @@ bool Triangle2::isDegeneratedAfterCollapseToTriangle()
     if (containsVertexEdge(NULL))
         return true;
     
-    for (uint i = 0; i < count() - 1; i++)
+    for (unsigned int i = 0; i < count() - 1; i++)
     {
-        for (uint j = i + 1; j < count(); j++)
+        for (unsigned int j = i + 1; j < count(); j++)
         {
             if (vertex(i) == vertex(j))
             {
@@ -275,7 +275,7 @@ bool Triangle2::isDegeneratedAfterCollapseToTriangle()
 
 bool Triangle2::containsVertex(const VertexNode *vertex) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
 	{
 		if (this->vertex(i) == vertex)
 			return true;
@@ -285,7 +285,7 @@ bool Triangle2::containsVertex(const VertexNode *vertex) const
 
 bool Triangle2::containsVertexEdge(const VertexEdgeNode *edge) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (vertexEdge(i) == edge)
             return true;
@@ -295,7 +295,7 @@ bool Triangle2::containsVertexEdge(const VertexEdgeNode *edge) const
 
 bool Triangle2::containsTexCoordEdge(const TexCoordEdgeNode *edge) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (texCoordEdge(i) == edge)
             return true;
@@ -309,9 +309,9 @@ void Triangle2::flip()
     swap(_nodes[0].texCoord, _nodes[2].texCoord);
 }
 
-uint Triangle2::indexOfVertex(const VertexNode *vertex) const
+unsigned int Triangle2::indexOfVertex(const VertexNode *vertex) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         if (this->vertex(i) == vertex)
             return i;
@@ -321,8 +321,8 @@ uint Triangle2::indexOfVertex(const VertexNode *vertex) const
 
 bool Triangle2::shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) const
 {
-    uint index1 = indexOfVertex(v1);
-    uint index2 = indexOfVertex(v2);
+    unsigned int index1 = indexOfVertex(v1);
+    unsigned int index2 = indexOfVertex(v2);
     
     if (index1 - 1 == index2)
         return true;
@@ -335,7 +335,7 @@ bool Triangle2::shouldSwapVertices(const VertexNode *v1, const VertexNode *v2) c
 
 VertexEdgeNode *Triangle2::findSecondSplitEdgeNode(const VertexEdge &firstEdge) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         VertexEdgeNode *secondEdgeNode = vertexEdge(i);
         VertexEdge &secondEdge = secondEdgeNode->data();
@@ -357,7 +357,7 @@ VertexEdgeNode *Triangle2::nextEdgeInQuadLoop(const VertexEdge &edge) const
     if (!isQuad())
         return NULL;
     
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         VertexEdgeNode *edgeNode = vertexEdge(i);
         VertexNode *sharedVertex = edgeNode->data().sharedVertex(edge);
@@ -371,7 +371,7 @@ VertexEdgeNode *Triangle2::nextEdgeInQuadLoop(const VertexEdge &edge) const
 
 VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         VertexNode *currentVertex = vertex(i);
         if (currentVertex != edge->vertex(0) &&
@@ -383,7 +383,7 @@ VertexNode *Triangle2::vertexNotInEdge(const VertexEdge *edge) const
 
 TexCoordNode *Triangle2::texCoordNotInEdge(const TexCoordEdge *edge) const
 {
-    for (uint i = 0; i < count(); i++)
+    for (unsigned int i = 0; i < count(); i++)
     {
         TexCoordNode *currentTexCoord = texCoord(i);
         if (currentTexCoord != edge->texCoord(0) &&
@@ -475,18 +475,18 @@ void TriangleNode::softSelect(const vector<float> &weights)
     
     vector<TriangleNode *> nextStepNodes;
     
-    for (uint w = 1; w < weights.size(); w++)
+    for (unsigned int w = 1; w < weights.size(); w++)
     {
         float weight = weights[w];
         
         nextStepNodes.clear();
         
-        for (uint i = 0; i < currentStepNodes.size(); i++)
+        for (unsigned int i = 0; i < currentStepNodes.size(); i++)
         {
             TriangleNode *currentNode = currentStepNodes[i];
             Triangle2 &triangle = currentNode->data();
             
-            for (uint j = 0; j < triangle.count(); j++)
+            for (unsigned int j = 0; j < triangle.count(); j++)
             {
                 TriangleNode *oppositeNode = triangle.vertexEdge(j)->data().opposite(currentNode);
                 

@@ -13,8 +13,8 @@ class FPArrayCache
 {
 private:
     T *_array;
-    uint _count;
-    uint _capacity;
+    unsigned int _count;
+    unsigned int _capacity;
     bool _isValid;
     
 public:
@@ -34,7 +34,7 @@ public:
     
     operator T *() { return _array; }
                   
-    uint count() const { return _count; }
+    unsigned int count() const { return _count; }
     bool isValid() const { return _isValid; }
     void setValid(bool valid) { _isValid = valid; }
 
@@ -51,7 +51,7 @@ public:
         _isValid = false;
     }
 
-    void resize(uint count)
+    void resize(unsigned int count)
     {
         _count = count;
         

@@ -9,45 +9,6 @@
 #include "Mesh2.h"
 #include "TextureCollection.h"
 
-#if defined(WIN32)
-#include <ciso646>
-#endif
-
-#if defined(__APPLE__) || defined(WIN32)
-
-#include <osd/error.h>
-#include <osd/vertex.h>
-#include <osd/drawContext.h>
-
-#include <osd/cpuDispatcher.h>
-#include <osd/cpuVertexBuffer.h>
-#include <osd/cpuComputeContext.h>
-#include <osd/cpuComputeController.h>
-
-#include <osd/mesh.h>
-
-#include <common/shape_utils.h>
-
-typedef OpenSubdiv::HbrMesh<OpenSubdiv::OsdVertex>     OsdHbrMesh;
-typedef OpenSubdiv::HbrVertex<OpenSubdiv::OsdVertex>   OsdHbrVertex;
-typedef OpenSubdiv::HbrFace<OpenSubdiv::OsdVertex>     OsdHbrFace;
-typedef OpenSubdiv::HbrHalfedge<OpenSubdiv::OsdVertex> OsdHbrHalfedge;
-
-typedef OpenSubdiv::OsdMesh<
-    OpenSubdiv::OsdCpuVertexBuffer,
-    OpenSubdiv::OsdCpuComputeController,
-    OpenSubdiv::MeshMakerDrawContext> MeshMakerOsdMesh;
-
-#endif
-
-#if defined(WIN32)
-#if defined(_DEBUG)
-#pragma comment(lib, "../Submodules/OpenSubdiv/lib/Debug/OsdCpu.lib")
-#else
-#pragma comment(lib, "../Submodules/OpenSubdiv/lib/Release/OsdCpu.lib")
-#endif
-#endif
-
 bool Mesh2::_useSoftSelection = false;
 bool Mesh2::_selectThrough = false;
 float Mesh2::_minimumSelectionWeight = 0.1f;
@@ -70,7 +31,6 @@ Vector4D generateRandomColor();
 
 Vector4D generateRandomColor()
 {
-#if defined(__APPLE__)
     float hue = (random() % 10) / 10.0f;
     
     NSColor *color = [NSColor colorWithCalibratedHue:hue
@@ -79,16 +39,13 @@ Vector4D generateRandomColor()
                                                alpha:1.0f];
     
     return Vector4D(color.redComponent, color.greenComponent, color.blueComponent, color.alphaComponent);
-#elif defined(WIN32) || defined(__linux__)
-	return Vector4D(0.5f, 0.7f, 0.8f, 1.0f);
-#endif
 }
 
 Triangle2 makeTriangle(VertexNode *vertices[], TexCoordNode *texCoords[],
-                       uint index0, uint index1, uint index2);
+                       unsigned int index0, unsigned int index1, unsigned int index2);
 
 Triangle2 makeTriangle(VertexNode *vertices[], TexCoordNode *texCoords[],
-                       uint index0, uint index1, uint index2)
+                       unsigned int index0, unsigned int index1, unsigned int index2)
 {
     VertexNode *triangleVertices[3];
     triangleVertices[0] = vertices[index0];
@@ -102,10 +59,10 @@ Triangle2 makeTriangle(VertexNode *vertices[], TexCoordNode *texCoords[],
 }
 
 Triangle2 makeQuad(VertexNode *vertices[], TexCoordNode *texCoords[],
-                   uint index0, uint index1, uint index2, uint index3);
+                   unsigned int index0, unsigned int index1, unsigned int index2, unsigned int index3);
 
 Triangle2 makeQuad(VertexNode *vertices[], TexCoordNode *texCoords[],
-                   uint index0, uint index1, uint index2, uint index3)
+                   unsigned int index0, unsigned int index1, unsigned int index2, unsigned int index3)
 {
     VertexNode *triangleVertices[4];
     triangleVertices[0] = vertices[index0];
@@ -120,7 +77,6 @@ Triangle2 makeQuad(VertexNode *vertices[], TexCoordNode *texCoords[],
     return Triangle2(triangleVertices, triangleTexCoords, true);
 }
 
-#if defined(__APPLE__)
 NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
 {
     switch (meshType)
@@ -139,26 +95,6 @@ NSString *Mesh2::descriptionOfMeshType(MeshType meshType)
 			return nil;
 	}
 }
-#elif defined(WIN32)
-System::String ^Mesh2::descriptionOfMeshType(MeshType meshType)
-{
-    switch (meshType)
-	{
-		case MeshType::Cube:
-			return L"Cube";
-		case MeshType::Cylinder:
-			return L"Cylinder";
-		case MeshType::Sphere:
-			return L"Sphere";
-        case MeshType::Plane:
-			return L"Plane";
-        case MeshType::Icosahedron:
-            return L"Icosahedron";
-		default:
-			return nullptr;
-	}
-}
-#endif
 
 Mesh2::Mesh2()
 {
@@ -191,7 +127,7 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
     
     if (version >= ModelVersion::TextureNames)
     {
-        uint textureIndex = stream->read<uint>();
+        unsigned int textureIndex = stream->read<unsigned int>();
         if (textureIndex < textures.count())
             _texture = textures.textureAtIndex(textureIndex);
         else
@@ -216,9 +152,9 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
         color = generateRandomColor();
     }
     
-    uint verticesSize = stream->read<uint>();
-    uint texCoordsSize = stream->read<uint>();
-    uint trianglesSize = stream->read<uint>();
+    unsigned int verticesSize = stream->read<unsigned int>();
+    unsigned int texCoordsSize = stream->read<unsigned int>();
+    unsigned int trianglesSize = stream->read<unsigned int>();
     
     vector<Vector3D> vertices;
     vector<Vector3D> texCoords;
@@ -226,7 +162,7 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
     
     if (version >= ModelVersion::CrossPlatform)
     {
-        for (uint i = 0; i < verticesSize; i++)
+        for (unsigned int i = 0; i < verticesSize; i++)
         {
             Vector3D vertex;
             vertex.x = stream->read<float>();
@@ -235,7 +171,7 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
             vertices.push_back(vertex);
         }
         
-        for (uint i = 0; i < texCoordsSize; i++)
+        for (unsigned int i = 0; i < texCoordsSize; i++)
         {
             Vector3D texCoord;
             texCoord.x = stream->read<float>();
@@ -244,28 +180,28 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
             texCoords.push_back(texCoord);
         }
         
-        for (uint i = 0; i < trianglesSize; i++)
+        for (unsigned int i = 0; i < trianglesSize; i++)
         {
             TriQuad triangle;
             triangle.isQuad = stream->read<bool>();
-            uint count = triangle.isQuad ? 4 : 3;
-            for (uint j = 0; j < count; j++)
+            unsigned int count = triangle.isQuad ? 4 : 3;
+            for (unsigned int j = 0; j < count; j++)
             {
-                triangle.vertexIndices[j] = stream->read<uint>();
-                triangle.texCoordIndices[j] = stream->read<uint>();
+                triangle.vertexIndices[j] = stream->read<unsigned int>();
+                triangle.texCoordIndices[j] = stream->read<unsigned int>();
             }
             triangles.push_back(triangle);
         }
     }
     else
     {
-        for (uint i = 0; i < verticesSize; i++)
+        for (unsigned int i = 0; i < verticesSize; i++)
         {
             Vector3D vertex = stream->read<Vector3D>();
             vertices.push_back(vertex);
         }
         
-        for (uint i = 0; i < texCoordsSize; i++)
+        for (unsigned int i = 0; i < texCoordsSize; i++)
         {
             Vector3D texCoord = stream->read<Vector3D>();
             texCoords.push_back(texCoord);
@@ -273,7 +209,7 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
         
         if (version >= ModelVersion::TriQuads)
         {
-            for (uint i = 0; i < trianglesSize; i++)
+            for (unsigned int i = 0; i < trianglesSize; i++)
             {
                 TriQuad triangle = stream->read<TriQuad>();
                 triangles.push_back(triangle);
@@ -281,12 +217,12 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
         }
         else
         {
-            for (uint i = 0; i < trianglesSize; i++)
+            for (unsigned int i = 0; i < trianglesSize; i++)
             {
                 Triangle triangle = stream->read<Triangle>();
                 TriQuad triQuad;
                 triQuad.isQuad = false;
-                for (uint j = 0; j < 3; j++)
+                for (unsigned int j = 0; j < 3; j++)
                 {
                     triQuad.vertexIndices[j] = triangle.vertexIndices[j];
                     triQuad.texCoordIndices[j] = triangle.texCoordIndices[j];
@@ -303,9 +239,9 @@ Mesh2::Mesh2(MemoryReadStream *stream, TextureCollection &textures)
 void Mesh2::encode(MemoryWriteStream *stream, TextureCollection &textures)
 {
     if (_texture == NULL)
-        stream->write<uint>(UINT_MAX);
+        stream->write<unsigned int>(UINT_MAX);
     else
-        stream->write<uint>(textures.indexOfTexture(_texture));
+        stream->write<unsigned int>(textures.indexOfTexture(_texture));
     
     stream->write<float>(_color.x);
     stream->write<float>(_color.y);
@@ -318,15 +254,15 @@ void Mesh2::encode(MemoryWriteStream *stream, TextureCollection &textures)
     
     this->toIndexRepresentation(vertices, texCoords, triangles);
     
-    uint vertexCount = vertices.size();
-    uint texCoordCount = texCoords.size();
-    uint triangleCount = triangles.size();
+    unsigned int vertexCount = vertices.size();
+    unsigned int texCoordCount = texCoords.size();
+    unsigned int triangleCount = triangles.size();
     
-    stream->write<uint>(vertexCount);
-    stream->write<uint>(texCoordCount);
-    stream->write<uint>(triangleCount);
+    stream->write<unsigned int>(vertexCount);
+    stream->write<unsigned int>(texCoordCount);
+    stream->write<unsigned int>(triangleCount);
     
-    for (uint i = 0; i < vertexCount; i++)
+    for (unsigned int i = 0; i < vertexCount; i++)
     {
         const Vector3D &v = vertices[i];
         stream->write<float>(v.x);
@@ -334,7 +270,7 @@ void Mesh2::encode(MemoryWriteStream *stream, TextureCollection &textures)
         stream->write<float>(v.z);        
     }
 
-    for (uint i = 0; i < texCoordCount; i++)
+    for (unsigned int i = 0; i < texCoordCount; i++)
     {
         const Vector3D &v = texCoords[i];
         stream->write<float>(v.x);
@@ -342,12 +278,12 @@ void Mesh2::encode(MemoryWriteStream *stream, TextureCollection &textures)
         stream->write<float>(v.z);
     }
 	
-	for (uint i = 0; i < triangleCount; i++)
+	for (unsigned int i = 0; i < triangleCount; i++)
     {
         const TriQuad &t = triangles[i];
         stream->write<bool>(t.isQuad);
-        uint count = t.isQuad ? 4 : 3;
-        for (uint j = 0; j < count; j++)
+        unsigned int count = t.isQuad ? 4 : 3;
+        for (unsigned int j = 0; j < count; j++)
         {
             stream->write(t.vertexIndices[j]);
             stream->write(t.texCoordIndices[j]);
@@ -414,7 +350,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                 Triangle2 &triangle = node->data();
                 if (triangle.selected)
                 {
-                    for (uint i = 0; i < triangle.count(); i++)
+                    for (unsigned int i = 0; i < triangle.count(); i++)
                     {
                         triangle.vertex(i)->data().selected = true;
                         triangle.texCoord(i)->data().selected = true;
@@ -439,7 +375,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                     TexCoordEdge &edge = node->data();
                     if (edge.selected)
                     {
-                        for (uint i = 0; i < 2; i++)
+                        for (unsigned int i = 0; i < 2; i++)
                             edge.texCoord(i)->data().selected = true;
                     }
                 }
@@ -453,7 +389,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
                     VertexEdge &edge = node->data();
                     if (edge.selected)
                     {
-                        for (uint i = 0; i < 2; i++)
+                        for (unsigned int i = 0; i < 2; i++)
                             edge.vertex(i)->data().selected = true;
                     }
                 }
@@ -464,7 +400,7 @@ void Mesh2::setSelectionMode(MeshSelectionMode value)
     }
 }
 
-uint Mesh2::selectedCount() const
+unsigned int Mesh2::selectedCount() const
 {
     switch (_selectionMode)
     {
@@ -483,7 +419,7 @@ uint Mesh2::selectedCount() const
     }
 }
 
-bool Mesh2::isSelectedAtIndex(uint index) const
+bool Mesh2::isSelectedAtIndex(unsigned int index) const
 {
     switch (_selectionMode)
     {
@@ -502,7 +438,7 @@ bool Mesh2::isSelectedAtIndex(uint index) const
     }
 }
 
-void Mesh2::setSelectedAtIndex(bool selected, uint index)
+void Mesh2::setSelectedAtIndex(bool selected, unsigned int index)
 {
     switch (_selectionMode)
     {
@@ -516,7 +452,7 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
         {
             Triangle2 &triangle = _cachedTriangleSelection.at(index)->data();
             triangle.selected = selected;
-            for (uint i = 0; i < triangle.count(); i++)
+            for (unsigned int i = 0; i < triangle.count(); i++)
             {
                 triangle.vertex(i)->data().selected = selected;
                 triangle.texCoord(i)->data().selected = selected;
@@ -528,14 +464,14 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
             {
                 TexCoordEdge &edge = _cachedTexCoordEdgeSelection.at(index)->data();
                 edge.selected = selected;
-                for (uint i = 0; i < 2; i++)
+                for (unsigned int i = 0; i < 2; i++)
                     edge.texCoord(i)->data().selected = selected;
             }
             else                
             {
                 VertexEdge &edge = _cachedVertexEdgeSelection.at(index)->data();
                 edge.selected = selected;
-                for (uint i = 0; i < 2; i++)
+                for (unsigned int i = 0; i < 2; i++)
                     edge.vertex(i)->data().selected = selected;
             }
         } break;
@@ -544,7 +480,7 @@ void Mesh2::setSelectedAtIndex(bool selected, uint index)
     }
 }
 
-void Mesh2::expandSelectionFromIndex(uint index, bool invert)
+void Mesh2::expandSelectionFromIndex(unsigned int index, bool invert)
 {
     switch (_selectionMode)
     {
@@ -570,7 +506,7 @@ void Mesh2::getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotati
 	rotation = Quaternion();
 	scale = Vector3D(1, 1, 1);
     
-	uint selectedCount = 0;
+	unsigned int selectedCount = 0;
     
     if (_isUnwrapped)
     {
@@ -894,12 +830,12 @@ void Mesh2::triangulate()
         {
             Triangle2 triangle[2];
             
-            uint v = 0;
-            for (uint i = 0; i < 2; i++)
+            unsigned int v = 0;
+            for (unsigned int i = 0; i < 2; i++)
             {
-                for (uint j = 0; j < 3; j++)
+                for (unsigned int j = 0; j < 3; j++)
                 {
-                    uint index = Triangle2::twoTriIndices[v];
+                    unsigned int index = Triangle2::twoTriIndices[v];
                     v++;
                     triangle[i].setVertex(j, quad.vertex(index));
                     triangle[i].setTexCoord(j, quad.texCoord(index));
@@ -928,12 +864,12 @@ void Mesh2::triangulateSelectedQuads()
         {
             Triangle2 triangle[2];
             
-            uint v = 0;
-            for (uint i = 0; i < 2; i++)
+            unsigned int v = 0;
+            for (unsigned int i = 0; i < 2; i++)
             {
-                for (uint j = 0; j < 3; j++)
+                for (unsigned int j = 0; j < 3; j++)
                 {
-                    uint index = Triangle2::twoTriIndices[v];
+                    unsigned int index = Triangle2::twoTriIndices[v];
                     v++;
                     triangle[i].setVertex(j, quad.vertex(index));
                     triangle[i].setTexCoord(j, quad.texCoord(index));
@@ -949,124 +885,6 @@ void Mesh2::triangulateSelectedQuads()
     makeEdges();
 	
     setSelectionMode(_selectionMode);
-}
-
-void Mesh2::openSubdivision()
-{
-#if defined(__APPLE__) || defined(WIN32)
-    
-    Scheme scheme = kCatmark;
-    
-    if (scheme == kLoop)
-        triangulate();
-    
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triQuads;
-    toIndexRepresentation(vertices, texCoords, triQuads);
-    
-    vector<float> verts;
-    vector<int> faceverts;
-    vector<int> nvertsPerFace;
-    
-    for (uint i = 0; i < vertices.size(); i++)
-    {
-        verts.push_back(vertices[i].x);
-        verts.push_back(vertices[i].y);
-        verts.push_back(vertices[i].z);
-    }
-    
-    for (uint i = 0; i < triQuads.size(); i++)
-    {
-        uint nvertsPerCurrentFace = triQuads[i].isQuad ? 4 : 3;
-        nvertsPerFace.push_back(nvertsPerCurrentFace);
-        for (uint j = 0; j < nvertsPerCurrentFace; j++)
-            faceverts.push_back(triQuads[i].vertexIndices[j]);
-    }
-    
-    OsdHbrMesh *hbrMesh = simpleHbr2<OpenSubdiv::OsdVertex>(verts, faceverts, nvertsPerFace, scheme);
-    
-    OpenSubdiv::OsdMeshBitset bits;
-    bits.set(OpenSubdiv::MeshAdaptive, false);
-    
-    const int level = 1;
-    const int numElements = 3;
-    
-    MeshMakerOsdMesh *osdMesh = new MeshMakerOsdMesh(hbrMesh, numElements, level, bits);
-    
-    delete hbrMesh;
-    
-    int nverts = (int)verts.size() / 3;
-    
-    std::vector<float> vertex;
-    vertex.reserve(nverts * 3);
-    
-    const float *p = &verts[0];
-    
-    for (int i = 0; i < nverts; ++i)
-    {
-        vertex.push_back(p[0]);
-        vertex.push_back(p[1]);
-        vertex.push_back(p[2]);
-        p += 3;
-    }
-    
-    osdMesh->UpdateVertexBuffer(&vertex[0], nverts);
-    osdMesh->Refine();
-    osdMesh->Synchronize();    
-    
-    uint numVerts = scheme == kLoop ? 3 : 4;
-    
-    vertices.clear();
-    texCoords.clear();
-    triQuads.clear();
-    
-    const std::vector<int> &indices = osdMesh->GetFarMesh()->GetFaceVertices(level);
-    
-    OpenSubdiv::OsdCpuVertexBuffer *cpuBuffer = dynamic_cast<OpenSubdiv::OsdCpuVertexBuffer *>(osdMesh->GetVertexBuffer());
-    
-    int vertexCount = cpuBuffer->GetNumVertices();
-    const float *vPos = cpuBuffer->BindCpuBuffer();
-    
-    for (int i = 0; i < vertexCount; i++)
-    {
-        Vector3D v;
-        for (uint k = 0; k < 3; k++)
-        {
-            v[k] = *vPos;
-            vPos++;
-        }
-        
-        vertices.push_back(v);
-        texCoords.push_back(v);
-    }
-    
-    for (uint i = 0; i < indices.size(); i += numVerts)
-    {
-        TriQuad triQuad;
-        triQuad.isQuad = numVerts == 4;
-        for (uint j = 0; j < numVerts; j++)
-        {
-            triQuad.vertexIndices[j] = indices[i + j];
-            triQuad.texCoordIndices[j] = indices[i + j];
-        }
-        triQuads.push_back(triQuad);
-    }
-    
-    delete osdMesh;
-    
-    fromIndexRepresentation(vertices, texCoords, triQuads);
-    
-    removeDegeneratedTriangles();
-    removeNonUsedVertices();
-    
-    makeTexCoords();
-    makeEdges();
-    
-    setSelectionMode(_selectionMode);
-#else
-	loopSubdivision();
-#endif
 }
 
 void Mesh2::halfEdges()
@@ -1119,13 +937,13 @@ void Mesh2::halfEdges()
     }
 }
 
-void Mesh2::repositionVertices(uint vertexCount)
+void Mesh2::repositionVertices(unsigned int vertexCount)
 {
     resetAlgorithmData();
     
     vector<Vector3D> tempVertices;
     
-    uint index = 0;
+    unsigned int index = 0;
     
     for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
     {
@@ -1157,7 +975,7 @@ void Mesh2::repositionVertices(uint vertexCount)
     
     for (VertexNode *node = _vertices.begin(); index < vertexCount; node = node->next())
     {
-        node->data().position = tempVertices[(uint)node->algorithmData.index];
+        node->data().position = tempVertices[(unsigned int)node->algorithmData.index];
         index++;
     }
 }
@@ -1170,7 +988,7 @@ void Mesh2::makeSubdividedTriangles()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        for (uint i = 0; i < 3; i++)
+        for (unsigned int i = 0; i < 3; i++)
         {
             vertices[i] = node->data().vertex(i);
             vertices[i + 3] = node->data().vertexEdge(i)->data().half;
@@ -1206,7 +1024,7 @@ void Mesh2::loopSubdivision()
     
     resetTriangleCache();
     
-    uint vertexCount = _vertices.count();
+    unsigned int vertexCount = _vertices.count();
     
     halfEdges();
     repositionVertices(vertexCount);
@@ -1360,7 +1178,7 @@ void Mesh2::splitSelectedTriangles()
             continue;
         }
         
-        for (uint j = 0; j < triQuad.count(); j++)
+        for (unsigned int j = 0; j < triQuad.count(); j++)
         {
             VertexEdge &edge = node->data().vertexEdge(j)->data();
             
@@ -1378,7 +1196,7 @@ void Mesh2::splitSelectedTriangles()
             v[j + triQuad.count()] = edge.half;
         }
         
-        for (uint j = 0; j < triQuad.count(); j++)
+        for (unsigned int j = 0; j < triQuad.count(); j++)
         {
             TexCoordEdge &edge = node->data().texCoordEdge(j)->data();
             
@@ -1474,7 +1292,7 @@ void Mesh2::splitSelectedEdges()
         if (!vertexEdge.selected)
             continue;
         
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             TriangleNode *triangleNode = vertexEdge.triangle(i);
             if (triangleNode == NULL)
@@ -1490,7 +1308,7 @@ void Mesh2::splitSelectedEdges()
             
             if (triQuad.isQuad())
             {
-                for (uint k = 0; k < 2; k++)
+                for (unsigned int k = 0; k < 2; k++)
                 {
                     v[0] = secondEdge.half;
                     v[1] = vertexEdge.half;
@@ -1592,7 +1410,7 @@ void Mesh2::duplicateSelectedTriangles()
         VertexNode *duplicatedVertices[4];
         TexCoordNode *duplicatedTexCoords[4];
         
-        for (uint i = 0; i < triQuad.count(); i++)
+        for (unsigned int i = 0; i < triQuad.count(); i++)
         {
             VertexNode *originalVertex = triQuad.vertex(i);
             TexCoordNode *originalTexCoord = triQuad.texCoord(i);
@@ -1727,7 +1545,7 @@ void Mesh2::extrudeSelectedEdges()
     
     makeEdges();
     
-    for (uint i = 0; i < extrudedVertices.size(); i += 2)
+    for (unsigned int i = 0; i < extrudedVertices.size(); i += 2)
     {
         VertexEdgeNode *node = extrudedVertices[i]->sharedEdge(extrudedVertices[i + 1]);
         node->data().selected = true;
@@ -1748,7 +1566,7 @@ void Mesh2::extrudeSelectedTriangles()
         if (!triQuad.selected)
             continue;
         
-        for (uint i = 0; i < triQuad.count(); i++)
+        for (unsigned int i = 0; i < triQuad.count(); i++)
         {
             VertexEdge &vertexEdge = node->data().vertexEdge(i)->data();
             
@@ -1797,25 +1615,25 @@ void Mesh2::merge(Mesh2 *mesh)
     vector<Vector3D> mergedTexCoords;
     vector<TriQuad> mergedTriangles;
     
-    for (uint i = 0; i < thisVertices.size(); i++)
+    for (unsigned int i = 0; i < thisVertices.size(); i++)
         mergedVertices.push_back(thisVertices[i]);
     
-    for (uint i = 0; i < otherVertices.size(); i++)
+    for (unsigned int i = 0; i < otherVertices.size(); i++)
         mergedVertices.push_back(otherVertices[i]);
     
-    for (uint i = 0; i < thisTexCoords.size(); i++)
+    for (unsigned int i = 0; i < thisTexCoords.size(); i++)
         mergedTexCoords.push_back(thisTexCoords[i]);
     
-    for (uint i = 0; i < otherTexCoords.size(); i++)
+    for (unsigned int i = 0; i < otherTexCoords.size(); i++)
         mergedTexCoords.push_back(otherTexCoords[i]);
     
-    for (uint i = 0; i < thisTriangles.size(); i++)
+    for (unsigned int i = 0; i < thisTriangles.size(); i++)
         mergedTriangles.push_back(thisTriangles[i]);
     
-    for (uint i = 0; i < otherTriangles.size(); i++)
+    for (unsigned int i = 0; i < otherTriangles.size(); i++)
     {
         TriQuad triangle = otherTriangles[i];
-        for (uint j = 0; j < 4; j++)
+        for (unsigned int j = 0; j < 4; j++)
         {
             triangle.vertexIndices[j] += thisVertices.size();
             triangle.texCoordIndices[j] += thisTexCoords.size();
@@ -1873,8 +1691,8 @@ void Mesh2::computeSoftSelectionTriangles()
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
-        uint count = node->data().count();
-        for (uint i = 0; i < count; i++)
+        unsigned int count = node->data().count();
+        for (unsigned int i = 0; i < count; i++)
         {
             VertexNode *vertexNode = node->data().vertex(i);
             if (vertexNode->selectionWeight < node->selectionWeight)
@@ -1893,7 +1711,7 @@ void Mesh2::computeSoftSelectionEdges()
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             VertexNode *vertexNode = node->data().vertex(i);
             if (vertexNode->selectionWeight < node->selectionWeight)

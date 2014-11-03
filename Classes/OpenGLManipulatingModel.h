@@ -20,10 +20,10 @@ public:
     
     virtual ViewMode viewMode() = 0;
     virtual void setViewMode(ViewMode viewMode) = 0;
-    virtual uint count() = 0;
-    virtual bool isSelectedAtIndex(uint index) = 0;
-    virtual void setSelectedAtIndex(uint index, bool selected) = 0;
-    virtual void expandSelectionFromIndex(uint index, bool invert) = 0;
+    virtual unsigned int count() = 0;
+    virtual bool isSelectedAtIndex(unsigned int index) = 0;
+    virtual void setSelectedAtIndex(unsigned int index, bool selected) = 0;
+    virtual void expandSelectionFromIndex(unsigned int index, bool invert) = 0;
     virtual void duplicateSelected() = 0;
     virtual void removeSelected() = 0;
     virtual void hideSelected() = 0;
@@ -53,14 +53,14 @@ class IOpenGLManipulatingModelItem : public IOpenGLManipulatingModel
 public:
     virtual ~IOpenGLManipulatingModelItem() { }
     
-    virtual Vector3D positionAtIndex(uint index) = 0;
-    virtual Quaternion rotationAtIndex(uint index) = 0;
-    virtual Vector3D scaleAtIndex(uint index) = 0;
-    virtual void setPositionAtIndex(uint index, Vector3D position) = 0;
-    virtual void setRotationAtIndex(uint index, Quaternion rotation) = 0;
-    virtual void setScaleAtIndex(uint index, Vector3D scale) = 0;
-    virtual void moveByOffset(uint index, Vector3D offset) = 0;
-    virtual void rotateByOffset(uint index, Quaternion offset) = 0;
-    virtual void scaleByOffset(uint index, Vector3D offset) = 0;
-    virtual void drawAtIndex(uint index, bool forSelection) = 0;
+    virtual Vector3D positionAtIndex(unsigned int index) = 0;
+    virtual Quaternion rotationAtIndex(unsigned int index) = 0;
+    virtual Vector3D scaleAtIndex(unsigned int index) = 0;
+    virtual void setPositionAtIndex(unsigned int index, Vector3D position) = 0;
+    virtual void setRotationAtIndex(unsigned int index, Quaternion rotation) = 0;
+    virtual void setScaleAtIndex(unsigned int index, Vector3D scale) = 0;
+    virtual void moveByOffset(unsigned int index, Vector3D offset) = 0;
+    virtual void rotateByOffset(unsigned int index, Quaternion offset) = 0;
+    virtual void scaleByOffset(unsigned int index, Vector3D offset) = 0;
+    virtual void drawAtIndex(unsigned int index, bool forSelection) = 0;
 };

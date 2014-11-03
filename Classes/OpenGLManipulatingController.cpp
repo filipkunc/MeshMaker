@@ -8,8 +8,6 @@
 
 #include "OpenGLManipulatingController.h"
 
-#if defined(__APPLE__)
-
 @implementation OpenGLManipulatingControllerKVC
 
 - (id)initWithController:(OpenGLManipulatingController *)controller
@@ -55,13 +53,7 @@
 
 @end
 
-#endif
-
-#if defined(__APPLE__) || defined(__linux__)
 OpenGLManipulatingController::OpenGLManipulatingController()
-#elif defined(WIN32)
-OpenGLManipulatingController::OpenGLManipulatingController(MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^kvc)
-#endif
 {
     _model = NULL;
     _selectionScale = Vector3D(1, 1, 1);
@@ -69,11 +61,7 @@ OpenGLManipulatingController::OpenGLManipulatingController(MeshMakerCppCLI::IOpe
     _lastSelectedIndex = -1;
     _modelScale = Vector3D(1, 1, 1);
     _currentManipulator = ManipulatorType::Default;
-#if defined(__APPLE__)
     _kvc = [[OpenGLManipulatingControllerKVC alloc] initWithController:this];
-#elif defined(WIN32)
-	_kvc = kvc;
-#endif
 }
 
 OpenGLManipulatingController::~OpenGLManipulatingController()
@@ -81,12 +69,12 @@ OpenGLManipulatingController::~OpenGLManipulatingController()
     
 }
 
-uint OpenGLManipulatingController::selectableCount()
+unsigned int OpenGLManipulatingController::selectableCount()
 {
     return _model->count();
 }
 
-void OpenGLManipulatingController::drawForSelectionAtIndex(uint index)
+void OpenGLManipulatingController::drawForSelectionAtIndex(unsigned int index)
 {
     glPushMatrix();
 	glMultMatrixf(_modelTransform);
@@ -94,7 +82,7 @@ void OpenGLManipulatingController::drawForSelectionAtIndex(uint index)
 	glPopMatrix();
 }
 
-void OpenGLManipulatingController::selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode)
+void OpenGLManipulatingController::selectObjectAtIndex(unsigned int index, OpenGLSelectionMode selectionMode)
 {
     switch (selectionMode)
 	{
@@ -129,7 +117,7 @@ void OpenGLManipulatingController::didSelect()
     updateSelection();
 }
 
-bool OpenGLManipulatingController::isObjectSelectedAtIndex(uint index)
+bool OpenGLManipulatingController::isObjectSelectedAtIndex(unsigned int index)
 {
     return _model->isSelectedAtIndex(index);
 }
@@ -147,9 +135,9 @@ void OpenGLManipulatingController::drawAllForSelection()
     {
         glPushMatrix();
         glMultMatrixf(_modelTransform);
-        for (uint i = 0; i < _modelItem->count(); i++)
+        for (unsigned int i = 0; i < _modelItem->count(); i++)
         {
-            uint colorIndex = i + 1;
+            unsigned int colorIndex = i + 1;
             ColorIndex(colorIndex);
             _modelItem->drawAtIndex(i, true);
         }
@@ -282,7 +270,7 @@ void OpenGLManipulatingController::setSelectionScale(Vector3D scale)
     didChangeSelection();
 }
 
-uint OpenGLManipulatingController::selectedCount()
+unsigned int OpenGLManipulatingController::selectedCount()
 {
     return _selectedCount;
 }
@@ -323,7 +311,7 @@ void OpenGLManipulatingController::moveSelectedByOffset(Vector3D offset)
 	}
 	else if (_modelItem != NULL)
 	{
-		for (uint i = 0; i < _model->count(); i++)
+		for (unsigned int i = 0; i < _model->count(); i++)
 		{
             if (_model->isSelectedAtIndex(i))
                 _modelItem->moveByOffset(i, transformedOffset);
@@ -357,7 +345,7 @@ void OpenGLManipulatingController::rotateSelectedByOffset(Quaternion offset)
 			Vector3D rotationCenter = _selectionCenter;
 			rotationCenter = _modelTransform.Inverse().Transform(rotationCenter);
             Matrix4x4 offsetMatrix = offset.ToMatrix();
-			for (uint i = 0; i < _model->count(); i++)
+			for (unsigned int i = 0; i < _model->count(); i++)
 			{
 				if (_model->isSelectedAtIndex(i))
 				{
@@ -400,7 +388,7 @@ void OpenGLManipulatingController::scaleSelectedByOffset(Vector3D offset)
 		{
 			Vector3D rotationCenter = _selectionCenter;
 			rotationCenter = _modelTransform.Inverse().Transform(rotationCenter);
-			for (uint i = 0; i < _model->count(); i++)
+			for (unsigned int i = 0; i < _model->count(); i++)
 			{
                 if (_model->isSelectedAtIndex(i))
 				{
@@ -431,7 +419,7 @@ void OpenGLManipulatingController::updateSelection()
 	{
         _modelMesh->getSelectionCenterRotationScale(_selectionCenter, _selectionRotation, _selectionScale);
 		_selectedCount = 0;
-		for (uint i = 0; i < _model->count(); i++)
+		for (unsigned int i = 0; i < _model->count(); i++)
 		{
             if (_model->isSelectedAtIndex(i))
 				_selectedCount++;
@@ -444,7 +432,7 @@ void OpenGLManipulatingController::updateSelection()
 		_selectionScale = Vector3D(1, 1, 1);
 		_selectedCount = 0;
 		_lastSelectedIndex = -1;
-		for (uint i = 0; i < _model->count(); i++)
+		for (unsigned int i = 0; i < _model->count(); i++)
 		{
             if (_model->isSelectedAtIndex(i))
 			{
@@ -487,7 +475,7 @@ void OpenGLManipulatingController::drawForSelection(bool forSelection)
     {
         glPushMatrix();
         glMultMatrixf(_modelTransform);
-        for (uint i = 0; i < _modelItem->count(); i++)
+        for (unsigned int i = 0; i < _modelItem->count(); i++)
         {
             _modelItem->drawAtIndex(i, forSelection);
         }
@@ -498,7 +486,7 @@ void OpenGLManipulatingController::drawForSelection(bool forSelection)
 void OpenGLManipulatingController::changeSelection(bool isSelected)
 {
     willSelectThrough(false);
-	for (uint i = 0; i < _model->count(); i++)
+	for (unsigned int i = 0; i < _model->count(); i++)
         _model->setSelectedAtIndex(i, isSelected);
     didSelect();
     updateSelection();
@@ -507,7 +495,7 @@ void OpenGLManipulatingController::changeSelection(bool isSelected)
 void OpenGLManipulatingController::invertSelection()
 {
     willSelectThrough(false);
-    for (uint i = 0; i < _model->count(); i++)
+    for (unsigned int i = 0; i < _model->count(); i++)
         _model->setSelectedAtIndex(i, !_model->isSelectedAtIndex(i));
     didSelect();
     updateSelection();
@@ -563,8 +551,6 @@ NSInteger OpenGLManipulatingController::lastSelectedIndex()
     return _lastSelectedIndex;
 }
 
-#if defined(__APPLE__)
-
 void OpenGLManipulatingController::addSelectionObserver(id observer)
 {
     [_kvc addObserver:observer forKeyPath:@"selectionX"];
@@ -585,9 +571,7 @@ void OpenGLManipulatingController::removeSelectionObserver(id observer)
     [_kvc removeObserver:observer forKeyPath:@"viewMode"];
 }
 
-#endif
-
-float OpenGLManipulatingController::transformValueAtIndex(uint index, ManipulatorType manipulator)
+float OpenGLManipulatingController::transformValueAtIndex(unsigned int index, ManipulatorType manipulator)
 {
     switch (manipulator)
 	{
@@ -603,7 +587,7 @@ float OpenGLManipulatingController::transformValueAtIndex(uint index, Manipulato
 	}
 }
 
-void OpenGLManipulatingController::setTransformValueAtIndex(uint index, ManipulatorType manipulator, float value)
+void OpenGLManipulatingController::setTransformValueAtIndex(unsigned int index, ManipulatorType manipulator, float value)
 {
     switch (manipulator)
 	{
@@ -652,30 +636,22 @@ void OpenGLManipulatingController::setTransformValueAtIndex(uint index, Manipula
 
 void OpenGLManipulatingController::willChangeSelection()
 {
-#if defined(__APPLE__)
     [_kvc willChangeValueForKey:@"selectionX"];
 	[_kvc willChangeValueForKey:@"selectionY"];
 	[_kvc willChangeValueForKey:@"selectionZ"];
     [_kvc willChangeValueForKey:@"selectionColor"];
     [_kvc willChangeValueForKey:@"selectionColorEnabled"];
     [_kvc willChangeValueForKey:@"viewMode"];
-#elif defined(WIN32)
-	_kvc->willChangeSelection();
-#endif
 }
 
 void OpenGLManipulatingController::didChangeSelection()
 {
-#if defined(__APPLE__)
     [_kvc didChangeValueForKey:@"selectionX"];
 	[_kvc didChangeValueForKey:@"selectionY"];
 	[_kvc didChangeValueForKey:@"selectionZ"];
     [_kvc didChangeValueForKey:@"selectionColor"];
     [_kvc didChangeValueForKey:@"selectionColorEnabled"];
     [_kvc didChangeValueForKey:@"viewMode"];
-#elif defined(WIN32)
-	_kvc->didChangeSelection();
-#endif
 }
 
 void OpenGLManipulatingController::setPositionRotationScale(Vector3D aPosition, Quaternion aRotation, Vector3D aScale)

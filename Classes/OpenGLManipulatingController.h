@@ -10,8 +10,6 @@
 
 #include "OpenGLManipulatingModel.h"
 
-#if defined(__APPLE__)
-
 class OpenGLManipulatingController;
 
 @interface OpenGLManipulatingControllerKVC : NSObject
@@ -26,27 +24,6 @@ class OpenGLManipulatingController;
 
 @end
 
-#elif defined (WIN32)
-
-typedef int NSInteger;
-
-#include <vcclr.h>
-
-namespace MeshMakerCppCLI
-{
-	public interface class IOpenGLManipulatingControllerKVC
-	{
-		void willChangeSelection();
-		void didChangeSelection();
-	};
-}
-
-#elif defined (__linux__)
-
-typedef int NSInteger;
-
-#endif
-
 class OpenGLManipulatingController : public IOpenGLManipulating
 {
 private:
@@ -58,7 +35,7 @@ private:
 	Quaternion _selectionRotation;
 	Vector3D _selectionEuler;
 	Vector3D _selectionScale;
-	uint _selectedCount;
+	unsigned int _selectedCount;
 	NSInteger _lastSelectedIndex;
 	
 	Matrix4x4 _modelTransform;
@@ -68,31 +45,23 @@ private:
     
     ManipulatorType _currentManipulator;
 
-#if defined(__APPLE__)
     OpenGLManipulatingControllerKVC *_kvc;
-#elif defined(WIN32)
-	gcroot<MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^> _kvc;
-#endif
 
 public:
-#if defined(__APPLE__) || defined(__linux__)
     OpenGLManipulatingController();
-#elif defined(WIN32)
-	OpenGLManipulatingController(MeshMakerCppCLI::IOpenGLManipulatingControllerKVC ^kvc);
-#endif
     virtual ~OpenGLManipulatingController();
     
     // IOpenGLSelecting
     
-    virtual uint selectableCount();
-    virtual void drawForSelectionAtIndex(uint index);
-    virtual void selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode);
+    virtual unsigned int selectableCount();
+    virtual void drawForSelectionAtIndex(unsigned int index);
+    virtual void selectObjectAtIndex(unsigned int index, OpenGLSelectionMode selectionMode);
 
     // IOpenGLSelectingOptional
     
     virtual void willSelectThrough(bool selectThrough);
     virtual void didSelect();
-    virtual bool isObjectSelectedAtIndex(uint index);
+    virtual bool isObjectSelectedAtIndex(unsigned int index);
     virtual void drawAllForSelection();
     virtual bool needsCullFace();
     virtual bool useGLProject();
@@ -122,7 +91,7 @@ public:
     virtual void setSelectionRotation(Quaternion rotation);
     virtual Vector3D selectionScale();
     virtual void setSelectionScale(Vector3D scale);
-    virtual uint selectedCount();
+    virtual unsigned int selectedCount();
     virtual ViewMode viewMode();
     virtual void setViewMode(ViewMode mode);
     
@@ -146,12 +115,10 @@ public:
     void setModelTransform(Matrix4x4 &transform);
     NSInteger lastSelectedIndex();
 
-#if defined(__APPLE__)
     void addSelectionObserver(id observer);
     void removeSelectionObserver(id observer);
-#endif
-    float transformValueAtIndex(uint index, ManipulatorType manipulator);
-    void setTransformValueAtIndex(uint index, ManipulatorType manipulator, float value);
+    float transformValueAtIndex(unsigned int index, ManipulatorType manipulator);
+    void setTransformValueAtIndex(unsigned int index, ManipulatorType manipulator, float value);
     void willChangeSelection();
     void didChangeSelection();
     void setPositionRotationScale(Vector3D aPosition, Quaternion aRotation, Vector3D aScale);

@@ -10,8 +10,6 @@
 
 #include "OpenGLDrawing.h"
 
-#if defined(__APPLE__) || defined(SHADERS)
-
 class Shader
 {
 public:
@@ -21,5 +19,3 @@ public:
     Shader(GLenum shaderType, const char *fileName);
     ~Shader();
 };
-
-#endif

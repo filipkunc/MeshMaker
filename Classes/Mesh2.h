@@ -90,7 +90,7 @@ private:
     
     bool _isUnwrapped;
     
-    uint _vboID;
+    unsigned int _vboID;
     bool _vboGenerated;
 
     float _colorComponents[4];
@@ -100,7 +100,7 @@ private:
     void fastMergeSelectedVertices();
     void fastMergeSelectedTexCoords();
     void halfEdges();
-    void repositionVertices(uint vertexCount);
+    void repositionVertices(unsigned int vertexCount);
     void makeSubdividedTriangles();
     void uvToPixels(float &u, float &v);
     
@@ -128,19 +128,19 @@ public:
     Texture *texture() { return _texture; }
     void setTexture(Texture *texture) { _texture = texture; }
     
-    uint vertexCount() { return _vertices.count(); }
-    uint triangleCount() { return _triangles.count(); }
-    uint vertexEdgeCount() { return _vertexEdges.count(); }
+    unsigned int vertexCount() { return _vertices.count(); }
+    unsigned int triangleCount() { return _triangles.count(); }
+    unsigned int vertexEdgeCount() { return _vertexEdges.count(); }
     
     MeshSelectionMode selectionMode() const { return _selectionMode; };
     void setSelectionMode(MeshSelectionMode value);
     
     void resetAlgorithmData();
     
-    uint selectedCount() const;
-    bool isSelectedAtIndex(uint index) const;
-    void setSelectedAtIndex(bool selected, uint index);
-    void expandSelectionFromIndex(uint index, bool invert);
+    unsigned int selectedCount() const;
+    bool isSelectedAtIndex(unsigned int index) const;
+    void setSelectedAtIndex(bool selected, unsigned int index);
+    void expandSelectionFromIndex(unsigned int index, bool invert);
     void getSelectionCenterRotationScale(Vector3D &center, Quaternion &rotation, Vector3D &scale);
     
     static bool useSoftSelection() { return _useSoftSelection; }
@@ -151,11 +151,7 @@ public:
     
     static vector<float> &selectionWeights();
 
-#if defined(__APPLE__)
     static NSString *descriptionOfMeshType(MeshType meshType);
-#elif defined(WIN32)
-	static System::String ^descriptionOfMeshType(MeshType meshType);
-#endif
     
     bool isUnwrapped() { return _isUnwrapped; }
     void setUnwrapped(bool value) { _isUnwrapped = value; }
@@ -189,7 +185,6 @@ public:
     void extrudeSelectedTriangles();
     void triangulate();
     void triangulateSelectedQuads();
-    void openSubdivision();
     void loopSubdivision();
     
     void merge(Mesh2 *mesh);
@@ -207,14 +202,14 @@ public:
     void resetEdgeCache();
     void fillEdgeCache();
     
-    void updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, uint cacheIndexPosition);
+    void updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, unsigned int cacheIndexPosition);
     void updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *edgeNode);
     void updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices);
     
     void drawFill(FillMode fillMode, ViewMode viewMode);
     void draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection);
 
-    void drawAtIndex(uint index, bool forSelection, ViewMode viewMode);
+    void drawAtIndex(unsigned int index, bool forSelection, ViewMode viewMode);
     void drawAll(ViewMode viewMode, bool forSelection);
     
     void drawAllVertices(ViewMode viewMode, bool forSelection);
@@ -255,10 +250,10 @@ public:
     void makeEdges();
     void makePlane();
     void makeCube();
-    void makeCylinder(uint steps);
-    void makeSphere(uint steps);
+    void makeCylinder(unsigned int steps);
+    void makeSphere(unsigned int steps);
     void makeIcosahedron();
-    void make(MeshType meshType, uint steps);
+    void make(MeshType meshType, unsigned int steps);
     
     void fromVertices(const vector<Vector3D> &vertices);
     void toVertices(vector<Vector3D> &vertices);

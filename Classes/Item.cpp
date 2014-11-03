@@ -25,7 +25,7 @@ Item::~Item()
 
 Item::Item(MemoryReadStream *stream, TextureCollection &textures)
 {
-    if (stream->version() >= (uint)ModelVersion::CrossPlatform)
+    if (stream->version() >= (unsigned int)ModelVersion::CrossPlatform)
     {
         position.x = stream->read<float>();
         position.y = stream->read<float>();
@@ -170,22 +170,22 @@ void Item::setViewMode(ViewMode viewMode)
     mesh->setUnwrapped(_viewMode == ViewMode::Unwrap);
 }
 
-uint Item::count()
+unsigned int Item::count()
 {
     return mesh->selectedCount();
 }
 
-bool Item::isSelectedAtIndex(uint index)
+bool Item::isSelectedAtIndex(unsigned int index)
 {
     return mesh->isSelectedAtIndex(index);
 }
 
-void Item::setSelectedAtIndex(uint index, bool selected)
+void Item::setSelectedAtIndex(unsigned int index, bool selected)
 {
     mesh->setSelectedAtIndex(selected, index);
 }
 
-void Item::expandSelectionFromIndex(uint index, bool invert)
+void Item::expandSelectionFromIndex(unsigned int index, bool invert)
 {
     mesh->expandSelectionFromIndex(index, invert);
 }

@@ -48,8 +48,8 @@ void Mesh2::fillTriangleCache()
 
     float weightedComponents[] = { 0.0f, 0.0f, 0.0f };
     const float selectedComponents[] = { 0.7f, 0.0f, 0.0f };
-    const uint *twoTriIndices = Triangle2::twoTriIndices;
-    uint i = 0;
+    const unsigned int *twoTriIndices = Triangle2::twoTriIndices;
+    unsigned int i = 0;
     
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -82,11 +82,11 @@ void Mesh2::fillTriangleCache()
         
         Vector3D fn = _isUnwrapped ? currentTriangle.texCoordNormal : currentTriangle.vertexNormal;
         
-        uint vertexCount = currentTriangle.isQuad() ? 6 : 3;
+        unsigned int vertexCount = currentTriangle.isQuad() ? 6 : 3;
         
-        for (uint j = 0; j < vertexCount; j++)
+        for (unsigned int j = 0; j < vertexCount; j++)
         {
-            uint twoTriIndex = twoTriIndices[j];
+            unsigned int twoTriIndex = twoTriIndices[j];
             VertexNode *vertex = currentTriangle.vertex(twoTriIndex);
             TexCoordNode *texCoord = currentTriangle.texCoord(twoTriIndex);
 
@@ -98,7 +98,7 @@ void Mesh2::fillTriangleCache()
             GLTriangleVertex &cachedVertex = _cachedTriangleVertices[i];
             vertex->setCacheIndexForTriangleNode(node, i, j < 3 ? 0 : 1);
             
-            for (uint k = 0; k < 3; k++)
+            for (unsigned int k = 0; k < 3; k++)
             {
                 cachedVertex.position.coords[k] = v[k];
                 cachedVertex.texCoord.coords[k] = t[k];
@@ -114,7 +114,6 @@ void Mesh2::fillTriangleCache()
     _cachedTriangleVertices.resize(i);
     _cachedTriangleVertices.setValid(true);
 
-#if defined(__APPLE__) || defined(SHADERS)
     if (!_vboGenerated)
     {
         glGenBuffers(1, &_vboID);
@@ -124,7 +123,6 @@ void Mesh2::fillTriangleCache()
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLTriangleVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-#endif
 }
 
 void Mesh2::fillEdgeCache()
@@ -138,7 +136,7 @@ void Mesh2::fillEdgeCache()
     Vector3D selectedColor(0.8f, 0.0f, 0.0f);
     Vector3D normalColor(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
     
-    uint i = 0;
+    unsigned int i = 0;
     
     for (VertexEdgeNode *node = _vertexEdges.begin(), *end = _vertexEdges.end(); node != end; node = node->next())
     {
@@ -151,7 +149,7 @@ void Mesh2::fillEdgeCache()
             {
                 Vector3D softSelectedColor = Vector3D(1.0f, 1.0f - node->selectionWeight, 0.0f);
                 
-                for (uint k = 0; k < 3; k++)
+                for (unsigned int k = 0; k < 3; k++)
                 {
                     _cachedEdgeVertices[i].color.coords[k] = softSelectedColor[k];
                     _cachedEdgeVertices[i + 1].color.coords[k] = softSelectedColor[k];
@@ -159,7 +157,7 @@ void Mesh2::fillEdgeCache()
             }
             else
             {
-                for (uint k = 0; k < 3; k++)
+                for (unsigned int k = 0; k < 3; k++)
                 {
                     _cachedEdgeVertices[i].color.coords[k] = normalColor[k];
                     _cachedEdgeVertices[i + 1].color.coords[k] = normalColor[k];
@@ -170,7 +168,7 @@ void Mesh2::fillEdgeCache()
         {
             if (node->data().selected)
             {
-                for (uint k = 0; k < 3; k++)
+                for (unsigned int k = 0; k < 3; k++)
                 {
                     _cachedEdgeVertices[i].color.coords[k] = selectedColor[k];
                     _cachedEdgeVertices[i + 1].color.coords[k] = selectedColor[k];
@@ -178,7 +176,7 @@ void Mesh2::fillEdgeCache()
             }
             else
             {
-                for (uint k = 0; k < 3; k++)
+                for (unsigned int k = 0; k < 3; k++)
                 {
                     _cachedEdgeVertices[i].color.coords[k] = normalColor[k];
                     _cachedEdgeVertices[i + 1].color.coords[k] = normalColor[k];
@@ -192,7 +190,7 @@ void Mesh2::fillEdgeCache()
         v0->setCacheIndexForEdgeNode(node, i);
         v1->setCacheIndexForEdgeNode(node, i + 1);
         
-        for (uint k = 0; k < 3; k++)
+        for (unsigned int k = 0; k < 3; k++)
         {
             _cachedEdgeVertices[i].position.coords[k] = v0->data().position[k];
             _cachedEdgeVertices[i + 1].position.coords[k] = v1->data().position[k];
@@ -213,7 +211,7 @@ void Mesh2::fillEdgeCache()
         
         if (node->data().selected)
         {
-            for (uint k = 0; k < 3; k++)
+            for (unsigned int k = 0; k < 3; k++)
             {
                 _cachedEdgeTexCoords[i].color.coords[k] = selectedColor[k];
                 _cachedEdgeTexCoords[i + 1].color.coords[k] = selectedColor[k];
@@ -221,14 +219,14 @@ void Mesh2::fillEdgeCache()
         }
         else
         {
-            for (uint k = 0; k < 3; k++)
+            for (unsigned int k = 0; k < 3; k++)
             {
                 _cachedEdgeTexCoords[i].color.coords[k] = normalColor[k];
                 _cachedEdgeTexCoords[i + 1].color.coords[k] = normalColor[k];
             }
         }
         
-        for (uint k = 0; k < 3; k++)
+        for (unsigned int k = 0; k < 3; k++)
         {
             _cachedEdgeTexCoords[i].position.coords[k] = node->data().texCoord(0)->data().position[k];
             _cachedEdgeTexCoords[i + 1].position.coords[k] = node->data().texCoord(1)->data().position[k];
@@ -241,7 +239,7 @@ void Mesh2::fillEdgeCache()
     _cachedEdgeTexCoords.setValid(true);
 }
 
-void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, uint cacheIndexPosition)
+void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, unsigned int cacheIndexPosition)
 {
     int cacheIndex = triangleNode->cacheIndices[cacheIndexPosition];
     if (cacheIndex < 0)
@@ -253,7 +251,7 @@ void Mesh2::updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNo
     
     GLTriangleVertex &cachedVertex = _cachedTriangleVertices[cacheIndex];
     
-    for (uint k = 0; k < 3; k++)
+    for (unsigned int k = 0; k < 3; k++)
     {
         cachedVertex.position.coords[k] = v[k];
         cachedVertex.smoothNormal.coords[k] = sn[k];
@@ -271,7 +269,7 @@ void Mesh2::updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *ed
     
     GLEdgeVertex &cachedVertex = _cachedEdgeVertices[cacheIndex];
     
-    for (uint k = 0; k < 3; k++)
+    for (unsigned int k = 0; k < 3; k++)
     {
         cachedVertex.position.coords[k] = v[k];
     }
@@ -279,7 +277,7 @@ void Mesh2::updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *ed
 
 void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
 {
-    uint count = affectedVertices.size();
+    unsigned int count = affectedVertices.size();
     
     if (count > vertexCount() / 3)
     {
@@ -287,7 +285,7 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
         return;
     }
     
-    for (uint i = 0; i < count; i++)
+    for (unsigned int i = 0; i < count; i++)
     {
         VertexNode *vertexNode = affectedVertices[i];
         vertexNode->addAffectedVertices(affectedVertices);
@@ -295,13 +293,13 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
     
     count = affectedVertices.size();
     
-    for (uint i = 0; i < count; i++)
+    for (unsigned int i = 0; i < count; i++)
     {
         VertexNode *vertexNode = affectedVertices[i];
         vertexNode->updateTriangleNormals();
     }
     
-    for (uint i = 0; i < count; i++)
+    for (unsigned int i = 0; i < count; i++)
     {
         VertexNode *vertexNode = affectedVertices[i];
         vertexNode->computeNormal();
@@ -326,17 +324,14 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
             updateVertexInEdgeCache(vertexNode, edgeNode);
         }
     }
-#if defined(__APPLE__) || defined(SHADERS)
     glBindBuffer(GL_ARRAY_BUFFER, _vboID);
     glBufferData(GL_ARRAY_BUFFER, _cachedTriangleVertices.count() * sizeof(GLTriangleVertex), _cachedTriangleVertices, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-#endif
 }
 
 void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
 {
     fillTriangleCache();
-#if defined(__APPLE__) || defined(SHADERS)
     if (viewMode == ViewMode::MixedWireSolid)
         glEnable(GL_BLEND);
     
@@ -395,45 +390,18 @@ void Mesh2::drawFill(FillMode fillMode, ViewMode viewMode)
     
     if (viewMode == ViewMode::MixedWireSolid)
         glDisable(GL_BLEND);
-#else
-	if (!fillMode.colored && !fillMode.textured)
-	{
-		glBegin(GL_TRIANGLES);
-		for (uint i = 0; i < _cachedTriangleVertices.count(); i++)
-		{
-			glVertex3fv(_cachedTriangleVertices[i].position.coords);
-		}
-		glEnd();
-	}
-	else
-	{
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-
-		glBegin(GL_TRIANGLES);
-		for (uint i = 0; i < _cachedTriangleVertices.count(); i++)
-		{
-			glColor3fv(_cachedTriangleVertices[i].color.coords);
-			glNormal3fv(_cachedTriangleVertices[i].smoothNormal.coords);
-			glVertex3fv(_cachedTriangleVertices[i].position.coords);
-		}
-		glEnd();
-
-		glDisable(GL_LIGHTING);
-	}
-#endif
 }
 
 void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection)
 {
     bool flipped = scale.x < 0.0f || scale.y < 0.0f || scale.z < 0.0f;
-#if defined(__APPLE__) || defined(SHADERS)
+    
     ShaderProgram *shader;
     if (_texture != NULL)
         shader = ShaderProgram::texturedShader();
     else
         shader = ShaderProgram::normalShader();
-#endif    
+
     if (viewMode == ViewMode::MixedWireSolid)
     {
         selected = true;
@@ -466,14 +434,13 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             glPolygonOffset(1.0f, 1.0f);
 
         }
-#if defined(__APPLE__) || defined(SHADERS)
         if (_texture != NULL)
         {
             GLint textureLocation = glGetUniformLocation(shader->program, "texture");
             glUniform1i(textureLocation, 0);
         }
         shader->useProgram();
-#endif        
+
         if (_selectionMode != MeshSelectionMode::Triangles)
         {
             glColor3fv(_colorComponents);
@@ -487,9 +454,9 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
             fillMode.colored = true;
             drawFill(fillMode, viewMode);
         }
-#if defined(__APPLE__) || defined(SHADERS)
+
         ShaderProgram::resetProgram();
-#endif        
+
         if (selected)
         {
             glDisable(GL_POLYGON_OFFSET_FILL);
@@ -511,7 +478,7 @@ void Mesh2::draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool f
     }
 }
 
-void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
+void Mesh2::drawAtIndex(unsigned int index, bool forSelection, ViewMode viewMode)
 {
     switch (_selectionMode) 
 	{
@@ -565,7 +532,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
 				glBegin(triangle.isQuad() ? GL_QUADS : GL_TRIANGLES);
                 if (_isUnwrapped)
                 {
-                    for (uint i = 0; i < triangle.count(); i++)
+                    for (unsigned int i = 0; i < triangle.count(); i++)
                     {
                         Vector3D v = triangle.texCoord(i)->data().position;
                         glVertex3f(v.x, v.y, v.z);
@@ -573,7 +540,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
                 }
                 else 
                 {
-                    for (uint i = 0; i < triangle.count(); i++)
+                    for (unsigned int i = 0; i < triangle.count(); i++)
                     {
                         Vector3D v = triangle.vertex(i)->data().position;
                         glVertex3f(v.x, v.y, v.z);
@@ -600,7 +567,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
                         glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
                 }
                 glBegin(GL_LINES);
-                for (uint i = 0; i < 2; i++)
+                for (unsigned int i = 0; i < 2; i++)
                 {
                     Vector3D v = edge.texCoord(i)->data().position;
                     glVertex3f(v.x, v.y, v.z);
@@ -623,7 +590,7 @@ void Mesh2::drawAtIndex(uint index, bool forSelection, ViewMode viewMode)
                         glColor3f(_colorComponents[0] - 0.2f, _colorComponents[1] - 0.2f, _colorComponents[2] - 0.2f);
                 }
                 glBegin(GL_LINES);
-                for (uint i = 0; i < 2; i++)
+                for (unsigned int i = 0; i < 2; i++)
                 {
                     Vector3D v = edge.vertex(i)->data().position;
                     glVertex3f(v.x, v.y, v.z);
@@ -641,9 +608,9 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
     if (forSelection)
     {
         vector<Vector3D> tempVertices;
-        vector<uint> tempColors;
+        vector<unsigned int> tempColors;
         
-        uint colorIndex = 0;
+        unsigned int colorIndex = 0;
         
         if (!_selectThrough && !_isUnwrapped)
         {
@@ -811,9 +778,9 @@ void Mesh2::glProjectSelect(int x, int y, int width, int height, const Matrix4x4
 
 void Mesh2::drawAllTriangles(ViewMode viewMode, bool forSelection)
 {
-    for (uint i = 0; i < _triangles.count(); i++)
+    for (unsigned int i = 0; i < _triangles.count(); i++)
     {
-        uint colorIndex = i + 1;
+        unsigned int colorIndex = i + 1;
         ColorIndex(colorIndex);
         drawAtIndex(i, forSelection, viewMode);
     }
@@ -825,9 +792,9 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
     
     if (forSelection)
     {
-        vector<uint> tempColors;
+        vector<unsigned int> tempColors;
         
-        uint colorIndex = 0;
+        unsigned int colorIndex = 0;
         
         if (!_selectThrough && !_isUnwrapped)
         {
@@ -1010,7 +977,7 @@ void Mesh2::hideSelected()
                 {
                     tri.visible = false;
                     
-                    for (uint i = 0; i < tri.count(); i++)
+                    for (unsigned int i = 0; i < tri.count(); i++)
                     {
                         if (!tri.vertexEdge(i)->data().isNotShared())
                             tri.vertexEdge(i)->data().visible = false;

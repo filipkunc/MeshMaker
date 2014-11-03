@@ -55,14 +55,14 @@ void Manipulator::addWidgetWithAxis(Widget widget, Axis axis)
     widgets.push_back(ManipulatorWidget(widget, axis));
 }
 
-ManipulatorWidget &Manipulator::widgetAtIndex(uint index)
+ManipulatorWidget &Manipulator::widgetAtIndex(unsigned int index)
 {
     return widgets.at(index);
 }
 
 void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 {
-	uint widgetsCount = widgets.size();
+	unsigned int widgetsCount = widgets.size();
 	
 	if (widgetsCount == 0U)
 		return;
@@ -81,7 +81,7 @@ void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 		glPushMatrix();
 		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
-		for (uint i = 0; i < widgetsCount; i++)
+		for (unsigned int i = 0; i < widgetsCount; i++)
 		{
             widgets[i].draw(size, highlightAll || i == selectedIndex, true, false);
 		}
@@ -112,7 +112,7 @@ void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 		glPushMatrix();
 		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
-		for (uint i = 0; i < widgetsCount; i++)
+		for (unsigned int i = 0; i < widgetsCount; i++)
 		{
 			widgets[i].draw(size, highlightAll || i == selectedIndex, false, false);
 		}
@@ -125,7 +125,7 @@ void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 		glPushMatrix();
 		glTranslatef(position.x, position.y, position.z);
 		glMultMatrixf(rotationMatrix);
-		for (uint i = 0; i < widgetsCount; i++)
+		for (unsigned int i = 0; i < widgetsCount; i++)
 		{
             widgets[i].draw(size, highlightAll || i == selectedIndex, false, false);
 		}
@@ -135,12 +135,12 @@ void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 
 #pragma mark OpenGLSelecting
 
-uint Manipulator::selectableCount()
+unsigned int Manipulator::selectableCount()
 {
     return widgets.size();
 }
 
-void Manipulator::drawForSelectionAtIndex(uint index)
+void Manipulator::drawForSelectionAtIndex(unsigned int index)
 {
 	ManipulatorWidget &widget = widgets.at(index);
 	
@@ -155,7 +155,7 @@ void Manipulator::drawForSelectionAtIndex(uint index)
     glPopMatrix();
 }
 
-void Manipulator::selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode)
+void Manipulator::selectObjectAtIndex(unsigned int index, OpenGLSelectionMode selectionMode)
 {
     selectedIndex = index;
 }

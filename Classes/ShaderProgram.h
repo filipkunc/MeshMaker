@@ -10,8 +10,6 @@
 
 #include "Shader.h"
 
-#if defined(__APPLE__) || defined(SHADERS)
-
 class ShaderProgram
 {
 public:
@@ -29,5 +27,3 @@ public:
     void useProgram();
     static void resetProgram();
 };
-
-#endif

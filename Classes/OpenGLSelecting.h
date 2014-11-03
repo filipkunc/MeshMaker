@@ -15,9 +15,9 @@ class IOpenGLSelecting
 public:
     virtual ~IOpenGLSelecting() { }
     
-    virtual uint selectableCount() = 0;
-    virtual void drawForSelectionAtIndex(uint index) = 0;
-    virtual void selectObjectAtIndex(uint index, OpenGLSelectionMode selectionMode) = 0;
+    virtual unsigned int selectableCount() = 0;
+    virtual void drawForSelectionAtIndex(unsigned int index) = 0;
+    virtual void selectObjectAtIndex(unsigned int index, OpenGLSelectionMode selectionMode) = 0;
 };
 
 class IOpenGLSelectingOptional : public IOpenGLSelecting
@@ -27,7 +27,7 @@ public:
     
     virtual void willSelectThrough(bool selectThrough) = 0;
     virtual void didSelect() = 0;
-    virtual bool isObjectSelectedAtIndex(uint index) = 0;
+    virtual bool isObjectSelectedAtIndex(unsigned int index) = 0;
     virtual void drawAllForSelection() = 0;
     virtual bool needsCullFace() = 0;
     virtual bool useGLProject() = 0;

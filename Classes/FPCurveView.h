@@ -8,10 +8,7 @@
 
 #pragma once
 
-#if defined(__APPLE__)
 #include <Cocoa/Cocoa.h>
-#endif
-#include "Drawing2D.h"
 #include "Mesh2.h"
 
 #include <vector>
@@ -23,7 +20,7 @@ private:
     NSPoint _lastPoint;
     NSRect _lastBounds;
     float _pointSize;
-    uint _lastSelectedIndex;
+    unsigned int _lastSelectedIndex;
 public:
     CurveView();
 
@@ -32,8 +29,6 @@ public:
     void mouseDragged(NSPoint point);
     void mouseDown(NSPoint point);
 };
-
-#if defined (__APPLE__)
 
 @protocol FPCurveViewDelegate <NSObject>
 
@@ -50,5 +45,3 @@ public:
 @property (readwrite, weak) id<FPCurveViewDelegate> delegate;
 
 @end
-
-#endif

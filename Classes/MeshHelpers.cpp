@@ -9,7 +9,7 @@
 
 #include "MeshHelpers.h"
 
-void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint index3)
+void AddTriangle(vector<TriQuad> &triangles, unsigned int index1, unsigned int index2, unsigned int index3)
 {
     TriQuad triangle;
     triangle.isQuad = false;
@@ -21,7 +21,7 @@ void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint inde
     triangles.push_back(triangle);
 }
 
-void AddTriangle(vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoordIndices[3])
+void AddTriangle(vector<TriQuad> &triangles, unsigned int vertexIndices[3], unsigned int texCoordIndices[3])
 {
     TriQuad triangle;
     triangle.isQuad = false;
@@ -35,7 +35,7 @@ void AddTriangle(vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoor
     triangles.push_back(triangle);
 }
 
-void AddQuad(vector<TriQuad> &triangles, uint index1, uint index2, uint index3, uint index4)
+void AddQuad(vector<TriQuad> &triangles, unsigned int index1, unsigned int index2, unsigned int index3, unsigned int index4)
 {
     TriQuad triangle;
     triangle.isQuad = true;

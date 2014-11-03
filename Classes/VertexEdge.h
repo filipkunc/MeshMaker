@@ -21,7 +21,7 @@ public:
     
     VEdge() : selected(false), visible(true), half(NULL)
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             _vertices[i] = NULL;
             _triangles[i] = NULL;
@@ -30,7 +30,7 @@ public:
     
     VEdge(VNode<T> *vertices[2]) : selected(false), visible(true), half(NULL)
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             _vertices[i] = vertices[i];
             _triangles[i] = NULL;
@@ -53,7 +53,7 @@ public:
     
     bool containsVertex(const VNode<T> *vertex) const
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (_vertices[i] == vertex)
                 return true;        
@@ -63,7 +63,7 @@ public:
     
     bool containsTriangle(const TriangleNode *triangle) const
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (_triangles[i] == triangle)
                 return true;
@@ -73,7 +73,7 @@ public:
     
     bool isNotShared() const
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (_triangles[i] == NULL || !_triangles[i]->data().selected)
                 return true;
@@ -83,7 +83,7 @@ public:
     
     VertexNode *sharedVertex(const VEdge &edge) const
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (edge.containsVertex(_vertices[i]))
                 return _vertices[i];
@@ -93,7 +93,7 @@ public:
     
     TriangleNode *sharedTriangle(const VEdge &edge) const
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (edge.containsTriangle(_triangles[i]))
                 return _triangles[i];
@@ -101,16 +101,16 @@ public:
         return NULL;
     }
     
-    VNode<T> *vertex(uint index) const { return _vertices[index]; }
-    void setVertex(uint index, VNode<T> *value) { _vertices[index] = value; }
-    VNode<T> *texCoord(uint index) const { return _vertices[index]; }
-    void setTexCoord(uint index, VNode<T> *value) { _vertices[index] = value; }
-    TriangleNode *triangle(uint index) const { return _triangles[index]; }
-    void setTriangle(uint index, TriangleNode *value) { _triangles[index] = value; }
+    VNode<T> *vertex(unsigned int index) const { return _vertices[index]; }
+    void setVertex(unsigned int index, VNode<T> *value) { _vertices[index] = value; }
+    VNode<T> *texCoord(unsigned int index) const { return _vertices[index]; }
+    void setTexCoord(unsigned int index, VNode<T> *value) { _vertices[index] = value; }
+    TriangleNode *triangle(unsigned int index) const { return _triangles[index]; }
+    void setTriangle(unsigned int index, TriangleNode *value) { _triangles[index] = value; }
     
     void removeVertex(VNode<T> *vertex)
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (_vertices[i] == vertex)
             {
@@ -122,7 +122,7 @@ public:
     
     void removeTriangle(TriangleNode *triangle)
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (_triangles[i] == triangle)
             {
@@ -246,7 +246,7 @@ public:
     
     void addToVertices()
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (this->data()._vertices[i])
                 this->data()._vertices[i]->addEdge(this);
@@ -255,7 +255,7 @@ public:
     
     void removeFromVertices()
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (this->data()._vertices[i])
             {
@@ -267,7 +267,7 @@ public:
     
     void removeFromTriangles()
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (this->data()._triangles[i])
             {
@@ -279,7 +279,7 @@ public:
     
     void replaceVertex(VNode<T> *currentVertex, VNode<T> *newVertex)
     {
-        for (uint i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             if (this->data()._vertices[i] == currentVertex)
             {
@@ -299,18 +299,18 @@ public:
         
         vector<VertexEdgeNode *> nextStepNodes;
         
-        for (uint w = 1; w < weights.size(); w++)
+        for (unsigned int w = 1; w < weights.size(); w++)
         {
             float weight = weights[w];
             
             nextStepNodes.clear();
             
-            for (uint i = 0; i < currentStepNodes.size(); i++)
+            for (unsigned int i = 0; i < currentStepNodes.size(); i++)
             {
                 VertexEdgeNode *currentNode = currentStepNodes[i];
                 VertexEdge &edge = currentNode->data();
                 
-                for (uint j = 0; j < 2; j++)
+                for (unsigned int j = 0; j < 2; j++)
                 {
                     TriangleNode *quad = edge.triangle(j);
                     

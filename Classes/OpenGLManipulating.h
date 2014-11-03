@@ -42,7 +42,7 @@ public:
     virtual void setSelectionRotation(Quaternion rotation) = 0;
     virtual Vector3D selectionScale() = 0;
     virtual void setSelectionScale(Vector3D scale) = 0;
-    virtual uint selectedCount() = 0;
+    virtual unsigned int selectedCount() = 0;
     virtual ViewMode viewMode() = 0;
     virtual void setViewMode(ViewMode mode) = 0;
     
