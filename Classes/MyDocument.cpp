@@ -474,10 +474,10 @@
 
 - (void)editMeshWithMode:(enum MeshSelectionMode)mode
 {
-	NSInteger index = itemsController->lastSelectedIndex();
+	int index = itemsController->lastSelectedIndex();
 	if (index > -1)
 	{
-		Item *item = items->itemAtIndex(index);
+        Item *item = items->itemAtIndex(static_cast<unsigned int>(index));
         item->mesh->setSelectionMode(mode);
         
 		meshController->setModel(item);
@@ -637,7 +637,7 @@
 {	
 	[self setManipulated:itemsController];
     vector<unsigned int> *selectedIndices = dynamic_cast<UndoState<vector<unsigned int>> *>(selection.undoState)->state();
-	unsigned int duplicatedCount = selectedIndices->size();
+    unsigned int duplicatedCount = static_cast<unsigned int>(selectedIndices->size());
     items->removeItemsInRange(items->count() - duplicatedCount, duplicatedCount);
     items->setCurrentSelection(selection.undoState);
 

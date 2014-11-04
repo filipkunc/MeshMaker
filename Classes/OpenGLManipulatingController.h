@@ -36,7 +36,7 @@ private:
 	Vector3D _selectionEuler;
 	Vector3D _selectionScale;
 	unsigned int _selectedCount;
-	NSInteger _lastSelectedIndex;
+	int _lastSelectedIndex;
 	
 	Matrix4x4 _modelTransform;
 	Vector3D _modelPosition;
@@ -113,7 +113,7 @@ public:
     void setModel(IOpenGLManipulatingModel *aModel);
     Matrix4x4 &modelTransform();
     void setModelTransform(Matrix4x4 &transform);
-    NSInteger lastSelectedIndex();
+    int lastSelectedIndex();
 
     void addSelectionObserver(id observer);
     void removeSelectionObserver(id observer);

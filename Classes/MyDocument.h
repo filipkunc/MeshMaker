@@ -122,7 +122,6 @@
 - (IBAction)triangulate:(id)sender;
 - (IBAction)viewTexturePaintTool:(id)sender;
 - (IBAction)viewTextureBrowser:(id)sender;
-- (IBAction)viewScriptEditor:(id)sender;
 - (IBAction)viewSelectionTool:(id)sender;
 - (IBAction)viewVertexTool:(id)sender;
 - (IBAction)importPointCloud:(id)sender;

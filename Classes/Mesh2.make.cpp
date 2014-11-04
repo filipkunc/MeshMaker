@@ -487,7 +487,7 @@ void Mesh2::fromVertices(const vector<Vector3D> &vertices)
     vector<VertexNode *> tempVertices;
     vector<VertexNode *> uniqueVertices;
     
-    unsigned int verticesSize = vertices.size();
+    unsigned int verticesSize = static_cast<unsigned int>(vertices.size());
     
     for (unsigned int i = 0; i < verticesSize; i++)
     {

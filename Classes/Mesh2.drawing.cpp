@@ -277,7 +277,7 @@ void Mesh2::updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *ed
 
 void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
 {
-    unsigned int count = affectedVertices.size();
+    unsigned int count = static_cast<unsigned int>(affectedVertices.size());
     
     if (count > vertexCount() / 3)
     {
@@ -291,7 +291,7 @@ void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
         vertexNode->addAffectedVertices(affectedVertices);
     }
     
-    count = affectedVertices.size();
+    count = static_cast<unsigned int>(affectedVertices.size());
     
     for (unsigned int i = 0; i < count; i++)
     {
@@ -659,7 +659,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         float *vertexPtr = (float *)&tempVertices[0];        
         glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
         
-        glDrawArrays(GL_POINTS, 0, tempVertices.size());
+        glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(tempVertices.size()));
         
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
@@ -723,7 +723,7 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
         float *vertexPtr = (float *)&tempVertices[0];        
         glVertexPointer(3, GL_FLOAT, 0, vertexPtr);
         
-        glDrawArrays(GL_POINTS, 0, tempVertices.size());
+        glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(tempVertices.size()));
         
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);

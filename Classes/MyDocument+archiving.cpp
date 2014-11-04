@@ -182,7 +182,7 @@ vector<T> *ReadValues(string s)
         else if (prefix == "g")
         {
             // g group_name
-            groups.push_back(triangles.size());
+            groups.push_back(static_cast<unsigned int>(triangles.size()));
         }
         else if (prefix == "v")
         {
@@ -400,7 +400,7 @@ vector<T> *ReadValues(string s)
     vector<Vector3D> texCoords;
     vector<TriQuad> triangles;
     
-    unsigned int pointsSize = points->size();
+    unsigned int pointsSize = static_cast<unsigned int>(points->size());
     
     for (unsigned int i = 0; i < pointsSize; i += 3)
     {
@@ -448,7 +448,7 @@ vector<T> *ReadValues(string s)
 {
     NSString* xmlData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    unsigned int length = [xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    unsigned int length = static_cast<unsigned int>([xmlData lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
     char *textBuffer = new char [length + 1];
     memset(textBuffer, 0, length + 1);
     memcpy(textBuffer, [xmlData UTF8String], length);

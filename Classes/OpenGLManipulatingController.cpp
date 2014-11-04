@@ -546,7 +546,7 @@ void OpenGLManipulatingController::setModelTransform(Matrix4x4 &transform)
     _modelTransform = transform;
 }
 
-NSInteger OpenGLManipulatingController::lastSelectedIndex()
+int OpenGLManipulatingController::lastSelectedIndex()
 {
     return _lastSelectedIndex;
 }

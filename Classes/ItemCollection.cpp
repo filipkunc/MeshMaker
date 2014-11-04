@@ -105,7 +105,7 @@ ItemCollection::ItemCollection(MemoryReadStream *stream, TextureCollection &text
 
 void ItemCollection::encode(MemoryWriteStream *stream, TextureCollection &textures)
 {
-    unsigned int itemsCount = items.size();
+    unsigned int itemsCount = static_cast<unsigned int>(items.size());
     stream->write<unsigned int>(itemsCount);
 	for (unsigned int i = 0; i < itemsCount; i++)
 	{
@@ -439,7 +439,7 @@ void ItemCollection::setViewMode(ViewMode viewMode)
 
 unsigned int ItemCollection::count()
 {
-    return items.size();
+    return static_cast<unsigned int>(items.size());
 }
 
 bool ItemCollection::isSelectedAtIndex(unsigned int index)
@@ -460,7 +460,7 @@ void ItemCollection::expandSelectionFromIndex(unsigned int index, bool invert)
 
 void ItemCollection::duplicateSelected()
 {
-    unsigned int count = items.size();
+    unsigned int count = static_cast<unsigned int>(items.size());
 	for (unsigned int i = 0; i < count; i++)
 	{
         Item *oldItem = items[i];

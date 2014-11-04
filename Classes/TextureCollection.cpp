@@ -73,13 +73,13 @@ TextureCollection::TextureCollection(MemoryReadStream *stream)
 
 void TextureCollection::encode(MemoryWriteStream *stream)
 {
-    unsigned int textureCount = _textures.size();
+    unsigned int textureCount = static_cast<unsigned int>(_textures.size());
     stream->write<unsigned int>(textureCount);
     for (unsigned int i = 0; i < textureCount; i++)
     {
         NSString *name = _textures[i]->name();
         
-        unsigned int charCount = [name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        unsigned int charCount = static_cast<unsigned int>([name lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
         const char *utf8String = [name UTF8String];		
 
         stream->write<unsigned int>(charCount);

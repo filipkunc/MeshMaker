@@ -74,7 +74,7 @@ Texture::Texture(NSString *name, NSImage *image, bool convertToAlpha)
     
     NSBitmapImageRep *bitmap = BitmapImageRepFromImage(_image);
     GLubyte *data = [bitmap bitmapData];
-    NSInteger bitsPerPixel = [bitmap bitsPerPixel];
+    int bitsPerPixel = static_cast<int>([bitmap bitsPerPixel]);
     int components = bitsPerPixel / 8;
     
     _needUpdate = false;
@@ -145,7 +145,7 @@ void Texture::updateTexture()
     NSBitmapImageRep *bitmap = BitmapImageRepFromImage(_image);
 
     GLubyte *data = [bitmap bitmapData];
-	NSInteger bitsPerPixel = [bitmap bitsPerPixel];
+    int bitsPerPixel = static_cast<int>([bitmap bitsPerPixel]);
 	int components = bitsPerPixel / 8;
         
 	CreateTexture(data, components, &_textureID, _image.size.width, _image.size.height, NO);  

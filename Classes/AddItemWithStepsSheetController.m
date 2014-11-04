@@ -31,7 +31,7 @@
         NSBundle *myBundle = [NSBundle bundleForClass:[self class]];
         NSNib *nib = [[NSNib alloc] initWithNibNamed:@"AddItemWithStepsSheet" bundle:myBundle];
 		
-        [nib instantiateNibWithOwner:self topLevelObjects:nil];
+        [nib instantiateWithOwner:self topLevelObjects:nil];
     }
 		
 	[NSApp beginSheet:sheet

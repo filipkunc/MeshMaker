@@ -44,7 +44,7 @@
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    NSString *name = _delegate.textures->textureAtIndex(row)->name();
+    NSString *name = _delegate.textures->textureAtIndex(static_cast<unsigned int>(row))->name();
     if (name != nil)
         return [name lastPathComponent];
     return @"<Empty>";
@@ -52,7 +52,7 @@
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
-    int selectedRow = textureList.selectedRow;
+    int selectedRow = static_cast<int>(textureList.selectedRow);
     if (selectedRow >= 0 && selectedRow < (int)_delegate.textures->count())
     {
         Texture *texture = _delegate.textures->textureAtIndex(selectedRow);
@@ -71,7 +71,7 @@
 {
     Texture *texture;
     
-    int selectedRow = textureList.selectedRow;
+    int selectedRow = static_cast<int>(textureList.selectedRow);
     if (selectedRow >= 0 && selectedRow < (int)_delegate.textures->count())
     {
         texture = _delegate.textures->textureAtIndex(selectedRow);
@@ -101,7 +101,7 @@
 
 - (IBAction)deleteTexture:(id)sender
 {
-    int selectedRow = textureList.selectedRow;
+    int selectedRow = static_cast<int>(textureList.selectedRow);
     if (selectedRow >= 0 && selectedRow < (int)_delegate.textures->count())
     {
         _delegate.textures->removeTextureAtIndex(selectedRow, *_delegate.items);

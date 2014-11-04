@@ -254,9 +254,9 @@ void Mesh2::encode(MemoryWriteStream *stream, TextureCollection &textures)
     
     this->toIndexRepresentation(vertices, texCoords, triangles);
     
-    unsigned int vertexCount = vertices.size();
-    unsigned int texCoordCount = texCoords.size();
-    unsigned int triangleCount = triangles.size();
+    unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
+    unsigned int texCoordCount = static_cast<unsigned int>(texCoords.size());
+    unsigned int triangleCount = static_cast<unsigned int>(triangles.size());
     
     stream->write<unsigned int>(vertexCount);
     stream->write<unsigned int>(texCoordCount);
@@ -406,14 +406,14 @@ unsigned int Mesh2::selectedCount() const
     {
         case MeshSelectionMode::Vertices:
             if (_isUnwrapped)
-                return _cachedTexCoordSelection.size();
-            return _cachedVertexSelection.size();            
+                return static_cast<unsigned int>(_cachedTexCoordSelection.size());
+            return static_cast<unsigned int>(_cachedVertexSelection.size());
         case MeshSelectionMode::Triangles:
-            return _cachedTriangleSelection.size();
+            return static_cast<unsigned int>(_cachedTriangleSelection.size());
         case MeshSelectionMode::Edges:
             if (_isUnwrapped)
-                return _cachedTexCoordEdgeSelection.size();
-            return _cachedVertexEdgeSelection.size();
+                return static_cast<unsigned int>(_cachedTexCoordEdgeSelection.size());
+            return static_cast<unsigned int>(_cachedVertexEdgeSelection.size());
         default:
             return 0;
     }

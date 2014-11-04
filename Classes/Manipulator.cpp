@@ -62,7 +62,7 @@ ManipulatorWidget &Manipulator::widgetAtIndex(unsigned int index)
 
 void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 {
-	unsigned int widgetsCount = widgets.size();
+    unsigned int widgetsCount = static_cast<unsigned int>(widgets.size());
 	
 	if (widgetsCount == 0U)
 		return;
@@ -137,7 +137,7 @@ void Manipulator::draw(Vector3D axisZ, Vector3D center, bool highlightAll)
 
 unsigned int Manipulator::selectableCount()
 {
-    return widgets.size();
+    return static_cast<unsigned int>(widgets.size());
 }
 
 void Manipulator::drawForSelectionAtIndex(unsigned int index)

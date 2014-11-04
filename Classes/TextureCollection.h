@@ -30,5 +30,5 @@ public:
     void removeTextureAtIndex(unsigned int index, ItemCollection &items);
     Texture *textureAtIndex(unsigned int index) { return _textures.at(index); }
     unsigned int indexOfTexture(Texture *texture);
-    unsigned int count() { return _textures.size(); }
+    unsigned int count() { return static_cast<int>(_textures.size()); }
 };
