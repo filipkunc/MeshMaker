@@ -44,6 +44,11 @@ struct AppState {
     int currentMeshType = 1;  // Cube
     int meshSteps = 20;
     glm::vec3 meshColor = glm::vec3(0.7f, 0.7f, 0.7f);
+    glm::vec3 wireframeColor = glm::vec3(0.1f, 0.1f, 0.1f);
+    
+    // View settings
+    int viewMode = 2;  // SolidWireframe
+    bool showGrid = true;
 };
 
 static AppState g_app;
@@ -174,9 +179,23 @@ void renderImGui() {
         g_app.mesh->createGPUBuffers();
     }
     
+    if (ImGui::ColorEdit3("Wireframe Color", &g_app.wireframeColor.x)) {
+        g_app.mesh->setWireframeColor(g_app.wireframeColor);
+        g_app.mesh->createGPUBuffers();
+    }
+    
+    ImGui::Separator();
+    ImGui::Text("View Settings:");
+    
+    const char* viewModes[] = { "Solid", "Wireframe", "Solid + Wireframe" };
+    ImGui::Combo("View Mode", &g_app.viewMode, viewModes, 3);
+    
+    ImGui::Checkbox("Show Grid", &g_app.showGrid);
+    
     ImGui::Separator();
     ImGui::Text("Stats:");
     ImGui::Text("Vertices: %zu", g_app.mesh->getVertexCount());
+    ImGui::Text("Edges: %zu", g_app.mesh->getEdgeVertexCount() / 2);
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     
     ImGui::End();
@@ -196,24 +215,48 @@ void render() {
     glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(model));
     
     // Draw grid
-    glDisable(GL_DEPTH_TEST);
-    g_app.gridShader->use();
-    g_app.gridShader->setMat4("uView", view);
-    g_app.gridShader->setMat4("uProjection", projection);
-    g_app.grid->draw();
-    glEnable(GL_DEPTH_TEST);
+    if (g_app.showGrid) {
+        glDisable(GL_DEPTH_TEST);
+        g_app.gridShader->use();
+        g_app.gridShader->setMat4("uView", view);
+        g_app.gridShader->setMat4("uProjection", projection);
+        g_app.grid->draw();
+        glEnable(GL_DEPTH_TEST);
+    }
     
-    // Draw mesh
-    g_app.meshShader->use();
-    g_app.meshShader->setMat4("uModel", model);
-    g_app.meshShader->setMat4("uView", view);
-    g_app.meshShader->setMat4("uProjection", projection);
-    g_app.meshShader->setMat3("uNormalMatrix", normalMatrix);
-    g_app.meshShader->setVec3("uLightDir", glm::normalize(glm::vec3(-0.5f, -1.0f, -0.3f)));
-    g_app.meshShader->setVec3("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    g_app.meshShader->setVec3("uAmbientColor", glm::vec3(0.2f, 0.2f, 0.2f));
-    g_app.meshShader->setVec3("uViewPos", g_app.camera.getPosition());
-    g_app.mesh->draw();
+    ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
+    
+    // Draw solid mesh
+    if (viewMode == ViewMode::Solid || viewMode == ViewMode::SolidWireframe) {
+        g_app.meshShader->use();
+        g_app.meshShader->setMat4("uModel", model);
+        g_app.meshShader->setMat4("uView", view);
+        g_app.meshShader->setMat4("uProjection", projection);
+        g_app.meshShader->setMat3("uNormalMatrix", normalMatrix);
+        g_app.meshShader->setVec3("uLightDir", glm::normalize(glm::vec3(-0.5f, -1.0f, -0.3f)));
+        g_app.meshShader->setVec3("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        g_app.meshShader->setVec3("uAmbientColor", glm::vec3(0.2f, 0.2f, 0.2f));
+        g_app.meshShader->setVec3("uViewPos", g_app.camera.getPosition());
+        g_app.mesh->drawSolid();
+    }
+    
+    // Draw wireframe
+    if (viewMode == ViewMode::Wireframe || viewMode == ViewMode::SolidWireframe) {
+        // Use polygon offset to prevent z-fighting when drawing wireframe on top of solid
+        if (viewMode == ViewMode::SolidWireframe) {
+            glEnable(GL_POLYGON_OFFSET_LINE);
+            glPolygonOffset(-1.0f, -1.0f);
+        }
+        
+        g_app.gridShader->use();  // Reuse grid shader for simple line rendering
+        g_app.gridShader->setMat4("uView", view);
+        g_app.gridShader->setMat4("uProjection", projection);
+        g_app.mesh->drawWireframe();
+        
+        if (viewMode == ViewMode::SolidWireframe) {
+            glDisable(GL_POLYGON_OFFSET_LINE);
+        }
+    }
     
     // Draw ImGui
     renderImGui();

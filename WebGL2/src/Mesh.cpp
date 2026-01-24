@@ -14,8 +14,11 @@
 
 Mesh::Mesh()
     : m_color(0.7f, 0.7f, 0.7f)
+    , m_wireframeColor(0.1f, 0.1f, 0.1f)
     , m_vao(0)
     , m_vbo(0)
+    , m_edgeVao(0)
+    , m_edgeVbo(0)
     , m_gpuBuffersCreated(false)
 {
 }
@@ -26,6 +29,7 @@ Mesh::~Mesh() {
 
 void Mesh::clear() {
     m_vertices.clear();
+    m_edgeVertices.clear();
 }
 
 void Mesh::addTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& color) {
@@ -49,6 +53,36 @@ void Mesh::setColor(const glm::vec3& color) {
     m_color = color;
     for (auto& vertex : m_vertices) {
         vertex.color = color;
+    }
+}
+
+void Mesh::setWireframeColor(const glm::vec3& color) {
+    m_wireframeColor = color;
+    for (auto& vertex : m_edgeVertices) {
+        vertex.color = color;
+    }
+}
+
+void Mesh::buildEdges() {
+    m_edgeVertices.clear();
+    
+    // Extract edges from triangles (3 edges per triangle)
+    for (size_t i = 0; i < m_vertices.size(); i += 3) {
+        const glm::vec3& v0 = m_vertices[i].position;
+        const glm::vec3& v1 = m_vertices[i + 1].position;
+        const glm::vec3& v2 = m_vertices[i + 2].position;
+        
+        // Edge 0-1
+        m_edgeVertices.emplace_back(v0, m_wireframeColor);
+        m_edgeVertices.emplace_back(v1, m_wireframeColor);
+        
+        // Edge 1-2
+        m_edgeVertices.emplace_back(v1, m_wireframeColor);
+        m_edgeVertices.emplace_back(v2, m_wireframeColor);
+        
+        // Edge 2-0
+        m_edgeVertices.emplace_back(v2, m_wireframeColor);
+        m_edgeVertices.emplace_back(v0, m_wireframeColor);
     }
 }
 
@@ -206,6 +240,9 @@ void Mesh::make(MeshType type, uint32_t steps) {
             makeIcosahedron();
             break;
     }
+    
+    // Build edge data for wireframe rendering
+    buildEdges();
 }
 
 void Mesh::createGPUBuffers() {
@@ -213,6 +250,12 @@ void Mesh::createGPUBuffers() {
         deleteGPUBuffers();
     }
     
+    // Build edges if not already built
+    if (m_edgeVertices.empty() && !m_vertices.empty()) {
+        buildEdges();
+    }
+    
+    // Create solid mesh buffers
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
     
@@ -239,6 +282,30 @@ void Mesh::createGPUBuffers() {
     glEnableVertexAttribArray(2);
     
     glBindVertexArray(0);
+    
+    // Create wireframe buffers
+    glGenVertexArrays(1, &m_edgeVao);
+    glGenBuffers(1, &m_edgeVbo);
+    
+    glBindVertexArray(m_edgeVao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_edgeVbo);
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_edgeVertices.size() * sizeof(LineVertex),
+                 m_edgeVertices.data(),
+                 GL_STATIC_DRAW);
+    
+    // Position attribute (location = 0)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex),
+                          (void*)offsetof(LineVertex, position));
+    glEnableVertexAttribArray(0);
+    
+    // Color attribute (location = 1)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex),
+                          (void*)offsetof(LineVertex, color));
+    glEnableVertexAttribArray(1);
+    
+    glBindVertexArray(0);
+    
     m_gpuBuffersCreated = true;
 }
 
@@ -246,13 +313,17 @@ void Mesh::deleteGPUBuffers() {
     if (m_gpuBuffersCreated) {
         glDeleteVertexArrays(1, &m_vao);
         glDeleteBuffers(1, &m_vbo);
+        glDeleteVertexArrays(1, &m_edgeVao);
+        glDeleteBuffers(1, &m_edgeVbo);
         m_vao = 0;
         m_vbo = 0;
+        m_edgeVao = 0;
+        m_edgeVbo = 0;
         m_gpuBuffersCreated = false;
     }
 }
 
-void Mesh::draw() const {
+void Mesh::drawSolid() const {
     if (!m_gpuBuffersCreated || m_vertices.empty()) {
         return;
     }
@@ -260,4 +331,29 @@ void Mesh::draw() const {
     glBindVertexArray(m_vao);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()));
     glBindVertexArray(0);
+}
+
+void Mesh::drawWireframe() const {
+    if (!m_gpuBuffersCreated || m_edgeVertices.empty()) {
+        return;
+    }
+    
+    glBindVertexArray(m_edgeVao);
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_edgeVertices.size()));
+    glBindVertexArray(0);
+}
+
+void Mesh::draw(ViewMode mode) const {
+    switch (mode) {
+        case ViewMode::Solid:
+            drawSolid();
+            break;
+        case ViewMode::Wireframe:
+            drawWireframe();
+            break;
+        case ViewMode::SolidWireframe:
+            drawSolid();
+            // Wireframe is drawn separately with different shader
+            break;
+    }
 }
