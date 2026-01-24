@@ -3,7 +3,7 @@
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
 #else
-#include <glad/glad.h>
+#include <glad/gl.h>
 #endif
 
 #include <cmath>

@@ -2,7 +2,7 @@
 #include <emscripten.h>
 #include <GLES3/gl3.h>
 #else
-#include <glad/glad.h>
+#include <glad/gl.h>
 #endif
 
 #include <GLFW/glfw3.h>
@@ -266,7 +266,7 @@ int main() {
     
 #ifndef EMSCRIPTEN_BUILD
     // Initialize GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGL(glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
