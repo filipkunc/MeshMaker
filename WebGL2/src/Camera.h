@@ -42,6 +42,5 @@ private:
     // Limits
     static constexpr float MIN_DISTANCE = 0.1f;
     static constexpr float MAX_DISTANCE = 500.0f;
-    static constexpr float MIN_PITCH = -1.5f;  // ~-85 degrees
-    static constexpr float MAX_PITCH = 1.5f;   // ~85 degrees
+    // No pitch limits - unlimited rotation like original MeshMaker
 };

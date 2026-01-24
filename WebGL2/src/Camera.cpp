@@ -39,7 +39,7 @@ void Camera::rotateLeftRight(float delta) {
 
 void Camera::rotateUpDown(float delta) {
     m_pitch += delta;
-    m_pitch = std::clamp(m_pitch, MIN_PITCH, MAX_PITCH);
+    // No clamping - unlimited rotation like original MeshMaker
     updatePosition();
 }
 

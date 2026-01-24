@@ -161,16 +161,19 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
     
     bool hasSelection = g_app.mesh->getSelectedCount() > 0;
     
-    // Mode switching keys
+    // Mode switching keys (matching original MeshMaker: 1=Select, 2=Translate, 3=Rotate, 4=Scale)
     if (action == GLFW_PRESS) {
         switch (key) {
-            case GLFW_KEY_G:  // Grab/Translate mode
+            case GLFW_KEY_1:  // Select mode (default)
+                g_app.transformMode = TransformMode::None;
+                break;
+            case GLFW_KEY_2:  // Translate mode
                 g_app.transformMode = TransformMode::Translate;
                 break;
-            case GLFW_KEY_R:  // Rotate mode
+            case GLFW_KEY_3:  // Rotate mode
                 g_app.transformMode = TransformMode::Rotate;
                 break;
-            case GLFW_KEY_T:  // Scale (Transform size) mode - using T since S is for deselect
+            case GLFW_KEY_4:  // Scale mode
                 g_app.transformMode = TransformMode::Scale;
                 break;
             case GLFW_KEY_ESCAPE:
@@ -403,15 +406,17 @@ void renderImGui() {
     ImGui::Text("Transform (requires selection):");
     
     // Transform mode display and buttons
-    const char* modeNames[] = { "None", "Translate (G)", "Rotate (R)", "Scale (T)" };
+    const char* modeNames[] = { "Select (1)", "Translate (2)", "Rotate (3)", "Scale (4)" };
     int currentMode = static_cast<int>(g_app.transformMode);
     ImGui::Text("Mode: %s", modeNames[currentMode]);
     
-    if (ImGui::Button("Translate (G)")) g_app.transformMode = TransformMode::Translate;
+    if (ImGui::Button("Select (1)")) g_app.transformMode = TransformMode::None;
     ImGui::SameLine();
-    if (ImGui::Button("Rotate (R)")) g_app.transformMode = TransformMode::Rotate;
+    if (ImGui::Button("Translate (2)")) g_app.transformMode = TransformMode::Translate;
     ImGui::SameLine();
-    if (ImGui::Button("Scale (T)")) g_app.transformMode = TransformMode::Scale;
+    if (ImGui::Button("Rotate (3)")) g_app.transformMode = TransformMode::Rotate;
+    ImGui::SameLine();
+    if (ImGui::Button("Scale (4)")) g_app.transformMode = TransformMode::Scale;
     
     if (selectedCount > 0) {
         // Show relevant controls based on mode
@@ -519,7 +524,9 @@ void render() {
         g_app.meshShader->setMat4("uView", view);
         g_app.meshShader->setMat4("uProjection", projection);
         g_app.meshShader->setMat3("uNormalMatrix", normalMatrix);
-        g_app.meshShader->setVec3("uLightDir", glm::normalize(glm::vec3(-0.5f, -1.0f, -0.3f)));
+        // Light direction from camera - always illuminates what user is looking at
+        glm::vec3 lightDir = glm::normalize(g_app.camera.getCenter() - g_app.camera.getPosition());
+        g_app.meshShader->setVec3("uLightDir", lightDir);
         g_app.meshShader->setVec3("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         g_app.meshShader->setVec3("uAmbientColor", glm::vec3(0.2f, 0.2f, 0.2f));
         g_app.meshShader->setVec3("uViewPos", g_app.camera.getPosition());
