@@ -1,0 +1,59 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Desktop Debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/WebGL2/build/Debug/MeshMakerWebGL2.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/WebGL2",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build Desktop Debug"
+        },
+        {
+            "name": "Desktop Release",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/WebGL2/build/Release/MeshMakerWebGL2.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/WebGL2",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build Desktop Release"
+        },
+        {
+            "name": "WebGL (Build and Run)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/MeshMakerWebGL2.html",
+            "webRoot": "${workspaceFolder}/WebGL2/build_web",
+            "preLaunchTask": "Build and Start WebGL Server"
+        },
+        {
+            "name": "WebGL Debug (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/MeshMakerWebGL2.html",
+            "webRoot": "${workspaceFolder}/WebGL2/build_web",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "*": "${workspaceFolder}/WebGL2/*"
+            }
+        },
+        {
+            "name": "WebGL Debug (Edge)",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:8080/MeshMakerWebGL2.html",
+            "webRoot": "${workspaceFolder}/WebGL2/build_web",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "*": "${workspaceFolder}/WebGL2/*"
+            }
+        }
+    ]
+}

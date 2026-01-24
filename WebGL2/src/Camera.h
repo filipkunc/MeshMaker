@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 class Camera {
 public:
@@ -11,36 +12,42 @@ public:
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix(float aspectRatio) const;
     
-    // Orbit camera controls
-    void rotateLeftRight(float delta);
-    void rotateUpDown(float delta);
+    // Orbit camera controls (matching original MeshMaker)
+    void rotateLeftRight(float radians);
+    void rotateUpDown(float radians);
     void zoom(float delta);
-    void pan(float deltaX, float deltaY);
+    void leftRight(float delta);  // Pan left/right
+    void upDown(float delta);     // Pan up/down
     
     // Reset to default view
     void reset();
     
     // Accessors
-    glm::vec3 getPosition() const;
+    glm::vec3 getPosition() const { return m_position; }
     glm::vec3 getCenter() const { return m_center; }
-    float getZoom() const { return m_distance; }
+    float getZoom() const { return m_zoom; }
+    float getDistance() const { return m_zoom; }  // Alias for zoom (distance from center)
+    glm::vec3 getAxisX() const { return m_axisX; }
+    glm::vec3 getAxisY() const { return m_axisY; }
+    glm::vec3 getAxisZ() const { return m_axisZ; }
+    glm::vec3 getForwardDirection() const { return -m_axisZ; }  // Camera looks along -Z
     
 private:
-    void updatePosition();
+    void computeVectors();
+    glm::quat getRotationQuaternion() const;
+    void moveDirection(const glm::vec3& v);
     
-    glm::vec3 m_center;      // Look-at point
-    glm::vec3 m_position;    // Camera position (computed)
-    float m_yaw;             // Horizontal rotation (radians)
-    float m_pitch;           // Vertical rotation (radians)
-    float m_distance;        // Distance from center (zoom)
+    glm::vec2 m_radians;     // x = pitch (around X), y = yaw (around Y)
+    float m_zoom;            // Distance from center
+    float m_minZoom;
+    glm::vec3 m_center;
+    glm::vec3 m_position;
+    glm::vec3 m_axisX;
+    glm::vec3 m_axisY;
+    glm::vec3 m_axisZ;
     
     // Projection parameters
     float m_fov;
     float m_nearPlane;
     float m_farPlane;
-    
-    // Limits
-    static constexpr float MIN_DISTANCE = 0.1f;
-    static constexpr float MAX_DISTANCE = 500.0f;
-    // No pitch limits - unlimited rotation like original MeshMaker
 };

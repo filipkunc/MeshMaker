@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Shader.h"
 
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
@@ -105,35 +106,37 @@ void Mesh::makePlane() {
 void Mesh::makeCube() {
     clear();
     
-    // Back vertices
+    // Back vertices (z = -1)
     glm::vec3 v0(-1.0f, -1.0f, -1.0f);
     glm::vec3 v1( 1.0f, -1.0f, -1.0f);
     glm::vec3 v2( 1.0f,  1.0f, -1.0f);
     glm::vec3 v3(-1.0f,  1.0f, -1.0f);
     
-    // Front vertices
+    // Front vertices (z = +1)
     glm::vec3 v4(-1.0f, -1.0f,  1.0f);
     glm::vec3 v5( 1.0f, -1.0f,  1.0f);
     glm::vec3 v6( 1.0f,  1.0f,  1.0f);
     glm::vec3 v7(-1.0f,  1.0f,  1.0f);
     
-    // Back face
-    addQuad(v0, v1, v2, v3, m_color);
+    // All faces use CCW winding when viewed from outside (normals point outward)
     
-    // Front face
-    addQuad(v7, v6, v5, v4, m_color);
+    // Front face (normal +Z)
+    addQuad(v4, v5, v6, v7, m_color);
     
-    // Bottom face
-    addQuad(v1, v0, v4, v5, m_color);
+    // Back face (normal -Z)
+    addQuad(v3, v2, v1, v0, m_color);
     
-    // Top face
-    addQuad(v3, v2, v6, v7, m_color);
+    // Right face (normal +X)
+    addQuad(v5, v1, v2, v6, m_color);
     
-    // Left face
-    addQuad(v7, v4, v0, v3, m_color);
+    // Left face (normal -X)
+    addQuad(v0, v4, v7, v3, m_color);
     
-    // Right face
-    addQuad(v2, v1, v5, v6, m_color);
+    // Top face (normal +Y)
+    addQuad(v7, v6, v2, v3, m_color);
+    
+    // Bottom face (normal -Y)
+    addQuad(v0, v1, v5, v4, m_color);
 }
 
 void Mesh::makeCylinder(uint32_t steps) {
@@ -348,6 +351,25 @@ void Mesh::drawWireframe() const {
     glBindVertexArray(0);
 }
 
+void Mesh::drawForSelection(Shader& selectionShader) const {
+    if (!m_gpuBuffersCreated || m_vertices.empty()) {
+        return;
+    }
+    
+    // Draw each triangle with a unique color index
+    // Index 0 = background (no selection), so we start at 1
+    glBindVertexArray(m_vao);
+    
+    size_t triangleCount = m_vertices.size() / 3;
+    for (size_t i = 0; i < triangleCount; i++) {
+        uint32_t colorIndex = static_cast<uint32_t>(i + 1);  // 1-based index
+        selectionShader.setUInt("uColorIndex", colorIndex);
+        glDrawArrays(GL_TRIANGLES, static_cast<GLint>(i * 3), 3);
+    }
+    
+    glBindVertexArray(0);
+}
+
 void Mesh::draw(ViewMode mode) const {
     switch (mode) {
         case ViewMode::Solid:
@@ -438,7 +460,19 @@ void Mesh::selectTriangle(size_t triangleIndex, bool addToSelection) {
         deselectAll();
     }
     
-    m_triangleSelection[triangleIndex] = !m_triangleSelection[triangleIndex];
+    m_triangleSelection[triangleIndex] = true;
+    updateSelectionColors();
+}
+
+void Mesh::deselectTriangle(size_t triangleIndex) {
+    if (triangleIndex >= getTriangleCount()) return;
+    
+    // Ensure selection vector is properly sized
+    if (m_triangleSelection.size() != getTriangleCount()) {
+        m_triangleSelection.resize(getTriangleCount(), false);
+    }
+    
+    m_triangleSelection[triangleIndex] = false;
     updateSelectionColors();
 }
 
@@ -558,6 +592,102 @@ void Mesh::scaleSelected(const glm::vec3& center, float factor) {
             }
         }
     }
+    
+    buildEdges();
+}
+
+void Mesh::scaleSelectedByOffset(const glm::vec3& center, const glm::vec3& offset) {
+    // Scale factor is 1 + offset for each axis (matching original MeshMaker behavior)
+    glm::vec3 scaleFactor = glm::vec3(1.0f) + offset;
+    
+    size_t triangleCount = getTriangleCount();
+    
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            for (int j = 0; j < 3; j++) {
+                glm::vec3& pos = m_vertices[i * 3 + j].position;
+                glm::vec3 relative = pos - center;
+                relative.x *= scaleFactor.x;
+                relative.y *= scaleFactor.y;
+                relative.z *= scaleFactor.z;
+                pos = center + relative;
+            }
+        }
+    }
+    
+    buildEdges();
+}
+
+void Mesh::flipSelected() {
+    size_t triangleCount = getTriangleCount();
+    
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            // Swap vertices 1 and 2 to reverse winding order
+            size_t baseIdx = i * 3;
+            std::swap(m_vertices[baseIdx + 1], m_vertices[baseIdx + 2]);
+            
+            // Flip normals
+            for (int j = 0; j < 3; j++) {
+                m_vertices[baseIdx + j].normal = -m_vertices[baseIdx + j].normal;
+            }
+        }
+    }
+    
+    buildEdges();
+}
+
+void Mesh::duplicateSelected() {
+    size_t triangleCount = getTriangleCount();
+    std::vector<Vertex> newVertices;
+    std::vector<bool> newSelection;
+    
+    // First, deselect all current triangles and collect duplicates
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            // Deselect original
+            m_triangleSelection[i] = false;
+            
+            // Copy vertices for new triangle (will be selected)
+            size_t baseIdx = i * 3;
+            newVertices.push_back(m_vertices[baseIdx]);
+            newVertices.push_back(m_vertices[baseIdx + 1]);
+            newVertices.push_back(m_vertices[baseIdx + 2]);
+            newSelection.push_back(true);
+        }
+    }
+    
+    // Append new triangles
+    for (size_t i = 0; i < newVertices.size(); i++) {
+        m_vertices.push_back(newVertices[i]);
+    }
+    for (size_t i = 0; i < newSelection.size(); i++) {
+        m_triangleSelection.push_back(newSelection[i]);
+    }
+    
+    // Update selection colors
+    updateSelectionColors();
+    buildEdges();
+}
+
+void Mesh::deleteSelected() {
+    size_t triangleCount = getTriangleCount();
+    std::vector<Vertex> remainingVertices;
+    std::vector<bool> remainingSelection;
+    
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i >= m_triangleSelection.size() || !m_triangleSelection[i]) {
+            // Keep non-selected triangles
+            size_t baseIdx = i * 3;
+            remainingVertices.push_back(m_vertices[baseIdx]);
+            remainingVertices.push_back(m_vertices[baseIdx + 1]);
+            remainingVertices.push_back(m_vertices[baseIdx + 2]);
+            remainingSelection.push_back(false);
+        }
+    }
+    
+    m_vertices = std::move(remainingVertices);
+    m_triangleSelection = std::move(remainingSelection);
     
     buildEdges();
 }

@@ -16,11 +16,17 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
+#include <algorithm>
+#include <climits>
 
 #include "Camera.h"
-#include "Mesh.h"
+#include "Mesh2.h"
+#include "Item.h"
+#include "ItemCollection.h"
 #include "Grid.h"
 #include "Shader.h"
+#include "Manipulator.h"
 
 // Transform mode enum
 enum class TransformMode {
@@ -37,19 +43,35 @@ struct AppState {
     int windowHeight = 720;
     
     Camera camera;
-    std::unique_ptr<Mesh> mesh;
+    std::unique_ptr<ItemCollection> items;
     std::unique_ptr<Grid> grid;
     std::unique_ptr<Shader> meshShader;
     std::unique_ptr<Shader> gridShader;
+    std::unique_ptr<Shader> selectionShader;
+    std::unique_ptr<Shader> rectShader;
+    std::unique_ptr<Shader> coloredShader;  // For vertices and edges with per-vertex colors
+    
+    // Rectangle VAO/VBO for selection rectangle drawing
+    uint32_t rectVao = 0;
+    uint32_t rectVbo = 0;
     
     // Mouse state
     bool mousePressed = false;
     bool middleMousePressed = false;
+    bool rightMousePressed = false;
     double lastMouseX = 0.0;
     double lastMouseY = 0.0;
+    double clickMouseX = 0.0;  // Position at mouse press for selection
+    double clickMouseY = 0.0;
     
-    // Mesh settings
-    int currentMeshType = 1;  // Cube
+    // Rectangle selection state
+    bool isSelecting = false;
+    double selectStartX = 0.0;
+    double selectStartY = 0.0;
+    double selectEndX = 0.0;
+    double selectEndY = 0.0;
+    
+    // Primitive steps for cylinder/sphere
     int meshSteps = 20;
     glm::vec3 meshColor = glm::vec3(0.7f, 0.7f, 0.7f);
     glm::vec3 wireframeColor = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -63,12 +85,138 @@ struct AppState {
     float translateStep = 0.1f;
     float rotateStep = 15.0f;  // degrees
     float scaleStep = 0.1f;
+    
+    // Manipulator (transform gizmo)
+    std::unique_ptr<Shader> manipulatorShader;
+    std::unique_ptr<Manipulator> translateManipulator;
+    std::unique_ptr<Manipulator> rotateManipulator;
+    std::unique_ptr<Manipulator> scaleManipulator;
+    
+    // Manipulator dragging state
+    bool isDraggingManipulator = false;
+    glm::vec3 dragStartPoint;
+    glm::vec3 dragAxis;
 };
 
 static AppState g_app;
 
+// Get current manipulator based on transform mode
+Manipulator* getCurrentManipulator() {
+    switch (g_app.transformMode) {
+        case TransformMode::Translate:
+            return g_app.translateManipulator.get();
+        case TransformMode::Rotate:
+            return g_app.rotateManipulator.get();
+        case TransformMode::Scale:
+            return g_app.scaleManipulator.get();
+        default:
+            return nullptr;
+    }
+}
+
+// Helper: Get selection count based on current EditMode
+size_t getSelectionCount() {
+    if (!g_app.items) return 0;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        return g_app.items->getSelectedItemCount();
+    } else {
+        return g_app.items->getSelectedComponentCount();
+    }
+}
+
+// Helper: Get selection center based on current EditMode
+glm::vec3 getSelectionCenter() {
+    if (!g_app.items) return glm::vec3(0.0f);
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        return g_app.items->getSelectedItemsCenter();
+    } else {
+        return g_app.items->getSelectedComponentsCenter();
+    }
+}
+
+// Helper: Translate selection based on current EditMode
+void translateSelection(const glm::vec3& offset) {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        g_app.items->translateSelectedItems(offset);
+    } else {
+        g_app.items->translateSelectedComponents(offset);
+    }
+}
+
+// Helper: Rotate selection based on current EditMode
+void rotateSelection(const glm::vec3& axis, float angleRadians) {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        g_app.items->rotateSelectedItems(glm::angleAxis(angleRadians, glm::normalize(axis)));
+    } else {
+        g_app.items->rotateSelectedComponents(axis, angleRadians);
+    }
+}
+
+// Helper: Scale selection based on current EditMode
+void scaleSelection(const glm::vec3& center, float factor) {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        float scaleFactor = factor > 1.0f ? factor - 1.0f : -(1.0f - factor);
+        g_app.items->scaleSelectedItems(glm::vec3(scaleFactor));
+    } else {
+        g_app.items->scaleSelectedComponents(center, factor);
+    }
+}
+
+// Helper: Scale selection by offset based on current EditMode
+void scaleSelectionByOffset(const glm::vec3& center, const glm::vec3& offset) {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        // For items, convert offset to scale factor
+        float avgScale = (offset.x + offset.y + offset.z) / 3.0f;
+        g_app.items->scaleSelectedItems(glm::vec3(avgScale));
+    } else {
+        g_app.items->scaleSelectedComponentsByOffset(center, offset);
+    }
+}
+
+// Helper: Select all based on current EditMode
+void selectAll() {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        g_app.items->selectAllItems();
+    } else {
+        g_app.items->selectAllComponents();
+    }
+}
+
+// Helper: Deselect all based on current EditMode
+void deselectAll() {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        g_app.items->deselectAllItems();
+    } else {
+        g_app.items->deselectAllComponents();
+    }
+}
+
 // Forward declarations
 glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin);
+int selectAtPoint(int x, int y);
+std::vector<bool> selectInRect(int x, int y, int width, int height);
+int selectManipulatorAtPoint(int x, int y);
+glm::vec3 unprojectPoint(double mouseX, double mouseY, float depth);
+glm::vec3 intersectAxisPlane(double mouseX, double mouseY, glm::vec3 planePoint, glm::vec3 planeNormal);
+glm::vec3 getManipulatorTranslation(double mouseX, double mouseY, Axis axis);
+glm::vec3 getManipulatorPlaneTranslation(double mouseX, double mouseY, Axis planeAxis);
+glm::quat getManipulatorRotation(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition);
+glm::vec3 getManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition);
+void drawSelectionRect();
 
 // Callbacks
 void framebufferSizeCallback(GLFWwindow* /*window*/, int width, int height) {
@@ -91,31 +239,256 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS) {
             g_app.mousePressed = true;
+            // Save click position for selection
+            glfwGetCursorPos(window, &g_app.clickMouseX, &g_app.clickMouseY);
+            
+            // Check if Alt is pressed (camera control mode)
+            bool altPressed = glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS || 
+                              glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS;
+            
+            if (!altPressed) {
+                // First, check if we clicked on a manipulator widget
+                Manipulator* manipulator = getCurrentManipulator();
+                if (manipulator && getSelectionCount() > 0) {
+                    int widgetIndex = selectManipulatorAtPoint(
+                        static_cast<int>(g_app.clickMouseX), 
+                        static_cast<int>(g_app.clickMouseY)
+                    );
+                    
+                    if (widgetIndex >= 0) {
+                        // Start manipulator drag
+                        manipulator->selectAtIndex(static_cast<uint32_t>(widgetIndex));
+                        g_app.isDraggingManipulator = true;
+                        
+                        // Initialize drag state
+                        Axis selectedAxis = manipulator->getSelectedAxis();
+                        Widget selectedWidget = manipulator->getSelectedWidget();
+                        g_app.dragAxis = manipulator->getSelectedAxisDirection();
+                        
+                        if (g_app.transformMode == TransformMode::Translate) {
+                            if (selectedWidget == Widget::Plane) {
+                                g_app.dragStartPoint = getManipulatorPlaneTranslation(
+                                    g_app.clickMouseX, g_app.clickMouseY, selectedAxis);
+                            } else {
+                                g_app.dragStartPoint = getManipulatorTranslation(
+                                    g_app.clickMouseX, g_app.clickMouseY, selectedAxis);
+                            }
+                        } else if (g_app.transformMode == TransformMode::Rotate) {
+                            // Initialize lastPosition for rotation
+                            glm::vec3 selCenter = getSelectionCenter();
+                            glm::vec3 planeNormal;
+                            switch (selectedAxis) {
+                                case Axis::X: planeNormal = glm::vec3(1, 0, 0); break;
+                                case Axis::Y: planeNormal = glm::vec3(0, 1, 0); break;
+                                case Axis::Z: planeNormal = glm::vec3(0, 0, 1); break;
+                                default: planeNormal = glm::vec3(0, 1, 0); break;
+                            }
+                            g_app.dragStartPoint = intersectAxisPlane(
+                                g_app.clickMouseX, g_app.clickMouseY, selCenter, planeNormal);
+                            g_app.dragStartPoint -= selCenter;
+                        } else if (g_app.transformMode == TransformMode::Scale) {
+                            // Initialize lastPosition for scale
+                            glm::vec3 selCenter = getSelectionCenter();
+                            glm::vec3 cameraForward = g_app.camera.getForwardDirection();
+                            g_app.dragStartPoint = intersectAxisPlane(
+                                g_app.clickMouseX, g_app.clickMouseY, selCenter, cameraForward);
+                        }
+                        
+                        return;  // Don't start rectangle selection
+                    }
+                }
+                
+                // Start rectangle selection (no manipulator hit)
+                g_app.isSelecting = true;
+                g_app.selectStartX = g_app.clickMouseX;
+                g_app.selectStartY = g_app.clickMouseY;
+                g_app.selectEndX = g_app.clickMouseX;
+                g_app.selectEndY = g_app.clickMouseY;
+            }
         } else if (action == GLFW_RELEASE) {
-            // Check if this was a click (not a drag)
+            // End manipulator drag
+            if (g_app.isDraggingManipulator) {
+                g_app.isDraggingManipulator = false;
+                Manipulator* manipulator = getCurrentManipulator();
+                if (manipulator) {
+                    manipulator->clearSelection();
+                }
+                g_app.mousePressed = false;
+                return;
+            }
+            
             double currentX, currentY;
             glfwGetCursorPos(window, &currentX, &currentY);
             
-            double dragDistance = std::sqrt(
-                std::pow(currentX - g_app.lastMouseX, 2) + 
-                std::pow(currentY - g_app.lastMouseY, 2)
-            );
-            
-            // If minimal movement, treat as click for selection
-            if (dragDistance < 5.0) {
-                glm::vec3 rayOrigin;
-                glm::vec3 rayDir = screenToWorldRay(currentX, currentY, rayOrigin);
+            if (g_app.isSelecting) {
+                g_app.isSelecting = false;
                 
-                float distance;
-                size_t triangleIndex;
-                if (g_app.mesh->raycast(rayOrigin, rayDir, distance, triangleIndex)) {
-                    bool addToSelection = (mods & GLFW_MOD_SHIFT) != 0;
-                    g_app.mesh->selectTriangle(triangleIndex, addToSelection);
-                    g_app.mesh->createGPUBuffers();
+                // Calculate rectangle dimensions
+                double minX = std::min(g_app.selectStartX, currentX);
+                double minY = std::min(g_app.selectStartY, currentY);
+                double maxX = std::max(g_app.selectStartX, currentX);
+                double maxY = std::max(g_app.selectStartY, currentY);
+                double rectWidth = maxX - minX;
+                double rectHeight = maxY - minY;
+                
+                bool addToSelection = (mods & GLFW_MOD_SHIFT) != 0;
+                bool invertSelection = (mods & GLFW_MOD_CONTROL) != 0;
+                
+                // Selection behaves differently based on EditMode
+                EditMode editMode = g_app.items->getEditMode();
+                
+                if (editMode == EditMode::Items) {
+                    // Item selection
+                    if (rectWidth > 5.0 && rectHeight > 5.0) {
+                        // Rectangle selection for items
+                        if (!addToSelection && !invertSelection) {
+                            g_app.items->deselectAllItems();
+                        }
+                        
+                        std::vector<bool> selected = selectInRect(
+                            static_cast<int>(minX), static_cast<int>(minY),
+                            static_cast<int>(rectWidth), static_cast<int>(rectHeight)
+                        );
+                        
+                        for (size_t i = 0; i < selected.size(); i++) {
+                            if (selected[i]) {
+                                if (invertSelection) {
+                                    // Toggle selection
+                                    Item* item = g_app.items->getItemAtIndex(i);
+                                    if (item) {
+                                        if (item->selected) {
+                                            g_app.items->deselectItemAtIndex(i);
+                                        } else {
+                                            g_app.items->selectItemAtIndex(i, true);
+                                        }
+                                    }
+                                } else {
+                                    g_app.items->selectItemAtIndex(i, true);
+                                }
+                            }
+                        }
+                    } else {
+                        // Point selection (click)
+                        int itemIndex = selectAtPoint(static_cast<int>(currentX), static_cast<int>(currentY));
+                        
+                        if (itemIndex >= 0) {
+                            if (invertSelection) {
+                                // Toggle selection
+                                Item* item = g_app.items->getItemAtIndex(static_cast<size_t>(itemIndex));
+                                if (item) {
+                                    if (item->selected) {
+                                        g_app.items->deselectItemAtIndex(static_cast<size_t>(itemIndex));
+                                    } else {
+                                        g_app.items->selectItemAtIndex(static_cast<size_t>(itemIndex), true);
+                                    }
+                                }
+                            } else {
+                                g_app.items->selectItemAtIndex(static_cast<size_t>(itemIndex), addToSelection);
+                            }
+                        } else if (!addToSelection && !invertSelection) {
+                            // Clicked empty space - deselect all
+                            g_app.items->deselectAllItems();
+                        }
+                    }
                 } else {
-                    // Clicked empty space - deselect all
-                    g_app.mesh->deselectAll();
-                    g_app.mesh->createGPUBuffers();
+                    // Component selection (faces/edges/vertices)
+                    Mesh2* mesh = g_app.items->getCurrentMesh();
+                    if (!mesh) {
+                        // No selected item to edit - do nothing
+                        g_app.mousePressed = false;
+                        return;
+                    }
+                    
+                    if (rectWidth > 5.0 && rectHeight > 5.0) {
+                        // Rectangle selection
+                        if (!addToSelection && !invertSelection) {
+                            mesh->deselectAll();
+                        }
+                        
+                        std::vector<bool> selected = selectInRect(
+                            static_cast<int>(minX), static_cast<int>(minY),
+                            static_cast<int>(rectWidth), static_cast<int>(rectHeight)
+                        );
+                        
+                        for (size_t i = 0; i < selected.size(); i++) {
+                            if (selected[i]) {
+                                if (editMode == EditMode::Vertices) {
+                                    if (invertSelection) {
+                                        if (mesh->isVertexSelected(i)) {
+                                            mesh->deselectVertex(i);
+                                        } else {
+                                            mesh->selectVertex(i, true);
+                                        }
+                                    } else {
+                                        mesh->selectVertex(i, true);
+                                    }
+                                } else if (editMode == EditMode::Edges) {
+                                    if (invertSelection) {
+                                        if (mesh->isEdgeSelected(i)) {
+                                            mesh->deselectEdge(i);
+                                        } else {
+                                            mesh->selectEdge(i, true);
+                                        }
+                                    } else {
+                                        mesh->selectEdge(i, true);
+                                    }
+                                } else {
+                                    if (invertSelection) {
+                                        if (mesh->isFaceSelected(i)) {
+                                            mesh->deselectFace(i);
+                                        } else {
+                                            mesh->selectFace(i, true);
+                                        }
+                                    } else {
+                                        mesh->selectFace(i, true);
+                                    }
+                                }
+                            }
+                        }
+                        mesh->createGPUBuffers();
+                    } else {
+                        // Point selection (click)
+                        int selectedIndex = selectAtPoint(static_cast<int>(currentX), static_cast<int>(currentY));
+                        
+                        if (selectedIndex >= 0) {
+                            if (editMode == EditMode::Vertices) {
+                                if (invertSelection) {
+                                    if (mesh->isVertexSelected(static_cast<size_t>(selectedIndex))) {
+                                        mesh->deselectVertex(static_cast<size_t>(selectedIndex));
+                                    } else {
+                                        mesh->selectVertex(static_cast<size_t>(selectedIndex), true);
+                                    }
+                                } else {
+                                    mesh->selectVertex(static_cast<size_t>(selectedIndex), addToSelection);
+                                }
+                            } else if (editMode == EditMode::Edges) {
+                                if (invertSelection) {
+                                    if (mesh->isEdgeSelected(static_cast<size_t>(selectedIndex))) {
+                                        mesh->deselectEdge(static_cast<size_t>(selectedIndex));
+                                    } else {
+                                        mesh->selectEdge(static_cast<size_t>(selectedIndex), true);
+                                    }
+                                } else {
+                                    mesh->selectEdge(static_cast<size_t>(selectedIndex), addToSelection);
+                                }
+                            } else {
+                                if (invertSelection) {
+                                    if (mesh->isFaceSelected(static_cast<size_t>(selectedIndex))) {
+                                        mesh->deselectFace(static_cast<size_t>(selectedIndex));
+                                    } else {
+                                        mesh->selectFace(static_cast<size_t>(selectedIndex), true);
+                                    }
+                                } else {
+                                    mesh->selectFace(static_cast<size_t>(selectedIndex), addToSelection);
+                                }
+                            }
+                            mesh->createGPUBuffers();
+                        } else if (!addToSelection && !invertSelection) {
+                            // Clicked empty space - deselect all
+                            mesh->deselectAll();
+                            mesh->createGPUBuffers();
+                        }
+                    }
                 }
             }
             
@@ -125,9 +498,12 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
         g_app.middleMousePressed = (action == GLFW_PRESS);
     }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        g_app.rightMousePressed = (action == GLFW_PRESS);
+    }
 }
 
-void cursorPosCallback(GLFWwindow* /*window*/, double xpos, double ypos) {
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
     // Don't handle if ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) {
         g_app.lastMouseX = xpos;
@@ -135,18 +511,118 @@ void cursorPosCallback(GLFWwindow* /*window*/, double xpos, double ypos) {
         return;
     }
     
-    double deltaX = xpos - g_app.lastMouseX;
-    double deltaY = ypos - g_app.lastMouseY;
-    
-    if (g_app.mousePressed) {
-        // Orbit camera
-        g_app.camera.rotateLeftRight(static_cast<float>(deltaX) * 0.01f);
-        g_app.camera.rotateUpDown(static_cast<float>(deltaY) * 0.01f);
+    // Handle manipulator dragging
+    if (g_app.isDraggingManipulator && g_app.mousePressed) {
+        Manipulator* manipulator = getCurrentManipulator();
+        if (manipulator && manipulator->hasSelection()) {
+            Axis selectedAxis = manipulator->getSelectedAxis();
+            Widget selectedWidget = manipulator->getSelectedWidget();
+            
+            if (g_app.transformMode == TransformMode::Translate) {
+                glm::vec3 newPosition;
+                glm::vec3 offset;
+                
+                if (selectedWidget == Widget::Plane) {
+                    // Plane widget - translate on two axes
+                    newPosition = getManipulatorPlaneTranslation(xpos, ypos, selectedAxis);
+                    offset = newPosition - g_app.dragStartPoint;
+                    // For planes, we allow movement on two axes (the ones not perpendicular to the plane)
+                    // The perpendicular axis is already constrained in getManipulatorPlaneTranslation
+                } else {
+                    // Arrow widget - translate on single axis
+                    newPosition = getManipulatorTranslation(xpos, ypos, selectedAxis);
+                    offset = newPosition - g_app.dragStartPoint;
+                    
+                    // Only move along selected axis (or all axes for center)
+                    if (selectedAxis != Axis::Center) {
+                        glm::vec3 constrainedOffset(0.0f);
+                        constrainedOffset[static_cast<int>(selectedAxis)] = offset[static_cast<int>(selectedAxis)];
+                        offset = constrainedOffset;
+                    }
+                }
+                
+                translateSelection(offset);
+                g_app.dragStartPoint = newPosition;
+            }
+            else if (g_app.transformMode == TransformMode::Rotate) {
+                glm::quat rotation = getManipulatorRotation(xpos, ypos, selectedAxis, g_app.dragStartPoint);
+                glm::vec3 axisVec;
+                switch (selectedAxis) {
+                    case Axis::X: axisVec = glm::vec3(1, 0, 0); break;
+                    case Axis::Y: axisVec = glm::vec3(0, 1, 0); break;
+                    case Axis::Z: axisVec = glm::vec3(0, 0, 1); break;
+                    default: axisVec = glm::vec3(0, 1, 0); break;
+                }
+                float angle = glm::angle(rotation);
+                if (std::abs(angle) > 0.0001f) {
+                    rotateSelection(glm::axis(rotation), angle);
+                }
+            }
+            else if (g_app.transformMode == TransformMode::Scale) {
+                glm::vec3 scale = getManipulatorScale(xpos, ypos, selectedAxis, g_app.dragStartPoint);
+                glm::vec3 center = getSelectionCenter();
+                
+                // Apply non-uniform scale based on axis
+                scaleSelectionByOffset(center, scale);
+            }
+        }
+        
+        g_app.lastMouseX = xpos;
+        g_app.lastMouseY = ypos;
+        return;
     }
     
-    if (g_app.middleMousePressed) {
-        // Pan camera
-        g_app.camera.pan(static_cast<float>(-deltaX), static_cast<float>(deltaY));
+    // Update selection rectangle end point
+    if (g_app.isSelecting) {
+        g_app.selectEndX = xpos;
+        g_app.selectEndY = ypos;
+    }
+    
+    // Highlight manipulator widget on hover
+    Manipulator* manipulator = getCurrentManipulator();
+    if (manipulator && getSelectionCount() > 0 && !g_app.mousePressed) {
+        int widgetIndex = selectManipulatorAtPoint(static_cast<int>(xpos), static_cast<int>(ypos));
+        if (widgetIndex >= 0) {
+            manipulator->selectAtIndex(static_cast<uint32_t>(widgetIndex));
+        } else {
+            manipulator->clearSelection();
+        }
+    }
+    
+    float deltaX = static_cast<float>(xpos - g_app.lastMouseX);
+    float deltaY = static_cast<float>(ypos - g_app.lastMouseY);
+    
+    bool altPressed = glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS || 
+                      glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS;
+    bool cmdPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || 
+                      glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
+    
+    // Match original MeshMaker behavior
+    if (altPressed && cmdPressed && g_app.mousePressed) {
+        // Alt+Cmd+Left mouse = Pan
+        float sensitivity = 1.0f / ((g_app.windowWidth + g_app.windowHeight) / 2.0f);
+        sensitivity *= g_app.camera.getZoom() * 1.12f;
+        g_app.camera.leftRight(-deltaX * sensitivity);
+        g_app.camera.upDown(-deltaY * sensitivity);  // Negate: GLFW Y is inverted vs macOS
+    }
+    else if (altPressed && g_app.mousePressed) {
+        // Alt+Left mouse = Orbit
+        const float sensitivity = 0.005f;
+        g_app.camera.rotateLeftRight(deltaX * sensitivity);
+        g_app.camera.rotateUpDown(deltaY * sensitivity);
+    }
+    
+    if (altPressed && g_app.middleMousePressed) {
+        // Alt+Middle mouse = Pan
+        float sensitivity = 1.0f / ((g_app.windowWidth + g_app.windowHeight) / 2.0f);
+        g_app.camera.leftRight(-deltaX * g_app.camera.getZoom() * sensitivity);
+        g_app.camera.upDown(-deltaY * g_app.camera.getZoom() * sensitivity);  // Negate: GLFW Y is inverted
+    }
+    
+    if (altPressed && g_app.rightMousePressed) {
+        // Alt+Right mouse = Zoom
+        float sensitivity = g_app.camera.getZoom() * 0.02f;
+        g_app.camera.zoom(deltaY * sensitivity);
     }
     
     g_app.lastMouseX = xpos;
@@ -159,7 +635,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
     
     if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
     
-    bool hasSelection = g_app.mesh->getSelectedCount() > 0;
+    bool hasSelection = getSelectionCount() > 0;
     
     // Mode switching keys (matching original MeshMaker: 1=Select, 2=Translate, 3=Rotate, 4=Scale)
     if (action == GLFW_PRESS) {
@@ -180,12 +656,34 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                 g_app.transformMode = TransformMode::None;
                 break;
             case GLFW_KEY_A:  // Select all
-                g_app.mesh->selectAll();
-                g_app.mesh->createGPUBuffers();
+                selectAll();
                 break;
             case GLFW_KEY_D:  // Deselect all
-                g_app.mesh->deselectAll();
-                g_app.mesh->createGPUBuffers();
+                deselectAll();
+                break;
+            case GLFW_KEY_F:  // Flip normals (only for component mode)
+                if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
+                    g_app.items->flipSelectedFaces();
+                }
+                break;
+            case GLFW_KEY_G:  // Duplicate
+                if (hasSelection) {
+                    if (g_app.items->getEditMode() == EditMode::Items) {
+                        g_app.items->duplicateSelectedItems();
+                    } else {
+                        g_app.items->duplicateSelectedFaces();
+                    }
+                }
+                break;
+            case GLFW_KEY_DELETE:  // Delete selected
+            case GLFW_KEY_BACKSPACE:
+                if (hasSelection) {
+                    if (g_app.items->getEditMode() == EditMode::Items) {
+                        g_app.items->deleteSelectedItems();
+                    } else {
+                        g_app.items->deleteSelectedFaces();
+                    }
+                }
                 break;
         }
     }
@@ -197,29 +695,23 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                 switch (key) {
                     case GLFW_KEY_X:
                     case GLFW_KEY_RIGHT:
-                        g_app.mesh->translateSelected(glm::vec3(g_app.translateStep, 0.0f, 0.0f));
-                        g_app.mesh->createGPUBuffers();
+                        translateSelection(glm::vec3(g_app.translateStep, 0.0f, 0.0f));
                         break;
                     case GLFW_KEY_LEFT:
-                        g_app.mesh->translateSelected(glm::vec3(-g_app.translateStep, 0.0f, 0.0f));
-                        g_app.mesh->createGPUBuffers();
+                        translateSelection(glm::vec3(-g_app.translateStep, 0.0f, 0.0f));
                         break;
                     case GLFW_KEY_Y:
                     case GLFW_KEY_UP:
-                        g_app.mesh->translateSelected(glm::vec3(0.0f, g_app.translateStep, 0.0f));
-                        g_app.mesh->createGPUBuffers();
+                        translateSelection(glm::vec3(0.0f, g_app.translateStep, 0.0f));
                         break;
                     case GLFW_KEY_DOWN:
-                        g_app.mesh->translateSelected(glm::vec3(0.0f, -g_app.translateStep, 0.0f));
-                        g_app.mesh->createGPUBuffers();
+                        translateSelection(glm::vec3(0.0f, -g_app.translateStep, 0.0f));
                         break;
                     case GLFW_KEY_Z:
-                        g_app.mesh->translateSelected(glm::vec3(0.0f, 0.0f, g_app.translateStep));
-                        g_app.mesh->createGPUBuffers();
+                        translateSelection(glm::vec3(0.0f, 0.0f, g_app.translateStep));
                         break;
                     case GLFW_KEY_C:
-                        g_app.mesh->translateSelected(glm::vec3(0.0f, 0.0f, -g_app.translateStep));
-                        g_app.mesh->createGPUBuffers();
+                        translateSelection(glm::vec3(0.0f, 0.0f, -g_app.translateStep));
                         break;
                 }
                 break;
@@ -228,29 +720,23 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                 switch (key) {
                     case GLFW_KEY_X:
                     case GLFW_KEY_RIGHT:
-                        g_app.mesh->rotateSelected(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(g_app.rotateStep));
-                        g_app.mesh->createGPUBuffers();
+                        rotateSelection(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(g_app.rotateStep));
                         break;
                     case GLFW_KEY_LEFT:
-                        g_app.mesh->rotateSelected(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-g_app.rotateStep));
-                        g_app.mesh->createGPUBuffers();
+                        rotateSelection(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-g_app.rotateStep));
                         break;
                     case GLFW_KEY_Y:
                     case GLFW_KEY_UP:
-                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(g_app.rotateStep));
-                        g_app.mesh->createGPUBuffers();
+                        rotateSelection(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(g_app.rotateStep));
                         break;
                     case GLFW_KEY_DOWN:
-                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-g_app.rotateStep));
-                        g_app.mesh->createGPUBuffers();
+                        rotateSelection(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-g_app.rotateStep));
                         break;
                     case GLFW_KEY_Z:
-                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(g_app.rotateStep));
-                        g_app.mesh->createGPUBuffers();
+                        rotateSelection(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(g_app.rotateStep));
                         break;
                     case GLFW_KEY_C:
-                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(-g_app.rotateStep));
-                        g_app.mesh->createGPUBuffers();
+                        rotateSelection(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(-g_app.rotateStep));
                         break;
                 }
                 break;
@@ -259,13 +745,11 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                 switch (key) {
                     case GLFW_KEY_EQUAL:  // Plus key
                     case GLFW_KEY_UP:
-                        g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f + g_app.scaleStep);
-                        g_app.mesh->createGPUBuffers();
+                        scaleSelection(getSelectionCenter(), 1.0f + g_app.scaleStep);
                         break;
                     case GLFW_KEY_MINUS:
                     case GLFW_KEY_DOWN:
-                        g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f - g_app.scaleStep);
-                        g_app.mesh->createGPUBuffers();
+                        scaleSelection(getSelectionCenter(), 1.0f - g_app.scaleStep);
                         break;
                 }
                 break;
@@ -303,6 +787,581 @@ glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin) {
     return rayWorld;
 }
 
+// Color-buffer picking for selection (matching original MeshMaker approach)
+// Renders each triangle with a unique color and reads back the pixel at click position
+int selectAtPoint(int x, int y) {
+    // Flip Y for OpenGL coordinate system (origin at bottom-left)
+    int glY = g_app.windowHeight - y;
+    
+    // Save current clear color
+    GLfloat clearColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    
+    // Clear to black (index 0 = no selection)
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    // Setup matrices
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    // Draw based on edit mode
+    g_app.selectionShader->use();
+    g_app.selectionShader->setMat4("uView", view);
+    g_app.selectionShader->setMat4("uProjection", projection);
+    
+    EditMode editMode = g_app.items->getEditMode();
+    
+    if (editMode == EditMode::Items) {
+        // Draw each item with a unique color (item index)
+        for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (!item || !item->visible) continue;
+            
+            glm::mat4 model = item->getTransformMatrix();
+            g_app.selectionShader->setMat4("uModel", model);
+            
+            // Draw all faces with same color (item index + 1)
+            uint32_t colorIndex = static_cast<uint32_t>(i) + 1;
+            uint8_t r = colorIndex & 0xFF;
+            uint8_t g = (colorIndex >> 8) & 0xFF;
+            uint8_t b = (colorIndex >> 16) & 0xFF;
+            
+            // Set color uniform and draw all triangles
+            g_app.selectionShader->setVec4("uColorOverride", 
+                glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f));
+            g_app.selectionShader->setBool("uUseColorOverride", true);
+            
+            item->mesh->draw(ViewMode::Solid);
+        }
+        g_app.selectionShader->setBool("uUseColorOverride", false);
+    } else {
+        // Component mode - only draw currently selected item's mesh
+        Mesh2* mesh = g_app.items->getCurrentMesh();
+        if (mesh) {
+            Item* selectedItem = g_app.items->getFirstSelectedItem();
+            glm::mat4 model = selectedItem ? selectedItem->getTransformMatrix() : glm::mat4(1.0f);
+            g_app.selectionShader->setMat4("uModel", model);
+            
+            // Draw based on selection mode (Vertices/Edges/Triangles)
+            if (editMode == EditMode::Vertices) {
+                mesh->drawVerticesForSelection(*g_app.selectionShader);
+            } else if (editMode == EditMode::Edges) {
+                mesh->drawEdgesForSelection(*g_app.selectionShader);
+            } else {
+                mesh->drawForSelection(*g_app.selectionShader);
+            }
+        }
+    }
+    
+    glFinish();
+    
+    // Read pixel at click position (sample 5x5 area for easier clicking)
+    const int sampleSize = 5;
+    const int halfSize = sampleSize / 2;
+    uint8_t pixels[sampleSize * sampleSize * 4];
+    
+    int readX = std::max(0, x - halfSize);
+    int readY = std::max(0, glY - halfSize);
+    
+    glReadPixels(readX, readY, sampleSize, sampleSize, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    
+    // Find first non-zero index in sample
+    int selectedIndex = -1;
+    for (int i = 0; i < sampleSize * sampleSize && selectedIndex < 0; i++) {
+        uint32_t r = pixels[i * 4 + 0];
+        uint32_t g = pixels[i * 4 + 1];
+        uint32_t b = pixels[i * 4 + 2];
+        // Use RGB only (alpha is always 255 for visible triangles)
+        uint32_t colorIndex = r | (g << 8) | (b << 16);
+        if (colorIndex > 0) {
+            selectedIndex = static_cast<int>(colorIndex - 1);  // Index 1+ = element 0+
+        }
+    }
+    
+    // Restore clear color
+    glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    
+    return selectedIndex;
+}
+
+// Rectangle selection using color-buffer picking
+// Returns a vector indicating which items/faces/vertices/edges are within the rectangle
+std::vector<bool> selectInRect(int x, int y, int width, int height) {
+    EditMode editMode = g_app.items->getEditMode();
+    
+    size_t count = 0;
+    if (editMode == EditMode::Items) {
+        count = g_app.items->getItemCount();
+    } else {
+        Mesh2* mesh = g_app.items->getCurrentMesh();
+        if (mesh) {
+            if (editMode == EditMode::Vertices) {
+                count = mesh->getVertexCount();
+            } else if (editMode == EditMode::Edges) {
+                count = mesh->getEdgeCount();
+            } else {
+                count = mesh->getFaceCount();
+            }
+        }
+    }
+    
+    std::vector<bool> selected(count, false);
+    
+    if (width <= 0 || height <= 0 || count == 0) return selected;
+    
+    // Flip Y for OpenGL coordinate system (origin at bottom-left)
+    int glY = g_app.windowHeight - y - height;
+    
+    // Clamp to window bounds
+    int readX = std::max(0, x);
+    int readY = std::max(0, glY);
+    int readWidth = std::min(width, g_app.windowWidth - readX);
+    int readHeight = std::min(height, g_app.windowHeight - readY);
+    
+    if (readWidth <= 0 || readHeight <= 0) return selected;
+    
+    // Limit max pixels to prevent memory issues
+    const int kMaxPixels = 1024 * 1024;  // 1M pixels max
+    if (readWidth * readHeight > kMaxPixels) {
+        // Sample at reduced resolution
+        readWidth = std::min(readWidth, 1024);
+        readHeight = std::min(readHeight, 1024);
+    }
+    
+    // Save current clear color
+    GLfloat clearColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    
+    // Clear to black (index 0 = no selection)
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    // Setup matrices
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    g_app.selectionShader->use();
+    g_app.selectionShader->setMat4("uView", view);
+    g_app.selectionShader->setMat4("uProjection", projection);
+    
+    if (editMode == EditMode::Items) {
+        // Draw each item with a unique color (item index)
+        for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (!item || !item->visible) continue;
+            
+            glm::mat4 model = item->getTransformMatrix();
+            g_app.selectionShader->setMat4("uModel", model);
+            
+            // Draw all faces with same color (item index + 1)
+            uint32_t colorIndex = static_cast<uint32_t>(i) + 1;
+            uint8_t r = colorIndex & 0xFF;
+            uint8_t g = (colorIndex >> 8) & 0xFF;
+            uint8_t b = (colorIndex >> 16) & 0xFF;
+            
+            g_app.selectionShader->setVec4("uColorOverride", 
+                glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f));
+            g_app.selectionShader->setBool("uUseColorOverride", true);
+            
+            item->mesh->draw(ViewMode::Solid);
+        }
+        g_app.selectionShader->setBool("uUseColorOverride", false);
+    } else {
+        // Component mode - draw current mesh for selection
+        Mesh2* mesh = g_app.items->getCurrentMesh();
+        if (mesh) {
+            Item* selectedItem = g_app.items->getFirstSelectedItem();
+            glm::mat4 model = selectedItem ? selectedItem->getTransformMatrix() : glm::mat4(1.0f);
+            g_app.selectionShader->setMat4("uModel", model);
+            
+            // Draw based on selection mode
+            if (editMode == EditMode::Vertices) {
+                mesh->drawVerticesForSelection(*g_app.selectionShader);
+            } else if (editMode == EditMode::Edges) {
+                mesh->drawEdgesForSelection(*g_app.selectionShader);
+            } else {
+                mesh->drawForSelection(*g_app.selectionShader);
+            }
+        }
+    }
+    
+    glFinish();
+    
+    // Read pixels from the rectangle
+    std::vector<uint8_t> pixels(readWidth * readHeight * 4);
+    glReadPixels(readX, readY, readWidth, readHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    
+    // Find all unique non-zero indices in the rectangle
+    for (int i = 0; i < readWidth * readHeight; i++) {
+        uint32_t r = pixels[i * 4 + 0];
+        uint32_t g = pixels[i * 4 + 1];
+        uint32_t b = pixels[i * 4 + 2];
+        uint32_t colorIndex = r | (g << 8) | (b << 16);
+        if (colorIndex > 0) {
+            size_t index = colorIndex - 1;
+            if (index < count) {
+                selected[index] = true;
+            }
+        }
+    }
+    
+    // Restore clear color
+    glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    
+    return selected;
+}
+
+// Select manipulator widget at point using color-buffer picking
+int selectManipulatorAtPoint(int x, int y) {
+    Manipulator* manipulator = getCurrentManipulator();
+    if (!manipulator) return -1;
+    if (getSelectionCount() == 0) return -1;
+    
+    // Flip Y for OpenGL coordinate system
+    int glY = g_app.windowHeight - y - 1;
+    
+    // Save current clear color
+    GLfloat clearColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    
+    // Clear to black (index 0 = no selection)
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    // Setup matrices
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    // Position manipulator at selection center
+    manipulator->position = getSelectionCenter();
+    manipulator->size = g_app.camera.getDistance() * 0.15f;
+    
+    // Use a simple shader that outputs color based on uColorIndex
+    // We need to create a selection shader variant for the manipulator
+    // For now, we'll use the selection shader with uAxisTransform
+    g_app.manipulatorShader->use();
+    g_app.manipulatorShader->setMat4("uView", view);
+    g_app.manipulatorShader->setMat4("uProjection", projection);
+    
+    // Build model matrix
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), manipulator->position);
+    model = model * glm::mat4_cast(manipulator->rotation);
+    model = glm::scale(model, glm::vec3(manipulator->size));
+    g_app.manipulatorShader->setMat4("uModel", model);
+    
+    // Draw each widget with its index as color
+    for (uint32_t i = 0; i < manipulator->widgetCount(); i++) {
+        ManipulatorWidget& widget = manipulator->widgetAtIndex(i);
+        
+        // Skip lines - too thin to click
+        if (widget.widget == Widget::Line) continue;
+        
+        // Encode index as color (index + 1 to distinguish from background)
+        uint32_t colorIndex = i + 1;
+        float r = static_cast<float>(colorIndex & 0xFF) / 255.0f;
+        float g = static_cast<float>((colorIndex >> 8) & 0xFF) / 255.0f;
+        float b = static_cast<float>((colorIndex >> 16) & 0xFF) / 255.0f;
+        g_app.manipulatorShader->setVec4("uColor", glm::vec4(r, g, b, 1.0f));
+        g_app.manipulatorShader->setMat4("uAxisTransform", widget.getAxisTransform());
+        
+        manipulator->drawForSelection(*g_app.manipulatorShader, view, projection, i);
+    }
+    
+    glFinish();
+    
+    // Read a 10x10 pixel region for better selection tolerance on thin widgets
+    const int tolerance = 5;
+    int startX = std::max(0, x - tolerance);
+    int startY = std::max(0, glY - tolerance);
+    int readWidth = std::min(tolerance * 2, g_app.windowWidth - startX);
+    int readHeight = std::min(tolerance * 2, g_app.windowHeight - startY);
+    
+    std::vector<uint8_t> pixels(readWidth * readHeight * 4);
+    glReadPixels(startX, startY, readWidth, readHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    
+    // Restore clear color
+    glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    
+    // Find the closest hit to the center of the region
+    // We prefer pixels closer to the click point
+    int centerOffsetX = x - startX;
+    int centerOffsetY = glY - startY;
+    int bestDistance = INT_MAX;
+    uint32_t bestColorIndex = 0;
+    
+    for (int py = 0; py < readHeight; py++) {
+        for (int px = 0; px < readWidth; px++) {
+            int idx = (py * readWidth + px) * 4;
+            uint32_t colorIndex = pixels[idx] | (pixels[idx + 1] << 8) | (pixels[idx + 2] << 16);
+            if (colorIndex > 0) {
+                int dx = px - centerOffsetX;
+                int dy = py - centerOffsetY;
+                int dist = dx * dx + dy * dy;
+                if (dist < bestDistance) {
+                    bestDistance = dist;
+                    bestColorIndex = colorIndex;
+                }
+            }
+        }
+    }
+    
+    if (bestColorIndex > 0) {
+        return static_cast<int>(bestColorIndex - 1);
+    }
+    
+    return -1;
+}
+
+// Unproject screen point to world coordinates at given depth
+glm::vec3 unprojectPoint(double mouseX, double mouseY, float depth) {
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    glm::vec4 viewport(0, 0, g_app.windowWidth, g_app.windowHeight);
+    
+    // Flip Y for OpenGL coordinate system
+    float glY = static_cast<float>(g_app.windowHeight) - static_cast<float>(mouseY);
+    
+    glm::vec3 winCoord(static_cast<float>(mouseX), glY, depth);
+    return glm::unProject(winCoord, view, projection, viewport);
+}
+
+// Calculate intersection with axis-aligned plane
+glm::vec3 intersectAxisPlane(double mouseX, double mouseY, glm::vec3 planePoint, glm::vec3 planeNormal) {
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    glm::vec4 viewport(0, 0, g_app.windowWidth, g_app.windowHeight);
+    
+    float glY = static_cast<float>(g_app.windowHeight) - static_cast<float>(mouseY);
+    
+    // Get ray from camera through mouse position
+    glm::vec3 nearPoint = glm::unProject(glm::vec3(mouseX, glY, 0.0f), view, projection, viewport);
+    glm::vec3 farPoint = glm::unProject(glm::vec3(mouseX, glY, 1.0f), view, projection, viewport);
+    glm::vec3 rayDir = glm::normalize(farPoint - nearPoint);
+    
+    // Intersect ray with plane
+    float denom = glm::dot(planeNormal, rayDir);
+    if (std::abs(denom) < 0.0001f) {
+        // Ray is parallel to plane, return plane point
+        return planePoint;
+    }
+    
+    float t = glm::dot(planePoint - nearPoint, planeNormal) / denom;
+    return nearPoint + rayDir * t;
+}
+
+// Get translation based on mouse position and axis
+glm::vec3 getManipulatorTranslation(double mouseX, double mouseY, Axis axis) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Use camera-aligned plane for translation
+    glm::vec3 cameraRight = g_app.camera.getAxisX();
+    glm::vec3 cameraUp = g_app.camera.getAxisY();
+    glm::vec3 planeNormal = glm::normalize(glm::cross(cameraRight, cameraUp));
+    
+    // Intersect with camera-facing plane through selection center
+    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, -planeNormal);
+    
+    // Constrain to selected axis
+    glm::vec3 result = selCenter;
+    switch (axis) {
+        case Axis::X:
+            result.x = intersection.x;
+            break;
+        case Axis::Y:
+            result.y = intersection.y;
+            break;
+        case Axis::Z:
+            result.z = intersection.z;
+            break;
+        case Axis::Center:
+            // Move freely on camera plane
+            result = intersection;
+            break;
+    }
+    
+    return result;
+}
+
+// Get translation for plane widget (moves on two axes, constrained perpendicular to plane)
+glm::vec3 getManipulatorPlaneTranslation(double mouseX, double mouseY, Axis planeAxis) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Plane normal is the axis perpendicular to the plane
+    // Axis::X plane has normal (1,0,0), allows movement on Y and Z
+    // Axis::Y plane has normal (0,1,0), allows movement on X and Z
+    // Axis::Z plane has normal (0,0,1), allows movement on X and Y
+    glm::vec3 planeNormal;
+    switch (planeAxis) {
+        case Axis::X: planeNormal = glm::vec3(1, 0, 0); break;
+        case Axis::Y: planeNormal = glm::vec3(0, 1, 0); break;
+        case Axis::Z: planeNormal = glm::vec3(0, 0, 1); break;
+        default: planeNormal = glm::vec3(0, 1, 0); break;
+    }
+    
+    // Intersect with the plane through selection center
+    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, planeNormal);
+    
+    // Keep the axis perpendicular to the plane fixed at selection center
+    glm::vec3 result = intersection;
+    int axisIndex = static_cast<int>(planeAxis);
+    if (axisIndex >= 0 && axisIndex <= 2) {
+        result[axisIndex] = selCenter[axisIndex];
+    }
+    
+    return result;
+}
+
+// Get rotation based on mouse position and axis
+glm::quat getManipulatorRotation(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Determine which plane to use based on rotation axis
+    glm::vec3 planeNormal;
+    switch (axis) {
+        case Axis::X: planeNormal = glm::vec3(1, 0, 0); break;
+        case Axis::Y: planeNormal = glm::vec3(0, 1, 0); break;
+        case Axis::Z: planeNormal = glm::vec3(0, 0, 1); break;
+        default: return glm::quat(1, 0, 0, 0);
+    }
+    
+    glm::vec3 position = intersectAxisPlane(mouseX, mouseY, selCenter, planeNormal);
+    position -= selCenter;
+    
+    float angle = 0.0f;
+    glm::vec3 rotationAxis;
+    
+    switch (axis) {
+        case Axis::X:
+            angle = atan2f(position.y, position.z) - atan2f(lastPosition.y, lastPosition.z);
+            rotationAxis = glm::vec3(1, 0, 0);
+            angle = -angle;
+            break;
+        case Axis::Y:
+            angle = atan2f(position.x, position.z) - atan2f(lastPosition.x, lastPosition.z);
+            rotationAxis = glm::vec3(0, 1, 0);
+            break;
+        case Axis::Z:
+            angle = atan2f(position.x, position.y) - atan2f(lastPosition.x, lastPosition.y);
+            rotationAxis = glm::vec3(0, 0, 1);
+            angle = -angle;
+            break;
+        default:
+            return glm::quat(1, 0, 0, 0);
+    }
+    
+    lastPosition = position;
+    return glm::angleAxis(angle, rotationAxis);
+}
+
+// Get scale based on mouse position and axis
+glm::vec3 getManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Use camera-aligned plane for scale
+    glm::vec3 cameraForward = g_app.camera.getForwardDirection();
+    glm::vec3 position = intersectAxisPlane(mouseX, mouseY, selCenter, cameraForward);
+    
+    glm::vec3 scale(0.0f);
+    glm::vec3 delta = position - lastPosition;
+    
+    switch (axis) {
+        case Axis::X:
+            scale.x = delta.x * 2.0f;
+            break;
+        case Axis::Y:
+            scale.y = delta.y * 2.0f;
+            break;
+        case Axis::Z:
+            scale.z = delta.z * 2.0f;
+            break;
+        case Axis::Center:
+            // Uniform scale based on horizontal movement
+            float uniformScale = delta.x * 2.0f;
+            scale = glm::vec3(uniformScale);
+            break;
+    }
+    
+    lastPosition = position;
+    return scale;
+}
+
+// Draw selection rectangle overlay using shaders
+void drawSelectionRect() {
+    if (!g_app.isSelecting) return;
+    if (!g_app.rectShader || !g_app.rectShader->isValid()) return;
+    
+    float minX = static_cast<float>(std::min(g_app.selectStartX, g_app.selectEndX));
+    float minY = static_cast<float>(std::min(g_app.selectStartY, g_app.selectEndY));
+    float maxX = static_cast<float>(std::max(g_app.selectStartX, g_app.selectEndX));
+    float maxY = static_cast<float>(std::max(g_app.selectStartY, g_app.selectEndY));
+    
+    // Convert to normalized device coordinates
+    float ndcMinX = (2.0f * minX) / g_app.windowWidth - 1.0f;
+    float ndcMaxX = (2.0f * maxX) / g_app.windowWidth - 1.0f;
+    float ndcMinY = 1.0f - (2.0f * maxY) / g_app.windowHeight;  // Flip Y
+    float ndcMaxY = 1.0f - (2.0f * minY) / g_app.windowHeight;  // Flip Y
+    
+    // Create rectangle vertices (for both filled quad and line loop)
+    float vertices[] = {
+        // Filled quad (two triangles)
+        ndcMinX, ndcMinY,
+        ndcMaxX, ndcMinY,
+        ndcMaxX, ndcMaxY,
+        ndcMinX, ndcMinY,
+        ndcMaxX, ndcMaxY,
+        ndcMinX, ndcMaxY,
+        // Line loop
+        ndcMinX, ndcMinY,
+        ndcMaxX, ndcMinY,
+        ndcMaxX, ndcMaxY,
+        ndcMinX, ndcMaxY,
+    };
+    
+    // Create VAO/VBO if needed
+    if (g_app.rectVao == 0) {
+        glGenVertexArrays(1, &g_app.rectVao);
+        glGenBuffers(1, &g_app.rectVbo);
+        
+        glBindVertexArray(g_app.rectVao);
+        glBindBuffer(GL_ARRAY_BUFFER, g_app.rectVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+        
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        glBindVertexArray(0);
+    } else {
+        // Update vertex data
+        glBindBuffer(GL_ARRAY_BUFFER, g_app.rectVbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+    }
+    
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    g_app.rectShader->use();
+    glBindVertexArray(g_app.rectVao);
+    
+    // Draw filled rectangle (semi-transparent blue)
+    g_app.rectShader->setVec4("uColor", glm::vec4(0.2f, 0.4f, 1.0f, 0.2f));
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    // Draw rectangle outline (more opaque blue)
+    g_app.rectShader->setVec4("uColor", glm::vec4(0.2f, 0.4f, 1.0f, 0.9f));
+    glDrawArrays(GL_LINE_LOOP, 6, 4);
+    
+    glBindVertexArray(0);
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+}
+
 bool initShaders() {
 #ifdef EMSCRIPTEN_BUILD
     std::string shaderPath = "/shaders/";
@@ -322,18 +1381,46 @@ bool initShaders() {
         return false;
     }
     
+    g_app.selectionShader = std::make_unique<Shader>();
+    if (!g_app.selectionShader->loadFromFiles(shaderPath + "selection.vert", shaderPath + "selection.frag")) {
+        std::cerr << "Failed to load selection shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.rectShader = std::make_unique<Shader>();
+    if (!g_app.rectShader->loadFromFiles(shaderPath + "rect.vert", shaderPath + "rect.frag")) {
+        std::cerr << "Failed to load rect shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.coloredShader = std::make_unique<Shader>();
+    if (!g_app.coloredShader->loadFromFiles(shaderPath + "colored.vert", shaderPath + "colored.frag")) {
+        std::cerr << "Failed to load colored shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.manipulatorShader = std::make_unique<Shader>();
+    if (!g_app.manipulatorShader->loadFromFiles(shaderPath + "manipulator.vert", shaderPath + "manipulator.frag")) {
+        std::cerr << "Failed to load manipulator shaders" << std::endl;
+        return false;
+    }
+    
     return true;
 }
 
 void initScene() {
-    // Create mesh
-    g_app.mesh = std::make_unique<Mesh>();
-    g_app.mesh->makeCube();
-    g_app.mesh->createGPUBuffers();
+    // Create item collection with one cube item to start
+    g_app.items = std::make_unique<ItemCollection>();
+    g_app.items->addCube();
     
     // Create grid
     g_app.grid = std::make_unique<Grid>(10, 20);
     g_app.grid->createGPUBuffers();
+    
+    // Create manipulators for each transform mode
+    g_app.translateManipulator = std::make_unique<Manipulator>(ManipulatorType::Translation);
+    g_app.rotateManipulator = std::make_unique<Manipulator>(ManipulatorType::Rotation);
+    g_app.scaleManipulator = std::make_unique<Manipulator>(ManipulatorType::Scale);
 }
 
 void renderImGui() {
@@ -348,8 +1435,8 @@ void renderImGui() {
     ImGui::Begin("MeshMaker WebGL2");
     
     ImGui::Text("Camera Controls:");
-    ImGui::BulletText("Left Mouse: Orbit");
-    ImGui::BulletText("Middle Mouse: Pan");
+    ImGui::BulletText("Alt+Left Mouse: Orbit");
+    ImGui::BulletText("Alt+Middle Mouse: Pan");
     ImGui::BulletText("Scroll: Zoom");
     
     if (ImGui::Button("Reset Camera")) {
@@ -357,49 +1444,54 @@ void renderImGui() {
     }
     
     ImGui::Separator();
-    ImGui::Text("Mesh Settings:");
+    ImGui::Text("Add Primitives:");
     
-    const char* meshTypes[] = { "Plane", "Cube", "Cylinder", "Sphere", "Icosahedron" };
-    if (ImGui::Combo("Mesh Type", &g_app.currentMeshType, meshTypes, 5)) {
-        g_app.mesh->make(static_cast<MeshType>(g_app.currentMeshType), g_app.meshSteps);
-        g_app.mesh->createGPUBuffers();
-    }
+    if (ImGui::Button("Cube")) { g_app.items->addCube(); }
+    ImGui::SameLine();
+    if (ImGui::Button("Plane")) { g_app.items->addPlane(); }
+    ImGui::SameLine();
+    if (ImGui::Button("Cylinder")) { g_app.items->addCylinder(static_cast<uint32_t>(g_app.meshSteps)); }
+    ImGui::SameLine();
+    if (ImGui::Button("Sphere")) { g_app.items->addSphere(static_cast<uint32_t>(g_app.meshSteps)); }
+    ImGui::SameLine();
+    if (ImGui::Button("Icosahedron")) { g_app.items->addIcosahedron(); }
     
-    if (g_app.currentMeshType == 2 || g_app.currentMeshType == 3) {  // Cylinder or Sphere
-        if (ImGui::SliderInt("Steps", &g_app.meshSteps, 4, 64)) {
-            g_app.mesh->make(static_cast<MeshType>(g_app.currentMeshType), g_app.meshSteps);
-            g_app.mesh->createGPUBuffers();
-        }
-    }
+    ImGui::SliderInt("Steps (Cyl/Sphere)", &g_app.meshSteps, 4, 64);
     
-    if (ImGui::ColorEdit3("Mesh Color", &g_app.meshColor.x)) {
-        g_app.mesh->setColor(g_app.meshColor);
-        g_app.mesh->createGPUBuffers();
-    }
+    ImGui::Separator();
+    ImGui::Text("Edit Mode:");
     
-    if (ImGui::ColorEdit3("Wireframe Color", &g_app.wireframeColor.x)) {
-        g_app.mesh->setWireframeColor(g_app.wireframeColor);
-        g_app.mesh->createGPUBuffers();
+    // Edit mode selector
+    const char* editModes[] = { "Items", "Vertices", "Triangles", "Edges" };
+    int currentEditMode = static_cast<int>(g_app.items->getEditMode());
+    if (ImGui::Combo("Mode", &currentEditMode, editModes, 4)) {
+        g_app.items->setEditMode(static_cast<EditMode>(currentEditMode));
     }
     
     ImGui::Separator();
     ImGui::Text("Selection:");
-    ImGui::BulletText("Click: Select triangle");
+    ImGui::BulletText("Click: Select");
     ImGui::BulletText("Shift+Click: Add to selection");
     ImGui::BulletText("A: Select all, D: Deselect all");
     
-    size_t selectedCount = g_app.mesh->getSelectedCount();
-    ImGui::Text("Selected: %zu / %zu triangles", selectedCount, g_app.mesh->getTriangleCount());
+    size_t selectedCount = getSelectionCount();
+    EditMode editMode = g_app.items->getEditMode();
+    
+    if (editMode == EditMode::Items) {
+        ImGui::Text("Selected: %zu / %zu items", selectedCount, g_app.items->getItemCount());
+    } else {
+        Mesh2* mesh = g_app.items->getCurrentMesh();
+        size_t totalCount = mesh ? mesh->getFaceCount() : 0;
+        ImGui::Text("Selected: %zu / %zu faces", selectedCount, totalCount);
+    }
     
     ImGui::SameLine();
     if (ImGui::Button("All")) {
-        g_app.mesh->selectAll();
-        g_app.mesh->createGPUBuffers();
+        selectAll();
     }
     ImGui::SameLine();
     if (ImGui::Button("None")) {
-        g_app.mesh->deselectAll();
-        g_app.mesh->createGPUBuffers();
+        deselectAll();
     }
     
     ImGui::Separator();
@@ -424,55 +1516,72 @@ void renderImGui() {
             case TransformMode::Translate:
                 ImGui::Text("Use X/Y/Z or Arrow keys to move");
                 ImGui::SliderFloat("Step", &g_app.translateStep, 0.01f, 1.0f);
-                if (ImGui::Button("+X")) { g_app.mesh->translateSelected(glm::vec3(g_app.translateStep, 0, 0)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("+X")) { translateSelection(glm::vec3(g_app.translateStep, 0, 0)); }
                 ImGui::SameLine();
-                if (ImGui::Button("-X")) { g_app.mesh->translateSelected(glm::vec3(-g_app.translateStep, 0, 0)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("-X")) { translateSelection(glm::vec3(-g_app.translateStep, 0, 0)); }
                 ImGui::SameLine();
-                if (ImGui::Button("+Y")) { g_app.mesh->translateSelected(glm::vec3(0, g_app.translateStep, 0)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("+Y")) { translateSelection(glm::vec3(0, g_app.translateStep, 0)); }
                 ImGui::SameLine();
-                if (ImGui::Button("-Y")) { g_app.mesh->translateSelected(glm::vec3(0, -g_app.translateStep, 0)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("-Y")) { translateSelection(glm::vec3(0, -g_app.translateStep, 0)); }
                 ImGui::SameLine();
-                if (ImGui::Button("+Z")) { g_app.mesh->translateSelected(glm::vec3(0, 0, g_app.translateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("+Z")) { translateSelection(glm::vec3(0, 0, g_app.translateStep)); }
                 ImGui::SameLine();
-                if (ImGui::Button("-Z")) { g_app.mesh->translateSelected(glm::vec3(0, 0, -g_app.translateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("-Z")) { translateSelection(glm::vec3(0, 0, -g_app.translateStep)); }
                 break;
                 
             case TransformMode::Rotate:
                 ImGui::Text("Use X/Y/Z or Arrow keys to rotate");
                 ImGui::SliderFloat("Degrees", &g_app.rotateStep, 1.0f, 90.0f);
-                if (ImGui::Button("X+")) { g_app.mesh->rotateSelected(glm::vec3(1,0,0), glm::radians(g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("X+")) { rotateSelection(glm::vec3(1,0,0), glm::radians(g_app.rotateStep)); }
                 ImGui::SameLine();
-                if (ImGui::Button("X-")) { g_app.mesh->rotateSelected(glm::vec3(1,0,0), glm::radians(-g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("X-")) { rotateSelection(glm::vec3(1,0,0), glm::radians(-g_app.rotateStep)); }
                 ImGui::SameLine();
-                if (ImGui::Button("Y+")) { g_app.mesh->rotateSelected(glm::vec3(0,1,0), glm::radians(g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("Y+")) { rotateSelection(glm::vec3(0,1,0), glm::radians(g_app.rotateStep)); }
                 ImGui::SameLine();
-                if (ImGui::Button("Y-")) { g_app.mesh->rotateSelected(glm::vec3(0,1,0), glm::radians(-g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("Y-")) { rotateSelection(glm::vec3(0,1,0), glm::radians(-g_app.rotateStep)); }
                 ImGui::SameLine();
-                if (ImGui::Button("Z+")) { g_app.mesh->rotateSelected(glm::vec3(0,0,1), glm::radians(g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("Z+")) { rotateSelection(glm::vec3(0,0,1), glm::radians(g_app.rotateStep)); }
                 ImGui::SameLine();
-                if (ImGui::Button("Z-")) { g_app.mesh->rotateSelected(glm::vec3(0,0,1), glm::radians(-g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                if (ImGui::Button("Z-")) { rotateSelection(glm::vec3(0,0,1), glm::radians(-g_app.rotateStep)); }
                 break;
                 
             case TransformMode::Scale:
                 ImGui::Text("Use +/- or Up/Down arrows to scale");
                 ImGui::SliderFloat("Factor", &g_app.scaleStep, 0.01f, 0.5f);
                 if (ImGui::Button("Scale Up")) { 
-                    g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f + g_app.scaleStep); 
-                    g_app.mesh->createGPUBuffers(); 
+                    scaleSelection(getSelectionCenter(), 1.0f + g_app.scaleStep);
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Scale Down")) { 
-                    g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f - g_app.scaleStep); 
-                    g_app.mesh->createGPUBuffers(); 
+                    scaleSelection(getSelectionCenter(), 1.0f - g_app.scaleStep);
                 }
                 break;
                 
             default:
-                ImGui::Text("Press G/R/T to enter transform mode");
+                ImGui::Text("Press 2/3/4 to enter transform mode");
                 break;
         }
+        
+        ImGui::Separator();
+        if (editMode == EditMode::Items) {
+            ImGui::Text("Item Operations:");
+            if (ImGui::Button("Duplicate")) { g_app.items->duplicateSelectedItems(); }
+            ImGui::SameLine();
+            if (ImGui::Button("Delete")) { g_app.items->deleteSelectedItems(); }
+        } else {
+            ImGui::Text("Mesh Operations:");
+            if (ImGui::Button("Flip Normals")) { g_app.items->flipSelectedFaces(); }
+            ImGui::SameLine();
+            if (ImGui::Button("Duplicate")) { g_app.items->duplicateSelectedFaces(); }
+            ImGui::SameLine();
+            if (ImGui::Button("Delete")) { g_app.items->deleteSelectedFaces(); }
+        }
     } else {
-        ImGui::TextDisabled("Select triangles first");
+        if (editMode == EditMode::Items) {
+            ImGui::TextDisabled("Select items first");
+        } else {
+            ImGui::TextDisabled("Select faces first");
+        }
     }
     
     ImGui::Separator();
@@ -485,8 +1594,11 @@ void renderImGui() {
     
     ImGui::Separator();
     ImGui::Text("Stats:");
-    ImGui::Text("Vertices: %zu", g_app.mesh->getVertexCount());
-    ImGui::Text("Triangles: %zu", g_app.mesh->getTriangleCount());
+    size_t totalVerts = 0, totalFaces = 0;
+    g_app.items->getVertexAndFaceCount(totalVerts, totalFaces);
+    ImGui::Text("Items: %zu", g_app.items->getItemCount());
+    ImGui::Text("Total Vertices: %zu", totalVerts);
+    ImGui::Text("Total Faces: %zu", totalFaces);
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     
     ImGui::End();
@@ -502,13 +1614,12 @@ void render() {
     float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
     glm::mat4 view = g_app.camera.getViewMatrix();
     glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(model));
     
     // Draw grid
     if (g_app.showGrid) {
         glDisable(GL_DEPTH_TEST);
         g_app.gridShader->use();
+        g_app.gridShader->setMat4("uModel", glm::mat4(1.0f));  // Identity for grid
         g_app.gridShader->setMat4("uView", view);
         g_app.gridShader->setMat4("uProjection", projection);
         g_app.grid->draw();
@@ -517,39 +1628,28 @@ void render() {
     
     ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
     
-    // Draw solid mesh
-    if (viewMode == ViewMode::Solid || viewMode == ViewMode::SolidWireframe) {
-        g_app.meshShader->use();
-        g_app.meshShader->setMat4("uModel", model);
-        g_app.meshShader->setMat4("uView", view);
-        g_app.meshShader->setMat4("uProjection", projection);
-        g_app.meshShader->setMat3("uNormalMatrix", normalMatrix);
-        // Light direction from camera - always illuminates what user is looking at
-        glm::vec3 lightDir = glm::normalize(g_app.camera.getCenter() - g_app.camera.getPosition());
-        g_app.meshShader->setVec3("uLightDir", lightDir);
-        g_app.meshShader->setVec3("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        g_app.meshShader->setVec3("uAmbientColor", glm::vec3(0.2f, 0.2f, 0.2f));
-        g_app.meshShader->setVec3("uViewPos", g_app.camera.getPosition());
-        g_app.mesh->drawSolid();
+    // Draw all items
+    g_app.items->draw(*g_app.meshShader, *g_app.gridShader, viewMode, view, projection);
+    
+    // Draw component overlay (vertices/edges) for component editing modes
+    g_app.items->drawComponentOverlay(*g_app.coloredShader, view, projection);
+    
+    // Draw manipulator if there's a selection and we're in a transform mode
+    Manipulator* manipulator = getCurrentManipulator();
+    if (manipulator && getSelectionCount() > 0) {
+        // Position manipulator at selection center
+        manipulator->position = getSelectionCenter();
+        manipulator->size = g_app.camera.getDistance() * 0.15f;  // Scale with camera distance
+        
+        // Get camera forward direction for proper rendering
+        glm::vec3 cameraForward = g_app.camera.getForwardDirection();
+        
+        manipulator->draw(*g_app.manipulatorShader, view, projection, 
+                          cameraForward, manipulator->position);
     }
     
-    // Draw wireframe
-    if (viewMode == ViewMode::Wireframe || viewMode == ViewMode::SolidWireframe) {
-        // Use polygon offset to prevent z-fighting when drawing wireframe on top of solid
-        if (viewMode == ViewMode::SolidWireframe) {
-            glEnable(GL_POLYGON_OFFSET_LINE);
-            glPolygonOffset(-1.0f, -1.0f);
-        }
-        
-        g_app.gridShader->use();  // Reuse grid shader for simple line rendering
-        g_app.gridShader->setMat4("uView", view);
-        g_app.gridShader->setMat4("uProjection", projection);
-        g_app.mesh->drawWireframe();
-        
-        if (viewMode == ViewMode::SolidWireframe) {
-            glDisable(GL_POLYGON_OFFSET_LINE);
-        }
-    }
+    // Draw selection rectangle overlay
+    drawSelectionRect();
     
     // Draw ImGui
     renderImGui();
@@ -641,6 +1741,9 @@ int main() {
     
     // OpenGL state
     glEnable(GL_DEPTH_TEST);
+#ifndef EMSCRIPTEN_BUILD
+    glEnable(GL_PROGRAM_POINT_SIZE);  // Allow vertex shader to set gl_PointSize
+#endif
     glViewport(0, 0, g_app.windowWidth, g_app.windowHeight);
     
     // Main loop

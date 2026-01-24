@@ -4,6 +4,9 @@
 #include <cstdint>
 #include "Vertex.h"
 
+// Forward declaration
+class Shader;
+
 enum class MeshType {
     Plane,
     Cube,
@@ -46,11 +49,13 @@ public:
     void draw(ViewMode mode = ViewMode::SolidWireframe) const;
     void drawSolid() const;
     void drawWireframe() const;
+    void drawForSelection(Shader& selectionShader) const;  // Color-buffer picking
     
     // Selection
     bool raycast(const glm::vec3& rayOrigin, const glm::vec3& rayDir, 
                  float& outDistance, size_t& outTriangleIndex) const;
     void selectTriangle(size_t triangleIndex, bool addToSelection = false);
+    void deselectTriangle(size_t triangleIndex);
     void selectAll();
     void deselectAll();
     bool isTriangleSelected(size_t triangleIndex) const;
@@ -65,7 +70,13 @@ public:
     void translateSelected(const glm::vec3& delta);
     void rotateSelected(const glm::vec3& axis, float angleRadians);
     void scaleSelected(const glm::vec3& center, float factor);
+    void scaleSelectedByOffset(const glm::vec3& center, const glm::vec3& offset);
     glm::vec3 getSelectionCenter() const;
+    
+    // Mesh operations on selected triangles
+    void flipSelected();           // Flip normals (reverse winding order)
+    void duplicateSelected();      // Duplicate selected triangles
+    void deleteSelected();         // Delete selected triangles
     
     // Transform
     void setColor(const glm::vec3& color);

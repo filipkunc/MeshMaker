@@ -31,3 +31,5 @@ Thumbs.db
 *.mov
 .vs
 UpgradeLog*.htm*
+
+build*

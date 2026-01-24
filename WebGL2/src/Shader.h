@@ -21,6 +21,7 @@ public:
     // Utility uniform functions
     void setBool(const std::string& name, bool value) const;
     void setInt(const std::string& name, int value) const;
+    void setUInt(const std::string& name, uint32_t value) const;
     void setFloat(const std::string& name, float value) const;
     void setVec3(const std::string& name, const glm::vec3& value) const;
     void setVec4(const std::string& name, const glm::vec4& value) const;
@@ -37,6 +38,7 @@ private:
     uint32_t compileShader(uint32_t type, const std::string& source);
     bool linkProgram(uint32_t vertexShader, uint32_t fragmentShader);
     std::string readFile(const std::string& path);
+    std::string convertShaderVersion(const std::string& source);
     
     uint32_t m_program;
     bool m_valid;

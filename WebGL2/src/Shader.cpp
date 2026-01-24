@@ -35,6 +35,37 @@ std::string Shader::readFile(const std::string& path) {
     return buffer.str();
 }
 
+std::string Shader::convertShaderVersion(const std::string& source) {
+#ifdef EMSCRIPTEN_BUILD
+    // WebGL2 uses GLSL ES 3.00 - shaders should already have #version 300 es
+    return source;
+#else
+    // Desktop OpenGL 3.3 uses GLSL 330 core
+    // Convert #version 300 es to #version 330 core and remove precision qualifiers
+    std::string result = source;
+    
+    // Replace version directive
+    size_t versionPos = result.find("#version 300 es");
+    if (versionPos != std::string::npos) {
+        result.replace(versionPos, 15, "#version 330 core");
+    }
+    
+    // Remove precision qualifiers (not needed in desktop GL)
+    std::string precisionHigh = "precision highp float;\n";
+    std::string precisionInt = "precision highp int;\n";
+    
+    size_t pos;
+    while ((pos = result.find(precisionHigh)) != std::string::npos) {
+        result.erase(pos, precisionHigh.length());
+    }
+    while ((pos = result.find(precisionInt)) != std::string::npos) {
+        result.erase(pos, precisionInt.length());
+    }
+    
+    return result;
+#endif
+}
+
 bool Shader::loadFromFiles(const std::string& vertexPath, const std::string& fragmentPath) {
     std::string vertexSource = readFile(vertexPath);
     std::string fragmentSource = readFile(fragmentPath);
@@ -42,6 +73,10 @@ bool Shader::loadFromFiles(const std::string& vertexPath, const std::string& fra
     if (vertexSource.empty() || fragmentSource.empty()) {
         return false;
     }
+    
+    // Convert shader version based on platform
+    vertexSource = convertShaderVersion(vertexSource);
+    fragmentSource = convertShaderVersion(fragmentSource);
     
     return loadFromSource(vertexSource, fragmentSource);
 }
@@ -119,6 +154,10 @@ void Shader::setBool(const std::string& name, bool value) const {
 
 void Shader::setInt(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(m_program, name.c_str()), value);
+}
+
+void Shader::setUInt(const std::string& name, uint32_t value) const {
+    glUniform1ui(glGetUniformLocation(m_program, name.c_str()), value);
 }
 
 void Shader::setFloat(const std::string& name, float value) const {

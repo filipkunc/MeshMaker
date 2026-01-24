@@ -92,16 +92,24 @@ set(SOURCES
     src/main.cpp
     src/Camera.cpp
     src/Mesh.cpp
+    src/Mesh2.cpp
+    src/Item.cpp
+    src/ItemCollection.cpp
     src/Grid.cpp
     src/Shader.cpp
+    src/Manipulator.cpp
 )
 
 set(HEADERS
     src/Camera.h
     src/Mesh.h
+    src/Mesh2.h
+    src/Item.h
+    src/ItemCollection.h
     src/Grid.h
     src/Shader.h
     src/Vertex.h
+    src/Manipulator.h
 )
 
 # ============================================================================
@@ -116,18 +124,23 @@ if(EMSCRIPTEN)
     # Emscripten build
     target_link_libraries(${PROJECT_NAME} PRIVATE glm imgui)
     
-    # Emscripten compile and link flags
-    set(EMSCRIPTEN_FLAGS
+    # Emscripten compile flags (these are compile-time only)
+    set(EMSCRIPTEN_COMPILE_FLAGS
+        "-sUSE_GLFW=3"
+    )
+    
+    # Emscripten link flags (these are link-time only)
+    set(EMSCRIPTEN_LINK_FLAGS
         "-sUSE_WEBGL2=1"
         "-sUSE_GLFW=3"
         "-sFULL_ES3=1"
         "-sALLOW_MEMORY_GROWTH=1"
         "-sWASM=1"
-        "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/shaders@/shaders"
+        "--embed-file=${CMAKE_CURRENT_SOURCE_DIR}/shaders@/shaders"
     )
     
-    target_compile_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_FLAGS})
-    target_link_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_FLAGS})
+    target_compile_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_COMPILE_FLAGS})
+    target_link_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_LINK_FLAGS})
     
     # Define for shader loading path
     target_compile_definitions(${PROJECT_NAME} PRIVATE 
