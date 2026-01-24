@@ -6,6 +6,7 @@
 #include <glad/gl.h>
 #endif
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 #include <limits>
 #include <algorithm>
@@ -477,4 +478,86 @@ void Mesh::updateSelectionColors() {
         m_vertices[i * 3 + 1].color = color;
         m_vertices[i * 3 + 2].color = color;
     }
+}
+
+void Mesh::selectAll() {
+    if (m_triangleSelection.size() != getTriangleCount()) {
+        m_triangleSelection.resize(getTriangleCount(), false);
+    }
+    std::fill(m_triangleSelection.begin(), m_triangleSelection.end(), true);
+    updateSelectionColors();
+}
+
+glm::vec3 Mesh::getSelectionCenter() const {
+    glm::vec3 center(0.0f);
+    size_t count = 0;
+    
+    size_t triangleCount = getTriangleCount();
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            center += m_vertices[i * 3].position;
+            center += m_vertices[i * 3 + 1].position;
+            center += m_vertices[i * 3 + 2].position;
+            count += 3;
+        }
+    }
+    
+    if (count > 0) {
+        center /= static_cast<float>(count);
+    }
+    
+    return center;
+}
+
+void Mesh::translateSelected(const glm::vec3& delta) {
+    size_t triangleCount = getTriangleCount();
+    
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            m_vertices[i * 3].position += delta;
+            m_vertices[i * 3 + 1].position += delta;
+            m_vertices[i * 3 + 2].position += delta;
+        }
+    }
+    
+    // Rebuild edges to reflect new positions
+    buildEdges();
+}
+
+void Mesh::rotateSelected(const glm::vec3& axis, float angleRadians) {
+    if (getSelectedCount() == 0) return;
+    
+    glm::vec3 center = getSelectionCenter();
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angleRadians, axis);
+    
+    size_t triangleCount = getTriangleCount();
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            for (int j = 0; j < 3; j++) {
+                glm::vec3& pos = m_vertices[i * 3 + j].position;
+                glm::vec3& norm = m_vertices[i * 3 + j].normal;
+                
+                // Rotate around selection center
+                pos = center + glm::vec3(rotation * glm::vec4(pos - center, 1.0f));
+                norm = glm::vec3(rotation * glm::vec4(norm, 0.0f));
+            }
+        }
+    }
+    
+    buildEdges();
+}
+
+void Mesh::scaleSelected(const glm::vec3& center, float factor) {
+    size_t triangleCount = getTriangleCount();
+    
+    for (size_t i = 0; i < triangleCount; i++) {
+        if (i < m_triangleSelection.size() && m_triangleSelection[i]) {
+            for (int j = 0; j < 3; j++) {
+                glm::vec3& pos = m_vertices[i * 3 + j].position;
+                pos = center + (pos - center) * factor;
+            }
+        }
+    }
+    
+    buildEdges();
 }

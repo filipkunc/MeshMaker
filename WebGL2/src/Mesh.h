@@ -51,6 +51,7 @@ public:
     bool raycast(const glm::vec3& rayOrigin, const glm::vec3& rayDir, 
                  float& outDistance, size_t& outTriangleIndex) const;
     void selectTriangle(size_t triangleIndex, bool addToSelection = false);
+    void selectAll();
     void deselectAll();
     bool isTriangleSelected(size_t triangleIndex) const;
     size_t getSelectedCount() const;
@@ -59,6 +60,12 @@ public:
     // Highlight selected triangles
     void setSelectionColor(const glm::vec3& color);
     void updateSelectionColors();
+    
+    // Transform operations on selected triangles
+    void translateSelected(const glm::vec3& delta);
+    void rotateSelected(const glm::vec3& axis, float angleRadians);
+    void scaleSelected(const glm::vec3& center, float factor);
+    glm::vec3 getSelectionCenter() const;
     
     // Transform
     void setColor(const glm::vec3& color);

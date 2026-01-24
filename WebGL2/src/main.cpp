@@ -22,6 +22,14 @@
 #include "Grid.h"
 #include "Shader.h"
 
+// Transform mode enum
+enum class TransformMode {
+    None,
+    Translate,
+    Rotate,
+    Scale
+};
+
 // Global state for main loop
 struct AppState {
     GLFWwindow* window = nullptr;
@@ -49,6 +57,12 @@ struct AppState {
     // View settings
     int viewMode = 2;  // SolidWireframe
     bool showGrid = true;
+    
+    // Transform settings
+    TransformMode transformMode = TransformMode::None;
+    float translateStep = 0.1f;
+    float rotateStep = 15.0f;  // degrees
+    float scaleStep = 0.1f;
 };
 
 static AppState g_app;
@@ -137,6 +151,126 @@ void cursorPosCallback(GLFWwindow* /*window*/, double xpos, double ypos) {
     
     g_app.lastMouseX = xpos;
     g_app.lastMouseY = ypos;
+}
+
+void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/) {
+    // Don't handle if ImGui wants keyboard
+    if (ImGui::GetIO().WantCaptureKeyboard) return;
+    
+    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
+    
+    bool hasSelection = g_app.mesh->getSelectedCount() > 0;
+    
+    // Mode switching keys
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_G:  // Grab/Translate mode
+                g_app.transformMode = TransformMode::Translate;
+                break;
+            case GLFW_KEY_R:  // Rotate mode
+                g_app.transformMode = TransformMode::Rotate;
+                break;
+            case GLFW_KEY_T:  // Scale (Transform size) mode - using T since S is for deselect
+                g_app.transformMode = TransformMode::Scale;
+                break;
+            case GLFW_KEY_ESCAPE:
+                g_app.transformMode = TransformMode::None;
+                break;
+            case GLFW_KEY_A:  // Select all
+                g_app.mesh->selectAll();
+                g_app.mesh->createGPUBuffers();
+                break;
+            case GLFW_KEY_D:  // Deselect all
+                g_app.mesh->deselectAll();
+                g_app.mesh->createGPUBuffers();
+                break;
+        }
+    }
+    
+    // Transform keys (work with selection)
+    if (hasSelection) {
+        switch (g_app.transformMode) {
+            case TransformMode::Translate:
+                switch (key) {
+                    case GLFW_KEY_X:
+                    case GLFW_KEY_RIGHT:
+                        g_app.mesh->translateSelected(glm::vec3(g_app.translateStep, 0.0f, 0.0f));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_LEFT:
+                        g_app.mesh->translateSelected(glm::vec3(-g_app.translateStep, 0.0f, 0.0f));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_Y:
+                    case GLFW_KEY_UP:
+                        g_app.mesh->translateSelected(glm::vec3(0.0f, g_app.translateStep, 0.0f));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_DOWN:
+                        g_app.mesh->translateSelected(glm::vec3(0.0f, -g_app.translateStep, 0.0f));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_Z:
+                        g_app.mesh->translateSelected(glm::vec3(0.0f, 0.0f, g_app.translateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_C:
+                        g_app.mesh->translateSelected(glm::vec3(0.0f, 0.0f, -g_app.translateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                }
+                break;
+                
+            case TransformMode::Rotate:
+                switch (key) {
+                    case GLFW_KEY_X:
+                    case GLFW_KEY_RIGHT:
+                        g_app.mesh->rotateSelected(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(g_app.rotateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_LEFT:
+                        g_app.mesh->rotateSelected(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-g_app.rotateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_Y:
+                    case GLFW_KEY_UP:
+                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(g_app.rotateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_DOWN:
+                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-g_app.rotateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_Z:
+                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(g_app.rotateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_C:
+                        g_app.mesh->rotateSelected(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(-g_app.rotateStep));
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                }
+                break;
+                
+            case TransformMode::Scale:
+                switch (key) {
+                    case GLFW_KEY_EQUAL:  // Plus key
+                    case GLFW_KEY_UP:
+                        g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f + g_app.scaleStep);
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                    case GLFW_KEY_MINUS:
+                    case GLFW_KEY_DOWN:
+                        g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f - g_app.scaleStep);
+                        g_app.mesh->createGPUBuffers();
+                        break;
+                }
+                break;
+                
+            default:
+                break;
+        }
+    }
 }
 
 // Convert screen coordinates to world-space ray
@@ -249,13 +383,91 @@ void renderImGui() {
     ImGui::Text("Selection:");
     ImGui::BulletText("Click: Select triangle");
     ImGui::BulletText("Shift+Click: Add to selection");
+    ImGui::BulletText("A: Select all, D: Deselect all");
     
     size_t selectedCount = g_app.mesh->getSelectedCount();
     ImGui::Text("Selected: %zu / %zu triangles", selectedCount, g_app.mesh->getTriangleCount());
     
-    if (selectedCount > 0 && ImGui::Button("Deselect All")) {
+    ImGui::SameLine();
+    if (ImGui::Button("All")) {
+        g_app.mesh->selectAll();
+        g_app.mesh->createGPUBuffers();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("None")) {
         g_app.mesh->deselectAll();
         g_app.mesh->createGPUBuffers();
+    }
+    
+    ImGui::Separator();
+    ImGui::Text("Transform (requires selection):");
+    
+    // Transform mode display and buttons
+    const char* modeNames[] = { "None", "Translate (G)", "Rotate (R)", "Scale (T)" };
+    int currentMode = static_cast<int>(g_app.transformMode);
+    ImGui::Text("Mode: %s", modeNames[currentMode]);
+    
+    if (ImGui::Button("Translate (G)")) g_app.transformMode = TransformMode::Translate;
+    ImGui::SameLine();
+    if (ImGui::Button("Rotate (R)")) g_app.transformMode = TransformMode::Rotate;
+    ImGui::SameLine();
+    if (ImGui::Button("Scale (T)")) g_app.transformMode = TransformMode::Scale;
+    
+    if (selectedCount > 0) {
+        // Show relevant controls based on mode
+        switch (g_app.transformMode) {
+            case TransformMode::Translate:
+                ImGui::Text("Use X/Y/Z or Arrow keys to move");
+                ImGui::SliderFloat("Step", &g_app.translateStep, 0.01f, 1.0f);
+                if (ImGui::Button("+X")) { g_app.mesh->translateSelected(glm::vec3(g_app.translateStep, 0, 0)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("-X")) { g_app.mesh->translateSelected(glm::vec3(-g_app.translateStep, 0, 0)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("+Y")) { g_app.mesh->translateSelected(glm::vec3(0, g_app.translateStep, 0)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("-Y")) { g_app.mesh->translateSelected(glm::vec3(0, -g_app.translateStep, 0)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("+Z")) { g_app.mesh->translateSelected(glm::vec3(0, 0, g_app.translateStep)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("-Z")) { g_app.mesh->translateSelected(glm::vec3(0, 0, -g_app.translateStep)); g_app.mesh->createGPUBuffers(); }
+                break;
+                
+            case TransformMode::Rotate:
+                ImGui::Text("Use X/Y/Z or Arrow keys to rotate");
+                ImGui::SliderFloat("Degrees", &g_app.rotateStep, 1.0f, 90.0f);
+                if (ImGui::Button("X+")) { g_app.mesh->rotateSelected(glm::vec3(1,0,0), glm::radians(g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("X-")) { g_app.mesh->rotateSelected(glm::vec3(1,0,0), glm::radians(-g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("Y+")) { g_app.mesh->rotateSelected(glm::vec3(0,1,0), glm::radians(g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("Y-")) { g_app.mesh->rotateSelected(glm::vec3(0,1,0), glm::radians(-g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("Z+")) { g_app.mesh->rotateSelected(glm::vec3(0,0,1), glm::radians(g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                ImGui::SameLine();
+                if (ImGui::Button("Z-")) { g_app.mesh->rotateSelected(glm::vec3(0,0,1), glm::radians(-g_app.rotateStep)); g_app.mesh->createGPUBuffers(); }
+                break;
+                
+            case TransformMode::Scale:
+                ImGui::Text("Use +/- or Up/Down arrows to scale");
+                ImGui::SliderFloat("Factor", &g_app.scaleStep, 0.01f, 0.5f);
+                if (ImGui::Button("Scale Up")) { 
+                    g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f + g_app.scaleStep); 
+                    g_app.mesh->createGPUBuffers(); 
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Scale Down")) { 
+                    g_app.mesh->scaleSelected(g_app.mesh->getSelectionCenter(), 1.0f - g_app.scaleStep); 
+                    g_app.mesh->createGPUBuffers(); 
+                }
+                break;
+                
+            default:
+                ImGui::Text("Press G/R/T to enter transform mode");
+                break;
+        }
+    } else {
+        ImGui::TextDisabled("Select triangles first");
     }
     
     ImGui::Separator();
@@ -394,6 +606,7 @@ int main() {
     glfwSetScrollCallback(g_app.window, scrollCallback);
     glfwSetMouseButtonCallback(g_app.window, mouseButtonCallback);
     glfwSetCursorPosCallback(g_app.window, cursorPosCallback);
+    glfwSetKeyCallback(g_app.window, keyCallback);
     
     // Setup ImGui
     IMGUI_CHECKVERSION();
