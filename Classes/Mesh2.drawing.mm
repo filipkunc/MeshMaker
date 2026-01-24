@@ -231,7 +231,7 @@ void Mesh2::updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *ed
     }
 }
 
-void Mesh2::updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices)
+void Mesh2::updateTriangleAndEdgeCache(std::vector<VertexNode *> &affectedVertices)
 {
     uint count = affectedVertices.size();
     
@@ -557,8 +557,8 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
     
     if (forSelection)
     {
-        vector<Vector3D> tempVertices;
-        vector<uint> tempColors;
+        std::vector<Vector3D> tempVertices;
+        std::vector<uint> tempColors;
         
         uint colorIndex = 0;
         
@@ -617,8 +617,8 @@ void Mesh2::drawAllVertices(ViewMode viewMode, bool forSelection)
     }
     else
     {
-        vector<Vector3D> tempVertices;
-        vector<Vector3D> tempColors;
+        std::vector<Vector3D> tempVertices;
+        std::vector<Vector3D> tempColors;
         
         Vector3D selectedColor(1.0f, 0.0f, 0.0f);
         Vector3D normalColor(0.0f, 0.0f, 1.0f);
@@ -734,7 +734,7 @@ void Mesh2::drawAllEdges(ViewMode viewMode, bool forSelection)
     
     if (forSelection)
     {
-        vector<uint> tempColors;
+        std::vector<uint> tempColors;
         
         uint colorIndex = 0;
         

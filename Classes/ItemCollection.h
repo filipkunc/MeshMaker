@@ -46,10 +46,10 @@ class MeshState
 {
 private:
     uint _index;
-	vector<Vector3D> _vertices;
-    vector<Vector3D> _texCoords;
-	vector<TriQuad> _triangles;
-	vector<bool> _selection;
+	std::vector<Vector3D> _vertices;
+    std::vector<Vector3D> _texCoords;
+	std::vector<TriQuad> _triangles;
+	std::vector<bool> _selection;
 	MeshSelectionMode _selectionMode;
 public:
     MeshState(ItemCollection &collection, uint index);
@@ -78,7 +78,7 @@ public:
 class ItemCollection : public IOpenGLManipulatingModelItem
 {
 private:
-    vector<Item *> items;
+    std::vector<Item *> items;
 public:
     ItemCollection();
     virtual ~ItemCollection();

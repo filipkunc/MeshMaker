@@ -13,7 +13,6 @@
 #include "FPArrayCache.h"
 #include "SimpleNodeAndList.h"
 #include <vector>
-using namespace std;
 
 struct Triangle
 {

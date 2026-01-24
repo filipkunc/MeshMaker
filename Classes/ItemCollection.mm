@@ -116,7 +116,7 @@ void ItemCollection::encode(MemoryWriteStream *stream)
 
 IUndoState *ItemCollection::currentManipulations()
 {
-    vector<ItemManipulationState *> *manipulations = new vector<ItemManipulationState *>();
+    std::vector<ItemManipulationState *> *manipulations = new std::vector<ItemManipulationState *>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
@@ -125,12 +125,12 @@ IUndoState *ItemCollection::currentManipulations()
             manipulations->push_back(new ItemManipulationState(*this, i));
 	}
 	
-	return new UndoState<vector<ItemManipulationState *>>(manipulations);
+	return new UndoState<std::vector<ItemManipulationState *>>(manipulations);
 }
 
 void ItemCollection::setCurrentManipulations(IUndoState *undoState)
 {
-    vector<ItemManipulationState *> *manipulations = dynamic_cast<UndoState<vector<ItemManipulationState *>> *>(undoState)->state();
+    std::vector<ItemManipulationState *> *manipulations = dynamic_cast<UndoState<std::vector<ItemManipulationState *>> *>(undoState)->state();
     
     deselectAll();
 	
@@ -169,7 +169,7 @@ void ItemCollection::setCurrentMeshState(IUndoState *undoState)
 
 IUndoState *ItemCollection::currentSelection()
 {
-    vector<uint> *selection = new vector<uint>();
+    std::vector<uint> *selection = new std::vector<uint>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
@@ -178,12 +178,12 @@ IUndoState *ItemCollection::currentSelection()
             selection->push_back(i);
 	}
 	
-	return new UndoState<vector<uint>>(selection);
+	return new UndoState<std::vector<uint>>(selection);
 }
 
 void ItemCollection::setCurrentSelection(IUndoState *undoState)
 {
-    vector<uint> *selection = dynamic_cast<UndoState<vector<uint>> *>(undoState)->state();
+    std::vector<uint> *selection = dynamic_cast<UndoState<std::vector<uint>> *>(undoState)->state();
     
     deselectAll();
 	
@@ -195,7 +195,7 @@ void ItemCollection::setCurrentSelection(IUndoState *undoState)
 
 IUndoState *ItemCollection::currentItems()
 {
-    vector<RemovedItem *> *removedItems = new vector<RemovedItem *>();
+    std::vector<RemovedItem *> *removedItems = new std::vector<RemovedItem *>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
@@ -207,12 +207,12 @@ IUndoState *ItemCollection::currentItems()
 		}
 	}
 	
-	return new UndoState<vector<RemovedItem *>>(removedItems);
+	return new UndoState<std::vector<RemovedItem *>>(removedItems);
 }
 
 void ItemCollection::setCurrentItems(IUndoState *undoState)
 {
-    vector<RemovedItem *> *removedItems = dynamic_cast<UndoState<vector<RemovedItem *>> *>(undoState)->state();
+    std::vector<RemovedItem *> *removedItems = dynamic_cast<UndoState<std::vector<RemovedItem *>> *>(undoState)->state();
     
     deselectAll();
     
@@ -225,7 +225,7 @@ void ItemCollection::setCurrentItems(IUndoState *undoState)
 
 IUndoState *ItemCollection::allItems()
 {
-    vector<Item *> *duplicates = new vector<Item *>();
+    std::vector<Item *> *duplicates = new std::vector<Item *>();
 	
 	for (uint i = 0; i < items.size(); i++)
 	{
@@ -233,12 +233,12 @@ IUndoState *ItemCollection::allItems()
         duplicates->push_back(duplicate);
 	}
 	
-	return new UndoState<vector<Item *>>(duplicates);
+	return new UndoState<std::vector<Item *>>(duplicates);
 }
 
 void ItemCollection::setAllItems(IUndoState *undoState)
 {
-    vector<Item *> *duplicates = dynamic_cast<UndoState<vector<Item *>> *>(undoState)->state();
+    std::vector<Item *> *duplicates = dynamic_cast<UndoState<std::vector<Item *>> *>(undoState)->state();
     
     for (uint i = 0; i < items.size(); i++)
         delete items[i];
@@ -364,7 +364,7 @@ void ItemCollection::mergeSelectedItems()
 
 void ItemCollection::setSelectionFromRemovedItems(IUndoState *undoState)
 {
-    vector<RemovedItem *> *removedItems = dynamic_cast<UndoState<vector<RemovedItem *>> *>(undoState)->state();
+    std::vector<RemovedItem *> *removedItems = dynamic_cast<UndoState<std::vector<RemovedItem *>> *>(undoState)->state();
     
     deselectAll();
     

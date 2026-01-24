@@ -32,7 +32,7 @@ namespace rapidxml
             // Open stream
             basic_ifstream<Ch> stream(filename, ios::binary);
             if (!stream)
-                throw runtime_error(string("cannot open file ") + filename);
+                throw runtime_error(std::string("cannot open file ") + filename);
             stream.unsetf(ios::skipws);
             
             // Determine stream size

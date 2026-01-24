@@ -628,7 +628,7 @@
 - (void)undoDuplicateSelected:(UndoStatePointer *)selection
 {	
 	[self setManipulated:itemsController];
-    vector<uint> *selectedIndices = dynamic_cast<UndoState<vector<uint>> *>(selection.undoState)->state();
+    std::vector<uint> *selectedIndices = dynamic_cast<UndoState<std::vector<uint>> *>(selection.undoState)->state();
 	uint duplicatedCount = selectedIndices->size();
     items->removeItemsInRange(items->count() - duplicatedCount, duplicatedCount);
     items->setCurrentSelection(selection.undoState);
@@ -952,6 +952,7 @@ constrainSplitPosition:(CGFloat)proposedPosition
 #elif defined(WIN32)
 
 #include "MyDocument.h"
+#include "Chocolate.h"
 
 namespace MeshMakerCppCLI
 {

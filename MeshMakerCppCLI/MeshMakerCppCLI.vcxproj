@@ -14,18 +14,19 @@
     <ProjectGuid>{02E11884-12F2-4812-894E-E5417F4A7DD7}</ProjectGuid>
     <RootNamespace>MeshMakerCppCLI</RootNamespace>
     <Keyword>ManagedCProj</Keyword>
+    <TargetFrameworkVersion>4.8</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
   </PropertyGroup>
@@ -109,13 +110,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Chocolate\Chocolate.csproj">
-      <Project>{ab6308d6-747b-43e0-b191-7163768e0c74}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="..\Classes\Camera.cpp" />
     <ClCompile Include="..\Classes\Matrix4x4.cpp" />
@@ -182,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\Camera.h" />
+    <ClInclude Include="..\Classes\Chocolate.h" />
     <ClInclude Include="..\Classes\Enums.h" />
     <ClInclude Include="..\Classes\FPArrayCache.h" />
     <ClInclude Include="..\Classes\FPList.h" />

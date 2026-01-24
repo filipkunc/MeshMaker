@@ -9,7 +9,7 @@
 
 #include "MeshHelpers.h"
 
-void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint index3)
+void AddTriangle(std::vector<TriQuad> &triangles, uint index1, uint index2, uint index3)
 {
     TriQuad triangle;
     triangle.isQuad = false;
@@ -21,7 +21,7 @@ void AddTriangle(vector<TriQuad> &triangles, uint index1, uint index2, uint inde
     triangles.push_back(triangle);
 }
 
-void AddTriangle(vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoordIndices[3])
+void AddTriangle(std::vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoordIndices[3])
 {
     TriQuad triangle;
     triangle.isQuad = false;
@@ -35,7 +35,7 @@ void AddTriangle(vector<TriQuad> &triangles, uint vertexIndices[3], uint texCoor
     triangles.push_back(triangle);
 }
 
-void AddQuad(vector<TriQuad> &triangles, uint index1, uint index2, uint index3, uint index4)
+void AddQuad(std::vector<TriQuad> &triangles, uint index1, uint index2, uint index3, uint index4)
 {
     TriQuad triangle;
     triangle.isQuad = true;
@@ -50,6 +50,6 @@ void AddQuad(vector<TriQuad> &triangles, uint index1, uint index2, uint index3, 
 
 void FlipTriangle(TriQuad &triangle)
 {
-    swap(triangle.vertexIndices[0], triangle.vertexIndices[2]);
-    swap(triangle.texCoordIndices[0], triangle.texCoordIndices[2]);
+    std::swap(triangle.vertexIndices[0], triangle.vertexIndices[2]);
+    std::swap(triangle.texCoordIndices[0], triangle.texCoordIndices[2]);
 }

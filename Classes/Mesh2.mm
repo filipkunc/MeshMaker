@@ -157,9 +157,9 @@ Mesh2::Mesh2(MemoryReadStream *stream)
     uint texCoordsSize = stream->read<uint>();
     uint trianglesSize = stream->read<uint>();
     
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triangles;
+    std::vector<Vector3D> vertices;
+    std::vector<Vector3D> texCoords;
+    std::vector<TriQuad> triangles;
     
     if (stream->version() >= (uint)ModelVersion::CrossPlatform)
     {
@@ -244,9 +244,9 @@ void Mesh2::encode(MemoryWriteStream *stream)
     stream->write<float>(_color.z);
     stream->write<float>(_color.w);
         
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triangles;
+    std::vector<Vector3D> vertices;
+    std::vector<Vector3D> texCoords;
+    std::vector<TriQuad> triangles;
     
     this->toIndexRepresentation(vertices, texCoords, triangles);
     
@@ -574,7 +574,7 @@ void Mesh2::transformSelected(const Matrix4x4 &matrix)
         if (_useSoftSelection)
             resetTriangleCache();
         
-        vector<VertexNode *> affectedVertices;
+        std::vector<VertexNode *> affectedVertices;
         
         for (VertexNode *node = _vertices.begin(), *end = _vertices.end(); node != end; node = node->next())
         {
@@ -885,14 +885,14 @@ void Mesh2::openSubdivision()
     if (scheme == kLoop)
         triangulate();
     
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triQuads;
+    std::vector<Vector3D> vertices;
+    std::vector<Vector3D> texCoords;
+    std::vector<TriQuad> triQuads;
     toIndexRepresentation(vertices, texCoords, triQuads);
     
-    vector<float> verts;
-    vector<int> faceverts;
-    vector<int> nvertsPerFace;
+    std::vector<float> verts;
+    std::vector<int> faceverts;
+    std::vector<int> nvertsPerFace;
     
     for (uint i = 0; i < vertices.size(); i++)
     {
@@ -1051,7 +1051,7 @@ void Mesh2::repositionVertices(uint vertexCount)
 {
     resetAlgorithmData();
     
-    vector<Vector3D> tempVertices;
+    std::vector<Vector3D> tempVertices;
     
     uint index = 0;
     
@@ -1432,8 +1432,8 @@ void Mesh2::splitSelectedEdges()
                     
                     if (triQuad.shouldSwapVertices(v[2], v[3]))
                     {
-                        swap(v[2], v[3]);
-                        swap(v[1], v[0]);
+                        std::swap(v[2], v[3]);
+                        std::swap(v[1], v[0]);
                     }
                     
                     _triangles.add(Triangle2(v, true));
@@ -1450,8 +1450,8 @@ void Mesh2::splitSelectedEdges()
                 
                 if (triQuad.shouldSwapVertices(opposite0, opposite1))
                 {
-                    swap(opposite0, opposite1);
-                    swap(v[0], v[1]);
+                    std::swap(opposite0, opposite1);
+                    std::swap(v[0], v[1]);
                 }
                 
                 _triangles.add(Triangle2(v, false));
@@ -1459,7 +1459,7 @@ void Mesh2::splitSelectedEdges()
                 v[2] = opposite1;
                 v[3] = opposite0;
                 
-                swap(v[0], v[2]);
+                std::swap(v[0], v[2]);
                 
                 _triangles.add(Triangle2(v, true));                
             }
@@ -1612,7 +1612,7 @@ void Mesh2::extrudeSelectedTriangles()
                 VertexNode *original1 = vertexEdge.vertex(1);
                 
                 if (triQuad.shouldSwapVertices(original0, original1))
-                    swap(original0, original1);
+                    std::swap(original0, original1);
                 
                 VertexNode *extruded0 = duplicateVertex(original0);
                 VertexNode *extruded1 = duplicateVertex(original1);
@@ -1635,21 +1635,21 @@ void Mesh2::extrudeSelectedTriangles()
 
 void Mesh2::merge(Mesh2 *mesh)
 {
-    vector<Vector3D> thisVertices;
-    vector<Vector3D> thisTexCoords;
-    vector<TriQuad> thisTriangles;
+    std::vector<Vector3D> thisVertices;
+    std::vector<Vector3D> thisTexCoords;
+    std::vector<TriQuad> thisTriangles;
     
     this->toIndexRepresentation(thisVertices, thisTexCoords, thisTriangles);
     
-    vector<Vector3D> otherVertices;
-    vector<Vector3D> otherTexCoords;
-    vector<TriQuad> otherTriangles;
+    std::vector<Vector3D> otherVertices;
+    std::vector<Vector3D> otherTexCoords;
+    std::vector<TriQuad> otherTriangles;
     
     mesh->toIndexRepresentation(otherVertices, otherTexCoords, otherTriangles);
     
-    vector<Vector3D> mergedVertices;
-    vector<Vector3D> mergedTexCoords;
-    vector<TriQuad> mergedTriangles;
+    std::vector<Vector3D> mergedVertices;
+    std::vector<Vector3D> mergedTexCoords;
+    std::vector<TriQuad> mergedTriangles;
     
     for (uint i = 0; i < thisVertices.size(); i++)
         mergedVertices.push_back(thisVertices[i]);

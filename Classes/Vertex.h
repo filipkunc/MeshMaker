@@ -200,7 +200,7 @@ public:
         }
     }
     
-    void addAffectedVertices(vector<VNode *> &affectedVertices)
+    void addAffectedVertices(std::vector<VNode *> &affectedVertices)
     {
         for (VertexTriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
         {

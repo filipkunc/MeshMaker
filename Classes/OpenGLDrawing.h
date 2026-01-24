@@ -19,8 +19,9 @@
 #elif defined (WIN32)
 #include <windows.h>
 #if defined(SHADERS)
+#define GLEW_STATIC
 #include "../MeshMakerCppCLI/GL/glew.h"
-#pragma comment(lib, "../MeshMakerCppCLI/glew/glew32.lib")
+#pragma comment(lib, "../MeshMakerCppCLI/glew/glew32s.lib")
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>

@@ -219,8 +219,8 @@ void Mesh2::makeSphere(uint steps)
     
     uint max = steps;
     
-    vector<VertexNode *> tempVertices;
-    vector<TriQuad> tempTriangles;
+    std::vector<VertexNode *> tempVertices;
+    std::vector<TriQuad> tempTriangles;
     
     tempVertices.push_back(_vertices.add(Vector3D(0, 1, 0)));
     tempVertices.push_back(_vertices.add(Vector3D(0, -1, 0)));
@@ -343,7 +343,7 @@ void Mesh2::makeIcosahedron()
         {6,1,10}, {9,0,11}, {9,11,2}, {9,2,5}, {7,2,11} 
     };
     
-    vector<VertexNode *> vertexNodes;
+    std::vector<VertexNode *> vertexNodes;
     
     for (uint i = 0; i < 12; i++)
     {
@@ -364,15 +364,15 @@ void Mesh2::makeIcosahedron()
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::fromVertices(const vector<Vector3D> &vertices)
+void Mesh2::fromVertices(const std::vector<Vector3D> &vertices)
 {
     resetTriangleCache();
     _vertices.removeAll();
     _texCoords.removeAll();
     _triangles.removeAll();
     
-    vector<VertexNode *> tempVertices;
-    vector<VertexNode *> uniqueVertices;
+    std::vector<VertexNode *> tempVertices;
+    std::vector<VertexNode *> uniqueVertices;
     
     uint verticesSize = vertices.size();
     
@@ -421,7 +421,7 @@ void Mesh2::fromVertices(const vector<Vector3D> &vertices)
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::toVertices(vector<Vector3D> &vertices)
+void Mesh2::toVertices(std::vector<Vector3D> &vertices)
 {
     for (TriangleNode *node = _triangles.begin(), *end = _triangles.end(); node != end; node = node->next())
     {
@@ -433,15 +433,15 @@ void Mesh2::toVertices(vector<Vector3D> &vertices)
     }
 }
 
-void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<TriQuad> &triangles)
+void Mesh2::fromIndexRepresentation(const std::vector<Vector3D> &vertices, const std::vector<Vector3D> &texCoords, const std::vector<TriQuad> &triangles)
 {
     resetTriangleCache();
     _vertices.removeAll();
     _texCoords.removeAll();
     _triangles.removeAll();
     
-    vector<VertexNode *> tempVertices;
-    vector<TexCoordNode *> tempTexCoords;
+    std::vector<VertexNode *> tempVertices;
+    std::vector<TexCoordNode *> tempTexCoords;
     
     for (uint i = 0; i < vertices.size(); i++)
     {
@@ -484,7 +484,7 @@ void Mesh2::fromIndexRepresentation(const vector<Vector3D> &vertices, const vect
     setSelectionMode(_selectionMode);
 }
 
-void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles) const
+void Mesh2::toIndexRepresentation(std::vector<Vector3D> &vertices, std::vector<Vector3D> &texCoords, std::vector<TriQuad> &triangles) const
 {
     uint index = 0;
     
@@ -519,7 +519,7 @@ void Mesh2::toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &
     }
 }
 
-void Mesh2::setSelection(const vector<bool> &selection)
+void Mesh2::setSelection(const std::vector<bool> &selection)
 {
     for (uint i = 0; i < selection.size(); i++)
     {
@@ -534,7 +534,7 @@ void Mesh2::setSelection(const vector<bool> &selection)
     }
 }
 
-void Mesh2::getSelection(vector<bool> &selection) const
+void Mesh2::getSelection(std::vector<bool> &selection) const
 {
     selection.clear();
     for (uint i = 0; i < selectedCount(); i++)

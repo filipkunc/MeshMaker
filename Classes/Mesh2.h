@@ -73,11 +73,11 @@ private:
     
     MeshSelectionMode _selectionMode;
 	
-    vector<VertexNode *> _cachedVertexSelection;
-    vector<TriangleNode *> _cachedTriangleSelection;
-    vector<TexCoordNode *> _cachedTexCoordSelection;
-    vector<VertexEdgeNode *> _cachedVertexEdgeSelection;
-    vector<TexCoordEdgeNode *> _cachedTexCoordEdgeSelection;
+    std::vector<VertexNode *> _cachedVertexSelection;
+    std::vector<TriangleNode *> _cachedTriangleSelection;
+    std::vector<TexCoordNode *> _cachedTexCoordSelection;
+    std::vector<VertexEdgeNode *> _cachedVertexEdgeSelection;
+    std::vector<TexCoordEdgeNode *> _cachedTexCoordEdgeSelection;
     
 	FPArrayCache<GLTriangleVertex> _cachedTriangleVertices;
     FPArrayCache<GLEdgeVertex> _cachedEdgeVertices;
@@ -196,7 +196,7 @@ public:
     
     void updateVertexInTriangleCache(VertexNode *vertexNode, VertexTriangleNode *triangleNode, uint cacheIndexPosition);
     void updateVertexInEdgeCache(VertexNode *vertexNode, Vertex2VEdgeNode *edgeNode);
-    void updateTriangleAndEdgeCache(vector<VertexNode *> &affectedVertices);
+    void updateTriangleAndEdgeCache(std::vector<VertexNode *> &affectedVertices);
     
     void drawFill(FillMode fillMode, ViewMode viewMode);
     void draw(ViewMode viewMode, const Vector3D &scale, bool selected, bool forSelection);
@@ -241,14 +241,14 @@ public:
     void makeIcosahedron();
     void make(MeshType meshType, uint steps);
     
-    void fromVertices(const vector<Vector3D> &vertices);
-    void toVertices(vector<Vector3D> &vertices);
+    void fromVertices(const std::vector<Vector3D> &vertices);
+    void toVertices(std::vector<Vector3D> &vertices);
     
-    void fromIndexRepresentation(const vector<Vector3D> &vertices, const vector<Vector3D> &texCoords, const vector<TriQuad> &triangles);
-    void toIndexRepresentation(vector<Vector3D> &vertices, vector<Vector3D> &texCoords, vector<TriQuad> &triangles) const;
+    void fromIndexRepresentation(const std::vector<Vector3D> &vertices, const std::vector<Vector3D> &texCoords, const std::vector<TriQuad> &triangles);
+    void toIndexRepresentation(std::vector<Vector3D> &vertices, std::vector<Vector3D> &texCoords, std::vector<TriQuad> &triangles) const;
   
-    void setSelection(const vector<bool> &selection);
-    void getSelection(vector<bool> &selection) const;
+    void setSelection(const std::vector<bool> &selection);
+    void getSelection(std::vector<bool> &selection) const;
     
     void fillMeshFromSelectedTriangles(Mesh2 &mesh);
 };

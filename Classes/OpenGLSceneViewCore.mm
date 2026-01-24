@@ -232,6 +232,10 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     IOpenGLSelectingOptional *optional = dynamic_cast<IOpenGLSelectingOptional *>(selecting);
     uint count = selecting->selectableCount();
     
+#if defined(__APPLE__) || defined(SHADERS)
+    ShaderProgram::resetProgram();
+#endif
+
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -239,6 +243,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
     
     if (optional != NULL)
     {
@@ -249,7 +254,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
         for (uint i = 0; i < count; i++)
         {
             uint colorIndex = i + 1;
-            glColor4ubv((GLubyte *)&colorIndex);
+            glColor4ubv((GLubyte*)&colorIndex);
             selecting->drawForSelectionAtIndex(i);
         }
     }
@@ -263,6 +268,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
     
     if (selectedIndicesCount > 0)
     {
+		memset(selectedIndices, 0, kMaxSelectedIndicesCount * sizeof(uint));
     	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, selectedIndices);
 
         bool *selected = new bool[count];
@@ -271,7 +277,7 @@ bool *OpenGLSceneViewCore::select(int x, int y, int width, int height, IOpenGLSe
         
         for (uint i = 0; i < selectedIndicesCount; i++)
         {
-            uint selectedIndex = selectedIndices[i];
+            uint selectedIndex = selectedIndices[i] & 0x00ffFFffu;
             if (selectedIndex > 0 && selectedIndex - 1 < count)
                 selected[selectedIndex - 1] = true;
         }

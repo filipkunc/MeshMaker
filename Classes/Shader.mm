@@ -15,7 +15,6 @@
 
 #include <string>
 #include <fstream>
-using namespace std;
 
 #endif
 
@@ -37,8 +36,8 @@ Shader::Shader(GLenum shaderType, const char *fileName)
 
     const GLchar *shaderSource = [contents cStringUsingEncoding:NSASCIIStringEncoding];
 #elif defined(WIN32)
-	string buffer;
-	ifstream fin(fileName);
+	std::string buffer;
+	std::ifstream fin(fileName);
     getline(fin, buffer, char(-1));
     fin.close();
     const GLchar *shaderSource = buffer.c_str();

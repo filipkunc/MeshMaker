@@ -8,7 +8,6 @@ using System.Text;
 using System.Windows.Forms;
 using MeshMakerCppCLI;
 using System.Diagnostics;
-using Chocolate;
 using System.IO;
 
 namespace MeshMaker

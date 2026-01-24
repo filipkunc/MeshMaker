@@ -18,12 +18,11 @@
 #include "OpenGLSelecting.h"
 #include "ManipulatorWidget.h"
 #include <vector>
-using namespace std;
 
 class Manipulator : public IOpenGLSelecting
 {
 private:
-    vector<ManipulatorWidget> widgets;
+    std::vector<ManipulatorWidget> widgets;
 public:
     Vector3D position;
     Quaternion rotation;

@@ -215,6 +215,9 @@
     <ClInclude Include="..\Classes\VertexEdge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\Chocolate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico">

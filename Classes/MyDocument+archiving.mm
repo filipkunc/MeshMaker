@@ -18,15 +18,12 @@
 #include "rapidxml.hpp"
 #endif
 
-using namespace std;
-using namespace rapidxml;
-
 template <typename T>
-vector<T> *ReadValues(string s)
+std::vector<T> *ReadValues(std::string s)
 {
-    vector<T> *values = new vector<T>();
+    std::vector<T> *values = new std::vector<T>();
     
-    istringstream ss(s);
+    std::istringstream ss(s);
     
     T value;
     
@@ -147,26 +144,26 @@ vector<T> *ReadValues(string s)
 - (BOOL)readFromWavefrontObject:(NSData *)data
 {
     NSString *fileContents = [NSString stringWithUTF8String:(const char *)[data bytes]];
-    string str = [fileContents UTF8String];
+    std::string str = [fileContents UTF8String];
     stringstream ssfile;
     ssfile << str;
     
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triangles;
-    vector<uint> groups;
+    std::vector<Vector3D> vertices;
+    std::vector<Vector3D> texCoords;
+    std::vector<TriQuad> triangles;
+    std::vector<uint> groups;
     
     bool hasTexCoords = false;
     bool hasNormals = false;
     
     while (!ssfile.eof())
     {
-        string line;
+        std::string line;
         getline(ssfile, line);
         stringstream ssline;
         ssline << line;
         
-        string prefix;
+        std::string prefix;
         ssline >> prefix;
         
         if (prefix == "#")
@@ -185,7 +182,7 @@ vector<T> *ReadValues(string s)
             Vector3D v;
             ssline >> v.x >> v.y >> v.z;
             
-            swap(v.y, v.z);
+            std::swap(v.y, v.z);
             v.z = -v.z;
             
             vertices.push_back(v);
@@ -293,7 +290,7 @@ vector<T> *ReadValues(string s)
     stringstream ssfile;
     
     NSString *version = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleVersion"];
-    ssfile << "# Exported from MeshMaker " << [version UTF8String] << endl;
+    ssfile << "# Exported from MeshMaker " << [version UTF8String] << std::endl;
     
     // face indices in Wavefront Object starts from 1
     uint vertexIndexOffset = 1;
@@ -303,9 +300,9 @@ vector<T> *ReadValues(string s)
     {
         Item *item = items->itemAtIndex(itemIndex);
         
-        vector<Vector3D> vertices;
-        vector<Vector3D> texCoords;
-        vector<TriQuad> triangles;
+        std::vector<Vector3D> vertices;
+        std::vector<Vector3D> texCoords;
+        std::vector<TriQuad> triangles;
         
         Item *duplicate = item->duplicate();
         Mesh2 *mesh = duplicate->mesh;
@@ -313,25 +310,25 @@ vector<T> *ReadValues(string s)
         mesh->flipAllTriangles();
         mesh->toIndexRepresentation(vertices, texCoords, triangles);
         
-        ssfile << "g Item_" << itemIndex << endl;
-        ssfile << "# Number of vertices = " << vertices.size() << endl;
+        ssfile << "g Item_" << itemIndex << std::endl;
+        ssfile << "# Number of vertices = " << vertices.size() << std::endl;
         for (uint i = 0; i < vertices.size(); i++)
         {
             // v -5.79346 -1.38018 42.63113
             Vector3D v = vertices[i];
             v.z = -v.z;
-            swap(v.y, v.z);
-            ssfile << "v " << v.x << " " << v.y << " " << v.z << endl;
+            std::swap(v.y, v.z);
+            ssfile << "v " << v.x << " " << v.y << " " << v.z << std::endl;
         }
         
-        ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
+        ssfile << "# Number of texture coordinates = " << texCoords.size() << std::endl;
         for (uint i = 0; i < texCoords.size(); i++)
         {
             // vt 0.12528 -0.64560
-            ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
+            ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << std::endl;
         }
         
-        ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
+        ssfile << "# Number of triangles and quads = " << triangles.size() << std::endl;
         for (uint i = 0; i < triangles.size(); i++)
         {
             // f  v1/vt1 v2/vt2 v3/vt3 ...
@@ -343,29 +340,29 @@ vector<T> *ReadValues(string s)
                 ssfile << triQuad.vertexIndices[i] + vertexIndexOffset << "/";
                 ssfile << triQuad.texCoordIndices[i] + texCoordIndexOffset << " ";
             }
-            ssfile << endl;
+            ssfile << std::endl;
         }
         
         vertexIndexOffset += vertices.size();
         texCoordIndexOffset += texCoords.size();
     }
     
-    string str = ssfile.str();
+    std::string str = ssfile.str();
     return [[NSString stringWithUTF8String:str.c_str()] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (void)readMesh:(Mesh2 *)itemMesh fromXml:(xml_node< > *)meshXml
 {
-    string positionsString = meshXml->first_node("source")->first_node("float_array")->value();
-    vector<float> *points = ReadValues<float>(positionsString);
+    std::string positionsString = meshXml->first_node("source")->first_node("float_array")->value();
+    std::vector<float> *points = ReadValues<float>(positionsString);
     
-    string uvCoordsString = meshXml->first_node("source")->next_sibling()->next_sibling()->first_node("float_array")->value();
-    vector<float> *uvCoords = ReadValues<float>(uvCoordsString);
+    std::string uvCoordsString = meshXml->first_node("source")->next_sibling()->next_sibling()->first_node("float_array")->value();
+    std::vector<float> *uvCoords = ReadValues<float>(uvCoordsString);
     
     xml_node< > *triNode = meshXml->first_node("source")->next_sibling("triangles")->first_node();
     
     uint inputTypesCount = 0;
-    string trianglesString;
+    std::string trianglesString;
     
     while (true)
     {
@@ -381,11 +378,11 @@ vector<T> *ReadValues(string s)
         }
     }
     
-    vector<uint> *indices = ReadValues<uint>(trianglesString);
+    std::vector<uint> *indices = ReadValues<uint>(trianglesString);
     
-    vector<Vector3D> vertices;
-    vector<Vector3D> texCoords;
-    vector<TriQuad> triangles;
+    std::vector<Vector3D> vertices;
+    std::vector<Vector3D> texCoords;
+    std::vector<TriQuad> triangles;
     
     uint pointsSize = points->size();
     
@@ -407,7 +404,7 @@ vector<T> *ReadValues(string s)
         texCoords.push_back(uvCoord);
     }
     
-    vector<uint> &trianglesRef = *indices;
+    std::vector<uint> &trianglesRef = *indices;
     
     for (uint i = 0; i < trianglesRef.size(); i += inputTypesCount * 3)
     {
@@ -585,10 +582,10 @@ vector<T> *ReadValues(string s)
             {
                 Item *item = items->itemAtIndex(itemID);
                 
-                vector<Vector3D> vertices;
-                vector<Vector3D> texCoords;
-                vector<Vector3D> normals;
-                vector<TriQuad> triangles;
+                std::vector<Vector3D> vertices;
+                std::vector<Vector3D> texCoords;
+                std::vector<Vector3D> normals;
+                std::vector<TriQuad> triangles;
                 
                 Item *duplicate = item->duplicate();
                 Mesh2 *mesh = duplicate->mesh;
@@ -861,26 +858,26 @@ namespace MeshMakerCppCLI
 
 	void MyDocument::readWavefrontObject(String ^asciiString)
 	{
-		string str = MarshalHelpers::NativeString(asciiString);
-		stringstream ssfile;
+		std::string str = MarshalHelpers::NativeString(asciiString);
+		std::stringstream ssfile;
 		ssfile << str;
 	    
-		vector<Vector3D> vertices;
-		vector<Vector3D> texCoords;
-		vector<TriQuad> triangles;
-		vector<uint> groups;
+		std::vector<Vector3D> vertices;
+		std::vector<Vector3D> texCoords;
+		std::vector<TriQuad> triangles;
+		std::vector<uint> groups;
 	    
 		bool hasTexCoords = false;
 		bool hasNormals = false;
 	    
 		while (!ssfile.eof())
 		{
-			string line;
-			getline(ssfile, line);
-			stringstream ssline;
+			std::string line;
+			std::getline(ssfile, line);
+			std::stringstream ssline;
 			ssline << line;
 	        
-			string prefix;
+			std::string prefix;
 			ssline >> prefix;
 	        
 			if (prefix == "#")
@@ -899,7 +896,7 @@ namespace MeshMakerCppCLI
 				Vector3D v;
 				ssline >> v.x >> v.y >> v.z;
 	            
-				swap(v.y, v.z);
+				std::swap(v.y, v.z);
 				v.z = -v.z;
 	            
 				vertices.push_back(v);
@@ -999,10 +996,10 @@ namespace MeshMakerCppCLI
 
 	String ^MyDocument::writeWavefrontObject()
 	{
-		stringstream ssfile;
+		std::stringstream ssfile;
 	    
 		//NSString *version = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleVersion"];
-		ssfile << "# Exported from MeshMaker " << "1.3" << endl;
+		ssfile << "# Exported from MeshMaker " << "1.3" << std::endl;
 	    
 		// face indices in Wavefront Object starts from 1
 		uint vertexIndexOffset = 1;
@@ -1012,9 +1009,9 @@ namespace MeshMakerCppCLI
 		{
 			Item *item = items->itemAtIndex(itemIndex);
 	        
-			vector<Vector3D> vertices;
-			vector<Vector3D> texCoords;
-			vector<TriQuad> triangles;
+			std::vector<Vector3D> vertices;
+			std::vector<Vector3D> texCoords;
+			std::vector<TriQuad> triangles;
 	        
 			Item *duplicate = item->duplicate();
 			Mesh2 *mesh = duplicate->mesh;
@@ -1022,25 +1019,25 @@ namespace MeshMakerCppCLI
 			mesh->flipAllTriangles();
 			mesh->toIndexRepresentation(vertices, texCoords, triangles);
 	        
-			ssfile << "g Item_" << itemIndex << endl;
-			ssfile << "# Number of vertices = " << vertices.size() << endl;
+			ssfile << "g Item_" << itemIndex << std::endl;
+			ssfile << "# Number of vertices = " << vertices.size() << std::endl;
 			for (uint i = 0; i < vertices.size(); i++)
 			{
 				// v -5.79346 -1.38018 42.63113
 				Vector3D v = vertices[i];
 				v.z = -v.z;
-				swap(v.y, v.z);
-				ssfile << "v " << v.x << " " << v.y << " " << v.z << endl;
+				std::swap(v.y, v.z);
+				ssfile << "v " << v.x << " " << v.y << " " << v.z << std::endl;
 			}
 	        
-			ssfile << "# Number of texture coordinates = " << texCoords.size() << endl;
+			ssfile << "# Number of texture coordinates = " << texCoords.size() << std::endl;
 			for (uint i = 0; i < texCoords.size(); i++)
 			{
 				// vt 0.12528 -0.64560
-				ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << endl;
+				ssfile << "vt " << texCoords[i].x << " " << texCoords[i].y << " " << std::endl;
 			}
 	        
-			ssfile << "# Number of triangles and quads = " << triangles.size() << endl;
+			ssfile << "# Number of triangles and quads = " << triangles.size() << std::endl;
 			for (uint i = 0; i < triangles.size(); i++)
 			{
 				// f  v1/vt1 v2/vt2 v3/vt3 ...
@@ -1052,7 +1049,7 @@ namespace MeshMakerCppCLI
 					ssfile << triQuad.vertexIndices[i] + vertexIndexOffset << "/";
 					ssfile << triQuad.texCoordIndices[i] + texCoordIndexOffset << " ";
 				}
-				ssfile << endl;
+				ssfile << std::endl;
 			}
 	        
 			vertexIndexOffset += vertices.size();

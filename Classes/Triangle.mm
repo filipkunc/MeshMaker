@@ -249,7 +249,7 @@ bool Triangle2::isDegeneratedAfterCollapseToTriangle()
                 if (_isQuad)
                 {
                     if (i < 3 && j < 3)
-                        swap(node(i), node(3));
+                        std::swap(node(i), node(3));
                     
                     node(3) = PackedNode();
                     _isQuad = false;
@@ -296,8 +296,8 @@ bool Triangle2::containsTexCoordEdge(const TexCoordEdgeNode *edge) const
 
 void Triangle2::flip()
 {
-    swap(_nodes[0].vertex, _nodes[2].vertex);
-    swap(_nodes[0].texCoord, _nodes[2].texCoord);
+    std::swap(_nodes[0].vertex, _nodes[2].vertex);
+    std::swap(_nodes[0].texCoord, _nodes[2].texCoord);
 }
 
 uint Triangle2::indexOfVertex(const VertexNode *vertex) const
