@@ -7,6 +7,8 @@
 #endif
 
 #include <cmath>
+#include <limits>
+#include <algorithm>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -15,6 +17,7 @@
 Mesh::Mesh()
     : m_color(0.7f, 0.7f, 0.7f)
     , m_wireframeColor(0.1f, 0.1f, 0.1f)
+    , m_selectionColor(1.0f, 0.5f, 0.0f)
     , m_vao(0)
     , m_vbo(0)
     , m_edgeVao(0)
@@ -30,6 +33,7 @@ Mesh::~Mesh() {
 void Mesh::clear() {
     m_vertices.clear();
     m_edgeVertices.clear();
+    m_triangleSelection.clear();
 }
 
 void Mesh::addTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& color) {
@@ -355,5 +359,122 @@ void Mesh::draw(ViewMode mode) const {
             drawSolid();
             // Wireframe is drawn separately with different shader
             break;
+    }
+}
+
+// Ray-triangle intersection using Möller–Trumbore algorithm
+static bool rayTriangleIntersect(
+    const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+    const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
+    float& t)
+{
+    const float EPSILON = 0.0000001f;
+    glm::vec3 edge1 = v1 - v0;
+    glm::vec3 edge2 = v2 - v0;
+    glm::vec3 h = glm::cross(rayDir, edge2);
+    float a = glm::dot(edge1, h);
+    
+    if (a > -EPSILON && a < EPSILON)
+        return false;  // Ray is parallel to triangle
+    
+    float f = 1.0f / a;
+    glm::vec3 s = rayOrigin - v0;
+    float u = f * glm::dot(s, h);
+    
+    if (u < 0.0f || u > 1.0f)
+        return false;
+    
+    glm::vec3 q = glm::cross(s, edge1);
+    float v = f * glm::dot(rayDir, q);
+    
+    if (v < 0.0f || u + v > 1.0f)
+        return false;
+    
+    t = f * glm::dot(edge2, q);
+    return t > EPSILON;
+}
+
+bool Mesh::raycast(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+                   float& outDistance, size_t& outTriangleIndex) const
+{
+    bool hit = false;
+    float closestDistance = std::numeric_limits<float>::max();
+    size_t closestTriangle = 0;
+    
+    size_t triangleCount = m_vertices.size() / 3;
+    for (size_t i = 0; i < triangleCount; i++) {
+        const glm::vec3& v0 = m_vertices[i * 3].position;
+        const glm::vec3& v1 = m_vertices[i * 3 + 1].position;
+        const glm::vec3& v2 = m_vertices[i * 3 + 2].position;
+        
+        float t;
+        if (rayTriangleIntersect(rayOrigin, rayDir, v0, v1, v2, t)) {
+            if (t < closestDistance) {
+                closestDistance = t;
+                closestTriangle = i;
+                hit = true;
+            }
+        }
+    }
+    
+    if (hit) {
+        outDistance = closestDistance;
+        outTriangleIndex = closestTriangle;
+    }
+    
+    return hit;
+}
+
+void Mesh::selectTriangle(size_t triangleIndex, bool addToSelection) {
+    if (triangleIndex >= getTriangleCount()) return;
+    
+    // Ensure selection vector is properly sized
+    if (m_triangleSelection.size() != getTriangleCount()) {
+        m_triangleSelection.resize(getTriangleCount(), false);
+    }
+    
+    if (!addToSelection) {
+        deselectAll();
+    }
+    
+    m_triangleSelection[triangleIndex] = !m_triangleSelection[triangleIndex];
+    updateSelectionColors();
+}
+
+void Mesh::deselectAll() {
+    std::fill(m_triangleSelection.begin(), m_triangleSelection.end(), false);
+    updateSelectionColors();
+}
+
+bool Mesh::isTriangleSelected(size_t triangleIndex) const {
+    if (triangleIndex >= m_triangleSelection.size()) return false;
+    return m_triangleSelection[triangleIndex];
+}
+
+size_t Mesh::getSelectedCount() const {
+    size_t count = 0;
+    for (bool selected : m_triangleSelection) {
+        if (selected) count++;
+    }
+    return count;
+}
+
+void Mesh::setSelectionColor(const glm::vec3& color) {
+    m_selectionColor = color;
+    updateSelectionColors();
+}
+
+void Mesh::updateSelectionColors() {
+    size_t triangleCount = getTriangleCount();
+    
+    if (m_triangleSelection.size() != triangleCount) {
+        m_triangleSelection.resize(triangleCount, false);
+    }
+    
+    for (size_t i = 0; i < triangleCount; i++) {
+        glm::vec3 color = m_triangleSelection[i] ? m_selectionColor : m_color;
+        m_vertices[i * 3].color = color;
+        m_vertices[i * 3 + 1].color = color;
+        m_vertices[i * 3 + 2].color = color;
     }
 }

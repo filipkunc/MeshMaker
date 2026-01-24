@@ -53,6 +53,9 @@ struct AppState {
 
 static AppState g_app;
 
+// Forward declarations
+glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin);
+
 // Callbacks
 void framebufferSizeCallback(GLFWwindow* /*window*/, int width, int height) {
     g_app.windowWidth = width;
@@ -67,12 +70,43 @@ void scrollCallback(GLFWwindow* /*window*/, double /*xoffset*/, double yoffset) 
     g_app.camera.zoom(static_cast<float>(yoffset) * 0.5f);
 }
 
-void mouseButtonCallback(GLFWwindow* /*window*/, int button, int action, int /*mods*/) {
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     // Don't handle if ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) return;
     
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        g_app.mousePressed = (action == GLFW_PRESS);
+        if (action == GLFW_PRESS) {
+            g_app.mousePressed = true;
+        } else if (action == GLFW_RELEASE) {
+            // Check if this was a click (not a drag)
+            double currentX, currentY;
+            glfwGetCursorPos(window, &currentX, &currentY);
+            
+            double dragDistance = std::sqrt(
+                std::pow(currentX - g_app.lastMouseX, 2) + 
+                std::pow(currentY - g_app.lastMouseY, 2)
+            );
+            
+            // If minimal movement, treat as click for selection
+            if (dragDistance < 5.0) {
+                glm::vec3 rayOrigin;
+                glm::vec3 rayDir = screenToWorldRay(currentX, currentY, rayOrigin);
+                
+                float distance;
+                size_t triangleIndex;
+                if (g_app.mesh->raycast(rayOrigin, rayDir, distance, triangleIndex)) {
+                    bool addToSelection = (mods & GLFW_MOD_SHIFT) != 0;
+                    g_app.mesh->selectTriangle(triangleIndex, addToSelection);
+                    g_app.mesh->createGPUBuffers();
+                } else {
+                    // Clicked empty space - deselect all
+                    g_app.mesh->deselectAll();
+                    g_app.mesh->createGPUBuffers();
+                }
+            }
+            
+            g_app.mousePressed = false;
+        }
     }
     if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
         g_app.middleMousePressed = (action == GLFW_PRESS);
@@ -103,6 +137,33 @@ void cursorPosCallback(GLFWwindow* /*window*/, double xpos, double ypos) {
     
     g_app.lastMouseX = xpos;
     g_app.lastMouseY = ypos;
+}
+
+// Convert screen coordinates to world-space ray
+glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin) {
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    // Convert to normalized device coordinates (-1 to 1)
+    float x = (2.0f * static_cast<float>(mouseX)) / g_app.windowWidth - 1.0f;
+    float y = 1.0f - (2.0f * static_cast<float>(mouseY)) / g_app.windowHeight;
+    
+    // Create ray in clip space
+    glm::vec4 rayClip(x, y, -1.0f, 1.0f);
+    
+    // Transform to eye space
+    glm::vec4 rayEye = glm::inverse(projection) * rayClip;
+    rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+    
+    // Transform to world space
+    glm::vec3 rayWorld = glm::vec3(glm::inverse(view) * rayEye);
+    rayWorld = glm::normalize(rayWorld);
+    
+    // Ray origin is camera position
+    rayOrigin = g_app.camera.getPosition();
+    
+    return rayWorld;
 }
 
 bool initShaders() {
@@ -185,6 +246,19 @@ void renderImGui() {
     }
     
     ImGui::Separator();
+    ImGui::Text("Selection:");
+    ImGui::BulletText("Click: Select triangle");
+    ImGui::BulletText("Shift+Click: Add to selection");
+    
+    size_t selectedCount = g_app.mesh->getSelectedCount();
+    ImGui::Text("Selected: %zu / %zu triangles", selectedCount, g_app.mesh->getTriangleCount());
+    
+    if (selectedCount > 0 && ImGui::Button("Deselect All")) {
+        g_app.mesh->deselectAll();
+        g_app.mesh->createGPUBuffers();
+    }
+    
+    ImGui::Separator();
     ImGui::Text("View Settings:");
     
     const char* viewModes[] = { "Solid", "Wireframe", "Solid + Wireframe" };
@@ -195,7 +269,7 @@ void renderImGui() {
     ImGui::Separator();
     ImGui::Text("Stats:");
     ImGui::Text("Vertices: %zu", g_app.mesh->getVertexCount());
-    ImGui::Text("Edges: %zu", g_app.mesh->getEdgeVertexCount() / 2);
+    ImGui::Text("Triangles: %zu", g_app.mesh->getTriangleCount());
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     
     ImGui::End();
