@@ -47,6 +47,29 @@ export interface MeshMakerModule extends EmscriptenModule {
   getShowImGui(): boolean;
   setShowImGui(show: boolean): void;
   
+  // Unified selection value API (respects current transform mode)
+  // - In Translate mode: returns/sets position
+  // - In Rotate mode: returns/sets euler angles in degrees
+  // - In Scale mode: returns/sets scale values
+  getSelectionX(): number;
+  getSelectionY(): number;
+  getSelectionZ(): number;
+  setSelectionX(value: number): void;
+  setSelectionY(value: number): void;
+  setSelectionZ(value: number): void;
+  
+  // Legacy position-only API
+  getSelectionCenterX(): number;
+  getSelectionCenterY(): number;
+  getSelectionCenterZ(): number;
+  setSelectionPosition(x: number, y: number, z: number): void;
+  rotateSelection(xDegrees: number, yDegrees: number, zDegrees: number): void;
+  scaleSelection(xOffset: number, yOffset: number, zOffset: number): void;
+  
+  // Mesh steps for primitives (3-100)
+  getMeshSteps(): number;
+  setMeshSteps(steps: number): void;
+  
   // Info
   getItemCount(): number;
 }

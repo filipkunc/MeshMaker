@@ -1,8 +1,56 @@
+import { useState, useCallback, useEffect } from 'react';
 import { Toolbar, PropertiesPanel, Viewport } from './components';
 import { useMeshMaker } from './hooks/useMeshMaker';
 
+type TransformMode = 'select' | 'translate' | 'rotate' | 'scale';
+
 function App() {
   const { canvasRef, containerRef, isLoading, error, module } = useMeshMaker();
+  const [meshSteps, setMeshSteps] = useState(20);
+  const [selectionState, setSelectionState] = useState({ count: 0, x: 0, y: 0, z: 0 });
+  const [transformMode, setTransformMode] = useState<TransformMode>('select');
+  
+  // Poll selection state from WASM module (uses unified API that respects transform mode)
+  useEffect(() => {
+    if (!module) return;
+    
+    const updateSelectionState = () => {
+      const count = module.getSelectionCount();
+      if (count > 0) {
+        setSelectionState({
+          count,
+          x: module.getSelectionX(),
+          y: module.getSelectionY(),
+          z: module.getSelectionZ(),
+        });
+      } else {
+        setSelectionState({ count: 0, x: 0, y: 0, z: 0 });
+      }
+    };
+    
+    // Update initially
+    updateSelectionState();
+    
+    // Poll every 100ms to catch changes from viewport interaction
+    const interval = setInterval(updateSelectionState, 100);
+    return () => clearInterval(interval);
+  }, [module, transformMode]); // Re-poll when transform mode changes
+  
+  // Force re-render to update selection info
+  const triggerUpdate = useCallback(() => {
+    if (!module) return;
+    const count = module.getSelectionCount();
+    if (count > 0) {
+      setSelectionState({
+        count,
+        x: module.getSelectionX(),
+        y: module.getSelectionY(),
+        z: module.getSelectionZ(),
+      });
+    } else {
+      setSelectionState({ count: 0, x: 0, y: 0, z: 0 });
+    }
+  }, [module]);
 
   const handleToolChange = (tool: string) => {
     if (!module) return;
@@ -18,6 +66,7 @@ function App() {
     const mode = toolToMode[tool];
     if (mode !== undefined) {
       module.setTransformMode(mode);
+      setTransformMode(tool as TransformMode);
     }
   };
 
@@ -38,26 +87,61 @@ function App() {
     }
   };
 
-  const handleAddPrimitive = (type: string) => {
+  const handleAddPrimitive = (type: string, steps?: number) => {
     if (!module) return;
+    
+    const stepsToUse = steps ?? meshSteps;
     
     switch (type) {
       case 'cube':
         module.addCube();
         break;
       case 'cylinder':
-        module.addCylinder(20);
+        module.addCylinder(stepsToUse);
         break;
       case 'sphere':
-        module.addSphere(20);
+        module.addSphere(stepsToUse);
         break;
       case 'plane':
         module.addPlane();
         break;
+      case 'icosahedron':
+        module.addIcosahedron();
+        break;
     }
+    triggerUpdate();
   };
 
-  const selectionCount = module?.getSelectionCount() ?? 0;
+  // Unified selection value handlers (work with current transform mode)
+  const handleSelectionXChange = (value: number) => {
+    if (!module) return;
+    module.setSelectionX(value);
+    triggerUpdate();
+  };
+
+  const handleSelectionYChange = (value: number) => {
+    if (!module) return;
+    module.setSelectionY(value);
+    triggerUpdate();
+  };
+
+  const handleSelectionZChange = (value: number) => {
+    if (!module) return;
+    module.setSelectionZ(value);
+    triggerUpdate();
+  };
+
+  const handleDuplicate = () => {
+    if (!module) return;
+    module.duplicateSelection();
+    triggerUpdate();
+  };
+
+  const handleDelete = () => {
+    if (!module) return;
+    module.deleteSelection();
+    triggerUpdate();
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
@@ -66,6 +150,8 @@ function App() {
         onToolChange={handleToolChange}
         onEditModeChange={handleEditModeChange}
         onAddPrimitive={handleAddPrimitive}
+        meshSteps={meshSteps}
+        onMeshStepsChange={setMeshSteps}
       />
 
       {/* Main Viewport */}
@@ -77,7 +163,18 @@ function App() {
       />
 
       {/* Right Properties Panel */}
-      <PropertiesPanel selectionCount={selectionCount} />
+      <PropertiesPanel 
+        selectionCount={selectionState.count}
+        transformMode={transformMode}
+        selectionX={selectionState.x}
+        selectionY={selectionState.y}
+        selectionZ={selectionState.z}
+        onSelectionXChange={handleSelectionXChange}
+        onSelectionYChange={handleSelectionYChange}
+        onSelectionZChange={handleSelectionZChange}
+        onDuplicate={handleDuplicate}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

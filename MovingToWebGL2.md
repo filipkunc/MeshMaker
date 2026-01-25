@@ -67,11 +67,20 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 
 **Keyboard Shortcuts:**
 - Matches original MeshMaker (W/E/R for tools, 1/2/3/4 for edit modes, etc.)
+- Smart focus detection: shortcuts disabled when typing in UI text inputs
 
 **Undo/Redo System:**
 - Full undo/redo for item transformations (translate, rotate, scale)
 - Full undo/redo for mesh operations (extrude, subdivide, merge, etc.)
 - State capture and restore for both items and mesh topology
+
+**React Frontend (MeshMakerWeb):**
+- Vite + React 19 + TypeScript + Tailwind CSS
+- WASM module integration via Embind API
+- HiDPI canvas support with proper devicePixelRatio handling
+- **Toolbar:** Edit mode buttons, transform mode buttons, primitive creation (with configurable mesh steps), view mode selector
+- **Properties Panel:** Transform inputs (X/Y/Z) that show Position/Rotation/Scale based on active tool mode, Duplicate/Delete buttons
+- Unified selection value API matching original macOS/Windows behavior
 
 ### Remaining Work 🚧
 
@@ -87,7 +96,6 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 **Low Priority / Polish:**
 - [ ] Soft selection / falloff
 - [ ] Snap to grid
-- [ ] Duplicate items properly (deep mesh copy)
 - [ ] Status bar with selection info
 - [ ] Preferences/settings persistence
 

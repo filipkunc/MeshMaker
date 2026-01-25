@@ -46,6 +46,25 @@ extern int api_getItemCount();
 extern bool api_getShowImGui();
 extern void api_setShowImGui(bool show);
 
+// Unified selection value API (respects current transform mode)
+extern float api_getSelectionX();
+extern float api_getSelectionY();
+extern float api_getSelectionZ();
+extern void api_setSelectionX(float value);
+extern void api_setSelectionY(float value);
+extern void api_setSelectionZ(float value);
+
+// Legacy position-only API
+extern float api_getSelectionCenterX();
+extern float api_getSelectionCenterY();
+extern float api_getSelectionCenterZ();
+extern void api_setSelectionPosition(float x, float y, float z);
+extern void api_rotateSelection(float xDegrees, float yDegrees, float zDegrees);
+extern void api_scaleSelection(float xOffset, float yOffset, float zOffset);
+
+extern int api_getMeshSteps();
+extern void api_setMeshSteps(int steps);
+
 // ============================================================================
 // Embind Bindings
 // ============================================================================
@@ -101,6 +120,26 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     // ImGui visibility
     function("getShowImGui", &api_getShowImGui);
     function("setShowImGui", &api_setShowImGui);
+    
+    // Unified selection value API (respects current transform mode)
+    function("getSelectionX", &api_getSelectionX);
+    function("getSelectionY", &api_getSelectionY);
+    function("getSelectionZ", &api_getSelectionZ);
+    function("setSelectionX", &api_setSelectionX);
+    function("setSelectionY", &api_setSelectionY);
+    function("setSelectionZ", &api_setSelectionZ);
+    
+    // Legacy position-only API
+    function("getSelectionCenterX", &api_getSelectionCenterX);
+    function("getSelectionCenterY", &api_getSelectionCenterY);
+    function("getSelectionCenterZ", &api_getSelectionCenterZ);
+    function("setSelectionPosition", &api_setSelectionPosition);
+    function("rotateSelection", &api_rotateSelection);
+    function("scaleSelection", &api_scaleSelection);
+    
+    // Mesh steps for primitives
+    function("getMeshSteps", &api_getMeshSteps);
+    function("setMeshSteps", &api_setMeshSteps);
 }
 
 #endif // EMSCRIPTEN_BUILD

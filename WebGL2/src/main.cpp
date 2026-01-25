@@ -1034,6 +1034,15 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
     // Don't handle if ImGui wants keyboard
     if (ImGui::GetIO().WantCaptureKeyboard) return;
     
+    // Don't handle if an HTML input element is focused (React UI textboxes)
+    bool htmlInputFocused = EM_ASM_INT({
+        var activeEl = document.activeElement;
+        if (!activeEl) return 0;
+        var tag = activeEl.tagName;
+        return (tag === 'INPUT' || tag === 'TEXTAREA' || activeEl.isContentEditable) ? 1 : 0;
+    });
+    if (htmlInputFocused) return;
+    
     if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
     
     // Handle Ctrl+Z (Undo) and Ctrl+Y (Redo)
@@ -2991,6 +3000,183 @@ bool api_getShowImGui() {
 
 void api_setShowImGui(bool show) {
     g_app.showImGui = show;
+}
+
+// Helper: Get euler angles from quaternion (in degrees)
+glm::vec3 quaternionToEulerDegrees(const glm::quat& q) {
+    glm::vec3 euler = glm::eulerAngles(q);
+    return glm::degrees(euler);
+}
+
+// Get the last selected item (for single selection display)
+Item* getLastSelectedItem() {
+    if (!g_app.items) return nullptr;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        for (int i = static_cast<int>(g_app.items->getItemCount()) - 1; i >= 0; --i) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (item->selected) return item;
+        }
+    }
+    return nullptr;
+}
+
+// Get selection value based on current transform mode and axis (0=X, 1=Y, 2=Z)
+float api_getSelectionValue(int axis) {
+    if (!g_app.items || getSelectionCount() == 0) return 0.0f;
+    if (axis < 0 || axis > 2) return 0.0f;
+    
+    switch (g_app.transformMode) {
+        case TransformMode::Translate:
+        case TransformMode::None: {
+            glm::vec3 center = getSelectionCenter();
+            return center[axis];
+        }
+        case TransformMode::Rotate: {
+            // For rotation, show euler angles of last selected item
+            Item* item = getLastSelectedItem();
+            if (item) {
+                glm::vec3 euler = quaternionToEulerDegrees(item->rotation);
+                return euler[axis];
+            }
+            return 0.0f;
+        }
+        case TransformMode::Scale: {
+            // For scale, show scale of last selected item
+            Item* item = getLastSelectedItem();
+            if (item) {
+                return item->scale[axis];
+            }
+            return 1.0f;
+        }
+    }
+    return 0.0f;
+}
+
+// Set selection value based on current transform mode and axis
+void api_setSelectionValue(int axis, float value) {
+    if (!g_app.items || getSelectionCount() == 0) return;
+    if (axis < 0 || axis > 2) return;
+    
+    switch (g_app.transformMode) {
+        case TransformMode::Translate:
+        case TransformMode::None: {
+            glm::vec3 currentCenter = getSelectionCenter();
+            glm::vec3 offset(0.0f);
+            offset[axis] = value - currentCenter[axis];
+            
+            sceneActionWithUndo("Move Selection", [offset]() {
+                translateSelection(offset);
+            });
+            break;
+        }
+        case TransformMode::Rotate: {
+            // Set absolute rotation for the last selected item
+            Item* item = getLastSelectedItem();
+            if (item) {
+                glm::vec3 currentEuler = quaternionToEulerDegrees(item->rotation);
+                float delta = value - currentEuler[axis];
+                
+                glm::vec3 axisVec(0.0f);
+                axisVec[axis] = 1.0f;
+                
+                sceneActionWithUndo("Rotate Selection", [axisVec, delta]() {
+                    rotateSelection(axisVec, glm::radians(delta));
+                });
+            }
+            break;
+        }
+        case TransformMode::Scale: {
+            // Set absolute scale for the last selected item
+            Item* item = getLastSelectedItem();
+            if (item) {
+                glm::vec3 scaleOffset(0.0f);
+                scaleOffset[axis] = value - item->scale[axis];
+                glm::vec3 center = getSelectionCenter();
+                
+                sceneActionWithUndo("Scale Selection", [center, scaleOffset]() {
+                    scaleSelectionByOffset(center, scaleOffset);
+                });
+            }
+            break;
+        }
+    }
+}
+
+// Convenience wrappers for X, Y, Z
+float api_getSelectionX() { return api_getSelectionValue(0); }
+float api_getSelectionY() { return api_getSelectionValue(1); }
+float api_getSelectionZ() { return api_getSelectionValue(2); }
+void api_setSelectionX(float value) { api_setSelectionValue(0, value); }
+void api_setSelectionY(float value) { api_setSelectionValue(1, value); }
+void api_setSelectionZ(float value) { api_setSelectionValue(2, value); }
+
+// Legacy functions kept for compatibility
+float api_getSelectionCenterX() {
+    if (!g_app.items || getSelectionCount() == 0) return 0.0f;
+    return getSelectionCenter().x;
+}
+
+float api_getSelectionCenterY() {
+    if (!g_app.items || getSelectionCount() == 0) return 0.0f;
+    return getSelectionCenter().y;
+}
+
+float api_getSelectionCenterZ() {
+    if (!g_app.items || getSelectionCount() == 0) return 0.0f;
+    return getSelectionCenter().z;
+}
+
+void api_setSelectionPosition(float x, float y, float z) {
+    if (!g_app.items || getSelectionCount() == 0) return;
+    
+    glm::vec3 currentCenter = getSelectionCenter();
+    glm::vec3 newPosition(x, y, z);
+    glm::vec3 offset = newPosition - currentCenter;
+    
+    sceneActionWithUndo("Move Selection", [offset]() {
+        translateSelection(offset);
+    });
+}
+
+// Apply rotation to selection (incremental, in degrees)
+void api_rotateSelection(float xDegrees, float yDegrees, float zDegrees) {
+    if (!g_app.items || getSelectionCount() == 0) return;
+    
+    sceneActionWithUndo("Rotate Selection", [xDegrees, yDegrees, zDegrees]() {
+        if (xDegrees != 0.0f) {
+            rotateSelection(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(xDegrees));
+        }
+        if (yDegrees != 0.0f) {
+            rotateSelection(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(yDegrees));
+        }
+        if (zDegrees != 0.0f) {
+            rotateSelection(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(zDegrees));
+        }
+    });
+}
+
+// Apply scale to selection (as offset from current)
+void api_scaleSelection(float xOffset, float yOffset, float zOffset) {
+    if (!g_app.items || getSelectionCount() == 0) return;
+    
+    glm::vec3 center = getSelectionCenter();
+    glm::vec3 scaleOffset(xOffset, yOffset, zOffset);
+    
+    sceneActionWithUndo("Scale Selection", [center, scaleOffset]() {
+        scaleSelectionByOffset(center, scaleOffset);
+    });
+}
+
+// Mesh steps for primitives
+int api_getMeshSteps() {
+    return g_app.meshSteps;
+}
+
+void api_setMeshSteps(int steps) {
+    if (steps < 3) steps = 3;
+    if (steps > 100) steps = 100;
+    g_app.meshSteps = steps;
 }
 
 #endif // EMSCRIPTEN_BUILD

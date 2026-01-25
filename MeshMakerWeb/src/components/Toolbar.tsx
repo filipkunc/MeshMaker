@@ -6,10 +6,18 @@ type EditMode = 'items' | 'vertices' | 'triangles' | 'edges';
 interface ToolbarProps {
   onToolChange?: (tool: Tool) => void;
   onEditModeChange?: (mode: EditMode) => void;
-  onAddPrimitive?: (type: string) => void;
+  onAddPrimitive?: (type: string, steps?: number) => void;
+  meshSteps?: number;
+  onMeshStepsChange?: (steps: number) => void;
 }
 
-export function Toolbar({ onToolChange, onEditModeChange, onAddPrimitive }: ToolbarProps) {
+export function Toolbar({ 
+  onToolChange, 
+  onEditModeChange, 
+  onAddPrimitive,
+  meshSteps = 20,
+  onMeshStepsChange 
+}: ToolbarProps) {
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [editMode, setEditMode] = useState<EditMode>('items');
 
@@ -35,13 +43,6 @@ export function Toolbar({ onToolChange, onEditModeChange, onAddPrimitive }: Tool
     { id: 'vertices', label: 'Vertices' },
     { id: 'triangles', label: 'Triangles' },
     { id: 'edges', label: 'Edges' },
-  ];
-
-  const primitives = [
-    { id: 'cube', label: 'Cube' },
-    { id: 'cylinder', label: 'Cylinder' },
-    { id: 'sphere', label: 'Sphere' },
-    { id: 'plane', label: 'Plane' },
   ];
 
   return (
@@ -86,15 +87,57 @@ export function Toolbar({ onToolChange, onEditModeChange, onAddPrimitive }: Tool
       {/* Add Primitives */}
       <div className="flex flex-col gap-1">
         <span className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Add</span>
-        {primitives.map((prim) => (
-          <button
-            key={prim.id}
-            onClick={() => onAddPrimitive?.(prim.id)}
-            className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
-          >
-            + {prim.label}
-          </button>
-        ))}
+        <button
+          onClick={() => onAddPrimitive?.('cube')}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          + Cube
+        </button>
+        <button
+          onClick={() => onAddPrimitive?.('plane')}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          + Plane
+        </button>
+        
+        {/* Steps input for Cylinder/Sphere */}
+        <div className="mt-2 mb-1">
+          <label className="flex items-center gap-2 text-xs text-zinc-400">
+            <span>Steps:</span>
+            <input
+              type="number"
+              min="3"
+              max="100"
+              value={meshSteps}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                if (!isNaN(val) && val >= 3 && val <= 100) {
+                  onMeshStepsChange?.(val);
+                }
+              }}
+              className="w-14 bg-zinc-700 text-zinc-200 text-sm px-2 py-1 rounded border border-zinc-600 focus:border-blue-500 focus:outline-none"
+            />
+          </label>
+        </div>
+        
+        <button
+          onClick={() => onAddPrimitive?.('cylinder', meshSteps)}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          + Cylinder
+        </button>
+        <button
+          onClick={() => onAddPrimitive?.('sphere', meshSteps)}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          + Sphere
+        </button>
+        <button
+          onClick={() => onAddPrimitive?.('icosahedron')}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          + Icosahedron
+        </button>
       </div>
     </div>
   );
