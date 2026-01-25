@@ -616,6 +616,13 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
             g_app.mousePressed = true;
             // Save click position for selection
             glfwGetCursorPos(window, &g_app.clickMouseX, &g_app.clickMouseY);
+#ifdef EMSCRIPTEN_BUILD
+            // Emscripten GLFW with GLFW_SCALE_TO_MONITOR returns CSS pixels,
+            // but we work in physical pixels. Scale by devicePixelRatio.
+            double dpr = emscripten_get_device_pixel_ratio();
+            g_app.clickMouseX *= dpr;
+            g_app.clickMouseY *= dpr;
+#endif
             
             // Check if Alt is pressed (camera control mode)
             bool altPressed = glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS || 
@@ -694,6 +701,12 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
             
             double currentX, currentY;
             glfwGetCursorPos(window, &currentX, &currentY);
+#ifdef EMSCRIPTEN_BUILD
+            // Scale to physical pixels
+            double dpr = emscripten_get_device_pixel_ratio();
+            currentX *= dpr;
+            currentY *= dpr;
+#endif
             
             if (g_app.isSelecting) {
                 g_app.isSelecting = false;
@@ -879,6 +892,14 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+#ifdef EMSCRIPTEN_BUILD
+    // Emscripten GLFW with GLFW_SCALE_TO_MONITOR returns CSS pixels,
+    // but we work in physical pixels. Scale by devicePixelRatio.
+    double dpr = emscripten_get_device_pixel_ratio();
+    xpos *= dpr;
+    ypos *= dpr;
+#endif
+    
     // Don't handle if ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) {
         g_app.lastMouseX = xpos;
@@ -2546,7 +2567,58 @@ void mainLoop() {
 }
 
 #ifdef EMSCRIPTEN_BUILD
+// Helper to get the container's size and update canvas to match
+EM_JS(void, getContainerSize, (double* outWidth, double* outHeight), {
+    var container = document.getElementById('canvas-container');
+    if (container) {
+        var rect = container.getBoundingClientRect();
+        setValue(outWidth, rect.width, 'double');
+        setValue(outHeight, rect.height, 'double');
+    } else {
+        // Fallback to window size if container not found
+        setValue(outWidth, window.innerWidth, 'double');
+        setValue(outHeight, window.innerHeight, 'double');
+    }
+});
+
+// Helper to update canvas CSS size (overrides Emscripten's !important styles)
+EM_JS(void, updateCanvasCssSize, (double width, double height), {
+    var canvas = document.getElementById('canvas');
+    if (canvas) {
+        canvas.style.setProperty('width', width + 'px', 'important');
+        canvas.style.setProperty('height', height + 'px', 'important');
+    }
+});
+
 void emscriptenMainLoop() {
+    // Poll for CONTAINER size changes (not canvas - Emscripten sets canvas with !important)
+    double cssWidth, cssHeight;
+    getContainerSize(&cssWidth, &cssHeight);
+    
+    double devicePixelRatio = emscripten_get_device_pixel_ratio();
+    int physicalWidth = static_cast<int>(cssWidth * devicePixelRatio);
+    int physicalHeight = static_cast<int>(cssHeight * devicePixelRatio);
+    
+    // Check if size changed
+    if (physicalWidth != g_app.framebufferWidth || physicalHeight != g_app.framebufferHeight) {
+        // Update canvas buffer size
+        emscripten_set_canvas_element_size("#canvas", physicalWidth, physicalHeight);
+        
+        // Update CSS size to match container (override Emscripten's !important)
+        updateCanvasCssSize(cssWidth, cssHeight);
+        
+        g_app.framebufferWidth = physicalWidth;
+        g_app.framebufferHeight = physicalHeight;
+        g_app.windowWidth = physicalWidth;
+        g_app.windowHeight = physicalHeight;
+        g_app.dpiScale = static_cast<float>(devicePixelRatio);
+        
+        std::cout << "[WebGL Resize] CSS: " << cssWidth << "x" << cssHeight 
+                  << ", physical: " << physicalWidth << "x" << physicalHeight << std::endl;
+        
+        glViewport(0, 0, physicalWidth, physicalHeight);
+    }
+    
     mainLoop();
 }
 #endif
@@ -2563,6 +2635,9 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    // Tell Emscripten's GLFW we're HiDPI-aware - this affects mouse coordinate scaling
+    // Emscripten uses GLFW_SCALE_TO_MONITOR (0x0002200C) to determine if app handles HiDPI
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 #else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -2594,9 +2669,9 @@ int main() {
     
     // Get initial framebuffer size and content scale for High DPI support
 #ifdef EMSCRIPTEN_BUILD
-    // For WebGL High DPI: get the CSS size and scale to physical pixels
+    // For WebGL High DPI: get the CONTAINER size (not canvas - Emscripten overrides that)
     double cssWidth, cssHeight;
-    emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
+    getContainerSize(&cssWidth, &cssHeight);
     
     double devicePixelRatio = emscripten_get_device_pixel_ratio();
     int physicalWidth = static_cast<int>(cssWidth * devicePixelRatio);
@@ -2604,6 +2679,9 @@ int main() {
     
     // Set the canvas backing buffer to physical pixel size for sharp rendering
     emscripten_set_canvas_element_size("#canvas", physicalWidth, physicalHeight);
+    
+    // Override Emscripten's !important CSS with the actual container size
+    updateCanvasCssSize(cssWidth, cssHeight);
     
     g_app.framebufferWidth = physicalWidth;
     g_app.framebufferHeight = physicalHeight;
@@ -2614,9 +2692,9 @@ int main() {
     g_app.contentScaleY = 1.0f;
     g_app.dpiScale = static_cast<float>(devicePixelRatio);  // For ImGui font scaling
     
-    std::cout << "[WebGL DPI Init] CSS: " << cssWidth << "x" << cssHeight 
+    std::cout << "[WebGL DPI Init] Container: " << cssWidth << "x" << cssHeight 
               << ", physical: " << physicalWidth << "x" << physicalHeight
-              << ", contentScale: " << g_app.contentScaleX << std::endl;
+              << ", dpiScale: " << g_app.dpiScale << std::endl;
 #else
     glfwGetFramebufferSize(g_app.window, &g_app.framebufferWidth, &g_app.framebufferHeight);
     glfwGetWindowSize(g_app.window, &g_app.windowWidth, &g_app.windowHeight);

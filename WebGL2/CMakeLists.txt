@@ -12,7 +12,8 @@ include(FetchContent)
 # Detect Emscripten
 if(EMSCRIPTEN)
     message(STATUS "Building for WebGL2 with Emscripten")
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    # Use .js suffix for modular builds (MODULARIZE=1) to allow custom EXPORT_NAME
+    set(CMAKE_EXECUTABLE_SUFFIX ".js")
     set(USE_WEBGL2 TRUE)
 else()
     message(STATUS "Building for Desktop OpenGL 3.3")
@@ -157,6 +158,8 @@ if(EMSCRIPTEN)
         "-sFULL_ES3=1"
         "-sALLOW_MEMORY_GROWTH=1"
         "-sWASM=1"
+        "-sMODULARIZE=1"
+        "-sEXPORT_NAME=createMeshMakerModule"
         "--embed-file=${CMAKE_CURRENT_SOURCE_DIR}/shaders@/shaders"
     )
     
