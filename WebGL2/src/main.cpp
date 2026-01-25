@@ -216,9 +216,8 @@ void scaleSelectionByOffset(const glm::vec3& center, const glm::vec3& offset) {
     if (!g_app.items) return;
     
     if (g_app.items->getEditMode() == EditMode::Items) {
-        // For items, convert offset to scale factor
-        float avgScale = (offset.x + offset.y + offset.z) / 3.0f;
-        g_app.items->scaleSelectedItems(glm::vec3(avgScale));
+        // For items, pass the offset directly for per-axis scaling
+        g_app.items->scaleSelectedItemsByOffset(center, offset);
     } else {
         g_app.items->scaleSelectedComponentsByOffset(center, offset);
     }
@@ -500,9 +499,15 @@ std::vector<bool> selectInRect(int x, int y, int width, int height);
 int selectManipulatorAtPoint(int x, int y);
 glm::vec3 unprojectPoint(double mouseX, double mouseY, float depth);
 glm::vec3 intersectAxisPlane(double mouseX, double mouseY, glm::vec3 planePoint, glm::vec3 planeNormal);
+glm::vec3 positionFromDepthBuffer(double mouseX, double mouseY);
+void drawSelectionPlaneAtCenter(const glm::vec3& center);
+glm::vec3 positionFromAxisPointForTranslation(double mouseX, double mouseY, Axis axis);
+glm::vec3 positionFromAxisPoint(double mouseX, double mouseY, Axis axis);
+void drawAxisAlignedPlane(Axis planeAxis);
 glm::vec3 getManipulatorTranslation(double mouseX, double mouseY, Axis axis);
 glm::vec3 getManipulatorPlaneTranslation(double mouseX, double mouseY, Axis planeAxis);
 glm::quat getManipulatorRotation(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition);
+void initManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition);
 glm::vec3 getManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition);
 void drawSelectionRect();
 
@@ -576,11 +581,9 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
                                 g_app.clickMouseX, g_app.clickMouseY, selCenter, planeNormal);
                             g_app.dragStartPoint -= selCenter;
                         } else if (g_app.transformMode == TransformMode::Scale) {
-                            // Initialize lastPosition for scale
-                            glm::vec3 selCenter = getSelectionCenter();
-                            glm::vec3 cameraForward = g_app.camera.getForwardDirection();
-                            g_app.dragStartPoint = intersectAxisPlane(
-                                g_app.clickMouseX, g_app.clickMouseY, selCenter, cameraForward);
+                            // Initialize lastPosition for scale using the same method as drag
+                            initManipulatorScale(g_app.clickMouseX, g_app.clickMouseY, 
+                                                 selectedAxis, g_app.dragStartPoint);
                         }
                         
                         return;  // Don't start rectangle selection
@@ -957,12 +960,29 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
             case GLFW_KEY_ESCAPE:
                 g_app.transformMode = TransformMode::None;
                 break;
-            case GLFW_KEY_A:  // Select all
-                selectAll();
-                break;
-            case GLFW_KEY_D:  // Deselect all or Duplicate (Ctrl+D)
+            case GLFW_KEY_A:  // Ctrl+A = Select all
                 if (mods & GLFW_MOD_CONTROL) {
-                    // Ctrl+D = Duplicate
+                    selectAll();
+                }
+                break;
+            case GLFW_KEY_I:  // Ctrl+I = Invert selection
+                if (mods & GLFW_MOD_CONTROL) {
+                    if (g_app.items->getEditMode() == EditMode::Items) {
+                        for (size_t i = 0; i < g_app.items->getItemCount(); ++i) {
+                            Item* item = g_app.items->getItemAtIndex(i);
+                            if (item) item->selected = !item->selected;
+                        }
+                    } else {
+                        Mesh2* mesh = g_app.items->getCurrentMesh();
+                        if (mesh) {
+                            mesh->invertSelection();
+                            mesh->createGPUBuffers();
+                        }
+                    }
+                }
+                break;
+            case GLFW_KEY_D:  // Ctrl+D = Duplicate
+                if (mods & GLFW_MOD_CONTROL) {
                     if (hasSelection) {
                         if (g_app.items->getEditMode() == EditMode::Items) {
                             sceneActionWithUndo("Duplicate Items", []() {
@@ -974,17 +994,73 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                             });
                         }
                     }
-                } else {
-                    // D alone = Deselect
-                    deselectAll();
                 }
                 break;
-            case GLFW_KEY_F:  // Flip normals (only for component mode)
-                if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
-                    meshActionWithUndo("Flip Normals", []() {
-                        g_app.items->flipSelectedFaces();
-                    });
+            case GLFW_KEY_F:  // Ctrl+Shift+F = Flip normals
+                if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
+                    if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
+                        meshActionWithUndo("Flip Normals", []() {
+                            g_app.items->flipSelectedFaces();
+                        });
+                    }
                 }
+                break;
+            case GLFW_KEY_S:  // Ctrl+Shift+S = Split
+                if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
+                    if (hasSelection && g_app.items->getEditMode() == EditMode::Edges) {
+                        meshActionWithUndo("Split Edges", []() {
+                            g_app.items->splitSelectedEdges();
+                        });
+                    }
+                }
+                break;
+            case GLFW_KEY_M:  // Ctrl+Shift+M = Merge
+                if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
+                    if (hasSelection && g_app.items->getEditMode() == EditMode::Vertices) {
+                        meshActionWithUndo("Merge Vertices", []() {
+                            g_app.items->mergeSelectedVertices();
+                        });
+                    }
+                }
+                break;
+            case GLFW_KEY_U:  // Ctrl+Shift+U = Subdivide
+                if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
+                    if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
+                        meshActionWithUndo("Subdivide", []() {
+                            g_app.items->subdivideSelectedFaces();
+                        });
+                    }
+                }
+                break;
+            case GLFW_KEY_E:  // Ctrl+Shift+E = Extrude
+                if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
+                    if (hasSelection && g_app.items->getEditMode() == EditMode::Triangles) {
+                        meshActionWithUndo("Extrude", []() {
+                            g_app.items->extrudeSelectedFaces();
+                        });
+                    }
+                }
+                break;
+            case GLFW_KEY_T:  // Ctrl+Shift+T = Triangulate
+                if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
+                    if (hasSelection && g_app.items->getEditMode() == EditMode::Triangles) {
+                        meshActionWithUndo("Triangulate", []() {
+                            g_app.items->triangulateSelectedFaces();
+                        });
+                    }
+                }
+                break;
+            case GLFW_KEY_5:  // Vertices mode
+                g_app.items->setEditMode(EditMode::Vertices);
+                break;
+            case GLFW_KEY_6:  // Edges mode
+                g_app.items->setEditMode(EditMode::Edges);
+                break;
+            case GLFW_KEY_7:  // Triangles mode
+                g_app.items->setEditMode(EditMode::Triangles);
+                break;
+            case GLFW_KEY_0:  // Items mode
+                g_app.items->setEditMode(EditMode::Items);
                 break;
             case GLFW_KEY_DELETE:  // Delete selected
             case GLFW_KEY_BACKSPACE:
@@ -1455,65 +1531,128 @@ glm::vec3 intersectAxisPlane(double mouseX, double mouseY, glm::vec3 planePoint,
 }
 
 // Get translation based on mouse position and axis
+// Uses ray-plane intersection with camera-facing plane through selection center
 glm::vec3 getManipulatorTranslation(double mouseX, double mouseY, Axis axis) {
     glm::vec3 selCenter = getSelectionCenter();
     
-    // Use camera-aligned plane for translation
-    glm::vec3 cameraRight = g_app.camera.getAxisX();
-    glm::vec3 cameraUp = g_app.camera.getAxisY();
-    glm::vec3 planeNormal = glm::normalize(glm::cross(cameraRight, cameraUp));
+    // Get camera forward direction as plane normal (plane faces camera)
+    glm::vec3 cameraForward = -g_app.camera.getAxisZ();  // Camera looks along -Z
     
-    // Intersect with camera-facing plane through selection center
-    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, -planeNormal);
+    // Intersect ray with camera-facing plane through selection center
+    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, cameraForward);
     
-    // Constrain to selected axis
+    // Return selection center with only the selected axis from intersection
     glm::vec3 result = selCenter;
-    switch (axis) {
-        case Axis::X:
-            result.x = intersection.x;
-            break;
-        case Axis::Y:
-            result.y = intersection.y;
-            break;
-        case Axis::Z:
-            result.z = intersection.z;
-            break;
-        case Axis::Center:
-            // Move freely on camera plane
-            result = intersection;
-            break;
+    int axisIndex = static_cast<int>(axis);
+    if (axisIndex >= 0 && axisIndex <= 2) {
+        result[axisIndex] = intersection[axisIndex];
     }
-    
     return result;
 }
 
+// Draw an axis-aligned plane for plane widget translation
+// Matches original DrawSelectionPlane
+void drawAxisAlignedPlane(Axis planeAxis) {
+    glm::vec3 selCenter = getSelectionCenter();
+    const float planeSize = 4000.0f;
+    
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    if (!g_app.coloredShader || !g_app.coloredShader->isValid()) return;
+    
+    g_app.coloredShader->use();
+    g_app.coloredShader->setMat4("modelViewProjection", projection * view);
+    g_app.coloredShader->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
+    std::vector<float> vertices;
+    
+    // Plane at selection center, perpendicular to the specified axis
+    switch (planeAxis) {
+        case Axis::X: {
+            // YZ plane at selCenter.x
+            float x = selCenter.x;
+            vertices = {
+                x, -planeSize, -planeSize,
+                x, -planeSize,  planeSize,
+                x,  planeSize,  planeSize,
+                x, -planeSize, -planeSize,
+                x,  planeSize,  planeSize,
+                x,  planeSize, -planeSize
+            };
+            break;
+        }
+        case Axis::Y: {
+            // XZ plane at selCenter.y
+            float y = selCenter.y;
+            vertices = {
+                -planeSize, y, -planeSize,
+                -planeSize, y,  planeSize,
+                 planeSize, y,  planeSize,
+                -planeSize, y, -planeSize,
+                 planeSize, y,  planeSize,
+                 planeSize, y, -planeSize
+            };
+            break;
+        }
+        case Axis::Z: {
+            // XY plane at selCenter.z
+            float z = selCenter.z;
+            vertices = {
+                -planeSize, -planeSize, z,
+                -planeSize,  planeSize, z,
+                 planeSize,  planeSize, z,
+                -planeSize, -planeSize, z,
+                 planeSize,  planeSize, z,
+                 planeSize, -planeSize, z
+            };
+            break;
+        }
+        default:
+            return;
+    }
+    
+    GLuint vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
 // Get translation for plane widget (moves on two axes, constrained perpendicular to plane)
+// Uses ray-plane intersection with axis-aligned plane through selection center
 glm::vec3 getManipulatorPlaneTranslation(double mouseX, double mouseY, Axis planeAxis) {
     glm::vec3 selCenter = getSelectionCenter();
     
-    // Plane normal is the axis perpendicular to the plane
-    // Axis::X plane has normal (1,0,0), allows movement on Y and Z
-    // Axis::Y plane has normal (0,1,0), allows movement on X and Z
-    // Axis::Z plane has normal (0,0,1), allows movement on X and Y
+    // Plane normal is the axis perpendicular to the movement plane
     glm::vec3 planeNormal;
     switch (planeAxis) {
-        case Axis::X: planeNormal = glm::vec3(1, 0, 0); break;
-        case Axis::Y: planeNormal = glm::vec3(0, 1, 0); break;
-        case Axis::Z: planeNormal = glm::vec3(0, 0, 1); break;
+        case Axis::X: planeNormal = glm::vec3(1, 0, 0); break;  // YZ plane
+        case Axis::Y: planeNormal = glm::vec3(0, 1, 0); break;  // XZ plane  
+        case Axis::Z: planeNormal = glm::vec3(0, 0, 1); break;  // XY plane
         default: planeNormal = glm::vec3(0, 1, 0); break;
     }
     
-    // Intersect with the plane through selection center
-    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, planeNormal);
+    // Intersect ray with plane through selection center
+    glm::vec3 position = intersectAxisPlane(mouseX, mouseY, selCenter, planeNormal);
     
     // Keep the axis perpendicular to the plane fixed at selection center
-    glm::vec3 result = intersection;
     int axisIndex = static_cast<int>(planeAxis);
     if (axisIndex >= 0 && axisIndex <= 2) {
-        result[axisIndex] = selCenter[axisIndex];
+        position[axisIndex] = selCenter[axisIndex];
     }
     
-    return result;
+    return position;
 }
 
 // Get rotation based on mouse position and axis
@@ -1558,35 +1697,283 @@ glm::quat getManipulatorRotation(double mouseX, double mouseY, Axis axis, glm::v
     return glm::angleAxis(angle, rotationAxis);
 }
 
-// Get scale based on mouse position and axis
-glm::vec3 getManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition) {
+// Draw a large camera-facing plane for depth buffer picking
+void drawSelectionPlaneForPicking() {
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    // Original DrawPlane draws at ORIGIN, not at selection center
+    // Using camera's right and up vectors to create camera-facing plane
+    glm::vec3 cameraRight = g_app.camera.getAxisX();
+    glm::vec3 cameraUp = g_app.camera.getAxisY();
+    
+    // Create a large quad at ORIGIN facing the camera (like original)
+    const float planeSize = 4000.0f;  // Match original planeSize
+    glm::vec3 v0 = -cameraRight * planeSize - cameraUp * planeSize;
+    glm::vec3 v1 =  cameraRight * planeSize - cameraUp * planeSize;
+    glm::vec3 v2 =  cameraRight * planeSize + cameraUp * planeSize;
+    glm::vec3 v3 = -cameraRight * planeSize + cameraUp * planeSize;
+    
+    // Draw with a simple shader
+    if (!g_app.coloredShader || !g_app.coloredShader->isValid()) return;
+    
+    g_app.coloredShader->use();
+    g_app.coloredShader->setMat4("modelViewProjection", projection * view);
+    g_app.coloredShader->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
+    float vertices[] = {
+        v0.x, v0.y, v0.z,
+        v1.x, v1.y, v1.z,
+        v2.x, v2.y, v2.z,
+        v0.x, v0.y, v0.z,
+        v2.x, v2.y, v2.z,
+        v3.x, v3.y, v3.z
+    };
+    
+    GLuint vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+// Get 3D position from mouse using depth buffer readback
+glm::vec3 positionFromDepthBuffer(double mouseX, double mouseY) {
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    glm::vec4 viewport(0, 0, g_app.windowWidth, g_app.windowHeight);
+    
+    // Read depth at mouse position
+    float depth;
+    float glY = static_cast<float>(g_app.windowHeight) - static_cast<float>(mouseY);
+    glReadPixels(static_cast<int>(mouseX), static_cast<int>(glY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    
+    // Unproject to world space
+    glm::vec3 winCoord(static_cast<float>(mouseX), glY, depth);
+    return glm::unProject(winCoord, view, projection, viewport);
+}
+
+// Draw camera-facing plane at a specific center point for translation
+void drawSelectionPlaneAtCenter(const glm::vec3& center) {
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    glm::vec3 cameraRight = g_app.camera.getAxisX();
+    glm::vec3 cameraUp = g_app.camera.getAxisY();
+    
+    // Create a large quad at CENTER facing the camera
+    const float planeSize = 4000.0f;
+    glm::vec3 v0 = center - cameraRight * planeSize - cameraUp * planeSize;
+    glm::vec3 v1 = center + cameraRight * planeSize - cameraUp * planeSize;
+    glm::vec3 v2 = center + cameraRight * planeSize + cameraUp * planeSize;
+    glm::vec3 v3 = center - cameraRight * planeSize + cameraUp * planeSize;
+    
+    if (!g_app.coloredShader || !g_app.coloredShader->isValid()) return;
+    
+    g_app.coloredShader->use();
+    g_app.coloredShader->setMat4("modelViewProjection", projection * view);
+    g_app.coloredShader->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
+    float vertices[] = {
+        v0.x, v0.y, v0.z,
+        v1.x, v1.y, v1.z,
+        v2.x, v2.y, v2.z,
+        v0.x, v0.y, v0.z,
+        v2.x, v2.y, v2.z,
+        v3.x, v3.y, v3.z
+    };
+    
+    GLuint vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+// Get position for translation - plane at selection center so mouse follows object
+glm::vec3 positionFromAxisPointForTranslation(double mouseX, double mouseY, Axis axis) {
     glm::vec3 selCenter = getSelectionCenter();
     
-    // Use camera-aligned plane for scale
-    glm::vec3 cameraForward = g_app.camera.getForwardDirection();
-    glm::vec3 position = intersectAxisPlane(mouseX, mouseY, selCenter, cameraForward);
+    // Draw camera-facing plane AT SELECTION CENTER and read position
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    drawSelectionPlaneAtCenter(selCenter);
+    glm::vec3 position = positionFromDepthBuffer(mouseX, mouseY);
     
+    // Return selection center with only the selected axis component from mouse position
+    glm::vec3 result = selCenter;
+    int axisIndex = static_cast<int>(axis);
+    result[axisIndex] = position[axisIndex];
+    return result;
+}
+
+// Get position from axis point - returns selectionCenter with only the specified axis from mouse position
+// This matches the original positionFromRotatedAxisPoint - plane at ORIGIN for scale
+glm::vec3 positionFromAxisPoint(double mouseX, double mouseY, Axis axis) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Draw camera-facing plane at ORIGIN and read position
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    drawSelectionPlaneForPicking();
+    glm::vec3 position = positionFromDepthBuffer(mouseX, mouseY);
+    
+    // Return selection center with only the selected axis component from mouse position
+    glm::vec3 result = selCenter;
+    int axisIndex = static_cast<int>(axis);
+    result[axisIndex] = position[axisIndex];
+    return result;
+}
+
+// Get position from plane axis - for Center widget, uses Y plane (horizontal)
+// Returns position on the plane with Y fixed to selection center
+glm::vec3 positionFromPlaneAxisY(double mouseX, double mouseY) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Draw a horizontal plane at selection center height
+    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    glm::mat4 view = g_app.camera.getViewMatrix();
+    glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    
+    const float planeSize = 1000.0f;
+    glm::vec3 v0 = selCenter + glm::vec3(-planeSize, 0, -planeSize);
+    glm::vec3 v1 = selCenter + glm::vec3( planeSize, 0, -planeSize);
+    glm::vec3 v2 = selCenter + glm::vec3( planeSize, 0,  planeSize);
+    glm::vec3 v3 = selCenter + glm::vec3(-planeSize, 0,  planeSize);
+    
+    if (!g_app.coloredShader || !g_app.coloredShader->isValid()) return selCenter;
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    g_app.coloredShader->use();
+    g_app.coloredShader->setMat4("modelViewProjection", projection * view);
+    g_app.coloredShader->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
+    float vertices[] = {
+        v0.x, v0.y, v0.z,
+        v1.x, v1.y, v1.z,
+        v2.x, v2.y, v2.z,
+        v0.x, v0.y, v0.z,
+        v2.x, v2.y, v2.z,
+        v3.x, v3.y, v3.z
+    };
+    
+    GLuint vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+    
+    glm::vec3 position = positionFromDepthBuffer(mouseX, mouseY);
+    
+    // Return position with Y fixed to selection center (movement on X and Z)
+    glm::vec3 result = position;
+    result.y = selCenter.y;
+    return result;
+}
+
+// Get position for scale using ray-plane intersection (cross-platform, works in WebGL2)
+// Uses camera-facing plane through selection center for consistent scale behavior
+glm::vec3 positionFromAxisPointForScale(double mouseX, double mouseY, Axis axis) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Get camera forward direction as plane normal (plane faces camera at selection center)
+    glm::vec3 cameraForward = -g_app.camera.getAxisZ();
+    
+    // Intersect ray with camera-facing plane through selection center
+    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, cameraForward);
+    
+    // Return selection center with only the selected axis from intersection
+    glm::vec3 result = selCenter;
+    int axisIndex = static_cast<int>(axis);
+    if (axisIndex >= 0 && axisIndex <= 2) {
+        result[axisIndex] = intersection[axisIndex];
+    }
+    return result;
+}
+
+// Get position for uniform scale (Center widget) using horizontal Y plane
+glm::vec3 positionFromPlaneAxisYForScale(double mouseX, double mouseY) {
+    glm::vec3 selCenter = getSelectionCenter();
+    
+    // Intersect ray with horizontal (Y) plane through selection center
+    glm::vec3 planeNormal(0.0f, 1.0f, 0.0f);
+    glm::vec3 intersection = intersectAxisPlane(mouseX, mouseY, selCenter, planeNormal);
+    
+    // Return position with Y fixed to selection center
+    intersection.y = selCenter.y;
+    return intersection;
+}
+
+// Initialize scale position - same as what getManipulatorScale uses but doesn't compute scale
+// This matches the original scaleFromPoint call in mouseDown that just sets lastPosition
+void initManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition) {
+    switch (axis) {
+        case Axis::X:
+        case Axis::Y:
+        case Axis::Z:
+            lastPosition = positionFromAxisPointForScale(mouseX, mouseY, axis);
+            break;
+        case Axis::Center:
+            lastPosition = positionFromPlaneAxisYForScale(mouseX, mouseY);
+            break;
+    }
+}
+
+// Get scale based on mouse position and axis (matching original scaleFromPoint)
+// Uses ray-plane intersection for cross-platform compatibility (WebGL2 + Desktop)
+glm::vec3 getManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3& lastPosition) {
+    glm::vec3 position;
     glm::vec3 scale(0.0f);
-    glm::vec3 delta = position - lastPosition;
     
     switch (axis) {
         case Axis::X:
-            scale.x = delta.x * 2.0f;
-            break;
         case Axis::Y:
-            scale.y = delta.y * 2.0f;
-            break;
         case Axis::Z:
-            scale.z = delta.z * 2.0f;
+            // Get position with only this axis from mouse, rest from selection center
+            position = positionFromAxisPointForScale(mouseX, mouseY, axis);
+            scale = position - lastPosition;
             break;
         case Axis::Center:
-            // Uniform scale based on horizontal movement
-            float uniformScale = delta.x * 2.0f;
-            scale = glm::vec3(uniformScale);
+            // Use horizontal Y plane for uniform scale
+            position = positionFromPlaneAxisYForScale(mouseX, mouseY);
+            scale = position - lastPosition;
+            // Uniform scale: use X delta for all axes
+            scale.y = scale.x;
+            scale.z = scale.x;
             break;
     }
     
     lastPosition = position;
+    scale *= 2.0f;
     return scale;
 }
 
@@ -1911,7 +2298,7 @@ void renderImGui() {
             }
         } else {
             ImGui::Text("Mesh Operations:");
-            if (ImGui::Button("Flip Normals")) { 
+            if (ImGui::Button("Flip (F)")) { 
                 meshActionWithUndo("Flip Normals", []() { g_app.items->flipSelectedFaces(); });
             }
             ImGui::SameLine();
@@ -1921,6 +2308,31 @@ void renderImGui() {
             ImGui::SameLine();
             if (ImGui::Button("Delete")) { 
                 meshActionWithUndo("Delete", []() { g_app.items->deleteSelectedFaces(); });
+            }
+            
+            // Additional mesh operations
+            if (editMode == EditMode::Triangles) {
+                if (ImGui::Button("Subdivide (Ctrl+Shift+U)")) { 
+                    meshActionWithUndo("Subdivide", []() { g_app.items->subdivideSelectedFaces(); });
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Triangulate (Ctrl+Shift+T)")) { 
+                    meshActionWithUndo("Triangulate", []() { g_app.items->triangulateSelectedFaces(); });
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Extrude (Ctrl+Shift+E)")) { 
+                    meshActionWithUndo("Extrude", []() { g_app.items->extrudeSelectedFaces(); });
+                }
+            }
+            if (editMode == EditMode::Edges) {
+                if (ImGui::Button("Split (Ctrl+Shift+S)")) { 
+                    meshActionWithUndo("Split Edges", []() { g_app.items->splitSelectedEdges(); });
+                }
+            }
+            if (editMode == EditMode::Vertices) {
+                if (ImGui::Button("Merge (Ctrl+Shift+M)")) { 
+                    meshActionWithUndo("Merge Vertices", []() { g_app.items->mergeSelectedVertices(); });
+                }
             }
         }
     } else {

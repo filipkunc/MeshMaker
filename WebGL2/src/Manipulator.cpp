@@ -136,6 +136,7 @@ void Manipulator::initGPUResources() {
     
     createArrowGeometry();
     createCircleGeometry();
+    createSphereGeometry();
     createPlaneGeometry();
     createCubeGeometry();
     createLineGeometry();
@@ -151,6 +152,9 @@ void Manipulator::cleanupGPUResources() {
     
     if (m_circleVao) { glDeleteVertexArrays(1, &m_circleVao); m_circleVao = 0; }
     if (m_circleVbo) { glDeleteBuffers(1, &m_circleVbo); m_circleVbo = 0; }
+    
+    if (m_sphereVao) { glDeleteVertexArrays(1, &m_sphereVao); m_sphereVao = 0; }
+    if (m_sphereVbo) { glDeleteBuffers(1, &m_sphereVbo); m_sphereVbo = 0; }
     
     if (m_planeVao) { glDeleteVertexArrays(1, &m_planeVao); m_planeVao = 0; }
     if (m_planeVbo) { glDeleteBuffers(1, &m_planeVbo); m_planeVbo = 0; }
@@ -236,6 +240,60 @@ void Manipulator::createCircleGeometry() {
     
     glBindVertexArray(m_circleVao);
     glBindBuffer(GL_ARRAY_BUFFER, m_circleVbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glBindVertexArray(0);
+}
+
+void Manipulator::createSphereGeometry() {
+    // Smoother sphere with more subdivisions for nice backdrop
+    std::vector<float> vertices;
+    
+    float radius = 0.7f;  // Same as circles
+    int lats = 32;        // Increased from 20 for smoother appearance
+    int longs = 32;       // Increased from 20 for smoother appearance
+    
+    for (int i = 1; i <= lats; i++) {
+        float lat0 = static_cast<float>(M_PI) * (-0.5f + static_cast<float>(i - 1) / static_cast<float>(lats));
+        float z0 = radius * sinf(lat0);
+        float zr0 = radius * cosf(lat0);
+        
+        float lat1 = static_cast<float>(M_PI) * (-0.5f + static_cast<float>(i) / static_cast<float>(lats));
+        float z1 = radius * sinf(lat1);
+        float zr1 = radius * cosf(lat1);
+        
+        // Create quad strip as triangles
+        for (int j = 0; j < longs; j++) {
+            float lng0 = 2.0f * static_cast<float>(M_PI) * static_cast<float>(j) / static_cast<float>(longs);
+            float lng1 = 2.0f * static_cast<float>(M_PI) * static_cast<float>(j + 1) / static_cast<float>(longs);
+            
+            float x0 = cosf(lng0);
+            float y0 = sinf(lng0);
+            float x1 = cosf(lng1);
+            float y1 = sinf(lng1);
+            
+            // First triangle of quad
+            vertices.push_back(x0 * zr1); vertices.push_back(y0 * zr1); vertices.push_back(z1);
+            vertices.push_back(x0 * zr0); vertices.push_back(y0 * zr0); vertices.push_back(z0);
+            vertices.push_back(x1 * zr0); vertices.push_back(y1 * zr0); vertices.push_back(z0);
+            
+            // Second triangle of quad
+            vertices.push_back(x0 * zr1); vertices.push_back(y0 * zr1); vertices.push_back(z1);
+            vertices.push_back(x1 * zr0); vertices.push_back(y1 * zr0); vertices.push_back(z0);
+            vertices.push_back(x1 * zr1); vertices.push_back(y1 * zr1); vertices.push_back(z1);
+        }
+    }
+    
+    m_sphereVertexCount = static_cast<uint32_t>(vertices.size() / 3);
+    
+    glGenVertexArrays(1, &m_sphereVao);
+    glGenBuffers(1, &m_sphereVbo);
+    
+    glBindVertexArray(m_sphereVao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_sphereVbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -421,6 +479,22 @@ void Manipulator::draw(Shader& shader, const glm::mat4& view, const glm::mat4& p
         drawWidget(shader, m_widgets[i], isSelected, false);
     }
     
+    // Draw sphere backdrop for rotation manipulator (matching original)
+    if (isRotationManipulator()) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        // Gray semi-transparent sphere: glColor4f(0.8f, 0.8f, 0.8f, 0.25f)
+        shader.setVec4("uColor", glm::vec4(0.8f, 0.8f, 0.8f, 0.25f));
+        shader.setMat4("uAxisTransform", glm::mat4(1.0f));
+        
+        glBindVertexArray(m_sphereVao);
+        glDrawArrays(GL_TRIANGLES, 0, m_sphereVertexCount);
+        glBindVertexArray(0);
+        
+        glDisable(GL_BLEND);
+    }
+    
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -535,4 +609,10 @@ Widget Manipulator::getSelectedWidget() const {
         return Widget::Line;  // Default
     }
     return m_widgets[selectedIndex].widget;
+}
+
+bool Manipulator::isRotationManipulator() const {
+    // Rotation manipulator has Circle widgets
+    if (m_widgets.empty()) return false;
+    return m_widgets[0].widget == Widget::Circle;
 }

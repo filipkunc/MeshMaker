@@ -58,6 +58,13 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Subdivide, triangulate, extrude operations
 - Edge split, vertex merge
 
+**Manipulator System:**
+- Translate, rotate, scale gizmos with axis widgets
+- Axis picking via color-buffer selection
+- Dragging uses ray-plane intersection (works on both Desktop and WebGL2)
+- Rotation sphere backdrop for better 3D visualization
+- All manipulators work identically on Desktop OpenGL and WebGL2
+
 **Keyboard Shortcuts:**
 - Matches original MeshMaker (W/E/R for tools, 1/2/3/4 for edit modes, etc.)
 
@@ -67,7 +74,6 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - [ ] Undo/redo system
 - [ ] File save/load (document serialization)
 - [ ] Test all mesh operations thoroughly
-- [ ] Manipulator axis picking and dragging
 
 **Medium Priority:**
 - [ ] Texture support and UV mapping

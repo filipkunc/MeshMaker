@@ -237,6 +237,37 @@ void ItemCollection::scaleSelectedItems(const glm::vec3& offset) {
     }
 }
 
+void ItemCollection::scaleSelectedItemsByOffset(const glm::vec3& center, const glm::vec3& offset) {
+    size_t selectedCount = 0;
+    Item* lastSelected = nullptr;
+    
+    for (auto& item : m_items) {
+        if (item->selected) {
+            selectedCount++;
+            lastSelected = item.get();
+        }
+    }
+    
+    if (selectedCount > 1) {
+        // Multiple items selected - scale positions relative to center
+        for (auto& item : m_items) {
+            if (item->selected) {
+                glm::vec3 itemPosition = item->position;
+                itemPosition -= center;
+                itemPosition.x *= 1.0f + offset.x;
+                itemPosition.y *= 1.0f + offset.y;
+                itemPosition.z *= 1.0f + offset.z;
+                itemPosition += center;
+                item->position = itemPosition;
+                item->scaleByOffset(offset);
+            }
+        }
+    } else if (lastSelected != nullptr) {
+        // Single item - just scale it
+        lastSelected->scaleByOffset(offset);
+    }
+}
+
 glm::vec3 ItemCollection::getSelectedItemsCenter() const {
     glm::vec3 center(0.0f);
     size_t count = 0;

@@ -76,6 +76,9 @@ public:
     void draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, 
               const glm::vec3& axisZ, const glm::vec3& center, bool highlightAll = false);
     
+    // Check if this is a rotation manipulator
+    bool isRotationManipulator() const;
+    
     // Selection
     uint32_t selectableCount() const;
     void drawForSelection(Shader& shader, const glm::mat4& view, const glm::mat4& projection, uint32_t index);
@@ -100,6 +103,10 @@ private:
     uint32_t m_circleVbo = 0;
     uint32_t m_circleVertexCount = 0;
     
+    uint32_t m_sphereVao = 0;
+    uint32_t m_sphereVbo = 0;
+    uint32_t m_sphereVertexCount = 0;
+    
     uint32_t m_planeVao = 0;
     uint32_t m_planeVbo = 0;
     
@@ -114,6 +121,7 @@ private:
     
     void createArrowGeometry();
     void createCircleGeometry();
+    void createSphereGeometry();
     void createPlaneGeometry();
     void createCubeGeometry();
     void createLineGeometry();

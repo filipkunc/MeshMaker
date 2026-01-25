@@ -60,6 +60,7 @@ public:
     void translateSelectedItems(const glm::vec3& offset);
     void rotateSelectedItems(const glm::quat& offset);
     void scaleSelectedItems(const glm::vec3& offset);
+    void scaleSelectedItemsByOffset(const glm::vec3& center, const glm::vec3& offset);
     glm::vec3 getSelectedItemsCenter() const;
     
     // For component editing (forwards to current mesh when in Vertices/Triangles/Edges mode)
