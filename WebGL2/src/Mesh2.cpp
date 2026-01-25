@@ -1189,6 +1189,75 @@ void Mesh2::extrudeSelected() {
     m_renderDataDirty = true;
 }
 
+// State capture for undo
+void Mesh2::getState(std::vector<MeshVertex>& outVertices, 
+                     std::vector<Face>& outFaces, 
+                     std::vector<Edge>& outEdges) const {
+    outVertices = m_vertices;
+    outFaces = m_faces;
+    outEdges = m_edges;
+}
+
+void Mesh2::setState(const std::vector<MeshVertex>& vertices,
+                     const std::vector<Face>& faces,
+                     const std::vector<Edge>& edges) {
+    m_vertices = vertices;
+    m_faces = faces;
+    m_edges = edges;
+    
+    // Rebuild edge lookup
+    m_edgeLookup.clear();
+    for (size_t i = 0; i < m_edges.size(); i++) {
+        uint64_t key = makeEdgeKey(m_edges[i].vertices[0], m_edges[i].vertices[1]);
+        m_edgeLookup[key] = static_cast<uint32_t>(i);
+    }
+    
+    // Rebuild connectivity and update GPU buffers
+    buildConnectivity();
+    computeNormals();
+    m_renderDataDirty = true;
+    createGPUBuffers();
+}
+
+void Mesh2::merge(const Mesh2* mesh) {
+    if (!mesh) return;
+    
+    // Remember the offset for indices
+    uint32_t vertexOffset = static_cast<uint32_t>(m_vertices.size());
+    
+    // Add all vertices from the other mesh
+    for (const auto& vertex : mesh->m_vertices) {
+        m_vertices.push_back(vertex);
+    }
+    
+    // Add all faces with adjusted vertex indices
+    for (const auto& face : mesh->m_faces) {
+        Face newFace = face;
+        for (size_t i = 0; i < face.vertexCount; i++) {
+            newFace.vertices[i] += vertexOffset;
+        }
+        m_faces.push_back(newFace);
+    }
+    
+    // Rebuild edges and connectivity
+    m_edges.clear();
+    m_edgeLookup.clear();
+    
+    for (size_t faceIdx = 0; faceIdx < m_faces.size(); faceIdx++) {
+        Face& face = m_faces[faceIdx];
+        for (uint32_t i = 0; i < face.vertexCount; i++) {
+            uint32_t v0 = face.vertices[i];
+            uint32_t v1 = face.vertices[(i + 1) % face.vertexCount];
+            face.edges[i] = findOrCreateEdge(v0, v1);
+        }
+    }
+    
+    buildConnectivity();
+    computeNormals();
+    m_renderDataDirty = true;
+    createGPUBuffers();
+}
+
 // Build render data
 void Mesh2::buildRenderData() {
     m_renderVertices.clear();

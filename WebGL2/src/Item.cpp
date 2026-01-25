@@ -61,10 +61,8 @@ std::unique_ptr<Item> Item::duplicate() const {
     newItem->selected = true;  // Select the duplicate
     newItem->visible = visible;
     
-    // Deep copy the mesh
-    newItem->mesh = std::make_unique<Mesh2>();
-    // Copy mesh data - for now just recreate with same type
-    // TODO: Implement proper mesh copying
+    // Merge source mesh into new empty mesh (original pattern)
+    newItem->mesh->merge(mesh.get());
     
     return newItem;
 }

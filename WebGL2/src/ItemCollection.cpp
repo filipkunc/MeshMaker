@@ -195,16 +195,8 @@ void ItemCollection::duplicateSelectedItems() {
     
     for (auto& item : m_items) {
         if (item->selected) {
-            auto duplicate = std::make_unique<Item>();
-            duplicate->position = item->position + glm::vec3(0.5f, 0.0f, 0.0f);
-            duplicate->rotation = item->rotation;
-            duplicate->scale = item->scale;
-            duplicate->selected = true;
-            
-            // Copy mesh by recreating (TODO: proper deep copy)
-            duplicate->mesh = std::make_unique<Mesh2>();
-            // For now, just copy vertex/face data manually
-            // This is a simplified copy - need proper mesh cloning
+            auto duplicate = item->duplicate();
+            duplicate->position = item->position + glm::vec3(0.5f, 0.0f, 0.0f);  // Offset slightly
             
             item->selected = false;
             newItems.push_back(std::move(duplicate));
@@ -212,7 +204,6 @@ void ItemCollection::duplicateSelectedItems() {
     }
     
     for (auto& item : newItems) {
-        item->mesh->createGPUBuffers();
         m_items.push_back(std::move(item));
     }
 }

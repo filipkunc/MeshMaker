@@ -27,6 +27,42 @@
 #include "Grid.h"
 #include "Shader.h"
 #include "Manipulator.h"
+#include "UndoManager.h"
+
+// Captures the transform state of selected items for undo
+struct ItemManipulationState {
+    size_t index;
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+};
+
+// Captures the full mesh state for undo (vertices, faces, edges, selection)
+struct MeshState {
+    size_t itemIndex;  // Which item this mesh belongs to
+    std::vector<MeshVertex> vertices;
+    std::vector<Face> faces;
+    std::vector<Edge> edges;
+    SelectionMode selectionMode;
+};
+
+// Captures a full item state for scene undo (includes mesh)
+struct ItemState {
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+    bool selected;
+    bool visible;
+    std::vector<MeshVertex> meshVertices;
+    std::vector<Face> meshFaces;
+    std::vector<Edge> meshEdges;
+    SelectionMode meshSelectionMode;
+};
+
+// Captures the full scene state (all items)
+struct SceneState {
+    std::vector<ItemState> items;
+};
 
 // Transform mode enum
 enum class TransformMode {
@@ -96,6 +132,11 @@ struct AppState {
     bool isDraggingManipulator = false;
     glm::vec3 dragStartPoint;
     glm::vec3 dragAxis;
+    
+    // Undo/Redo
+    UndoManager undoManager;
+    std::vector<ItemManipulationState> oldManipulations;  // Captured at manipulation start
+    std::unique_ptr<MeshState> oldMeshState;  // Captured at mesh manipulation start
 };
 
 static AppState g_app;
@@ -205,6 +246,253 @@ void deselectAll() {
     }
 }
 
+// Capture current manipulation state of selected items
+std::vector<ItemManipulationState> captureItemManipulations() {
+    std::vector<ItemManipulationState> states;
+    if (!g_app.items) return states;
+    
+    for (size_t i = 0; i < g_app.items->getItemCount(); ++i) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item && item->selected) {
+            ItemManipulationState state;
+            state.index = i;
+            state.position = item->position;
+            state.rotation = item->rotation;
+            state.scale = item->scale;
+            states.push_back(state);
+        }
+    }
+    return states;
+}
+
+// Apply a captured manipulation state and register undo for the swap
+void applyItemManipulations(const std::vector<ItemManipulationState>& states,
+                            const std::vector<ItemManipulationState>& currentStates) {
+    if (!g_app.items) return;
+    
+    // Deselect all and apply the old state
+    g_app.items->deselectAllItems();
+    
+    for (const auto& state : states) {
+        if (state.index < g_app.items->getItemCount()) {
+            Item* item = g_app.items->getItemAtIndex(state.index);
+            if (item) {
+                item->position = state.position;
+                item->rotation = state.rotation;
+                item->scale = state.scale;
+                item->selected = true;
+            }
+        }
+    }
+    
+    // Register the reverse operation for undo/redo
+    g_app.undoManager.prepareUndo("Manipulations", [states, currentStates]() {
+        applyItemManipulations(currentStates, states);
+    });
+}
+
+// Forward declarations for mesh undo functions
+std::unique_ptr<MeshState> captureMeshState();
+void applyMeshState(const MeshState& state);
+void meshManipulationEnded(const std::string& actionName);
+
+// Called when manipulation starts (mouse press on manipulator)
+void manipulationStarted() {
+    if (!g_app.items) return;
+    
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        g_app.oldManipulations = captureItemManipulations();
+    } else {
+        // Component mode - capture mesh state
+        g_app.oldMeshState = captureMeshState();
+    }
+}
+
+// Called when manipulation ends (mouse release)
+void manipulationEnded() {
+    if (g_app.items && g_app.items->getEditMode() == EditMode::Items) {
+        if (!g_app.oldManipulations.empty()) {
+            auto currentStates = captureItemManipulations();
+            auto oldStates = g_app.oldManipulations;
+            
+            // Register undo action
+            g_app.undoManager.prepareUndo("Manipulations", [oldStates, currentStates]() {
+                applyItemManipulations(oldStates, currentStates);
+            });
+            
+            g_app.oldManipulations.clear();
+        }
+    } else if (g_app.items && g_app.oldMeshState) {
+        // Mesh manipulation ended
+        meshManipulationEnded("Mesh Manipulation");
+    }
+}
+
+// Capture current mesh state (for the first selected item's mesh)
+std::unique_ptr<MeshState> captureMeshState() {
+    if (!g_app.items) return nullptr;
+    
+    for (size_t i = 0; i < g_app.items->getItemCount(); ++i) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item && item->selected && item->mesh) {
+            auto state = std::make_unique<MeshState>();
+            state->itemIndex = i;
+            state->selectionMode = item->mesh->getSelectionMode();
+            item->mesh->getState(state->vertices, state->faces, state->edges);
+            return state;
+        }
+    }
+    return nullptr;
+}
+
+// Apply a captured mesh state
+void applyMeshState(const MeshState& state) {
+    if (!g_app.items) return;
+    
+    if (state.itemIndex < g_app.items->getItemCount()) {
+        Item* item = g_app.items->getItemAtIndex(state.itemIndex);
+        if (item && item->mesh) {
+            item->mesh->setState(state.vertices, state.faces, state.edges);
+            item->mesh->setSelectionMode(state.selectionMode);
+            item->selected = true;
+        }
+    }
+}
+
+// Called when mesh manipulation starts
+void meshManipulationStarted() {
+    if (g_app.items && g_app.items->getEditMode() != EditMode::Items) {
+        g_app.oldMeshState = captureMeshState();
+    }
+}
+
+// Called when mesh manipulation ends - registers the undo action
+void meshManipulationEnded(const std::string& actionName) {
+    if (!g_app.oldMeshState) return;
+    
+    auto currentState = captureMeshState();
+    if (!currentState) {
+        g_app.oldMeshState.reset();
+        return;
+    }
+    
+    // Capture by value for the lambda
+    MeshState oldState = *g_app.oldMeshState;
+    MeshState newState = *currentState;
+    
+    g_app.undoManager.prepareUndo(actionName, [oldState, newState]() {
+        // Apply old state and register reverse action
+        applyMeshState(oldState);
+        
+        g_app.undoManager.prepareUndo("Mesh Manipulation", [newState, oldState]() {
+            applyMeshState(newState);
+            g_app.undoManager.prepareUndo("Mesh Manipulation", [oldState, newState]() {
+                applyMeshState(oldState);
+            });
+        });
+    });
+    
+    g_app.oldMeshState.reset();
+}
+
+// Perform a mesh action with undo support
+void meshActionWithUndo(const std::string& actionName, std::function<void()> action) {
+    if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) {
+        action();
+        return;
+    }
+    
+    auto oldState = captureMeshState();
+    if (!oldState) {
+        action();
+        return;
+    }
+    
+    action();
+    
+    auto currentState = captureMeshState();
+    if (!currentState) return;
+    
+    // Capture by value for the lambda
+    MeshState old = *oldState;
+    MeshState current = *currentState;
+    
+    g_app.undoManager.prepareUndo(actionName, [old, current]() {
+        applyMeshState(old);
+        
+        g_app.undoManager.prepareUndo("Mesh Operation", [current, old]() {
+            applyMeshState(current);
+        });
+    });
+}
+
+// Capture full scene state (all items)
+SceneState captureSceneState() {
+    SceneState state;
+    if (!g_app.items) return state;
+    
+    for (size_t i = 0; i < g_app.items->getItemCount(); ++i) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item) {
+            ItemState itemState;
+            itemState.position = item->position;
+            itemState.rotation = item->rotation;
+            itemState.scale = item->scale;
+            itemState.selected = item->selected;
+            itemState.visible = item->visible;
+            
+            if (item->mesh) {
+                itemState.meshSelectionMode = item->mesh->getSelectionMode();
+                item->mesh->getState(itemState.meshVertices, itemState.meshFaces, itemState.meshEdges);
+            }
+            
+            state.items.push_back(std::move(itemState));
+        }
+    }
+    return state;
+}
+
+// Apply scene state (restores all items)
+void applySceneState(const SceneState& state) {
+    if (!g_app.items) return;
+    
+    // Clear current items and recreate from state
+    while (g_app.items->getItemCount() > 0) {
+        g_app.items->removeItemAtIndex(0);
+    }
+    
+    for (const auto& itemState : state.items) {
+        auto item = std::make_unique<Item>();
+        item->position = itemState.position;
+        item->rotation = itemState.rotation;
+        item->scale = itemState.scale;
+        item->selected = itemState.selected;
+        item->visible = itemState.visible;
+        
+        item->mesh->setState(itemState.meshVertices, itemState.meshFaces, itemState.meshEdges);
+        item->mesh->setSelectionMode(itemState.meshSelectionMode);
+        
+        g_app.items->addItem(std::move(item));
+    }
+}
+
+// Perform a scene action with undo support (for add/remove/duplicate items)
+void sceneActionWithUndo(const std::string& actionName, std::function<void()> action) {
+    SceneState oldState = captureSceneState();
+    
+    action();
+    
+    SceneState newState = captureSceneState();
+    
+    g_app.undoManager.prepareUndo(actionName, [oldState, newState]() {
+        applySceneState(oldState);
+        
+        g_app.undoManager.prepareUndo("Scene Operation", [newState, oldState]() {
+            applySceneState(newState);
+        });
+    });
+}
+
 // Forward declarations
 glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin);
 int selectAtPoint(int x, int y);
@@ -259,6 +547,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
                         // Start manipulator drag
                         manipulator->selectAtIndex(static_cast<uint32_t>(widgetIndex));
                         g_app.isDraggingManipulator = true;
+                        manipulationStarted();  // Capture state for undo
                         
                         // Initialize drag state
                         Axis selectedAxis = manipulator->getSelectedAxis();
@@ -308,6 +597,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         } else if (action == GLFW_RELEASE) {
             // End manipulator drag
             if (g_app.isDraggingManipulator) {
+                manipulationEnded();  // Register undo action
                 g_app.isDraggingManipulator = false;
                 Manipulator* manipulator = getCurrentManipulator();
                 if (manipulator) {
@@ -629,11 +919,23 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
     g_app.lastMouseY = ypos;
 }
 
-void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/) {
+void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int mods) {
     // Don't handle if ImGui wants keyboard
     if (ImGui::GetIO().WantCaptureKeyboard) return;
     
     if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
+    
+    // Handle Ctrl+Z (Undo) and Ctrl+Y (Redo)
+    if (mods & GLFW_MOD_CONTROL) {
+        if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
+            g_app.undoManager.undo();
+            return;
+        }
+        if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
+            g_app.undoManager.redo();
+            return;
+        }
+    }
     
     bool hasSelection = getSelectionCount() > 0;
     
@@ -658,30 +960,43 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
             case GLFW_KEY_A:  // Select all
                 selectAll();
                 break;
-            case GLFW_KEY_D:  // Deselect all
-                deselectAll();
+            case GLFW_KEY_D:  // Deselect all or Duplicate (Ctrl+D)
+                if (mods & GLFW_MOD_CONTROL) {
+                    // Ctrl+D = Duplicate
+                    if (hasSelection) {
+                        if (g_app.items->getEditMode() == EditMode::Items) {
+                            sceneActionWithUndo("Duplicate Items", []() {
+                                g_app.items->duplicateSelectedItems();
+                            });
+                        } else {
+                            meshActionWithUndo("Duplicate", []() {
+                                g_app.items->duplicateSelectedFaces();
+                            });
+                        }
+                    }
+                } else {
+                    // D alone = Deselect
+                    deselectAll();
+                }
                 break;
             case GLFW_KEY_F:  // Flip normals (only for component mode)
                 if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
-                    g_app.items->flipSelectedFaces();
-                }
-                break;
-            case GLFW_KEY_G:  // Duplicate
-                if (hasSelection) {
-                    if (g_app.items->getEditMode() == EditMode::Items) {
-                        g_app.items->duplicateSelectedItems();
-                    } else {
-                        g_app.items->duplicateSelectedFaces();
-                    }
+                    meshActionWithUndo("Flip Normals", []() {
+                        g_app.items->flipSelectedFaces();
+                    });
                 }
                 break;
             case GLFW_KEY_DELETE:  // Delete selected
             case GLFW_KEY_BACKSPACE:
                 if (hasSelection) {
                     if (g_app.items->getEditMode() == EditMode::Items) {
-                        g_app.items->deleteSelectedItems();
+                        sceneActionWithUndo("Delete Items", []() {
+                            g_app.items->deleteSelectedItems();
+                        });
                     } else {
-                        g_app.items->deleteSelectedFaces();
+                        meshActionWithUndo("Delete", []() {
+                            g_app.items->deleteSelectedFaces();
+                        });
                     }
                 }
                 break;
@@ -693,50 +1008,34 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
         switch (g_app.transformMode) {
             case TransformMode::Translate:
                 switch (key) {
-                    case GLFW_KEY_X:
                     case GLFW_KEY_RIGHT:
                         translateSelection(glm::vec3(g_app.translateStep, 0.0f, 0.0f));
                         break;
                     case GLFW_KEY_LEFT:
                         translateSelection(glm::vec3(-g_app.translateStep, 0.0f, 0.0f));
                         break;
-                    case GLFW_KEY_Y:
                     case GLFW_KEY_UP:
                         translateSelection(glm::vec3(0.0f, g_app.translateStep, 0.0f));
                         break;
                     case GLFW_KEY_DOWN:
                         translateSelection(glm::vec3(0.0f, -g_app.translateStep, 0.0f));
                         break;
-                    case GLFW_KEY_Z:
-                        translateSelection(glm::vec3(0.0f, 0.0f, g_app.translateStep));
-                        break;
-                    case GLFW_KEY_C:
-                        translateSelection(glm::vec3(0.0f, 0.0f, -g_app.translateStep));
-                        break;
                 }
                 break;
                 
             case TransformMode::Rotate:
                 switch (key) {
-                    case GLFW_KEY_X:
                     case GLFW_KEY_RIGHT:
                         rotateSelection(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(g_app.rotateStep));
                         break;
                     case GLFW_KEY_LEFT:
                         rotateSelection(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-g_app.rotateStep));
                         break;
-                    case GLFW_KEY_Y:
                     case GLFW_KEY_UP:
                         rotateSelection(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(g_app.rotateStep));
                         break;
                     case GLFW_KEY_DOWN:
                         rotateSelection(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-g_app.rotateStep));
-                        break;
-                    case GLFW_KEY_Z:
-                        rotateSelection(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(g_app.rotateStep));
-                        break;
-                    case GLFW_KEY_C:
-                        rotateSelection(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(-g_app.rotateStep));
                         break;
                 }
                 break;
@@ -1444,17 +1743,55 @@ void renderImGui() {
     }
     
     ImGui::Separator();
+    ImGui::Text("Edit:");
+    
+    // Undo/Redo buttons
+    bool canUndo = g_app.undoManager.canUndo();
+    bool canRedo = g_app.undoManager.canRedo();
+    
+    if (!canUndo) ImGui::BeginDisabled();
+    if (ImGui::Button("Undo (Ctrl+Z)")) {
+        g_app.undoManager.undo();
+    }
+    if (!canUndo) ImGui::EndDisabled();
+    
+    ImGui::SameLine();
+    
+    if (!canRedo) ImGui::BeginDisabled();
+    if (ImGui::Button("Redo (Ctrl+Y)")) {
+        g_app.undoManager.redo();
+    }
+    if (!canRedo) ImGui::EndDisabled();
+    
+    // Show undo/redo counts
+    ImGui::Text("Undo: %zu  Redo: %zu", g_app.undoManager.getUndoCount(), g_app.undoManager.getRedoCount());
+    
+    ImGui::Separator();
     ImGui::Text("Add Primitives:");
     
-    if (ImGui::Button("Cube")) { g_app.items->addCube(); }
+    if (ImGui::Button("Cube")) { 
+        sceneActionWithUndo("Add Cube", []() { g_app.items->addCube(); });
+    }
     ImGui::SameLine();
-    if (ImGui::Button("Plane")) { g_app.items->addPlane(); }
+    if (ImGui::Button("Plane")) { 
+        sceneActionWithUndo("Add Plane", []() { g_app.items->addPlane(); });
+    }
     ImGui::SameLine();
-    if (ImGui::Button("Cylinder")) { g_app.items->addCylinder(static_cast<uint32_t>(g_app.meshSteps)); }
+    if (ImGui::Button("Cylinder")) { 
+        sceneActionWithUndo("Add Cylinder", [steps = g_app.meshSteps]() { 
+            g_app.items->addCylinder(static_cast<uint32_t>(steps)); 
+        });
+    }
     ImGui::SameLine();
-    if (ImGui::Button("Sphere")) { g_app.items->addSphere(static_cast<uint32_t>(g_app.meshSteps)); }
+    if (ImGui::Button("Sphere")) { 
+        sceneActionWithUndo("Add Sphere", [steps = g_app.meshSteps]() { 
+            g_app.items->addSphere(static_cast<uint32_t>(steps)); 
+        });
+    }
     ImGui::SameLine();
-    if (ImGui::Button("Icosahedron")) { g_app.items->addIcosahedron(); }
+    if (ImGui::Button("Icosahedron")) { 
+        sceneActionWithUndo("Add Icosahedron", []() { g_app.items->addIcosahedron(); });
+    }
     
     ImGui::SliderInt("Steps (Cyl/Sphere)", &g_app.meshSteps, 4, 64);
     
@@ -1565,16 +1902,26 @@ void renderImGui() {
         ImGui::Separator();
         if (editMode == EditMode::Items) {
             ImGui::Text("Item Operations:");
-            if (ImGui::Button("Duplicate")) { g_app.items->duplicateSelectedItems(); }
+            if (ImGui::Button("Duplicate")) { 
+                sceneActionWithUndo("Duplicate Items", []() { g_app.items->duplicateSelectedItems(); });
+            }
             ImGui::SameLine();
-            if (ImGui::Button("Delete")) { g_app.items->deleteSelectedItems(); }
+            if (ImGui::Button("Delete")) { 
+                sceneActionWithUndo("Delete Items", []() { g_app.items->deleteSelectedItems(); });
+            }
         } else {
             ImGui::Text("Mesh Operations:");
-            if (ImGui::Button("Flip Normals")) { g_app.items->flipSelectedFaces(); }
+            if (ImGui::Button("Flip Normals")) { 
+                meshActionWithUndo("Flip Normals", []() { g_app.items->flipSelectedFaces(); });
+            }
             ImGui::SameLine();
-            if (ImGui::Button("Duplicate")) { g_app.items->duplicateSelectedFaces(); }
+            if (ImGui::Button("Duplicate")) { 
+                meshActionWithUndo("Duplicate", []() { g_app.items->duplicateSelectedFaces(); });
+            }
             ImGui::SameLine();
-            if (ImGui::Button("Delete")) { g_app.items->deleteSelectedFaces(); }
+            if (ImGui::Button("Delete")) { 
+                meshActionWithUndo("Delete", []() { g_app.items->deleteSelectedFaces(); });
+            }
         }
     } else {
         if (editMode == EditMode::Items) {

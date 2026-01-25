@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstdint>
+#include <memory>
 #include <glm/glm.hpp>
 #include "Vertex.h"
 
@@ -171,6 +172,17 @@ public:
     void subdivideSelected();
     void triangulateSelected();  // Convert quads to triangles
     void extrudeSelected();
+    
+    // State capture/restore for undo
+    void getState(std::vector<MeshVertex>& outVertices, 
+                  std::vector<Face>& outFaces, 
+                  std::vector<Edge>& outEdges) const;
+    void setState(const std::vector<MeshVertex>& vertices,
+                  const std::vector<Face>& faces,
+                  const std::vector<Edge>& edges);
+    
+    // Merge another mesh into this one
+    void merge(const Mesh2* mesh);
     
     // GPU rendering
     void createGPUBuffers();
