@@ -1,5 +1,6 @@
 #ifdef EMSCRIPTEN_BUILD
 #include <emscripten.h>
+#include <emscripten/html5.h>
 #include <GLES3/gl3.h>
 #else
 #include <glad/gl.h>
@@ -77,6 +78,12 @@ struct AppState {
     GLFWwindow* window = nullptr;
     int windowWidth = 1280;
     int windowHeight = 720;
+    int framebufferWidth = 1280;   // Actual framebuffer size (may differ on High DPI)
+    int framebufferHeight = 720;
+    float contentScaleX = 1.0f;    // Scale for mouse coord → framebuffer coord conversion
+    float contentScaleY = 1.0f;
+    float dpiScale = 1.0f;         // Actual DPI scale for ImGui font/style sizing
+    bool fontNeedsRebuild = false; // Flag to rebuild font at proper scale
     
     Camera camera;
     std::unique_ptr<ItemCollection> items;
@@ -512,10 +519,85 @@ glm::vec3 getManipulatorScale(double mouseX, double mouseY, Axis axis, glm::vec3
 void drawSelectionRect();
 
 // Callbacks
-void framebufferSizeCallback(GLFWwindow* /*window*/, int width, int height) {
-    g_app.windowWidth = width;
-    g_app.windowHeight = height;
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+#ifdef EMSCRIPTEN_BUILD
+    // For WebGL High DPI: get the CSS size and scale to physical pixels
+    double cssWidth, cssHeight;
+    emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
+    
+    double devicePixelRatio = emscripten_get_device_pixel_ratio();
+    int physicalWidth = static_cast<int>(cssWidth * devicePixelRatio);
+    int physicalHeight = static_cast<int>(cssHeight * devicePixelRatio);
+    
+    // Set the canvas backing buffer to physical pixel size for sharp rendering
+    emscripten_set_canvas_element_size("#canvas", physicalWidth, physicalHeight);
+    
+    g_app.framebufferWidth = physicalWidth;
+    g_app.framebufferHeight = physicalHeight;
+    
+    // After setting canvas element size, GLFW reports mouse coordinates
+    // in canvas element coordinates (physical pixels). So use physical size.
+    g_app.windowWidth = physicalWidth;
+    g_app.windowHeight = physicalHeight;
+    g_app.contentScaleX = 1.0f;  // Mouse coords already in physical pixels
+    g_app.contentScaleY = 1.0f;
+    g_app.dpiScale = static_cast<float>(devicePixelRatio);  // For ImGui font scaling
+    
+    // Don't set io.DisplaySize here - let ImGui_ImplGlfw_NewFrame handle it
+    // It will query GLFW and set DisplaySize/DisplayFramebufferScale correctly
+    
+    std::cout << "[WebGL DPI] CSS size: " << cssWidth << "x" << cssHeight 
+              << ", devicePixelRatio: " << devicePixelRatio
+              << ", physical size: " << physicalWidth << "x" << physicalHeight
+              << ", contentScale: " << g_app.contentScaleX << std::endl;
+    
+    glViewport(0, 0, physicalWidth, physicalHeight);
+#else
+    g_app.framebufferWidth = width;
+    g_app.framebufferHeight = height;
+    
+    // Get window size (logical size, may differ from framebuffer on High DPI)
+    int windowWidth, windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+    g_app.windowWidth = windowWidth;
+    g_app.windowHeight = windowHeight;
+    
+    // Calculate content scale from actual framebuffer/window ratio
+    if (windowWidth > 0 && windowHeight > 0) {
+        g_app.contentScaleX = static_cast<float>(width) / static_cast<float>(windowWidth);
+        g_app.contentScaleY = static_cast<float>(height) / static_cast<float>(windowHeight);
+    } else {
+        g_app.contentScaleX = 1.0f;
+        g_app.contentScaleY = 1.0f;
+    }
+    
+    // Get GLFW content scale for DPI-aware font/UI sizing
+    float glfwScaleX, glfwScaleY;
+    glfwGetWindowContentScale(window, &glfwScaleX, &glfwScaleY);
+    g_app.dpiScale = glfwScaleX;  // Use GLFW's reported scale for ImGui
+    
+    std::cout << "[Desktop DPI] window: " << windowWidth << "x" << windowHeight 
+              << ", framebuffer: " << width << "x" << height
+              << ", contentScale: " << g_app.contentScaleX 
+              << ", dpiScale: " << g_app.dpiScale << std::endl;
+    
     glViewport(0, 0, width, height);
+#endif
+}
+
+// Convert logical mouse coordinates to framebuffer (physical) coordinates for High DPI
+inline int toFramebufferX(double mouseX) {
+    return static_cast<int>(mouseX * g_app.contentScaleX);
+}
+
+inline int toFramebufferY(double mouseY) {
+    return static_cast<int>(mouseY * g_app.contentScaleY);
+}
+
+// Get framebuffer Y coordinate (flipped for OpenGL) from logical mouse Y
+inline int toFramebufferGLY(double mouseY) {
+    int fbY = toFramebufferY(mouseY);
+    return g_app.framebufferHeight - fbY;
 }
 
 void scrollCallback(GLFWwindow* /*window*/, double /*xoffset*/, double yoffset) {
@@ -1164,9 +1246,11 @@ glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin) {
 
 // Color-buffer picking for selection (matching original MeshMaker approach)
 // Renders each triangle with a unique color and reads back the pixel at click position
+// x, y are in logical (window) coordinates
 int selectAtPoint(int x, int y) {
-    // Flip Y for OpenGL coordinate system (origin at bottom-left)
-    int glY = g_app.windowHeight - y;
+    // Convert to framebuffer coordinates for High DPI
+    int fbX = toFramebufferX(x);
+    int fbY = toFramebufferGLY(y);  // Already flipped for OpenGL
     
     // Save current clear color
     GLfloat clearColor[4];
@@ -1232,15 +1316,16 @@ int selectAtPoint(int x, int y) {
     
     glFinish();
     
-    // Read pixel at click position (sample 5x5 area for easier clicking)
-    const int sampleSize = 5;
+    // Read pixel at click position (sample 5x5 area for easier clicking, scaled for DPI)
+    int sampleSize = static_cast<int>(5 * g_app.contentScaleX);
+    if (sampleSize < 3) sampleSize = 3;
     const int halfSize = sampleSize / 2;
-    uint8_t pixels[sampleSize * sampleSize * 4];
+    std::vector<uint8_t> pixels(sampleSize * sampleSize * 4);
     
-    int readX = std::max(0, x - halfSize);
-    int readY = std::max(0, glY - halfSize);
+    int readX = std::max(0, fbX - halfSize);
+    int readY = std::max(0, fbY - halfSize);
     
-    glReadPixels(readX, readY, sampleSize, sampleSize, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glReadPixels(readX, readY, sampleSize, sampleSize, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     
     // Find first non-zero index in sample
     int selectedIndex = -1;
@@ -1263,6 +1348,7 @@ int selectAtPoint(int x, int y) {
 
 // Rectangle selection using color-buffer picking
 // Returns a vector indicating which items/faces/vertices/edges are within the rectangle
+// x, y, width, height are in logical (window) coordinates
 std::vector<bool> selectInRect(int x, int y, int width, int height) {
     EditMode editMode = g_app.items->getEditMode();
     
@@ -1286,14 +1372,20 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
     
     if (width <= 0 || height <= 0 || count == 0) return selected;
     
-    // Flip Y for OpenGL coordinate system (origin at bottom-left)
-    int glY = g_app.windowHeight - y - height;
+    // Convert to framebuffer coordinates for High DPI
+    int fbX = toFramebufferX(x);
+    int fbY = toFramebufferY(y);
+    int fbWidth = toFramebufferX(width);
+    int fbHeight = toFramebufferY(height);
     
-    // Clamp to window bounds
-    int readX = std::max(0, x);
+    // Flip Y for OpenGL coordinate system (origin at bottom-left)
+    int glY = g_app.framebufferHeight - fbY - fbHeight;
+    
+    // Clamp to framebuffer bounds
+    int readX = std::max(0, fbX);
     int readY = std::max(0, glY);
-    int readWidth = std::min(width, g_app.windowWidth - readX);
-    int readHeight = std::min(height, g_app.windowHeight - readY);
+    int readWidth = std::min(fbWidth, g_app.framebufferWidth - readX);
+    int readHeight = std::min(fbHeight, g_app.framebufferHeight - readY);
     
     if (readWidth <= 0 || readHeight <= 0) return selected;
     
@@ -1390,13 +1482,15 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
 }
 
 // Select manipulator widget at point using color-buffer picking
+// x, y are in logical (window) coordinates
 int selectManipulatorAtPoint(int x, int y) {
     Manipulator* manipulator = getCurrentManipulator();
     if (!manipulator) return -1;
     if (getSelectionCount() == 0) return -1;
     
-    // Flip Y for OpenGL coordinate system
-    int glY = g_app.windowHeight - y - 1;
+    // Convert to framebuffer coordinates for High DPI
+    int fbX = toFramebufferX(x);
+    int fbY = toFramebufferGLY(y);  // Already flipped for OpenGL
     
     // Save current clear color
     GLfloat clearColor[4];
@@ -1448,12 +1542,19 @@ int selectManipulatorAtPoint(int x, int y) {
     
     glFinish();
     
-    // Read a 10x10 pixel region for better selection tolerance on thin widgets
-    const int tolerance = 5;
-    int startX = std::max(0, x - tolerance);
-    int startY = std::max(0, glY - tolerance);
-    int readWidth = std::min(tolerance * 2, g_app.windowWidth - startX);
-    int readHeight = std::min(tolerance * 2, g_app.windowHeight - startY);
+    // Read a tolerance region for better selection on thin widgets (scaled for DPI)
+    int tolerance = static_cast<int>(5 * g_app.contentScaleX);
+    if (tolerance < 3) tolerance = 3;
+    int startX = std::max(0, fbX - tolerance);
+    int startY = std::max(0, fbY - tolerance);
+    int readWidth = std::min(tolerance * 2, g_app.framebufferWidth - startX);
+    int readHeight = std::min(tolerance * 2, g_app.framebufferHeight - startY);
+    
+    // Check bounds - can happen if mouse is outside framebuffer
+    if (readWidth <= 0 || readHeight <= 0) {
+        glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+        return -1;
+    }
     
     std::vector<uint8_t> pixels(readWidth * readHeight * 4);
     glReadPixels(startX, startY, readWidth, readHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
@@ -1463,8 +1564,8 @@ int selectManipulatorAtPoint(int x, int y) {
     
     // Find the closest hit to the center of the region
     // We prefer pixels closer to the click point
-    int centerOffsetX = x - startX;
-    int centerOffsetY = glY - startY;
+    int centerOffsetX = fbX - startX;
+    int centerOffsetY = fbY - startY;
     int bestDistance = INT_MAX;
     uint32_t bestColorIndex = 0;
     
@@ -1748,18 +1849,24 @@ void drawSelectionPlaneForPicking() {
 }
 
 // Get 3D position from mouse using depth buffer readback
+// mouseX, mouseY are in logical (window) coordinates
 glm::vec3 positionFromDepthBuffer(double mouseX, double mouseY) {
     float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
     glm::mat4 view = g_app.camera.getViewMatrix();
     glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+    // Note: viewport uses logical window coordinates for unProject
     glm::vec4 viewport(0, 0, g_app.windowWidth, g_app.windowHeight);
     
-    // Read depth at mouse position
-    float depth;
-    float glY = static_cast<float>(g_app.windowHeight) - static_cast<float>(mouseY);
-    glReadPixels(static_cast<int>(mouseX), static_cast<int>(glY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    // Convert to framebuffer coordinates for glReadPixels
+    int fbX = toFramebufferX(mouseX);
+    int fbY = toFramebufferGLY(mouseY);  // Already flipped for OpenGL
     
-    // Unproject to world space
+    // Read depth at mouse position (framebuffer coordinates)
+    float depth;
+    glReadPixels(fbX, fbY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    
+    // Unproject to world space (using logical window coordinates)
+    float glY = static_cast<float>(g_app.windowHeight) - static_cast<float>(mouseY);
     glm::vec3 winCoord(static_cast<float>(mouseX), glY, depth);
     return glm::unProject(winCoord, view, projection, viewport);
 }
@@ -2112,6 +2219,24 @@ void initScene() {
 void renderImGui() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
+    
+#ifdef EMSCRIPTEN_BUILD
+    // Override ImGui display size to match our physical framebuffer
+    // GLFW in Emscripten doesn't properly report the scaled framebuffer size
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2(static_cast<float>(g_app.framebufferWidth), 
+                            static_cast<float>(g_app.framebufferHeight));
+    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+    
+    static bool loggedOnce = false;
+    if (!loggedOnce) {
+        std::cout << "[ImGui Override] DisplaySize: " << io.DisplaySize.x << "x" << io.DisplaySize.y
+                  << ", DisplayFramebufferScale: " << io.DisplayFramebufferScale.x 
+                  << std::endl;
+        loggedOnce = true;
+    }
+#endif
+    
     ImGui::NewFrame();
     
     // Enable docking
@@ -2467,6 +2592,54 @@ int main() {
     }
 #endif
     
+    // Get initial framebuffer size and content scale for High DPI support
+#ifdef EMSCRIPTEN_BUILD
+    // For WebGL High DPI: get the CSS size and scale to physical pixels
+    double cssWidth, cssHeight;
+    emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
+    
+    double devicePixelRatio = emscripten_get_device_pixel_ratio();
+    int physicalWidth = static_cast<int>(cssWidth * devicePixelRatio);
+    int physicalHeight = static_cast<int>(cssHeight * devicePixelRatio);
+    
+    // Set the canvas backing buffer to physical pixel size for sharp rendering
+    emscripten_set_canvas_element_size("#canvas", physicalWidth, physicalHeight);
+    
+    g_app.framebufferWidth = physicalWidth;
+    g_app.framebufferHeight = physicalHeight;
+    // After setting canvas size, GLFW mouse coords are in physical pixels
+    g_app.windowWidth = physicalWidth;
+    g_app.windowHeight = physicalHeight;
+    g_app.contentScaleX = 1.0f;  // Mouse coords already in physical pixels
+    g_app.contentScaleY = 1.0f;
+    g_app.dpiScale = static_cast<float>(devicePixelRatio);  // For ImGui font scaling
+    
+    std::cout << "[WebGL DPI Init] CSS: " << cssWidth << "x" << cssHeight 
+              << ", physical: " << physicalWidth << "x" << physicalHeight
+              << ", contentScale: " << g_app.contentScaleX << std::endl;
+#else
+    glfwGetFramebufferSize(g_app.window, &g_app.framebufferWidth, &g_app.framebufferHeight);
+    glfwGetWindowSize(g_app.window, &g_app.windowWidth, &g_app.windowHeight);
+    
+    // Calculate content scale from actual framebuffer/window ratio
+    if (g_app.windowWidth > 0 && g_app.windowHeight > 0) {
+        g_app.contentScaleX = static_cast<float>(g_app.framebufferWidth) / static_cast<float>(g_app.windowWidth);
+        g_app.contentScaleY = static_cast<float>(g_app.framebufferHeight) / static_cast<float>(g_app.windowHeight);
+    } else {
+        g_app.contentScaleX = 1.0f;
+        g_app.contentScaleY = 1.0f;
+    }
+    
+    // Get GLFW content scale for DPI-aware font/UI sizing
+    float glfwScaleX, glfwScaleY;
+    glfwGetWindowContentScale(g_app.window, &glfwScaleX, &glfwScaleY);
+    g_app.dpiScale = glfwScaleX;
+    
+    std::cout << "[Desktop DPI Init] window: " << g_app.windowWidth << "x" << g_app.windowHeight
+              << ", framebuffer: " << g_app.framebufferWidth << "x" << g_app.framebufferHeight
+              << ", dpiScale: " << g_app.dpiScale << std::endl;
+#endif
+    
     // Set callbacks
     glfwSetFramebufferSizeCallback(g_app.window, framebufferSizeCallback);
     glfwSetScrollCallback(g_app.window, scrollCallback);
@@ -2479,6 +2652,31 @@ int main() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    
+#ifdef EMSCRIPTEN_BUILD
+    // WebGL: No font/style scaling needed since we render at physical resolution
+    // The dpiScale is handled by setting canvas size to physical pixels
+    float baseFontSize = 13.0f;
+    io.Fonts->AddFontDefault();
+    std::cout << "[ImGui DPI] Font size: " << baseFontSize 
+              << "px (WebGL renders at physical resolution)" << std::endl;
+#else
+    // Desktop: Scale ImGui for High DPI using actual DPI scale
+    ImGui::GetStyle().ScaleAllSizes(g_app.dpiScale);
+    
+    // Load font at scaled size for High DPI
+    float baseFontSize = 13.0f;
+    io.Fonts->AddFontDefault();
+    ImFontConfig fontConfig;
+    fontConfig.SizePixels = baseFontSize * g_app.dpiScale;
+    fontConfig.OversampleH = 2;
+    fontConfig.OversampleV = 2;
+    io.FontDefault = io.Fonts->AddFontDefault(&fontConfig);
+    io.FontGlobalScale = 1.0f;  // Don't double-scale
+    
+    std::cout << "[ImGui DPI] Font size: " << (baseFontSize * g_app.dpiScale) 
+              << "px (base " << baseFontSize << " * scale " << g_app.dpiScale << ")" << std::endl;
+#endif
     
     ImGui::StyleColorsDark();
     
@@ -2503,7 +2701,7 @@ int main() {
 #ifndef EMSCRIPTEN_BUILD
     glEnable(GL_PROGRAM_POINT_SIZE);  // Allow vertex shader to set gl_PointSize
 #endif
-    glViewport(0, 0, g_app.windowWidth, g_app.windowHeight);
+    glViewport(0, 0, g_app.framebufferWidth, g_app.framebufferHeight);
     
     // Main loop
 #ifdef EMSCRIPTEN_BUILD
