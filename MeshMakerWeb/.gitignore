@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Generated WASM files (copied from WebGL2 build)
+public/wasm/
