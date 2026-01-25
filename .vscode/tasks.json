@@ -7,9 +7,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
-                "--config",
-                "Debug"
+                "build"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/WebGL2"
@@ -18,7 +16,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": ["$gcc"]
         },
         {
             "label": "Build Desktop Release",
@@ -34,7 +32,7 @@
                 "cwd": "${workspaceFolder}/WebGL2"
             },
             "group": "build",
-            "problemMatcher": "$msCompile"
+            "problemMatcher": ["$gcc"]
         },
         {
             "label": "Build WebGL",

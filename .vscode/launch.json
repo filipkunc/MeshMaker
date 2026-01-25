@@ -2,28 +2,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Desktop Debug",
+            "name": "Desktop Debug (LLDB)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/WebGL2/build/MeshMakerWebGL2.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/WebGL2",
+            "preLaunchTask": "Build Desktop Debug"
+        },
+        {
+            "name": "Desktop Debug (VSDBG)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/WebGL2/build/Debug/MeshMakerWebGL2.exe",
+            "program": "${workspaceFolder}/WebGL2/build/MeshMakerWebGL2.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/WebGL2",
             "environment": [],
             "console": "integratedTerminal",
             "preLaunchTask": "Build Desktop Debug"
-        },
-        {
-            "name": "Desktop Release",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/WebGL2/build/Release/MeshMakerWebGL2.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/WebGL2",
-            "environment": [],
-            "console": "integratedTerminal",
-            "preLaunchTask": "Build Desktop Release"
         },
         {
             "name": "WebGL (Build and Run)",

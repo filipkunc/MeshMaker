@@ -33,3 +33,5 @@ Thumbs.db
 UpgradeLog*.htm*
 
 build*
+.cache/
+compile_commands.json
