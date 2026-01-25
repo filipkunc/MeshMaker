@@ -125,6 +125,11 @@ public:
     const Face& getFace(uint32_t index) const { return m_faces[index]; }
     const Edge& getEdge(uint32_t index) const { return m_edges[index]; }
     
+    // Full collection access (for testing)
+    const std::vector<MeshVertex>& getVertices() const { return m_vertices; }
+    const std::vector<Face>& getFaces() const { return m_faces; }
+    const std::vector<Edge>& getEdges() const { return m_edges; }
+    
     // Selection
     SelectionMode getSelectionMode() const { return m_selectionMode; }
     void setSelectionMode(SelectionMode mode);

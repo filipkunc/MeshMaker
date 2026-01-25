@@ -32,6 +32,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+# GoogleTest (for unit testing, desktop only)
+if(NOT EMSCRIPTEN)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.14.0
+        GIT_SHALLOW TRUE
+    )
+    # Prevent overriding parent project's compiler/linker settings on Windows
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
+
 # Dear ImGui (docking branch)
 FetchContent_Declare(
     imgui
@@ -91,8 +104,8 @@ endif()
 # Source files
 # ============================================================================
 
-set(SOURCES
-    src/main.cpp
+# Core library sources (without main.cpp for testing)
+set(CORE_SOURCES
     src/Camera.cpp
     src/Mesh.cpp
     src/Mesh2.cpp
@@ -101,6 +114,11 @@ set(SOURCES
     src/Grid.cpp
     src/Shader.cpp
     src/Manipulator.cpp
+)
+
+set(SOURCES
+    src/main.cpp
+    ${CORE_SOURCES}
 )
 
 set(HEADERS
@@ -202,4 +220,33 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
         DEPENDS ${CMAKE_BINARY_DIR}/compile_commands.json
         COMMENT "Copying compile_commands.json to source directory for clangd"
     )
+endif()
+
+# ============================================================================
+# Unit Tests (Desktop only)
+# ============================================================================
+
+if(NOT EMSCRIPTEN)
+    enable_testing()
+    
+    # Core library for testing (no graphics dependencies)
+    add_library(MeshMakerCore STATIC
+        src/Mesh2.cpp
+        src/Item.cpp
+        src/ItemCollection.cpp
+        src/Shader.cpp
+    )
+    target_include_directories(MeshMakerCore PUBLIC src)
+    target_link_libraries(MeshMakerCore PUBLIC glm glad_gl_core_33)
+    
+    # Mesh2 unit tests
+    add_executable(Mesh2Tests tests/Mesh2Tests.cpp)
+    target_link_libraries(Mesh2Tests PRIVATE
+        MeshMakerCore
+        GTest::gtest_main
+    )
+    target_include_directories(Mesh2Tests PRIVATE src)
+    
+    include(GoogleTest)
+    gtest_discover_tests(Mesh2Tests)
 endif()

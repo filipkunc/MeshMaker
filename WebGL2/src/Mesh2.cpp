@@ -897,77 +897,105 @@ void Mesh2::splitSelectedEdges() {
 }
 
 void Mesh2::mergeSelectedVertices(float /*threshold*/) {
-    // Find vertices to merge based on distance
+    // Find selected vertices (matches original fastMergeSelectedVertices)
     std::vector<uint32_t> selectedVerts;
+    glm::vec3 center(0.0f);
+    
     for (size_t i = 0; i < m_vertices.size(); i++) {
         if (m_vertices[i].selected) {
             selectedVerts.push_back(static_cast<uint32_t>(i));
+            center += m_vertices[i].position;
         }
     }
     
     if (selectedVerts.size() < 2) return;
     
-    // Find merge target (average position)
-    glm::vec3 avgPos(0.0f);
-    for (uint32_t vi : selectedVerts) {
-        avgPos += m_vertices[vi].position;
-    }
-    avgPos /= static_cast<float>(selectedVerts.size());
+    center /= static_cast<float>(selectedVerts.size());
     
-    // Move all to average, then remap
-    uint32_t targetVertex = selectedVerts[0];
-    m_vertices[targetVertex].position = avgPos;
+    // Create a NEW center vertex (like original: _vertices.add(center))
+    uint32_t centerVertex = addVertex(center);
     
-    // Remap other vertices to target
-    std::unordered_map<uint32_t, uint32_t> vertexRemap;
-    for (size_t i = 1; i < selectedVerts.size(); i++) {
-        vertexRemap[selectedVerts[i]] = targetVertex;
-    }
+    // Create remap: all selected vertices -> new center vertex
+    // (like original: node->data()->replaceVertex(centerNode))
+    std::unordered_set<uint32_t> selectedSet(selectedVerts.begin(), selectedVerts.end());
     
-    // Update faces
+    // Update all faces to use the center vertex instead of selected vertices
     for (Face& face : m_faces) {
         for (int i = 0; i < face.vertexCount; i++) {
-            auto it = vertexRemap.find(face.vertices[i]);
-            if (it != vertexRemap.end()) {
-                face.vertices[i] = it->second;
+            if (selectedSet.count(face.vertices[i])) {
+                face.vertices[i] = centerVertex;
             }
         }
     }
     
-    // Rebuild (will remove unused vertices)
-    std::vector<Face> faces = m_faces;
-    std::vector<MeshVertex> vertices = m_vertices;
+    // Process faces: collapse quads with duplicates to triangles, remove fully degenerate
+    // This is like the original behavior where triangles shrink as vertices merge
+    std::vector<Face> validFaces;
+    for (const Face& face : m_faces) {
+        // Collect unique vertices in order (preserving winding)
+        std::vector<uint32_t> uniqueVerts;
+        for (int i = 0; i < face.vertexCount; i++) {
+            // Only add if not already the last added vertex (consecutive duplicates)
+            if (uniqueVerts.empty() || uniqueVerts.back() != face.vertices[i]) {
+                // Also check if it's the same as the first vertex (wrapping)
+                if (i == face.vertexCount - 1 && !uniqueVerts.empty() && uniqueVerts[0] == face.vertices[i]) {
+                    continue;  // Skip, would create duplicate with first
+                }
+                uniqueVerts.push_back(face.vertices[i]);
+            }
+        }
+        
+        // Also need to check for non-consecutive duplicates
+        std::unordered_set<uint32_t> seen;
+        std::vector<uint32_t> finalVerts;
+        for (uint32_t v : uniqueVerts) {
+            if (seen.find(v) == seen.end()) {
+                seen.insert(v);
+                finalVerts.push_back(v);
+            }
+        }
+        
+        if (finalVerts.size() >= 3) {
+            // Valid face (either triangle or quad with 3+ unique verts)
+            Face newFace;
+            newFace.vertexCount = static_cast<int>(finalVerts.size());
+            for (size_t i = 0; i < finalVerts.size() && i < 4; i++) {
+                newFace.vertices[i] = finalVerts[i];
+            }
+            newFace.selected = face.selected;
+            validFaces.push_back(newFace);
+        }
+        // Faces with < 3 unique vertices are fully degenerate, skip them
+    }
+    
+    // Rebuild mesh with valid faces and used vertices
+    std::vector<MeshVertex> oldVertices = m_vertices;
     
     clear();
     
+    // Remap vertices - only add vertices that are actually used
     std::unordered_map<uint32_t, uint32_t> newVertexMap;
-    for (const Face& face : faces) {
-        uint32_t newVerts[4];
-        bool degenerate = false;
-        
+    for (const Face& face : validFaces) {
         for (int i = 0; i < face.vertexCount; i++) {
             uint32_t oldIdx = face.vertices[i];
-            // Check for degenerate face (duplicate vertices)
-            for (int j = 0; j < i; j++) {
-                if (face.vertices[j] == oldIdx) {
-                    degenerate = true;
-                    break;
-                }
-            }
-            if (degenerate) break;
-            
             if (newVertexMap.find(oldIdx) == newVertexMap.end()) {
-                newVertexMap[oldIdx] = addVertex(vertices[oldIdx].position);
+                uint32_t newIdx = addVertex(oldVertices[oldIdx].position);
+                newVertexMap[oldIdx] = newIdx;
             }
-            newVerts[i] = newVertexMap[oldIdx];
         }
-        
-        if (degenerate) continue;
-        
-        if (face.isQuad()) {
-            addQuad(newVerts[0], newVerts[1], newVerts[2], newVerts[3]);
+    }
+    
+    // Add faces with remapped vertices (this also rebuilds edges via findOrCreateEdge)
+    for (const Face& face : validFaces) {
+        if (face.vertexCount == 4) {
+            addQuad(newVertexMap[face.vertices[0]], 
+                    newVertexMap[face.vertices[1]], 
+                    newVertexMap[face.vertices[2]], 
+                    newVertexMap[face.vertices[3]]);
         } else {
-            addTriangle(newVerts[0], newVerts[1], newVerts[2]);
+            addTriangle(newVertexMap[face.vertices[0]], 
+                        newVertexMap[face.vertices[1]], 
+                        newVertexMap[face.vertices[2]]);
         }
     }
     

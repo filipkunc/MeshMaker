@@ -68,12 +68,15 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 **Keyboard Shortcuts:**
 - Matches original MeshMaker (W/E/R for tools, 1/2/3/4 for edit modes, etc.)
 
+**Undo/Redo System:**
+- Full undo/redo for item transformations (translate, rotate, scale)
+- Full undo/redo for mesh operations (extrude, subdivide, merge, etc.)
+- State capture and restore for both items and mesh topology
+
 ### Remaining Work 🚧
 
 **High Priority:**
-- [ ] Undo/redo system
 - [ ] File save/load (document serialization)
-- [ ] Test all mesh operations thoroughly
 
 **Medium Priority:**
 - [ ] Texture support and UV mapping
