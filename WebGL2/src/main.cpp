@@ -2800,3 +2800,181 @@ int main() {
     
     return 0;
 }
+
+// ============================================================================
+// JavaScript API Functions (called from Bindings.cpp via Embind)
+// ============================================================================
+
+#ifdef EMSCRIPTEN_BUILD
+
+// Primitives
+void api_addCube() {
+    if (!g_app.items) return;
+    sceneActionWithUndo("Add Cube", []() { g_app.items->addCube(); });
+}
+
+void api_addPlane() {
+    if (!g_app.items) return;
+    sceneActionWithUndo("Add Plane", []() { g_app.items->addPlane(); });
+}
+
+void api_addCylinder(int steps) {
+    if (!g_app.items) return;
+    int s = steps > 0 ? steps : g_app.meshSteps;
+    sceneActionWithUndo("Add Cylinder", [s]() { 
+        g_app.items->addCylinder(static_cast<uint32_t>(s)); 
+    });
+}
+
+void api_addSphere(int steps) {
+    if (!g_app.items) return;
+    int s = steps > 0 ? steps : g_app.meshSteps;
+    sceneActionWithUndo("Add Sphere", [s]() { 
+        g_app.items->addSphere(static_cast<uint32_t>(s)); 
+    });
+}
+
+void api_addIcosahedron() {
+    if (!g_app.items) return;
+    sceneActionWithUndo("Add Icosahedron", []() { g_app.items->addIcosahedron(); });
+}
+
+// Edit mode
+int api_getEditMode() {
+    if (!g_app.items) return 0;
+    return static_cast<int>(g_app.items->getEditMode());
+}
+
+void api_setEditMode(int mode) {
+    if (!g_app.items) return;
+    if (mode < 0 || mode > 3) return;
+    g_app.items->setEditMode(static_cast<EditMode>(mode));
+}
+
+// Transform mode
+int api_getTransformMode() {
+    return static_cast<int>(g_app.transformMode);
+}
+
+void api_setTransformMode(int mode) {
+    if (mode < 0 || mode > 3) return;
+    g_app.transformMode = static_cast<TransformMode>(mode);
+}
+
+// Selection
+int api_getSelectionCount() {
+    if (!g_app.items) return 0;
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        return static_cast<int>(g_app.items->getSelectedItemCount());
+    } else {
+        return static_cast<int>(g_app.items->getSelectedComponentCount());
+    }
+}
+
+void api_selectAll() {
+    selectAll();
+}
+
+void api_deselectAll() {
+    deselectAll();
+}
+
+void api_deleteSelection() {
+    if (!g_app.items) return;
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        sceneActionWithUndo("Delete Items", []() {
+            g_app.items->deleteSelectedItems();
+        });
+    } else {
+        sceneActionWithUndo("Delete Faces", []() {
+            g_app.items->deleteSelectedFaces();
+        });
+    }
+}
+
+void api_duplicateSelection() {
+    if (!g_app.items) return;
+    if (g_app.items->getEditMode() == EditMode::Items) {
+        sceneActionWithUndo("Duplicate Items", []() {
+            g_app.items->duplicateSelectedItems();
+        });
+    } else {
+        sceneActionWithUndo("Duplicate Faces", []() {
+            g_app.items->duplicateSelectedFaces();
+        });
+    }
+}
+
+// Undo/Redo
+bool api_canUndo() {
+    return g_app.undoManager.canUndo();
+}
+
+bool api_canRedo() {
+    return g_app.undoManager.canRedo();
+}
+
+void api_undo() {
+    g_app.undoManager.undo();
+}
+
+void api_redo() {
+    g_app.undoManager.redo();
+}
+
+// Mesh operations
+void api_flipSelectedFaces() {
+    if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) return;
+    sceneActionWithUndo("Flip Faces", []() { g_app.items->flipSelectedFaces(); });
+}
+
+void api_subdivideSelectedFaces() {
+    if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) return;
+    sceneActionWithUndo("Subdivide", []() { g_app.items->subdivideSelectedFaces(); });
+}
+
+void api_triangulateSelectedFaces() {
+    if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) return;
+    sceneActionWithUndo("Triangulate", []() { g_app.items->triangulateSelectedFaces(); });
+}
+
+void api_extrudeSelectedFaces() {
+    if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) return;
+    sceneActionWithUndo("Extrude", []() { g_app.items->extrudeSelectedFaces(); });
+}
+
+void api_splitSelectedEdges() {
+    if (!g_app.items || g_app.items->getEditMode() != EditMode::Edges) return;
+    sceneActionWithUndo("Split Edges", []() { g_app.items->splitSelectedEdges(); });
+}
+
+void api_mergeSelectedVertices() {
+    if (!g_app.items || g_app.items->getEditMode() != EditMode::Vertices) return;
+    sceneActionWithUndo("Merge Vertices", []() { g_app.items->mergeSelectedVertices(); });
+}
+
+// View settings
+int api_getViewMode() {
+    return g_app.viewMode;
+}
+
+void api_setViewMode(int mode) {
+    if (mode < 0 || mode > 2) return;
+    g_app.viewMode = mode;
+}
+
+bool api_getShowGrid() {
+    return g_app.showGrid;
+}
+
+void api_setShowGrid(bool show) {
+    g_app.showGrid = show;
+}
+
+// Info
+int api_getItemCount() {
+    if (!g_app.items) return 0;
+    return static_cast<int>(g_app.items->getItemCount());
+}
+
+#endif // EMSCRIPTEN_BUILD

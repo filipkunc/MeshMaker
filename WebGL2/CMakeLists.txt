@@ -117,9 +117,17 @@ set(CORE_SOURCES
     src/Manipulator.cpp
 )
 
+# Bindings sources (Emscripten only)
+if(EMSCRIPTEN)
+    set(BINDING_SOURCES src/Bindings.cpp)
+else()
+    set(BINDING_SOURCES)
+endif()
+
 set(SOURCES
     src/main.cpp
     ${CORE_SOURCES}
+    ${BINDING_SOURCES}
 )
 
 set(HEADERS
@@ -161,6 +169,7 @@ if(EMSCRIPTEN)
         "-sMODULARIZE=1"
         "-sEXPORT_NAME=createMeshMakerModule"
         "--embed-file=${CMAKE_CURRENT_SOURCE_DIR}/shaders@/shaders"
+        "-lembind"
     )
     
     target_compile_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_COMPILE_FLAGS})
