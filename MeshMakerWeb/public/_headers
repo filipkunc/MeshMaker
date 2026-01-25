@@ -1,0 +1,14 @@
+/*
+  Access-Control-Allow-Origin: *
+
+/assets/*.js
+  Content-Type: application/javascript
+
+/assets/*.css
+  Content-Type: text/css
+
+/wasm/*.wasm
+  Content-Type: application/wasm
+
+/wasm/*.js
+  Content-Type: application/javascript
