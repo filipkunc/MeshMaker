@@ -24,30 +24,36 @@
             "preLaunchTask": "Build Desktop Debug"
         },
         {
-            "name": "WebGL (Build and Run)",
+            "name": "React + WASM (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/MeshMakerWeb",
+            "sourceMaps": true,
+            "preLaunchTask": "Start React Dev Server"
+        },
+        {
+            "name": "React + WASM (Edge)",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/MeshMakerWeb",
+            "sourceMaps": true
+        },
+        {
+            "name": "WebGL Standalone (Chrome)",
             "type": "chrome",
             "request": "launch",
             "url": "http://localhost:8080/MeshMakerWebGL2.html",
-            "webRoot": "${workspaceFolder}/WebGL2/build_web",
+            "webRoot": "${workspaceFolder}/WebGL2/build-wasm",
             "preLaunchTask": "Build and Start WebGL Server"
         },
         {
-            "name": "WebGL Debug (Chrome)",
-            "type": "chrome",
-            "request": "launch",
-            "url": "http://localhost:8080/MeshMakerWebGL2.html",
-            "webRoot": "${workspaceFolder}/WebGL2/build_web",
-            "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "*": "${workspaceFolder}/WebGL2/*"
-            }
-        },
-        {
-            "name": "WebGL Debug (Edge)",
+            "name": "WebGL Standalone (Edge)",
             "type": "msedge",
             "request": "launch",
             "url": "http://localhost:8080/MeshMakerWebGL2.html",
-            "webRoot": "${workspaceFolder}/WebGL2/build_web",
+            "webRoot": "${workspaceFolder}/WebGL2/build-wasm",
             "sourceMaps": true,
             "sourceMapPathOverrides": {
                 "*": "${workspaceFolder}/WebGL2/*"

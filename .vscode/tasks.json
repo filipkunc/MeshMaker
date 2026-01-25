@@ -145,6 +145,60 @@
                 "cwd": "${workspaceFolder}/WebGL2"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Build WASM",
+            "type": "shell",
+            "command": "C:\\emsdk\\emsdk_env.ps1; ninja",
+            "options": {
+                "cwd": "${workspaceFolder}/WebGL2/build-wasm"
+            },
+            "group": "build",
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Copy WASM to React",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "copy-wasm"],
+            "options": {
+                "cwd": "${workspaceFolder}/MeshMakerWeb"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build WASM and Copy",
+            "dependsOn": ["Build WASM", "Copy WASM to React"],
+            "dependsOrder": "sequence",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Start React Dev Server",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "dev"],
+            "options": {
+                "cwd": "${workspaceFolder}/MeshMakerWeb"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "vite",
+                "pattern": {
+                    "regexp": "^NEVER_MATCH_ANYTHING$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^>.*dev$",
+                    "endsPattern": "ready in"
+                }
+            }
+        },
+        {
+            "label": "Build and Start React",
+            "dependsOn": ["Build WASM and Copy", "Start React Dev Server"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
         }
     ]
 }
