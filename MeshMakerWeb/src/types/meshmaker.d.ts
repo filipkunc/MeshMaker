@@ -43,6 +43,10 @@ export interface MeshMakerModule extends EmscriptenModule {
   getShowGrid(): boolean;
   setShowGrid(show: boolean): void;
   
+  // ImGui visibility (hidden by default in React builds)
+  getShowImGui(): boolean;
+  setShowImGui(show: boolean): void;
+  
   // Info
   getItemCount(): number;
 }

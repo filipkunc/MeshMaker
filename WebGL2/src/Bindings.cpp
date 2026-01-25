@@ -43,6 +43,9 @@ extern void api_setShowGrid(bool show);
 
 extern int api_getItemCount();
 
+extern bool api_getShowImGui();
+extern void api_setShowImGui(bool show);
+
 // ============================================================================
 // Embind Bindings
 // ============================================================================
@@ -94,6 +97,10 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     
     // Info
     function("getItemCount", &api_getItemCount);
+    
+    // ImGui visibility
+    function("getShowImGui", &api_getShowImGui);
+    function("setShowImGui", &api_setShowImGui);
 }
 
 #endif // EMSCRIPTEN_BUILD

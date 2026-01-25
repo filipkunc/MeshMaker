@@ -122,6 +122,11 @@ struct AppState {
     // View settings
     int viewMode = 2;  // SolidWireframe
     bool showGrid = true;
+#ifdef EMSCRIPTEN_BUILD
+    bool showImGui = false;  // Hidden by default in React/web builds
+#else
+    bool showImGui = true;   // Shown by default in desktop builds
+#endif
     
     // Transform settings
     TransformMode transformMode = TransformMode::None;
@@ -2556,8 +2561,10 @@ void render() {
     // Draw selection rectangle overlay
     drawSelectionRect();
     
-    // Draw ImGui
-    renderImGui();
+    // Draw ImGui (can be hidden when using external UI like React)
+    if (g_app.showImGui) {
+        renderImGui();
+    }
 }
 
 void mainLoop() {
@@ -2975,6 +2982,15 @@ void api_setShowGrid(bool show) {
 int api_getItemCount() {
     if (!g_app.items) return 0;
     return static_cast<int>(g_app.items->getItemCount());
+}
+
+// ImGui visibility
+bool api_getShowImGui() {
+    return g_app.showImGui;
+}
+
+void api_setShowImGui(bool show) {
+    g_app.showImGui = show;
 }
 
 #endif // EMSCRIPTEN_BUILD
