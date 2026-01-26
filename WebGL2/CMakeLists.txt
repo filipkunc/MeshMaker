@@ -108,7 +108,6 @@ endif()
 # Core library sources (without main.cpp for testing)
 set(CORE_SOURCES
     src/Camera.cpp
-    src/Mesh.cpp
     src/Mesh2.cpp
     src/Item.cpp
     src/ItemCollection.cpp
@@ -132,7 +131,6 @@ set(SOURCES
 
 set(HEADERS
     src/Camera.h
-    src/Mesh.h
     src/Mesh2.h
     src/Item.h
     src/ItemCollection.h

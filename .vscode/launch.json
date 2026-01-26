@@ -30,7 +30,7 @@
             "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}/MeshMakerWeb",
             "sourceMaps": true,
-            "preLaunchTask": "Start React Dev Server"
+            "preLaunchTask": "Build and Start React"
         },
         {
             "name": "React + WASM (Edge)",

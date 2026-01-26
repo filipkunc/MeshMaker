@@ -484,8 +484,8 @@ void Manipulator::draw(Shader& shader, const glm::mat4& view, const glm::mat4& p
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
-        // Gray semi-transparent sphere: glColor4f(0.8f, 0.8f, 0.8f, 0.25f)
-        shader.setVec4("uColor", glm::vec4(0.8f, 0.8f, 0.8f, 0.25f));
+        // Gray semi-transparent sphere:
+        shader.setVec4("uColor", glm::vec4(0.8f, 0.8f, 0.8f, 0.12f));
         shader.setMat4("uAxisTransform", glm::mat4(1.0f));
         
         glBindVertexArray(m_sphereVao);

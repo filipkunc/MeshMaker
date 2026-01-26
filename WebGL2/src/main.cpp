@@ -1034,6 +1034,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
     // Don't handle if ImGui wants keyboard
     if (ImGui::GetIO().WantCaptureKeyboard) return;
     
+#ifdef EMSCRIPTEN_BUILD
     // Don't handle if an HTML input element is focused (React UI textboxes)
     bool htmlInputFocused = EM_ASM_INT({
         var activeEl = document.activeElement;
@@ -1042,6 +1043,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
         return (tag === 'INPUT' || tag === 'TEXTAREA' || activeEl.isContentEditable) ? 1 : 0;
     });
     if (htmlInputFocused) return;
+#endif
     
     if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
     
