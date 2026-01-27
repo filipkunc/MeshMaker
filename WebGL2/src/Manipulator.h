@@ -72,16 +72,18 @@ public:
     void initGPUResources();
     void cleanupGPUResources();
     
-    // Drawing
-    void draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, 
-              const glm::vec3& axisZ, const glm::vec3& center, bool highlightAll = false);
+    // Drawing - now takes thickLineShader for screen-space thick lines
+    void draw(Shader& shader, Shader& thickLineShader, const glm::mat4& view, const glm::mat4& projection, 
+              const glm::vec3& axisZ, const glm::vec3& center, float viewportWidth, float viewportHeight, 
+              bool highlightAll = false);
     
     // Check if this is a rotation manipulator
     bool isRotationManipulator() const;
     
-    // Selection
+    // Selection - also needs viewport for thick line rendering
     uint32_t selectableCount() const;
-    void drawForSelection(Shader& shader, const glm::mat4& view, const glm::mat4& projection, uint32_t index);
+    void drawForSelection(Shader& shader, Shader& thickLineShader, const glm::mat4& view, const glm::mat4& projection, 
+                          uint32_t index, float viewportWidth, float viewportHeight, const glm::vec4& selectionColor);
     void selectAtIndex(uint32_t index);
     void clearSelection() { selectedIndex = UINT32_MAX; }
     bool hasSelection() const { return selectedIndex != UINT32_MAX; }
@@ -103,6 +105,16 @@ private:
     uint32_t m_circleVbo = 0;
     uint32_t m_circleVertexCount = 0;
     
+    // Screen-space thick circle geometry (position + nextPosition + side)
+    uint32_t m_ssCircleVao = 0;
+    uint32_t m_ssCircleVbo = 0;
+    uint32_t m_ssCircleVertexCount = 0;
+    
+    // Screen-space thick line geometry (position + nextPosition + side)
+    uint32_t m_ssLineVao = 0;
+    uint32_t m_ssLineVbo = 0;
+    uint32_t m_ssLineVertexCount = 0;
+    
     uint32_t m_sphereVao = 0;
     uint32_t m_sphereVbo = 0;
     uint32_t m_sphereVertexCount = 0;
@@ -121,10 +133,14 @@ private:
     
     void createArrowGeometry();
     void createCircleGeometry();
+    void createScreenSpaceCircleGeometry();
+    void createScreenSpaceLineGeometry();
     void createSphereGeometry();
     void createPlaneGeometry();
     void createCubeGeometry();
     void createLineGeometry();
     
-    void drawWidget(Shader& shader, const ManipulatorWidget& widget, bool isSelected, bool isGray);
+    void drawWidget(Shader& shader, Shader& thickLineShader, const ManipulatorWidget& widget, 
+                    bool isSelected, bool isGray, const glm::mat4& view, const glm::mat4& projection,
+                    float viewportWidth, float viewportHeight);
 };

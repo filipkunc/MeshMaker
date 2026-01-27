@@ -136,6 +136,7 @@ struct AppState {
     
     // Manipulator (transform gizmo)
     std::unique_ptr<Shader> manipulatorShader;
+    std::unique_ptr<Shader> thickLineShader;
     std::unique_ptr<Manipulator> translateManipulator;
     std::unique_ptr<Manipulator> rotateManipulator;
     std::unique_ptr<Manipulator> scaleManipulator;
@@ -1573,10 +1574,11 @@ int selectManipulatorAtPoint(int x, int y) {
         float r = static_cast<float>(colorIndex & 0xFF) / 255.0f;
         float g = static_cast<float>((colorIndex >> 8) & 0xFF) / 255.0f;
         float b = static_cast<float>((colorIndex >> 16) & 0xFF) / 255.0f;
-        g_app.manipulatorShader->setVec4("uColor", glm::vec4(r, g, b, 1.0f));
-        g_app.manipulatorShader->setMat4("uAxisTransform", widget.getAxisTransform());
+        glm::vec4 selectionColor(r, g, b, 1.0f);
         
-        manipulator->drawForSelection(*g_app.manipulatorShader, view, projection, i);
+        manipulator->drawForSelection(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, i,
+                                       static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight),
+                                       selectionColor);
     }
     
     glFinish();
@@ -2237,6 +2239,12 @@ bool initShaders() {
         return false;
     }
     
+    g_app.thickLineShader = std::make_unique<Shader>();
+    if (!g_app.thickLineShader->loadFromFiles(shaderPath + "thickline.vert", shaderPath + "thickline.frag")) {
+        std::cerr << "Failed to load thick line shaders" << std::endl;
+        return false;
+    }
+    
     return true;
 }
 
@@ -2567,8 +2575,9 @@ void render() {
         // Get camera forward direction for proper rendering
         glm::vec3 cameraForward = g_app.camera.getForwardDirection();
         
-        manipulator->draw(*g_app.manipulatorShader, view, projection, 
-                          cameraForward, manipulator->position);
+        manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
+                          cameraForward, manipulator->position, 
+                          static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight));
     }
     
     // Draw selection rectangle overlay

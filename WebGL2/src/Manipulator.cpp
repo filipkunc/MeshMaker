@@ -32,7 +32,7 @@ glm::vec4 ManipulatorWidget::getColor(bool isSelected, bool isGray) const {
     }
     
     if (isGray) {
-        return glm::vec4(0.3f, 0.3f, 0.3f, 0.8f);
+        return glm::vec4(0.5f, 0.5f, 0.5f, 0.8f);
     }
     
     switch (axis) {
@@ -136,6 +136,8 @@ void Manipulator::initGPUResources() {
     
     createArrowGeometry();
     createCircleGeometry();
+    createScreenSpaceCircleGeometry();
+    createScreenSpaceLineGeometry();
     createSphereGeometry();
     createPlaneGeometry();
     createCubeGeometry();
@@ -152,6 +154,12 @@ void Manipulator::cleanupGPUResources() {
     
     if (m_circleVao) { glDeleteVertexArrays(1, &m_circleVao); m_circleVao = 0; }
     if (m_circleVbo) { glDeleteBuffers(1, &m_circleVbo); m_circleVbo = 0; }
+    
+    if (m_ssCircleVao) { glDeleteVertexArrays(1, &m_ssCircleVao); m_ssCircleVao = 0; }
+    if (m_ssCircleVbo) { glDeleteBuffers(1, &m_ssCircleVbo); m_ssCircleVbo = 0; }
+    
+    if (m_ssLineVao) { glDeleteVertexArrays(1, &m_ssLineVao); m_ssLineVao = 0; }
+    if (m_ssLineVbo) { glDeleteBuffers(1, &m_ssLineVbo); m_ssLineVbo = 0; }
     
     if (m_sphereVao) { glDeleteVertexArrays(1, &m_sphereVao); m_sphereVao = 0; }
     if (m_sphereVbo) { glDeleteBuffers(1, &m_sphereVbo); m_sphereVbo = 0; }
@@ -244,6 +252,135 @@ void Manipulator::createCircleGeometry() {
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    
+    glBindVertexArray(0);
+}
+
+void Manipulator::createScreenSpaceCircleGeometry() {
+    // Create a circle for screen-space thick line rendering
+    // Each segment needs: position, nextPosition, side (-1 or +1)
+    // We create 2 triangles (6 vertices) per segment
+    std::vector<float> vertices;
+    
+    float radius = 0.7f;
+    int segments = 64;
+    
+    for (int i = 0; i < segments; i++) {
+        float angle0 = (2.0f * static_cast<float>(M_PI) * i) / segments;
+        float angle1 = (2.0f * static_cast<float>(M_PI) * (i + 1)) / segments;
+        
+        float x0 = sinf(angle0) * radius;
+        float z0 = cosf(angle0) * radius;
+        float x1 = sinf(angle1) * radius;
+        float z1 = cosf(angle1) * radius;
+        
+        glm::vec3 p0(x0, 0.0f, z0);
+        glm::vec3 p1(x1, 0.0f, z1);
+        
+        // Triangle 1: p0(-1), p0(+1), p1(+1)
+        // Vertex 0: position=p0, next=p1, side=-1
+        vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+        vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+        vertices.push_back(-1.0f);
+        
+        // Vertex 1: position=p0, next=p1, side=+1
+        vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+        vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+        vertices.push_back(1.0f);
+        
+        // Vertex 2: position=p1, next=p0, side=+1 (note: next is p0 to get same perpendicular)
+        vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+        vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+        vertices.push_back(-1.0f);
+        
+        // Triangle 2: p0(-1), p1(+1), p1(-1)
+        // Vertex 3: position=p0, next=p1, side=-1
+        vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+        vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+        vertices.push_back(-1.0f);
+        
+        // Vertex 4: position=p1, next=p0, side=-1
+        vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+        vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+        vertices.push_back(-1.0f);
+        
+        // Vertex 5: position=p1, next=p0, side=+1
+        vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+        vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+        vertices.push_back(1.0f);
+    }
+    
+    m_ssCircleVertexCount = static_cast<uint32_t>(vertices.size() / 7);  // 7 floats per vertex
+    
+    glGenVertexArrays(1, &m_ssCircleVao);
+    glGenBuffers(1, &m_ssCircleVbo);
+    
+    glBindVertexArray(m_ssCircleVao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ssCircleVbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    
+    // Stride is 7 floats: 3 for position, 3 for nextPosition, 1 for side
+    size_t stride = 7 * sizeof(float);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);                      // aPosition
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));    // aNextPosition
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));    // aSide
+    glEnableVertexAttribArray(2);
+    
+    glBindVertexArray(0);
+}
+
+void Manipulator::createScreenSpaceLineGeometry() {
+    // Create a line from (0,0,0) to (0,1,0) for screen-space thick line rendering
+    // 2 triangles = 6 vertices, each with position, nextPosition, side
+    std::vector<float> vertices;
+    
+    glm::vec3 p0(0.0f, 0.0f, 0.0f);
+    glm::vec3 p1(0.0f, 1.0f, 0.0f);
+    
+    // Triangle 1: p0(-1), p0(+1), p1(+1)
+    vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+    vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+    vertices.push_back(-1.0f);
+    
+    vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+    vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+    vertices.push_back(1.0f);
+    
+    vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+    vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+    vertices.push_back(-1.0f);
+    
+    // Triangle 2: p0(-1), p1(+1), p1(-1)
+    vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+    vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+    vertices.push_back(-1.0f);
+    
+    vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+    vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+    vertices.push_back(-1.0f);
+    
+    vertices.push_back(p1.x); vertices.push_back(p1.y); vertices.push_back(p1.z);
+    vertices.push_back(p0.x); vertices.push_back(p0.y); vertices.push_back(p0.z);
+    vertices.push_back(1.0f);
+    
+    m_ssLineVertexCount = static_cast<uint32_t>(vertices.size() / 7);
+    
+    glGenVertexArrays(1, &m_ssLineVao);
+    glGenBuffers(1, &m_ssLineVbo);
+    
+    glBindVertexArray(m_ssLineVao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ssLineVbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    
+    size_t stride = 7 * sizeof(float);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     
     glBindVertexArray(0);
 }
@@ -391,39 +528,67 @@ void Manipulator::createLineGeometry() {
     glBindVertexArray(0);
 }
 
-void Manipulator::drawWidget(Shader& shader, const ManipulatorWidget& widget, bool isSelected, bool isGray) {
+void Manipulator::drawWidget(Shader& shader, Shader& thickLineShader, const ManipulatorWidget& widget, 
+                             bool isSelected, bool isGray, const glm::mat4& view, const glm::mat4& projection,
+                             float viewportWidth, float viewportHeight) {
     glm::vec4 color = widget.getColor(isSelected, isGray);
     glm::mat4 axisTransform = widget.getAxisTransform();
     
-    shader.setVec4("uColor", color);
-    shader.setMat4("uAxisTransform", axisTransform);
+    // Line width in pixels
+    float lineWidth = isSelected ? 3.0f : 2.0f;
     
     switch (widget.widget) {
         case Widget::Line:
-            glBindVertexArray(m_lineVao);
-            glLineWidth(1.5f);
-            glDrawArrays(GL_LINES, 0, 2);
-            glLineWidth(1.0f);
+            // Use screen-space thick line shader
+            thickLineShader.use();
+            thickLineShader.setMat4("uView", view);
+            thickLineShader.setMat4("uProjection", projection);
+            thickLineShader.setMat4("uModel", glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+            thickLineShader.setMat4("uAxisTransform", axisTransform);
+            thickLineShader.setVec4("uColor", color);
+            thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineShader.setFloat("uLineWidth", lineWidth);
+            thickLineShader.setBool("uClipEnabled", false);
+            glBindVertexArray(m_ssLineVao);
+            glDrawArrays(GL_TRIANGLES, 0, m_ssLineVertexCount);
             break;
             
         case Widget::Arrow:
+            // Draw thick line part using screen-space shader
+            thickLineShader.use();
+            thickLineShader.setMat4("uView", view);
+            thickLineShader.setMat4("uProjection", projection);
+            thickLineShader.setMat4("uModel", glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+            thickLineShader.setMat4("uAxisTransform", axisTransform);
+            thickLineShader.setVec4("uColor", color);
+            thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineShader.setFloat("uLineWidth", lineWidth);
+            thickLineShader.setBool("uClipEnabled", false);
+            glBindVertexArray(m_ssLineVao);
+            glDrawArrays(GL_TRIANGLES, 0, m_ssLineVertexCount);
+            // Draw cone part using regular shader
+            shader.use();
+            shader.setVec4("uColor", color);
+            shader.setMat4("uAxisTransform", axisTransform);
             glBindVertexArray(m_arrowVao);
-            // Draw line part
-            glLineWidth(1.5f);
-            glDrawArrays(GL_LINES, 0, 2);
-            glLineWidth(1.0f);
-            // Draw cone part
             glDrawArrays(GL_TRIANGLES, 2, m_arrowVertexCount - 2);
             break;
             
         case Widget::Circle:
-            glBindVertexArray(m_circleVao);
-            glLineWidth(2.0f);
-            glDrawArrays(GL_LINE_LOOP, 0, m_circleVertexCount);
-            glLineWidth(1.0f);
+            // Use screen-space thick line shader for circles
+            // Note: thickLineShader should already have clip plane set by caller
+            thickLineShader.setMat4("uAxisTransform", axisTransform);
+            thickLineShader.setVec4("uColor", color);
+            thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineShader.setFloat("uLineWidth", lineWidth);
+            glBindVertexArray(m_ssCircleVao);
+            glDrawArrays(GL_TRIANGLES, 0, m_ssCircleVertexCount);
             break;
             
         case Widget::Plane:
+            shader.use();
+            shader.setVec4("uColor", color);
+            shader.setMat4("uAxisTransform", axisTransform);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBindVertexArray(m_planeVao);
@@ -434,17 +599,28 @@ void Manipulator::drawWidget(Shader& shader, const ManipulatorWidget& widget, bo
         case Widget::Cube:
             if (widget.axis == Axis::Center) {
                 // Draw cube at center
+                shader.use();
+                shader.setVec4("uColor", color);
                 shader.setMat4("uAxisTransform", glm::mat4(1.0f));
                 glBindVertexArray(m_cubeVao);
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             } else {
-                // Draw cube at end of axis line, plus the line
-                glBindVertexArray(m_lineVao);
-                glLineWidth(1.5f);
-                glDrawArrays(GL_LINES, 0, 2);
-                glLineWidth(1.0f);
+                // Draw thick line for the axis
+                thickLineShader.use();
+                thickLineShader.setMat4("uView", view);
+                thickLineShader.setMat4("uProjection", projection);
+                thickLineShader.setMat4("uModel", glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+                thickLineShader.setMat4("uAxisTransform", axisTransform);
+                thickLineShader.setVec4("uColor", color);
+                thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+                thickLineShader.setFloat("uLineWidth", lineWidth);
+                thickLineShader.setBool("uClipEnabled", false);
+                glBindVertexArray(m_ssLineVao);
+                glDrawArrays(GL_TRIANGLES, 0, m_ssLineVertexCount);
                 
                 // Translate cube to end of axis
+                shader.use();
+                shader.setVec4("uColor", color);
                 glm::mat4 cubeTransform = axisTransform * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 shader.setMat4("uAxisTransform", cubeTransform);
                 glBindVertexArray(m_cubeVao);
@@ -456,8 +632,9 @@ void Manipulator::drawWidget(Shader& shader, const ManipulatorWidget& widget, bo
     glBindVertexArray(0);
 }
 
-void Manipulator::draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection,
-                       const glm::vec3& /*axisZ*/, const glm::vec3& /*center*/, bool highlightAll) {
+void Manipulator::draw(Shader& shader, Shader& thickLineShader, const glm::mat4& view, const glm::mat4& projection,
+                       const glm::vec3& axisZ, const glm::vec3& center, float viewportWidth, float viewportHeight,
+                       bool highlightAll) {
     if (m_widgets.empty()) return;
     if (!m_gpuResourcesInitialized) initGPUResources();
     
@@ -474,18 +651,35 @@ void Manipulator::draw(Shader& shader, const glm::mat4& view, const glm::mat4& p
     // Disable depth test so gizmo is always visible
     glDisable(GL_DEPTH_TEST);
     
-    for (uint32_t i = 0; i < m_widgets.size(); i++) {
-        bool isSelected = highlightAll || (i == selectedIndex);
-        drawWidget(shader, m_widgets[i], isSelected, false);
-    }
-    
-    // Draw sphere backdrop for rotation manipulator (matching original)
     if (isRotationManipulator()) {
+        // Two-pass rendering with clip planes for rotation manipulator
+        // This creates the nice effect where back-facing parts are grayed out
+        
+        // Pass 1: Draw front half of circles (facing camera) with full color
+        // Clip plane: -axisZ, clips away the back
+        glm::vec4 clipPlane1(-axisZ.x, -axisZ.y, -axisZ.z, 
+                             glm::dot(axisZ, center));
+        
+        // Set up thick line shader for circles with clipping
+        thickLineShader.use();
+        thickLineShader.setMat4("uView", view);
+        thickLineShader.setMat4("uProjection", projection);
+        thickLineShader.setMat4("uModel", model);
+        thickLineShader.setBool("uClipEnabled", true);
+        thickLineShader.setVec4("uClipPlane", clipPlane1);
+        
+        for (uint32_t i = 0; i < m_widgets.size(); i++) {
+            bool isSelected = highlightAll || (i == selectedIndex);
+            drawWidget(shader, thickLineShader, m_widgets[i], isSelected, false, view, projection, viewportWidth, viewportHeight);
+        }
+        
+        // Draw sphere backdrop
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
-        // Gray semi-transparent sphere:
-        shader.setVec4("uColor", glm::vec4(0.8f, 0.8f, 0.8f, 0.12f));
+        shader.use();
+        shader.setBool("uClipEnabled", false);
+        shader.setVec4("uColor", glm::vec4(0.8f, 0.8f, 0.8f, 0.25f));
         shader.setMat4("uAxisTransform", glm::mat4(1.0f));
         
         glBindVertexArray(m_sphereVao);
@@ -493,6 +687,32 @@ void Manipulator::draw(Shader& shader, const glm::mat4& view, const glm::mat4& p
         glBindVertexArray(0);
         
         glDisable(GL_BLEND);
+        
+        // Pass 2: Draw back half of circles (away from camera) with gray color
+        // Clip plane: +axisZ with slight offset, clips away the front
+        glm::vec3 offsetCenter = center - axisZ * size * 0.02f;
+        glm::vec4 clipPlane2(axisZ.x, axisZ.y, axisZ.z,
+                             -glm::dot(axisZ, offsetCenter));
+        
+        thickLineShader.use();
+        thickLineShader.setBool("uClipEnabled", true);
+        thickLineShader.setVec4("uClipPlane", clipPlane2);
+        
+        for (uint32_t i = 0; i < m_widgets.size(); i++) {
+            bool isSelected = highlightAll || (i == selectedIndex);
+            // Draw back half in gray (isGray = true)
+            drawWidget(shader, thickLineShader, m_widgets[i], isSelected, true, view, projection, viewportWidth, viewportHeight);
+        }
+        
+        thickLineShader.setBool("uClipEnabled", false);
+    } else {
+        // Non-rotation manipulators: simple draw without clipping
+        shader.setBool("uClipEnabled", false);
+        
+        for (uint32_t i = 0; i < m_widgets.size(); i++) {
+            bool isSelected = highlightAll || (i == selectedIndex);
+            drawWidget(shader, thickLineShader, m_widgets[i], isSelected, false, view, projection, viewportWidth, viewportHeight);
+        }
     }
     
     glEnable(GL_DEPTH_TEST);
@@ -502,7 +722,8 @@ uint32_t Manipulator::selectableCount() const {
     return static_cast<uint32_t>(m_widgets.size());
 }
 
-void Manipulator::drawForSelection(Shader& shader, const glm::mat4& view, const glm::mat4& projection, uint32_t index) {
+void Manipulator::drawForSelection(Shader& shader, Shader& thickLineShader, const glm::mat4& view, const glm::mat4& projection, 
+                                   uint32_t index, float viewportWidth, float viewportHeight, const glm::vec4& selectionColor) {
     if (index >= m_widgets.size()) return;
     if (!m_gpuResourcesInitialized) initGPUResources();
     
@@ -511,57 +732,100 @@ void Manipulator::drawForSelection(Shader& shader, const glm::mat4& view, const 
     // Skip lines - they're too thin to click
     if (widget.widget == Widget::Line) return;
     
-    shader.use();
-    shader.setMat4("uView", view);
-    shader.setMat4("uProjection", projection);
-    
     glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
     model = model * glm::mat4_cast(rotation);
     model = glm::scale(model, glm::vec3(size));
-    shader.setMat4("uModel", model);
-    shader.setMat4("uAxisTransform", widget.getAxisTransform());
     
-    // Color encoding for selection (will be set by caller via uColorIndex)
+    // Use a thicker line width for selection to make clicking easier
+    float selectionLineWidth = 8.0f;
     
     switch (widget.widget) {
         case Widget::Arrow:
+            // Use screen-space thick line for selection
+            thickLineShader.use();
+            thickLineShader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+            thickLineShader.setMat4("uView", view);
+            thickLineShader.setMat4("uProjection", projection);
+            thickLineShader.setMat4("uModel", model);
+            thickLineShader.setMat4("uAxisTransform", widget.getAxisTransform());
+            thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineShader.setFloat("uLineWidth", selectionLineWidth);
+            thickLineShader.setBool("uClipEnabled", false);
+            glBindVertexArray(m_ssLineVao);
+            glDrawArrays(GL_TRIANGLES, 0, m_ssLineVertexCount);
+            // Draw cone with regular shader
+            shader.use();
+            shader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+            shader.setMat4("uView", view);
+            shader.setMat4("uProjection", projection);
+            shader.setMat4("uModel", model);
+            shader.setMat4("uAxisTransform", widget.getAxisTransform());
+            shader.setBool("uClipEnabled", false);
             glBindVertexArray(m_arrowVao);
-            // Draw thicker line for the shaft to make it easier to select
-            glLineWidth(8.0f);
-            glDrawArrays(GL_LINES, 0, 2);
-            glLineWidth(1.0f);
-            // Draw cone
             glDrawArrays(GL_TRIANGLES, 2, m_arrowVertexCount - 2);
             break;
             
         case Widget::Circle:
-            // Draw thicker line for selection
-            glBindVertexArray(m_circleVao);
-            glLineWidth(8.0f);
-            glDrawArrays(GL_LINE_LOOP, 0, m_circleVertexCount);
-            glLineWidth(1.0f);
+            // Use screen-space thick circle for selection
+            thickLineShader.use();
+            thickLineShader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+            thickLineShader.setMat4("uView", view);
+            thickLineShader.setMat4("uProjection", projection);
+            thickLineShader.setMat4("uModel", model);
+            thickLineShader.setMat4("uAxisTransform", widget.getAxisTransform());
+            thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineShader.setFloat("uLineWidth", selectionLineWidth);
+            thickLineShader.setBool("uClipEnabled", false);
+            glBindVertexArray(m_ssCircleVao);
+            glDrawArrays(GL_TRIANGLES, 0, m_ssCircleVertexCount);
             break;
             
         case Widget::Plane:
+            shader.use();
+            shader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+            shader.setMat4("uView", view);
+            shader.setMat4("uProjection", projection);
+            shader.setMat4("uModel", model);
+            shader.setMat4("uAxisTransform", widget.getAxisTransform());
+            shader.setBool("uClipEnabled", false);
             glBindVertexArray(m_planeVao);
             glDrawArrays(GL_TRIANGLES, 0, 6);
             break;
             
         case Widget::Cube:
             if (widget.axis == Axis::Center) {
+                shader.use();
+                shader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+                shader.setMat4("uView", view);
+                shader.setMat4("uProjection", projection);
+                shader.setMat4("uModel", model);
                 shader.setMat4("uAxisTransform", glm::mat4(1.0f));
+                shader.setBool("uClipEnabled", false);
                 glBindVertexArray(m_cubeVao);
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             } else {
-                // Draw thicker line for the shaft to make it easier to select
-                glBindVertexArray(m_lineVao);
-                glLineWidth(8.0f);
-                glDrawArrays(GL_LINES, 0, 2);
-                glLineWidth(1.0f);
+                // Use screen-space thick line for selection
+                thickLineShader.use();
+                thickLineShader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+                thickLineShader.setMat4("uView", view);
+                thickLineShader.setMat4("uProjection", projection);
+                thickLineShader.setMat4("uModel", model);
+                thickLineShader.setMat4("uAxisTransform", widget.getAxisTransform());
+                thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+                thickLineShader.setFloat("uLineWidth", selectionLineWidth);
+                thickLineShader.setBool("uClipEnabled", false);
+                glBindVertexArray(m_ssLineVao);
+                glDrawArrays(GL_TRIANGLES, 0, m_ssLineVertexCount);
                 
-                // Draw cube at end of axis
+                // Draw cube at end of axis with regular shader
+                shader.use();
+                shader.setVec4("uColor", selectionColor);  // Set color AFTER use()
+                shader.setMat4("uView", view);
+                shader.setMat4("uProjection", projection);
+                shader.setMat4("uModel", model);
                 glm::mat4 cubeTransform = widget.getAxisTransform() * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 shader.setMat4("uAxisTransform", cubeTransform);
+                shader.setBool("uClipEnabled", false);
                 glBindVertexArray(m_cubeVao);
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             }
