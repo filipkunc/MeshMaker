@@ -199,6 +199,40 @@
             "dependsOn": ["Build WASM and Copy", "Start React Dev Server"],
             "dependsOrder": "sequence",
             "problemMatcher": []
+        },
+        {
+            "label": "Build React Production",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "build"],
+            "options": {
+                "cwd": "${workspaceFolder}/MeshMakerWeb"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Deploy to Cloudflare Pages",
+            "type": "shell",
+            "command": "npx",
+            "args": [
+                "wrangler",
+                "pages",
+                "deploy",
+                "dist",
+                "--project-name=meshmaker",
+                "--branch=main"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/MeshMakerWeb"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Deploy to Cloudflare",
+            "dependsOn": ["Build WASM and Copy", "Build React Production", "Deploy to Cloudflare Pages"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
         }
     ]
 }
