@@ -64,8 +64,9 @@ public:
     glm::vec3 getSelectedItemsCenter() const;
     
     // For component editing (forwards to current mesh when in Vertices/Triangles/Edges mode)
+    // Note: Offsets/centers are in world space and will be transformed to local space
     void translateSelectedComponents(const glm::vec3& offset);
-    void rotateSelectedComponents(const glm::vec3& axis, float angleRadians);
+    void rotateSelectedComponents(const glm::vec3& center, const glm::quat& offset);
     void scaleSelectedComponents(const glm::vec3& center, float factor);
     void scaleSelectedComponentsByOffset(const glm::vec3& center, const glm::vec3& offset);
     glm::vec3 getSelectedComponentsCenter() const;

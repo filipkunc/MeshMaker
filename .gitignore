@@ -36,5 +36,8 @@ build*
 .cache/
 compile_commands.json
 
+# CMake user presets (machine-specific)
+CMakeUserPresets.json
+
 **/wasm/**
 

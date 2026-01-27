@@ -1,6 +1,24 @@
 #include <gtest/gtest.h>
 #include "Mesh2.h"
 
+// =============================================================================
+// Test Environment - Disables GPU operations for all tests
+// =============================================================================
+
+class Mesh2TestEnvironment : public ::testing::Environment {
+public:
+    void SetUp() override {
+        Mesh2::s_disableGPU = true;
+    }
+    
+    void TearDown() override {
+        Mesh2::s_disableGPU = false;
+    }
+};
+
+testing::Environment* const mesh2_env = 
+    testing::AddGlobalTestEnvironment(new Mesh2TestEnvironment);
+
 class Mesh2Test : public ::testing::Test {
 protected:
     Mesh2 mesh;

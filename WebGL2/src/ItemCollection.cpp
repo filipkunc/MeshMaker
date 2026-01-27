@@ -222,18 +222,72 @@ void ItemCollection::translateSelectedItems(const glm::vec3& offset) {
 }
 
 void ItemCollection::rotateSelectedItems(const glm::quat& offset) {
+    size_t selectedCount = 0;
+    Item* lastSelected = nullptr;
+    
     for (auto& item : m_items) {
         if (item->selected) {
-            item->rotateByOffset(offset);
+            selectedCount++;
+            lastSelected = item.get();
         }
+    }
+    
+    if (selectedCount > 1) {
+        // Multiple items selected - rotate positions around center AND rotate each item
+        glm::vec3 rotationCenter = getSelectedItemsCenter();
+        glm::mat4 offsetMatrix = glm::mat4_cast(offset);
+        
+        for (auto& item : m_items) {
+            if (item->selected) {
+                // Rotate position around center
+                glm::vec3 itemPosition = item->position;
+                itemPosition -= rotationCenter;
+                itemPosition = glm::vec3(offsetMatrix * glm::vec4(itemPosition, 1.0f));
+                itemPosition += rotationCenter;
+                item->position = itemPosition;
+                
+                // Also rotate the item itself
+                item->rotateByOffset(offset);
+            }
+        }
+    } else if (lastSelected != nullptr) {
+        // Single item - just rotate the item (no position change)
+        lastSelected->rotateByOffset(offset);
     }
 }
 
 void ItemCollection::scaleSelectedItems(const glm::vec3& offset) {
+    size_t selectedCount = 0;
+    Item* lastSelected = nullptr;
+    
     for (auto& item : m_items) {
         if (item->selected) {
-            item->scaleByOffset(offset);
+            selectedCount++;
+            lastSelected = item.get();
         }
+    }
+    
+    if (selectedCount > 1) {
+        // Multiple items selected - scale positions relative to center AND scale each item
+        glm::vec3 center = getSelectedItemsCenter();
+        
+        for (auto& item : m_items) {
+            if (item->selected) {
+                glm::vec3 itemPosition = item->position;
+                itemPosition -= center;
+                itemPosition.x *= 1.0f + offset.x;
+                itemPosition.y *= 1.0f + offset.y;
+                itemPosition.z *= 1.0f + offset.z;
+                itemPosition += center;
+                item->position = itemPosition;
+                
+                // Also scale the item itself
+                item->scaleByOffset(offset);
+            }
+        }
+    } else if (lastSelected != nullptr) {
+        // Single item - just scale it
+        lastSelected->scaleByOffset(offset);
     }
 }
 
@@ -283,19 +337,50 @@ glm::vec3 ItemCollection::getSelectedItemsCenter() const {
 }
 
 // Component operations (forwards to meshes)
+// Note: Offsets from manipulator are in world space, but mesh vertices are in local space.
+// We need to transform offsets by the inverse of the item's rotation and scale.
 void ItemCollection::translateSelectedComponents(const glm::vec3& offset) {
     for (auto& item : m_items) {
         if (item->selected && item->mesh) {
-            item->mesh->translateSelected(offset);
+            // Transform the offset from world space to local space
+            // by applying inverse rotation and inverse scale (like original OpenGLManipulatingController)
+            glm::quat inverseRotation = glm::conjugate(item->rotation);
+            glm::vec3 inverseScale = 1.0f / item->scale;
+            
+            // Apply inverse rotation then inverse scale: m = s * r
+            glm::mat4 invRotMatrix = glm::mat4_cast(inverseRotation);
+            glm::mat4 invScaleMatrix = glm::scale(glm::mat4(1.0f), inverseScale);
+            glm::mat4 transformMatrix = invScaleMatrix * invRotMatrix;
+            
+            glm::vec3 transformedOffset = glm::vec3(transformMatrix * glm::vec4(offset, 0.0f));
+            
+            item->mesh->translateSelected(transformedOffset);
             item->mesh->createGPUBuffers();
         }
     }
 }
 
-void ItemCollection::rotateSelectedComponents(const glm::vec3& axis, float angleRadians) {
+void ItemCollection::rotateSelectedComponents(const glm::vec3& center, const glm::quat& offset) {
     for (auto& item : m_items) {
         if (item->selected && item->mesh) {
-            item->mesh->rotateSelected(axis, angleRadians);
+            // Transform the rotation center from world space to local space
+            glm::mat4 invTransform = glm::inverse(item->getTransformMatrix());
+            glm::vec3 localCenter = glm::vec3(invTransform * glm::vec4(center, 1.0f));
+            
+            // Transform the rotation from world space to local space
+            // This is quaternion conjugation: R_local = Q_inv * R_world * Q
+            // This ensures that rotating around "world X" actually rotates around
+            // the axis that appears as X in world space, not the local X axis
+            glm::quat invRotation = glm::conjugate(item->rotation);
+            glm::quat localRotation = invRotation * offset * item->rotation;
+            
+            // Build the rotation matrix: translate to origin, rotate, translate back
+            glm::mat4 t1 = glm::translate(glm::mat4(1.0f), -localCenter);
+            glm::mat4 r = glm::mat4_cast(localRotation);
+            glm::mat4 t2 = glm::translate(glm::mat4(1.0f), localCenter);
+            glm::mat4 m = t2 * r * t1;
+            
+            item->mesh->transformSelectedByMatrix(m);
             item->mesh->createGPUBuffers();
         }
     }
@@ -304,7 +389,11 @@ void ItemCollection::rotateSelectedComponents(const glm::vec3& axis, float angle
 void ItemCollection::scaleSelectedComponents(const glm::vec3& center, float factor) {
     for (auto& item : m_items) {
         if (item->selected && item->mesh) {
-            item->mesh->scaleSelected(center, factor);
+            // Transform the scale center from world space to local space
+            glm::mat4 invTransform = glm::inverse(item->getTransformMatrix());
+            glm::vec3 localCenter = glm::vec3(invTransform * glm::vec4(center, 1.0f));
+            
+            item->mesh->scaleSelected(localCenter, factor);
             item->mesh->createGPUBuffers();
         }
     }
@@ -313,7 +402,25 @@ void ItemCollection::scaleSelectedComponents(const glm::vec3& center, float fact
 void ItemCollection::scaleSelectedComponentsByOffset(const glm::vec3& center, const glm::vec3& offset) {
     for (auto& item : m_items) {
         if (item->selected && item->mesh) {
-            item->mesh->scaleSelectedByOffset(center, offset);
+            // Transform the scale center from world space to local space
+            glm::mat4 invTransform = glm::inverse(item->getTransformMatrix());
+            glm::vec3 localCenter = glm::vec3(invTransform * glm::vec4(center, 1.0f));
+            
+            // Transform the scale from world space to local space
+            // Similar to rotation: S_local = R_inv * S_world * R
+            // This ensures that scaling along "world X" actually scales along
+            // the axis that appears as X in world space, not the local X axis
+            glm::mat4 invRotMatrix = glm::mat4_cast(glm::conjugate(item->rotation));
+            glm::mat4 rotMatrix = glm::mat4_cast(item->rotation);
+            glm::mat4 worldScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) + offset);
+            glm::mat4 localScale = invRotMatrix * worldScale * rotMatrix;
+            
+            // Build the transform matrix: translate to origin, scale, translate back
+            glm::mat4 t1 = glm::translate(glm::mat4(1.0f), -localCenter);
+            glm::mat4 t2 = glm::translate(glm::mat4(1.0f), localCenter);
+            glm::mat4 m = t2 * localScale * t1;
+            
+            item->mesh->transformSelectedByMatrix(m);
             item->mesh->createGPUBuffers();
         }
     }

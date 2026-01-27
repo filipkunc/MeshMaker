@@ -257,6 +257,15 @@ if(NOT EMSCRIPTEN)
     )
     target_include_directories(Mesh2Tests PRIVATE src)
     
+    # Transform unit tests (translate/rotate/scale for items and components)
+    add_executable(TransformTests tests/TransformTests.cpp)
+    target_link_libraries(TransformTests PRIVATE
+        MeshMakerCore
+        GTest::gtest_main
+    )
+    target_include_directories(TransformTests PRIVATE src)
+    
     include(GoogleTest)
     gtest_discover_tests(Mesh2Tests)
+    gtest_discover_tests(TransformTests)
 endif()

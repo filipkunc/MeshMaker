@@ -1,0 +1,89 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "desktop-base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/Program Files/LLVM/bin/clang.exe",
+                "CMAKE_CXX_COMPILER": "C:/Program Files/LLVM/bin/clang++.exe",
+                "CMAKE_RC_COMPILER": "C:/Program Files/LLVM/bin/llvm-rc.exe",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "desktop-debug",
+            "displayName": "Desktop Debug (Clang)",
+            "description": "Desktop OpenGL 3.3 Debug build with Clang",
+            "inherits": "desktop-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "desktop-release",
+            "displayName": "Desktop Release (Clang)",
+            "description": "Desktop OpenGL 3.3 Release build with Clang",
+            "inherits": "desktop-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "webgl",
+            "displayName": "WebGL (Emscripten)",
+            "description": "WebGL2 build using Emscripten",
+            "binaryDir": "${sourceDir}/build_web",
+            "generator": "Ninja",
+            "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "environment": {
+                "EMSDK": "C:/emsdk"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "desktop-debug",
+            "displayName": "Desktop Debug",
+            "configurePreset": "desktop-debug"
+        },
+        {
+            "name": "desktop-release",
+            "displayName": "Desktop Release",
+            "configurePreset": "desktop-release"
+        },
+        {
+            "name": "webgl",
+            "displayName": "WebGL (Emscripten)",
+            "configurePreset": "webgl"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "desktop-debug",
+            "displayName": "Desktop Debug Tests",
+            "configurePreset": "desktop-debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "desktop-release",
+            "displayName": "Desktop Release Tests",
+            "configurePreset": "desktop-release",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

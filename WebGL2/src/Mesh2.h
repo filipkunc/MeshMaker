@@ -96,6 +96,9 @@ struct MeshVertex {
 
 class Mesh2 {
 public:
+    // Testing support - disable GPU operations when true
+    static bool s_disableGPU;
+    
     Mesh2();
     ~Mesh2();
     
@@ -166,6 +169,7 @@ public:
     void rotateSelected(const glm::vec3& axis, float angleRadians);
     void scaleSelected(const glm::vec3& center, float factor);
     void scaleSelectedByOffset(const glm::vec3& center, const glm::vec3& offset);
+    void transformSelectedByMatrix(const glm::mat4& matrix);
     glm::vec3 getSelectionCenter() const;
     
     // Mesh operations

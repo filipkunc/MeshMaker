@@ -207,7 +207,9 @@ void rotateSelection(const glm::vec3& axis, float angleRadians) {
     if (g_app.items->getEditMode() == EditMode::Items) {
         g_app.items->rotateSelectedItems(glm::angleAxis(angleRadians, glm::normalize(axis)));
     } else {
-        g_app.items->rotateSelectedComponents(axis, angleRadians);
+        glm::vec3 center = getSelectionCenter();
+        glm::quat rotationOffset = glm::angleAxis(angleRadians, glm::normalize(axis));
+        g_app.items->rotateSelectedComponents(center, rotationOffset);
     }
 }
 

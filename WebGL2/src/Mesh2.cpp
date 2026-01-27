@@ -15,6 +15,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// Static variable for testing - disables GPU operations
+bool Mesh2::s_disableGPU = false;
+
 Mesh2::Mesh2()
     : m_selectionMode(SelectionMode::Triangles)
     , m_color(0.7f, 0.7f, 0.7f)
@@ -631,6 +634,45 @@ void Mesh2::scaleSelectedByOffset(const glm::vec3& center, const glm::vec3& offs
         m_vertices[vi].position = center + relative;
     }
     
+    m_renderDataDirty = true;
+}
+
+void Mesh2::transformSelectedByMatrix(const glm::mat4& matrix) {
+    std::unordered_set<uint32_t> affectedVertices;
+    
+    switch (m_selectionMode) {
+        case SelectionMode::Triangles:
+            for (const auto& face : m_faces) {
+                if (face.selected) {
+                    for (int i = 0; i < face.vertexCount; i++) {
+                        affectedVertices.insert(face.vertices[i]);
+                    }
+                }
+            }
+            break;
+        case SelectionMode::Edges:
+            for (const auto& edge : m_edges) {
+                if (edge.selected) {
+                    affectedVertices.insert(edge.vertices[0]);
+                    affectedVertices.insert(edge.vertices[1]);
+                }
+            }
+            break;
+        case SelectionMode::Vertices:
+            for (size_t i = 0; i < m_vertices.size(); i++) {
+                if (m_vertices[i].selected) {
+                    affectedVertices.insert(static_cast<uint32_t>(i));
+                }
+            }
+            break;
+    }
+    
+    for (uint32_t vi : affectedVertices) {
+        glm::vec4 pos = glm::vec4(m_vertices[vi].position, 1.0f);
+        m_vertices[vi].position = glm::vec3(matrix * pos);
+    }
+    
+    computeNormals();
     m_renderDataDirty = true;
 }
 
@@ -1334,6 +1376,9 @@ void Mesh2::buildRenderData() {
 
 // GPU
 void Mesh2::createGPUBuffers() {
+    // Skip GPU operations when disabled (for testing)
+    if (s_disableGPU) return;
+    
     if (m_renderDataDirty) {
         buildRenderData();
     }
@@ -1387,6 +1432,9 @@ void Mesh2::createGPUBuffers() {
 }
 
 void Mesh2::deleteGPUBuffers() {
+    // Skip GPU operations when disabled (for testing)
+    if (s_disableGPU) return;
+    
     if (m_vao) { glDeleteVertexArrays(1, &m_vao); m_vao = 0; }
     if (m_vbo) { glDeleteBuffers(1, &m_vbo); m_vbo = 0; }
     if (m_edgeVao) { glDeleteVertexArrays(1, &m_edgeVao); m_edgeVao = 0; }
