@@ -70,15 +70,6 @@ export function BottomPanel({
     if (axis === 'z') onSelectionZChange(num);
   };
 
-  const getTransformLabel = () => {
-    switch (transformMode) {
-      case 'translate': return 'Position';
-      case 'rotate': return 'Rotation°';
-      case 'scale': return 'Scale';
-      default: return 'Pos';
-    }
-  };
-
   const inputClass = "w-16 px-1 py-0.5 text-xs bg-zinc-900 border border-zinc-600 rounded text-zinc-200 text-center focus:outline-none focus:border-blue-500";
 
   return (
@@ -97,7 +88,6 @@ export function BottomPanel({
       {selectionCount > 0 && (
         <>
           <div className="flex items-center gap-2">
-            <span className="text-zinc-400">{getTransformLabel()}:</span>
             <label className="flex items-center gap-1">
               <span className="text-red-400">X</span>
               <input
@@ -145,14 +135,14 @@ export function BottomPanel({
               title="Duplicate (D)"
               className="px-2 py-0.5 text-zinc-300 hover:bg-zinc-600 rounded"
             >
-              Dup
+              Duplicate
             </button>
             <button
               onClick={onDelete}
               title="Delete (Del)"
               className="px-2 py-0.5 text-red-400 hover:bg-zinc-600 rounded"
             >
-              Del
+              Delete
             </button>
             <button
               onClick={onFlip}
@@ -166,14 +156,14 @@ export function BottomPanel({
               title="Triangulate (T)"
               className="px-2 py-0.5 text-zinc-300 hover:bg-zinc-600 rounded"
             >
-              Tri
+              Triangulate
             </button>
             <button
               onClick={onExtrude}
               title="Extrude (X)"
               className="px-2 py-0.5 text-zinc-300 hover:bg-zinc-600 rounded"
             >
-              Ext
+              Extrude
             </button>
           </div>
         </>
