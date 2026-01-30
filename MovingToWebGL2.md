@@ -82,10 +82,16 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - **Properties Panel:** Transform inputs (X/Y/Z) that show Position/Rotation/Scale based on active tool mode, Duplicate/Delete buttons
 - Unified selection value API matching original macOS/Windows behavior
 
+**File I/O (Serialization):**
+- OBJ format export/import (Wavefront Object)
+- GLB format export/import (Binary glTF 2.0)
+- File import via file picker (drag & drop ready)
+- File export via browser download
+
 ### Remaining Work 🚧
 
 **High Priority:**
-- [ ] File save/load (document serialization)
+- [x] File save/load (document serialization) ✅ OBJ and GLB formats
 
 **Medium Priority:**
 - [ ] Texture support and UV mapping

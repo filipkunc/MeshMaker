@@ -4,6 +4,9 @@
 #ifdef EMSCRIPTEN_BUILD
 
 #include <emscripten/bind.h>
+#include <emscripten/val.h>
+#include "Serialization.h"
+#include "ItemCollection.h"
 
 // External declarations for API functions defined in main.cpp
 extern void api_addCube();
@@ -64,6 +67,14 @@ extern void api_scaleSelection(float xOffset, float yOffset, float zOffset);
 
 extern int api_getMeshSteps();
 extern void api_setMeshSteps(int steps);
+
+// Serialization API
+extern std::string api_exportToOBJ();
+extern bool api_importFromOBJ(const std::string& objData);
+extern emscripten::val api_exportToGLB();
+extern bool api_importFromGLBArray(emscripten::val data);
+extern void api_clearScene();
+extern int api_getItemCount_export();
 
 // ============================================================================
 // Embind Bindings
@@ -140,6 +151,13 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     // Mesh steps for primitives
     function("getMeshSteps", &api_getMeshSteps);
     function("setMeshSteps", &api_setMeshSteps);
+    
+    // Serialization - Import/Export
+    function("exportToOBJ", &api_exportToOBJ);
+    function("importFromOBJ", &api_importFromOBJ);
+    function("exportToGLB", &api_exportToGLB);
+    function("importFromGLB", &api_importFromGLBArray);
+    function("clearScene", &api_clearScene);
 }
 
 #endif // EMSCRIPTEN_BUILD

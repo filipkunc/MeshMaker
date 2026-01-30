@@ -380,6 +380,9 @@ void meshManipulationStarted() {
     }
 }
 
+// Forward declaration for mesh undo helper
+void pushMeshUndoAction(const std::string& actionName, const MeshState& fromState, const MeshState& toState);
+
 // Called when mesh manipulation ends - registers the undo action
 void meshManipulationEnded(const std::string& actionName) {
     if (!g_app.oldMeshState) return;
@@ -394,19 +397,19 @@ void meshManipulationEnded(const std::string& actionName) {
     MeshState oldState = *g_app.oldMeshState;
     MeshState newState = *currentState;
     
-    g_app.undoManager.prepareUndo(actionName, [oldState, newState]() {
-        // Apply old state and register reverse action
-        applyMeshState(oldState);
-        
-        g_app.undoManager.prepareUndo("Mesh Manipulation", [newState, oldState]() {
-            applyMeshState(newState);
-            g_app.undoManager.prepareUndo("Mesh Manipulation", [oldState, newState]() {
-                applyMeshState(oldState);
-            });
-        });
-    });
+    // Use symmetric undo pattern - each undo/redo prepares its inverse
+    pushMeshUndoAction(actionName, oldState, newState);
     
     g_app.oldMeshState.reset();
+}
+
+// Push a mesh undo action that, when executed, applies fromState and prepares its inverse
+void pushMeshUndoAction(const std::string& actionName, const MeshState& fromState, const MeshState& toState) {
+    g_app.undoManager.prepareUndo(actionName, [actionName, fromState, toState]() {
+        applyMeshState(fromState);
+        // Prepare the inverse action
+        pushMeshUndoAction(actionName, toState, fromState);
+    });
 }
 
 // Perform a mesh action with undo support
@@ -431,13 +434,8 @@ void meshActionWithUndo(const std::string& actionName, std::function<void()> act
     MeshState old = *oldState;
     MeshState current = *currentState;
     
-    g_app.undoManager.prepareUndo(actionName, [old, current]() {
-        applyMeshState(old);
-        
-        g_app.undoManager.prepareUndo("Mesh Operation", [current, old]() {
-            applyMeshState(current);
-        });
-    });
+    // Use symmetric undo pattern
+    pushMeshUndoAction(actionName, old, current);
 }
 
 // Capture full scene state (all items)
@@ -490,6 +488,18 @@ void applySceneState(const SceneState& state) {
     }
 }
 
+// Forward declaration for recursive undo helper
+void pushSceneUndoAction(const std::string& actionName, const SceneState& fromState, const SceneState& toState);
+
+// Push a scene undo action that, when executed, applies fromState and prepares its inverse
+void pushSceneUndoAction(const std::string& actionName, const SceneState& fromState, const SceneState& toState) {
+    g_app.undoManager.prepareUndo(actionName, [actionName, fromState, toState]() {
+        applySceneState(fromState);
+        // Prepare the inverse action (which will be pushed to redo or undo depending on context)
+        pushSceneUndoAction(actionName, toState, fromState);
+    });
+}
+
 // Perform a scene action with undo support (for add/remove/duplicate items)
 void sceneActionWithUndo(const std::string& actionName, std::function<void()> action) {
     SceneState oldState = captureSceneState();
@@ -498,13 +508,8 @@ void sceneActionWithUndo(const std::string& actionName, std::function<void()> ac
     
     SceneState newState = captureSceneState();
     
-    g_app.undoManager.prepareUndo(actionName, [oldState, newState]() {
-        applySceneState(oldState);
-        
-        g_app.undoManager.prepareUndo("Scene Operation", [newState, oldState]() {
-            applySceneState(newState);
-        });
-    });
+    // Register the initial undo action using the symmetric helper
+    pushSceneUndoAction(actionName, oldState, newState);
 }
 
 // Forward declarations
@@ -1050,7 +1055,9 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
     
     if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
     
-    // Handle Ctrl+Z (Undo) and Ctrl+Y (Redo)
+    // Handle Ctrl+Z (Undo) and Ctrl+Y (Redo) - only in desktop builds
+    // In WASM builds, React handles these shortcuts to avoid double-triggering
+#ifndef EMSCRIPTEN_BUILD
     if (mods & GLFW_MOD_CONTROL) {
         if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
             g_app.undoManager.undo();
@@ -1061,6 +1068,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
             return;
         }
     }
+#endif
     
     bool hasSelection = getSelectionCount() > 0;
     
@@ -1082,10 +1090,12 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
             case GLFW_KEY_ESCAPE:
                 g_app.transformMode = TransformMode::None;
                 break;
-            case GLFW_KEY_A:  // Ctrl+A = Select all
+            case GLFW_KEY_A:  // Ctrl+A = Select all (desktop only, React handles in WASM)
+#ifndef EMSCRIPTEN_BUILD
                 if (mods & GLFW_MOD_CONTROL) {
                     selectAll();
                 }
+#endif
                 break;
             case GLFW_KEY_I:  // Ctrl+I = Invert selection
                 if (mods & GLFW_MOD_CONTROL) {
@@ -1103,7 +1113,8 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                     }
                 }
                 break;
-            case GLFW_KEY_D:  // Ctrl+D = Duplicate
+            case GLFW_KEY_D:  // Ctrl+D = Duplicate (desktop only, React handles in WASM)
+#ifndef EMSCRIPTEN_BUILD
                 if (mods & GLFW_MOD_CONTROL) {
                     if (hasSelection) {
                         if (g_app.items->getEditMode() == EditMode::Items) {
@@ -1117,6 +1128,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                         }
                     }
                 }
+#endif
                 break;
             case GLFW_KEY_F:  // Ctrl+Shift+F = Flip normals
                 if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
@@ -1184,8 +1196,9 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
             case GLFW_KEY_0:  // Items mode
                 g_app.items->setEditMode(EditMode::Items);
                 break;
-            case GLFW_KEY_DELETE:  // Delete selected
+            case GLFW_KEY_DELETE:  // Delete selected (desktop only, React handles in WASM)
             case GLFW_KEY_BACKSPACE:
+#ifndef EMSCRIPTEN_BUILD
                 if (hasSelection) {
                     if (g_app.items->getEditMode() == EditMode::Items) {
                         sceneActionWithUndo("Delete Items", []() {
@@ -1197,6 +1210,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                         });
                     }
                 }
+#endif
                 break;
         }
     }
@@ -3190,6 +3204,82 @@ void api_setMeshSteps(int steps) {
     if (steps < 3) steps = 3;
     if (steps > 100) steps = 100;
     g_app.meshSteps = steps;
+}
+
+// ============================================================================
+// Serialization API
+// ============================================================================
+
+#include "Serialization.h"
+#include <emscripten/val.h>
+
+std::string api_exportToOBJ() {
+    if (!g_app.items) return "";
+    return Serialization::exportToOBJ(*g_app.items);
+}
+
+bool api_importFromOBJ(const std::string& objData) {
+    if (!g_app.items) return false;
+    return Serialization::importFromOBJ(*g_app.items, objData);
+}
+
+emscripten::val api_exportToGLB() {
+    if (!g_app.items) {
+        return emscripten::val::null();
+    }
+    
+    std::vector<uint8_t> glbData = Serialization::exportToGLB(*g_app.items);
+    if (glbData.empty()) {
+        return emscripten::val::null();
+    }
+    
+    // Convert to JavaScript Uint8Array
+    return emscripten::val(emscripten::typed_memory_view(glbData.size(), glbData.data())).call<emscripten::val>("slice");
+}
+
+bool api_importFromGLB(const std::string& glbDataStr) {
+    if (!g_app.items) return false;
+    
+    // Convert string to binary data
+    std::vector<uint8_t> glbData(glbDataStr.begin(), glbDataStr.end());
+    return Serialization::importFromGLB(*g_app.items, glbData);
+}
+
+// Import from binary Uint8Array (for GLB)
+bool api_importFromGLBArray(emscripten::val data) {
+    if (!g_app.items) return false;
+    
+    // Get array length
+    unsigned int length = data["length"].as<unsigned int>();
+    if (length == 0) return false;
+    
+    // Copy data from JavaScript
+    std::vector<uint8_t> glbData(length);
+    emscripten::val memoryView = emscripten::val::module_property("HEAPU8");
+    emscripten::val buffer = data.call<emscripten::val>("slice");
+    
+    // Use a more direct approach - iterate and copy
+    for (unsigned int i = 0; i < length; i++) {
+        glbData[i] = data[i].as<uint8_t>();
+    }
+    
+    return Serialization::importFromGLB(*g_app.items, glbData);
+}
+
+// Clear all items
+void api_clearScene() {
+    if (!g_app.items) return;
+    
+    // Remove all items by removing from end
+    while (g_app.items->getItemCount() > 0) {
+        g_app.items->removeItemAtIndex(g_app.items->getItemCount() - 1);
+    }
+}
+
+// Get item count
+int api_getItemCount_export() {
+    if (!g_app.items) return 0;
+    return static_cast<int>(g_app.items->getItemCount());
 }
 
 #endif // EMSCRIPTEN_BUILD

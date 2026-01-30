@@ -70,6 +70,13 @@ export interface MeshMakerModule extends EmscriptenModule {
   getMeshSteps(): number;
   setMeshSteps(steps: number): void;
   
+  // Serialization - Import/Export
+  exportToOBJ(): string;
+  importFromOBJ(objData: string): boolean;
+  exportToGLB(): Uint8Array | null;
+  importFromGLB(data: Uint8Array): boolean;
+  clearScene(): void;
+  
   // Info
   getItemCount(): number;
 }

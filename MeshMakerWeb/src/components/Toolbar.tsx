@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 type Tool = 'select' | 'translate' | 'rotate' | 'scale';
 type EditMode = 'items' | 'vertices' | 'triangles' | 'edges';
+type ViewMode = 'solid' | 'wireframe' | 'solidWireframe';
 
 interface ToolbarProps {
   onToolChange?: (tool: Tool) => void;
@@ -9,6 +10,33 @@ interface ToolbarProps {
   onAddPrimitive?: (type: string, steps?: number) => void;
   meshSteps?: number;
   onMeshStepsChange?: (steps: number) => void;
+  onExportOBJ?: () => void;
+  onExportGLB?: () => void;
+  onImportFile?: (file: File) => void;
+  onClearScene?: () => void;
+  // View
+  viewMode?: ViewMode;
+  onViewModeChange?: (mode: ViewMode) => void;
+  showGrid?: boolean;
+  onShowGridChange?: (show: boolean) => void;
+  // Undo/Redo
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  // Selection
+  onSelectAll?: () => void;
+  onDeselectAll?: () => void;
+  // Mesh operations
+  onFlip?: () => void;
+  onSubdivide?: () => void;
+  onTriangulate?: () => void;
+  onExtrude?: () => void;
+  onSplitEdges?: () => void;
+  onMergeVertices?: () => void;
+  // State sync
+  activeTool?: Tool;
+  editMode?: EditMode;
 }
 
 export function Toolbar({ 
@@ -16,18 +44,45 @@ export function Toolbar({
   onEditModeChange, 
   onAddPrimitive,
   meshSteps = 20,
-  onMeshStepsChange 
+  onMeshStepsChange,
+  onExportOBJ,
+  onExportGLB,
+  onImportFile,
+  onClearScene,
+  viewMode = 'solidWireframe',
+  onViewModeChange,
+  showGrid = true,
+  onShowGridChange,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
+  onSelectAll,
+  onDeselectAll,
+  onFlip,
+  onSubdivide,
+  onTriangulate,
+  onExtrude,
+  onSplitEdges,
+  onMergeVertices,
+  activeTool: controlledTool,
+  editMode: controlledEditMode
 }: ToolbarProps) {
-  const [activeTool, setActiveTool] = useState<Tool>('select');
-  const [editMode, setEditMode] = useState<EditMode>('items');
+  const [internalTool, setInternalTool] = useState<Tool>('select');
+  const [internalEditMode, setInternalEditMode] = useState<EditMode>('items');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Use controlled values if provided, otherwise use internal state
+  const activeTool = controlledTool ?? internalTool;
+  const editMode = controlledEditMode ?? internalEditMode;
 
   const handleToolClick = (tool: Tool) => {
-    setActiveTool(tool);
+    setInternalTool(tool);
     onToolChange?.(tool);
   };
 
   const handleEditModeClick = (mode: EditMode) => {
-    setEditMode(mode);
+    setInternalEditMode(mode);
     onEditModeChange?.(mode);
   };
 
@@ -38,15 +93,111 @@ export function Toolbar({
     { id: 'scale', label: 'Scale', shortcut: '4' },
   ];
 
-  const editModes: { id: EditMode; label: string }[] = [
-    { id: 'items', label: 'Items' },
-    { id: 'vertices', label: 'Vertices' },
-    { id: 'triangles', label: 'Triangles' },
-    { id: 'edges', label: 'Edges' },
+  const editModes: { id: EditMode; label: string; shortcut: string }[] = [
+    { id: 'items', label: 'Items', shortcut: 'Q' },
+    { id: 'vertices', label: 'Vertices', shortcut: 'W' },
+    { id: 'triangles', label: 'Triangles', shortcut: 'E' },
+    { id: 'edges', label: 'Edges', shortcut: 'R' },
   ];
 
+  const viewModes: { id: ViewMode; label: string }[] = [
+    { id: 'solid', label: 'Solid' },
+    { id: 'wireframe', label: 'Wireframe' },
+    { id: 'solidWireframe', label: 'Solid + Wire' },
+  ];
+
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onImportFile?.(file);
+      // Reset input so the same file can be imported again
+      e.target.value = '';
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-4 p-3 bg-zinc-800 border-r border-zinc-700">
+    <div className="flex flex-col gap-4 p-3 bg-zinc-800 border-r border-zinc-700 overflow-y-auto">
+      {/* File Operations */}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-zinc-400 uppercase tracking-wide mb-1">File</span>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".obj,.glb"
+          onChange={handleFileImport}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          📂 Import...
+        </button>
+        <button
+          onClick={onExportOBJ}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          💾 Export OBJ
+        </button>
+        <button
+          onClick={onExportGLB}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+        >
+          💾 Export GLB
+        </button>
+        <button
+          onClick={onClearScene}
+          className="px-3 py-2 text-sm text-left text-red-400 hover:bg-zinc-700 rounded transition-colors"
+        >
+          🗑️ Clear Scene
+        </button>
+      </div>
+
+      {/* Undo/Redo */}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Edit</span>
+        <div className="flex gap-1">
+          <button
+            onClick={onUndo}
+            disabled={!canUndo}
+            className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
+              canUndo 
+                ? 'text-zinc-300 hover:bg-zinc-700' 
+                : 'text-zinc-600 cursor-not-allowed'
+            }`}
+            title="Undo (Ctrl+Z)"
+          >
+            ↩ Undo
+          </button>
+          <button
+            onClick={onRedo}
+            disabled={!canRedo}
+            className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
+              canRedo 
+                ? 'text-zinc-300 hover:bg-zinc-700' 
+                : 'text-zinc-600 cursor-not-allowed'
+            }`}
+            title="Redo (Ctrl+Y)"
+          >
+            ↪ Redo
+          </button>
+        </div>
+        <button
+          onClick={onSelectAll}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Select All (Ctrl+A)"
+        >
+          ☑ Select All
+        </button>
+        <button
+          onClick={onDeselectAll}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Deselect All (Ctrl+D)"
+        >
+          ☐ Deselect All
+        </button>
+      </div>
+
       {/* Transform Tools */}
       <div className="flex flex-col gap-1">
         <span className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Tools</span>
@@ -79,9 +230,84 @@ export function Toolbar({
                 : 'text-zinc-300 hover:bg-zinc-700'
             }`}
           >
+            <span>{mode.label}</span>
+            <span className="ml-2 text-xs text-zinc-500">{mode.shortcut}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Mesh Operations */}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Mesh</span>
+        <button
+          onClick={onFlip}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Flip Selected Faces (F)"
+        >
+          🔄 Flip
+        </button>
+        <button
+          onClick={onSubdivide}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Subdivide Selected (S)"
+        >
+          ◫ Subdivide
+        </button>
+        <button
+          onClick={onTriangulate}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Triangulate Selected (T)"
+        >
+          △ Triangulate
+        </button>
+        <button
+          onClick={onExtrude}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Extrude Selected (X)"
+        >
+          ⬆ Extrude
+        </button>
+        <button
+          onClick={onSplitEdges}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Split Selected Edges"
+        >
+          ✂ Split Edges
+        </button>
+        <button
+          onClick={onMergeVertices}
+          className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+          title="Merge Selected Vertices (M)"
+        >
+          ⊕ Merge Vertices
+        </button>
+      </div>
+
+      {/* View Mode */}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-zinc-400 uppercase tracking-wide mb-1">View</span>
+        {viewModes.map((mode) => (
+          <button
+            key={mode.id}
+            onClick={() => onViewModeChange?.(mode.id)}
+            className={`px-3 py-2 text-sm text-left rounded transition-colors ${
+              viewMode === mode.id
+                ? 'bg-purple-600 text-white'
+                : 'text-zinc-300 hover:bg-zinc-700'
+            }`}
+          >
             {mode.label}
           </button>
         ))}
+        <label className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 rounded cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showGrid}
+            onChange={(e) => onShowGridChange?.(e.target.checked)}
+            className="accent-purple-500"
+          />
+          Show Grid
+        </label>
       </div>
 
       {/* Add Primitives */}

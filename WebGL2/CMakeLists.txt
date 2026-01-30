@@ -114,6 +114,7 @@ set(CORE_SOURCES
     src/Grid.cpp
     src/Shader.cpp
     src/Manipulator.cpp
+    src/Serialization.cpp
 )
 
 # Bindings sources (Emscripten only)
@@ -138,6 +139,7 @@ set(HEADERS
     src/Shader.h
     src/Vertex.h
     src/Manipulator.h
+    src/Serialization.h
 )
 
 # ============================================================================
@@ -265,7 +267,16 @@ if(NOT EMSCRIPTEN)
     )
     target_include_directories(TransformTests PRIVATE src)
     
+    # Undo system tests
+    add_executable(UndoTests tests/UndoTests.cpp)
+    target_link_libraries(UndoTests PRIVATE
+        MeshMakerCore
+        GTest::gtest_main
+    )
+    target_include_directories(UndoTests PRIVATE src)
+    
     include(GoogleTest)
     gtest_discover_tests(Mesh2Tests)
     gtest_discover_tests(TransformTests)
+    gtest_discover_tests(UndoTests)
 endif()

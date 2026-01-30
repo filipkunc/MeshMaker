@@ -9,12 +9,15 @@ function App() {
   const [meshSteps, setMeshSteps] = useState(20);
   const [selectionState, setSelectionState] = useState({ count: 0, x: 0, y: 0, z: 0 });
   const [transformMode, setTransformMode] = useState<TransformMode>('select');
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   
-  // Poll selection state from WASM module (uses unified API that respects transform mode)
+  // Poll selection state and undo/redo state from WASM module
   useEffect(() => {
     if (!module) return;
     
-    const updateSelectionState = () => {
+    const updateState = () => {
+      // Update selection state
       const count = module.getSelectionCount();
       if (count > 0) {
         setSelectionState({
@@ -26,13 +29,17 @@ function App() {
       } else {
         setSelectionState({ count: 0, x: 0, y: 0, z: 0 });
       }
+      
+      // Update undo/redo state
+      setCanUndo(module.canUndo());
+      setCanRedo(module.canRedo());
     };
     
     // Update initially
-    updateSelectionState();
+    updateState();
     
     // Poll every 100ms to catch changes from viewport interaction
-    const interval = setInterval(updateSelectionState, 100);
+    const interval = setInterval(updateState, 100);
     return () => clearInterval(interval);
   }, [module, transformMode]); // Re-poll when transform mode changes
   
@@ -143,6 +150,285 @@ function App() {
     triggerUpdate();
   };
 
+  // File operations
+  const handleExportOBJ = useCallback(() => {
+    if (!module) return;
+    
+    const objData = module.exportToOBJ();
+    if (!objData) {
+      console.error('Failed to export OBJ');
+      return;
+    }
+    
+    // Create download
+    const blob = new Blob([objData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'meshmaker-export.obj';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [module]);
+
+  const handleExportGLB = useCallback(() => {
+    if (!module) return;
+    
+    const glbData = module.exportToGLB();
+    if (!glbData) {
+      console.error('Failed to export GLB');
+      return;
+    }
+    
+    // Copy to a proper ArrayBuffer (Emscripten may return a view on shared memory)
+    const buffer = new ArrayBuffer(glbData.length);
+    new Uint8Array(buffer).set(glbData);
+    
+    // Create download
+    const blob = new Blob([buffer], { type: 'model/gltf-binary' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'meshmaker-export.glb';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [module]);
+
+  const handleImportFile = useCallback((file: File) => {
+    if (!module) return;
+    
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    
+    if (extension === 'obj') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        if (text) {
+          const success = module.importFromOBJ(text);
+          if (!success) {
+            console.error('Failed to import OBJ file');
+          }
+          triggerUpdate();
+        }
+      };
+      reader.readAsText(file);
+    } else if (extension === 'glb') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const buffer = e.target?.result as ArrayBuffer;
+        if (buffer) {
+          const data = new Uint8Array(buffer);
+          const success = module.importFromGLB(data);
+          if (!success) {
+            console.error('Failed to import GLB file');
+          }
+          triggerUpdate();
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      console.error('Unsupported file format:', extension);
+    }
+  }, [module, triggerUpdate]);
+
+  const handleClearScene = useCallback(() => {
+    if (!module) return;
+    module.clearScene();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  // Undo/Redo
+  const handleUndo = useCallback(() => {
+    if (!module) return;
+    module.undo();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleRedo = useCallback(() => {
+    if (!module) return;
+    module.redo();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  // Selection operations
+  const handleSelectAll = useCallback(() => {
+    if (!module) return;
+    module.selectAll();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleDeselectAll = useCallback(() => {
+    if (!module) return;
+    module.deselectAll();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  // Mesh operations
+  const handleFlip = useCallback(() => {
+    if (!module) return;
+    module.flipSelectedFaces();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleSubdivide = useCallback(() => {
+    if (!module) return;
+    module.subdivideSelectedFaces();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleTriangulate = useCallback(() => {
+    if (!module) return;
+    module.triangulateSelectedFaces();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleExtrude = useCallback(() => {
+    if (!module) return;
+    module.extrudeSelectedFaces();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleSplitEdges = useCallback(() => {
+    if (!module) return;
+    module.splitSelectedEdges();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleMergeVertices = useCallback(() => {
+    if (!module) return;
+    module.mergeSelectedVertices();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  // View settings
+  const [viewMode, setViewMode] = useState<'solid' | 'wireframe' | 'solidWireframe'>('solidWireframe');
+  const [showGrid, setShowGrid] = useState(true);
+
+  const handleViewModeChange = useCallback((mode: 'solid' | 'wireframe' | 'solidWireframe') => {
+    if (!module) return;
+    // Map to WASM enum: 0=Solid, 1=Wireframe, 2=SolidWireframe
+    const modeMap: Record<string, number> = {
+      'solid': 0,
+      'wireframe': 1,
+      'solidWireframe': 2,
+    };
+    module.setViewMode(modeMap[mode]);
+    setViewMode(mode);
+  }, [module]);
+
+  const handleShowGridChange = useCallback((show: boolean) => {
+    if (!module) return;
+    module.setShowGrid(show);
+    setShowGrid(show);
+  }, [module]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Edit modes
+      if (e.key === 'q' || e.key === 'Q') {
+        e.preventDefault();
+        handleEditModeChange('items');
+        return;
+      }
+      if (e.key === 'w' || e.key === 'W') {
+        e.preventDefault();
+        handleEditModeChange('vertices');
+        return;
+      }
+      if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        handleEditModeChange('triangles');
+        return;
+      }
+      if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        handleEditModeChange('edges');
+        return;
+      }
+
+      // Mesh operations
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        handleFlip();
+        return;
+      }
+      if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        handleSubdivide();
+        return;
+      }
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        handleTriangulate();
+        return;
+      }
+      if (e.key === 'x' || e.key === 'X') {
+        e.preventDefault();
+        handleExtrude();
+        return;
+      }
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        handleMergeVertices();
+        return;
+      }
+
+      // Selection
+      if (e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleDeselectAll();
+        } else {
+          handleSelectAll();
+        }
+        return;
+      }
+
+      // Delete
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        handleDelete();
+        return;
+      }
+
+      // Duplicate
+      if (e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        handleDuplicate();
+        return;
+      }
+
+      // Undo/Redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleFlip, handleSubdivide, handleTriangulate, handleExtrude, handleMergeVertices, 
+      handleSelectAll, handleDeselectAll, handleDelete, handleDuplicate, handleUndo, handleRedo]);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Left Toolbar */}
@@ -152,6 +438,26 @@ function App() {
         onAddPrimitive={handleAddPrimitive}
         meshSteps={meshSteps}
         onMeshStepsChange={setMeshSteps}
+        onExportOBJ={handleExportOBJ}
+        onExportGLB={handleExportGLB}
+        onImportFile={handleImportFile}
+        onClearScene={handleClearScene}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onSelectAll={handleSelectAll}
+        onDeselectAll={handleDeselectAll}
+        onFlip={handleFlip}
+        onSubdivide={handleSubdivide}
+        onTriangulate={handleTriangulate}
+        onExtrude={handleExtrude}
+        onSplitEdges={handleSplitEdges}
+        onMergeVertices={handleMergeVertices}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        showGrid={showGrid}
+        onShowGridChange={handleShowGridChange}
       />
 
       {/* Main Viewport */}
