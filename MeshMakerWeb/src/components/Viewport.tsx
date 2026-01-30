@@ -9,7 +9,7 @@ interface ViewportProps {
 
 export function Viewport({ canvasRef, containerRef, isLoading, error }: ViewportProps) {
   return (
-    <div ref={containerRef} id="canvas-container" className="flex-1 relative bg-zinc-900 overflow-hidden">
+    <div ref={containerRef} id="canvas-container" className="absolute inset-0 bg-zinc-900 overflow-hidden">
       <canvas
         ref={canvasRef}
         id="canvas"

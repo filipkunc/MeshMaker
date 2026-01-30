@@ -1,6 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Toolbar, PropertiesPanel, Viewport } from './components';
+import { Viewport } from './components';
+import { TopToolbar } from './components/TopToolbar';
+import { BottomPanel } from './components/BottomPanel';
 import { useMeshMaker } from './hooks/useMeshMaker';
+
+type EditMode = 'items' | 'vertices' | 'triangles' | 'edges';
+type ViewMode = 'solid' | 'wireframe' | 'solidWireframe';
 
 type TransformMode = 'select' | 'translate' | 'rotate' | 'scale';
 
@@ -9,6 +14,9 @@ function App() {
   const [meshSteps, setMeshSteps] = useState(20);
   const [selectionState, setSelectionState] = useState({ count: 0, x: 0, y: 0, z: 0 });
   const [transformMode, setTransformMode] = useState<TransformMode>('select');
+  const [editMode, setEditMode] = useState<EditMode>('items');
+  const [viewMode, setViewMode] = useState<ViewMode>('solidWireframe');
+  const [showGrid, setShowGrid] = useState(true);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   
@@ -91,6 +99,7 @@ function App() {
     const value = modeToValue[mode];
     if (value !== undefined) {
       module.setEditMode(value);
+      setEditMode(mode as EditMode);
     }
   };
 
@@ -304,9 +313,6 @@ function App() {
   }, [module, triggerUpdate]);
 
   // View settings
-  const [viewMode, setViewMode] = useState<'solid' | 'wireframe' | 'solidWireframe'>('solidWireframe');
-  const [showGrid, setShowGrid] = useState(true);
-
   const handleViewModeChange = useCallback((mode: 'solid' | 'wireframe' | 'solidWireframe') => {
     if (!module) return;
     // Map to WASM enum: 0=Solid, 1=Wireframe, 2=SolidWireframe
@@ -430,46 +436,39 @@ function App() {
       handleSelectAll, handleDeselectAll, handleDelete, handleDuplicate, handleUndo, handleRedo]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      {/* Left Toolbar */}
-      <Toolbar
+    <div className="flex flex-col h-screen w-screen overflow-hidden">
+      {/* Top Toolbar */}
+      <TopToolbar
+        activeTool={transformMode}
         onToolChange={handleToolChange}
+        editMode={editMode}
         onEditModeChange={handleEditModeChange}
         onAddPrimitive={handleAddPrimitive}
-        meshSteps={meshSteps}
-        onMeshStepsChange={setMeshSteps}
-        onExportOBJ={handleExportOBJ}
-        onExportGLB={handleExportGLB}
-        onImportFile={handleImportFile}
-        onClearScene={handleClearScene}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={handleUndo}
         onRedo={handleRedo}
-        onSelectAll={handleSelectAll}
-        onDeselectAll={handleDeselectAll}
-        onFlip={handleFlip}
+        onImportFile={handleImportFile}
+        onExportOBJ={handleExportOBJ}
+        onExportGLB={handleExportGLB}
+        onClearScene={handleClearScene}
         onSubdivide={handleSubdivide}
-        onTriangulate={handleTriangulate}
-        onExtrude={handleExtrude}
-        onSplitEdges={handleSplitEdges}
-        onMergeVertices={handleMergeVertices}
-        viewMode={viewMode}
-        onViewModeChange={handleViewModeChange}
-        showGrid={showGrid}
-        onShowGridChange={handleShowGridChange}
+        onMerge={handleMergeVertices}
+        onSplit={handleSplitEdges}
       />
 
       {/* Main Viewport */}
-      <Viewport
-        canvasRef={canvasRef}
-        containerRef={containerRef}
-        isLoading={isLoading}
-        error={error}
-      />
+      <div className="flex-1 relative">
+        <Viewport
+          canvasRef={canvasRef}
+          containerRef={containerRef}
+          isLoading={isLoading}
+          error={error}
+        />
+      </div>
 
-      {/* Right Properties Panel */}
-      <PropertiesPanel 
+      {/* Bottom Panel */}
+      <BottomPanel
         selectionCount={selectionState.count}
         transformMode={transformMode}
         selectionX={selectionState.x}
@@ -480,6 +479,15 @@ function App() {
         onSelectionZChange={handleSelectionZChange}
         onDuplicate={handleDuplicate}
         onDelete={handleDelete}
+        onFlip={handleFlip}
+        onTriangulate={handleTriangulate}
+        onExtrude={handleExtrude}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        showGrid={showGrid}
+        onShowGridChange={handleShowGridChange}
+        meshSteps={meshSteps}
+        onMeshStepsChange={setMeshSteps}
       />
     </div>
   );
