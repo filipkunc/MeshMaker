@@ -91,6 +91,23 @@ function TextButton({ label, title, onClick, active = false, disabled = false }:
   );
 }
 
+function EmojiButton({ label, title, onClick, disabled = false }: TextButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className={`w-9 h-9 flex items-center justify-center text-lg rounded transition-colors ${
+        disabled
+          ? 'opacity-30 cursor-not-allowed'
+          : 'hover:bg-zinc-600'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function Separator() {
   return <div className="w-px h-6 bg-zinc-600 mx-1" />;
 }
@@ -133,15 +150,15 @@ export function TopToolbar({
         onChange={handleFileImport}
         className="hidden"
       />
-      <TextButton label="📂" title="Import (OBJ/GLB)" onClick={() => fileInputRef.current?.click()} />
-      <TextButton label="💾" title="Export OBJ" onClick={onExportOBJ} />
-      <TextButton label="📦" title="Export GLB" onClick={onExportGLB} />
+      <EmojiButton label="📂" title="Import (OBJ/GLB)" onClick={() => fileInputRef.current?.click()} />
+      <EmojiButton label="💾" title="Export OBJ" onClick={onExportOBJ} />
+      <EmojiButton label="📦" title="Export GLB" onClick={onExportGLB} />
       
       <Separator />
       
       {/* Undo/Redo */}
-      <TextButton label="↩" title="Undo (Ctrl+Z)" onClick={onUndo} disabled={!canUndo} />
-      <TextButton label="↪" title="Redo (Ctrl+Y)" onClick={onRedo} disabled={!canRedo} />
+      <EmojiButton label="↩" title="Undo (Ctrl+Z)" onClick={onUndo} disabled={!canUndo} />
+      <EmojiButton label="↪" title="Redo (Ctrl+Y)" onClick={onRedo} disabled={!canRedo} />
       
       <Separator />
       
@@ -253,7 +270,7 @@ export function TopToolbar({
       <Separator />
       
       {/* Clear */}
-      <TextButton label="🗑️" title="Clear Scene" onClick={onClearScene} />
+      <EmojiButton label="🗑️" title="Clear Scene" onClick={onClearScene} />
     </div>
   );
 }
