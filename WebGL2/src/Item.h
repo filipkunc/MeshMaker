@@ -6,6 +6,7 @@
 #include "Mesh2.h"
 
 class Shader;
+class Texture;
 
 // A single Item in the scene - contains a mesh with its own transform
 class Item {
@@ -17,6 +18,7 @@ public:
     bool visible;
     
     std::unique_ptr<Mesh2> mesh;
+    std::shared_ptr<Texture> texture;  // Optional texture for this item
     
     Item();
     Item(std::unique_ptr<Mesh2> aMesh);
@@ -29,6 +31,11 @@ public:
     void moveByOffset(const glm::vec3& offset);
     void rotateByOffset(const glm::quat& offset);
     void scaleByOffset(const glm::vec3& offset);
+    
+    // Texture management
+    void setTexture(std::shared_ptr<Texture> tex);
+    std::shared_ptr<Texture> getTexture() const;
+    bool hasTexture() const;
     
     // Create a duplicate of this item
     std::unique_ptr<Item> duplicate() const;

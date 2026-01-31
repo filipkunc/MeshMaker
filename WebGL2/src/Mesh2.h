@@ -34,6 +34,7 @@ enum class SelectionMode {
 struct Face {
     uint32_t vertices[4];   // Indices into vertex array
     uint32_t edges[4];      // Indices into edge array
+    glm::vec2 uvs[4];       // UV coordinates per face corner (allows UV seams)
     uint8_t vertexCount;    // 3 for triangle, 4 for quad
     bool selected;
     
@@ -41,6 +42,7 @@ struct Face {
         for (int i = 0; i < 4; i++) {
             vertices[i] = UINT32_MAX;
             edges[i] = UINT32_MAX;
+            uvs[i] = glm::vec2(0.0f);
         }
     }
     
@@ -114,6 +116,11 @@ public:
     uint32_t addVertex(const glm::vec3& position);
     uint32_t addTriangle(uint32_t v0, uint32_t v1, uint32_t v2);
     uint32_t addQuad(uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
+    
+    // Set UVs for a face (must be called after addTriangle/addQuad)
+    void setFaceUVs(uint32_t faceIndex, const glm::vec2& uv0, const glm::vec2& uv1, 
+                    const glm::vec2& uv2, const glm::vec2& uv3 = glm::vec2(0.0f));
+    
     void buildConnectivity();  // Build edge connectivity after adding faces
     void computeNormals();
     void clear();
@@ -130,8 +137,12 @@ public:
     
     // Full collection access (for testing)
     const std::vector<MeshVertex>& getVertices() const { return m_vertices; }
+    std::vector<MeshVertex>& mutVertices() { return m_vertices; }
     const std::vector<Face>& getFaces() const { return m_faces; }
     const std::vector<Edge>& getEdges() const { return m_edges; }
+    
+    // Transform all vertices by a matrix (for baking transforms during import)
+    void transformAllVertices(const glm::mat4& transform);
     
     // Selection
     SelectionMode getSelectionMode() const { return m_selectionMode; }

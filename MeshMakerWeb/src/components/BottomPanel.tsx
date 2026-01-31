@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type TransformMode = 'select' | 'translate' | 'rotate' | 'scale';
 type ViewMode = 'solid' | 'wireframe' | 'solidWireframe';
@@ -20,6 +20,10 @@ interface BottomPanelProps {
   onFlip: () => void;
   onTriangulate: () => void;
   onExtrude: () => void;
+  // Texture
+  hasTexture?: boolean;
+  onLoadTexture?: (data: Uint8Array) => void;
+  onRemoveTexture?: () => void;
   // View
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
@@ -44,6 +48,9 @@ export function BottomPanel({
   onFlip,
   onTriangulate,
   onExtrude,
+  hasTexture = false,
+  onLoadTexture,
+  onRemoveTexture,
   viewMode,
   onViewModeChange,
   showGrid,
@@ -54,6 +61,7 @@ export function BottomPanel({
   const [localX, setLocalX] = useState('0.00');
   const [localY, setLocalY] = useState('0.00');
   const [localZ, setLocalZ] = useState('0.00');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setLocalX(selectionX.toFixed(2));
@@ -68,6 +76,21 @@ export function BottomPanel({
     if (axis === 'x') onSelectionXChange(num);
     if (axis === 'y') onSelectionYChange(num);
     if (axis === 'z') onSelectionZChange(num);
+  };
+
+  const handleTextureFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !onLoadTexture) return;
+    
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      onLoadTexture(data);
+    } catch (err) {
+      console.error('Failed to load texture:', err);
+    }
+    
+    event.target.value = '';
   };
 
   const inputClass = "w-16 px-1 py-0.5 text-xs bg-zinc-900 border border-zinc-600 rounded text-zinc-200 text-center focus:outline-none focus:border-blue-500";
@@ -165,6 +188,35 @@ export function BottomPanel({
             >
               Extrude
             </button>
+          </div>
+          
+          <div className="w-px h-5 bg-zinc-600" />
+          
+          {/* Texture Controls */}
+          <div className="flex items-center gap-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={handleTextureFile}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              title="Load Texture"
+              className={`px-2 py-0.5 rounded ${hasTexture ? 'text-green-400 hover:bg-zinc-600' : 'text-zinc-300 hover:bg-zinc-600'}`}
+            >
+              {hasTexture ? '🖼 Texture' : 'Load Texture'}
+            </button>
+            {hasTexture && onRemoveTexture && (
+              <button
+                onClick={onRemoveTexture}
+                title="Remove Texture"
+                className="px-2 py-0.5 text-zinc-300 hover:bg-zinc-600 rounded"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </>
       )}

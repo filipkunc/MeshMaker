@@ -1,5 +1,6 @@
 #include "Item.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
@@ -89,12 +90,12 @@ void Item::setPositionToGeometricCenter() {
     }
     center /= static_cast<float>(vertexCount);
     
-    // Move all vertices by -center
-    for (size_t i = 0; i < mesh->getFaceCount(); i++) {
-        // This moves vertices - need a different approach
-        // For now, just set position
-    }
+    // Move all vertices by -center to center the mesh at origin
+    glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), -center);
+    mesh->transformAllVertices(translateToOrigin);
+    mesh->createGPUBuffers();
     
+    // Set item position to where the center was
     position = center;
 }
 
@@ -112,4 +113,16 @@ glm::vec3 Item::getWorldCenter() const {
     // Transform to world space
     glm::vec4 worldCenter = getTransformMatrix() * glm::vec4(localCenter, 1.0f);
     return glm::vec3(worldCenter);
+}
+
+void Item::setTexture(std::shared_ptr<Texture> tex) {
+    texture = tex;
+}
+
+std::shared_ptr<Texture> Item::getTexture() const {
+    return texture;
+}
+
+bool Item::hasTexture() const {
+    return texture != nullptr;
 }

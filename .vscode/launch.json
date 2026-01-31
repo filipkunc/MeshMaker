@@ -33,6 +33,18 @@
             "preLaunchTask": "Build and Start React"
         },
         {
+            "name": "React + WASM Debug (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/MeshMakerWeb",
+            "sourceMaps": true,
+            "preLaunchTask": "Build and Start React (Debug WASM)",
+            "sourceMapPathOverrides": {
+                "file:///C:/Projects/MeshMaker/WebGL2/*": "${workspaceFolder}/WebGL2/*"
+            }
+        },
+        {
             "name": "React + WASM (Edge)",
             "type": "msedge",
             "request": "launch",

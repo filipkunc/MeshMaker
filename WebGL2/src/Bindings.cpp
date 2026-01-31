@@ -76,6 +76,12 @@ extern bool api_importFromGLBArray(emscripten::val data);
 extern void api_clearScene();
 extern int api_getItemCount_export();
 
+// Texture API
+extern bool api_loadTextureFromRGBA(emscripten::val data, int width, int height);
+extern bool api_loadTextureFromFileData(emscripten::val data);
+extern void api_removeTexture();
+extern bool api_selectionHasTexture();
+
 // ============================================================================
 // Embind Bindings
 // ============================================================================
@@ -158,6 +164,12 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("exportToGLB", &api_exportToGLB);
     function("importFromGLB", &api_importFromGLBArray);
     function("clearScene", &api_clearScene);
+    
+    // Texture API
+    function("loadTextureFromRGBA", &api_loadTextureFromRGBA);
+    function("loadTextureFromFileData", &api_loadTextureFromFileData);
+    function("removeTexture", &api_removeTexture);
+    function("selectionHasTexture", &api_selectionHasTexture);
 }
 
 #endif // EMSCRIPTEN_BUILD

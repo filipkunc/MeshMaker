@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type TransformMode = 'select' | 'translate' | 'rotate' | 'scale';
 
@@ -14,6 +14,10 @@ interface PropertiesPanelProps {
   onSelectionZChange?: (value: number) => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
+  // Texture support
+  hasTexture?: boolean;
+  onLoadTexture?: (data: Uint8Array) => void;
+  onRemoveTexture?: () => void;
 }
 
 export function PropertiesPanel({ 
@@ -26,12 +30,16 @@ export function PropertiesPanel({
   onSelectionYChange,
   onSelectionZChange,
   onDuplicate,
-  onDelete 
+  onDelete,
+  hasTexture = false,
+  onLoadTexture,
+  onRemoveTexture
 }: PropertiesPanelProps) {
   // Local state for input fields
   const [localX, setLocalX] = useState('0');
   const [localY, setLocalY] = useState('0');
   const [localZ, setLocalZ] = useState('0');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Update local state when selection values change
   useEffect(() => {
@@ -47,6 +55,22 @@ export function PropertiesPanel({
     if (axis === 'x') onSelectionXChange?.(num);
     if (axis === 'y') onSelectionYChange?.(num);
     if (axis === 'z') onSelectionZChange?.(num);
+  };
+
+  const handleTextureFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !onLoadTexture) return;
+    
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      onLoadTexture(data);
+    } catch (err) {
+      console.error('Failed to load texture:', err);
+    }
+    
+    // Reset input so same file can be selected again
+    event.target.value = '';
   };
 
   const getTransformLabel = () => {
@@ -119,6 +143,39 @@ export function PropertiesPanel({
                 className="bg-zinc-700 text-zinc-200 text-sm px-2 py-1 rounded border border-zinc-600 focus:border-blue-500 focus:outline-none"
               />
             </div>
+          </div>
+
+          {/* Texture Section */}
+          <div className="space-y-2 pt-2 border-t border-zinc-700">
+            <span className="text-xs text-zinc-400 uppercase tracking-wide">
+              Texture
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+              onChange={handleTextureFile}
+              className="hidden"
+            />
+            <div className="flex flex-col gap-1">
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3 py-1.5 text-sm bg-zinc-700 text-zinc-200 hover:bg-zinc-600 rounded transition-colors"
+              >
+                {hasTexture ? 'Change Texture' : 'Load Texture'}
+              </button>
+              {hasTexture && (
+                <button 
+                  onClick={onRemoveTexture}
+                  className="px-3 py-1.5 text-sm bg-zinc-700 text-zinc-200 hover:bg-zinc-600 rounded transition-colors"
+                >
+                  Remove Texture
+                </button>
+              )}
+            </div>
+            {hasTexture && (
+              <p className="text-xs text-green-400">Texture applied</p>
+            )}
           </div>
 
           {/* Actions */}

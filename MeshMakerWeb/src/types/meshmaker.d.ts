@@ -77,6 +77,12 @@ export interface MeshMakerModule extends EmscriptenModule {
   importFromGLB(data: Uint8Array): boolean;
   clearScene(): void;
   
+  // Texture API
+  loadTextureFromRGBA(data: Uint8Array, width: number, height: number): boolean;
+  loadTextureFromFileData(data: Uint8Array): boolean;
+  removeTexture(): void;
+  selectionHasTexture(): boolean;
+  
   // Info
   getItemCount(): number;
 }

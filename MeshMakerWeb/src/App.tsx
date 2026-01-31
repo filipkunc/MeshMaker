@@ -19,6 +19,9 @@ function App() {
   const [showGrid, setShowGrid] = useState(true);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [hasTexture, setHasTexture] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState('');
   
   // Poll selection state and undo/redo state from WASM module
   useEffect(() => {
@@ -34,8 +37,11 @@ function App() {
           y: module.getSelectionY(),
           z: module.getSelectionZ(),
         });
+        // Check if selection has texture
+        setHasTexture(module.selectionHasTexture());
       } else {
         setSelectionState({ count: 0, x: 0, y: 0, z: 0 });
+        setHasTexture(false);
       }
       
       // Update undo/redo state
@@ -184,43 +190,67 @@ function App() {
   const handleExportGLB = useCallback(() => {
     if (!module) return;
     
-    const glbData = module.exportToGLB();
-    if (!glbData) {
-      console.error('Failed to export GLB');
-      return;
-    }
+    setIsImporting(true);
+    setImportProgress('Exporting GLB...');
     
-    // Copy to a proper ArrayBuffer (Emscripten may return a view on shared memory)
-    const buffer = new ArrayBuffer(glbData.length);
-    new Uint8Array(buffer).set(glbData);
-    
-    // Create download
-    const blob = new Blob([buffer], { type: 'model/gltf-binary' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'meshmaker-export.glb';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Use setTimeout to allow UI to update before blocking export
+    setTimeout(() => {
+      const glbData = module.exportToGLB();
+      setIsImporting(false);
+      setImportProgress('');
+      
+      if (!glbData) {
+        console.error('Failed to export GLB');
+        return;
+      }
+      
+      // Copy to a proper ArrayBuffer (Emscripten may return a view on shared memory)
+      const buffer = new ArrayBuffer(glbData.length);
+      new Uint8Array(buffer).set(glbData);
+      
+      // Create download
+      const blob = new Blob([buffer], { type: 'model/gltf-binary' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'meshmaker-export.glb';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 50);
   }, [module]);
 
   const handleImportFile = useCallback((file: File) => {
     if (!module) return;
     
     const extension = file.name.split('.').pop()?.toLowerCase();
+    const fileSize = file.size;
+    const isLargeFile = fileSize > 1024 * 1024; // > 1MB
+    
+    if (isLargeFile) {
+      setIsImporting(true);
+      setImportProgress(`Reading ${file.name} (${(fileSize / 1024 / 1024).toFixed(1)} MB)...`);
+    }
     
     if (extension === 'obj') {
       const reader = new FileReader();
       reader.onload = (e) => {
         const text = e.target?.result as string;
         if (text) {
-          const success = module.importFromOBJ(text);
-          if (!success) {
-            console.error('Failed to import OBJ file');
+          if (isLargeFile) {
+            setImportProgress('Importing OBJ...');
           }
-          triggerUpdate();
+          // Use setTimeout to allow UI to update before blocking import
+          setTimeout(() => {
+            const success = module.importFromOBJ(text);
+            if (!success) {
+              console.error('Failed to import OBJ file');
+            }
+            setIsImporting(false);
+            setImportProgress('');
+            triggerUpdate();
+          }, 50);
         }
       };
       reader.readAsText(file);
@@ -230,15 +260,25 @@ function App() {
         const buffer = e.target?.result as ArrayBuffer;
         if (buffer) {
           const data = new Uint8Array(buffer);
-          const success = module.importFromGLB(data);
-          if (!success) {
-            console.error('Failed to import GLB file');
+          if (isLargeFile) {
+            setImportProgress('Importing GLB...');
           }
-          triggerUpdate();
+          // Use setTimeout to allow UI to update before blocking import
+          setTimeout(() => {
+            const success = module.importFromGLB(data);
+            if (!success) {
+              console.error('Failed to import GLB file');
+            }
+            setIsImporting(false);
+            setImportProgress('');
+            triggerUpdate();
+          }, 50);
         }
       };
       reader.readAsArrayBuffer(file);
     } else {
+      setIsImporting(false);
+      setImportProgress('');
       console.error('Unsupported file format:', extension);
     }
   }, [module, triggerUpdate]);
@@ -311,6 +351,23 @@ function App() {
     module.mergeSelectedVertices();
     triggerUpdate();
   }, [module, triggerUpdate]);
+
+  // Texture handlers
+  const handleLoadTexture = useCallback((data: Uint8Array) => {
+    if (!module) return;
+    const success = module.loadTextureFromFileData(data);
+    if (success) {
+      setHasTexture(true);
+    } else {
+      console.error('Failed to load texture');
+    }
+  }, [module]);
+
+  const handleRemoveTexture = useCallback(() => {
+    if (!module) return;
+    module.removeTexture();
+    setHasTexture(false);
+  }, [module]);
 
   // View settings
   const handleViewModeChange = useCallback((mode: 'solid' | 'wireframe' | 'solidWireframe') => {
@@ -465,6 +522,17 @@ function App() {
           isLoading={isLoading}
           error={error}
         />
+        
+        {/* Import Loading Overlay */}
+        {isImporting && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-lg p-6 shadow-xl flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+              <div className="text-white text-lg font-medium">{importProgress}</div>
+              <div className="text-gray-400 text-sm">Please wait...</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom Panel */}
@@ -482,6 +550,9 @@ function App() {
         onFlip={handleFlip}
         onTriangulate={handleTriangulate}
         onExtrude={handleExtrude}
+        hasTexture={hasTexture}
+        onLoadTexture={handleLoadTexture}
+        onRemoveTexture={handleRemoveTexture}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         showGrid={showGrid}

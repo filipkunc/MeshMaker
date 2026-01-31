@@ -29,6 +29,7 @@
 #include "Shader.h"
 #include "Manipulator.h"
 #include "UndoManager.h"
+#include "Texture.h"
 
 // Captures the transform state of selected items for undo
 struct ItemManipulationState {
@@ -3280,6 +3281,107 @@ void api_clearScene() {
 int api_getItemCount_export() {
     if (!g_app.items) return 0;
     return static_cast<int>(g_app.items->getItemCount());
+}
+
+// Load texture from image data (RGBA format)
+bool api_loadTextureFromRGBA(emscripten::val data, int width, int height) {
+    if (!g_app.items) return false;
+    
+    // Get selected items
+    std::vector<Item*> selectedItems;
+    for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item && item->selected) {
+            selectedItems.push_back(item);
+        }
+    }
+    
+    if (selectedItems.empty()) return false;
+    
+    // Convert JavaScript Uint8Array to C++ vector
+    std::vector<uint8_t> pixels;
+    unsigned int length = data["length"].as<unsigned int>();
+    pixels.resize(length);
+    for (unsigned int i = 0; i < length; i++) {
+        pixels[i] = data[i].as<uint8_t>();
+    }
+    
+    // Create texture
+    auto texture = TextureManager::instance().createFromRGBA(
+        "loaded_texture", pixels.data(), width, height
+    );
+    
+    if (!texture) return false;
+    
+    // Apply texture to all selected items
+    for (Item* item : selectedItems) {
+        item->setTexture(texture);
+    }
+    
+    return true;
+}
+
+// Load texture from file data (PNG, JPG, etc.)
+bool api_loadTextureFromFileData(emscripten::val data) {
+    if (!g_app.items) return false;
+    
+    // Get selected items
+    std::vector<Item*> selectedItems;
+    for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item && item->selected) {
+            selectedItems.push_back(item);
+        }
+    }
+    
+    if (selectedItems.empty()) return false;
+    
+    // Convert JavaScript Uint8Array to C++ vector
+    std::vector<uint8_t> fileData;
+    unsigned int length = data["length"].as<unsigned int>();
+    fileData.resize(length);
+    for (unsigned int i = 0; i < length; i++) {
+        fileData[i] = data[i].as<uint8_t>();
+    }
+    
+    // Create texture from file data
+    auto texture = TextureManager::instance().createFromFileData(
+        "loaded_texture", fileData.data(), static_cast<int>(fileData.size())
+    );
+    
+    if (!texture) return false;
+    
+    // Apply texture to all selected items
+    for (Item* item : selectedItems) {
+        item->setTexture(texture);
+    }
+    
+    return true;
+}
+
+// Remove texture from selected items
+void api_removeTexture() {
+    if (!g_app.items) return;
+    
+    for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item && item->selected) {
+            item->setTexture(nullptr);
+        }
+    }
+}
+
+// Check if selection has texture
+bool api_selectionHasTexture() {
+    if (!g_app.items) return false;
+    
+    for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+        Item* item = g_app.items->getItemAtIndex(i);
+        if (item && item->selected && item->hasTexture()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 #endif // EMSCRIPTEN_BUILD

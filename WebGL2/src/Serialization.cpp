@@ -2,13 +2,29 @@
 #include "ItemCollection.h"
 #include "Item.h"
 #include "Mesh2.h"
+#include "Texture.h"
 
+#include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <algorithm>
 #include <cstring>
+#include <map>
+#include <tuple>
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Serialization {
+
+// Helper to format float for JSON (avoids scientific notation and handles special values)
+std::string jsonFloat(float f) {
+    if (std::isnan(f)) return "0";
+    if (std::isinf(f)) return f > 0 ? "3.4028235e38" : "-3.4028235e38";
+    std::ostringstream ss;
+    ss << std::setprecision(7) << f;
+    return ss.str();
+}
 
 // ============================================================================
 // OBJ Format Export
@@ -27,6 +43,7 @@ std::string exportToOBJ(const ItemCollection& items) {
     
     // OBJ indices are 1-based
     uint32_t vertexOffset = 1;
+    uint32_t texCoordOffset = 1;
     
     for (size_t itemIndex = 0; itemIndex < items.getItemCount(); itemIndex++) {
         const Item* item = items.getItemAtIndex(itemIndex);
@@ -50,6 +67,16 @@ std::string exportToOBJ(const ItemCollection& items) {
             ss << "v " << worldPos.x << " " << worldPos.y << " " << worldPos.z << "\n";
         }
         
+        // Export texture coordinates (one per face corner)
+        uint32_t texCoordCount = 0;
+        for (const auto& face : faces) {
+            for (int i = 0; i < face.vertexCount; i++) {
+                ss << "vt " << face.uvs[i].x << " " << face.uvs[i].y << "\n";
+                texCoordCount++;
+            }
+        }
+        ss << "# " << texCoordCount << " texture coordinates\n";
+        
         // Export normals (transformed)
         ss << "# " << vertices.size() << " normals\n";
         for (const auto& v : vertices) {
@@ -57,19 +84,22 @@ std::string exportToOBJ(const ItemCollection& items) {
             ss << "vn " << worldNormal.x << " " << worldNormal.y << " " << worldNormal.z << "\n";
         }
         
-        // Export faces
+        // Export faces with texture coordinates
         ss << "# " << faces.size() << " faces\n";
+        uint32_t texCoordIdx = texCoordOffset;
         for (const auto& face : faces) {
             ss << "f";
             for (int i = 0; i < face.vertexCount; i++) {
-                uint32_t idx = face.vertices[i] + vertexOffset;
-                ss << " " << idx << "//" << idx;
+                uint32_t vIdx = face.vertices[i] + vertexOffset;
+                uint32_t vtIdx = texCoordIdx++;
+                ss << " " << vIdx << "/" << vtIdx << "/" << vIdx;
             }
             ss << "\n";
         }
         
         ss << "\n";
         vertexOffset += static_cast<uint32_t>(vertices.size());
+        texCoordOffset += texCoordCount;
     }
     
     return ss.str();
@@ -89,17 +119,26 @@ std::string exportMeshToOBJ(const Mesh2& mesh, const std::string& objectName) {
         ss << "v " << v.position.x << " " << v.position.y << " " << v.position.z << "\n";
     }
     
+    // Export texture coordinates (one per face corner)
+    for (const auto& face : faces) {
+        for (int i = 0; i < face.vertexCount; i++) {
+            ss << "vt " << face.uvs[i].x << " " << face.uvs[i].y << "\n";
+        }
+    }
+    
     // Export normals
     for (const auto& v : vertices) {
         ss << "vn " << v.normal.x << " " << v.normal.y << " " << v.normal.z << "\n";
     }
     
-    // Export faces (1-based indices)
+    // Export faces with texture coordinates (1-based indices)
+    uint32_t texCoordIdx = 1;
     for (const auto& face : faces) {
         ss << "f";
         for (int i = 0; i < face.vertexCount; i++) {
-            uint32_t idx = face.vertices[i] + 1;
-            ss << " " << idx << "//" << idx;
+            uint32_t vIdx = face.vertices[i] + 1;
+            uint32_t vtIdx = texCoordIdx++;
+            ss << " " << vIdx << "/" << vtIdx << "/" << vIdx;
         }
         ss << "\n";
     }
@@ -117,11 +156,17 @@ bool importFromOBJ(ItemCollection& items, const std::string& objData) {
     
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> texCoords;
     
     // Temporary storage for current object
+    struct FaceVertex {
+        uint32_t positionIdx;
+        uint32_t texCoordIdx;
+        uint32_t normalIdx;
+    };
     struct ObjObject {
         std::string name;
-        std::vector<std::vector<uint32_t>> faceVertexIndices;
+        std::vector<std::vector<FaceVertex>> faces;
     };
     std::vector<ObjObject> objects;
     ObjObject currentObject;
@@ -137,10 +182,10 @@ bool importFromOBJ(ItemCollection& items, const std::string& objData) {
         
         if (prefix == "o" || prefix == "g") {
             // New object/group - save current if it has faces
-            if (!currentObject.faceVertexIndices.empty()) {
+            if (!currentObject.faces.empty()) {
                 objects.push_back(currentObject);
             }
-            currentObject.faceVertexIndices.clear();
+            currentObject.faces.clear();
             lineStream >> currentObject.name;
             if (currentObject.name.empty()) {
                 currentObject.name = "Object_" + std::to_string(objects.size());
@@ -159,54 +204,55 @@ bool importFromOBJ(ItemCollection& items, const std::string& objData) {
             normals.push_back(n);
         }
         else if (prefix == "vt") {
-            // Texture coordinate (skip for now)
+            // Texture coordinate
+            glm::vec2 uv;
+            lineStream >> uv.x >> uv.y;
+            texCoords.push_back(uv);
         }
         else if (prefix == "f") {
             // Face definition
-            std::vector<uint32_t> faceVerts;
+            std::vector<FaceVertex> faceVerts;
             std::string vertexDef;
             
             while (lineStream >> vertexDef) {
                 // Parse v, v/vt, v/vt/vn, or v//vn format
-                uint32_t vi = 0, ti = 0, ni = 0;
+                FaceVertex fv = {UINT32_MAX, UINT32_MAX, UINT32_MAX};
                 
                 // Count slashes to determine format
                 size_t slash1 = vertexDef.find('/');
                 if (slash1 == std::string::npos) {
                     // Just vertex index
-                    vi = std::stoul(vertexDef);
+                    fv.positionIdx = std::stoul(vertexDef) - 1;
                 } else {
-                    vi = std::stoul(vertexDef.substr(0, slash1));
+                    fv.positionIdx = std::stoul(vertexDef.substr(0, slash1)) - 1;
                     size_t slash2 = vertexDef.find('/', slash1 + 1);
                     if (slash2 == std::string::npos) {
                         // v/vt format
                         if (slash1 + 1 < vertexDef.size()) {
-                            ti = std::stoul(vertexDef.substr(slash1 + 1));
+                            fv.texCoordIdx = std::stoul(vertexDef.substr(slash1 + 1)) - 1;
                         }
                     } else {
                         // v/vt/vn or v//vn format
                         if (slash2 > slash1 + 1) {
-                            ti = std::stoul(vertexDef.substr(slash1 + 1, slash2 - slash1 - 1));
+                            fv.texCoordIdx = std::stoul(vertexDef.substr(slash1 + 1, slash2 - slash1 - 1)) - 1;
                         }
                         if (slash2 + 1 < vertexDef.size()) {
-                            ni = std::stoul(vertexDef.substr(slash2 + 1));
+                            fv.normalIdx = std::stoul(vertexDef.substr(slash2 + 1)) - 1;
                         }
                     }
                 }
                 
-                // Convert to 0-based index
-                if (vi > 0) vi--;
-                faceVerts.push_back(vi);
+                faceVerts.push_back(fv);
             }
             
             if (faceVerts.size() >= 3) {
-                currentObject.faceVertexIndices.push_back(faceVerts);
+                currentObject.faces.push_back(faceVerts);
             }
         }
     }
     
     // Don't forget the last object
-    if (!currentObject.faceVertexIndices.empty()) {
+    if (!currentObject.faces.empty()) {
         objects.push_back(currentObject);
     }
     
@@ -223,11 +269,11 @@ bool importFromOBJ(ItemCollection& items, const std::string& objData) {
         std::unordered_map<uint32_t, uint32_t> globalToLocal;
         std::vector<uint32_t> localToGlobal;
         
-        for (const auto& faceVerts : obj.faceVertexIndices) {
-            for (uint32_t globalIdx : faceVerts) {
-                if (globalToLocal.find(globalIdx) == globalToLocal.end()) {
-                    globalToLocal[globalIdx] = static_cast<uint32_t>(localToGlobal.size());
-                    localToGlobal.push_back(globalIdx);
+        for (const auto& face : obj.faces) {
+            for (const auto& fv : face) {
+                if (globalToLocal.find(fv.positionIdx) == globalToLocal.end()) {
+                    globalToLocal[fv.positionIdx] = static_cast<uint32_t>(localToGlobal.size());
+                    localToGlobal.push_back(fv.positionIdx);
                 }
             }
         }
@@ -239,29 +285,45 @@ bool importFromOBJ(ItemCollection& items, const std::string& objData) {
             }
         }
         
-        // Add faces to mesh
-        for (const auto& faceVerts : obj.faceVertexIndices) {
-            if (faceVerts.size() == 3) {
-                mesh->addTriangle(
-                    globalToLocal[faceVerts[0]],
-                    globalToLocal[faceVerts[1]],
-                    globalToLocal[faceVerts[2]]
+        // Add faces to mesh with UV coordinates
+        for (const auto& face : obj.faces) {
+            // Extract UV coordinates for this face
+            glm::vec2 uvs[4] = {glm::vec2(0), glm::vec2(0), glm::vec2(0), glm::vec2(0)};
+            for (size_t i = 0; i < face.size() && i < 4; i++) {
+                if (face[i].texCoordIdx != UINT32_MAX && face[i].texCoordIdx < texCoords.size()) {
+                    uvs[i] = texCoords[face[i].texCoordIdx];
+                }
+            }
+            
+            if (face.size() == 3) {
+                uint32_t faceIdx = mesh->addTriangle(
+                    globalToLocal[face[0].positionIdx],
+                    globalToLocal[face[1].positionIdx],
+                    globalToLocal[face[2].positionIdx]
                 );
-            } else if (faceVerts.size() == 4) {
-                mesh->addQuad(
-                    globalToLocal[faceVerts[0]],
-                    globalToLocal[faceVerts[1]],
-                    globalToLocal[faceVerts[2]],
-                    globalToLocal[faceVerts[3]]
+                mesh->setFaceUVs(faceIdx, uvs[0], uvs[1], uvs[2]);
+            } else if (face.size() == 4) {
+                uint32_t faceIdx = mesh->addQuad(
+                    globalToLocal[face[0].positionIdx],
+                    globalToLocal[face[1].positionIdx],
+                    globalToLocal[face[2].positionIdx],
+                    globalToLocal[face[3].positionIdx]
                 );
-            } else if (faceVerts.size() > 4) {
+                mesh->setFaceUVs(faceIdx, uvs[0], uvs[1], uvs[2], uvs[3]);
+            } else if (face.size() > 4) {
                 // Triangulate polygon using fan method
-                for (size_t i = 2; i < faceVerts.size(); i++) {
-                    mesh->addTriangle(
-                        globalToLocal[faceVerts[0]],
-                        globalToLocal[faceVerts[i - 1]],
-                        globalToLocal[faceVerts[i]]
+                for (size_t i = 2; i < face.size(); i++) {
+                    glm::vec2 triUVs[3] = {
+                        (face[0].texCoordIdx != UINT32_MAX && face[0].texCoordIdx < texCoords.size()) ? texCoords[face[0].texCoordIdx] : glm::vec2(0),
+                        (face[i-1].texCoordIdx != UINT32_MAX && face[i-1].texCoordIdx < texCoords.size()) ? texCoords[face[i-1].texCoordIdx] : glm::vec2(0),
+                        (face[i].texCoordIdx != UINT32_MAX && face[i].texCoordIdx < texCoords.size()) ? texCoords[face[i].texCoordIdx] : glm::vec2(0)
+                    };
+                    uint32_t faceIdx = mesh->addTriangle(
+                        globalToLocal[face[0].positionIdx],
+                        globalToLocal[face[i - 1].positionIdx],
+                        globalToLocal[face[i].positionIdx]
                     );
+                    mesh->setFaceUVs(faceIdx, triUVs[0], triUVs[1], triUVs[2]);
                 }
             }
         }
@@ -329,6 +391,8 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
     }
     
     // Build binary buffer with all mesh data
+    // GLB requires per-vertex attributes, but our mesh has per-face-corner UVs
+    // So we need to create vertices per face corner (may duplicate positions/normals)
     std::vector<uint8_t> binBuffer;
     
     struct MeshAccessorInfo {
@@ -336,6 +400,8 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
         size_t positionCount;
         size_t normalOffset;
         size_t normalCount;
+        size_t texCoordOffset;
+        size_t texCoordCount;
         size_t indexOffset;
         size_t indexCount;
         glm::vec3 posMin;
@@ -353,20 +419,58 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
         
         MeshAccessorInfo info;
         
-        // Positions
-        info.positionOffset = binBuffer.size();
-        info.positionCount = vertices.size();
+        // Build vertex data per face corner (to support per-corner UVs)
+        // This creates a vertex for each corner of each face, duplicating positions/normals as needed
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> normals;
+        std::vector<glm::vec2> texCoords;
+        std::vector<uint16_t> indices;
+        
         info.posMin = glm::vec3(std::numeric_limits<float>::max());
         info.posMax = glm::vec3(std::numeric_limits<float>::lowest());
         
-        for (const auto& v : vertices) {
-            glm::vec4 worldPos = transform * glm::vec4(v.position, 1.0f);
-            glm::vec3 pos(worldPos);
+        uint16_t vertexIndex = 0;
+        for (const auto& face : faces) {
+            // For each face, create vertices for each corner
+            std::vector<uint16_t> faceIndices;
             
-            info.posMin = glm::min(info.posMin, pos);
-            info.posMax = glm::max(info.posMax, pos);
+            for (int i = 0; i < face.vertexCount; i++) {
+                const auto& v = vertices[face.vertices[i]];
+                glm::vec4 worldPos = transform * glm::vec4(v.position, 1.0f);
+                glm::vec3 pos(worldPos);
+                glm::vec3 worldNormal = glm::normalize(normalMatrix * v.normal);
+                
+                positions.push_back(pos);
+                normals.push_back(worldNormal);
+                // Flip V for glTF (V=0 at top, we use V=0 at bottom)
+                texCoords.push_back(glm::vec2(face.uvs[i].x, 1.0f - face.uvs[i].y));
+                
+                info.posMin = glm::min(info.posMin, pos);
+                info.posMax = glm::max(info.posMax, pos);
+                
+                faceIndices.push_back(vertexIndex++);
+            }
             
-            // Write as little-endian floats
+            // Triangulate: for tri it's 0,1,2; for quad it's 0,1,2 and 0,2,3
+            if (face.vertexCount == 3) {
+                indices.push_back(faceIndices[0]);
+                indices.push_back(faceIndices[1]);
+                indices.push_back(faceIndices[2]);
+            } else if (face.vertexCount == 4) {
+                indices.push_back(faceIndices[0]);
+                indices.push_back(faceIndices[1]);
+                indices.push_back(faceIndices[2]);
+                indices.push_back(faceIndices[0]);
+                indices.push_back(faceIndices[2]);
+                indices.push_back(faceIndices[3]);
+            }
+        }
+        
+        // Write positions
+        info.positionOffset = binBuffer.size();
+        info.positionCount = positions.size();
+        
+        for (const auto& pos : positions) {
             const float* fp = &pos.x;
             for (int i = 0; i < 3; i++) {
                 uint32_t bits;
@@ -376,14 +480,12 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
         }
         padTo4Bytes(binBuffer);
         
-        // Normals
+        // Write normals
         info.normalOffset = binBuffer.size();
-        info.normalCount = vertices.size();
+        info.normalCount = normals.size();
         
-        for (const auto& v : vertices) {
-            glm::vec3 worldNormal = glm::normalize(normalMatrix * v.normal);
-            
-            const float* fp = &worldNormal.x;
+        for (const auto& n : normals) {
+            const float* fp = &n.x;
             for (int i = 0; i < 3; i++) {
                 uint32_t bits;
                 std::memcpy(&bits, &fp[i], sizeof(float));
@@ -392,26 +494,25 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
         }
         padTo4Bytes(binBuffer);
         
-        // Indices - triangulate quads
-        info.indexOffset = binBuffer.size();
-        info.indexCount = 0;
+        // Write texture coordinates
+        info.texCoordOffset = binBuffer.size();
+        info.texCoordCount = texCoords.size();
         
-        for (const auto& face : faces) {
-            if (face.vertexCount == 3) {
-                for (int i = 0; i < 3; i++) {
-                    writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[i]));
-                }
-                info.indexCount += 3;
-            } else if (face.vertexCount == 4) {
-                // Triangulate quad: 0-1-2, 0-2-3
-                writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[0]));
-                writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[1]));
-                writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[2]));
-                writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[0]));
-                writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[2]));
-                writeLittleEndian(binBuffer, static_cast<uint16_t>(face.vertices[3]));
-                info.indexCount += 6;
-            }
+        for (const auto& uv : texCoords) {
+            uint32_t bits;
+            std::memcpy(&bits, &uv.x, sizeof(float));
+            writeLittleEndian(binBuffer, bits);
+            std::memcpy(&bits, &uv.y, sizeof(float));
+            writeLittleEndian(binBuffer, bits);
+        }
+        padTo4Bytes(binBuffer);
+        
+        // Write indices
+        info.indexOffset = binBuffer.size();
+        info.indexCount = indices.size();
+        
+        for (uint16_t idx : indices) {
+            writeLittleEndian(binBuffer, idx);
         }
         padTo4Bytes(binBuffer);
         
@@ -420,15 +521,15 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
     
     // Build JSON
     std::ostringstream json;
+    json << std::setprecision(7);  // Sufficient precision for floats
     json << "{";
     json << "\"asset\":{\"version\":\"2.0\",\"generator\":\"MeshMaker WebGL2\"},";
     
     // Buffers
     json << "\"buffers\":[{\"byteLength\":" << binBuffer.size() << "}],";
     
-    // Buffer views
+    // Buffer views (4 per mesh: position, normal, texcoord, index)
     json << "\"bufferViews\":[";
-    size_t bufferViewIdx = 0;
     for (size_t i = 0; i < meshInfos.size(); i++) {
         const auto& info = meshInfos[i];
         
@@ -442,35 +543,43 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
         json << ",{\"buffer\":0,\"byteOffset\":" << info.normalOffset 
              << ",\"byteLength\":" << (info.normalCount * 12) << ",\"target\":34962}";
         
+        // TexCoord buffer view
+        json << ",{\"buffer\":0,\"byteOffset\":" << info.texCoordOffset 
+             << ",\"byteLength\":" << (info.texCoordCount * 8) << ",\"target\":34962}";
+        
         // Index buffer view
         json << ",{\"buffer\":0,\"byteOffset\":" << info.indexOffset 
              << ",\"byteLength\":" << (info.indexCount * 2) << ",\"target\":34963}";
     }
     json << "],";
     
-    // Accessors
+    // Accessors (4 per mesh: position, normal, texcoord, index)
     json << "\"accessors\":[";
-    size_t accessorIdx = 0;
     for (size_t i = 0; i < meshInfos.size(); i++) {
         const auto& info = meshInfos[i];
-        size_t baseBufferView = i * 3;
+        size_t baseBufferView = i * 4;
         
         if (i > 0) json << ",";
         
-        // Position accessor
+        // Position accessor (use jsonFloat to avoid scientific notation issues)
         json << "{\"bufferView\":" << baseBufferView 
              << ",\"componentType\":5126,\"count\":" << info.positionCount 
              << ",\"type\":\"VEC3\""
-             << ",\"min\":[" << info.posMin.x << "," << info.posMin.y << "," << info.posMin.z << "]"
-             << ",\"max\":[" << info.posMax.x << "," << info.posMax.y << "," << info.posMax.z << "]}";
+             << ",\"min\":[" << jsonFloat(info.posMin.x) << "," << jsonFloat(info.posMin.y) << "," << jsonFloat(info.posMin.z) << "]"
+             << ",\"max\":[" << jsonFloat(info.posMax.x) << "," << jsonFloat(info.posMax.y) << "," << jsonFloat(info.posMax.z) << "]}";
         
         // Normal accessor
         json << ",{\"bufferView\":" << (baseBufferView + 1) 
              << ",\"componentType\":5126,\"count\":" << info.normalCount 
              << ",\"type\":\"VEC3\"}";
         
-        // Index accessor
+        // TexCoord accessor
         json << ",{\"bufferView\":" << (baseBufferView + 2) 
+             << ",\"componentType\":5126,\"count\":" << info.texCoordCount 
+             << ",\"type\":\"VEC2\"}";
+        
+        // Index accessor
+        json << ",{\"bufferView\":" << (baseBufferView + 3) 
              << ",\"componentType\":5123,\"count\":" << info.indexCount 
              << ",\"type\":\"SCALAR\"}";
     }
@@ -479,11 +588,13 @@ std::vector<uint8_t> exportToGLB(const ItemCollection& items) {
     // Meshes
     json << "\"meshes\":[";
     for (size_t i = 0; i < meshInfos.size(); i++) {
-        size_t baseAccessor = i * 3;
+        size_t baseAccessor = i * 4;
         if (i > 0) json << ",";
         json << "{\"name\":\"Mesh_" << i << "\",\"primitives\":[{"
-             << "\"attributes\":{\"POSITION\":" << baseAccessor << ",\"NORMAL\":" << (baseAccessor + 1) << "},"
-             << "\"indices\":" << (baseAccessor + 2)
+             << "\"attributes\":{\"POSITION\":" << baseAccessor 
+             << ",\"NORMAL\":" << (baseAccessor + 1) 
+             << ",\"TEXCOORD_0\":" << (baseAccessor + 2) << "},"
+             << "\"indices\":" << (baseAccessor + 3)
              << "}]}";
     }
     json << "],";
@@ -552,7 +663,6 @@ std::vector<uint8_t> exportMeshToGLB(const Mesh2& mesh, const std::string& meshN
     std::vector<uint8_t> binBuffer;
     
     // Positions
-    size_t positionOffset = 0;
     glm::vec3 posMin(std::numeric_limits<float>::max());
     glm::vec3 posMax(std::numeric_limits<float>::lowest());
     
@@ -686,6 +796,8 @@ struct JsonValue {
     
     int asInt() const { return static_cast<int>(number); }
     size_t asSize() const { return static_cast<size_t>(number); }
+    double asDouble() const { return number; }
+    float asFloat() const { return static_cast<float>(number); }
 };
 
 class JsonParser {
@@ -857,7 +969,7 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
     
     if (root.type != JsonValue::Object) return false;
     
-    // Get accessors and buffer views
+    // Get required arrays
     auto& accessors = root.object["accessors"];
     auto& bufferViews = root.object["bufferViews"];
     auto& meshesJson = root.object["meshes"];
@@ -868,88 +980,266 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
         return false;
     }
     
-    // Import each mesh
-    for (const auto& meshJson : meshesJson.array) {
-        if (meshJson.type != JsonValue::Object) continue;
+    // Get optional arrays
+    bool hasNodes = root.object.count("nodes") && root.object["nodes"].type == JsonValue::Array;
+    bool hasImages = root.object.count("images") && root.object["images"].type == JsonValue::Array;
+    bool hasTextures = root.object.count("textures") && root.object["textures"].type == JsonValue::Array;
+    bool hasMaterials = root.object.count("materials") && root.object["materials"].type == JsonValue::Array;
+    
+    // Load embedded textures
+    std::vector<std::shared_ptr<Texture>> loadedTextures;
+    if (hasImages && hasTextures) {
+        auto& imagesJson = root.object["images"];
+        auto& texturesJson = root.object["textures"];
         
-        auto& primitives = meshJson.object.at("primitives");
-        if (primitives.type != JsonValue::Array || primitives.array.empty()) continue;
+        // Load images
+        std::vector<std::shared_ptr<Texture>> loadedImages;
+        for (const auto& imageJson : imagesJson.array) {
+            auto tex = std::make_shared<Texture>();
+            
+            if (imageJson.type == JsonValue::Object && imageJson.object.count("bufferView")) {
+                // Image is embedded in buffer
+                int bvIdx = imageJson.object.at("bufferView").asInt();
+                if (bvIdx >= 0 && static_cast<size_t>(bvIdx) < bufferViews.array.size()) {
+                    auto& bv = bufferViews.array[bvIdx];
+                    size_t byteOffset = bv.object.count("byteOffset") ? bv.object.at("byteOffset").asSize() : 0;
+                    size_t byteLength = bv.object.at("byteLength").asSize();
+                    
+                    if (byteOffset + byteLength <= binLength) {
+                        tex->loadFromFileData(binData + byteOffset, byteLength);
+                    }
+                }
+            }
+            loadedImages.push_back(tex);
+        }
         
-        auto& primitive = primitives.array[0];
-        if (primitive.type != JsonValue::Object) continue;
+        // Map textures to images
+        for (const auto& texJson : texturesJson.array) {
+            if (texJson.type == JsonValue::Object && texJson.object.count("source")) {
+                int sourceIdx = texJson.object.at("source").asInt();
+                if (sourceIdx >= 0 && static_cast<size_t>(sourceIdx) < loadedImages.size()) {
+                    loadedTextures.push_back(loadedImages[sourceIdx]);
+                } else {
+                    loadedTextures.push_back(nullptr);
+                }
+            } else {
+                loadedTextures.push_back(nullptr);
+            }
+        }
+    }
+    
+    // Map material index to texture
+    std::vector<std::shared_ptr<Texture>> materialTextures;
+    if (hasMaterials) {
+        auto& materialsJson = root.object["materials"];
+        for (const auto& matJson : materialsJson.array) {
+            std::shared_ptr<Texture> tex = nullptr;
+            
+            if (matJson.type == JsonValue::Object && matJson.object.count("pbrMetallicRoughness")) {
+                auto& pbr = matJson.object.at("pbrMetallicRoughness");
+                if (pbr.type == JsonValue::Object && pbr.object.count("baseColorTexture")) {
+                    auto& baseColorTex = pbr.object.at("baseColorTexture");
+                    if (baseColorTex.type == JsonValue::Object && baseColorTex.object.count("index")) {
+                        int texIdx = baseColorTex.object.at("index").asInt();
+                        if (texIdx >= 0 && static_cast<size_t>(texIdx) < loadedTextures.size()) {
+                            tex = loadedTextures[texIdx];
+                        }
+                    }
+                }
+            }
+            materialTextures.push_back(tex);
+        }
+    }
+    
+    // Helper to get material for a primitive
+    auto getMaterialTexture = [&](const JsonValue& primitive) -> std::shared_ptr<Texture> {
+        if (primitive.type == JsonValue::Object && primitive.object.count("material")) {
+            int matIdx = primitive.object.at("material").asInt();
+            if (matIdx >= 0 && static_cast<size_t>(matIdx) < materialTextures.size()) {
+                return materialTextures[matIdx];
+            }
+        }
+        return nullptr;
+    };
+    
+    // Helper to import a single primitive from a mesh
+    auto importPrimitive = [&](const JsonValue& primitive) -> std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>> {
+        if (primitive.type != JsonValue::Object) return {nullptr, nullptr};
         
-        auto& attributes = primitive.object.at("attributes");
-        if (attributes.type != JsonValue::Object) continue;
+        auto attrIt = primitive.object.find("attributes");
+        if (attrIt == primitive.object.end()) return {nullptr, nullptr};
+        auto& attributes = attrIt->second;
+        if (attributes.type != JsonValue::Object) return {nullptr, nullptr};
         
         // Get accessor indices
         int posAccessorIdx = -1;
-        int normalAccessorIdx = -1;
+        int texCoordAccessorIdx = -1;
         int indexAccessorIdx = -1;
         
         if (attributes.object.count("POSITION")) {
             posAccessorIdx = attributes.object.at("POSITION").asInt();
         }
-        if (attributes.object.count("NORMAL")) {
-            normalAccessorIdx = attributes.object.at("NORMAL").asInt();
+        if (attributes.object.count("TEXCOORD_0")) {
+            texCoordAccessorIdx = attributes.object.at("TEXCOORD_0").asInt();
         }
         if (primitive.object.count("indices")) {
             indexAccessorIdx = primitive.object.at("indices").asInt();
         }
         
-        if (posAccessorIdx < 0) continue;
+        if (posAccessorIdx < 0) return {nullptr, nullptr};
         
         // Get position data
         auto& posAccessor = accessors.array[posAccessorIdx];
+        if (!posAccessor.object.count("bufferView") || !posAccessor.object.count("count")) {
+            return {nullptr, nullptr};
+        }
         int posBvIdx = posAccessor.object.at("bufferView").asInt();
         size_t posCount = posAccessor.object.at("count").asSize();
+        size_t posAccessorByteOffset = posAccessor.object.count("byteOffset") ? 
+            posAccessor.object.at("byteOffset").asSize() : 0;
         
+        if (posBvIdx < 0 || static_cast<size_t>(posBvIdx) >= bufferViews.array.size()) {
+            return {nullptr, nullptr};
+        }
         auto& posBv = bufferViews.array[posBvIdx];
         size_t posByteOffset = posBv.object.count("byteOffset") ? posBv.object.at("byteOffset").asSize() : 0;
+        posByteOffset += posAccessorByteOffset;
+        size_t posByteStride = posBv.object.count("byteStride") ? posBv.object.at("byteStride").asSize() : 12;
+        if (posByteStride == 0) posByteStride = 12; // Default for VEC3 float
+        
+        // Read all positions
+        std::vector<glm::vec3> positions;
+        for (size_t i = 0; i < posCount; i++) {
+            size_t off = posByteOffset + i * posByteStride;
+            if (off + 12 > binLength) break;
+            
+            float x = readFloat(binData + off);
+            float y = readFloat(binData + off + 4);
+            float z = readFloat(binData + off + 8);
+            positions.push_back(glm::vec3(x, y, z));
+        }
+        
+        // Read texture coordinates if present
+        std::vector<glm::vec2> texCoords;
+        if (texCoordAccessorIdx >= 0 && static_cast<size_t>(texCoordAccessorIdx) < accessors.array.size()) {
+            auto& texAccessor = accessors.array[texCoordAccessorIdx];
+            if (texAccessor.object.count("bufferView") && texAccessor.object.count("count")) {
+                int texBvIdx = texAccessor.object.at("bufferView").asInt();
+                size_t texCount = texAccessor.object.at("count").asSize();
+                size_t texAccessorByteOffset = texAccessor.object.count("byteOffset") ?
+                    texAccessor.object.at("byteOffset").asSize() : 0;
+                
+                if (texBvIdx >= 0 && static_cast<size_t>(texBvIdx) < bufferViews.array.size()) {
+                    auto& texBv = bufferViews.array[texBvIdx];
+                    size_t texByteOffset = texBv.object.count("byteOffset") ? texBv.object.at("byteOffset").asSize() : 0;
+                    texByteOffset += texAccessorByteOffset;
+                    size_t texByteStride = texBv.object.count("byteStride") ? texBv.object.at("byteStride").asSize() : 8;
+                    if (texByteStride == 0) texByteStride = 8; // Default for VEC2 float
+                    
+                    for (size_t i = 0; i < texCount; i++) {
+                        size_t off = texByteOffset + i * texByteStride;
+                        if (off + 8 > binLength) break;
+                        
+                        float u = readFloat(binData + off);
+                        float v = readFloat(binData + off + 4);
+                        // glTF uses V=0 at top, OpenGL uses V=0 at bottom
+                        // Since we flip textures on load, we also need to flip V
+                        texCoords.push_back(glm::vec2(u, 1.0f - v));
+                    }
+                }
+            }
+        }
         
         auto mesh = std::make_unique<Mesh2>();
         
-        // Add vertices
-        for (size_t i = 0; i < posCount; i++) {
-            size_t offset = posByteOffset + i * 12;
-            if (offset + 12 > binLength) break;
+        // Deduplicate vertices
+        std::map<std::tuple<float, float, float>, int> positionToVertex;
+        std::vector<int> originalToMesh(positions.size(), -1);
+        
+        for (size_t i = 0; i < positions.size(); i++) {
+            const auto& pos = positions[i];
+            auto key = std::make_tuple(pos.x, pos.y, pos.z);
             
-            float x = readFloat(binData + offset);
-            float y = readFloat(binData + offset + 4);
-            float z = readFloat(binData + offset + 8);
-            mesh->addVertex(glm::vec3(x, y, z));
+            if (positionToVertex.count(key)) {
+                originalToMesh[i] = positionToVertex[key];
+            } else {
+                int newIdx = mesh->addVertex(pos);
+                positionToVertex[key] = newIdx;
+                originalToMesh[i] = newIdx;
+            }
         }
         
-        // Get indices if present
+        // Get indices
         if (indexAccessorIdx >= 0 && static_cast<size_t>(indexAccessorIdx) < accessors.array.size()) {
             auto& idxAccessor = accessors.array[indexAccessorIdx];
+            if (!idxAccessor.object.count("bufferView") || 
+                !idxAccessor.object.count("count") ||
+                !idxAccessor.object.count("componentType")) {
+                return {nullptr, nullptr};
+            }
             int idxBvIdx = idxAccessor.object.at("bufferView").asInt();
             size_t idxCount = idxAccessor.object.at("count").asSize();
             int componentType = idxAccessor.object.at("componentType").asInt();
+            size_t idxAccessorByteOffset = idxAccessor.object.count("byteOffset") ?
+                idxAccessor.object.at("byteOffset").asSize() : 0;
             
+            if (idxBvIdx < 0 || static_cast<size_t>(idxBvIdx) >= bufferViews.array.size()) {
+                return {nullptr, nullptr};
+            }
             auto& idxBv = bufferViews.array[idxBvIdx];
             size_t idxByteOffset = idxBv.object.count("byteOffset") ? idxBv.object.at("byteOffset").asSize() : 0;
+            idxByteOffset += idxAccessorByteOffset;
             
             std::vector<uint32_t> indices;
             
             for (size_t i = 0; i < idxCount; i++) {
                 uint32_t idx = 0;
                 if (componentType == 5123) { // UNSIGNED_SHORT
-                    size_t offset = idxByteOffset + i * 2;
-                    if (offset + 2 <= binLength) {
-                        idx = readLittleEndian<uint16_t>(binData + offset);
+                    size_t off = idxByteOffset + i * 2;
+                    if (off + 2 <= binLength) {
+                        idx = readLittleEndian<uint16_t>(binData + off);
                     }
                 } else if (componentType == 5125) { // UNSIGNED_INT
-                    size_t offset = idxByteOffset + i * 4;
-                    if (offset + 4 <= binLength) {
-                        idx = readLittleEndian<uint32_t>(binData + offset);
+                    size_t off = idxByteOffset + i * 4;
+                    if (off + 4 <= binLength) {
+                        idx = readLittleEndian<uint32_t>(binData + off);
+                    }
+                } else if (componentType == 5121) { // UNSIGNED_BYTE
+                    size_t off = idxByteOffset + i;
+                    if (off + 1 <= binLength) {
+                        idx = binData[off];
                     }
                 }
                 indices.push_back(idx);
             }
             
-            // Add triangles
+            // Add triangles with UVs
             for (size_t i = 0; i + 2 < indices.size(); i += 3) {
-                mesh->addTriangle(indices[i], indices[i + 1], indices[i + 2]);
+                uint32_t origIdx0 = indices[i];
+                uint32_t origIdx1 = indices[i + 1];
+                uint32_t origIdx2 = indices[i + 2];
+                
+                // Bounds check
+                if (origIdx0 >= originalToMesh.size() || 
+                    origIdx1 >= originalToMesh.size() || 
+                    origIdx2 >= originalToMesh.size()) {
+                    continue;
+                }
+                
+                int v0 = originalToMesh[origIdx0];
+                int v1 = originalToMesh[origIdx1];
+                int v2 = originalToMesh[origIdx2];
+                
+                if (v0 < 0 || v1 < 0 || v2 < 0) continue;
+                
+                int faceIdx = mesh->addTriangle(v0, v1, v2);
+                
+                if (!texCoords.empty() && faceIdx >= 0) {
+                    glm::vec2 uv0 = (origIdx0 < texCoords.size()) ? texCoords[origIdx0] : glm::vec2(0);
+                    glm::vec2 uv1 = (origIdx1 < texCoords.size()) ? texCoords[origIdx1] : glm::vec2(0);
+                    glm::vec2 uv2 = (origIdx2 < texCoords.size()) ? texCoords[origIdx2] : glm::vec2(0);
+                    mesh->setFaceUVs(faceIdx, uv0, uv1, uv2);
+                }
             }
         }
         
@@ -957,20 +1247,275 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
         mesh->computeNormals();
         mesh->createGPUBuffers();
         
-        auto item = std::make_unique<Item>(std::move(mesh));
-        item->setPositionToGeometricCenter();
-        item->selected = true;
+        return {std::move(mesh), getMaterialTexture(primitive)};
+    };
+    
+    // Helper to import all primitives from a mesh
+    auto importMesh = [&](size_t meshIdx) -> std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> {
+        std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> result;
         
-        // Deselect other items
-        for (size_t i = 0; i < items.getItemCount(); i++) {
+        if (meshIdx >= meshesJson.array.size()) return result;
+        
+        const auto& meshJson = meshesJson.array[meshIdx];
+        if (meshJson.type != JsonValue::Object) return result;
+        
+        auto primIt = meshJson.object.find("primitives");
+        if (primIt == meshJson.object.end()) return result;
+        auto& primitives = primIt->second;
+        if (primitives.type != JsonValue::Array || primitives.array.empty()) return result;
+        
+        // Import ALL primitives from this mesh
+        for (const auto& primitive : primitives.array) {
+            auto [mesh, texture] = importPrimitive(primitive);
+            if (mesh) {
+                result.push_back({std::move(mesh), texture});
+            }
+        }
+        
+        return result;
+    };
+    
+    // Helper to get local transform matrix for a node
+    auto getNodeLocalTransform = [](const JsonValue& nodeJson) -> glm::mat4 {
+        // Check for matrix property first (takes precedence)
+        if (nodeJson.object.count("matrix")) {
+            auto& m = nodeJson.object.at("matrix");
+            if (m.type == JsonValue::Array && m.array.size() >= 16) {
+                // glTF matrices are column-major
+                glm::mat4 mat;
+                for (int i = 0; i < 16; i++) {
+                    mat[i / 4][i % 4] = m.array[i].asFloat();
+                }
+                return mat;
+            }
+        }
+        
+        // Otherwise use T/R/S
+        glm::vec3 translation(0.0f);
+        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+        glm::vec3 scale(1.0f);
+        
+        if (nodeJson.object.count("translation")) {
+            auto& t = nodeJson.object.at("translation");
+            if (t.type == JsonValue::Array && t.array.size() >= 3) {
+                translation.x = t.array[0].asFloat();
+                translation.y = t.array[1].asFloat();
+                translation.z = t.array[2].asFloat();
+            }
+        }
+        
+        if (nodeJson.object.count("rotation")) {
+            auto& r = nodeJson.object.at("rotation");
+            if (r.type == JsonValue::Array && r.array.size() >= 4) {
+                rotation.x = r.array[0].asFloat();
+                rotation.y = r.array[1].asFloat();
+                rotation.z = r.array[2].asFloat();
+                rotation.w = r.array[3].asFloat();
+            }
+        }
+        
+        if (nodeJson.object.count("scale")) {
+            auto& s = nodeJson.object.at("scale");
+            if (s.type == JsonValue::Array && s.array.size() >= 3) {
+                scale.x = s.array[0].asFloat();
+                scale.y = s.array[1].asFloat();
+                scale.z = s.array[2].asFloat();
+            }
+        }
+        
+        glm::mat4 mat = glm::mat4(1.0f);
+        mat = glm::translate(mat, translation);
+        mat = mat * glm::mat4_cast(rotation);
+        mat = glm::scale(mat, scale);
+        return mat;
+    };
+    
+    // Build world transforms for all nodes by traversing the hierarchy
+    std::vector<glm::mat4> nodeWorldTransforms;
+    
+    // Import via nodes if available (for transforms), otherwise directly from meshes
+    bool imported = false;
+    
+    if (hasNodes) {
+        auto& nodesJson = root.object["nodes"];
+        size_t nodeCount = nodesJson.array.size();
+        
+        // Initialize all transforms to identity
+        nodeWorldTransforms.resize(nodeCount, glm::mat4(1.0f));
+        
+        // First pass: compute local transforms
+        std::vector<glm::mat4> localTransforms(nodeCount);
+        for (size_t i = 0; i < nodeCount; i++) {
+            localTransforms[i] = getNodeLocalTransform(nodesJson.array[i]);
+        }
+        
+        // Build parent index map
+        std::vector<int> parentIndex(nodeCount, -1);
+        for (size_t i = 0; i < nodeCount; i++) {
+            const auto& nodeJson = nodesJson.array[i];
+            if (nodeJson.type == JsonValue::Object && nodeJson.object.count("children")) {
+                auto& children = nodeJson.object.at("children");
+                if (children.type == JsonValue::Array) {
+                    for (const auto& child : children.array) {
+                        int childIdx = child.asInt();
+                        if (childIdx >= 0 && static_cast<size_t>(childIdx) < nodeCount) {
+                            parentIndex[childIdx] = static_cast<int>(i);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Compute world transforms (multiply from root to node)
+        for (size_t i = 0; i < nodeCount; i++) {
+            int parent = parentIndex[i];
+            
+            // Walk up the hierarchy to collect ancestors
+            std::vector<int> ancestors;
+            while (parent >= 0) {
+                ancestors.push_back(parent);
+                parent = parentIndex[parent];
+            }
+            
+            // Apply transforms from root down (ancestors are in child-to-root order)
+            // So we need to start from the end (root) and multiply: root * ... * parent * local
+            glm::mat4 worldMat(1.0f);
+            for (auto it = ancestors.rbegin(); it != ancestors.rend(); ++it) {
+                worldMat = worldMat * localTransforms[*it];
+            }
+            // Finally multiply by the node's own local transform
+            worldMat = worldMat * localTransforms[i];
+            
+            nodeWorldTransforms[i] = worldMat;
+        }
+        
+        // Track starting index for newly imported items
+        size_t importStartIndex = items.getItemCount();
+        
+        // Now import meshes with their world transforms
+        for (size_t nodeIdx = 0; nodeIdx < nodeCount; nodeIdx++) {
+            const auto& nodeJson = nodesJson.array[nodeIdx];
+            if (nodeJson.type != JsonValue::Object) continue;
+            if (!nodeJson.object.count("mesh")) continue;
+            
+            int meshIdx = nodeJson.object.at("mesh").asInt();
+            auto meshPrimitives = importMesh(meshIdx);
+            
+            // Create an item for each primitive in the mesh
+            for (auto& [mesh, texture] : meshPrimitives) {
+                if (!mesh) continue;
+                
+                auto item = std::make_unique<Item>(std::move(mesh));
+                
+                // Apply world transform to mesh vertices
+                item->mesh->transformAllVertices(nodeWorldTransforms[nodeIdx]);
+                item->mesh->createGPUBuffers();
+                
+                // Don't center individual items - keep them in world space
+                // This preserves the spatial relationships between parts
+                // The item position stays at origin, vertices are in world space
+                item->position = glm::vec3(0.0f);
+                
+                // Set texture if available
+                if (texture && texture->isValid()) {
+                    item->setTexture(texture);
+                }
+                
+                item->selected = true;
+                
+                items.addItem(std::move(item));
+                imported = true;
+            }
+        }
+        
+        // Deselect pre-existing items, keep newly imported selected
+        for (size_t i = 0; i < importStartIndex; i++) {
             Item* existing = items.getItemAtIndex(i);
             if (existing) existing->selected = false;
         }
+    } else {
+        // Fallback: import meshes directly without transforms
+        size_t importStartIndex = items.getItemCount();
         
-        items.addItem(std::move(item));
+        for (size_t i = 0; i < meshesJson.array.size(); i++) {
+            auto meshPrimitives = importMesh(i);
+            
+            for (auto& [mesh, texture] : meshPrimitives) {
+                if (!mesh) continue;
+                
+                auto item = std::make_unique<Item>(std::move(mesh));
+                // Don't center here - let auto-scale handle it
+                item->position = glm::vec3(0.0f);
+                
+                if (texture && texture->isValid()) {
+                    item->setTexture(texture);
+                }
+                
+                item->selected = true;
+                items.addItem(std::move(item));
+                imported = true;
+            }
+        }
+        
+        // Deselect pre-existing items
+        for (size_t i = 0; i < importStartIndex; i++) {
+            Item* existing = items.getItemAtIndex(i);
+            if (existing) existing->selected = false;
+        }
     }
     
-    return true;
+    // Auto-scale and center imported items
+    if (imported) {
+        // Calculate combined bounding box of all selected (newly imported) items
+        float minX = std::numeric_limits<float>::max();
+        float maxX = std::numeric_limits<float>::lowest();
+        float minY = std::numeric_limits<float>::max();
+        float maxY = std::numeric_limits<float>::lowest();
+        float minZ = std::numeric_limits<float>::max();
+        float maxZ = std::numeric_limits<float>::lowest();
+        
+        for (size_t i = 0; i < items.getItemCount(); ++i) {
+            Item* item = items.getItemAtIndex(i);
+            if (!item || !item->selected || !item->mesh) continue;
+            
+            for (const auto& v : item->mesh->getVertices()) {
+                glm::vec3 worldPos = item->position + item->rotation * (item->scale * v.position);
+                minX = std::min(minX, worldPos.x);
+                maxX = std::max(maxX, worldPos.x);
+                minY = std::min(minY, worldPos.y);
+                maxY = std::max(maxY, worldPos.y);
+                minZ = std::min(minZ, worldPos.z);
+                maxZ = std::max(maxZ, worldPos.z);
+            }
+        }
+        
+        // Calculate the size of the bounding box
+        float sizeX = maxX - minX;
+        float sizeY = maxY - minY;
+        float sizeZ = maxZ - minZ;
+        float maxSize = std::max({sizeX, sizeY, sizeZ});
+        
+        // Target size for imported models (units) - 10 units fits well with default grid
+        const float targetSize = 10.0f;
+        const float minSizeThreshold = 0.001f;
+        
+        // Determine scale factor - always scale to target size
+        float scaleFactor = 1.0f;
+        if (maxSize > minSizeThreshold) {
+            scaleFactor = targetSize / maxSize;
+        }
+
+        // Apply scaling to all imported items
+        for (size_t i = 0; i < items.getItemCount(); ++i) {
+            Item* item = items.getItemAtIndex(i);
+            if (!item || !item->mesh) continue;
+            
+            item->scale *= scaleFactor;
+            item->mesh->createGPUBuffers();
+        }
+    }
+    
+    return imported;
 }
 
 // ============================================================================

@@ -157,6 +157,48 @@
             "problemMatcher": ["$gcc"]
         },
         {
+            "label": "Configure WASM Debug",
+            "type": "shell",
+            "command": "C:\\emsdk\\emsdk_env.ps1; cmake --preset webgl-debug",
+            "options": {
+                "cwd": "${workspaceFolder}/WebGL2"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build WASM Debug",
+            "type": "shell",
+            "command": "C:\\emsdk\\emsdk_env.ps1; ninja",
+            "options": {
+                "cwd": "${workspaceFolder}/WebGL2/build-wasm-debug"
+            },
+            "group": "build",
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Copy WASM Debug to React",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "copy-wasm-debug"],
+            "options": {
+                "cwd": "${workspaceFolder}/MeshMakerWeb"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build WASM Debug and Copy",
+            "dependsOn": ["Build WASM Debug", "Copy WASM Debug to React"],
+            "dependsOrder": "sequence",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Start React (Debug WASM)",
+            "dependsOn": ["Build WASM Debug and Copy", "Start React Dev Server"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
             "label": "Copy WASM to React",
             "type": "shell",
             "command": "npm",

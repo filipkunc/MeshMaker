@@ -1,5 +1,6 @@
 #include "ItemCollection.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
@@ -598,7 +599,21 @@ void ItemCollection::draw(Shader& meshShader, Shader& wireShader, ViewMode mode,
             meshShader.setMat4("uProjection", projection);
             meshShader.setMat3("uNormalMatrix", normalMatrix);
             
+            // Set texture uniforms
+            if (item->hasTexture()) {
+                item->getTexture()->bind(0);
+                meshShader.setInt("uTexture", 0);
+                meshShader.setBool("uUseTexture", true);
+            } else {
+                meshShader.setBool("uUseTexture", false);
+            }
+            
             item->mesh->draw(ViewMode::Solid);
+            
+            // Unbind texture if used
+            if (item->hasTexture()) {
+                Texture::unbind(0);
+            }
             
             if (drawWireframe && mode == ViewMode::SolidWireframe) {
                 glDisable(GL_POLYGON_OFFSET_FILL);

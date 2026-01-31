@@ -15,6 +15,12 @@ if(EMSCRIPTEN)
     # Use .js suffix for modular builds (MODULARIZE=1) to allow custom EXPORT_NAME
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
     set(USE_WEBGL2 TRUE)
+    
+    # Option to enable DWARF debug symbols for WASM debugging in Chrome
+    option(WASM_DEBUG_SYMBOLS "Enable DWARF debug symbols for WASM (requires Chrome C/C++ DevTools extension)" OFF)
+    if(WASM_DEBUG_SYMBOLS)
+        message(STATUS "WASM debug symbols enabled - install Chrome C/C++ DevTools extension for debugging")
+    endif()
 else()
     message(STATUS "Building for Desktop OpenGL 3.3")
     set(USE_WEBGL2 FALSE)
@@ -115,6 +121,7 @@ set(CORE_SOURCES
     src/Shader.cpp
     src/Manipulator.cpp
     src/Serialization.cpp
+    src/Texture.cpp
 )
 
 # Bindings sources (Emscripten only)
@@ -140,6 +147,8 @@ set(HEADERS
     src/Vertex.h
     src/Manipulator.h
     src/Serialization.h
+    src/Texture.h
+    src/stb_image.h
 )
 
 # ============================================================================
@@ -171,6 +180,12 @@ if(EMSCRIPTEN)
         "--embed-file=${CMAKE_CURRENT_SOURCE_DIR}/shaders@/shaders"
         "-lembind"
     )
+    
+    # Add DWARF debug symbols for WASM debugging
+    if(WASM_DEBUG_SYMBOLS)
+        list(APPEND EMSCRIPTEN_COMPILE_FLAGS "-g" "-O0")
+        list(APPEND EMSCRIPTEN_LINK_FLAGS "-g" "-O0")
+    endif()
     
     target_compile_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_COMPILE_FLAGS})
     target_link_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_LINK_FLAGS})
@@ -247,6 +262,8 @@ if(NOT EMSCRIPTEN)
         src/Item.cpp
         src/ItemCollection.cpp
         src/Shader.cpp
+        src/Texture.cpp
+        src/Serialization.cpp
     )
     target_include_directories(MeshMakerCore PUBLIC src)
     target_link_libraries(MeshMakerCore PUBLIC glm glad_gl_core_33)

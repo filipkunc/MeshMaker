@@ -5,8 +5,17 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
-const wasmSourceDir = join(projectRoot, '..', 'WebGL2', 'build-wasm');
+
+// Check for --debug flag
+const isDebug = process.argv.includes('--debug');
+const buildDir = isDebug ? 'build-wasm-debug' : 'build-wasm';
+
+const wasmSourceDir = join(projectRoot, '..', 'WebGL2', buildDir);
 const wasmDestDir = join(projectRoot, 'public', 'wasm');
+
+if (isDebug) {
+  console.log('📍 Debug mode: copying from build-wasm-debug with DWARF symbols');
+}
 
 // Files to copy
 const files = [

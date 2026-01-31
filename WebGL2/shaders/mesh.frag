@@ -6,8 +6,12 @@ precision highp float;
 in vec3 vNormal;
 in vec3 vEyeCoords;
 in vec3 vColor;
+in vec2 vTexCoord;
 
 out vec4 FragColor;
+
+uniform sampler2D uTexture;
+uniform bool uUseTexture;
 
 void main() {
     vec3 l, n;
@@ -22,7 +26,15 @@ void main() {
         n = normalize(vNormal);
     }
     
-    vec3 material = vColor;
+    // Get base material color - either from texture or vertex color
+    vec3 material;
+    if (uUseTexture) {
+        vec4 texColor = texture(uTexture, vTexCoord);
+        // Multiply texture color with vertex color to allow selection tinting
+        material = texColor.rgb * vColor;
+    } else {
+        material = vColor;
+    }
     
     vec3 s = normalize(l - vEyeCoords);
     vec3 v = normalize(-vEyeCoords);

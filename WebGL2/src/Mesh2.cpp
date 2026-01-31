@@ -120,6 +120,17 @@ uint32_t Mesh2::addQuad(uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3) {
     return faceIndex;
 }
 
+void Mesh2::setFaceUVs(uint32_t faceIndex, const glm::vec2& uv0, const glm::vec2& uv1, const glm::vec2& uv2, const glm::vec2& uv3) {
+    if (faceIndex >= m_faces.size()) return;
+    
+    Face& face = m_faces[faceIndex];
+    face.uvs[0] = uv0;
+    face.uvs[1] = uv1;
+    face.uvs[2] = uv2;
+    face.uvs[3] = uv3;
+    m_renderDataDirty = true;
+}
+
 void Mesh2::buildConnectivity() {
     // Build vertex to edge/face connectivity
     m_vertexToEdges.clear();
@@ -167,6 +178,18 @@ void Mesh2::computeNormals() {
         } else {
             v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
         }
+    }
+    
+    m_renderDataDirty = true;
+}
+
+void Mesh2::transformAllVertices(const glm::mat4& transform) {
+    glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(transform)));
+    
+    for (auto& v : m_vertices) {
+        glm::vec4 worldPos = transform * glm::vec4(v.position, 1.0f);
+        v.position = glm::vec3(worldPos);
+        v.normal = glm::normalize(normalMatrix * v.normal);
     }
     
     m_renderDataDirty = true;
@@ -1345,19 +1368,19 @@ void Mesh2::buildRenderData() {
         if (face.isQuad()) {
             glm::vec3 v3 = m_vertices[face.vertices[3]].position;
             
-            // First triangle
-            m_renderVertices.push_back({v0, faceNormal, faceColor});
-            m_renderVertices.push_back({v1, faceNormal, faceColor});
-            m_renderVertices.push_back({v2, faceNormal, faceColor});
+            // First triangle (vertices 0, 1, 2)
+            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
+            m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1]});
+            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
             
-            // Second triangle
-            m_renderVertices.push_back({v0, faceNormal, faceColor});
-            m_renderVertices.push_back({v2, faceNormal, faceColor});
-            m_renderVertices.push_back({v3, faceNormal, faceColor});
+            // Second triangle (vertices 0, 2, 3)
+            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
+            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
+            m_renderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3]});
         } else {
-            m_renderVertices.push_back({v0, faceNormal, faceColor});
-            m_renderVertices.push_back({v1, faceNormal, faceColor});
-            m_renderVertices.push_back({v2, faceNormal, faceColor});
+            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
+            m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1]});
+            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
         }
     }
     
@@ -1404,6 +1427,9 @@ void Mesh2::createGPUBuffers() {
         // Color
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
+        // UV
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
+        glEnableVertexAttribArray(3);
         
         glBindVertexArray(0);
     }
@@ -1787,7 +1813,8 @@ void Mesh2::makePlane() {
     uint32_t v2 = addVertex(glm::vec3( 1.0f, 0.0f,  1.0f));
     uint32_t v3 = addVertex(glm::vec3(-1.0f, 0.0f,  1.0f));
     
-    addQuad(v0, v1, v2, v3);
+    uint32_t faceIndex = addQuad(v0, v1, v2, v3);
+    setFaceUVs(faceIndex, glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f));
     
     buildConnectivity();
     computeNormals();
@@ -1807,13 +1834,17 @@ void Mesh2::makeCube() {
     v[6] = addVertex(glm::vec3( 1,  1,  1));
     v[7] = addVertex(glm::vec3(-1,  1,  1));
     
-    // 6 faces (quads)
-    addQuad(v[0], v[1], v[2], v[3]); // Front
-    addQuad(v[5], v[4], v[7], v[6]); // Back
-    addQuad(v[4], v[0], v[3], v[7]); // Left
-    addQuad(v[1], v[5], v[6], v[2]); // Right
-    addQuad(v[3], v[2], v[6], v[7]); // Top
-    addQuad(v[4], v[5], v[1], v[0]); // Bottom
+    // Standard UV coordinates for each face (0,0 -> 1,0 -> 1,1 -> 0,1)
+    glm::vec2 uv0(0.0f, 0.0f), uv1(1.0f, 0.0f), uv2(1.0f, 1.0f), uv3(0.0f, 1.0f);
+    
+    // 6 faces (quads) with UV coordinates
+    uint32_t f;
+    f = addQuad(v[0], v[1], v[2], v[3]); setFaceUVs(f, uv0, uv1, uv2, uv3); // Front
+    f = addQuad(v[5], v[4], v[7], v[6]); setFaceUVs(f, uv0, uv1, uv2, uv3); // Back
+    f = addQuad(v[4], v[0], v[3], v[7]); setFaceUVs(f, uv0, uv1, uv2, uv3); // Left
+    f = addQuad(v[1], v[5], v[6], v[2]); setFaceUVs(f, uv0, uv1, uv2, uv3); // Right
+    f = addQuad(v[3], v[2], v[6], v[7]); setFaceUVs(f, uv0, uv1, uv2, uv3); // Top
+    f = addQuad(v[4], v[5], v[1], v[0]); setFaceUVs(f, uv0, uv1, uv2, uv3); // Bottom
     
     buildConnectivity();
     computeNormals();
@@ -1840,17 +1871,36 @@ void Mesh2::makeCylinder(uint32_t steps) {
     uint32_t bottomCenter = addVertex(glm::vec3(0, -height/2, 0));
     uint32_t topCenter = addVertex(glm::vec3(0, height/2, 0));
     
-    // Side quads
+    // Side quads with cylindrical UV mapping
     for (uint32_t i = 0; i < steps; i++) {
         uint32_t next = (i + 1) % steps;
-        addQuad(bottomRing[i], bottomRing[next], topRing[next], topRing[i]);
+        uint32_t faceIndex = addQuad(bottomRing[i], bottomRing[next], topRing[next], topRing[i]);
+        
+        float u0 = static_cast<float>(i) / steps;
+        float u1 = static_cast<float>(i + 1) / steps;
+        setFaceUVs(faceIndex, glm::vec2(u0, 0.0f), glm::vec2(u1, 0.0f), glm::vec2(u1, 1.0f), glm::vec2(u0, 1.0f));
     }
     
-    // Top and bottom caps (triangles)
+    // Top and bottom caps (triangles) with radial UV mapping
     for (uint32_t i = 0; i < steps; i++) {
         uint32_t next = (i + 1) % steps;
-        addTriangle(bottomCenter, bottomRing[next], bottomRing[i]);
-        addTriangle(topCenter, topRing[i], topRing[next]);
+        
+        float angle0 = 2.0f * static_cast<float>(M_PI) * i / steps;
+        float angle1 = 2.0f * static_cast<float>(M_PI) * next / steps;
+        
+        // Bottom cap
+        uint32_t bottomFace = addTriangle(bottomCenter, bottomRing[next], bottomRing[i]);
+        setFaceUVs(bottomFace, 
+            glm::vec2(0.5f, 0.5f),  // center
+            glm::vec2(0.5f + 0.5f * cosf(angle1), 0.5f + 0.5f * sinf(angle1)),
+            glm::vec2(0.5f + 0.5f * cosf(angle0), 0.5f + 0.5f * sinf(angle0)));
+        
+        // Top cap
+        uint32_t topFace = addTriangle(topCenter, topRing[i], topRing[next]);
+        setFaceUVs(topFace,
+            glm::vec2(0.5f, 0.5f),  // center
+            glm::vec2(0.5f + 0.5f * cosf(angle0), 0.5f + 0.5f * sinf(angle0)),
+            glm::vec2(0.5f + 0.5f * cosf(angle1), 0.5f + 0.5f * sinf(angle1)));
     }
     
     buildConnectivity();
@@ -1881,7 +1931,7 @@ void Mesh2::makeSphere(uint32_t steps) {
         }
     }
     
-    // Create faces
+    // Create faces with spherical UV mapping
     for (uint32_t r = 0; r < rings; r++) {
         for (uint32_t s = 0; s < sectors; s++) {
             uint32_t v0 = grid[r][s];
@@ -1889,13 +1939,35 @@ void Mesh2::makeSphere(uint32_t steps) {
             uint32_t v2 = grid[r + 1][s + 1];
             uint32_t v3 = grid[r + 1][s];
             
+            // Calculate UV coordinates based on ring and sector
+            float u0 = static_cast<float>(s) / sectors;
+            float u1 = static_cast<float>(s + 1) / sectors;
+            float v_top = static_cast<float>(r) / rings;
+            float v_bottom = static_cast<float>(r + 1) / rings;
+            
             // Use triangles at poles, quads elsewhere
             if (r == 0) {
-                addTriangle(v0, v3, v2);
+                // Top pole - triangle
+                uint32_t faceIndex = addTriangle(v0, v3, v2);
+                setFaceUVs(faceIndex, 
+                    glm::vec2((u0 + u1) * 0.5f, v_top),  // pole vertex gets middle U
+                    glm::vec2(u0, v_bottom),
+                    glm::vec2(u1, v_bottom));
             } else if (r == rings - 1) {
-                addTriangle(v0, v1, v2);
+                // Bottom pole - triangle
+                uint32_t faceIndex = addTriangle(v0, v1, v2);
+                setFaceUVs(faceIndex,
+                    glm::vec2(u0, v_top),
+                    glm::vec2(u1, v_top),
+                    glm::vec2((u0 + u1) * 0.5f, v_bottom));  // pole vertex gets middle U
             } else {
-                addQuad(v0, v1, v2, v3);
+                // Regular quad
+                uint32_t faceIndex = addQuad(v0, v1, v2, v3);
+                setFaceUVs(faceIndex,
+                    glm::vec2(u0, v_top),
+                    glm::vec2(u1, v_top),
+                    glm::vec2(u1, v_bottom),
+                    glm::vec2(u0, v_bottom));
             }
         }
     }
@@ -1926,27 +1998,41 @@ void Mesh2::makeIcosahedron() {
     v[10] = addVertex(glm::normalize(glm::vec3( b, -a,  0)));
     v[11] = addVertex(glm::normalize(glm::vec3(-b, -a,  0)));
     
-    // 20 triangular faces
-    addTriangle(v[2], v[1], v[0]);
-    addTriangle(v[1], v[2], v[3]);
-    addTriangle(v[5], v[4], v[3]);
-    addTriangle(v[4], v[8], v[3]);
-    addTriangle(v[7], v[6], v[0]);
-    addTriangle(v[6], v[9], v[0]);
-    addTriangle(v[11], v[10], v[4]);
-    addTriangle(v[10], v[11], v[6]);
-    addTriangle(v[9], v[5], v[2]);
-    addTriangle(v[5], v[9], v[11]);
-    addTriangle(v[8], v[7], v[1]);
-    addTriangle(v[7], v[8], v[10]);
-    addTriangle(v[2], v[5], v[3]);
-    addTriangle(v[8], v[1], v[3]);
-    addTriangle(v[9], v[2], v[0]);
-    addTriangle(v[1], v[7], v[0]);
-    addTriangle(v[11], v[9], v[6]);
-    addTriangle(v[7], v[10], v[6]);
-    addTriangle(v[5], v[11], v[4]);
-    addTriangle(v[10], v[8], v[4]);
+    // 20 triangular faces with spherical UV mapping (using vertex positions)
+    auto sphericalUV = [](const glm::vec3& pos) -> glm::vec2 {
+        float u = 0.5f + atan2f(pos.z, pos.x) / (2.0f * static_cast<float>(M_PI));
+        float v = 0.5f - asinf(pos.y) / static_cast<float>(M_PI);
+        return glm::vec2(u, v);
+    };
+    
+    auto addTriWithUVs = [&](uint32_t i0, uint32_t i1, uint32_t i2) {
+        uint32_t faceIndex = addTriangle(v[i0], v[i1], v[i2]);
+        setFaceUVs(faceIndex,
+            sphericalUV(m_vertices[v[i0]].position),
+            sphericalUV(m_vertices[v[i1]].position),
+            sphericalUV(m_vertices[v[i2]].position));
+    };
+    
+    addTriWithUVs(2, 1, 0);
+    addTriWithUVs(1, 2, 3);
+    addTriWithUVs(5, 4, 3);
+    addTriWithUVs(4, 8, 3);
+    addTriWithUVs(7, 6, 0);
+    addTriWithUVs(6, 9, 0);
+    addTriWithUVs(11, 10, 4);
+    addTriWithUVs(10, 11, 6);
+    addTriWithUVs(9, 5, 2);
+    addTriWithUVs(5, 9, 11);
+    addTriWithUVs(8, 7, 1);
+    addTriWithUVs(7, 8, 10);
+    addTriWithUVs(2, 5, 3);
+    addTriWithUVs(8, 1, 3);
+    addTriWithUVs(9, 2, 0);
+    addTriWithUVs(1, 7, 0);
+    addTriWithUVs(11, 9, 6);
+    addTriWithUVs(7, 10, 6);
+    addTriWithUVs(5, 11, 4);
+    addTriWithUVs(10, 8, 4);
     
     buildConnectivity();
     computeNormals();

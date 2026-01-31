@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "copy-wasm": "node scripts/copy-wasm.mjs"
+    "copy-wasm": "node scripts/copy-wasm.mjs",
+    "copy-wasm-debug": "node scripts/copy-wasm.mjs --debug"
   },
   "dependencies": {
     "react": "^19.2.0",
