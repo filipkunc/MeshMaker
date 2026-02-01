@@ -495,6 +495,56 @@ bool ItemCollection::isFaceSelected(size_t index) const {
     return mesh ? mesh->isFaceSelected(index) : false;
 }
 
+// Edge loop/ring selection
+void ItemCollection::selectEdgeLoopFromSelected() {
+    for (auto& item : m_items) {
+        if (item->selected && item->mesh) {
+            // Get currently selected edges and expand to loops
+            auto& edges = item->mesh->getEdges();
+            std::vector<uint32_t> selectedIndices;
+            for (uint32_t i = 0; i < edges.size(); i++) {
+                if (edges[i].selected) {
+                    selectedIndices.push_back(i);
+                }
+            }
+            // Select edge loops for each selected edge
+            for (uint32_t idx : selectedIndices) {
+                item->mesh->selectEdgeLoop(idx);
+            }
+            item->mesh->createGPUBuffers();
+        }
+    }
+}
+
+void ItemCollection::selectEdgeRingFromSelected() {
+    for (auto& item : m_items) {
+        if (item->selected && item->mesh) {
+            // Get currently selected edges and expand to rings
+            auto& edges = item->mesh->getEdges();
+            std::vector<uint32_t> selectedIndices;
+            for (uint32_t i = 0; i < edges.size(); i++) {
+                if (edges[i].selected) {
+                    selectedIndices.push_back(i);
+                }
+            }
+            // Select edge rings for each selected edge
+            for (uint32_t idx : selectedIndices) {
+                item->mesh->selectEdgeRing(idx);
+            }
+            item->mesh->createGPUBuffers();
+        }
+    }
+}
+
+void ItemCollection::growEdgeSelection() {
+    for (auto& item : m_items) {
+        if (item->selected && item->mesh) {
+            item->mesh->growEdgeSelection();
+            item->mesh->createGPUBuffers();
+        }
+    }
+}
+
 // Component operations
 void ItemCollection::flipSelectedFaces() {
     for (auto& item : m_items) {

@@ -79,6 +79,11 @@ public:
     size_t getSelectedComponentCount() const;
     bool isFaceSelected(size_t index) const;
     
+    // Edge loop/ring selection
+    void selectEdgeLoopFromSelected();
+    void selectEdgeRingFromSelected();
+    void growEdgeSelection();
+    
     // Component operations
     void flipSelectedFaces();
     void duplicateSelectedFaces();

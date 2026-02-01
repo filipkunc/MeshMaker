@@ -39,6 +39,10 @@ extern void api_extrudeSelectedFaces();
 extern void api_splitSelectedEdges();
 extern void api_mergeSelectedVertices();
 
+extern void api_selectEdgeLoop();
+extern void api_selectEdgeRing();
+extern void api_growEdgeSelection();
+
 extern int api_getViewMode();
 extern void api_setViewMode(int mode);
 extern bool api_getShowGrid();
@@ -124,6 +128,11 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("extrudeSelectedFaces", &api_extrudeSelectedFaces);
     function("splitSelectedEdges", &api_splitSelectedEdges);
     function("mergeSelectedVertices", &api_mergeSelectedVertices);
+    
+    // Edge selection
+    function("selectEdgeLoop", &api_selectEdgeLoop);
+    function("selectEdgeRing", &api_selectEdgeRing);
+    function("growEdgeSelection", &api_growEdgeSelection);
     
     // View settings
     function("getViewMode", &api_getViewMode);

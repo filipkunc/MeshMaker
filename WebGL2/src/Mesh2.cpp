@@ -309,13 +309,83 @@ size_t Mesh2::getSelectedCount() const {
     return count;
 }
 
-// Edge loop selection - follows connected edges through quads
+// Edge loop selection - follows edges through vertices
+// At each vertex, finds the edge that doesn't share a face with the current edge
 void Mesh2::selectEdgeLoop(uint32_t edgeIndex) {
     if (edgeIndex >= m_edges.size()) return;
     
     m_edges[edgeIndex].selected = true;
     
-    // Traverse in both directions
+    // Traverse in both directions (from each endpoint of the starting edge)
+    for (int dir = 0; dir < 2; dir++) {
+        uint32_t currentEdge = edgeIndex;
+        uint32_t currentVertex = m_edges[edgeIndex].vertices[dir];
+        
+        while (true) {
+            const Edge& edge = m_edges[currentEdge];
+            
+            // Count edges meeting at this vertex
+            std::vector<uint32_t> vertexEdges;
+            for (uint32_t ei = 0; ei < m_edges.size(); ei++) {
+                if (m_edges[ei].vertices[0] == currentVertex || 
+                    m_edges[ei].vertices[1] == currentVertex) {
+                    vertexEdges.push_back(ei);
+                }
+            }
+            
+            // Edge loop only works when exactly 4 edges meet at the vertex
+            if (vertexEdges.size() != 4) break;
+            
+            // Find the edge that doesn't share any face with the current edge
+            uint32_t nextEdge = UINT32_MAX;
+            for (uint32_t ei : vertexEdges) {
+                if (ei == currentEdge) continue;
+                
+                const Edge& candidate = m_edges[ei];
+                // Check if candidate shares a face with current edge
+                bool sharesFace = false;
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        if (edge.faces[i] != UINT32_MAX && 
+                            edge.faces[i] == candidate.faces[j]) {
+                            sharesFace = true;
+                            break;
+                        }
+                    }
+                    if (sharesFace) break;
+                }
+                
+                if (!sharesFace) {
+                    nextEdge = ei;
+                    break;
+                }
+            }
+            
+            if (nextEdge == UINT32_MAX) break;
+            
+            // Stop if we've looped back or already selected
+            if (nextEdge == edgeIndex || m_edges[nextEdge].selected) break;
+            
+            m_edges[nextEdge].selected = true;
+            
+            // Move to the other vertex of the next edge
+            const Edge& ne = m_edges[nextEdge];
+            currentVertex = (ne.vertices[0] == currentVertex) ? ne.vertices[1] : ne.vertices[0];
+            currentEdge = nextEdge;
+        }
+    }
+    
+    m_renderDataDirty = true;
+}
+
+// Edge ring selection - follows opposite edges through quads
+// At each quad face, finds the edge that shares no vertex with current edge (opposite edge)
+void Mesh2::selectEdgeRing(uint32_t edgeIndex) {
+    if (edgeIndex >= m_edges.size()) return;
+    
+    m_edges[edgeIndex].selected = true;
+    
+    // Traverse in both directions through connected quads
     for (int dir = 0; dir < 2; dir++) {
         uint32_t currentEdge = edgeIndex;
         uint32_t lastFace = UINT32_MAX;
@@ -335,23 +405,29 @@ void Mesh2::selectEdgeLoop(uint32_t edgeIndex) {
             if (nextFace == UINT32_MAX) break;
             
             const Face& face = m_faces[nextFace];
-            
-            // Only continue through quads for edge loops
             if (!face.isQuad()) break;
             
-            // Find the opposite edge in the quad
-            int edgePos = -1;
+            // Find the opposite edge - the one that shares NO vertex with current edge
+            uint32_t nextEdge = UINT32_MAX;
+            uint32_t v0 = edge.vertices[0];
+            uint32_t v1 = edge.vertices[1];
+            
             for (int i = 0; i < 4; i++) {
-                if (face.edges[i] == currentEdge) {
-                    edgePos = i;
+                uint32_t candidateEdge = face.edges[i];
+                if (candidateEdge == currentEdge) continue;
+                
+                const Edge& candidate = m_edges[candidateEdge];
+                // Check if candidate shares any vertex with current edge
+                bool sharesVertex = (candidate.vertices[0] == v0 || candidate.vertices[0] == v1 ||
+                                    candidate.vertices[1] == v0 || candidate.vertices[1] == v1);
+                
+                if (!sharesVertex) {
+                    nextEdge = candidateEdge;
                     break;
                 }
             }
             
-            if (edgePos < 0) break;
-            
-            // Opposite edge is 2 positions away
-            uint32_t nextEdge = face.edges[(edgePos + 2) % 4];
+            if (nextEdge == UINT32_MAX) break;
             
             // Stop if we've looped back or already selected
             if (nextEdge == edgeIndex || m_edges[nextEdge].selected) break;
@@ -365,43 +441,24 @@ void Mesh2::selectEdgeLoop(uint32_t edgeIndex) {
     m_renderDataDirty = true;
 }
 
-// Edge ring selection - follows perpendicular edges through quads
-void Mesh2::selectEdgeRing(uint32_t edgeIndex) {
-    if (edgeIndex >= m_edges.size()) return;
+// Grow edge selection - adds all edges that share a vertex with any selected edge
+void Mesh2::growEdgeSelection() {
+    // Collect all vertices that are part of selected edges
+    std::unordered_set<uint32_t> selectedVertices;
+    for (size_t i = 0; i < m_edges.size(); i++) {
+        if (m_edges[i].selected) {
+            selectedVertices.insert(m_edges[i].vertices[0]);
+            selectedVertices.insert(m_edges[i].vertices[1]);
+        }
+    }
     
-    m_edges[edgeIndex].selected = true;
-    
-    // Traverse through connected quads perpendicular to the edge
-    for (int dir = 0; dir < 2; dir++) {
-        uint32_t currentEdge = edgeIndex;
+    // Select all edges that touch any of these vertices
+    for (size_t i = 0; i < m_edges.size(); i++) {
+        if (m_edges[i].selected) continue;
         
-        while (true) {
-            const Edge& edge = m_edges[currentEdge];
-            uint32_t faceIndex = edge.faces[dir];
-            
-            if (faceIndex == UINT32_MAX) break;
-            
-            const Face& face = m_faces[faceIndex];
-            if (!face.isQuad()) break;
-            
-            // Find adjacent edges (perpendicular)
-            int edgePos = -1;
-            for (int i = 0; i < 4; i++) {
-                if (face.edges[i] == currentEdge) {
-                    edgePos = i;
-                    break;
-                }
-            }
-            
-            if (edgePos < 0) break;
-            
-            // Get adjacent edge (not opposite, but adjacent)
-            uint32_t nextEdge = face.edges[(edgePos + 1) % 4];
-            
-            if (nextEdge == edgeIndex || m_edges[nextEdge].selected) break;
-            
-            m_edges[nextEdge].selected = true;
-            currentEdge = nextEdge;
+        if (selectedVertices.count(m_edges[i].vertices[0]) > 0 ||
+            selectedVertices.count(m_edges[i].vertices[1]) > 0) {
+            m_edges[i].selected = true;
         }
     }
     
@@ -880,8 +937,66 @@ void Mesh2::splitSelectedEdges() {
                 tri2.vertices[2] = v2;
                 newFaces.push_back(tri2);
             }
+        } else if (splitEdgePositions.size() == 2 && !face.isQuad()) {
+            // Triangle with 2 edges split - creates 1 triangle + 1 quad
+            int pos0 = splitEdgePositions[0];
+            int pos1 = splitEdgePositions[1];
+            uint32_t mid0 = edgeMidpoints[face.edges[pos0]];
+            uint32_t mid1 = edgeMidpoints[face.edges[pos1]];
+            
+            // Find the shared vertex between the two split edges
+            // Each edge in a triangle is at position i and connects vertices[i] to vertices[(i+1)%3]
+            // Edge at pos0 connects vertices[pos0] to vertices[(pos0+1)%3]
+            // Edge at pos1 connects vertices[pos1] to vertices[(pos1+1)%3]
+            
+            // Find which vertex is shared between both edges
+            uint32_t sharedVertex = UINT32_MAX;
+            uint32_t opposite0 = UINT32_MAX; // vertex on edge0 not shared
+            uint32_t opposite1 = UINT32_MAX; // vertex on edge1 not shared
+            
+            uint32_t e0v0 = face.vertices[pos0];
+            uint32_t e0v1 = face.vertices[(pos0 + 1) % 3];
+            uint32_t e1v0 = face.vertices[pos1];
+            uint32_t e1v1 = face.vertices[(pos1 + 1) % 3];
+            
+            if (e0v0 == e1v0) {
+                sharedVertex = e0v0;
+                opposite0 = e0v1;
+                opposite1 = e1v1;
+            } else if (e0v0 == e1v1) {
+                sharedVertex = e0v0;
+                opposite0 = e0v1;
+                opposite1 = e1v0;
+            } else if (e0v1 == e1v0) {
+                sharedVertex = e0v1;
+                opposite0 = e0v0;
+                opposite1 = e1v1;
+            } else if (e0v1 == e1v1) {
+                sharedVertex = e0v1;
+                opposite0 = e0v0;
+                opposite1 = e1v0;
+            }
+            
+            if (sharedVertex != UINT32_MAX) {
+                // Create small triangle at the shared vertex corner
+                Face tri;
+                tri.vertexCount = 3;
+                tri.vertices[0] = sharedVertex;
+                tri.vertices[1] = mid0;
+                tri.vertices[2] = mid1;
+                newFaces.push_back(tri);
+                
+                // Create quad from the two midpoints and two opposite vertices
+                Face quad;
+                quad.vertexCount = 4;
+                quad.vertices[0] = mid0;
+                quad.vertices[1] = opposite0;
+                quad.vertices[2] = opposite1;
+                quad.vertices[3] = mid1;
+                newFaces.push_back(quad);
+            }
         } else if (splitEdgePositions.size() == 2 && face.isQuad()) {
-            // Two opposite edges split - create 3 quads (subdivision)
+            // Two edges split on quad
             int pos0 = splitEdgePositions[0];
             int pos1 = splitEdgePositions[1];
             

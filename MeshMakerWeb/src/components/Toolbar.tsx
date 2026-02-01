@@ -27,6 +27,8 @@ interface ToolbarProps {
   // Selection
   onSelectAll?: () => void;
   onDeselectAll?: () => void;
+  onSelectEdgeLoop?: () => void;
+  onSelectEdgeRing?: () => void;
   // Mesh operations
   onFlip?: () => void;
   onSubdivide?: () => void;
@@ -59,6 +61,8 @@ export function Toolbar({
   onRedo,
   onSelectAll,
   onDeselectAll,
+  onSelectEdgeLoop,
+  onSelectEdgeRing,
   onFlip,
   onSubdivide,
   onTriangulate,
@@ -196,6 +200,24 @@ export function Toolbar({
         >
           ☐ Deselect All
         </button>
+        {editMode === 'edges' && (
+          <>
+            <button
+              onClick={onSelectEdgeLoop}
+              className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+              title="Select Edge Loop (L)"
+            >
+              ⟲ Edge Loop
+            </button>
+            <button
+              onClick={onSelectEdgeRing}
+              className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+              title="Select Edge Ring (Shift+L)"
+            >
+              ⟳ Edge Ring
+            </button>
+          </>
+        )}
       </div>
 
       {/* Transform Tools */}

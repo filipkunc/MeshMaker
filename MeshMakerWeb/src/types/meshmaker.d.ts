@@ -37,6 +37,11 @@ export interface MeshMakerModule extends EmscriptenModule {
   splitSelectedEdges(): void;
   mergeSelectedVertices(): void;
   
+  // Edge selection
+  selectEdgeLoop(): void;
+  selectEdgeRing(): void;
+  growEdgeSelection(): void;
+
   // View settings
   getViewMode(): number;
   setViewMode(mode: number): void;

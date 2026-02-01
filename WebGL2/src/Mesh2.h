@@ -170,6 +170,7 @@ public:
     // Edge loop selection
     void selectEdgeLoop(uint32_t edgeIndex);
     void selectEdgeRing(uint32_t edgeIndex);
+    void growEdgeSelection();  // Expand selection to adjacent edges
     
     // Raycast
     bool raycast(const glm::vec3& rayOrigin, const glm::vec3& rayDir,

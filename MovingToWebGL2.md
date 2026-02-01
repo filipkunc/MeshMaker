@@ -45,6 +45,8 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Point-click and rectangle selection
 - Proper vertex/edge/triangle selection (not always selecting faces)
 - Selection colors: red for selected vertices, blue for deselected
+- Edge loop selection (expands selection through quad loops)
+- Edge ring selection (expands selection perpendicular through quads)
 
 **Camera:**
 - Orbit camera with mouse controls
@@ -92,12 +94,12 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 
 **High Priority:**
 - [x] File save/load (document serialization) ✅ OBJ and GLB formats
+- [x] Edge loop/ring selection ✅ UI buttons in Edges mode
 
 **Medium Priority:**
 - [ ] Texture support and UV mapping
 - [ ] Texture paint tool
 - [ ] Material/color per face
-- [ ] More robust edge loop/ring selection
 
 **Low Priority / Polish:**
 - [ ] Soft selection / falloff

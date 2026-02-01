@@ -315,6 +315,24 @@ function App() {
     triggerUpdate();
   }, [module, triggerUpdate]);
 
+  const handleSelectEdgeLoop = useCallback(() => {
+    if (!module) return;
+    module.selectEdgeLoop();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleSelectEdgeRing = useCallback(() => {
+    if (!module) return;
+    module.selectEdgeRing();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
+  const handleGrowEdgeSelection = useCallback(() => {
+    if (!module) return;
+    module.growEdgeSelection();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
   // Mesh operations
   const handleFlip = useCallback(() => {
     if (!module) return;
@@ -456,6 +474,24 @@ function App() {
         return;
       }
 
+      // Edge loop/ring selection (only in edges mode)
+      if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleSelectEdgeRing();
+        } else {
+          handleSelectEdgeLoop();
+        }
+        return;
+      }
+
+      // Grow edge selection (only in edges mode)
+      if (e.key === 'g' || e.key === 'G') {
+        e.preventDefault();
+        handleGrowEdgeSelection();
+        return;
+      }
+
       // Delete
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
@@ -490,7 +526,8 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleFlip, handleSubdivide, handleTriangulate, handleExtrude, handleMergeVertices, 
-      handleSelectAll, handleDeselectAll, handleDelete, handleDuplicate, handleUndo, handleRedo]);
+      handleSelectAll, handleDeselectAll, handleSelectEdgeLoop, handleSelectEdgeRing, handleGrowEdgeSelection,
+      handleDelete, handleDuplicate, handleUndo, handleRedo]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -512,6 +549,9 @@ function App() {
         onSubdivide={handleSubdivide}
         onMerge={handleMergeVertices}
         onSplit={handleSplitEdges}
+        onSelectEdgeLoop={handleSelectEdgeLoop}
+        onSelectEdgeRing={handleSelectEdgeRing}
+        onGrowEdgeSelection={handleGrowEdgeSelection}
       />
 
       {/* Main Viewport */}

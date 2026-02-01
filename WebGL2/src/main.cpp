@@ -2997,6 +2997,22 @@ void api_mergeSelectedVertices() {
     sceneActionWithUndo("Merge Vertices", []() { g_app.items->mergeSelectedVertices(); });
 }
 
+// Edge loop/ring selection
+void api_selectEdgeLoop() {
+    if (!g_app.items || g_app.items->getEditMode() != EditMode::Edges) return;
+    g_app.items->selectEdgeLoopFromSelected();
+}
+
+void api_selectEdgeRing() {
+    if (!g_app.items || g_app.items->getEditMode() != EditMode::Edges) return;
+    g_app.items->selectEdgeRingFromSelected();
+}
+
+void api_growEdgeSelection() {
+    if (!g_app.items || g_app.items->getEditMode() != EditMode::Edges) return;
+    g_app.items->growEdgeSelection();
+}
+
 // View settings
 int api_getViewMode() {
     return g_app.viewMode;

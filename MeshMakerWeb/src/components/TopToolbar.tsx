@@ -26,6 +26,10 @@ interface TopToolbarProps {
   onSubdivide: () => void;
   onMerge: () => void;
   onSplit: () => void;
+  // Edge selection
+  onSelectEdgeLoop?: () => void;
+  onSelectEdgeRing?: () => void;
+  onGrowEdgeSelection?: () => void;
 }
 
 interface IconButtonProps {
@@ -129,6 +133,9 @@ export function TopToolbar({
   onSubdivide,
   onMerge,
   onSplit,
+  onSelectEdgeLoop,
+  onSelectEdgeRing,
+  onGrowEdgeSelection,
 }: TopToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -215,6 +222,28 @@ export function TopToolbar({
         onClick={() => onEditModeChange('edges')}
         active={editMode === 'edges'}
       />
+      
+      {/* Edge Loop/Ring Selection (only in Edges mode) */}
+      {editMode === 'edges' && (
+        <>
+          <Separator />
+          <TextButton
+            label="Loop"
+            title="Select Edge Loop (L)"
+            onClick={() => onSelectEdgeLoop?.()}
+          />
+          <TextButton
+            label="Ring"
+            title="Select Edge Ring (Shift+L)"
+            onClick={() => onSelectEdgeRing?.()}
+          />
+          <TextButton
+            label="Grow"
+            title="Grow Edge Selection (G)"
+            onClick={() => onGrowEdgeSelection?.()}
+          />
+        </>
+      )}
       
       <Separator />
       
