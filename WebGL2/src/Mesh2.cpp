@@ -23,7 +23,7 @@ Mesh2::Mesh2()
     : m_selectionMode(SelectionMode::Triangles)
     , m_color(0.7f, 0.7f, 0.7f)
     , m_wireframeColor(0.0f, 0.0f, 0.0f)
-    , m_selectionColor(1.0f, 0.5f, 0.0f)
+    , m_selectionColor(0.9f, 0.2f, 0.0f)
 {
 }
 
@@ -1756,8 +1756,16 @@ void Mesh2::buildRenderData() {
     }
     
     // Build edge render data
+    const glm::vec3 seamColor(0.0f, 0.8f, 0.0f);  // Green for seam edges
     for (const Edge& edge : m_edges) {
-        glm::vec3 edgeColor = edge.selected ? m_selectionColor : m_wireframeColor;
+        glm::vec3 edgeColor;
+        if (edge.selected) {
+            edgeColor = m_selectionColor;
+        } else if (edge.isSeam) {
+            edgeColor = seamColor;
+        } else {
+            edgeColor = m_wireframeColor;
+        }
         glm::vec3 p0 = m_vertices[edge.vertices[0]].position;
         glm::vec3 p1 = m_vertices[edge.vertices[1]].position;
         

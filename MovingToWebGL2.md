@@ -44,7 +44,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Color-buffer picking for all selection modes
 - Point-click and rectangle selection
 - Proper vertex/edge/triangle selection (not always selecting faces)
-- Selection colors: red for selected vertices, blue for deselected
+- Selection colors: dark red-orange for selected edges/faces, red for selected vertices, blue for deselected vertices
 - Edge loop selection (expands selection through quad loops)
 - Edge ring selection (expands selection perpendicular through quads)
 - Grow edge selection (expand selection to neighboring edges)
@@ -84,6 +84,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Full undo/redo for item transformations (translate, rotate, scale)
 - Full undo/redo for mesh operations (extrude, subdivide, merge, etc.)
 - State capture and restore for both items and mesh topology
+- Texture references preserved through scene undo/redo
 
 **React Frontend (MeshMakerWeb):**
 - Vite + React 19 + TypeScript + Tailwind CSS
@@ -108,7 +109,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Selected faces highlighted in UV view
 - UV transformation API: translate, rotate, scale
 - **Seam Marking:** Mark/clear edges as seams for UV unwrapping (Edges edit mode)
-- **Seam Visualization:** Seam edges rendered in green in both 3D viewport and UV editor
+- **Seam Visualization:** Seam edges rendered in green in 3D viewport (both wireframe overlay and Edge mode), and UV editor
 - UV coordinates preserved through triangulation and undo/redo
 
 **Testing:**
@@ -131,7 +132,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - [x] UV Editor: vertex selection and manipulation ✅ Click to select, drag to move
 - [x] Seam marking on edges for advanced unwrapping ✅ Mark/Clear buttons in UV Editor
 - [x] Seam-based conformal UV unwrap (LSCM) ✅ Unwrap button in UV Editor
-- [ ] Texture support (load and display textures on meshes)
+- [x] Texture support (load and display textures on meshes) ✅ Texture loading, rendering on meshes, preserved through undo/redo
 - [ ] Texture paint tool
 - [ ] Material/color per face
 

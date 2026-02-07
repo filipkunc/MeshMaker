@@ -61,6 +61,7 @@ struct ItemState {
     std::vector<Face> meshFaces;
     std::vector<Edge> meshEdges;
     SelectionMode meshSelectionMode;
+    std::shared_ptr<Texture> texture;  // Preserve texture through undo/redo
 };
 
 // Captures the full scene state (all items)
@@ -505,6 +506,8 @@ SceneState captureSceneState() {
             itemState.selected = item->selected;
             itemState.visible = item->visible;
             
+            itemState.texture = item->texture;
+            
             if (item->mesh) {
                 itemState.meshSelectionMode = item->mesh->getSelectionMode();
                 item->mesh->getState(itemState.meshVertices, itemState.meshFaces, itemState.meshEdges);
@@ -535,6 +538,7 @@ void applySceneState(const SceneState& state) {
         
         item->mesh->setState(itemState.meshVertices, itemState.meshFaces, itemState.meshEdges);
         item->mesh->setSelectionMode(itemState.meshSelectionMode);
+        item->texture = itemState.texture;
         
         g_app.items->addItem(std::move(item));
     }
