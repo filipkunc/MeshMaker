@@ -143,6 +143,7 @@ struct AppState {
     // Manipulator (transform gizmo)
     std::unique_ptr<Shader> manipulatorShader;
     std::unique_ptr<Shader> thickLineShader;
+    std::unique_ptr<Shader> thickLineColoredShader;  // For screen-space thick lines with per-vertex color
     std::unique_ptr<Manipulator> translateManipulator;
     std::unique_ptr<Manipulator> rotateManipulator;
     std::unique_ptr<Manipulator> scaleManipulator;
@@ -1598,7 +1599,14 @@ int selectAtPoint(int x, int y) {
             if (editMode == EditMode::Vertices) {
                 mesh->drawVerticesForSelection(*g_app.selectionShader);
             } else if (editMode == EditMode::Edges) {
-                mesh->drawEdgesForSelection(*g_app.selectionShader);
+                // Pre-set thick line colored shader uniforms for edge selection rendering
+                g_app.thickLineColoredShader->use();
+                g_app.thickLineColoredShader->setMat4("uModel", model);
+                g_app.thickLineColoredShader->setMat4("uView", view);
+                g_app.thickLineColoredShader->setMat4("uProjection", projection);
+                g_app.selectionShader->use();  // Switch back
+                mesh->drawEdgesForSelection(*g_app.selectionShader, *g_app.thickLineColoredShader,
+                                             static_cast<float>(vp.width), static_cast<float>(vp.height));
             } else {
                 mesh->drawForSelection(*g_app.selectionShader);
             }
@@ -1933,7 +1941,14 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
             if (editMode == EditMode::Vertices) {
                 mesh->drawVerticesForSelection(*g_app.selectionShader);
             } else if (editMode == EditMode::Edges) {
-                mesh->drawEdgesForSelection(*g_app.selectionShader);
+                // Pre-set thick line colored shader uniforms for edge selection rendering
+                g_app.thickLineColoredShader->use();
+                g_app.thickLineColoredShader->setMat4("uModel", model);
+                g_app.thickLineColoredShader->setMat4("uView", view);
+                g_app.thickLineColoredShader->setMat4("uProjection", projection);
+                g_app.selectionShader->use();  // Switch back
+                mesh->drawEdgesForSelection(*g_app.selectionShader, *g_app.thickLineColoredShader,
+                                             static_cast<float>(vp.width), static_cast<float>(vp.height));
             } else {
                 mesh->drawForSelection(*g_app.selectionShader);
             }
@@ -2744,6 +2759,12 @@ bool initShaders() {
         return false;
     }
     
+    g_app.thickLineColoredShader = std::make_unique<Shader>();
+    if (!g_app.thickLineColoredShader->loadFromFiles(shaderPath + "thickline_colored.vert", shaderPath + "thickline_colored.frag")) {
+        std::cerr << "Failed to load thick line colored shaders" << std::endl;
+        return false;
+    }
+    
     // UV Editor shaders
     g_app.uvShader = std::make_unique<Shader>();
     if (!g_app.uvShader->loadFromFiles(shaderPath + "uv.vert", shaderPath + "uv.frag")) {
@@ -3151,10 +3172,12 @@ void render3DViewport(int x, int y, int width, int height) {
     ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
     
     // Draw all items
-    g_app.items->draw(*g_app.meshShader, *g_app.gridShader, viewMode, view, projection);
+    g_app.items->draw(*g_app.meshShader, *g_app.thickLineColoredShader, viewMode, view, projection,
+                      static_cast<float>(width), static_cast<float>(height));
     
     // Draw component overlay (vertices/edges) for component editing modes
-    g_app.items->drawComponentOverlay(*g_app.coloredShader, view, projection);
+    g_app.items->drawComponentOverlay(*g_app.coloredShader, *g_app.thickLineColoredShader, view, projection,
+                                      static_cast<float>(width), static_cast<float>(height));
     
     // Draw face normals if enabled
     if (g_app.showNormals) {
@@ -3350,10 +3373,12 @@ void render() {
         ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
         
         // Draw all items
-        g_app.items->draw(*g_app.meshShader, *g_app.gridShader, viewMode, view, projection);
+        g_app.items->draw(*g_app.meshShader, *g_app.thickLineColoredShader, viewMode, view, projection,
+                          static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight));
         
         // Draw component overlay
-        g_app.items->drawComponentOverlay(*g_app.coloredShader, view, projection);
+        g_app.items->drawComponentOverlay(*g_app.coloredShader, *g_app.thickLineColoredShader, view, projection,
+                                          static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight));
         
         // Draw face normals if enabled
         if (g_app.showNormals) {

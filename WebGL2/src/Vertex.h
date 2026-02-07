@@ -28,3 +28,16 @@ struct LineVertex {
     LineVertex(const glm::vec3& pos, const glm::vec3& col)
         : position(pos), color(col) {}
 };
+
+// Vertex for screen-space thick line rendering (expanded to quads in vertex shader)
+struct ThickLineVertex {
+    glm::vec3 position;      // Current endpoint position
+    glm::vec3 nextPosition;  // Other endpoint position
+    float side;              // -1.0 or +1.0 (which side of the line)
+    glm::vec3 color;         // Per-vertex color
+    
+    ThickLineVertex() : position(0.0f), nextPosition(0.0f), side(-1.0f), color(1.0f) {}
+    
+    ThickLineVertex(const glm::vec3& pos, const glm::vec3& next, float s, const glm::vec3& col)
+        : position(pos), nextPosition(next), side(s), color(col) {}
+};

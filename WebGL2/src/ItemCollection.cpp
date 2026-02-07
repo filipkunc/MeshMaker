@@ -632,8 +632,9 @@ void ItemCollection::extrudeSelectedFaces() {
 }
 
 // Drawing
-void ItemCollection::draw(Shader& meshShader, Shader& wireShader, ViewMode mode,
-                          const glm::mat4& view, const glm::mat4& projection) const {
+void ItemCollection::draw(Shader& meshShader, Shader& thickLineColoredShader, ViewMode mode,
+                          const glm::mat4& view, const glm::mat4& projection,
+                          float viewportWidth, float viewportHeight) const {
     for (const auto& item : m_items) {
         if (!item->visible) continue;
         
@@ -683,20 +684,24 @@ void ItemCollection::draw(Shader& meshShader, Shader& wireShader, ViewMode mode,
             }
         }
         
-        // Draw wireframe overlay for selected items
+        // Draw wireframe overlay using thick line colored shader
         if (drawWireframe) {
-            wireShader.use();
-            wireShader.setMat4("uModel", model);
-            wireShader.setMat4("uView", view);
-            wireShader.setMat4("uProjection", projection);
+            thickLineColoredShader.use();
+            thickLineColoredShader.setMat4("uModel", model);
+            thickLineColoredShader.setMat4("uView", view);
+            thickLineColoredShader.setMat4("uProjection", projection);
+            thickLineColoredShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineColoredShader.setFloat("uLineWidth", 1.5f);
+            thickLineColoredShader.setBool("uAntialias", true);
             
             item->mesh->draw(ViewMode::Wireframe);
         }
     }
 }
 
-void ItemCollection::drawComponentOverlay(Shader& coloredShader,
-                                           const glm::mat4& view, const glm::mat4& projection) const {
+void ItemCollection::drawComponentOverlay(Shader& coloredShader, Shader& thickLineColoredShader,
+                                           const glm::mat4& view, const glm::mat4& projection,
+                                           float viewportWidth, float viewportHeight) const {
     // Draw vertex points or edge highlights for component modes
     // Only draws for selected items in component editing modes
     if (m_editMode == EditMode::Items) return;
@@ -706,15 +711,21 @@ void ItemCollection::drawComponentOverlay(Shader& coloredShader,
         
         glm::mat4 model = item->getTransformMatrix();
         
-        coloredShader.use();
-        coloredShader.setMat4("uModel", model);
-        coloredShader.setMat4("uView", view);
-        coloredShader.setMat4("uProjection", projection);
-        
         if (m_editMode == EditMode::Vertices) {
+            coloredShader.use();
+            coloredShader.setMat4("uModel", model);
+            coloredShader.setMat4("uView", view);
+            coloredShader.setMat4("uProjection", projection);
             item->mesh->drawVertices(coloredShader);
         } else if (m_editMode == EditMode::Edges) {
-            item->mesh->drawEdges(coloredShader);
+            thickLineColoredShader.use();
+            thickLineColoredShader.setMat4("uModel", model);
+            thickLineColoredShader.setMat4("uView", view);
+            thickLineColoredShader.setMat4("uProjection", projection);
+            thickLineColoredShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+            thickLineColoredShader.setFloat("uLineWidth", 2.0f);
+            thickLineColoredShader.setBool("uAntialias", true);
+            item->mesh->drawEdges(thickLineColoredShader);
         }
         // Triangles mode - selection is shown via face colors in regular draw
     }

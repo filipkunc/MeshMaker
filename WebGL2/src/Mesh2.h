@@ -235,7 +235,8 @@ public:
     void draw(ViewMode mode = ViewMode::SolidWireframe) const;
     void drawForSelection(Shader& selectionShader) const;  // Draw faces for selection
     void drawVerticesForSelection(Shader& selectionShader) const;  // Draw vertices for selection
-    void drawEdgesForSelection(Shader& selectionShader) const;     // Draw edges for selection
+    void drawEdgesForSelection(Shader& selectionShader, Shader& thickLineShader,
+                               float viewportWidth, float viewportHeight) const;  // Draw edges for selection
     void drawVertices(Shader& pointShader) const;  // Draw vertices as points (blue=deselected, red=selected)
     void drawEdges(Shader& lineShader) const;      // Draw edges with selection colors
     void drawNormals(Shader& lineShader) const;    // Draw face normals as lines from face centers
@@ -280,7 +281,7 @@ private:
     
     // Render data (generated from topology)
     std::vector<Vertex> m_renderVertices;
-    std::vector<LineVertex> m_edgeRenderVertices;
+    std::vector<ThickLineVertex> m_thickEdgeVertices;
     
     // State
     SelectionMode m_selectionMode;

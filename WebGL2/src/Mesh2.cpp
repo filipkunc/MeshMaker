@@ -40,7 +40,7 @@ void Mesh2::clear() {
     m_vertexToEdges.clear();
     m_vertexToFaces.clear();
     m_renderVertices.clear();
-    m_edgeRenderVertices.clear();
+    m_thickEdgeVertices.clear();
     m_renderDataDirty = true;
 }
 
@@ -1726,7 +1726,7 @@ void Mesh2::merge(const Mesh2* mesh) {
 // Build render data
 void Mesh2::buildRenderData() {
     m_renderVertices.clear();
-    m_edgeRenderVertices.clear();
+    m_thickEdgeVertices.clear();
     
     for (const Face& face : m_faces) {
         glm::vec3 faceColor = face.selected ? m_selectionColor : m_color;
@@ -1756,7 +1756,7 @@ void Mesh2::buildRenderData() {
         }
     }
     
-    // Build edge render data
+    // Build thick edge render data (6 vertices per edge = 2 triangles forming a quad)
     const glm::vec3 seamColor(0.0f, 0.8f, 0.0f);  // Green for seam edges
     for (const Edge& edge : m_edges) {
         glm::vec3 edgeColor;
@@ -1770,8 +1770,15 @@ void Mesh2::buildRenderData() {
         glm::vec3 p0 = m_vertices[edge.vertices[0]].position;
         glm::vec3 p1 = m_vertices[edge.vertices[1]].position;
         
-        m_edgeRenderVertices.push_back({p0, edgeColor});
-        m_edgeRenderVertices.push_back({p1, edgeColor});
+        // Triangle 1: p0(-1), p0(+1), p1(-1)
+        m_thickEdgeVertices.push_back({p0, p1, -1.0f, edgeColor});
+        m_thickEdgeVertices.push_back({p0, p1,  1.0f, edgeColor});
+        m_thickEdgeVertices.push_back({p1, p0, -1.0f, edgeColor});
+        
+        // Triangle 2: p0(-1), p1(-1), p1(+1)
+        m_thickEdgeVertices.push_back({p0, p1, -1.0f, edgeColor});
+        m_thickEdgeVertices.push_back({p1, p0, -1.0f, edgeColor});
+        m_thickEdgeVertices.push_back({p1, p0,  1.0f, edgeColor});
     }
     
     m_renderDataDirty = false;
@@ -1814,22 +1821,28 @@ void Mesh2::createGPUBuffers() {
         glBindVertexArray(0);
     }
     
-    // Edge VAO/VBO
-    if (!m_edgeRenderVertices.empty()) {
+    // Edge VAO/VBO (thick line quads)
+    if (!m_thickEdgeVertices.empty()) {
         glGenVertexArrays(1, &m_edgeVao);
         glGenBuffers(1, &m_edgeVbo);
         
         glBindVertexArray(m_edgeVao);
         glBindBuffer(GL_ARRAY_BUFFER, m_edgeVbo);
-        glBufferData(GL_ARRAY_BUFFER, m_edgeRenderVertices.size() * sizeof(LineVertex),
-                     m_edgeRenderVertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, m_thickEdgeVertices.size() * sizeof(ThickLineVertex),
+                     m_thickEdgeVertices.data(), GL_STATIC_DRAW);
         
-        // Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)0);
+        // Position (location 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ThickLineVertex), (void*)0);
         glEnableVertexAttribArray(0);
-        // Color
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)(3 * sizeof(float)));
+        // NextPosition (location 1)
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ThickLineVertex), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+        // Side (location 2)
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(ThickLineVertex), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        // Color (location 3)
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ThickLineVertex), (void*)(7 * sizeof(float)));
+        glEnableVertexAttribArray(3);
         
         glBindVertexArray(0);
     }
@@ -1859,11 +1872,11 @@ void Mesh2::updateGPUBuffers() {
                      m_renderVertices.data(), GL_STATIC_DRAW);
     }
     
-    // Re-upload edge data
-    if (m_edgeVbo && !m_edgeRenderVertices.empty()) {
+    // Re-upload edge data (thick line quads)
+    if (m_edgeVbo && !m_thickEdgeVertices.empty()) {
         glBindBuffer(GL_ARRAY_BUFFER, m_edgeVbo);
-        glBufferData(GL_ARRAY_BUFFER, m_edgeRenderVertices.size() * sizeof(Vertex),
-                     m_edgeRenderVertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, m_thickEdgeVertices.size() * sizeof(ThickLineVertex),
+                     m_thickEdgeVertices.data(), GL_STATIC_DRAW);
     }
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -1892,16 +1905,13 @@ void Mesh2::draw(ViewMode mode) const {
     }
     
     if (mode == ViewMode::Wireframe || mode == ViewMode::SolidWireframe) {
-        if (m_edgeVao && !m_edgeRenderVertices.empty()) {
+        if (m_edgeVao && !m_thickEdgeVertices.empty()) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBindVertexArray(m_edgeVao);
-#ifndef EMSCRIPTEN_BUILD
-            glLineWidth(1.5f);
-#endif
-            glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_edgeRenderVertices.size()));
-#ifndef EMSCRIPTEN_BUILD
-            glLineWidth(1.0f);
-#endif
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_thickEdgeVertices.size()));
             glBindVertexArray(0);
+            glDisable(GL_BLEND);
         }
     }
 }
@@ -2028,8 +2038,9 @@ void Mesh2::drawVerticesForSelection(Shader& selectionShader) const {
     selectionShader.setBool("uUseColorOverride", false);
 }
 
-void Mesh2::drawEdgesForSelection(Shader& selectionShader) const {
-    // Draw each edge as a line with its index encoded as color
+void Mesh2::drawEdgesForSelection(Shader& selectionShader, Shader& thickLineShader,
+                                   float viewportWidth, float viewportHeight) const {
+    // Draw each edge as a thick line quad with its index encoded as color
     
     if (m_edges.empty()) return;
     
@@ -2041,73 +2052,95 @@ void Mesh2::drawEdgesForSelection(Shader& selectionShader) const {
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
     
+    // Batch all faces into one draw call
+    std::vector<glm::vec3> bgPositions;
     for (const Face& face : m_faces) {
-        std::vector<glm::vec3> positions;
         if (face.isQuad()) {
-            positions.push_back(m_vertices[face.vertices[0]].position);
-            positions.push_back(m_vertices[face.vertices[1]].position);
-            positions.push_back(m_vertices[face.vertices[2]].position);
-            positions.push_back(m_vertices[face.vertices[0]].position);
-            positions.push_back(m_vertices[face.vertices[2]].position);
-            positions.push_back(m_vertices[face.vertices[3]].position);
+            bgPositions.push_back(m_vertices[face.vertices[0]].position);
+            bgPositions.push_back(m_vertices[face.vertices[1]].position);
+            bgPositions.push_back(m_vertices[face.vertices[2]].position);
+            bgPositions.push_back(m_vertices[face.vertices[0]].position);
+            bgPositions.push_back(m_vertices[face.vertices[2]].position);
+            bgPositions.push_back(m_vertices[face.vertices[3]].position);
         } else {
-            positions.push_back(m_vertices[face.vertices[0]].position);
-            positions.push_back(m_vertices[face.vertices[1]].position);
-            positions.push_back(m_vertices[face.vertices[2]].position);
+            bgPositions.push_back(m_vertices[face.vertices[0]].position);
+            bgPositions.push_back(m_vertices[face.vertices[1]].position);
+            bgPositions.push_back(m_vertices[face.vertices[2]].position);
         }
-        
-        GLuint tempVao, tempVbo;
-        glGenVertexArrays(1, &tempVao);
-        glGenBuffers(1, &tempVbo);
-        glBindVertexArray(tempVao);
-        glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
-        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STREAM_DRAW);
+    }
+    
+    if (!bgPositions.empty()) {
+        GLuint bgVao, bgVbo;
+        glGenVertexArrays(1, &bgVao);
+        glGenBuffers(1, &bgVbo);
+        glBindVertexArray(bgVao);
+        glBindBuffer(GL_ARRAY_BUFFER, bgVbo);
+        glBufferData(GL_ARRAY_BUFFER, bgPositions.size() * sizeof(glm::vec3), bgPositions.data(), GL_STREAM_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
         glEnableVertexAttribArray(0);
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(positions.size()));
-        glDeleteBuffers(1, &tempVbo);
-        glDeleteVertexArrays(1, &tempVao);
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(bgPositions.size()));
+        glDeleteBuffers(1, &bgVbo);
+        glDeleteVertexArrays(1, &bgVao);
     }
     
     glDisable(GL_POLYGON_OFFSET_FILL);
     
-    // Now draw edges as lines with their indices
-#ifndef EMSCRIPTEN_BUILD
-    glLineWidth(5.0f);  // Thicker for easier selection
-#endif
+    // Switch to thick line colored shader for edges
+    // Caller has pre-set uModel, uView, uProjection on thickLineShader
+    thickLineShader.use();
+    thickLineShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
+    thickLineShader.setFloat("uLineWidth", 8.0f);  // Wide for easier selection
+    thickLineShader.setBool("uAntialias", false);   // Exact colors for picking
+    
+    // Generate all edge quads with color-encoded indices in one batch
+    std::vector<ThickLineVertex> edgeQuads;
+    edgeQuads.reserve(m_edges.size() * 6);
     
     for (size_t i = 0; i < m_edges.size(); i++) {
-        const Edge& edge = m_edges[i];
-        
         uint32_t colorIndex = static_cast<uint32_t>(i) + 1;
-        uint8_t r = colorIndex & 0xFF;
-        uint8_t g = (colorIndex >> 8) & 0xFF;
-        uint8_t b = (colorIndex >> 16) & 0xFF;
+        glm::vec3 encodedColor(
+            (colorIndex & 0xFF) / 255.0f,
+            ((colorIndex >> 8) & 0xFF) / 255.0f,
+            ((colorIndex >> 16) & 0xFF) / 255.0f
+        );
         
-        selectionShader.setVec4("uColorOverride", 
-            glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f));
+        glm::vec3 p0 = m_vertices[m_edges[i].vertices[0]].position;
+        glm::vec3 p1 = m_vertices[m_edges[i].vertices[1]].position;
         
-        glm::vec3 positions[2] = {
-            m_vertices[edge.vertices[0]].position,
-            m_vertices[edge.vertices[1]].position
-        };
-        
-        GLuint tempVao, tempVbo;
-        glGenVertexArrays(1, &tempVao);
-        glGenBuffers(1, &tempVbo);
-        glBindVertexArray(tempVao);
-        glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
-        glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(glm::vec3), positions, GL_STREAM_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-        glEnableVertexAttribArray(0);
-        glDrawArrays(GL_LINES, 0, 2);
-        glDeleteBuffers(1, &tempVbo);
-        glDeleteVertexArrays(1, &tempVao);
+        // 6 vertices per edge (2 triangles forming a quad)
+        edgeQuads.push_back({p0, p1, -1.0f, encodedColor});
+        edgeQuads.push_back({p0, p1,  1.0f, encodedColor});
+        edgeQuads.push_back({p1, p0, -1.0f, encodedColor});
+        edgeQuads.push_back({p0, p1, -1.0f, encodedColor});
+        edgeQuads.push_back({p1, p0, -1.0f, encodedColor});
+        edgeQuads.push_back({p1, p0,  1.0f, encodedColor});
     }
     
-#ifndef EMSCRIPTEN_BUILD
-    glLineWidth(1.0f);
-#endif
+    // Single batched draw call for all edges
+    GLuint tempVao, tempVbo;
+    glGenVertexArrays(1, &tempVao);
+    glGenBuffers(1, &tempVbo);
+    glBindVertexArray(tempVao);
+    glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
+    glBufferData(GL_ARRAY_BUFFER, edgeQuads.size() * sizeof(ThickLineVertex), edgeQuads.data(), GL_STREAM_DRAW);
+    
+    size_t stride = sizeof(ThickLineVertex);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)(7 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+    
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(edgeQuads.size()));
+    
+    glDeleteBuffers(1, &tempVbo);
+    glDeleteVertexArrays(1, &tempVao);
+    
+    // Restore selection shader
+    selectionShader.use();
     selectionShader.setBool("uUseColorOverride", false);
 }
 
@@ -2162,9 +2195,8 @@ void Mesh2::drawVertices(Shader& pointShader) const {
 }
 
 void Mesh2::drawEdges(Shader& lineShader) const {
-    // Draw edges with selection colors: darker base color for deselected, red for selected
-    // Green for seams (visible in 3D viewport too)
-    // Matching original MeshMaker behavior
+    // Draw edges as screen-space thick line quads with selection colors
+    // Matching original MeshMaker behavior: darker base color for deselected, red for selected, green for seams
     
     if (m_edges.empty()) return;
     
@@ -2172,17 +2204,12 @@ void Mesh2::drawEdges(Shader& lineShader) const {
     const glm::vec3 seamColor(0.0f, 0.8f, 0.0f);       // Green for seams
     const glm::vec3 normalColor(m_wireframeColor.r - 0.2f, m_wireframeColor.g - 0.2f, m_wireframeColor.b - 0.2f);
     
-    struct ColoredLine {
-        glm::vec3 position;
-        glm::vec3 color;
-    };
-    
-    std::vector<ColoredLine> lines;
-    lines.reserve(m_edges.size() * 2);
+    std::vector<ThickLineVertex> quads;
+    quads.reserve(m_edges.size() * 6);
     
     for (const auto& edge : m_edges) {
-        const glm::vec3& v0 = m_vertices[edge.vertices[0]].position;
-        const glm::vec3& v1 = m_vertices[edge.vertices[1]].position;
+        const glm::vec3& p0 = m_vertices[edge.vertices[0]].position;
+        const glm::vec3& p1 = m_vertices[edge.vertices[1]].position;
         
         // Color priority: selected > seam > normal
         glm::vec3 color;
@@ -2194,8 +2221,15 @@ void Mesh2::drawEdges(Shader& lineShader) const {
             color = normalColor;
         }
         
-        lines.push_back({v0, color});
-        lines.push_back({v1, color});
+        // 6 vertices per edge (2 triangles forming a quad)
+        // Triangle 1: p0(-1), p0(+1), p1(-1)
+        quads.push_back({p0, p1, -1.0f, color});
+        quads.push_back({p0, p1,  1.0f, color});
+        quads.push_back({p1, p0, -1.0f, color});
+        // Triangle 2: p0(-1), p1(-1), p1(+1)
+        quads.push_back({p0, p1, -1.0f, color});
+        quads.push_back({p1, p0, -1.0f, color});
+        quads.push_back({p1, p0,  1.0f, color});
     }
     
     // Use temporary VAO/VBO for drawing
@@ -2205,23 +2239,26 @@ void Mesh2::drawEdges(Shader& lineShader) const {
     
     glBindVertexArray(tempVao);
     glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
-    glBufferData(GL_ARRAY_BUFFER, lines.size() * sizeof(ColoredLine), lines.data(), GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, quads.size() * sizeof(ThickLineVertex), quads.data(), GL_STREAM_DRAW);
     
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredLine), (void*)0);
+    size_t stride = sizeof(ThickLineVertex);
+    // Position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
     glEnableVertexAttribArray(0);
-    
-    // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredLine), (void*)offsetof(ColoredLine, color));
+    // NextPosition
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // Side
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // Color
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)(7 * sizeof(float)));
+    glEnableVertexAttribArray(3);
     
-#ifndef EMSCRIPTEN_BUILD
-    glLineWidth(1.5f);
-#endif
-    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lines.size()));
-#ifndef EMSCRIPTEN_BUILD
-    glLineWidth(1.0f);
-#endif
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(quads.size()));
+    glDisable(GL_BLEND);
     
     glDeleteBuffers(1, &tempVbo);
     glDeleteVertexArrays(1, &tempVao);
