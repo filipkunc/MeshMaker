@@ -47,6 +47,8 @@ extern int api_getViewMode();
 extern void api_setViewMode(int mode);
 extern bool api_getShowGrid();
 extern void api_setShowGrid(bool show);
+extern bool api_getShowNormals();
+extern void api_setShowNormals(bool show);
 
 extern int api_getItemCount();
 
@@ -163,6 +165,8 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("setViewMode", &api_setViewMode);
     function("getShowGrid", &api_getShowGrid);
     function("setShowGrid", &api_setShowGrid);
+    function("getShowNormals", &api_getShowNormals);
+    function("setShowNormals", &api_setShowNormals);
     
     // Info
     function("getItemCount", &api_getItemCount);

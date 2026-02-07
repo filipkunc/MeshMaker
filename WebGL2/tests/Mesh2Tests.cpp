@@ -799,6 +799,248 @@ TEST_F(SplitEdgeTest, SplitSingleEdgeOnTriangle_CreatesTwoTriangles) {
 }
 
 // =============================================================================
+// Extrude Tests
+// =============================================================================
+
+class ExtrudeTest : public ::testing::Test {
+protected:
+    Mesh2 mesh;
+    
+    // Compute face normal using the same formula as Mesh2  
+    glm::vec3 computeFaceNormal(const Face& face) const {
+        const auto& verts = mesh.getVertices();
+        glm::vec3 v0 = verts[face.vertices[0]].position;
+        glm::vec3 v1 = verts[face.vertices[1]].position;
+        glm::vec3 v2 = verts[face.vertices[2]].position;
+        return glm::normalize(glm::cross(v1 - v0, v2 - v0));
+    }
+    
+    // Get center of a face
+    glm::vec3 computeFaceCenter(const Face& face) const {
+        const auto& verts = mesh.getVertices();
+        glm::vec3 center(0.0f);
+        for (int i = 0; i < face.vertexCount; i++) {
+            center += verts[face.vertices[i]].position;
+        }
+        return center / static_cast<float>(face.vertexCount);
+    }
+    
+    // Check that all face normals are consistently oriented
+    // For a convex closed mesh, all normals should consistently point 
+    // either inward or outward relative to the mesh center
+    bool allNormalsConsistent() const {
+        const auto& faces = mesh.getFaces();
+        if (faces.empty()) return true;
+        
+        // Compute mesh center
+        glm::vec3 meshCenter(0.0f);
+        const auto& verts = mesh.getVertices();
+        for (const auto& v : verts) {
+            meshCenter += v.position;
+        }
+        meshCenter /= static_cast<float>(verts.size());
+        
+        // Check that dot(normal, faceCenter - meshCenter) has consistent sign
+        int positiveCount = 0;
+        int negativeCount = 0;
+        
+        for (const auto& face : faces) {
+            glm::vec3 normal = computeFaceNormal(face);
+            glm::vec3 faceCenter = computeFaceCenter(face);
+            glm::vec3 outward = faceCenter - meshCenter;
+            
+            float dot = glm::dot(normal, outward);
+            if (dot > 0.001f) positiveCount++;
+            else if (dot < -0.001f) negativeCount++;
+        }
+        
+        // All should be the same sign (either all inward or all outward)
+        return (positiveCount == 0 || negativeCount == 0);
+    }
+    
+    // Verify edge-face connectivity
+    bool verifyEdgeFaceConnectivity() {
+        const auto& faces = mesh.getFaces();
+        const auto& edges = mesh.getEdges();
+        
+        for (size_t fi = 0; fi < faces.size(); fi++) {
+            const auto& face = faces[fi];
+            for (int i = 0; i < face.vertexCount; i++) {
+                uint32_t edgeIdx = face.edges[i];
+                if (edgeIdx >= edges.size()) return false;
+                
+                const auto& edge = edges[edgeIdx];
+                if (edge.faces[0] != fi && edge.faces[1] != fi) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+
+TEST_F(ExtrudeTest, CubeExtrudeTopFace_HasConsistentNormals) {
+    mesh.makeCube();
+    
+    // Verify cube starts with consistent normals
+    ASSERT_TRUE(allNormalsConsistent()) << "Cube should start with consistent normals";
+    
+    // Select top face (face index 4: addQuad(v3, v2, v6, v7) for y=+1)
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(4);
+    ASSERT_EQ(mesh.getSelectedCount(), 1);
+    
+    // Extrude
+    mesh.extrudeSelected();
+    
+    // Should have 6 original + 4 side = 10 faces
+    EXPECT_EQ(mesh.getFaceCount(), 10) << "Cube with one extruded face should have 10 faces";
+    
+    // Should have 8 original + 4 duplicated = 12 vertices
+    EXPECT_EQ(mesh.getVertexCount(), 12) << "Should have 12 vertices after extrude";
+    
+    // Now translate the selected (extruded) face upward so normals are meaningful
+    mesh.translateSelected(glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    // All normals should be consistent
+    EXPECT_TRUE(allNormalsConsistent()) 
+        << "All face normals should be consistently oriented after extrude and translate";
+    
+    // Verify topology integrity
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, CubeExtrudeFrontFace_HasConsistentNormals) {
+    mesh.makeCube();
+    
+    // Select front face (face index 0: addQuad(v0, v1, v2, v3) for z=-1)
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(0);
+    
+    mesh.extrudeSelected();
+    mesh.translateSelected(glm::vec3(0.0f, 0.0f, -1.0f));
+    
+    EXPECT_EQ(mesh.getFaceCount(), 10);
+    EXPECT_TRUE(allNormalsConsistent())
+        << "All face normals should be consistent after extruding front face";
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, CubeExtrudeAllFaces_HasConsistentNormals) {
+    mesh.makeCube();
+    
+    // Select all faces
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectAll();
+    ASSERT_EQ(mesh.getSelectedCount(), 6);
+    
+    mesh.extrudeSelected();
+    
+    // All faces selected = no boundary edges = no side faces created 
+    // Just vertex duplication, same face count
+    EXPECT_EQ(mesh.getFaceCount(), 6);
+    
+    // Translate outward and check
+    mesh.translateSelected(glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, CubeExtrudeSideFace_HasConsistentNormals) {
+    mesh.makeCube();
+    
+    // Select right face (face index 3: addQuad(v1, v5, v6, v2) for x=+1)
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(3);
+    
+    mesh.extrudeSelected();
+    mesh.translateSelected(glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    EXPECT_EQ(mesh.getFaceCount(), 10);
+    EXPECT_TRUE(allNormalsConsistent())
+        << "All face normals should be consistent after extruding right face";
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, CubeExtrudeBottomFace_HasConsistentNormals) {
+    mesh.makeCube();
+    
+    // Select bottom face (face index 5: addQuad(v4, v5, v1, v0) for y=-1)
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(5);
+    
+    mesh.extrudeSelected();
+    mesh.translateSelected(glm::vec3(0.0f, -1.0f, 0.0f));
+    
+    EXPECT_EQ(mesh.getFaceCount(), 10);
+    EXPECT_TRUE(allNormalsConsistent())
+        << "All face normals should be consistent after extruding bottom face";
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, CubeExtrudeTwoAdjacentFaces_HasConsistentNormals) {
+    mesh.makeCube();
+    
+    // Select top and front faces
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(4, false);     // Top
+    mesh.selectFace(0, true);  // Front (add to selection)
+    ASSERT_EQ(mesh.getSelectedCount(), 2);
+    
+    mesh.extrudeSelected();
+    
+    // 2 faces selected, they share 1 edge.
+    // Each face has 4 boundary edges, but 1 is now interior = 4+4-2=6 boundary edges
+    // Original 6 + 6 side faces = 12 faces
+    EXPECT_EQ(mesh.getFaceCount(), 12);
+    
+    // Translate and check
+    mesh.translateSelected(glm::vec3(0.0f, 1.0f, -1.0f));
+    
+    EXPECT_TRUE(allNormalsConsistent())
+        << "All face normals should be consistent after extruding two adjacent faces";
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, PlaneExtrude_CreatesBoxShape) {
+    mesh.makePlane();
+    
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(0);
+    
+    mesh.extrudeSelected();
+    mesh.translateSelected(glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    // 1 original face + 4 side faces = 5 faces
+    EXPECT_EQ(mesh.getFaceCount(), 5);
+    EXPECT_EQ(mesh.getVertexCount(), 8);  // 4 original + 4 duplicated
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+TEST_F(ExtrudeTest, CubeExtrudeThenSubdivide_Succeeds) {
+    mesh.makeCube();
+    
+    mesh.setSelectionMode(SelectionMode::Triangles);
+    mesh.selectFace(4);  // Top
+    
+    mesh.extrudeSelected();
+    mesh.translateSelected(glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    ASSERT_TRUE(allNormalsConsistent()) << "Normals must be consistent before subdivision";
+    
+    // Deselect and subdivide
+    mesh.deselectAll();
+    mesh.selectAll();
+    
+    size_t facesBefore = mesh.getFaceCount();
+    mesh.catmullClarkSubdivide(1);
+    
+    // Subdivision should increase face count (each quad -> 4 quads for Catmull-Clark)
+    EXPECT_GT(mesh.getFaceCount(), facesBefore) << "Subdivision should produce more faces";
+    EXPECT_TRUE(verifyEdgeFaceConnectivity());
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 

@@ -238,6 +238,7 @@ public:
     void drawEdgesForSelection(Shader& selectionShader) const;     // Draw edges for selection
     void drawVertices(Shader& pointShader) const;  // Draw vertices as points (blue=deselected, red=selected)
     void drawEdges(Shader& lineShader) const;      // Draw edges with selection colors
+    void drawNormals(Shader& lineShader) const;    // Draw face normals as lines from face centers
     
     // UV Editor rendering
     void drawUV(Shader& uvShader) const;           // Draw faces in UV space

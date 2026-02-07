@@ -125,6 +125,7 @@ struct AppState {
     // View settings
     int viewMode = 2;  // SolidWireframe
     bool showGrid = true;
+    bool showNormals = false;
 #ifdef EMSCRIPTEN_BUILD
     bool showImGui = false;  // Hidden by default in React/web builds
 #else
@@ -3092,6 +3093,7 @@ void renderImGui() {
     ImGui::Combo("View Mode", &g_app.viewMode, viewModes, 3);
     
     ImGui::Checkbox("Show Grid", &g_app.showGrid);
+    ImGui::Checkbox("Show Normals", &g_app.showNormals);
     
     ImGui::Separator();
     ImGui::Text("Stats:");
@@ -3148,6 +3150,13 @@ void render3DViewport(int x, int y, int width, int height) {
     
     // Draw component overlay (vertices/edges) for component editing modes
     g_app.items->drawComponentOverlay(*g_app.coloredShader, view, projection);
+    
+    // Draw face normals if enabled
+    if (g_app.showNormals) {
+        glDisable(GL_DEPTH_TEST);
+        g_app.items->drawNormals(*g_app.coloredShader, view, projection);
+        glEnable(GL_DEPTH_TEST);
+    }
     
     // Draw manipulator if there's a selection and we're in a transform mode
     Manipulator* manipulator = getCurrentManipulator();
@@ -3340,6 +3349,13 @@ void render() {
         
         // Draw component overlay
         g_app.items->drawComponentOverlay(*g_app.coloredShader, view, projection);
+        
+        // Draw face normals if enabled
+        if (g_app.showNormals) {
+            glDisable(GL_DEPTH_TEST);
+            g_app.items->drawNormals(*g_app.coloredShader, view, projection);
+            glEnable(GL_DEPTH_TEST);
+        }
         
         // Draw manipulator if there's a selection and we're in a transform mode
         Manipulator* manipulator = getCurrentManipulator();
@@ -3866,6 +3882,14 @@ bool api_getShowGrid() {
 
 void api_setShowGrid(bool show) {
     g_app.showGrid = show;
+}
+
+bool api_getShowNormals() {
+    return g_app.showNormals;
+}
+
+void api_setShowNormals(bool show) {
+    g_app.showNormals = show;
 }
 
 // Info

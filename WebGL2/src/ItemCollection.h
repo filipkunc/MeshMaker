@@ -100,6 +100,8 @@ public:
               const glm::mat4& view, const glm::mat4& projection) const;
     void drawComponentOverlay(Shader& coloredShader,
                               const glm::mat4& view, const glm::mat4& projection) const;
+    void drawNormals(Shader& coloredShader,
+                     const glm::mat4& view, const glm::mat4& projection) const;
     void drawForSelection(Shader& selectionShader, 
                           const glm::mat4& view, const glm::mat4& projection) const;
     

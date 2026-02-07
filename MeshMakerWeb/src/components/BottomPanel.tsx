@@ -29,6 +29,8 @@ interface BottomPanelProps {
   onViewModeChange: (mode: ViewMode) => void;
   showGrid: boolean;
   onShowGridChange: (show: boolean) => void;
+  showNormals: boolean;
+  onShowNormalsChange: (show: boolean) => void;
   // Mesh steps
   meshSteps: number;
   onMeshStepsChange: (steps: number) => void;
@@ -55,6 +57,8 @@ export function BottomPanel({
   onViewModeChange,
   showGrid,
   onShowGridChange,
+  showNormals,
+  onShowNormalsChange,
   meshSteps,
   onMeshStepsChange,
 }: BottomPanelProps) {
@@ -262,6 +266,17 @@ export function BottomPanel({
           className="accent-blue-500"
         />
         <span className="text-zinc-400">Grid</span>
+      </label>
+      
+      {/* Normals Toggle */}
+      <label className="flex items-center gap-1 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={showNormals}
+          onChange={(e) => onShowNormalsChange(e.target.checked)}
+          className="accent-cyan-500"
+        />
+        <span className="text-zinc-400">Normals</span>
       </label>
     </div>
   );

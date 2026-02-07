@@ -17,6 +17,7 @@ function App() {
   const [editMode, setEditMode] = useState<EditMode>('items');
   const [viewMode, setViewMode] = useState<ViewMode>('solidWireframe');
   const [showGrid, setShowGrid] = useState(true);
+  const [showNormals, setShowNormals] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [hasTexture, setHasTexture] = useState(false);
@@ -417,6 +418,12 @@ function App() {
     setShowGrid(show);
   }, [module]);
 
+  const handleShowNormalsChange = useCallback((show: boolean) => {
+    if (!module) return;
+    module.setShowNormals(show);
+    setShowNormals(show);
+  }, [module]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -684,6 +691,8 @@ function App() {
         onViewModeChange={handleViewModeChange}
         showGrid={showGrid}
         onShowGridChange={handleShowGridChange}
+        showNormals={showNormals}
+        onShowNormalsChange={handleShowNormalsChange}
         meshSteps={meshSteps}
         onMeshStepsChange={setMeshSteps}
       />

@@ -19,6 +19,8 @@ interface ToolbarProps {
   onViewModeChange?: (mode: ViewMode) => void;
   showGrid?: boolean;
   onShowGridChange?: (show: boolean) => void;
+  showNormals?: boolean;
+  onShowNormalsChange?: (show: boolean) => void;
   // Undo/Redo
   canUndo?: boolean;
   canRedo?: boolean;
@@ -55,6 +57,8 @@ export function Toolbar({
   onViewModeChange,
   showGrid = true,
   onShowGridChange,
+  showNormals = false,
+  onShowNormalsChange,
   canUndo = false,
   canRedo = false,
   onUndo,
@@ -329,6 +333,15 @@ export function Toolbar({
             className="accent-purple-500"
           />
           Show Grid
+        </label>
+        <label className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 rounded cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showNormals}
+            onChange={(e) => onShowNormalsChange?.(e.target.checked)}
+            className="accent-cyan-500"
+          />
+          Show Normals
         </label>
       </div>
 

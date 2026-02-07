@@ -719,6 +719,22 @@ void ItemCollection::drawComponentOverlay(Shader& coloredShader,
     }
 }
 
+void ItemCollection::drawNormals(Shader& coloredShader,
+                                  const glm::mat4& view, const glm::mat4& projection) const {
+    for (const auto& item : m_items) {
+        if (!item->visible) continue;
+        
+        glm::mat4 model = item->getTransformMatrix();
+        
+        coloredShader.use();
+        coloredShader.setMat4("uModel", model);
+        coloredShader.setMat4("uView", view);
+        coloredShader.setMat4("uProjection", projection);
+        
+        item->mesh->drawNormals(coloredShader);
+    }
+}
+
 void ItemCollection::drawForSelection(Shader& selectionShader, 
                                        const glm::mat4& view, const glm::mat4& projection) const {
     uint32_t baseIndex = 0;

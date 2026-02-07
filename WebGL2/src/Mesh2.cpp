@@ -1569,22 +1569,36 @@ void Mesh2::catmullClarkSubdivide(int level) {
 
 void Mesh2::extrudeSelected() {
     std::unordered_map<uint32_t, uint32_t> vertexDuplicates;
-    std::vector<std::pair<uint32_t, uint32_t>> boundaryEdges;  // Original edge vertices
+    // Boundary edges stored with vertices in the winding order of the selected face
+    std::vector<std::pair<uint32_t, uint32_t>> boundaryEdges;
     
     // Find boundary edges (edges where one face is selected and other is not, or only one face)
+    // Store edge vertices in the order they appear in the selected face's winding
     for (size_t ei = 0; ei < m_edges.size(); ei++) {
         const Edge& edge = m_edges[ei];
         
         int selectedCount = 0;
+        uint32_t selectedFaceIdx = UINT32_MAX;
         for (int i = 0; i < 2; i++) {
             if (edge.faces[i] != UINT32_MAX && m_faces[edge.faces[i]].selected) {
                 selectedCount++;
+                selectedFaceIdx = edge.faces[i];
             }
         }
         
         // Boundary if exactly one adjacent face is selected
         if (selectedCount == 1) {
-            boundaryEdges.push_back({edge.vertices[0], edge.vertices[1]});
+            // Find the winding order of this edge in the selected face
+            const Face& face = m_faces[selectedFaceIdx];
+            for (int i = 0; i < face.vertexCount; i++) {
+                uint32_t v0 = face.vertices[i];
+                uint32_t v1 = face.vertices[(i + 1) % face.vertexCount];
+                if (edge.containsVertex(v0) && edge.containsVertex(v1)) {
+                    // v0→v1 is the direction in the selected face's winding
+                    boundaryEdges.push_back({v0, v1});
+                    break;
+                }
+            }
         }
     }
     
@@ -1604,14 +1618,17 @@ void Mesh2::extrudeSelected() {
     }
     
     // Create side faces along boundary edges
+    // The edge goes faceV0→faceV1 in the selected face's winding.
+    // The side quad should maintain consistent winding with the mesh:
+    // quad order: faceV0, faceV1, dup1, dup0
     for (const auto& be : boundaryEdges) {
-        uint32_t orig0 = be.first;
-        uint32_t orig1 = be.second;
-        uint32_t dup0 = vertexDuplicates[orig0];
-        uint32_t dup1 = vertexDuplicates[orig1];
+        uint32_t faceV0 = be.first;
+        uint32_t faceV1 = be.second;
+        uint32_t dup0 = vertexDuplicates[faceV0];
+        uint32_t dup1 = vertexDuplicates[faceV1];
         
-        // Create quad connecting original and duplicate
-        addQuad(orig1, orig0, dup0, dup1);
+        // Create quad with consistent winding
+        addQuad(faceV0, faceV1, dup1, dup0);
     }
     
     // Rebuild edges
@@ -2196,6 +2213,57 @@ void Mesh2::drawEdges(Shader& lineShader) const {
 #ifndef EMSCRIPTEN_BUILD
     glLineWidth(1.0f);
 #endif
+    
+    glDeleteBuffers(1, &tempVbo);
+    glDeleteVertexArrays(1, &tempVao);
+}
+
+void Mesh2::drawNormals(Shader& lineShader) const {
+    if (m_faces.empty()) return;
+    
+    const glm::vec3 normalColor(0.0f, 0.8f, 0.8f);  // Cyan for face normals
+    const float normalLength = 0.3f;
+    
+    struct ColoredLine {
+        glm::vec3 position;
+        glm::vec3 color;
+    };
+    
+    std::vector<ColoredLine> lines;
+    lines.reserve(m_faces.size() * 2);
+    
+    for (const Face& face : m_faces) {
+        // Compute face center
+        glm::vec3 center(0.0f);
+        for (int i = 0; i < face.vertexCount; i++) {
+            center += m_vertices[face.vertices[i]].position;
+        }
+        center /= static_cast<float>(face.vertexCount);
+        
+        // Compute face normal (same as buildRenderData)
+        glm::vec3 v0 = m_vertices[face.vertices[0]].position;
+        glm::vec3 v1 = m_vertices[face.vertices[1]].position;
+        glm::vec3 v2 = m_vertices[face.vertices[2]].position;
+        glm::vec3 faceNormal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+        
+        lines.push_back({center, normalColor});
+        lines.push_back({center + faceNormal * normalLength, normalColor});
+    }
+    
+    GLuint tempVao, tempVbo;
+    glGenVertexArrays(1, &tempVao);
+    glGenBuffers(1, &tempVbo);
+    
+    glBindVertexArray(tempVao);
+    glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
+    glBufferData(GL_ARRAY_BUFFER, lines.size() * sizeof(ColoredLine), lines.data(), GL_STREAM_DRAW);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredLine), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredLine), (void*)offsetof(ColoredLine, color));
+    glEnableVertexAttribArray(1);
+    
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lines.size()));
     
     glDeleteBuffers(1, &tempVbo);
     glDeleteVertexArrays(1, &tempVao);
