@@ -34,7 +34,7 @@ interface ToolbarProps {
   onSubdivide?: () => void;
   onTriangulate?: () => void;
   onExtrude?: () => void;
-  onSplitEdges?: () => void;
+  onSplit?: () => void;
   onMergeVertices?: () => void;
   // State sync
   activeTool?: Tool;
@@ -67,7 +67,7 @@ export function Toolbar({
   onSubdivide,
   onTriangulate,
   onExtrude,
-  onSplitEdges,
+  onSplit,
   onMergeVertices,
   activeTool: controlledTool,
   editMode: controlledEditMode
@@ -271,7 +271,7 @@ export function Toolbar({
         <button
           onClick={onSubdivide}
           className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
-          title="Subdivide Selected (S)"
+          title="Subdivide Selected"
         >
           ◫ Subdivide
         </button>
@@ -290,11 +290,11 @@ export function Toolbar({
           ⬆ Extrude
         </button>
         <button
-          onClick={onSplitEdges}
+          onClick={onSplit}
           className="px-3 py-2 text-sm text-left text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
-          title="Split Selected Edges"
+          title="Split Selected (S)"
         >
-          ✂ Split Edges
+          ✂ Split
         </button>
         <button
           onClick={onMergeVertices}

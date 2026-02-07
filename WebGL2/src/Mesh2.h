@@ -191,7 +191,8 @@ public:
     void deleteSelected();
     void splitSelectedEdges();
     void mergeSelectedVertices(float threshold = 0.001f);
-    void subdivideSelected();
+    void splitSelected();  // Dispatches to splitSelectedFaces or splitSelectedEdges based on mode
+    void catmullClarkSubdivide(int level = 1);  // Catmull-Clark (or Loop for tri-only) via OpenSubdiv
     void triangulateSelected();  // Convert quads to triangles
     void extrudeSelected();
     
@@ -300,4 +301,6 @@ private:
         if (v0 > v1) std::swap(v0, v1);
         return (static_cast<uint64_t>(v0) << 32) | v1;
     }
+    
+    void splitSelectedFaces();  // Linear face split (used by splitSelected)
 };

@@ -357,6 +357,12 @@ function App() {
     triggerUpdate();
   }, [module, triggerUpdate]);
 
+  const handleSplit = useCallback(() => {
+    if (!module) return;
+    module.splitSelected();
+    triggerUpdate();
+  }, [module, triggerUpdate]);
+
   const handleTriangulate = useCallback(() => {
     if (!module) return;
     module.triangulateSelectedFaces();
@@ -366,12 +372,6 @@ function App() {
   const handleExtrude = useCallback(() => {
     if (!module) return;
     module.extrudeSelectedFaces();
-    triggerUpdate();
-  }, [module, triggerUpdate]);
-
-  const handleSplitEdges = useCallback(() => {
-    if (!module) return;
-    module.splitSelectedEdges();
     triggerUpdate();
   }, [module, triggerUpdate]);
 
@@ -455,7 +455,7 @@ function App() {
       }
       if (e.key === 's' || e.key === 'S') {
         e.preventDefault();
-        handleSubdivide();
+        handleSplit();
         return;
       }
       if (e.key === 't' || e.key === 'T') {
@@ -536,7 +536,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleFlip, handleSubdivide, handleTriangulate, handleExtrude, handleMergeVertices, 
+  }, [handleFlip, handleSplit, handleSubdivide, handleTriangulate, handleExtrude, handleMergeVertices, 
       handleSelectAll, handleDeselectAll, handleSelectEdgeLoop, handleSelectEdgeRing, handleGrowEdgeSelection,
       handleDelete, handleDuplicate, handleUndo, handleRedo]);
 
@@ -559,7 +559,7 @@ function App() {
         onClearScene={handleClearScene}
         onSubdivide={handleSubdivide}
         onMerge={handleMergeVertices}
-        onSplit={handleSplitEdges}
+        onSplit={handleSplit}
         onSelectEdgeLoop={handleSelectEdgeLoop}
         onSelectEdgeRing={handleSelectEdgeRing}
         onGrowEdgeSelection={handleGrowEdgeSelection}

@@ -580,10 +580,22 @@ void ItemCollection::deleteSelectedFaces() {
     }
 }
 
-void ItemCollection::subdivideSelectedFaces() {
+void ItemCollection::splitSelected() {
     for (auto& item : m_items) {
         if (item->selected && item->mesh) {
-            item->mesh->subdivideSelected();
+            item->mesh->splitSelected();
+            item->mesh->createGPUBuffers();
+        }
+    }
+}
+
+void ItemCollection::catmullClarkSubdivide(int level) {
+    printf("[ItemCollection::catmullClark] items=%zu, level=%d\n", m_items.size(), level);
+    for (auto& item : m_items) {
+        printf("[ItemCollection::catmullClark] item selected=%d, hasMesh=%d\n", 
+               item->selected, item->mesh != nullptr);
+        if (item->selected && item->mesh) {
+            item->mesh->catmullClarkSubdivide(level);
             item->mesh->createGPUBuffers();
         }
     }
@@ -598,14 +610,7 @@ void ItemCollection::triangulateSelectedFaces() {
     }
 }
 
-void ItemCollection::splitSelectedEdges() {
-    for (auto& item : m_items) {
-        if (item->selected && item->mesh) {
-            item->mesh->splitSelectedEdges();
-            item->mesh->createGPUBuffers();
-        }
-    }
-}
+
 
 void ItemCollection::mergeSelectedVertices(float threshold) {
     for (auto& item : m_items) {

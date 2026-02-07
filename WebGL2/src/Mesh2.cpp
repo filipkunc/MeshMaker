@@ -1,5 +1,6 @@
 #include "Mesh2.h"
 #include "Shader.h"
+#include "OpenSubdivHelper.h"
 
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
@@ -1000,43 +1001,220 @@ void Mesh2::splitSelectedEdges() {
             int pos0 = splitEdgePositions[0];
             int pos1 = splitEdgePositions[1];
             
+            uint32_t mid0 = edgeMidpoints[face.edges[pos0]];
+            uint32_t mid1 = edgeMidpoints[face.edges[pos1]];
+            
             if (std::abs(pos0 - pos1) == 2) {
-                // Opposite edges - this is edge loop subdivision
-                uint32_t mid0 = edgeMidpoints[face.edges[pos0]];
-                uint32_t mid1 = edgeMidpoints[face.edges[pos1]];
+                // Opposite edges - split into 2 quads
+                if (pos0 > pos1) {
+                    std::swap(pos0, pos1);
+                    std::swap(mid0, mid1);
+                }
                 
-                // Create two quads
                 Face quad1, quad2;
                 quad1.vertexCount = quad2.vertexCount = 4;
                 
-                if (pos0 < pos1) {
-                    quad1.vertices[0] = face.vertices[pos0];
-                    quad1.vertices[1] = mid0;
-                    quad1.vertices[2] = mid1;
-                    quad1.vertices[3] = face.vertices[(pos1 + 1) % 4];
-                    
-                    quad2.vertices[0] = mid0;
-                    quad2.vertices[1] = face.vertices[(pos0 + 1) % 4];
-                    quad2.vertices[2] = face.vertices[pos1];
-                    quad2.vertices[3] = mid1;
-                } else {
-                    std::swap(pos0, pos1);
-                    std::swap(mid0, mid1);
-                    
-                    quad1.vertices[0] = face.vertices[pos0];
-                    quad1.vertices[1] = mid0;
-                    quad1.vertices[2] = mid1;
-                    quad1.vertices[3] = face.vertices[(pos1 + 1) % 4];
-                    
-                    quad2.vertices[0] = mid0;
-                    quad2.vertices[1] = face.vertices[(pos0 + 1) % 4];
-                    quad2.vertices[2] = face.vertices[pos1];
-                    quad2.vertices[3] = mid1;
-                }
+                quad1.vertices[0] = face.vertices[pos0];
+                quad1.vertices[1] = mid0;
+                quad1.vertices[2] = mid1;
+                quad1.vertices[3] = face.vertices[(pos1 + 1) % 4];
+                
+                quad2.vertices[0] = mid0;
+                quad2.vertices[1] = face.vertices[(pos0 + 1) % 4];
+                quad2.vertices[2] = face.vertices[pos1];
+                quad2.vertices[3] = mid1;
                 
                 newFaces.push_back(quad1);
                 newFaces.push_back(quad2);
+            } else {
+                // Adjacent edges - split into 1 tri + 1 quad
+                // The shared vertex is between the two edges
+                // Ensure pos0 < pos1
+                if (pos0 > pos1) {
+                    std::swap(pos0, pos1);
+                    std::swap(mid0, mid1);
+                }
+
+                // Check if edges are adjacent (differ by 1 or wrap around 0-3)
+                bool wraps = (pos0 == 0 && pos1 == 3);
+                int sharedIdx = wraps ? 0 : pos1;
+                uint32_t sharedV = face.vertices[sharedIdx];
+                
+                // Create triangle at the shared corner
+                Face tri;
+                tri.vertexCount = 3;
+                if (wraps) {
+                    tri.vertices[0] = mid1;  // mid of edge 3
+                    tri.vertices[1] = sharedV;
+                    tri.vertices[2] = mid0;  // mid of edge 0
+                } else {
+                    tri.vertices[0] = mid0;
+                    tri.vertices[1] = sharedV;
+                    tri.vertices[2] = mid1;
+                }
+                newFaces.push_back(tri);
+                
+                // Create pentagon as a quad + tri, or just handle as a quad
+                // The remaining 3 original verts + 2 midpoints form a pentagon
+                // Split it into a triangle and a quad
+                // Actually, easier: make a quad from the 4 non-shared vertices/midpoints
+                // and handle the remaining bit
+                // Pentagon vertices in order: mid0, v_next..., mid1
+                // We'll create 1 quad from the remaining vertices
+                Face quad;
+                quad.vertexCount = 4;
+                if (wraps) {
+                    // edges 3 and 0 share vertex 0
+                    // remaining: mid0 (edge 0), v1, v2, v3 start, mid1 (edge 3)
+                    // Actually: mid0, v1, v2, mid1 is wrong - need to think about winding
+                    quad.vertices[0] = mid0;
+                    quad.vertices[1] = face.vertices[1];
+                    quad.vertices[2] = face.vertices[2];
+                    quad.vertices[3] = face.vertices[3];
+                    newFaces.push_back(quad);
+                    
+                    Face tri2;
+                    tri2.vertexCount = 3;
+                    tri2.vertices[0] = face.vertices[3];
+                    tri2.vertices[1] = mid1;
+                    tri2.vertices[2] = mid0;
+                    newFaces.push_back(tri2);
+                } else {
+                    // pos0 and pos1 are adjacent, shared vertex is at pos1
+                    // Remaining vertices form a pentagon: mid0, v(pos0+1)=shared-1, ..., mid1
+                    // Split into quad + tri
+                    int v_after_mid1 = (pos1 + 1) % 4;
+                    int v_before_mid0 = pos0;
+                    
+                    quad.vertices[0] = mid0;
+                    quad.vertices[1] = mid1;
+                    quad.vertices[2] = face.vertices[v_after_mid1];
+                    quad.vertices[3] = face.vertices[v_before_mid0];
+                    newFaces.push_back(quad);
+                    
+                    // Remaining triangle between the two non-adjacent original verts and a midpoint
+                    int remaining = (v_after_mid1 + 1) % 4;
+                    if (remaining != v_before_mid0) {
+                        Face tri2;
+                        tri2.vertexCount = 3;
+                        tri2.vertices[0] = face.vertices[v_after_mid1];
+                        tri2.vertices[1] = face.vertices[remaining];
+                        tri2.vertices[2] = face.vertices[v_before_mid0];
+                        newFaces.push_back(tri2);
+                    }
+                }
             }
+        } else if (static_cast<int>(splitEdgePositions.size()) == face.vertexCount) {
+            // ALL edges of the face are split
+            if (face.isQuad()) {
+                // Quad with all 4 edges split → center vertex + 4 sub-quads
+                uint32_t mid0 = edgeMidpoints[face.edges[0]];
+                uint32_t mid1 = edgeMidpoints[face.edges[1]];
+                uint32_t mid2 = edgeMidpoints[face.edges[2]];
+                uint32_t mid3 = edgeMidpoints[face.edges[3]];
+                
+                glm::vec3 center = (m_vertices[mid0].position + m_vertices[mid1].position +
+                                    m_vertices[mid2].position + m_vertices[mid3].position) * 0.25f;
+                uint32_t centerV = addVertex(center);
+                
+                for (int i = 0; i < 4; i++) {
+                    uint32_t mids[4] = { mid0, mid1, mid2, mid3 };
+                    Face quad;
+                    quad.vertexCount = 4;
+                    quad.vertices[0] = face.vertices[i];
+                    quad.vertices[1] = mids[i];
+                    quad.vertices[2] = centerV;
+                    quad.vertices[3] = mids[(i + 3) % 4];
+                    newFaces.push_back(quad);
+                }
+            } else {
+                // Triangle with all 3 edges split → 4 sub-triangles
+                uint32_t mid0 = edgeMidpoints[face.edges[0]];
+                uint32_t mid1 = edgeMidpoints[face.edges[1]];
+                uint32_t mid2 = edgeMidpoints[face.edges[2]];
+                
+                // 3 corner triangles
+                Face t1, t2, t3, t4;
+                t1.vertexCount = t2.vertexCount = t3.vertexCount = t4.vertexCount = 3;
+                
+                t1.vertices[0] = face.vertices[0];
+                t1.vertices[1] = mid0;
+                t1.vertices[2] = mid2;
+                
+                t2.vertices[0] = mid0;
+                t2.vertices[1] = face.vertices[1];
+                t2.vertices[2] = mid1;
+                
+                t3.vertices[0] = mid2;
+                t3.vertices[1] = mid1;
+                t3.vertices[2] = face.vertices[2];
+                
+                // Center triangle
+                t4.vertices[0] = mid0;
+                t4.vertices[1] = mid1;
+                t4.vertices[2] = mid2;
+                
+                newFaces.push_back(t1);
+                newFaces.push_back(t2);
+                newFaces.push_back(t3);
+                newFaces.push_back(t4);
+            }
+        } else if (splitEdgePositions.size() == 3 && face.isQuad()) {
+            // Quad with 3 edges split → 1 quad + 3 triangles
+            // Find the unsplit edge
+            int unsplitPos = -1;
+            for (int i = 0; i < 4; i++) {
+                bool found = false;
+                for (int pos : splitEdgePositions) { if (pos == i) { found = true; break; } }
+                if (!found) { unsplitPos = i; break; }
+            }
+            
+            uint32_t mids[4] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX};
+            for (int pos : splitEdgePositions) {
+                mids[pos] = edgeMidpoints[face.edges[pos]];
+            }
+            
+            // p0 = unsplit edge position, p1..p3 = next vertices in winding order
+            int p0 = unsplitPos;
+            int p1 = (unsplitPos + 1) % 4;
+            int p2 = (unsplitPos + 2) % 4;
+            int p3 = (unsplitPos + 3) % 4;
+            
+            // Boundary: v[p0], v[p1], mid[p1], v[p2], mid[p2], v[p3], mid[p3]
+            // Decompose into 1 quad spanning unsplit edge + 3 tris
+            
+            // Quad: v[p0], v[p1], mid[p1], mid[p3]
+            Face q1;
+            q1.vertexCount = 4;
+            q1.vertices[0] = face.vertices[p0];
+            q1.vertices[1] = face.vertices[p1];
+            q1.vertices[2] = mids[p1];
+            q1.vertices[3] = mids[p3];
+            newFaces.push_back(q1);
+            
+            // Tri: mid[p1], v[p2], mid[p2]
+            Face t1;
+            t1.vertexCount = 3;
+            t1.vertices[0] = mids[p1];
+            t1.vertices[1] = face.vertices[p2];
+            t1.vertices[2] = mids[p2];
+            newFaces.push_back(t1);
+            
+            // Tri: mid[p2], v[p3], mid[p3]
+            Face t2;
+            t2.vertexCount = 3;
+            t2.vertices[0] = mids[p2];
+            t2.vertices[1] = face.vertices[p3];
+            t2.vertices[2] = mids[p3];
+            newFaces.push_back(t2);
+            
+            // Center tri: mid[p1], mid[p2], mid[p3]
+            Face t3;
+            t3.vertexCount = 3;
+            t3.vertices[0] = mids[p1];
+            t3.vertices[1] = mids[p2];
+            t3.vertices[2] = mids[p3];
+            newFaces.push_back(t3);
         }
     }
     
@@ -1239,8 +1417,21 @@ void Mesh2::triangulateSelected() {
     m_renderDataDirty = true;
 }
 
-void Mesh2::subdivideSelected() {
-    // Simple subdivision: split each selected face into 4
+void Mesh2::splitSelected() {
+    switch (m_selectionMode) {
+        case SelectionMode::Triangles:
+            splitSelectedFaces();
+            break;
+        case SelectionMode::Edges:
+            splitSelectedEdges();
+            break;
+        default:
+            break;
+    }
+}
+
+void Mesh2::splitSelectedFaces() {
+    // Simple split: split each selected face into 4
     std::vector<Face> newFaces;
     std::unordered_map<uint64_t, uint32_t> edgeMidpoints;
     
@@ -1331,6 +1522,46 @@ void Mesh2::subdivideSelected() {
         }
     }
     
+    buildConnectivity();
+    computeNormals();
+    m_renderDataDirty = true;
+}
+
+void Mesh2::catmullClarkSubdivide(int level) {
+    printf("[catmullClark] Called with level=%d, vertices=%zu, faces=%zu\n", 
+           level, m_vertices.size(), m_faces.size());
+    if (m_vertices.empty() || m_faces.empty() || level < 1) {
+        printf("[catmullClark] Early exit: empty=%d, level=%d\n", 
+               m_vertices.empty() || m_faces.empty(), level);
+        return;
+    }
+
+    SubdivisionResult subdivResult = subdivideWithOpenSubdiv(m_vertices, m_faces, level);
+
+    // Replace mesh with subdivided result
+    m_vertices = std::move(subdivResult.vertices);
+    m_faces = std::move(subdivResult.faces);
+    m_edges.clear();
+    m_edgeLookup.clear();
+
+    // Rebuild edges from the new face topology
+    for (size_t fi = 0; fi < m_faces.size(); fi++) {
+        Face& face = m_faces[fi];
+        for (int vi = 0; vi < face.vertexCount; vi++) {
+            uint32_t v0 = face.vertices[vi];
+            uint32_t v1 = face.vertices[(vi + 1) % face.vertexCount];
+            uint32_t edgeIdx = findOrCreateEdge(v0, v1);
+            face.edges[vi] = edgeIdx;
+            // Register this face with the edge
+            Edge& edge = m_edges[edgeIdx];
+            if (edge.faces[0] == UINT32_MAX) {
+                edge.faces[0] = static_cast<uint32_t>(fi);
+            } else if (edge.faces[1] == UINT32_MAX) {
+                edge.faces[1] = static_cast<uint32_t>(fi);
+            }
+        }
+    }
+
     buildConnectivity();
     computeNormals();
     m_renderDataDirty = true;

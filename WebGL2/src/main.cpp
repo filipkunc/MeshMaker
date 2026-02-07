@@ -1358,9 +1358,9 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                 break;
             case GLFW_KEY_S:  // Ctrl+Shift+S = Split
                 if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
-                    if (hasSelection && g_app.items->getEditMode() == EditMode::Edges) {
-                        meshActionWithUndo("Split Edges", []() {
-                            g_app.items->splitSelectedEdges();
+                    if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
+                        meshActionWithUndo("Split", []() {
+                            g_app.items->splitSelected();
                         });
                     }
                 }
@@ -1374,11 +1374,11 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
                     }
                 }
                 break;
-            case GLFW_KEY_U:  // Ctrl+Shift+U = Subdivide
+            case GLFW_KEY_U:  // Ctrl+Shift+U = Subdivide (Catmull-Clark)
                 if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT)) {
                     if (hasSelection && g_app.items->getEditMode() != EditMode::Items) {
                         meshActionWithUndo("Subdivide", []() {
-                            g_app.items->subdivideSelectedFaces();
+                            g_app.items->catmullClarkSubdivide(1);
                         });
                     }
                 }
@@ -3048,10 +3048,10 @@ void renderImGui() {
             }
             
             // Additional mesh operations
+            if (ImGui::Button("Subdivide")) { 
+                meshActionWithUndo("Subdivide", []() { g_app.items->catmullClarkSubdivide(1); });
+            }
             if (editMode == EditMode::Triangles) {
-                if (ImGui::Button("Subdivide (Ctrl+Shift+U)")) { 
-                    meshActionWithUndo("Subdivide", []() { g_app.items->subdivideSelectedFaces(); });
-                }
                 ImGui::SameLine();
                 if (ImGui::Button("Triangulate (Ctrl+Shift+T)")) { 
                     meshActionWithUndo("Triangulate", []() { g_app.items->triangulateSelectedFaces(); });
@@ -3060,10 +3060,15 @@ void renderImGui() {
                 if (ImGui::Button("Extrude (Ctrl+Shift+E)")) { 
                     meshActionWithUndo("Extrude", []() { g_app.items->extrudeSelectedFaces(); });
                 }
+                ImGui::SameLine();
+                if (ImGui::Button("Split (S)")) { 
+                    meshActionWithUndo("Split", []() { g_app.items->splitSelected(); });
+                }
             }
             if (editMode == EditMode::Edges) {
-                if (ImGui::Button("Split (Ctrl+Shift+S)")) { 
-                    meshActionWithUndo("Split Edges", []() { g_app.items->splitSelectedEdges(); });
+                ImGui::SameLine();
+                if (ImGui::Button("Split (S)")) { 
+                    meshActionWithUndo("Split", []() { g_app.items->splitSelected(); });
                 }
             }
             if (editMode == EditMode::Vertices) {
@@ -3803,8 +3808,15 @@ void api_flipSelectedFaces() {
 }
 
 void api_subdivideSelectedFaces() {
+    if (!g_app.items) return;
+    printf("[Subdivide] Calling catmullClarkSubdivide(1), editMode=%d\n", 
+           static_cast<int>(g_app.items->getEditMode()));
+    sceneActionWithUndo("Subdivide", []() { g_app.items->catmullClarkSubdivide(1); });
+}
+
+void api_splitSelected() {
     if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) return;
-    sceneActionWithUndo("Subdivide", []() { g_app.items->subdivideSelectedFaces(); });
+    sceneActionWithUndo("Split", []() { g_app.items->splitSelected(); });
 }
 
 void api_triangulateSelectedFaces() {
@@ -3815,11 +3827,6 @@ void api_triangulateSelectedFaces() {
 void api_extrudeSelectedFaces() {
     if (!g_app.items || g_app.items->getEditMode() == EditMode::Items) return;
     sceneActionWithUndo("Extrude", []() { g_app.items->extrudeSelectedFaces(); });
-}
-
-void api_splitSelectedEdges() {
-    if (!g_app.items || g_app.items->getEditMode() != EditMode::Edges) return;
-    sceneActionWithUndo("Split Edges", []() { g_app.items->splitSelectedEdges(); });
 }
 
 void api_mergeSelectedVertices() {

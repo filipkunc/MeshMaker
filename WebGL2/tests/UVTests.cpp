@@ -415,7 +415,7 @@ TEST_F(UVPreservationTest, Subdivide_PreservesUVRange) {
     // Select all faces
     mesh.selectAll();
     
-    mesh.subdivideSelected();
+    mesh.splitSelected();
     
     // After subdivision, all UVs should still be in valid range
     const auto& faces = mesh.getFaces();

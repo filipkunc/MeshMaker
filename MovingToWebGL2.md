@@ -47,6 +47,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Selection colors: red for selected vertices, blue for deselected
 - Edge loop selection (expands selection through quad loops)
 - Edge ring selection (expands selection perpendicular through quads)
+- Grow edge selection (expand selection to neighboring edges)
 
 **Camera:**
 - Orbit camera with mouse controls
@@ -57,8 +58,15 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - Primitive generation: Cube, Plane, Cylinder, Sphere, Icosahedron
 - Transform selected components (translate, rotate, scale)
 - Flip, duplicate, delete selected faces
-- Subdivide, triangulate, extrude operations
-- Edge split, vertex merge
+- **Subdivide (Catmull-Clark)** via Pixar's OpenSubdiv v3_6_0 (FetchContent)
+  - Catmull-Clark (SCHEME_CATMARK) for quad/mixed meshes, Loop (SCHEME_LOOP) for all-triangle meshes
+  - Face-varying UV interpolation preserved through subdivision
+  - Works in all edit modes (not just Triangles)
+- **Split** — mode-aware dispatcher:
+  - Triangles mode: linear face split (each face → 4 sub-faces via edge midpoints)
+  - Edges mode: split selected edges, handles all cases (1–4 split edges per face, adjacent/opposite edges on quads)
+- Triangulate, extrude operations
+- Vertex merge
 
 **Manipulator System:**
 - Translate, rotate, scale gizmos with axis widgets
@@ -69,6 +77,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 
 **Keyboard Shortcuts:**
 - Matches original MeshMaker (W/E/R for tools, 1/2/3/4 for edit modes, etc.)
+- S = Split, F = Flip, T = Triangulate, X = Extrude, M = Merge
 - Smart focus detection: shortcuts disabled when typing in UI text inputs
 
 **Undo/Redo System:**
@@ -103,7 +112,7 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - UV coordinates preserved through triangulation and undo/redo
 
 **Testing:**
-- 115 Google Tests (C++) covering mesh operations, transforms, UV mapping, seam marking, LSCM unwrapping, and cross-unwrap verification
+- 134 Google Tests (C++) covering mesh operations, transforms, UV mapping, seam marking, LSCM unwrapping, subdivision (Catmull-Clark/Loop), edge splitting, and cross-unwrap verification
 - 22 Playwright E2E tests covering app loading, primitives, edit modes, UV editor, seam workflow, undo/redo, and scene operations
 - Test infrastructure: GPU operations disabled for unit tests, Playwright configured with Chromium + dev server
 

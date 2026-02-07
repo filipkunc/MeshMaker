@@ -89,9 +89,9 @@ public:
     void flipSelectedFaces();
     void duplicateSelectedFaces();
     void deleteSelectedFaces();
-    void subdivideSelectedFaces();
+    void splitSelected();
+    void catmullClarkSubdivide(int level = 1);
     void triangulateSelectedFaces();
-    void splitSelectedEdges();
     void mergeSelectedVertices(float threshold = 0.001f);
     void extrudeSelectedFaces();
     

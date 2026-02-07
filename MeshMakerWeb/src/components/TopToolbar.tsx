@@ -250,7 +250,7 @@ export function TopToolbar({
       {/* Mesh Operations */}
       <IconButton
         icon="/icons/SubdivisionTemplate.png"
-        title="Subdivide (S)"
+        title="Subdivide"
         onClick={onSubdivide}
         size="sm"
       />
@@ -262,7 +262,7 @@ export function TopToolbar({
       />
       <IconButton
         icon="/icons/SplitTemplate.png"
-        title="Split Edges"
+        title="Split (S)"
         onClick={onSplit}
         size="sm"
       />

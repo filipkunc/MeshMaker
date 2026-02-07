@@ -32,9 +32,9 @@ export interface MeshMakerModule extends EmscriptenModule {
   // Mesh operations
   flipSelectedFaces(): void;
   subdivideSelectedFaces(): void;
+  splitSelected(): void;
   triangulateSelectedFaces(): void;
   extrudeSelectedFaces(): void;
-  splitSelectedEdges(): void;
   mergeSelectedVertices(): void;
   
   // Edge selection

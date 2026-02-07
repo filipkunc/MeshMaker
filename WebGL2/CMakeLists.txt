@@ -88,6 +88,40 @@ if(NOT EMSCRIPTEN)
     glad_add_library(glad_gl_core_33 STATIC API gl:core=3.3)
 endif()
 
+# OpenSubdiv (Pixar's subdivision surface library - CPU only)
+set(NO_EXAMPLES ON CACHE BOOL "" FORCE)
+set(NO_TUTORIALS ON CACHE BOOL "" FORCE)
+set(NO_REGRESSION ON CACHE BOOL "" FORCE)
+set(NO_DOC ON CACHE BOOL "" FORCE)
+set(NO_OPENGL ON CACHE BOOL "" FORCE)
+set(NO_CUDA ON CACHE BOOL "" FORCE)
+set(NO_TBB ON CACHE BOOL "" FORCE)
+set(NO_OMP ON CACHE BOOL "" FORCE)
+set(NO_OPENCL ON CACHE BOOL "" FORCE)
+set(NO_CLEW ON CACHE BOOL "" FORCE)
+set(NO_PTEX ON CACHE BOOL "" FORCE)
+set(NO_TESTS ON CACHE BOOL "" FORCE)
+set(NO_GLFW ON CACHE BOOL "" FORCE)
+set(NO_DX ON CACHE BOOL "" FORCE)
+set(NO_METAL ON CACHE BOOL "" FORCE)
+set(NO_GLTESTS ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    opensubdiv
+    GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenSubdiv.git
+    GIT_TAG v3_6_0
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(opensubdiv)
+
+# OpenSubdiv doesn't export include dirs via target, add explicitly
+set(OPENSUBDIV_INCLUDE_DIR "${opensubdiv_SOURCE_DIR}")
+
+# Ensure M_PI is defined on Windows (needed by OpenSubdiv's Loop scheme)
+if(WIN32)
+    add_compile_definitions(_USE_MATH_DEFINES)
+endif()
+
 # ImGui library
 add_library(imgui STATIC
     ${imgui_SOURCE_DIR}/imgui.cpp
@@ -122,6 +156,7 @@ set(CORE_SOURCES
     src/Manipulator.cpp
     src/Serialization.cpp
     src/Texture.cpp
+    src/OpenSubdivHelper.cpp
 )
 
 # Bindings sources (Emscripten only)
@@ -149,6 +184,7 @@ set(HEADERS
     src/Serialization.h
     src/Texture.h
     src/stb_image.h
+    src/OpenSubdivHelper.h
 )
 
 # ============================================================================
@@ -157,11 +193,11 @@ set(HEADERS
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_include_directories(${PROJECT_NAME} PRIVATE src ${OPENSUBDIV_INCLUDE_DIR})
 
 if(EMSCRIPTEN)
     # Emscripten build
-    target_link_libraries(${PROJECT_NAME} PRIVATE glm imgui)
+    target_link_libraries(${PROJECT_NAME} PRIVATE glm imgui osd_static_cpu)
     
     # Emscripten compile flags (these are compile-time only)
     set(EMSCRIPTEN_COMPILE_FLAGS
@@ -202,6 +238,7 @@ else()
         glad_gl_core_33
         glm
         imgui
+        osd_static_cpu
     )
     
     # Platform-specific libraries
@@ -264,9 +301,10 @@ if(NOT EMSCRIPTEN)
         src/Shader.cpp
         src/Texture.cpp
         src/Serialization.cpp
+        src/OpenSubdivHelper.cpp
     )
-    target_include_directories(MeshMakerCore PUBLIC src)
-    target_link_libraries(MeshMakerCore PUBLIC glm glad_gl_core_33)
+    target_include_directories(MeshMakerCore PUBLIC src ${OPENSUBDIV_INCLUDE_DIR})
+    target_link_libraries(MeshMakerCore PUBLIC glm glad_gl_core_33 osd_static_cpu)
     
     # Mesh2 unit tests
     add_executable(Mesh2Tests tests/Mesh2Tests.cpp)
@@ -300,9 +338,18 @@ if(NOT EMSCRIPTEN)
     )
     target_include_directories(UVTests PRIVATE src)
     
+    # Subdivision tests (OpenSubdiv Catmull-Clark / Loop)
+    add_executable(SubdivTests tests/SubdivTests.cpp)
+    target_link_libraries(SubdivTests PRIVATE
+        MeshMakerCore
+        GTest::gtest_main
+    )
+    target_include_directories(SubdivTests PRIVATE src)
+    
     include(GoogleTest)
     gtest_discover_tests(Mesh2Tests)
     gtest_discover_tests(TransformTests)
     gtest_discover_tests(UndoTests)
     gtest_discover_tests(UVTests)
+    gtest_discover_tests(SubdivTests)
 endif()

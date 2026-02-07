@@ -34,9 +34,9 @@ extern void api_redo();
 
 extern void api_flipSelectedFaces();
 extern void api_subdivideSelectedFaces();
+extern void api_splitSelected();
 extern void api_triangulateSelectedFaces();
 extern void api_extrudeSelectedFaces();
-extern void api_splitSelectedEdges();
 extern void api_mergeSelectedVertices();
 
 extern void api_selectEdgeLoop();
@@ -148,9 +148,9 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     // Mesh operations
     function("flipSelectedFaces", &api_flipSelectedFaces);
     function("subdivideSelectedFaces", &api_subdivideSelectedFaces);
+    function("splitSelected", &api_splitSelected);
     function("triangulateSelectedFaces", &api_triangulateSelectedFaces);
     function("extrudeSelectedFaces", &api_extrudeSelectedFaces);
-    function("splitSelectedEdges", &api_splitSelectedEdges);
     function("mergeSelectedVertices", &api_mergeSelectedVertices);
     
     // Edge selection
