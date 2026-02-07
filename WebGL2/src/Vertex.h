@@ -29,6 +29,23 @@ struct LineVertex {
         : position(pos), color(col) {}
 };
 
+// Vertex for single-pass solid+wireframe rendering (barycentric coordinate approach)
+struct WireVertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec3 color;
+    glm::vec2 uv;
+    glm::vec3 bary;       // Barycentric coordinate (1,0,0), (0,1,0), or (0,0,1)
+    glm::vec3 edgeMask;   // 1.0 = real edge, 0.0 = quad diagonal (hide it)
+    glm::vec3 edgeState;  // Per-edge state: 0=normal, 1=selected, 2=seam (x,y,z map to bary edges)
+    
+    WireVertex() : position(0.0f), normal(0.0f), color(1.0f), uv(0.0f), bary(0.0f), edgeMask(1.0f), edgeState(0.0f) {}
+    
+    WireVertex(const glm::vec3& pos, const glm::vec3& norm, const glm::vec3& col,
+               const glm::vec2& texCoord, const glm::vec3& b, const glm::vec3& mask, const glm::vec3& state)
+        : position(pos), normal(norm), color(col), uv(texCoord), bary(b), edgeMask(mask), edgeState(state) {}
+};
+
 // Vertex for screen-space thick line rendering (expanded to quads in vertex shader)
 struct ThickLineVertex {
     glm::vec3 position;      // Current endpoint position

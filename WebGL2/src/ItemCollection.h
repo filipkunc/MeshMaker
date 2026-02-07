@@ -96,7 +96,7 @@ public:
     void extrudeSelectedFaces();
     
     // Drawing
-    void draw(Shader& meshShader, Shader& thickLineColoredShader, ViewMode mode, 
+    void draw(Shader& meshShader, Shader& meshWireShader, Shader& thickLineColoredShader, ViewMode mode, 
               const glm::mat4& view, const glm::mat4& projection,
               float viewportWidth, float viewportHeight) const;
     void drawComponentOverlay(Shader& coloredShader, Shader& thickLineColoredShader,

@@ -632,7 +632,7 @@ void ItemCollection::extrudeSelectedFaces() {
 }
 
 // Drawing
-void ItemCollection::draw(Shader& meshShader, Shader& thickLineColoredShader, ViewMode mode,
+void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& thickLineColoredShader, ViewMode mode,
                           const glm::mat4& view, const glm::mat4& projection,
                           float viewportWidth, float viewportHeight) const {
     for (const auto& item : m_items) {
@@ -641,29 +641,46 @@ void ItemCollection::draw(Shader& meshShader, Shader& thickLineColoredShader, Vi
         glm::mat4 model = item->getTransformMatrix();
         glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(view * model));
         
-        // Always draw solid for selected or if mode requires it
-        bool drawSolid = (mode == ViewMode::Solid || mode == ViewMode::SolidWireframe);
-        
         // Only draw wireframe for selected items (matching original MeshMaker behavior)
         // In Items mode, wireframe indicates selection. In component modes, show for all.
         bool drawWireframe = (mode == ViewMode::Wireframe) ||
                             (mode == ViewMode::SolidWireframe && item->selected) ||
                             (m_editMode != EditMode::Items);
         
-        // Draw solid
-        if (drawSolid) {
-            if (drawWireframe && mode == ViewMode::SolidWireframe) {
-                glEnable(GL_POLYGON_OFFSET_FILL);
-                glPolygonOffset(1.0f, 1.0f);
+        if (mode == ViewMode::SolidWireframe && drawWireframe) {
+            // Single-pass solid+wireframe using barycentric coordinate shader
+            // No polygon offset needed - wireframe is computed in the same triangles
+            meshWireShader.use();
+            meshWireShader.setMat4("uModel", model);
+            meshWireShader.setMat4("uView", view);
+            meshWireShader.setMat4("uProjection", projection);
+            meshWireShader.setMat3("uNormalMatrix", normalMatrix);
+            meshWireShader.setVec3("uWireColor", item->mesh->getWireframeColor());
+            meshWireShader.setVec3("uSelectionColor", glm::vec3(1.0f, 0.5f, 0.0f));
+            meshWireShader.setVec3("uSeamColor", glm::vec3(0.0f, 0.8f, 0.0f));
+            meshWireShader.setFloat("uLineWidth", 1.0f);
+            
+            if (item->hasTexture()) {
+                item->getTexture()->bind(0);
+                meshWireShader.setInt("uTexture", 0);
+                meshWireShader.setBool("uUseTexture", true);
+            } else {
+                meshWireShader.setBool("uUseTexture", false);
             }
             
+            item->mesh->drawSolidWireframe();
+            
+            if (item->hasTexture()) {
+                Texture::unbind(0);
+            }
+        } else if (mode == ViewMode::Solid || (mode == ViewMode::SolidWireframe && !drawWireframe)) {
+            // Solid only
             meshShader.use();
             meshShader.setMat4("uModel", model);
             meshShader.setMat4("uView", view);
             meshShader.setMat4("uProjection", projection);
             meshShader.setMat3("uNormalMatrix", normalMatrix);
             
-            // Set texture uniforms
             if (item->hasTexture()) {
                 item->getTexture()->bind(0);
                 meshShader.setInt("uTexture", 0);
@@ -674,18 +691,15 @@ void ItemCollection::draw(Shader& meshShader, Shader& thickLineColoredShader, Vi
             
             item->mesh->draw(ViewMode::Solid);
             
-            // Unbind texture if used
             if (item->hasTexture()) {
                 Texture::unbind(0);
             }
+        } else if (mode == ViewMode::Wireframe) {
+            // Wireframe only - use thick line shader
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDepthMask(GL_FALSE);
             
-            if (drawWireframe && mode == ViewMode::SolidWireframe) {
-                glDisable(GL_POLYGON_OFFSET_FILL);
-            }
-        }
-        
-        // Draw wireframe overlay using thick line colored shader
-        if (drawWireframe) {
             thickLineColoredShader.use();
             thickLineColoredShader.setMat4("uModel", model);
             thickLineColoredShader.setMat4("uView", view);
@@ -695,6 +709,9 @@ void ItemCollection::draw(Shader& meshShader, Shader& thickLineColoredShader, Vi
             thickLineColoredShader.setBool("uAntialias", true);
             
             item->mesh->draw(ViewMode::Wireframe);
+            
+            glDepthMask(GL_TRUE);
+            glDisable(GL_BLEND);
         }
     }
 }
@@ -718,14 +735,8 @@ void ItemCollection::drawComponentOverlay(Shader& coloredShader, Shader& thickLi
             coloredShader.setMat4("uProjection", projection);
             item->mesh->drawVertices(coloredShader);
         } else if (m_editMode == EditMode::Edges) {
-            thickLineColoredShader.use();
-            thickLineColoredShader.setMat4("uModel", model);
-            thickLineColoredShader.setMat4("uView", view);
-            thickLineColoredShader.setMat4("uProjection", projection);
-            thickLineColoredShader.setVec2("uViewportSize", glm::vec2(viewportWidth, viewportHeight));
-            thickLineColoredShader.setFloat("uLineWidth", 2.0f);
-            thickLineColoredShader.setBool("uAntialias", true);
-            item->mesh->drawEdges(thickLineColoredShader);
+            // Edge selection/seam colors are handled by the barycentric wireframe shader
+            // in the main draw pass. No separate overlay needed.
         }
         // Triangles mode - selection is shown via face colors in regular draw
     }

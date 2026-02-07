@@ -24,7 +24,7 @@ Mesh2::Mesh2()
     : m_selectionMode(SelectionMode::Triangles)
     , m_color(0.7f, 0.7f, 0.7f)
     , m_wireframeColor(0.0f, 0.0f, 0.0f)
-    , m_selectionColor(0.9f, 0.2f, 0.0f)
+    , m_selectionColor(1.0f, 0.5f, 0.0f)
 {
 }
 
@@ -1726,7 +1726,25 @@ void Mesh2::merge(const Mesh2* mesh) {
 // Build render data
 void Mesh2::buildRenderData() {
     m_renderVertices.clear();
+    m_wireRenderVertices.clear();
     m_thickEdgeVertices.clear();
+    
+    // Barycentric coords for each vertex of a triangle
+    const glm::vec3 bary0(1.0f, 0.0f, 0.0f);
+    const glm::vec3 bary1(0.0f, 1.0f, 0.0f);
+    const glm::vec3 bary2(0.0f, 0.0f, 1.0f);
+    
+    // Helper to get edge state: 0=normal, 1=selected, 2=seam, 3=selected+seam
+    auto getEdgeState = [&](uint32_t va, uint32_t vb) -> float {
+        uint64_t key = makeEdgeKey(va, vb);
+        auto it = m_edgeLookup.find(key);
+        if (it == m_edgeLookup.end()) return 0.0f;
+        const Edge& e = m_edges[it->second];
+        if (e.selected && e.isSeam) return 3.0f;
+        if (e.selected) return 1.0f;
+        if (e.isSeam) return 2.0f;
+        return 0.0f;
+    };
     
     for (const Face& face : m_faces) {
         glm::vec3 faceColor = face.selected ? m_selectionColor : m_color;
@@ -1740,6 +1758,7 @@ void Mesh2::buildRenderData() {
         if (face.isQuad()) {
             glm::vec3 v3 = m_vertices[face.vertices[3]].position;
             
+            // Standard render vertices (no bary data)
             // First triangle (vertices 0, 1, 2)
             m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
             m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1]});
@@ -1749,10 +1768,50 @@ void Mesh2::buildRenderData() {
             m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
             m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
             m_renderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3]});
+            
+            // Wire render vertices with barycentric coords
+            // Quad split into 2 triangles: (0,1,2) and (0,2,3)
+            // Edge 0-1 is real, edge 1-2 is real, edge 2-0 is the diagonal (hide it)
+            // Edge 0-2 is the diagonal (hide it), edge 2-3 is real, edge 3-0 is real
+            
+            // Triangle 1: vertices 0, 1, 2
+            // bary0 -> vertex 0, opposite edge is 1-2 (real)
+            // bary1 -> vertex 1, opposite edge is 2-0 (diagonal, hide)
+            // bary2 -> vertex 2, opposite edge is 0-1 (real)
+            glm::vec3 mask1(1.0f, 0.0f, 1.0f);  // edge 1-2 visible, 2-0 hidden, 0-1 visible
+            glm::vec3 state1(getEdgeState(face.vertices[1], face.vertices[2]),
+                             0.0f,  // diagonal
+                             getEdgeState(face.vertices[0], face.vertices[1]));
+            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask1, state1});
+            m_wireRenderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], bary1, mask1, state1});
+            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary2, mask1, state1});
+            
+            // Triangle 2: vertices 0, 2, 3
+            // bary0 -> vertex 0, opposite edge is 2-3 (real)
+            // bary1 -> vertex 2, opposite edge is 3-0 (real)
+            // bary2 -> vertex 3, opposite edge is 0-2 (diagonal, hide)
+            glm::vec3 mask2(1.0f, 1.0f, 0.0f);  // edge 2-3 visible, 3-0 visible, 0-2 hidden
+            glm::vec3 state2(getEdgeState(face.vertices[2], face.vertices[3]),
+                             getEdgeState(face.vertices[0], face.vertices[3]),
+                             0.0f);  // diagonal
+            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask2, state2});
+            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary1, mask2, state2});
+            m_wireRenderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3], bary2, mask2, state2});
         } else {
+            // Triangle: all 3 edges are real
+            glm::vec3 mask(1.0f, 1.0f, 1.0f);
+            // edgeState: x = edge opposite v0 (v1-v2), y = edge opposite v1 (v0-v2), z = edge opposite v2 (v0-v1)
+            glm::vec3 state(getEdgeState(face.vertices[1], face.vertices[2]),
+                            getEdgeState(face.vertices[0], face.vertices[2]),
+                            getEdgeState(face.vertices[0], face.vertices[1]));
+            
             m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
             m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1]});
             m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
+            
+            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask, state});
+            m_wireRenderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], bary1, mask, state});
+            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary2, mask, state});
         }
     }
     
@@ -1821,6 +1880,41 @@ void Mesh2::createGPUBuffers() {
         glBindVertexArray(0);
     }
     
+    // Single-pass solid+wireframe VAO/VBO
+    if (!m_wireRenderVertices.empty()) {
+        glGenVertexArrays(1, &m_wireVao);
+        glGenBuffers(1, &m_wireVbo);
+        
+        glBindVertexArray(m_wireVao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_wireVbo);
+        glBufferData(GL_ARRAY_BUFFER, m_wireRenderVertices.size() * sizeof(WireVertex),
+                     m_wireRenderVertices.data(), GL_STATIC_DRAW);
+        
+        // Position
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)0);
+        glEnableVertexAttribArray(0);
+        // Normal
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        // Color
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        // UV
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(9 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+        // Barycentric
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(11 * sizeof(float)));
+        glEnableVertexAttribArray(4);
+        // Edge mask
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(14 * sizeof(float)));
+        glEnableVertexAttribArray(5);
+        // Edge state (0=normal, 1=selected, 2=seam, 3=selected+seam)
+        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(17 * sizeof(float)));
+        glEnableVertexAttribArray(6);
+        
+        glBindVertexArray(0);
+    }
+    
     // Edge VAO/VBO (thick line quads)
     if (!m_thickEdgeVertices.empty()) {
         glGenVertexArrays(1, &m_edgeVao);
@@ -1872,6 +1966,13 @@ void Mesh2::updateGPUBuffers() {
                      m_renderVertices.data(), GL_STATIC_DRAW);
     }
     
+    // Re-upload wire vertex data
+    if (m_wireVbo && !m_wireRenderVertices.empty()) {
+        glBindBuffer(GL_ARRAY_BUFFER, m_wireVbo);
+        glBufferData(GL_ARRAY_BUFFER, m_wireRenderVertices.size() * sizeof(WireVertex),
+                     m_wireRenderVertices.data(), GL_STATIC_DRAW);
+    }
+    
     // Re-upload edge data (thick line quads)
     if (m_edgeVbo && !m_thickEdgeVertices.empty()) {
         glBindBuffer(GL_ARRAY_BUFFER, m_edgeVbo);
@@ -1888,13 +1989,17 @@ void Mesh2::deleteGPUBuffers() {
     
     if (m_vao) { glDeleteVertexArrays(1, &m_vao); m_vao = 0; }
     if (m_vbo) { glDeleteBuffers(1, &m_vbo); m_vbo = 0; }
+    if (m_wireVao) { glDeleteVertexArrays(1, &m_wireVao); m_wireVao = 0; }
+    if (m_wireVbo) { glDeleteBuffers(1, &m_wireVbo); m_wireVbo = 0; }
     if (m_edgeVao) { glDeleteVertexArrays(1, &m_edgeVao); m_edgeVao = 0; }
     if (m_edgeVbo) { glDeleteBuffers(1, &m_edgeVbo); m_edgeVbo = 0; }
     m_gpuBuffersCreated = false;
 }
 
-void Mesh2::draw(ViewMode mode) const {
+void Mesh2::draw(ViewMode mode) {
     if (!m_gpuBuffersCreated) return;
+    
+    if (m_renderDataDirty) updateGPUBuffers();
     
     if (mode == ViewMode::Solid || mode == ViewMode::SolidWireframe) {
         if (m_vao && !m_renderVertices.empty()) {
@@ -1908,11 +2013,23 @@ void Mesh2::draw(ViewMode mode) const {
         if (m_edgeVao && !m_thickEdgeVertices.empty()) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDepthMask(GL_FALSE);  // Don't write depth - prevents z-fighting with solid mesh
             glBindVertexArray(m_edgeVao);
             glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_thickEdgeVertices.size()));
             glBindVertexArray(0);
+            glDepthMask(GL_TRUE);
             glDisable(GL_BLEND);
         }
+    }
+}
+
+void Mesh2::drawSolidWireframe() {
+    if (!m_gpuBuffersCreated) return;
+    if (m_renderDataDirty) updateGPUBuffers();
+    if (m_wireVao && !m_wireRenderVertices.empty()) {
+        glBindVertexArray(m_wireVao);
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_wireRenderVertices.size()));
+        glBindVertexArray(0);
     }
 }
 
@@ -1974,7 +2091,7 @@ void Mesh2::drawVerticesForSelection(Shader& selectionShader) const {
     selectionShader.setVec4("uColorOverride", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0f, 1.0f);
+    glPolygonOffset(2.0f, 2.0f);
     
     // Draw all faces with color 0
     for (const Face& face : m_faces) {
@@ -2050,7 +2167,7 @@ void Mesh2::drawEdgesForSelection(Shader& selectionShader, Shader& thickLineShad
     selectionShader.setVec4("uColorOverride", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0f, 1.0f);
+    glPolygonOffset(2.0f, 2.0f);
     
     // Batch all faces into one draw call
     std::vector<glm::vec3> bgPositions;
@@ -2195,42 +2312,34 @@ void Mesh2::drawVertices(Shader& pointShader) const {
 }
 
 void Mesh2::drawEdges(Shader& lineShader) const {
-    // Draw edges as screen-space thick line quads with selection colors
-    // Matching original MeshMaker behavior: darker base color for deselected, red for selected, green for seams
+    // Only draw selected and seam edges as overlay.
+    // The base wireframe is handled by the single-pass barycentric shader (drawSolidWireframe).
     
     if (m_edges.empty()) return;
     
-    const glm::vec3 selectedColor(0.8f, 0.0f, 0.0f);   // Red
     const glm::vec3 seamColor(0.0f, 0.8f, 0.0f);       // Green for seams
-    const glm::vec3 normalColor(m_wireframeColor.r - 0.2f, m_wireframeColor.g - 0.2f, m_wireframeColor.b - 0.2f);
     
     std::vector<ThickLineVertex> quads;
-    quads.reserve(m_edges.size() * 6);
     
     for (const auto& edge : m_edges) {
+        // Skip non-selected, non-seam edges - they're already drawn by the barycentric wireframe
+        if (!edge.selected && !edge.isSeam) continue;
+        
         const glm::vec3& p0 = m_vertices[edge.vertices[0]].position;
         const glm::vec3& p1 = m_vertices[edge.vertices[1]].position;
         
-        // Color priority: selected > seam > normal
-        glm::vec3 color;
-        if (edge.selected) {
-            color = selectedColor;
-        } else if (edge.isSeam) {
-            color = seamColor;
-        } else {
-            color = normalColor;
-        }
+        glm::vec3 color = edge.selected ? m_selectionColor : seamColor;
         
         // 6 vertices per edge (2 triangles forming a quad)
-        // Triangle 1: p0(-1), p0(+1), p1(-1)
         quads.push_back({p0, p1, -1.0f, color});
         quads.push_back({p0, p1,  1.0f, color});
         quads.push_back({p1, p0, -1.0f, color});
-        // Triangle 2: p0(-1), p1(-1), p1(+1)
         quads.push_back({p0, p1, -1.0f, color});
         quads.push_back({p1, p0, -1.0f, color});
         quads.push_back({p1, p0,  1.0f, color});
     }
+    
+    if (quads.empty()) return;
     
     // Use temporary VAO/VBO for drawing
     GLuint tempVao, tempVbo;
@@ -2255,10 +2364,7 @@ void Mesh2::drawEdges(Shader& lineShader) const {
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (void*)(7 * sizeof(float)));
     glEnableVertexAttribArray(3);
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(quads.size()));
-    glDisable(GL_BLEND);
     
     glDeleteBuffers(1, &tempVbo);
     glDeleteVertexArrays(1, &tempVao);

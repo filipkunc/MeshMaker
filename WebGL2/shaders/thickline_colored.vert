@@ -14,6 +14,7 @@ uniform mat4 uView;
 uniform mat4 uProjection;
 uniform vec2 uViewportSize;    // Viewport width and height in pixels
 uniform float uLineWidth;      // Line width in pixels
+uniform bool uAntialias;        // Whether to expand quad for AA
 
 out vec3 vColor;
 out float vSide;
@@ -47,7 +48,9 @@ void main() {
     }
     
     // Offset in screen space by half the line width
-    vec2 offset = perpendicular * (uLineWidth * 0.5) * aSide;
+    // When antialiasing, expand quad by 1px to create room for AA gradient
+    float totalWidth = uAntialias ? uLineWidth + 1.0 : uLineWidth;
+    vec2 offset = perpendicular * (totalWidth * 0.5) * aSide;
     
     // Convert offset back to NDC
     vec2 ndcOffset = offset / (uViewportSize * 0.5);

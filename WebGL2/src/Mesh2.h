@@ -232,7 +232,8 @@ public:
     void createGPUBuffers();
     void updateGPUBuffers();  // Re-upload buffer data without recreating VAOs
     void deleteGPUBuffers();
-    void draw(ViewMode mode = ViewMode::SolidWireframe) const;
+    void draw(ViewMode mode = ViewMode::SolidWireframe);
+    void drawSolidWireframe();  // Single-pass solid+wireframe using barycentric coords
     void drawForSelection(Shader& selectionShader) const;  // Draw faces for selection
     void drawVerticesForSelection(Shader& selectionShader) const;  // Draw vertices for selection
     void drawEdgesForSelection(Shader& selectionShader, Shader& thickLineShader,
@@ -250,6 +251,7 @@ public:
     void setColor(const glm::vec3& color) { m_color = color; }
     void setWireframeColor(const glm::vec3& color) { m_wireframeColor = color; }
     void setSelectionColor(const glm::vec3& color) { m_selectionColor = color; }
+    const glm::vec3& getWireframeColor() const { return m_wireframeColor; }
 
 private:
     // Find or create edge between two vertices
@@ -281,6 +283,7 @@ private:
     
     // Render data (generated from topology)
     std::vector<Vertex> m_renderVertices;
+    std::vector<WireVertex> m_wireRenderVertices;  // For single-pass solid+wireframe
     std::vector<ThickLineVertex> m_thickEdgeVertices;
     
     // State
@@ -292,6 +295,8 @@ private:
     // GPU handles
     uint32_t m_vao = 0;
     uint32_t m_vbo = 0;
+    uint32_t m_wireVao = 0;   // Single-pass solid+wireframe
+    uint32_t m_wireVbo = 0;
     uint32_t m_edgeVao = 0;
     uint32_t m_edgeVbo = 0;
     

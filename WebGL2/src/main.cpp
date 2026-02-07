@@ -94,6 +94,7 @@ struct AppState {
     std::unique_ptr<ItemCollection> items;
     std::unique_ptr<Grid> grid;
     std::unique_ptr<Shader> meshShader;
+    std::unique_ptr<Shader> meshWireShader;  // Single-pass solid+wireframe shader
     std::unique_ptr<Shader> gridShader;
     std::unique_ptr<Shader> selectionShader;
     std::unique_ptr<Shader> rectShader;
@@ -2723,6 +2724,12 @@ bool initShaders() {
         return false;
     }
     
+    g_app.meshWireShader = std::make_unique<Shader>();
+    if (!g_app.meshWireShader->loadFromFiles(shaderPath + "mesh_wire.vert", shaderPath + "mesh_wire.frag")) {
+        std::cerr << "Failed to load mesh_wire shaders" << std::endl;
+        return false;
+    }
+    
     g_app.gridShader = std::make_unique<Shader>();
     if (!g_app.gridShader->loadFromFiles(shaderPath + "grid.vert", shaderPath + "grid.frag")) {
         std::cerr << "Failed to load grid shaders" << std::endl;
@@ -3172,7 +3179,9 @@ void render3DViewport(int x, int y, int width, int height) {
     ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
     
     // Draw all items
-    g_app.items->draw(*g_app.meshShader, *g_app.thickLineColoredShader, viewMode, view, projection,
+    g_app.meshWireShader->use();
+    g_app.meshWireShader->setBool("uShowSeams", g_app.splitViewEnabled);
+    g_app.items->draw(*g_app.meshShader, *g_app.meshWireShader, *g_app.thickLineColoredShader, viewMode, view, projection,
                       static_cast<float>(width), static_cast<float>(height));
     
     // Draw component overlay (vertices/edges) for component editing modes
@@ -3373,7 +3382,9 @@ void render() {
         ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
         
         // Draw all items
-        g_app.items->draw(*g_app.meshShader, *g_app.thickLineColoredShader, viewMode, view, projection,
+        g_app.meshWireShader->use();
+        g_app.meshWireShader->setBool("uShowSeams", g_app.splitViewEnabled);
+        g_app.items->draw(*g_app.meshShader, *g_app.meshWireShader, *g_app.thickLineColoredShader, viewMode, view, projection,
                           static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight));
         
         // Draw component overlay
