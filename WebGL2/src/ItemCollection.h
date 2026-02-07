@@ -51,6 +51,7 @@ public:
     
     // Get the mesh being edited (first selected item's mesh)
     Mesh2* getCurrentMesh();
+    const Mesh2* getCurrentMesh() const;
     
     // Operations on selected items
     void duplicateSelectedItems();
@@ -101,6 +102,13 @@ public:
                               const glm::mat4& view, const glm::mat4& projection) const;
     void drawForSelection(Shader& selectionShader, 
                           const glm::mat4& view, const glm::mat4& projection) const;
+    
+    // UV Editor drawing
+    void drawUV(Shader& uvShader, Shader& uvColoredShader, 
+                const glm::vec2& offset, float zoom, const glm::vec2& aspectAdjust) const;
+    void drawUVForSelection(Shader& selectionShader,
+                            const glm::vec2& offset, float zoom, const glm::vec2& aspectAdjust) const;
+    std::shared_ptr<Texture> getFirstSelectedTexture() const;
     
     // GPU buffers
     void createAllGPUBuffers();

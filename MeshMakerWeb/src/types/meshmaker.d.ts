@@ -88,6 +88,33 @@ export interface MeshMakerModule extends EmscriptenModule {
   removeTexture(): void;
   selectionHasTexture(): boolean;
   
+  // UV Mapping API
+  // Projection types: 0=Box, 1=Planar, 2=Cylindrical, 3=Spherical
+  unwrapSelectedUVs(projectionType: number): void;
+  unwrapAllUVs(projectionType: number): void;
+  
+  // Seam marking API
+  markSelectedEdgesAsSeam(isSeam: boolean): void;
+  clearAllSeams(): void;
+  
+  // UV View Mode API
+  getUVViewMode(): boolean;
+  setUVViewMode(enabled: boolean): void;
+  getUVZoom(): number;
+  setUVZoom(zoom: number): void;
+  getUVOffset(): Float32Array;
+  setUVOffset(x: number, y: number): void;
+  renderUV(width: number, height: number): void;
+  
+  // Split View API (single canvas with two viewports)
+  getSplitViewEnabled(): boolean;
+  setSplitViewEnabled(enabled: boolean): void;
+  getSplitRatio(): number;
+  setSplitRatio(ratio: number): void;
+  getActiveViewport(): number;  // 0 = 3D, 1 = UV
+  setActiveViewport(viewport: number): void;
+  getViewportAtPosition(x: number, y: number): number;  // Returns 0 (3D), 1 (UV), or -1 (divider)
+  
   // Info
   getItemCount(): number;
 }
@@ -106,6 +133,14 @@ export const TransformMode = {
   Translate: 1,
   Rotate: 2,
   Scale: 3,
+} as const;
+
+// UV projection types
+export const UVProjection = {
+  Box: 0,
+  Planar: 1,
+  Cylindrical: 2,
+  Spherical: 3,
 } as const;
 
 // View mode enum values

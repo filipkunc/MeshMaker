@@ -1,6 +1,7 @@
 #ifdef EMSCRIPTEN_BUILD
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#include <emscripten/val.h>
 #include <GLES3/gl3.h>
 #else
 #include <glad/gl.h>
@@ -20,6 +21,7 @@
 #include <vector>
 #include <algorithm>
 #include <climits>
+#include <cmath>
 
 #include "Camera.h"
 #include "Mesh2.h"
@@ -151,9 +153,57 @@ struct AppState {
     UndoManager undoManager;
     std::vector<ItemManipulationState> oldManipulations;  // Captured at manipulation start
     std::unique_ptr<MeshState> oldMeshState;  // Captured at mesh manipulation start
+    
+    // UV Editor state
+    bool isUVViewMode = false;        // When true, render in UV space
+    float uvZoom = 1.0f;              // UV view zoom
+    glm::vec2 uvOffset = glm::vec2(0.0f);  // UV view pan offset
+    std::unique_ptr<Shader> uvShader;       // UV space mesh shader
+    std::unique_ptr<Shader> uvGridShader;   // UV grid shader
+    std::unique_ptr<Shader> uvColoredShader; // UV vertices/edges shader
+    std::unique_ptr<Shader> uvBackgroundShader; // UV background texture shader
+    std::unique_ptr<Shader> uvSelectionShader; // UV selection picking shader
+    uint32_t uvGridVao = 0;
+    uint32_t uvGridVbo = 0;
+    uint32_t uvBackgroundVao = 0;
+    uint32_t uvBackgroundVbo = 0;
+    
+    // Split-screen viewport
+    bool splitViewEnabled = false;    // When true, show 3D and UV side by side
+    float splitRatio = 0.5f;          // 0.0 to 1.0: ratio of 3D viewport width
+    int activeViewport = 0;           // 0 = 3D viewport, 1 = UV viewport
 };
 
 static AppState g_app;
+
+// Convert screen position to UV coordinates
+glm::vec2 screenToUV(double screenX, double screenY) {
+    float uvStartX = g_app.windowWidth * (1.0f - g_app.splitRatio);
+    float uvWidth = g_app.windowWidth * g_app.splitRatio;
+    float uvHeight = static_cast<float>(g_app.windowHeight);
+    
+    float viewportAspect = uvWidth / uvHeight;
+    glm::vec2 aspectAdjust(1.0f, 1.0f);
+    if (viewportAspect > 1.0f) {
+        aspectAdjust.x = 1.0f / viewportAspect;
+    } else {
+        aspectAdjust.y = viewportAspect;
+    }
+    
+    float normX = ((static_cast<float>(screenX) - uvStartX) / uvWidth) * 2.0f - 1.0f;
+    float normY = 1.0f - (static_cast<float>(screenY) / uvHeight) * 2.0f;
+    
+    normX /= aspectAdjust.x;
+    normY /= aspectAdjust.y;
+    
+    float u = (normX + 1.0f) / 2.0f;
+    float v = (normY + 1.0f) / 2.0f;
+    
+    u = u / g_app.uvZoom - g_app.uvOffset.x;
+    v = v / g_app.uvZoom - g_app.uvOffset.y;
+    
+    return glm::vec2(u, v);
+}
 
 // Get current manipulator based on transform mode
 Manipulator* getCurrentManipulator() {
@@ -516,7 +566,9 @@ void sceneActionWithUndo(const std::string& actionName, std::function<void()> ac
 // Forward declarations
 glm::vec3 screenToWorldRay(double mouseX, double mouseY, glm::vec3& rayOrigin);
 int selectAtPoint(int x, int y);
+int selectAtPointUV(int x, int y);  // UV viewport selection
 std::vector<bool> selectInRect(int x, int y, int width, int height);
+std::vector<bool> selectInRectUV(int x, int y, int width, int height);  // UV viewport rect selection
 int selectManipulatorAtPoint(int x, int y);
 glm::vec3 unprojectPoint(double mouseX, double mouseY, float depth);
 glm::vec3 intersectAxisPlane(double mouseX, double mouseY, glm::vec3 planePoint, glm::vec3 planeNormal);
@@ -614,11 +666,68 @@ inline int toFramebufferGLY(double mouseY) {
     return g_app.framebufferHeight - fbY;
 }
 
-void scrollCallback(GLFWwindow* /*window*/, double /*xoffset*/, double yoffset) {
+// Get the 3D viewport bounds (in framebuffer coordinates)
+struct ViewportBounds {
+    int x, y, width, height;
+};
+
+ViewportBounds get3DViewportBounds() {
+    if (g_app.splitViewEnabled) {
+        int splitX = static_cast<int>(g_app.framebufferWidth * g_app.splitRatio);
+        return { 0, 0, splitX, g_app.framebufferHeight };
+    }
+    return { 0, 0, g_app.framebufferWidth, g_app.framebufferHeight };
+}
+
+// Check if a point (in framebuffer coords) is inside the 3D viewport
+bool isPointIn3DViewport(int fbX, int fbY) {
+    ViewportBounds vp = get3DViewportBounds();
+    return fbX >= vp.x && fbX < vp.x + vp.width && 
+           fbY >= vp.y && fbY < vp.y + vp.height;
+}
+
+// Check if a point (in window coords) is inside the UV viewport
+bool isPointInUVViewport(double x, double y) {
+    if (!g_app.splitViewEnabled) return false;
+    float splitX = g_app.windowWidth * (1.0f - g_app.splitRatio);
+    return x >= splitX && x < g_app.windowWidth;
+}
+
+void scrollCallback(GLFWwindow* window, double /*xoffset*/, double yoffset) {
     // Don't handle if ImGui wants it
     if (ImGui::GetIO().WantCaptureMouse) return;
     
-    g_app.camera.zoom(static_cast<float>(yoffset) * 0.5f);
+    // Get current mouse position
+    double mouseX, mouseY;
+    glfwGetCursorPos(window, &mouseX, &mouseY);
+#ifdef EMSCRIPTEN_BUILD
+    double dpr = emscripten_get_device_pixel_ratio();
+    mouseX *= dpr;
+    mouseY *= dpr;
+#endif
+    
+    // Check if scrolling over UV viewport
+    if (isPointInUVViewport(mouseX, mouseY)) {
+        // Zoom UV viewport towards mouse position
+        float zoomDelta = static_cast<float>(yoffset) * 0.1f;
+        float oldZoom = g_app.uvZoom;
+        float newZoom = glm::clamp(oldZoom + zoomDelta * oldZoom, 0.1f, 10.0f);
+        
+        // Get UV position under mouse before zoom
+        glm::vec2 uvUnderMouse = screenToUV(mouseX, mouseY);
+        
+        // Apply new zoom
+        g_app.uvZoom = newZoom;
+        
+        // Get UV position under mouse after zoom (with old offset)
+        glm::vec2 uvAfterZoom = screenToUV(mouseX, mouseY);
+        
+        // Adjust offset to keep the same UV point under mouse
+        g_app.uvOffset += uvAfterZoom - uvUnderMouse;
+    } else {
+        // Zoom 3D viewport
+        g_app.camera.zoom(static_cast<float>(yoffset) * 0.5f);
+    }
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -643,6 +752,22 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
                               glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS;
             
             if (!altPressed) {
+                // Check if click is in UV viewport (for UV selection)
+                if (isPointInUVViewport(g_app.clickMouseX, g_app.clickMouseY)) {
+                    g_app.activeViewport = 1;  // UV viewport
+                    
+                    // UV viewport click - will be handled on release for selection
+                    g_app.isSelecting = true;
+                    g_app.selectStartX = g_app.clickMouseX;
+                    g_app.selectStartY = g_app.clickMouseY;
+                    g_app.selectEndX = g_app.clickMouseX;
+                    g_app.selectEndY = g_app.clickMouseY;
+                    g_app.activeViewport = 1;  // UV viewport
+                    return;
+                }
+                
+                g_app.activeViewport = 0;  // 3D viewport
+                
                 // First, check if we clicked on a manipulator widget
                 Manipulator* manipulator = getCurrentManipulator();
                 if (manipulator && getSelectionCount() > 0) {
@@ -735,6 +860,60 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
                 
                 bool addToSelection = (mods & GLFW_MOD_SHIFT) != 0;
                 bool invertSelection = (mods & GLFW_MOD_CONTROL) != 0;
+                
+                // Check if this was a UV viewport selection
+                if (g_app.activeViewport == 1 && g_app.splitViewEnabled) {
+                    Mesh2* mesh = g_app.items->getCurrentMesh();
+                    
+                    if (mesh) {
+                        // UV face selection
+                        if (rectWidth <= 5.0 && rectHeight <= 5.0) {
+                            // Point selection in UV
+                            int faceIndex = selectAtPointUV(
+                                static_cast<int>(currentX), static_cast<int>(currentY));
+                            
+                            if (faceIndex >= 0) {
+                                if (invertSelection) {
+                                    if (mesh->isFaceSelected(static_cast<size_t>(faceIndex))) {
+                                        mesh->deselectFace(static_cast<size_t>(faceIndex));
+                                    } else {
+                                        mesh->selectFace(static_cast<size_t>(faceIndex), true);
+                                    }
+                                } else {
+                                    mesh->selectFace(static_cast<size_t>(faceIndex), addToSelection);
+                                }
+                            } else if (!addToSelection && !invertSelection) {
+                                mesh->deselectAll();
+                            }
+                        } else {
+                            // Rectangle selection in UV
+                            if (!addToSelection && !invertSelection) {
+                                mesh->deselectAll();
+                            }
+                            
+                            std::vector<bool> selected = selectInRectUV(
+                                static_cast<int>(minX), static_cast<int>(minY),
+                                static_cast<int>(rectWidth), static_cast<int>(rectHeight)
+                            );
+                            
+                            for (size_t i = 0; i < selected.size(); i++) {
+                                if (selected[i]) {
+                                    if (invertSelection) {
+                                        if (mesh->isFaceSelected(i)) {
+                                            mesh->deselectFace(i);
+                                        } else {
+                                            mesh->selectFace(i, true);
+                                        }
+                                    } else {
+                                        mesh->selectFace(i, true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    g_app.mousePressed = false;
+                    return;
+                }
                 
                 // Selection behaves differently based on EditMode
                 EditMode editMode = g_app.items->getEditMode();
@@ -1007,7 +1186,44 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
     bool cmdPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || 
                       glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
     
-    // Match original MeshMaker behavior
+    // Handle UV viewport camera controls (same shortcuts as 3D viewport)
+    if (isPointInUVViewport(xpos, ypos) && altPressed) {
+        float uvPanSensitivity = 1.0f / (g_app.windowWidth * g_app.splitRatio * g_app.uvZoom);
+        
+        if (g_app.mousePressed || g_app.middleMousePressed) {
+            // Alt+Left or Alt+Middle = Pan UV view
+            g_app.uvOffset.x += deltaX * uvPanSensitivity;
+            g_app.uvOffset.y -= deltaY * uvPanSensitivity;  // Flip Y
+        }
+        else if (g_app.rightMousePressed) {
+            // Alt+Right = Zoom UV view towards center of UV viewport
+            float zoomDelta = deltaY * 0.01f;
+            float oldZoom = g_app.uvZoom;
+            float newZoom = glm::clamp(oldZoom - zoomDelta * oldZoom, 0.1f, 10.0f);
+            
+            // Get center of UV viewport in screen coords
+            float uvViewportCenterX = g_app.windowWidth * (1.0f - g_app.splitRatio * 0.5f);
+            float uvViewportCenterY = g_app.windowHeight * 0.5f;
+            
+            // Get UV position at center before zoom
+            glm::vec2 uvCenter = screenToUV(uvViewportCenterX, uvViewportCenterY);
+            
+            // Apply new zoom
+            g_app.uvZoom = newZoom;
+            
+            // Get UV position at center after zoom
+            glm::vec2 uvAfterZoom = screenToUV(uvViewportCenterX, uvViewportCenterY);
+            
+            // Adjust offset to keep the same UV point at center
+            g_app.uvOffset += uvAfterZoom - uvCenter;
+        }
+        
+        g_app.lastMouseX = xpos;
+        g_app.lastMouseY = ypos;
+        return;
+    }
+    
+    // Match original MeshMaker behavior (3D viewport)
     if (altPressed && cmdPressed && g_app.mousePressed) {
         // Alt+Cmd+Left mouse = Pan
         float sensitivity = 1.0f / ((g_app.windowWidth + g_app.windowHeight) / 2.0f);
@@ -1307,6 +1523,20 @@ int selectAtPoint(int x, int y) {
     int fbX = toFramebufferX(x);
     int fbY = toFramebufferGLY(y);  // Already flipped for OpenGL
     
+    // Get 3D viewport bounds (may be partial when in split view)
+    ViewportBounds vp = get3DViewportBounds();
+    
+    // Check if click is outside the 3D viewport
+    int fbYNonFlipped = toFramebufferY(y);
+    if (!isPointIn3DViewport(fbX, fbYNonFlipped)) {
+        return -1;  // Click is in UV viewport or divider
+    }
+    
+    // Set viewport and scissor to 3D viewport area
+    glViewport(vp.x, vp.y, vp.width, vp.height);
+    glScissor(vp.x, vp.y, vp.width, vp.height);
+    glEnable(GL_SCISSOR_TEST);
+    
     // Save current clear color
     GLfloat clearColor[4];
     glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
@@ -1315,8 +1545,8 @@ int selectAtPoint(int x, int y) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // Setup matrices
-    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    // Setup matrices using the 3D viewport aspect ratio
+    float aspectRatio = static_cast<float>(vp.width) / static_cast<float>(vp.height);
     glm::mat4 view = g_app.camera.getViewMatrix();
     glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
     
@@ -1370,6 +1600,7 @@ int selectAtPoint(int x, int y) {
     }
     
     glFinish();
+    glDisable(GL_SCISSOR_TEST);
     
     // Read pixel at click position (sample 5x5 area for easier clicking, scaled for DPI)
     int sampleSize = static_cast<int>(5 * g_app.contentScaleX);
@@ -1401,6 +1632,191 @@ int selectAtPoint(int x, int y) {
     return selectedIndex;
 }
 
+// UV viewport color-buffer picking for face selection
+// x, y are in logical (window) coordinates
+int selectAtPointUV(int x, int y) {
+    if (!g_app.splitViewEnabled) return -1;
+    if (!g_app.uvSelectionShader) return -1;
+    
+    // Get UV viewport bounds
+    int uvX = static_cast<int>(g_app.framebufferWidth * (1.0f - g_app.splitRatio));
+    int uvWidth = g_app.framebufferWidth - uvX;
+    int uvHeight = g_app.framebufferHeight;
+    
+    // Convert click to framebuffer coordinates
+    int fbX = toFramebufferX(x);
+    int fbY = toFramebufferY(y);
+    
+    // Check if click is in UV viewport
+    if (fbX < uvX || fbX >= g_app.framebufferWidth) return -1;
+    
+    // Set viewport and scissor to UV viewport area
+    glViewport(uvX, 0, uvWidth, uvHeight);
+    glScissor(uvX, 0, uvWidth, uvHeight);
+    glEnable(GL_SCISSOR_TEST);
+    
+    // Save current clear color
+    GLfloat clearColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    
+    // Clear to black (index 0 = no selection)
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    
+    // Calculate UV transform
+    float viewportAspect = static_cast<float>(uvWidth) / static_cast<float>(uvHeight);
+    float scale = g_app.uvZoom;
+    
+    glm::vec2 aspectAdjust(1.0f, 1.0f);
+    if (viewportAspect > 1.0f) {
+        aspectAdjust.x = 1.0f / viewportAspect;
+    } else {
+        aspectAdjust.y = viewportAspect;
+    }
+    
+    // Setup shader
+    g_app.uvSelectionShader->use();
+    g_app.uvSelectionShader->setVec2("uOffset", g_app.uvOffset);
+    g_app.uvSelectionShader->setFloat("uZoom", scale);
+    g_app.uvSelectionShader->setVec2("uAspectAdjust", aspectAdjust);
+    
+    // Draw faces for selection
+    g_app.items->drawUVForSelection(*g_app.uvSelectionShader, g_app.uvOffset, scale, aspectAdjust);
+    
+    // Read pixel at click position (flip Y for OpenGL)
+    int glY = g_app.framebufferHeight - fbY - 1;
+    
+    const int sampleSize = 3;
+    uint8_t pixels[sampleSize * sampleSize * 4];
+    int readX = fbX - sampleSize / 2;
+    int readY = glY - sampleSize / 2;
+    
+    glReadPixels(readX, readY, sampleSize, sampleSize, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    
+    // Find first non-zero index
+    int selectedIndex = -1;
+    for (int i = 0; i < sampleSize * sampleSize && selectedIndex < 0; i++) {
+        uint32_t r = pixels[i * 4 + 0];
+        uint32_t g = pixels[i * 4 + 1];
+        uint32_t b = pixels[i * 4 + 2];
+        uint32_t colorIndex = r | (g << 8) | (b << 16);
+        if (colorIndex > 0) {
+            selectedIndex = static_cast<int>(colorIndex - 1);
+        }
+    }
+    
+    // Restore state
+    glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_SCISSOR_TEST);
+    
+    return selectedIndex;
+}
+
+// UV viewport rectangle selection using color-buffer picking
+// x, y, width, height are in logical (window) coordinates
+std::vector<bool> selectInRectUV(int x, int y, int width, int height) {
+    Mesh2* mesh = g_app.items->getCurrentMesh();
+    size_t faceCount = mesh ? mesh->getFaceCount() : 0;
+    std::vector<bool> selected(faceCount, false);
+    
+    if (!g_app.splitViewEnabled || !g_app.uvSelectionShader || faceCount == 0) {
+        return selected;
+    }
+    if (width <= 0 || height <= 0) return selected;
+    
+    // Get UV viewport bounds
+    int uvX = static_cast<int>(g_app.framebufferWidth * (1.0f - g_app.splitRatio));
+    int uvWidth = g_app.framebufferWidth - uvX;
+    int uvHeight = g_app.framebufferHeight;
+    
+    // Set viewport and scissor to UV viewport area
+    glViewport(uvX, 0, uvWidth, uvHeight);
+    glScissor(uvX, 0, uvWidth, uvHeight);
+    glEnable(GL_SCISSOR_TEST);
+    
+    // Save current clear color
+    GLfloat clearColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    
+    // Clear to black
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    
+    // Calculate UV transform
+    float viewportAspect = static_cast<float>(uvWidth) / static_cast<float>(uvHeight);
+    float scale = g_app.uvZoom;
+    
+    glm::vec2 aspectAdjust(1.0f, 1.0f);
+    if (viewportAspect > 1.0f) {
+        aspectAdjust.x = 1.0f / viewportAspect;
+    } else {
+        aspectAdjust.y = viewportAspect;
+    }
+    
+    // Setup shader and draw
+    g_app.uvSelectionShader->use();
+    g_app.uvSelectionShader->setVec2("uOffset", g_app.uvOffset);
+    g_app.uvSelectionShader->setFloat("uZoom", scale);
+    g_app.uvSelectionShader->setVec2("uAspectAdjust", aspectAdjust);
+    
+    g_app.items->drawUVForSelection(*g_app.uvSelectionShader, g_app.uvOffset, scale, aspectAdjust);
+    
+    // Coordinates are already in framebuffer space (DPR-scaled by caller)
+    int fbX = x;
+    int fbY = y;
+    int fbWidth = width;
+    int fbHeight = height;
+    
+    // Flip Y for OpenGL
+    int glY = g_app.framebufferHeight - fbY - fbHeight;
+    
+    // Clamp to UV viewport bounds
+    int readX = std::max(fbX, uvX);
+    int readY = std::max(0, glY);
+    int readWidth = std::min(fbX + fbWidth, g_app.framebufferWidth) - readX;
+    int readHeight = std::min(glY + fbHeight, g_app.framebufferHeight) - readY;
+    
+    if (readWidth <= 0 || readHeight <= 0) {
+        glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_SCISSOR_TEST);
+        return selected;
+    }
+    
+    // Limit max pixels
+    const int kMaxPixels = 512 * 512;
+    if (readWidth * readHeight > kMaxPixels) {
+        float ratio = std::sqrt(static_cast<float>(kMaxPixels) / (readWidth * readHeight));
+        readWidth = static_cast<int>(readWidth * ratio);
+        readHeight = static_cast<int>(readHeight * ratio);
+    }
+    
+    // Read pixels
+    std::vector<uint8_t> pixels(readWidth * readHeight * 4);
+    glReadPixels(readX, readY, readWidth, readHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    
+    // Find all unique face indices in the rect
+    for (int i = 0; i < readWidth * readHeight; i++) {
+        uint32_t r = pixels[i * 4 + 0];
+        uint32_t g = pixels[i * 4 + 1];
+        uint32_t b = pixels[i * 4 + 2];
+        uint32_t colorIndex = r | (g << 8) | (b << 16);
+        if (colorIndex > 0 && colorIndex <= faceCount) {
+            selected[colorIndex - 1] = true;
+        }
+    }
+    
+    // Restore state
+    glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_SCISSOR_TEST);
+    
+    return selected;
+}
+
 // Rectangle selection using color-buffer picking
 // Returns a vector indicating which items/faces/vertices/edges are within the rectangle
 // x, y, width, height are in logical (window) coordinates
@@ -1427,6 +1843,9 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
     
     if (width <= 0 || height <= 0 || count == 0) return selected;
     
+    // Get 3D viewport bounds
+    ViewportBounds vp = get3DViewportBounds();
+    
     // Convert to framebuffer coordinates for High DPI
     int fbX = toFramebufferX(x);
     int fbY = toFramebufferY(y);
@@ -1436,10 +1855,10 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
     // Flip Y for OpenGL coordinate system (origin at bottom-left)
     int glY = g_app.framebufferHeight - fbY - fbHeight;
     
-    // Clamp to framebuffer bounds
+    // Clamp to framebuffer bounds (and 3D viewport bounds in split mode)
     int readX = std::max(0, fbX);
     int readY = std::max(0, glY);
-    int readWidth = std::min(fbWidth, g_app.framebufferWidth - readX);
+    int readWidth = std::min(fbWidth, vp.width - readX);
     int readHeight = std::min(fbHeight, g_app.framebufferHeight - readY);
     
     if (readWidth <= 0 || readHeight <= 0) return selected;
@@ -1452,6 +1871,11 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
         readHeight = std::min(readHeight, 1024);
     }
     
+    // Set viewport and scissor to 3D viewport area
+    glViewport(vp.x, vp.y, vp.width, vp.height);
+    glScissor(vp.x, vp.y, vp.width, vp.height);
+    glEnable(GL_SCISSOR_TEST);
+    
     // Save current clear color
     GLfloat clearColor[4];
     glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
@@ -1460,8 +1884,8 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // Setup matrices
-    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    // Setup matrices using 3D viewport aspect ratio
+    float aspectRatio = static_cast<float>(vp.width) / static_cast<float>(vp.height);
     glm::mat4 view = g_app.camera.getViewMatrix();
     glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
     
@@ -1511,6 +1935,7 @@ std::vector<bool> selectInRect(int x, int y, int width, int height) {
     }
     
     glFinish();
+    glDisable(GL_SCISSOR_TEST);
     
     // Read pixels from the rectangle
     std::vector<uint8_t> pixels(readWidth * readHeight * 4);
@@ -1547,6 +1972,20 @@ int selectManipulatorAtPoint(int x, int y) {
     int fbX = toFramebufferX(x);
     int fbY = toFramebufferGLY(y);  // Already flipped for OpenGL
     
+    // Get 3D viewport bounds
+    ViewportBounds vp = get3DViewportBounds();
+    
+    // Check if click is outside the 3D viewport
+    int fbYNonFlipped = toFramebufferY(y);
+    if (!isPointIn3DViewport(fbX, fbYNonFlipped)) {
+        return -1;  // Click is in UV viewport or divider
+    }
+    
+    // Set viewport and scissor to 3D viewport area
+    glViewport(vp.x, vp.y, vp.width, vp.height);
+    glScissor(vp.x, vp.y, vp.width, vp.height);
+    glEnable(GL_SCISSOR_TEST);
+    
     // Save current clear color
     GLfloat clearColor[4];
     glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
@@ -1555,8 +1994,8 @@ int selectManipulatorAtPoint(int x, int y) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // Setup matrices
-    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    // Setup matrices using 3D viewport aspect ratio
+    float aspectRatio = static_cast<float>(vp.width) / static_cast<float>(vp.height);
     glm::mat4 view = g_app.camera.getViewMatrix();
     glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
     
@@ -1592,11 +2031,12 @@ int selectManipulatorAtPoint(int x, int y) {
         glm::vec4 selectionColor(r, g, b, 1.0f);
         
         manipulator->drawForSelection(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, i,
-                                       static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight),
+                                       static_cast<float>(vp.width), static_cast<float>(vp.height),
                                        selectionColor);
     }
     
     glFinish();
+    glDisable(GL_SCISSOR_TEST);
     
     // Read a tolerance region for better selection on thin widgets (scaled for DPI)
     int tolerance = static_cast<int>(5 * g_app.contentScaleX);
@@ -2150,11 +2590,35 @@ void drawSelectionRect() {
     float maxX = static_cast<float>(std::max(g_app.selectStartX, g_app.selectEndX));
     float maxY = static_cast<float>(std::max(g_app.selectStartY, g_app.selectEndY));
     
-    // Convert to normalized device coordinates
-    float ndcMinX = (2.0f * minX) / g_app.windowWidth - 1.0f;
-    float ndcMaxX = (2.0f * maxX) / g_app.windowWidth - 1.0f;
-    float ndcMinY = 1.0f - (2.0f * maxY) / g_app.windowHeight;  // Flip Y
-    float ndcMaxY = 1.0f - (2.0f * minY) / g_app.windowHeight;  // Flip Y
+    // Get viewport dimensions for NDC conversion
+    float vpX = 0.0f;
+    float vpWidth = static_cast<float>(g_app.windowWidth);
+    float vpHeight = static_cast<float>(g_app.windowHeight);
+    
+    if (g_app.splitViewEnabled) {
+        float splitX = static_cast<float>(g_app.windowWidth) * g_app.splitRatio;
+        
+        if (g_app.activeViewport == 1) {
+            // UV viewport - right side
+            vpX = splitX;
+            vpWidth = static_cast<float>(g_app.windowWidth) - splitX;
+            // Clamp selection rect to UV viewport
+            minX = std::max(minX, vpX);
+            maxX = std::min(maxX, static_cast<float>(g_app.windowWidth));
+        } else {
+            // 3D viewport - left side
+            vpWidth = splitX;
+            // Clamp selection rect to 3D viewport
+            minX = std::max(minX, 0.0f);
+            maxX = std::min(maxX, vpWidth);
+        }
+    }
+    
+    // Convert to normalized device coordinates relative to the active viewport
+    float ndcMinX = (2.0f * (minX - vpX)) / vpWidth - 1.0f;
+    float ndcMaxX = (2.0f * (maxX - vpX)) / vpWidth - 1.0f;
+    float ndcMinY = 1.0f - (2.0f * maxY) / vpHeight;  // Flip Y
+    float ndcMaxY = 1.0f - (2.0f * minY) / vpHeight;  // Flip Y
     
     // Create rectangle vertices (for both filled quad and line loop)
     float vertices[] = {
@@ -2189,6 +2653,20 @@ void drawSelectionRect() {
         // Update vertex data
         glBindBuffer(GL_ARRAY_BUFFER, g_app.rectVbo);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+    }
+    
+    // Set viewport for the active viewport
+    if (g_app.splitViewEnabled && g_app.activeViewport == 1) {
+        // UV viewport
+        int uvX = static_cast<int>(g_app.framebufferWidth * g_app.splitRatio);
+        int uvWidth = g_app.framebufferWidth - uvX;
+        glViewport(uvX, 0, uvWidth, g_app.framebufferHeight);
+    } else if (g_app.splitViewEnabled) {
+        // 3D viewport
+        int splitX = static_cast<int>(g_app.framebufferWidth * g_app.splitRatio);
+        glViewport(0, 0, splitX, g_app.framebufferHeight);
+    } else {
+        glViewport(0, 0, g_app.framebufferWidth, g_app.framebufferHeight);
     }
     
     glDisable(GL_DEPTH_TEST);
@@ -2260,6 +2738,37 @@ bool initShaders() {
         return false;
     }
     
+    // UV Editor shaders
+    g_app.uvShader = std::make_unique<Shader>();
+    if (!g_app.uvShader->loadFromFiles(shaderPath + "uv.vert", shaderPath + "uv.frag")) {
+        std::cerr << "Failed to load UV shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.uvGridShader = std::make_unique<Shader>();
+    if (!g_app.uvGridShader->loadFromFiles(shaderPath + "uvgrid.vert", shaderPath + "uvgrid.frag")) {
+        std::cerr << "Failed to load UV grid shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.uvColoredShader = std::make_unique<Shader>();
+    if (!g_app.uvColoredShader->loadFromFiles(shaderPath + "uvcolored.vert", shaderPath + "uvcolored.frag")) {
+        std::cerr << "Failed to load UV colored shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.uvBackgroundShader = std::make_unique<Shader>();
+    if (!g_app.uvBackgroundShader->loadFromFiles(shaderPath + "uvbackground.vert", shaderPath + "uvbackground.frag")) {
+        std::cerr << "Failed to load UV background shaders" << std::endl;
+        return false;
+    }
+    
+    g_app.uvSelectionShader = std::make_unique<Shader>();
+    if (!g_app.uvSelectionShader->loadFromFiles(shaderPath + "uvselection.vert", shaderPath + "uvselection.frag")) {
+        std::cerr << "Failed to load UV selection shaders" << std::endl;
+        return false;
+    }
+    
     return true;
 }
 
@@ -2276,6 +2785,47 @@ void initScene() {
     g_app.translateManipulator = std::make_unique<Manipulator>(ManipulatorType::Translation);
     g_app.rotateManipulator = std::make_unique<Manipulator>(ManipulatorType::Rotation);
     g_app.scaleManipulator = std::make_unique<Manipulator>(ManipulatorType::Scale);
+    
+    // Create UV grid (0-1 square with subdivisions)
+    std::vector<float> uvGridLines;
+    // Main UV square border
+    uvGridLines.insert(uvGridLines.end(), {0.0f, 0.0f, 1.0f, 0.0f}); // bottom
+    uvGridLines.insert(uvGridLines.end(), {1.0f, 0.0f, 1.0f, 1.0f}); // right
+    uvGridLines.insert(uvGridLines.end(), {1.0f, 1.0f, 0.0f, 1.0f}); // top
+    uvGridLines.insert(uvGridLines.end(), {0.0f, 1.0f, 0.0f, 0.0f}); // left
+    // Grid subdivisions (0.1 step)
+    for (float i = 0.1f; i < 1.0f; i += 0.1f) {
+        uvGridLines.insert(uvGridLines.end(), {i, 0.0f, i, 1.0f}); // vertical
+        uvGridLines.insert(uvGridLines.end(), {0.0f, i, 1.0f, i}); // horizontal
+    }
+    
+    glGenVertexArrays(1, &g_app.uvGridVao);
+    glGenBuffers(1, &g_app.uvGridVbo);
+    glBindVertexArray(g_app.uvGridVao);
+    glBindBuffer(GL_ARRAY_BUFFER, g_app.uvGridVbo);
+    glBufferData(GL_ARRAY_BUFFER, uvGridLines.size() * sizeof(float), uvGridLines.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    
+    // Create UV background quad (0-1 range)
+    float uvBackgroundQuad[] = {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+    };
+    
+    glGenVertexArrays(1, &g_app.uvBackgroundVao);
+    glGenBuffers(1, &g_app.uvBackgroundVbo);
+    glBindVertexArray(g_app.uvBackgroundVao);
+    glBindBuffer(GL_ARRAY_BUFFER, g_app.uvBackgroundVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(uvBackgroundQuad), uvBackgroundQuad, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
 }
 
 void renderImGui() {
@@ -2553,11 +3103,25 @@ void renderImGui() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void render() {
+// Forward declaration
+void renderUVViewport(int x, int y, int width, int height);
+
+// Render UV view (2D UV space rendering) - standalone full-screen version
+void renderUV() {
+    // Just call the viewport version with full screen dimensions
+    renderUVViewport(0, 0, g_app.framebufferWidth, g_app.framebufferHeight);
+}
+
+// Render 3D viewport to a specific region of the screen
+void render3DViewport(int x, int y, int width, int height) {
+    glViewport(x, y, width, height);
+    glScissor(x, y, width, height);
+    glEnable(GL_SCISSOR_TEST);
+    
     glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+    float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
     glm::mat4 view = g_app.camera.getViewMatrix();
     glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
     
@@ -2565,7 +3129,7 @@ void render() {
     if (g_app.showGrid) {
         glDisable(GL_DEPTH_TEST);
         g_app.gridShader->use();
-        g_app.gridShader->setMat4("uModel", glm::mat4(1.0f));  // Identity for grid
+        g_app.gridShader->setMat4("uModel", glm::mat4(1.0f));
         g_app.gridShader->setMat4("uView", view);
         g_app.gridShader->setMat4("uProjection", projection);
         g_app.grid->draw();
@@ -2583,20 +3147,210 @@ void render() {
     // Draw manipulator if there's a selection and we're in a transform mode
     Manipulator* manipulator = getCurrentManipulator();
     if (manipulator && getSelectionCount() > 0) {
-        // Position manipulator at selection center
         manipulator->position = getSelectionCenter();
-        manipulator->size = g_app.camera.getDistance() * 0.15f;  // Scale with camera distance
-        
-        // Get camera forward direction for proper rendering
+        manipulator->size = g_app.camera.getDistance() * 0.15f;
         glm::vec3 cameraForward = g_app.camera.getForwardDirection();
         
         manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
                           cameraForward, manipulator->position, 
-                          static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight));
+                          static_cast<float>(width), static_cast<float>(height));
     }
     
-    // Draw selection rectangle overlay
-    drawSelectionRect();
+    // Draw selection rectangle overlay (only if active viewport is 3D)
+    if (g_app.activeViewport == 0) {
+        drawSelectionRect();
+    }
+    
+    glDisable(GL_SCISSOR_TEST);
+}
+
+// Render UV viewport to a specific region of the screen
+void renderUVViewport(int x, int y, int width, int height) {
+    glViewport(x, y, width, height);
+    glScissor(x, y, width, height);
+    glEnable(GL_SCISSOR_TEST);
+    
+    glClearColor(0.15f, 0.15f, 0.18f, 1.0f);  // Slightly different background for UV
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    
+    // Calculate UV transform - keep UV space square and centered
+    float viewportAspect = static_cast<float>(width) / static_cast<float>(height);
+    float scale = g_app.uvZoom;
+    
+    // Adjust for aspect ratio to keep UV space square
+    glm::vec2 aspectAdjust(1.0f, 1.0f);
+    if (viewportAspect > 1.0f) {
+        aspectAdjust.x = 1.0f / viewportAspect;
+    } else {
+        aspectAdjust.y = viewportAspect;
+    }
+    
+    glm::vec2 offset = g_app.uvOffset;
+    
+    // Draw texture background (before grid so grid shows on top)
+    if (g_app.uvBackgroundShader && g_app.uvBackgroundVao) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        g_app.uvBackgroundShader->use();
+        g_app.uvBackgroundShader->setVec2("uOffset", offset);
+        g_app.uvBackgroundShader->setFloat("uZoom", scale);
+        g_app.uvBackgroundShader->setVec2("uAspectAdjust", aspectAdjust);
+        g_app.uvBackgroundShader->setFloat("uAlpha", 0.8f);
+        
+        // Get texture from first selected item
+        auto texture = g_app.items->getFirstSelectedTexture();
+        if (texture) {
+            texture->bind(0);
+            g_app.uvBackgroundShader->setInt("uTexture", 0);
+            g_app.uvBackgroundShader->setBool("uHasTexture", true);
+        } else {
+            g_app.uvBackgroundShader->setBool("uHasTexture", false);
+        }
+        
+        glBindVertexArray(g_app.uvBackgroundVao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+        
+        if (texture) {
+            Texture::unbind(0);
+        }
+        
+        glDisable(GL_BLEND);
+    }
+    
+    // Draw UV grid (0-1 square with subdivisions)
+    if (g_app.uvGridShader && g_app.uvGridVao) {
+        g_app.uvGridShader->use();
+        g_app.uvGridShader->setVec2("uOffset", offset);
+        g_app.uvGridShader->setFloat("uZoom", scale);
+        g_app.uvGridShader->setVec2("uAspectAdjust", aspectAdjust);
+        
+        glBindVertexArray(g_app.uvGridVao);
+        glDrawArrays(GL_LINES, 0, 84);  // 21*2 horizontal + 21*2 vertical lines
+        glBindVertexArray(0);
+    }
+    
+    // Enable blending for UV mesh rendering
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Draw UV faces from selected items
+    g_app.items->drawUV(*g_app.uvShader, *g_app.uvColoredShader, offset, scale, aspectAdjust);
+    
+    // Draw selection rectangle overlay (only if active viewport is UV)
+    if (g_app.activeViewport == 1) {
+        drawSelectionRect();
+    }
+    
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_SCISSOR_TEST);
+}
+
+// Draw a vertical divider line between viewports
+void drawViewportDivider(int x, int height) {
+    glViewport(0, 0, g_app.framebufferWidth, g_app.framebufferHeight);
+    glDisable(GL_DEPTH_TEST);
+    
+    // Simple line at the split position
+    if (g_app.rectShader) {
+        g_app.rectShader->use();
+        
+        // Convert pixel position to NDC
+        float ndcX = (2.0f * x / g_app.framebufferWidth) - 1.0f;
+        float lineWidth = 2.0f / g_app.framebufferWidth;  // 2 pixels wide
+        
+        float vertices[] = {
+            ndcX - lineWidth, -1.0f,
+            ndcX + lineWidth, -1.0f,
+            ndcX + lineWidth,  1.0f,
+            ndcX - lineWidth, -1.0f,
+            ndcX + lineWidth,  1.0f,
+            ndcX - lineWidth,  1.0f,
+        };
+        
+        g_app.rectShader->setVec4("uColor", glm::vec4(0.4f, 0.4f, 0.4f, 1.0f));
+        
+        GLuint tempVao, tempVbo;
+        glGenVertexArrays(1, &tempVao);
+        glGenBuffers(1, &tempVbo);
+        glBindVertexArray(tempVao);
+        glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+        glEnableVertexAttribArray(0);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDeleteBuffers(1, &tempVbo);
+        glDeleteVertexArrays(1, &tempVao);
+        glBindVertexArray(0);
+    }
+    
+    glEnable(GL_DEPTH_TEST);
+}
+
+void render() {
+    if (g_app.splitViewEnabled) {
+        // Split-screen mode: 3D on left, UV on right
+        int splitX = static_cast<int>(g_app.framebufferWidth * g_app.splitRatio);
+        int leftWidth = splitX;
+        int rightWidth = g_app.framebufferWidth - splitX;
+        int height = g_app.framebufferHeight;
+        
+        // Render 3D viewport on left
+        render3DViewport(0, 0, leftWidth, height);
+        
+        // Render UV viewport on right
+        renderUVViewport(splitX, 0, rightWidth, height);
+        
+        // Draw divider
+        drawViewportDivider(splitX, height);
+    } else {
+        // Single viewport mode: full screen 3D
+        glViewport(0, 0, g_app.framebufferWidth, g_app.framebufferHeight);
+        
+        glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        float aspectRatio = static_cast<float>(g_app.windowWidth) / static_cast<float>(g_app.windowHeight);
+        glm::mat4 view = g_app.camera.getViewMatrix();
+        glm::mat4 projection = g_app.camera.getProjectionMatrix(aspectRatio);
+        
+        // Draw grid
+        if (g_app.showGrid) {
+            glDisable(GL_DEPTH_TEST);
+            g_app.gridShader->use();
+            g_app.gridShader->setMat4("uModel", glm::mat4(1.0f));
+            g_app.gridShader->setMat4("uView", view);
+            g_app.gridShader->setMat4("uProjection", projection);
+            g_app.grid->draw();
+            glEnable(GL_DEPTH_TEST);
+        }
+        
+        ViewMode viewMode = static_cast<ViewMode>(g_app.viewMode);
+        
+        // Draw all items
+        g_app.items->draw(*g_app.meshShader, *g_app.gridShader, viewMode, view, projection);
+        
+        // Draw component overlay
+        g_app.items->drawComponentOverlay(*g_app.coloredShader, view, projection);
+        
+        // Draw manipulator if there's a selection and we're in a transform mode
+        Manipulator* manipulator = getCurrentManipulator();
+        if (manipulator && getSelectionCount() > 0) {
+            manipulator->position = getSelectionCenter();
+            manipulator->size = g_app.camera.getDistance() * 0.15f;
+            glm::vec3 cameraForward = g_app.camera.getForwardDirection();
+            
+            manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
+                              cameraForward, manipulator->position, 
+                              static_cast<float>(g_app.framebufferWidth), static_cast<float>(g_app.framebufferHeight));
+        }
+        
+        // Draw selection rectangle overlay
+        drawSelectionRect();
+    }
     
     // Draw ImGui (can be hidden when using external UI like React)
     if (g_app.showImGui) {
@@ -2903,6 +3657,82 @@ int api_getTransformMode() {
 void api_setTransformMode(int mode) {
     if (mode < 0 || mode > 3) return;
     g_app.transformMode = static_cast<TransformMode>(mode);
+}
+
+// UV View Mode
+bool api_getUVViewMode() {
+    return g_app.isUVViewMode;
+}
+
+void api_setUVViewMode(bool enabled) {
+    g_app.isUVViewMode = enabled;
+}
+
+float api_getUVZoom() {
+    return g_app.uvZoom;
+}
+
+void api_setUVZoom(float zoom) {
+    g_app.uvZoom = std::max(0.1f, std::min(10.0f, zoom));
+}
+
+emscripten::val api_getUVOffset() {
+    return emscripten::val::array(std::vector<float>{g_app.uvOffset.x, g_app.uvOffset.y});
+}
+
+void api_setUVOffset(float x, float y) {
+    g_app.uvOffset = glm::vec2(x, y);
+}
+
+void api_renderUV(int width, int height) {
+    // Render UV view to the same framebuffer
+    glViewport(0, 0, width, height);
+    renderUV();
+}
+
+// Split View Mode
+bool api_getSplitViewEnabled() {
+    return g_app.splitViewEnabled;
+}
+
+void api_setSplitViewEnabled(bool enabled) {
+    g_app.splitViewEnabled = enabled;
+}
+
+float api_getSplitRatio() {
+    return g_app.splitRatio;
+}
+
+void api_setSplitRatio(float ratio) {
+    g_app.splitRatio = std::max(0.2f, std::min(0.8f, ratio));
+}
+
+int api_getActiveViewport() {
+    return g_app.activeViewport;
+}
+
+void api_setActiveViewport(int viewport) {
+    if (viewport == 0 || viewport == 1) {
+        g_app.activeViewport = viewport;
+    }
+}
+
+// Get which viewport contains the given mouse position (0 = 3D, 1 = UV, -1 = divider)
+int api_getViewportAtPosition(float x, float y) {
+    if (!g_app.splitViewEnabled) {
+        return 0;  // Only 3D viewport
+    }
+    
+    float splitX = g_app.framebufferWidth * g_app.splitRatio;
+    float dividerWidth = 4.0f;  // Divider click area
+    
+    if (x < splitX - dividerWidth / 2) {
+        return 0;  // 3D viewport
+    } else if (x > splitX + dividerWidth / 2) {
+        return 1;  // UV viewport
+    } else {
+        return -1;  // On the divider
+    }
 }
 
 // Selection
@@ -3398,6 +4228,72 @@ bool api_selectionHasTexture() {
         }
     }
     return false;
+}
+
+// ============================================================================
+// UV Mapping API
+// ============================================================================
+
+// UV unwrap projection types (matches Mesh2::UVProjection enum)
+// 0=Box, 1=Planar, 2=Cylindrical, 3=Spherical
+void api_unwrapSelectedUVs(int projectionType) {
+    if (!g_app.items) return;
+    
+    Mesh2::UVProjection projection = static_cast<Mesh2::UVProjection>(projectionType);
+    
+    sceneActionWithUndo("UV Unwrap", [projection]() {
+        for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (item && item->selected && item->mesh) {
+                item->mesh->unwrapSelectedUVs(projection);
+                item->mesh->updateGPUBuffers();  // Immediate update
+            }
+        }
+    });
+}
+
+void api_unwrapAllUVs(int projectionType) {
+    if (!g_app.items) return;
+    
+    Mesh2::UVProjection projection = static_cast<Mesh2::UVProjection>(projectionType);
+    
+    sceneActionWithUndo("UV Unwrap All", [projection]() {
+        for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (item && item->selected && item->mesh) {
+                item->mesh->unwrapAllUVs(projection);
+                item->mesh->updateGPUBuffers();  // Immediate update
+            }
+        }
+    });
+}
+
+// Mark selected edges as seams
+void api_markSelectedEdgesAsSeam(bool isSeam) {
+    if (!g_app.items) return;
+    
+    sceneActionWithUndo(isSeam ? "Mark Seams" : "Clear Seams", [isSeam]() {
+        for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (item && item->selected && item->mesh) {
+                item->mesh->markSelectedEdgesAsSeam(isSeam);
+            }
+        }
+    });
+}
+
+// Clear all seams
+void api_clearAllSeams() {
+    if (!g_app.items) return;
+    
+    sceneActionWithUndo("Clear All Seams", []() {
+        for (size_t i = 0; i < g_app.items->getItemCount(); i++) {
+            Item* item = g_app.items->getItemAtIndex(i);
+            if (item && item->selected && item->mesh) {
+                item->mesh->clearAllSeams();
+            }
+        }
+    });
 }
 
 #endif // EMSCRIPTEN_BUILD

@@ -86,6 +86,30 @@ extern bool api_loadTextureFromFileData(emscripten::val data);
 extern void api_removeTexture();
 extern bool api_selectionHasTexture();
 
+// UV Mapping API
+extern void api_unwrapSelectedUVs(int projectionType);
+extern void api_unwrapAllUVs(int projectionType);
+extern void api_markSelectedEdgesAsSeam(bool isSeam);
+extern void api_clearAllSeams();
+
+// UV View Mode API
+extern bool api_getUVViewMode();
+extern void api_setUVViewMode(bool enabled);
+extern float api_getUVZoom();
+extern void api_setUVZoom(float zoom);
+extern emscripten::val api_getUVOffset();
+extern void api_setUVOffset(float x, float y);
+extern void api_renderUV(int width, int height);
+
+// Split View API
+extern bool api_getSplitViewEnabled();
+extern void api_setSplitViewEnabled(bool enabled);
+extern float api_getSplitRatio();
+extern void api_setSplitRatio(float ratio);
+extern int api_getActiveViewport();
+extern void api_setActiveViewport(int viewport);
+extern int api_getViewportAtPosition(float x, float y);
+
 // ============================================================================
 // Embind Bindings
 // ============================================================================
@@ -179,6 +203,33 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("loadTextureFromFileData", &api_loadTextureFromFileData);
     function("removeTexture", &api_removeTexture);
     function("selectionHasTexture", &api_selectionHasTexture);
+    
+    // UV Mapping API
+    // Projection types: 0=Box, 1=Planar, 2=Cylindrical, 3=Spherical
+    function("unwrapSelectedUVs", &api_unwrapSelectedUVs);
+    function("unwrapAllUVs", &api_unwrapAllUVs);
+    
+    // Seam marking API
+    function("markSelectedEdgesAsSeam", &api_markSelectedEdgesAsSeam);
+    function("clearAllSeams", &api_clearAllSeams);
+    
+    // UV View Mode API
+    function("getUVViewMode", &api_getUVViewMode);
+    function("setUVViewMode", &api_setUVViewMode);
+    function("getUVZoom", &api_getUVZoom);
+    function("setUVZoom", &api_setUVZoom);
+    function("getUVOffset", &api_getUVOffset);
+    function("setUVOffset", &api_setUVOffset);
+    function("renderUV", &api_renderUV);
+    
+    // Split View API
+    function("getSplitViewEnabled", &api_getSplitViewEnabled);
+    function("setSplitViewEnabled", &api_setSplitViewEnabled);
+    function("getSplitRatio", &api_getSplitRatio);
+    function("setSplitRatio", &api_setSplitRatio);
+    function("getActiveViewport", &api_getActiveViewport);
+    function("setActiveViewport", &api_setActiveViewport);
+    function("getViewportAtPosition", &api_getViewportAtPosition);
 }
 
 #endif // EMSCRIPTEN_BUILD

@@ -22,6 +22,7 @@ function App() {
   const [hasTexture, setHasTexture] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState('');
+  const [showUVEditor, setShowUVEditor] = useState(false);
   
   // Poll selection state and undo/redo state from WASM module
   useEffect(() => {
@@ -56,6 +57,16 @@ function App() {
     const interval = setInterval(updateState, 100);
     return () => clearInterval(interval);
   }, [module, transformMode]); // Re-poll when transform mode changes
+  
+  // Sync split view state with C++
+  useEffect(() => {
+    if (!module) return;
+    try {
+      module.setSplitViewEnabled(showUVEditor);
+    } catch (e) {
+      console.error('Failed to set split view:', e);
+    }
+  }, [module, showUVEditor]);
   
   // Force re-render to update selection info
   const triggerUpdate = useCallback(() => {
@@ -554,7 +565,7 @@ function App() {
         onGrowEdgeSelection={handleGrowEdgeSelection}
       />
 
-      {/* Main Viewport */}
+      {/* Main Content Area - Single Canvas with Split View */}
       <div className="flex-1 relative">
         <Viewport
           canvasRef={canvasRef}
@@ -571,6 +582,82 @@ function App() {
               <div className="text-white text-lg font-medium">{importProgress}</div>
               <div className="text-gray-400 text-sm">Please wait...</div>
             </div>
+          </div>
+        )}
+        
+        {/* UV Editor Toggle Button */}
+        <button
+          onClick={() => setShowUVEditor(!showUVEditor)}
+          className={`absolute top-2 right-2 px-3 py-1 text-sm rounded shadow-lg z-10 transition-colors
+            ${showUVEditor 
+              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+              : 'bg-gray-700 hover:bg-gray-600 text-gray-200'}`}
+          title={showUVEditor ? 'Hide UV Editor' : 'Show UV Editor'}
+        >
+          UV Editor
+        </button>
+        
+        {/* UV View Controls (shown when split view is active) */}
+        {showUVEditor && (
+          <div className="absolute top-2 left-1/2 ml-4 flex gap-2 z-10">
+            <button
+              onClick={() => { module?.setUVZoom(1); module?.setUVOffset(0, 0); }}
+              className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
+              title="Reset UV View"
+            >
+              Reset
+            </button>
+            <span className="w-px bg-zinc-600 mx-1"></span>
+            <button
+              onClick={() => { module?.unwrapSelectedUVs(0); }}
+              className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
+              title="Box projection - projects UVs based on face normals"
+            >
+              Box
+            </button>
+            <button
+              onClick={() => { module?.unwrapSelectedUVs(1); }}
+              className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
+              title="Planar projection from Z axis"
+            >
+              Planar
+            </button>
+            <button
+              onClick={() => { module?.unwrapSelectedUVs(2); }}
+              className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
+              title="Cylindrical projection around Y axis"
+            >
+              Cylinder
+            </button>
+            <button
+              onClick={() => { module?.unwrapSelectedUVs(3); }}
+              className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
+              title="Spherical projection"
+            >
+              Sphere
+            </button>
+            <button
+              onClick={() => { module?.unwrapAllUVs(4); }}
+              className="px-2 py-1 text-xs bg-blue-700 hover:bg-blue-600 rounded text-zinc-200 font-semibold"
+              title="Conformal unwrap using seam edges to define UV islands"
+            >
+              Unwrap
+            </button>
+            <span className="w-px bg-zinc-600 mx-1"></span>
+            <button
+              onClick={() => { module?.markSelectedEdgesAsSeam(true); }}
+              className="px-2 py-1 text-xs bg-green-700 hover:bg-green-600 rounded text-zinc-200"
+              title="Mark selected edges as UV seams (in 3D Edge mode)"
+            >
+              Mark Seam
+            </button>
+            <button
+              onClick={() => { module?.markSelectedEdgesAsSeam(false); }}
+              className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"
+              title="Unmark selected edges as seams"
+            >
+              Clear Seam
+            </button>
           </div>
         )}
       </div>

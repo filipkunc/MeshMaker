@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
     "copy-wasm": "node scripts/copy-wasm.mjs",
     "copy-wasm-debug": "node scripts/copy-wasm.mjs --debug"
   },
@@ -16,8 +18,8 @@
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@cloudflare/wrangler": "^4.61.0",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
@@ -30,7 +32,8 @@
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "npm:rolldown-vite@7.2.5"
+    "vite": "npm:rolldown-vite@7.2.5",
+    "wrangler": "^4.1.0"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.5"

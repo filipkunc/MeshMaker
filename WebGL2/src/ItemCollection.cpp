@@ -190,6 +190,13 @@ Mesh2* ItemCollection::getCurrentMesh() {
     return item ? item->mesh.get() : nullptr;
 }
 
+const Mesh2* ItemCollection::getCurrentMesh() const {
+    for (const auto& item : m_items) {
+        if (item->selected) return item->mesh.get();
+    }
+    return nullptr;
+}
+
 // Item operations
 void ItemCollection::duplicateSelectedItems() {
     std::vector<std::unique_ptr<Item>> newItems;
@@ -735,6 +742,58 @@ void ItemCollection::createAllGPUBuffers() {
     }
 }
 
+// UV Editor drawing - renders faces in UV space
+void ItemCollection::drawUV(Shader& uvShader, Shader& uvColoredShader,
+                            const glm::vec2& offset, float zoom, const glm::vec2& aspectAdjust) const {
+    for (const auto& item : m_items) {
+        if (!item->visible || !item->selected) continue;
+        if (!item->mesh) continue;
+        
+        // Draw UV faces
+        uvShader.use();
+        uvShader.setVec2("uOffset", offset);
+        uvShader.setFloat("uZoom", zoom);
+        uvShader.setVec2("uAspectAdjust", aspectAdjust);
+        uvShader.setBool("uHasTexture", item->hasTexture());
+        uvShader.setFloat("uAlpha", 0.6f);
+        
+        if (item->hasTexture()) {
+            item->getTexture()->bind(0);
+            uvShader.setInt("uTexture", 0);
+        }
+        
+        item->mesh->drawUV(uvShader);
+        
+        if (item->hasTexture()) {
+            Texture::unbind(0);
+        }
+        
+        // Always draw UV edges for visibility
+        uvColoredShader.use();
+        uvColoredShader.setVec2("uOffset", offset);
+        uvColoredShader.setFloat("uZoom", zoom);
+        uvColoredShader.setVec2("uAspectAdjust", aspectAdjust);
+        uvColoredShader.setFloat("uPointSize", 6.0f);
+        
+        item->mesh->drawUVEdges(uvColoredShader);
+    }
+}
+
+void ItemCollection::drawUVForSelection(Shader& selectionShader,
+                                         const glm::vec2& offset, float zoom, const glm::vec2& aspectAdjust) const {
+    for (const auto& item : m_items) {
+        if (!item->visible || !item->selected) continue;
+        if (!item->mesh) continue;
+        
+        selectionShader.use();
+        selectionShader.setVec2("uOffset", offset);
+        selectionShader.setFloat("uZoom", zoom);
+        selectionShader.setVec2("uAspectAdjust", aspectAdjust);
+        
+        item->mesh->drawUVForSelection(selectionShader);
+    }
+}
+
 void ItemCollection::getVertexAndFaceCount(size_t& outVertices, size_t& outFaces) const {
     outVertices = 0;
     outFaces = 0;
@@ -745,4 +804,12 @@ void ItemCollection::getVertexAndFaceCount(size_t& outVertices, size_t& outFaces
             outFaces += item->mesh->getFaceCount();
         }
     }
+}
+std::shared_ptr<Texture> ItemCollection::getFirstSelectedTexture() const {
+    for (const auto& item : m_items) {
+        if (item->visible && item->selected && item->hasTexture()) {
+            return item->getTexture();
+        }
+    }
+    return nullptr;
 }

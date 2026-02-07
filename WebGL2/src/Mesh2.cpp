@@ -1203,10 +1203,16 @@ void Mesh2::triangulateSelected() {
         tri1.vertices[0] = face.vertices[0];
         tri1.vertices[1] = face.vertices[1];
         tri1.vertices[2] = face.vertices[2];
+        tri1.uvs[0] = face.uvs[0];
+        tri1.uvs[1] = face.uvs[1];
+        tri1.uvs[2] = face.uvs[2];
         
         tri2.vertices[0] = face.vertices[0];
         tri2.vertices[1] = face.vertices[2];
         tri2.vertices[2] = face.vertices[3];
+        tri2.uvs[0] = face.uvs[0];
+        tri2.uvs[1] = face.uvs[2];
+        tri2.uvs[2] = face.uvs[3];
         
         newFaces.push_back(tri1);
         newFaces.push_back(tri2);
@@ -1221,9 +1227,11 @@ void Mesh2::triangulateSelected() {
         if (face.isQuad()) {
             uint32_t fi = addQuad(face.vertices[0], face.vertices[1], face.vertices[2], face.vertices[3]);
             m_faces[fi].selected = face.selected;
+            for (int u = 0; u < 4; u++) m_faces[fi].uvs[u] = face.uvs[u];
         } else {
             uint32_t fi = addTriangle(face.vertices[0], face.vertices[1], face.vertices[2]);
             m_faces[fi].selected = face.selected;
+            for (int u = 0; u < 3; u++) m_faces[fi].uvs[u] = face.uvs[u];
         }
     }
     
@@ -1572,6 +1580,38 @@ void Mesh2::createGPUBuffers() {
     m_gpuBuffersCreated = true;
 }
 
+void Mesh2::updateGPUBuffers() {
+    // Skip GPU operations when disabled (for testing)
+    if (s_disableGPU) return;
+    
+    // Only update if buffers exist and data is dirty
+    if (!m_gpuBuffersCreated) {
+        createGPUBuffers();
+        return;
+    }
+    
+    if (!m_renderDataDirty) return;
+    
+    // Rebuild render data
+    buildRenderData();
+    
+    // Re-upload vertex data
+    if (m_vbo && !m_renderVertices.empty()) {
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, m_renderVertices.size() * sizeof(Vertex),
+                     m_renderVertices.data(), GL_STATIC_DRAW);
+    }
+    
+    // Re-upload edge data
+    if (m_edgeVbo && !m_edgeRenderVertices.empty()) {
+        glBindBuffer(GL_ARRAY_BUFFER, m_edgeVbo);
+        glBufferData(GL_ARRAY_BUFFER, m_edgeRenderVertices.size() * sizeof(Vertex),
+                     m_edgeRenderVertices.data(), GL_STATIC_DRAW);
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Mesh2::deleteGPUBuffers() {
     // Skip GPU operations when disabled (for testing)
     if (s_disableGPU) return;
@@ -1866,11 +1906,13 @@ void Mesh2::drawVertices(Shader& pointShader) const {
 
 void Mesh2::drawEdges(Shader& lineShader) const {
     // Draw edges with selection colors: darker base color for deselected, red for selected
+    // Green for seams (visible in 3D viewport too)
     // Matching original MeshMaker behavior
     
     if (m_edges.empty()) return;
     
     const glm::vec3 selectedColor(0.8f, 0.0f, 0.0f);   // Red
+    const glm::vec3 seamColor(0.0f, 0.8f, 0.0f);       // Green for seams
     const glm::vec3 normalColor(m_wireframeColor.r - 0.2f, m_wireframeColor.g - 0.2f, m_wireframeColor.b - 0.2f);
     
     struct ColoredLine {
@@ -1884,7 +1926,16 @@ void Mesh2::drawEdges(Shader& lineShader) const {
     for (const auto& edge : m_edges) {
         const glm::vec3& v0 = m_vertices[edge.vertices[0]].position;
         const glm::vec3& v1 = m_vertices[edge.vertices[1]].position;
-        const glm::vec3& color = edge.selected ? selectedColor : normalColor;
+        
+        // Color priority: selected > seam > normal
+        glm::vec3 color;
+        if (edge.selected) {
+            color = selectedColor;
+        } else if (edge.isSeam) {
+            color = seamColor;
+        } else {
+            color = normalColor;
+        }
         
         lines.push_back({v0, color});
         lines.push_back({v1, color});
@@ -2163,6 +2214,784 @@ void Mesh2::make(MeshType type, uint32_t steps) {
     }
 }
 
+// ============================================================================
+// UV Projection and Manipulation
+// ============================================================================
+
+glm::vec3 computeFaceNormal(const std::vector<MeshVertex>& vertices, const Face& face) {
+    if (face.vertexCount < 3) return glm::vec3(0.0f, 1.0f, 0.0f);
+    
+    const glm::vec3& v0 = vertices[face.vertices[0]].position;
+    const glm::vec3& v1 = vertices[face.vertices[1]].position;
+    const glm::vec3& v2 = vertices[face.vertices[2]].position;
+    
+    glm::vec3 edge1 = v1 - v0;
+    glm::vec3 edge2 = v2 - v0;
+    glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+    
+    return normal;
+}
+
+glm::vec3 computeFaceCenter(const std::vector<MeshVertex>& vertices, const Face& face) {
+    glm::vec3 center(0.0f);
+    for (uint8_t i = 0; i < face.vertexCount; i++) {
+        center += vertices[face.vertices[i]].position;
+    }
+    return center / static_cast<float>(face.vertexCount);
+}
+
+void Mesh2::unwrapSelectedUVs(UVProjection projection) {
+    if (projection == UVProjection::SeamBased) {
+        unwrapSeamBased(true);
+        return;
+    }
+    
+    // Compute bounds for normalization
+    glm::vec3 minBounds(FLT_MAX), maxBounds(-FLT_MAX);
+    for (const auto& face : m_faces) {
+        if (!face.selected) continue;
+        for (uint8_t i = 0; i < face.vertexCount; i++) {
+            const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+            minBounds = glm::min(minBounds, pos);
+            maxBounds = glm::max(maxBounds, pos);
+        }
+    }
+    
+    glm::vec3 size = maxBounds - minBounds;
+    glm::vec3 center = (minBounds + maxBounds) * 0.5f;
+    float maxSize = glm::max(size.x, glm::max(size.y, size.z));
+    if (maxSize < 0.0001f) maxSize = 1.0f;
+    
+    // For Box projection, use cube net (cross/T) with each face getting a full texture repeat
+    // The cross extends into repeating texture space (beyond 0-1):
+    //       [+Y]             (1,2)
+    //   [-X][+Z][+X][-Z]     (0,1)(1,1)(2,1)(3,1)
+    //       [-Y]             (1,0)
+    // Each cell is 1x1 in UV space, so faces get full texture coverage
+    
+    for (size_t fi = 0; fi < m_faces.size(); fi++) {
+        Face& face = m_faces[fi];
+        if (!face.selected) continue;
+        
+        switch (projection) {
+            case UVProjection::Box: {
+                // Determine dominant axis from face normal
+                glm::vec3 normal = computeFaceNormal(m_vertices, face);
+                glm::vec3 absNormal = glm::abs(normal);
+                
+                // Each cell is 1x1 in UV space (uses texture repeat)
+                float cellOffsetU, cellOffsetV;
+                
+                if (absNormal.z >= absNormal.x && absNormal.z >= absNormal.y) {
+                    // Z-facing faces
+                    for (uint8_t i = 0; i < face.vertexCount; i++) {
+                        const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+                        glm::vec3 n = (pos - minBounds) / maxSize;
+                        glm::vec2 uv;
+                        if (normal.z >= 0) {
+                            // +Z: center (col 1, row 1)
+                            cellOffsetU = 1.0f;
+                            cellOffsetV = 1.0f;
+                            uv = glm::vec2(n.x, n.y);
+                        } else {
+                            // -Z: right side (col 3, row 1)
+                            cellOffsetU = 3.0f;
+                            cellOffsetV = 1.0f;
+                            uv = glm::vec2(1.0f - n.x, n.y);
+                        }
+                        face.uvs[i] = glm::vec2(cellOffsetU + uv.x, cellOffsetV + uv.y);
+                    }
+                } else if (absNormal.x >= absNormal.y && absNormal.x >= absNormal.z) {
+                    // X-facing faces
+                    for (uint8_t i = 0; i < face.vertexCount; i++) {
+                        const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+                        glm::vec3 n = (pos - minBounds) / maxSize;
+                        glm::vec2 uv;
+                        if (normal.x >= 0) {
+                            // +X: right of +Z (col 2, row 1)
+                            cellOffsetU = 2.0f;
+                            cellOffsetV = 1.0f;
+                            uv = glm::vec2(1.0f - n.z, n.y);
+                        } else {
+                            // -X: left of +Z (col 0, row 1)
+                            cellOffsetU = 0.0f;
+                            cellOffsetV = 1.0f;
+                            uv = glm::vec2(n.z, n.y);
+                        }
+                        face.uvs[i] = glm::vec2(cellOffsetU + uv.x, cellOffsetV + uv.y);
+                    }
+                } else {
+                    // Y-facing faces
+                    for (uint8_t i = 0; i < face.vertexCount; i++) {
+                        const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+                        glm::vec3 n = (pos - minBounds) / maxSize;
+                        glm::vec2 uv;
+                        if (normal.y >= 0) {
+                            // +Y: top (col 1, row 2)
+                            cellOffsetU = 1.0f;
+                            cellOffsetV = 2.0f;
+                            uv = glm::vec2(n.x, 1.0f - n.z);
+                        } else {
+                            // -Y: bottom (col 1, row 0)
+                            cellOffsetU = 1.0f;
+                            cellOffsetV = 0.0f;
+                            uv = glm::vec2(n.x, n.z);
+                        }
+                        face.uvs[i] = glm::vec2(cellOffsetU + uv.x, cellOffsetV + uv.y);
+                    }
+                }
+                break;
+            }
+            
+            case UVProjection::Planar: {
+                // Project onto XY plane (from Z axis)
+                for (uint8_t i = 0; i < face.vertexCount; i++) {
+                    const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+                    glm::vec3 normalized = (pos - minBounds) / maxSize;
+                    face.uvs[i] = glm::vec2(normalized.x, normalized.y);
+                }
+                break;
+            }
+            
+            case UVProjection::Cylindrical: {
+                // Cylindrical projection around Y axis
+                for (uint8_t i = 0; i < face.vertexCount; i++) {
+                    const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+                    glm::vec3 fromCenter = pos - center;
+                    
+                    float angle = atan2f(fromCenter.z, fromCenter.x);
+                    float u = (angle + static_cast<float>(M_PI)) / (2.0f * static_cast<float>(M_PI));
+                    float v = (pos.y - minBounds.y) / size.y;
+                    
+                    face.uvs[i] = glm::vec2(u, v);
+                }
+                break;
+            }
+            
+            case UVProjection::Spherical: {
+                // Spherical projection (latitude/longitude)
+                for (uint8_t i = 0; i < face.vertexCount; i++) {
+                    const glm::vec3& pos = m_vertices[face.vertices[i]].position;
+                    glm::vec3 dir = glm::normalize(pos - center);
+                    
+                    float u = 0.5f + atan2f(dir.z, dir.x) / (2.0f * static_cast<float>(M_PI));
+                    float v = 0.5f + asinf(glm::clamp(dir.y, -1.0f, 1.0f)) / static_cast<float>(M_PI);
+                    
+                    face.uvs[i] = glm::vec2(u, v);
+                }
+                break;
+            }
+            
+            case UVProjection::SeamBased: {
+                // Handled by unwrapSeamBased, not here
+                break;
+            }
+        }
+    }
+    
+    m_renderDataDirty = true;
+}
+
+void Mesh2::unwrapAllUVs(UVProjection projection) {
+    if (projection == UVProjection::SeamBased) {
+        unwrapSeamBased(false);
+        return;
+    }
+    
+    // Select all faces temporarily
+    std::vector<bool> wasSelected(m_faces.size());
+    for (size_t i = 0; i < m_faces.size(); i++) {
+        wasSelected[i] = m_faces[i].selected;
+        m_faces[i].selected = true;
+    }
+    
+    unwrapSelectedUVs(projection);
+    
+    // Restore selection
+    for (size_t i = 0; i < m_faces.size(); i++) {
+        m_faces[i].selected = wasSelected[i];
+    }
+}
+
+// =============================================================================
+// Seam-based conformal UV unwrapping (ABF/LSCM-inspired)
+// =============================================================================
+
+void Mesh2::unwrapSeamBased(bool selectedOnly) {
+    if (m_faces.empty()) return;
+    
+    // Step 1: Find UV islands by flood-filling faces, treating seam/boundary edges as barriers
+    std::vector<int> faceIsland(m_faces.size(), -1);
+    int numIslands = 0;
+    
+    for (size_t startFace = 0; startFace < m_faces.size(); startFace++) {
+        if (faceIsland[startFace] >= 0) continue;
+        if (selectedOnly && !m_faces[startFace].selected) continue;
+        
+        // BFS flood fill
+        int islandId = numIslands++;
+        std::vector<uint32_t> queue;
+        queue.push_back(static_cast<uint32_t>(startFace));
+        faceIsland[startFace] = islandId;
+        
+        size_t head = 0;
+        while (head < queue.size()) {
+            uint32_t fi = queue[head++];
+            const Face& face = m_faces[fi];
+            
+            // For each edge of this face, try to cross to the neighbor face
+            for (int ei = 0; ei < face.vertexCount; ei++) {
+                uint32_t edgeIdx = face.edges[ei];
+                if (edgeIdx == UINT32_MAX) continue;
+                
+                const Edge& edge = m_edges[edgeIdx];
+                
+                // Don't cross seam edges or boundary edges
+                if (edge.isSeam || edge.isBoundary()) continue;
+                
+                // Find the neighbor face across this edge
+                uint32_t neighborFi = (edge.faces[0] == fi) ? edge.faces[1] : edge.faces[0];
+                if (neighborFi == UINT32_MAX) continue;
+                if (faceIsland[neighborFi] >= 0) continue;
+                if (selectedOnly && !m_faces[neighborFi].selected) continue;
+                
+                faceIsland[neighborFi] = islandId;
+                queue.push_back(neighborFi);
+            }
+        }
+    }
+    
+    if (numIslands == 0) return;
+    
+    // Step 2: For each island, build a local vertex mapping and unwrap using LSCM
+    // (Least Squares Conformal Map)
+    //
+    // IMPORTANT: Within an island, a 3D vertex shared by faces that are on opposite
+    // sides of a seam edge needs SEPARATE UV coordinates. We use union-find to merge
+    // face-corner UV vertices that are connected through non-seam edges.
+    
+    struct Island {
+        std::vector<uint32_t> faces;       // face indices in this island
+        std::vector<glm::vec2> uvResult;   // UV result per island-local UV vertex
+        std::vector<uint32_t> localToGlobal;  // local UV vertex -> global 3D vertex
+        // Per face-corner: which local UV vertex does face[fi].vertices[corner] map to?
+        std::unordered_map<uint64_t, uint32_t> faceCornerToLocal;
+        float minU, minV, maxU, maxV;      // bounding box after unwrap
+    };
+    
+    std::vector<Island> islands(numIslands);
+    
+    // Collect faces per island
+    for (size_t fi = 0; fi < m_faces.size(); fi++) {
+        if (faceIsland[fi] >= 0) {
+            islands[faceIsland[fi]].faces.push_back(static_cast<uint32_t>(fi));
+        }
+    }
+    
+    // Unwrap each island
+    for (int islandIdx = 0; islandIdx < numIslands; islandIdx++) {
+        Island& island = islands[islandIdx];
+        if (island.faces.empty()) continue;
+        
+        // Step 2a: Create one UV vertex per face-corner, then merge via union-find
+        // across non-seam, non-boundary edges.
+        
+        // Assign initial UV vertex IDs: one per face corner
+        uint32_t totalCorners = 0;
+        for (uint32_t fi : island.faces) {
+            const Face& face = m_faces[fi];
+            for (int i = 0; i < face.vertexCount; i++) {
+                uint64_t key = (static_cast<uint64_t>(fi) << 32) | static_cast<uint64_t>(i);
+                island.faceCornerToLocal[key] = totalCorners;
+                totalCorners++;
+            }
+        }
+        
+        // Union-Find
+        std::vector<uint32_t> parent(totalCorners);
+        for (uint32_t i = 0; i < totalCorners; i++) parent[i] = i;
+        
+        // Iterative find with path compression
+        auto find = [&parent](uint32_t x) -> uint32_t {
+            while (parent[x] != x) {
+                parent[x] = parent[parent[x]];
+                x = parent[x];
+            }
+            return x;
+        };
+        auto unite = [&](uint32_t a, uint32_t b) {
+            a = find(a);
+            b = find(b);
+            if (a != b) parent[a] = b;
+        };
+        
+        // For each non-seam, non-boundary edge within the island, merge the shared vertices
+        for (uint32_t fi : island.faces) {
+            const Face& face = m_faces[fi];
+            for (int ei = 0; ei < face.vertexCount; ei++) {
+                uint32_t edgeIdx = face.edges[ei];
+                if (edgeIdx == UINT32_MAX) continue;
+                const Edge& edge = m_edges[edgeIdx];
+                if (edge.isSeam || edge.isBoundary()) continue;
+                
+                // Find neighbor face across this edge
+                uint32_t neighborFi = (edge.faces[0] == fi) ? edge.faces[1] : edge.faces[0];
+                if (neighborFi == UINT32_MAX) continue;
+                if (faceIsland[neighborFi] != islandIdx) continue;
+                
+                // Only process each edge once (from the lower face index)
+                if (fi > neighborFi) continue;
+                
+                // Find the two shared vertices of this edge
+                uint32_t ev0 = edge.vertices[0];
+                uint32_t ev1 = edge.vertices[1];
+                
+                // Find corner indices of ev0 and ev1 in both faces
+                auto findCorner = [&](uint32_t faceIdx, uint32_t vertIdx) -> int {
+                    const Face& f = m_faces[faceIdx];
+                    for (int c = 0; c < f.vertexCount; c++) {
+                        if (f.vertices[c] == vertIdx) return c;
+                    }
+                    return -1;
+                };
+                
+                int c0_this = findCorner(fi, ev0);
+                int c0_neigh = findCorner(neighborFi, ev0);
+                int c1_this = findCorner(fi, ev1);
+                int c1_neigh = findCorner(neighborFi, ev1);
+                
+                if (c0_this >= 0 && c0_neigh >= 0) {
+                    uint64_t key_a = (static_cast<uint64_t>(fi) << 32) | static_cast<uint64_t>(c0_this);
+                    uint64_t key_b = (static_cast<uint64_t>(neighborFi) << 32) | static_cast<uint64_t>(c0_neigh);
+                    unite(island.faceCornerToLocal[key_a], island.faceCornerToLocal[key_b]);
+                }
+                if (c1_this >= 0 && c1_neigh >= 0) {
+                    uint64_t key_a = (static_cast<uint64_t>(fi) << 32) | static_cast<uint64_t>(c1_this);
+                    uint64_t key_b = (static_cast<uint64_t>(neighborFi) << 32) | static_cast<uint64_t>(c1_neigh);
+                    unite(island.faceCornerToLocal[key_a], island.faceCornerToLocal[key_b]);
+                }
+            }
+        }
+        
+        // Compact: map union-find roots to sequential local vertex IDs
+        std::unordered_map<uint32_t, uint32_t> rootToLocalVert;
+        island.localToGlobal.clear();
+        
+        for (auto& [key, cornerIdx] : island.faceCornerToLocal) {
+            uint32_t root = find(cornerIdx);
+            if (rootToLocalVert.find(root) == rootToLocalVert.end()) {
+                uint32_t lv = static_cast<uint32_t>(island.localToGlobal.size());
+                rootToLocalVert[root] = lv;
+                // Recover the global vertex index from the face-corner key
+                uint32_t faceIdx = static_cast<uint32_t>(key >> 32);
+                uint32_t corner = static_cast<uint32_t>(key & 0xFFFFFFFF);
+                island.localToGlobal.push_back(m_faces[faceIdx].vertices[corner]);
+            }
+            cornerIdx = rootToLocalVert[find(cornerIdx)];
+        }
+        
+        uint32_t numLocalVerts = static_cast<uint32_t>(island.localToGlobal.size());
+        
+        if (numLocalVerts < 3 || island.faces.size() < 1) {
+            // Degenerate island — just set all UVs to 0
+            island.uvResult.resize(numLocalVerts, glm::vec2(0.0f));
+            island.minU = island.minV = 0.0f;
+            island.maxU = island.maxV = 0.0f;
+            continue;
+        }
+        
+        // LSCM: Least Squares Conformal Mapping
+        // We pin two vertices and solve for the rest
+        // For each triangle, the conformal condition is:
+        //   (u2-u0) + i*(v2-v0) = ((u1-u0) + i*(v1-v0)) * ((x2-x0) + i*(y2-y0)) / ((x1-x0) + i*(y1-y0))
+        //
+        // Simplified: for each triangle with local coords, we set up a linear system
+        // to minimize angle distortion.
+        
+        // Choose two pin vertices: pick the pair with largest 3D distance
+        uint32_t pin0 = 0, pin1 = 1;
+        float maxDist = 0.0f;
+        for (uint32_t i = 0; i < numLocalVerts; i++) {
+            for (uint32_t j = i + 1; j < numLocalVerts && j < i + 50; j++) {
+                float d = glm::distance(m_vertices[island.localToGlobal[i]].position,
+                                        m_vertices[island.localToGlobal[j]].position);
+                if (d > maxDist) {
+                    maxDist = d;
+                    pin0 = i;
+                    pin1 = j;
+                }
+            }
+        }
+        // Also check extremes
+        for (uint32_t i = 0; i < numLocalVerts; i++) {
+            float d = glm::distance(m_vertices[island.localToGlobal[i]].position,
+                                    m_vertices[island.localToGlobal[pin0]].position);
+            if (d > maxDist) {
+                maxDist = d;
+                pin1 = i;
+            }
+        }
+        
+        // Triangulate quads into triangles for the LSCM solver
+        struct Tri { uint32_t v[3]; }; // local vertex indices
+        std::vector<Tri> tris;
+        for (uint32_t fi : island.faces) {
+            const Face& face = m_faces[fi];
+            uint32_t lv[4];
+            for (int i = 0; i < face.vertexCount; i++) {
+                uint64_t key = (static_cast<uint64_t>(fi) << 32) | static_cast<uint64_t>(i);
+                lv[i] = island.faceCornerToLocal[key];
+            }
+            tris.push_back({lv[0], lv[1], lv[2]});
+            if (face.isQuad()) {
+                tris.push_back({lv[0], lv[2], lv[3]});
+            }
+        }
+        
+        // For small islands (1-2 faces), use simple planar projection instead of LSCM
+        if (numLocalVerts <= 4 || tris.size() <= 2) {
+            // Find best projection plane from average normal
+            glm::vec3 avgNormal(0.0f);
+            for (uint32_t fi : island.faces) {
+                avgNormal += computeFaceNormal(m_vertices, m_faces[fi]);
+            }
+            avgNormal = glm::normalize(avgNormal);
+            
+            // Choose tangent/bitangent
+            glm::vec3 tangent, bitangent;
+            if (fabsf(avgNormal.y) < 0.9f) {
+                tangent = glm::normalize(glm::cross(glm::vec3(0, 1, 0), avgNormal));
+            } else {
+                tangent = glm::normalize(glm::cross(glm::vec3(1, 0, 0), avgNormal));
+            }
+            bitangent = glm::cross(avgNormal, tangent);
+            
+            island.uvResult.resize(numLocalVerts);
+            for (uint32_t i = 0; i < numLocalVerts; i++) {
+                const glm::vec3& pos = m_vertices[island.localToGlobal[i]].position;
+                island.uvResult[i] = glm::vec2(glm::dot(pos, tangent), glm::dot(pos, bitangent));
+            }
+        } else {
+            // Full LSCM solve
+            // We solve in terms of free vertices (all except the two pinned ones)
+            // Pin0 maps to (0,0), Pin1 maps to (maxDist, 0)
+            
+            // Create mapping: free vertex index (excludes pinned)
+            std::vector<int> freeIndex(numLocalVerts, -1);
+            uint32_t numFree = 0;
+            for (uint32_t i = 0; i < numLocalVerts; i++) {
+                if (i != pin0 && i != pin1) {
+                    freeIndex[i] = static_cast<int>(numFree++);
+                }
+            }
+            
+            // Pinned positions
+            glm::vec2 pinUV0(0.0f, 0.0f);
+            glm::vec2 pinUV1(1.0f, 0.0f);  // normalized
+            
+            // Build the LSCM system: for each triangle, we get 2 equations (real & imaginary parts)
+            // The system is: A * [u; v] = b
+            // where A is (2*numTris) x (2*numFree) and b is (2*numTris)
+            
+            uint32_t numEqs = static_cast<uint32_t>(tris.size()) * 2;
+            uint32_t numVars = numFree * 2;  // u and v for each free vertex
+            
+            // Sparse matrix representation: row -> (col, value) pairs
+            std::vector<std::vector<std::pair<uint32_t, float>>> A(numEqs);
+            std::vector<float> b(numEqs, 0.0f);
+            
+            for (size_t ti = 0; ti < tris.size(); ti++) {
+                const Tri& tri = tris[ti];
+                
+                // Get 3D positions
+                const glm::vec3& p0 = m_vertices[island.localToGlobal[tri.v[0]]].position;
+                const glm::vec3& p1 = m_vertices[island.localToGlobal[tri.v[1]]].position;
+                const glm::vec3& p2 = m_vertices[island.localToGlobal[tri.v[2]]].position;
+                
+                // Project triangle into its local 2D coordinate system
+                glm::vec3 e1 = p1 - p0;
+                glm::vec3 e2 = p2 - p0;
+                
+                float e1Len = glm::length(e1);
+                if (e1Len < 1e-10f) e1Len = 1e-10f;
+                
+                glm::vec3 t = e1 / e1Len;
+                float e2t = glm::dot(e2, t);
+                glm::vec3 n = glm::cross(e1, e2);
+                float nLen = glm::length(n);
+                if (nLen < 1e-10f) continue; // degenerate triangle
+                glm::vec3 b2 = glm::cross(n / nLen, t);
+                float e2b = glm::dot(e2, b2);
+                
+                // Local 2D coords: q0=(0,0), q1=(e1Len,0), q2=(e2t,e2b)
+                // The conformal condition per triangle:
+                // W1*(U2-U0) + W2*(U0-U1) + W3*(U1-U2) = 0 (complex equation)
+                // where Wi are complex weights derived from local coords
+                
+                float area2 = e1Len * e2b; // 2 * triangle area
+                if (fabsf(area2) < 1e-10f) continue;
+                
+                // LSCM weights (Levy et al. 2002)
+                // For the conformal energy, the gradient operator in triangle local coords gives:
+                // W0 = (q1 - q2) / (2A*i), etc. rotated 90 degrees
+                // Simplified: for each vertex j in the triangle with local coords (xj, yj):
+                // The conformal condition is: sum_j Wj * (uj + i*vj) = 0
+                // where Wj = (x_{j+1} - x_{j-1}) + i*(y_{j+1} - y_{j-1}) (using cyclic indexing)
+                
+                // Local coords
+                float x0 = 0.0f, y0 = 0.0f;
+                float x1 = e1Len, y1 = 0.0f;
+                float x2 = e2t,   y2 = e2b;
+                
+                // Conformal weights (complex): W_j = (x_{j+1}-x_{j-1}, y_{j+1}-y_{j-1}) / sqrt(area)
+                float sqrtArea = sqrtf(fabsf(area2) * 0.5f);
+                if (sqrtArea < 1e-10f) sqrtArea = 1e-10f;
+                float invSqrtArea = 1.0f / sqrtArea;
+                
+                // W0 = ((x1 - x2) + i*(y1 - y2)) / sqrtArea
+                float w0r = (x1 - x2) * invSqrtArea;
+                float w0i = (y1 - y2) * invSqrtArea;
+                // W1 = ((x2 - x0) + i*(y2 - y0)) / sqrtArea
+                float w1r = (x2 - x0) * invSqrtArea;
+                float w1i = (y2 - y0) * invSqrtArea;
+                // W2 = ((x0 - x1) + i*(y0 - y1)) / sqrtArea
+                float w2r = (x0 - x1) * invSqrtArea;
+                float w2i = (y0 - y1) * invSqrtArea;
+                
+                float wr[3] = { w0r, w1r, w2r };
+                float wi[3] = { w0i, w1i, w2i };
+                
+                uint32_t eqReal = static_cast<uint32_t>(ti) * 2;
+                uint32_t eqImag = eqReal + 1;
+                
+                for (int j = 0; j < 3; j++) {
+                    uint32_t vj = tri.v[j];
+                    
+                    if (vj == pin0) {
+                        // Pinned vertex contributes to RHS
+                        b[eqReal] -= wr[j] * pinUV0.x - wi[j] * pinUV0.y;
+                        b[eqImag] -= wr[j] * pinUV0.y + wi[j] * pinUV0.x;
+                    } else if (vj == pin1) {
+                        b[eqReal] -= wr[j] * pinUV1.x - wi[j] * pinUV1.y;
+                        b[eqImag] -= wr[j] * pinUV1.y + wi[j] * pinUV1.x;
+                    } else {
+                        int fi_local = freeIndex[vj];
+                        // Real eq: wr[j]*uj - wi[j]*vj
+                        A[eqReal].push_back({static_cast<uint32_t>(fi_local), wr[j]});
+                        A[eqReal].push_back({static_cast<uint32_t>(numFree + fi_local), -wi[j]});
+                        // Imag eq: wr[j]*vj + wi[j]*uj
+                        A[eqImag].push_back({static_cast<uint32_t>(fi_local), wi[j]});
+                        A[eqImag].push_back({static_cast<uint32_t>(numFree + fi_local), wr[j]});
+                    }
+                }
+            }
+            
+            // Solve AtA * x = Atb using conjugate gradient
+            // First compute AtA (sparse) and Atb
+            std::vector<std::unordered_map<uint32_t, float>> AtA(numVars);
+            std::vector<float> Atb(numVars, 0.0f);
+            
+            for (uint32_t row = 0; row < numEqs; row++) {
+                for (const auto& [col_j, val_j] : A[row]) {
+                    Atb[col_j] += val_j * b[row];
+                    for (const auto& [col_k, val_k] : A[row]) {
+                        AtA[col_j][col_k] += val_j * val_k;
+                    }
+                }
+            }
+            
+            // Conjugate Gradient solver for AtA * x = Atb
+            std::vector<float> x(numVars, 0.0f);
+            std::vector<float> r(numVars);
+            std::vector<float> p(numVars);
+            std::vector<float> Ap(numVars);
+            
+            // r = Atb - AtA*x (x starts at 0, so r = Atb)
+            for (uint32_t i = 0; i < numVars; i++) {
+                r[i] = Atb[i];
+                p[i] = r[i];
+            }
+            
+            float rsOld = 0.0f;
+            for (uint32_t i = 0; i < numVars; i++) rsOld += r[i] * r[i];
+            
+            uint32_t maxIter = std::min(numVars * 3, 1000u);
+            for (uint32_t iter = 0; iter < maxIter; iter++) {
+                if (rsOld < 1e-12f) break;
+                
+                // Ap = AtA * p
+                for (uint32_t i = 0; i < numVars; i++) {
+                    float sum = 0.0f;
+                    for (const auto& [col, val] : AtA[i]) {
+                        sum += val * p[col];
+                    }
+                    Ap[i] = sum;
+                }
+                
+                float pAp = 0.0f;
+                for (uint32_t i = 0; i < numVars; i++) pAp += p[i] * Ap[i];
+                if (fabsf(pAp) < 1e-15f) break;
+                
+                float alpha = rsOld / pAp;
+                
+                for (uint32_t i = 0; i < numVars; i++) {
+                    x[i] += alpha * p[i];
+                    r[i] -= alpha * Ap[i];
+                }
+                
+                float rsNew = 0.0f;
+                for (uint32_t i = 0; i < numVars; i++) rsNew += r[i] * r[i];
+                
+                float beta = rsNew / rsOld;
+                for (uint32_t i = 0; i < numVars; i++) {
+                    p[i] = r[i] + beta * p[i];
+                }
+                rsOld = rsNew;
+            }
+            
+            // Extract UV results
+            island.uvResult.resize(numLocalVerts);
+            island.uvResult[pin0] = pinUV0;
+            island.uvResult[pin1] = pinUV1;
+            for (uint32_t i = 0; i < numLocalVerts; i++) {
+                if (i == pin0 || i == pin1) continue;
+                int fi_local = freeIndex[i];
+                island.uvResult[i] = glm::vec2(x[fi_local], x[numFree + fi_local]);
+            }
+        }
+        
+        // Normalize island UVs to [0,1] range
+        island.minU = FLT_MAX;
+        island.minV = FLT_MAX;
+        island.maxU = -FLT_MAX;
+        island.maxV = -FLT_MAX;
+        for (const auto& uv : island.uvResult) {
+            island.minU = std::min(island.minU, uv.x);
+            island.minV = std::min(island.minV, uv.y);
+            island.maxU = std::max(island.maxU, uv.x);
+            island.maxV = std::max(island.maxV, uv.y);
+        }
+        
+        float islandW = island.maxU - island.minU;
+        float islandH = island.maxV - island.minV;
+        if (islandW < 1e-6f) islandW = 1e-6f;
+        if (islandH < 1e-6f) islandH = 1e-6f;
+        
+        // Normalize to [0,1]
+        for (auto& uv : island.uvResult) {
+            uv.x = (uv.x - island.minU) / islandW;
+            uv.y = (uv.y - island.minV) / islandH;
+        }
+        
+        // Update bounding box to normalized
+        island.maxU = islandW;  // store original aspect ratio width
+        island.maxV = islandH;  // store original aspect ratio height
+    }
+    
+    // Step 3: Pack islands into UV space
+    // Sort islands by height (tallest first) for better packing
+    std::vector<int> islandOrder(numIslands);
+    for (int i = 0; i < numIslands; i++) islandOrder[i] = i;
+    std::sort(islandOrder.begin(), islandOrder.end(), [&](int a, int b) {
+        float areaA = islands[a].maxU * islands[a].maxV;
+        float areaB = islands[b].maxU * islands[b].maxV;
+        return areaA > areaB;
+    });
+    
+    // Compute total area for sizing
+    float totalArea = 0.0f;
+    for (int i = 0; i < numIslands; i++) {
+        if (islands[i].faces.empty()) continue;
+        totalArea += islands[i].maxU * islands[i].maxV;
+    }
+    
+    // Scale islands to maintain relative proportions
+    float scaleFactor = 1.0f;
+    if (totalArea > 0.0f) {
+        // Target ~70% fill of UV space
+        scaleFactor = sqrtf(0.7f / totalArea);
+    }
+    
+    // Simple shelf packing
+    float cursorX = 0.0f;
+    float cursorY = 0.0f;
+    float rowHeight = 0.0f;
+    float padding = 0.02f;
+    
+    for (int idx : islandOrder) {
+        Island& island = islands[idx];
+        if (island.faces.empty()) continue;
+        
+        float w = island.maxU * scaleFactor;
+        float h = island.maxV * scaleFactor;
+        
+        // Wrap to next row if needed
+        if (cursorX + w > 1.0f && cursorX > padding) {
+            cursorX = 0.0f;
+            cursorY += rowHeight + padding;
+            rowHeight = 0.0f;
+        }
+        
+        // Place island
+        float offsetX = cursorX;
+        float offsetY = cursorY;
+        
+        // Scale and offset each UV in the island
+        for (auto& uv : island.uvResult) {
+            uv.x = uv.x * w + offsetX;
+            uv.y = uv.y * h + offsetY;
+        }
+        
+        cursorX += w + padding;
+        rowHeight = std::max(rowHeight, h);
+    }
+    
+    // Step 4: Write UVs back to faces
+    for (int islandIdx = 0; islandIdx < numIslands; islandIdx++) {
+        const Island& island = islands[islandIdx];
+        for (uint32_t fi : island.faces) {
+            Face& face = m_faces[fi];
+            for (int i = 0; i < face.vertexCount; i++) {
+                uint64_t key = (static_cast<uint64_t>(fi) << 32) | static_cast<uint64_t>(i);
+                auto it = island.faceCornerToLocal.find(key);
+                if (it != island.faceCornerToLocal.end()) {
+                    face.uvs[i] = island.uvResult[it->second];
+                }
+            }
+        }
+    }
+    
+    m_renderDataDirty = true;
+}
+
+// Seam marking
+void Mesh2::markEdgeAsSeam(uint32_t edgeIndex, bool isSeam) {
+    if (edgeIndex >= m_edges.size()) return;
+    m_edges[edgeIndex].isSeam = isSeam;
+    m_renderDataDirty = true;
+}
+
+bool Mesh2::isEdgeSeam(uint32_t edgeIndex) const {
+    if (edgeIndex >= m_edges.size()) return false;
+    return m_edges[edgeIndex].isSeam;
+}
+
+void Mesh2::markSelectedEdgesAsSeam(bool isSeam) {
+    for (auto& edge : m_edges) {
+        if (edge.selected) {
+            edge.isSeam = isSeam;
+        }
+    }
+    m_renderDataDirty = true;
+}
+
+void Mesh2::clearAllSeams() {
+    for (auto& edge : m_edges) {
+        edge.isSeam = false;
+    }
+    m_renderDataDirty = true;
+}
+
 std::vector<uint32_t> Mesh2::getConnectedVertices(uint32_t vertexIndex) const {
     std::vector<uint32_t> connected;
     if (vertexIndex < m_vertexToEdges.size()) {
@@ -2186,4 +3015,183 @@ std::vector<uint32_t> Mesh2::getVertexFaces(uint32_t vertexIndex) const {
         return m_vertexToFaces[vertexIndex];
     }
     return {};
+}
+
+// UV Editor rendering
+void Mesh2::drawUV(Shader& uvShader) const {
+    if (s_disableGPU || m_faces.empty()) return;
+    
+    // Build UV render data - faces as triangles with UV as position
+    std::vector<float> uvData; // UV(2) + Color(3) + TexCoord(2) per vertex
+    
+    for (size_t fi = 0; fi < m_faces.size(); fi++) {
+        const Face& face = m_faces[fi];
+        
+        // Face color based on selection
+        glm::vec3 color = face.selected ? glm::vec3(1.0f, 0.55f, 0.0f) : glm::vec3(0.4f, 0.4f, 0.6f);
+        
+        // Triangle(s) from face
+        auto addVertex = [&](int cornerIdx) {
+            uvData.push_back(0.0f); // aPosition.x (unused, but needed for layout)
+            uvData.push_back(0.0f); // aPosition.y
+            uvData.push_back(0.0f); // aPosition.z
+            uvData.push_back(0.0f); // aNormal.x
+            uvData.push_back(0.0f); // aNormal.y
+            uvData.push_back(0.0f); // aNormal.z
+            uvData.push_back(color.r);
+            uvData.push_back(color.g);
+            uvData.push_back(color.b);
+            uvData.push_back(face.uvs[cornerIdx].x);
+            uvData.push_back(face.uvs[cornerIdx].y);
+        };
+        
+        // First triangle
+        addVertex(0);
+        addVertex(1);
+        addVertex(2);
+        
+        // Second triangle for quads
+        if (face.isQuad()) {
+            addVertex(0);
+            addVertex(2);
+            addVertex(3);
+        }
+    }
+    
+    if (uvData.empty()) return;
+    
+    // Create temp VAO/VBO for UV rendering
+    GLuint tempVao, tempVbo;
+    glGenVertexArrays(1, &tempVao);
+    glGenBuffers(1, &tempVbo);
+    
+    glBindVertexArray(tempVao);
+    glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
+    glBufferData(GL_ARRAY_BUFFER, uvData.size() * sizeof(float), uvData.data(), GL_STREAM_DRAW);
+    
+    // Layout: pos(3) + normal(3) + color(3) + texcoord(2) = 11 floats
+    size_t stride = 11 * sizeof(float);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);                    // aPosition
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float))); // aNormal
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float))); // aColor
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(9 * sizeof(float))); // aTexCoord
+    glEnableVertexAttribArray(3);
+    
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(uvData.size() / 11));
+    
+    glDeleteBuffers(1, &tempVbo);
+    glDeleteVertexArrays(1, &tempVao);
+    glBindVertexArray(0);
+}
+
+void Mesh2::drawUVEdges(Shader& uvColoredShader) const {
+    if (s_disableGPU || m_faces.empty()) return;
+    
+    // Draw edges in UV space
+    std::vector<float> uvEdgeData; // UV(2) + Color(3) per vertex
+    
+    for (size_t fi = 0; fi < m_faces.size(); fi++) {
+        const Face& face = m_faces[fi];
+        
+        for (uint8_t i = 0; i < face.count(); i++) {
+            uint8_t next = (i + 1) % face.count();
+            
+            // Get edge selection and seam state
+            uint32_t ei = face.edges[i];
+            bool selected = (ei < m_edges.size()) ? m_edges[ei].selected : false;
+            bool isSeam = (ei < m_edges.size()) ? m_edges[ei].isSeam : false;
+            
+            // Color priority: seam (green) > selected (red) > normal (blue)
+            glm::vec3 color;
+            if (isSeam) {
+                color = glm::vec3(0.0f, 1.0f, 0.0f);  // Green for seams
+            } else if (selected) {
+                color = glm::vec3(1.0f, 0.0f, 0.0f);  // Red for selected
+            } else {
+                color = glm::vec3(0.0f, 0.0f, 1.0f);  // Blue for normal
+            }
+            
+            // First vertex
+            uvEdgeData.push_back(face.uvs[i].x);
+            uvEdgeData.push_back(face.uvs[i].y);
+            uvEdgeData.push_back(color.r);
+            uvEdgeData.push_back(color.g);
+            uvEdgeData.push_back(color.b);
+            
+            // Second vertex
+            uvEdgeData.push_back(face.uvs[next].x);
+            uvEdgeData.push_back(face.uvs[next].y);
+            uvEdgeData.push_back(color.r);
+            uvEdgeData.push_back(color.g);
+            uvEdgeData.push_back(color.b);
+        }
+    }
+    
+    if (uvEdgeData.empty()) return;
+    
+    GLuint tempVao, tempVbo;
+    glGenVertexArrays(1, &tempVao);
+    glGenBuffers(1, &tempVbo);
+    
+    glBindVertexArray(tempVao);
+    glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
+    glBufferData(GL_ARRAY_BUFFER, uvEdgeData.size() * sizeof(float), uvEdgeData.data(), GL_STREAM_DRAW);
+    
+    size_t stride = 5 * sizeof(float);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(uvEdgeData.size() / 5));
+    
+    glDeleteBuffers(1, &tempVbo);
+    glDeleteVertexArrays(1, &tempVao);
+    glBindVertexArray(0);
+}
+
+void Mesh2::drawUVForSelection(Shader& selectionShader) const {
+    if (s_disableGPU || m_faces.empty()) return;
+    
+    // Draw each face in UV space with its index encoded as color
+    for (size_t fi = 0; fi < m_faces.size(); fi++) {
+        const Face& face = m_faces[fi];
+        
+        uint32_t colorIndex = static_cast<uint32_t>(fi) + 1;
+        selectionShader.setUInt("uColorIndex", colorIndex);
+        
+        std::vector<float> uvData; // UV(2) per vertex
+        
+        // First triangle
+        uvData.push_back(face.uvs[0].x); uvData.push_back(face.uvs[0].y);
+        uvData.push_back(face.uvs[1].x); uvData.push_back(face.uvs[1].y);
+        uvData.push_back(face.uvs[2].x); uvData.push_back(face.uvs[2].y);
+        
+        if (face.isQuad()) {
+            uvData.push_back(face.uvs[0].x); uvData.push_back(face.uvs[0].y);
+            uvData.push_back(face.uvs[2].x); uvData.push_back(face.uvs[2].y);
+            uvData.push_back(face.uvs[3].x); uvData.push_back(face.uvs[3].y);
+        }
+        
+        GLuint tempVao, tempVbo;
+        glGenVertexArrays(1, &tempVao);
+        glGenBuffers(1, &tempVbo);
+        
+        glBindVertexArray(tempVao);
+        glBindBuffer(GL_ARRAY_BUFFER, tempVbo);
+        glBufferData(GL_ARRAY_BUFFER, uvData.size() * sizeof(float), uvData.data(), GL_STREAM_DRAW);
+        
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(uvData.size() / 2));
+        
+        glDeleteBuffers(1, &tempVbo);
+        glDeleteVertexArrays(1, &tempVao);
+    }
+    
+    glBindVertexArray(0);
 }

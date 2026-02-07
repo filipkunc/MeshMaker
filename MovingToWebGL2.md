@@ -90,6 +90,27 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - File import via file picker (drag & drop ready)
 - File export via browser download
 
+**UV Mapping System:**
+- Per-face UV coordinate storage (supports UV seams)
+- UV projection unwrap algorithms: Box, Planar, Cylindrical, Spherical
+- **Seam-based conformal unwrap (LSCM):** Least Squares Conformal Mapping with union-find vertex splitting for correct seam handling, conjugate gradient solver, BFS island detection, shelf-based island packing
+- **UV Editor:** Split-screen 3D/UV viewport, pan/zoom navigation, face selection in UV space (click and rectangle), checkerboard background with texture preview
+- UV Editor shaders: dedicated vertex/fragment shaders for UV grid, faces, colored edges, background, and selection picking
+- Selected faces highlighted in UV view
+- UV transformation API: translate, rotate, scale
+- **Seam Marking:** Mark/clear edges as seams for UV unwrapping (Edges edit mode)
+- **Seam Visualization:** Seam edges rendered in green in both 3D viewport and UV editor
+- UV coordinates preserved through triangulation and undo/redo
+
+**Testing:**
+- 115 Google Tests (C++) covering mesh operations, transforms, UV mapping, seam marking, LSCM unwrapping, and cross-unwrap verification
+- 22 Playwright E2E tests covering app loading, primitives, edit modes, UV editor, seam workflow, undo/redo, and scene operations
+- Test infrastructure: GPU operations disabled for unit tests, Playwright configured with Chromium + dev server
+
+**Deployment:**
+- Cloudflare Pages deployment via Wrangler CLI
+- VS Code task chains for build → copy WASM → deploy workflow
+
 ### Remaining Work 🚧
 
 **High Priority:**
@@ -97,7 +118,11 @@ My recommendation would be to make a separate folder with the CMake setup and cl
 - [x] Edge loop/ring selection ✅ UI buttons in Edges mode
 
 **Medium Priority:**
-- [ ] Texture support and UV mapping
+- [x] UV mapping ✅ Projection unwrap + UV Editor panel
+- [x] UV Editor: vertex selection and manipulation ✅ Click to select, drag to move
+- [x] Seam marking on edges for advanced unwrapping ✅ Mark/Clear buttons in UV Editor
+- [x] Seam-based conformal UV unwrap (LSCM) ✅ Unwrap button in UV Editor
+- [ ] Texture support (load and display textures on meshes)
 - [ ] Texture paint tool
 - [ ] Material/color per face
 
@@ -124,12 +149,38 @@ cmake --build build --config Debug
 # Run: build/Debug/MeshMakerWebGL2.exe
 ```
 
-### WebGL2 (Emscripten)
+### WASM (Emscripten via CMake presets)
 
 ```bash
 cd WebGL2
-mkdir build_web && cd build_web
-emcmake cmake ..
-emmake cmake --build .
-emrun MeshMakerWebGL2.html
+cmake --preset webgl-release    # or webgl-debug
+ninja -C build-wasm             # or build-wasm-debug
+```
+
+### React Frontend (MeshMakerWeb)
+
+```bash
+cd MeshMakerWeb
+npm run copy-wasm               # Copy WASM build output
+npm run dev                     # Start dev server on port 5173
+npm run build                   # Production build
+```
+
+### Running Tests
+
+```bash
+# C++ unit tests (from WebGL2/)
+cd WebGL2/build
+ctest --output-on-failure
+
+# Playwright E2E tests (from MeshMakerWeb/)
+cd MeshMakerWeb
+npx playwright test --reporter=line
+```
+
+### Deploy to Cloudflare Pages
+
+```bash
+cd MeshMakerWeb
+npx wrangler pages deploy dist --project-name=meshmaker --branch=main
 ```

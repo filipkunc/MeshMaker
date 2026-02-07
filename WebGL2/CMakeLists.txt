@@ -292,8 +292,17 @@ if(NOT EMSCRIPTEN)
     )
     target_include_directories(UndoTests PRIVATE src)
     
+    # UV mapping tests
+    add_executable(UVTests tests/UVTests.cpp)
+    target_link_libraries(UVTests PRIVATE
+        MeshMakerCore
+        GTest::gtest_main
+    )
+    target_include_directories(UVTests PRIVATE src)
+    
     include(GoogleTest)
     gtest_discover_tests(Mesh2Tests)
     gtest_discover_tests(TransformTests)
     gtest_discover_tests(UndoTests)
+    gtest_discover_tests(UVTests)
 endif()

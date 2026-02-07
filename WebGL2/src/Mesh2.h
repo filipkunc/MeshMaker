@@ -55,13 +55,14 @@ struct Edge {
     uint32_t vertices[2];   // The two vertex indices
     uint32_t faces[2];      // Up to 2 adjacent faces (UINT32_MAX if none)
     bool selected;
+    bool isSeam;            // Marked as UV seam for unwrapping
     
-    Edge() : selected(false) {
+    Edge() : selected(false), isSeam(false) {
         vertices[0] = vertices[1] = UINT32_MAX;
         faces[0] = faces[1] = UINT32_MAX;
     }
     
-    Edge(uint32_t v0, uint32_t v1) : selected(false) {
+    Edge(uint32_t v0, uint32_t v1) : selected(false), isSeam(false) {
         // Always store vertices in sorted order for consistent lookup
         if (v0 < v1) {
             vertices[0] = v0;
@@ -194,6 +195,27 @@ public:
     void triangulateSelected();  // Convert quads to triangles
     void extrudeSelected();
     
+    // UV projection unwrapping
+    enum class UVProjection {
+        Box,        // Project from 6 sides based on face normal
+        Planar,     // Project from a single plane
+        Cylindrical,// Project onto a cylinder
+        Spherical,  // Project onto a sphere
+        SeamBased   // Conformal unwrap using seam edges to define UV islands
+    };
+    
+    void unwrapSelectedUVs(UVProjection projection);
+    void unwrapAllUVs(UVProjection projection);
+    
+    // Seam-based conformal unwrap
+    void unwrapSeamBased(bool selectedOnly);
+    
+    // Seam marking (for unwrapping)
+    void markEdgeAsSeam(uint32_t edgeIndex, bool isSeam);
+    bool isEdgeSeam(uint32_t edgeIndex) const;
+    void markSelectedEdgesAsSeam(bool isSeam);
+    void clearAllSeams();
+    
     // State capture/restore for undo
     void getState(std::vector<MeshVertex>& outVertices, 
                   std::vector<Face>& outFaces, 
@@ -207,6 +229,7 @@ public:
     
     // GPU rendering
     void createGPUBuffers();
+    void updateGPUBuffers();  // Re-upload buffer data without recreating VAOs
     void deleteGPUBuffers();
     void draw(ViewMode mode = ViewMode::SolidWireframe) const;
     void drawForSelection(Shader& selectionShader) const;  // Draw faces for selection
@@ -214,6 +237,11 @@ public:
     void drawEdgesForSelection(Shader& selectionShader) const;     // Draw edges for selection
     void drawVertices(Shader& pointShader) const;  // Draw vertices as points (blue=deselected, red=selected)
     void drawEdges(Shader& lineShader) const;      // Draw edges with selection colors
+    
+    // UV Editor rendering
+    void drawUV(Shader& uvShader) const;           // Draw faces in UV space
+    void drawUVEdges(Shader& uvColoredShader) const;     // Draw UV edges
+    void drawUVForSelection(Shader& selectionShader) const;  // UV space face selection picking
     
     // Colors
     void setColor(const glm::vec3& color) { m_color = color; }
@@ -263,6 +291,7 @@ private:
     uint32_t m_vbo = 0;
     uint32_t m_edgeVao = 0;
     uint32_t m_edgeVbo = 0;
+    
     bool m_gpuBuffersCreated = false;
     bool m_renderDataDirty = true;
     
