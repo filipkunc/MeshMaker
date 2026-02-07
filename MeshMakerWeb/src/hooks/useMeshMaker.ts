@@ -71,7 +71,7 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
           }
           return path;
         },
-        print: (text: string) => console.log('[MeshMaker]', text),
+        print: (text: string) => { if (import.meta.env.DEV) console.log('[MeshMaker]', text); },
         printErr: (text: string) => console.error('[MeshMaker]', text),
       });
 
@@ -79,7 +79,9 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
       setModule(moduleInstance);
       setIsLoading(false);
       
-      console.log('MeshMaker WASM module loaded successfully');
+      if (import.meta.env.DEV) {
+        console.log('MeshMaker WASM module loaded successfully');
+      }
       
       // Trigger initial resize after module is loaded
       window.dispatchEvent(new Event('resize'));

@@ -4,6 +4,9 @@ project(MeshMakerWebGL2 VERSION 1.0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Option to enable verbose debug logging (printf/cout diagnostics)
+option(MESHMAKER_DEBUG_LOGGING "Enable verbose debug logging output" OFF)
+
 # Generate compile_commands.json for clangd and other tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -185,6 +188,7 @@ set(HEADERS
     src/Texture.h
     src/stb_image.h
     src/OpenSubdivHelper.h
+    src/DebugLog.h
 )
 
 # ============================================================================
@@ -230,6 +234,7 @@ if(EMSCRIPTEN)
     target_compile_definitions(${PROJECT_NAME} PRIVATE 
         EMSCRIPTEN_BUILD
         IMGUI_IMPL_OPENGL_ES3
+        $<$<BOOL:${MESHMAKER_DEBUG_LOGGING}>:MESHMAKER_DEBUG_LOG>
     )
 else()
     # Desktop build
@@ -266,6 +271,11 @@ else()
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
     )
+    
+    # Debug logging for desktop
+    if(MESHMAKER_DEBUG_LOGGING)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE MESHMAKER_DEBUG_LOG)
+    endif()
 endif()
 
 # Compiler warnings

@@ -1,6 +1,7 @@
 #include "ItemCollection.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "DebugLog.h"
 
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
@@ -590,10 +591,10 @@ void ItemCollection::splitSelected() {
 }
 
 void ItemCollection::catmullClarkSubdivide(int level) {
-    printf("[ItemCollection::catmullClark] items=%zu, level=%d\n", m_items.size(), level);
+    DEBUG_LOG("[ItemCollection::catmullClark] items=%zu, level=%d\n", m_items.size(), level);
     for (auto& item : m_items) {
-        printf("[ItemCollection::catmullClark] item selected=%d, hasMesh=%d\n", 
-               item->selected, item->mesh != nullptr);
+        DEBUG_LOG("[ItemCollection::catmullClark] item selected=%d, hasMesh=%d\n", 
+                 item->selected, item->mesh != nullptr);
         if (item->selected && item->mesh) {
             item->mesh->catmullClarkSubdivide(level);
             item->mesh->createGPUBuffers();

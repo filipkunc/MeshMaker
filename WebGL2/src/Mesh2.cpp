@@ -1,6 +1,7 @@
 #include "Mesh2.h"
 #include "Shader.h"
 #include "OpenSubdivHelper.h"
+#include "DebugLog.h"
 
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
@@ -1528,11 +1529,11 @@ void Mesh2::splitSelectedFaces() {
 }
 
 void Mesh2::catmullClarkSubdivide(int level) {
-    printf("[catmullClark] Called with level=%d, vertices=%zu, faces=%zu\n", 
-           level, m_vertices.size(), m_faces.size());
+    DEBUG_LOG("[catmullClark] Called with level=%d, vertices=%zu, faces=%zu\n", 
+             level, m_vertices.size(), m_faces.size());
     if (m_vertices.empty() || m_faces.empty() || level < 1) {
-        printf("[catmullClark] Early exit: empty=%d, level=%d\n", 
-               m_vertices.empty() || m_faces.empty(), level);
+        DEBUG_LOG("[catmullClark] Early exit: empty=%d, level=%d\n", 
+                 m_vertices.empty() || m_faces.empty(), level);
         return;
     }
 

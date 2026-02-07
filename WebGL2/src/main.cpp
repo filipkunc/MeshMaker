@@ -32,6 +32,7 @@
 #include "Manipulator.h"
 #include "UndoManager.h"
 #include "Texture.h"
+#include "DebugLog.h"
 
 // Captures the transform state of selected items for undo
 struct ItemManipulationState {
@@ -617,10 +618,10 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     // Don't set io.DisplaySize here - let ImGui_ImplGlfw_NewFrame handle it
     // It will query GLFW and set DisplaySize/DisplayFramebufferScale correctly
     
-    std::cout << "[WebGL DPI] CSS size: " << cssWidth << "x" << cssHeight 
+    DEBUG_COUT("[WebGL DPI] CSS size: " << cssWidth << "x" << cssHeight 
               << ", devicePixelRatio: " << devicePixelRatio
               << ", physical size: " << physicalWidth << "x" << physicalHeight
-              << ", contentScale: " << g_app.contentScaleX << std::endl;
+              << ", contentScale: " << g_app.contentScaleX << std::endl);
     
     glViewport(0, 0, physicalWidth, physicalHeight);
 #else
@@ -647,10 +648,10 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glfwGetWindowContentScale(window, &glfwScaleX, &glfwScaleY);
     g_app.dpiScale = glfwScaleX;  // Use GLFW's reported scale for ImGui
     
-    std::cout << "[Desktop DPI] window: " << windowWidth << "x" << windowHeight 
+    DEBUG_COUT("[Desktop DPI] window: " << windowWidth << "x" << windowHeight 
               << ", framebuffer: " << width << "x" << height
               << ", contentScale: " << g_app.contentScaleX 
-              << ", dpiScale: " << g_app.dpiScale << std::endl;
+              << ", dpiScale: " << g_app.dpiScale << std::endl);
     
     glViewport(0, 0, width, height);
 #endif
@@ -2847,9 +2848,9 @@ void renderImGui() {
     
     static bool loggedOnce = false;
     if (!loggedOnce) {
-        std::cout << "[ImGui Override] DisplaySize: " << io.DisplaySize.x << "x" << io.DisplaySize.y
+        DEBUG_COUT("[ImGui Override] DisplaySize: " << io.DisplaySize.x << "x" << io.DisplaySize.y
                   << ", DisplayFramebufferScale: " << io.DisplayFramebufferScale.x 
-                  << std::endl;
+                  << std::endl);
         loggedOnce = true;
     }
 #endif
@@ -3436,8 +3437,8 @@ void emscriptenMainLoop() {
         g_app.windowHeight = physicalHeight;
         g_app.dpiScale = static_cast<float>(devicePixelRatio);
         
-        std::cout << "[WebGL Resize] CSS: " << cssWidth << "x" << cssHeight 
-                  << ", physical: " << physicalWidth << "x" << physicalHeight << std::endl;
+        DEBUG_COUT("[WebGL Resize] CSS: " << cssWidth << "x" << cssHeight 
+                  << ", physical: " << physicalWidth << "x" << physicalHeight << std::endl);
         
         glViewport(0, 0, physicalWidth, physicalHeight);
     }
@@ -3515,9 +3516,9 @@ int main() {
     g_app.contentScaleY = 1.0f;
     g_app.dpiScale = static_cast<float>(devicePixelRatio);  // For ImGui font scaling
     
-    std::cout << "[WebGL DPI Init] Container: " << cssWidth << "x" << cssHeight 
+    DEBUG_COUT("[WebGL DPI Init] Container: " << cssWidth << "x" << cssHeight 
               << ", physical: " << physicalWidth << "x" << physicalHeight
-              << ", dpiScale: " << g_app.dpiScale << std::endl;
+              << ", dpiScale: " << g_app.dpiScale << std::endl);
 #else
     glfwGetFramebufferSize(g_app.window, &g_app.framebufferWidth, &g_app.framebufferHeight);
     glfwGetWindowSize(g_app.window, &g_app.windowWidth, &g_app.windowHeight);
@@ -3536,9 +3537,9 @@ int main() {
     glfwGetWindowContentScale(g_app.window, &glfwScaleX, &glfwScaleY);
     g_app.dpiScale = glfwScaleX;
     
-    std::cout << "[Desktop DPI Init] window: " << g_app.windowWidth << "x" << g_app.windowHeight
+    DEBUG_COUT("[Desktop DPI Init] window: " << g_app.windowWidth << "x" << g_app.windowHeight
               << ", framebuffer: " << g_app.framebufferWidth << "x" << g_app.framebufferHeight
-              << ", dpiScale: " << g_app.dpiScale << std::endl;
+              << ", dpiScale: " << g_app.dpiScale << std::endl);
 #endif
     
     // Set callbacks
@@ -3559,8 +3560,8 @@ int main() {
     // The dpiScale is handled by setting canvas size to physical pixels
     float baseFontSize = 13.0f;
     io.Fonts->AddFontDefault();
-    std::cout << "[ImGui DPI] Font size: " << baseFontSize 
-              << "px (WebGL renders at physical resolution)" << std::endl;
+    DEBUG_COUT("[ImGui DPI] Font size: " << baseFontSize 
+              << "px (WebGL renders at physical resolution)" << std::endl);
 #else
     // Desktop: Scale ImGui for High DPI using actual DPI scale
     ImGui::GetStyle().ScaleAllSizes(g_app.dpiScale);
@@ -3575,8 +3576,8 @@ int main() {
     io.FontDefault = io.Fonts->AddFontDefault(&fontConfig);
     io.FontGlobalScale = 1.0f;  // Don't double-scale
     
-    std::cout << "[ImGui DPI] Font size: " << (baseFontSize * g_app.dpiScale) 
-              << "px (base " << baseFontSize << " * scale " << g_app.dpiScale << ")" << std::endl;
+    DEBUG_COUT("[ImGui DPI] Font size: " << (baseFontSize * g_app.dpiScale) 
+              << "px (base " << baseFontSize << " * scale " << g_app.dpiScale << ")" << std::endl);
 #endif
     
     ImGui::StyleColorsDark();
@@ -3829,8 +3830,8 @@ void api_flipSelectedFaces() {
 
 void api_subdivideSelectedFaces() {
     if (!g_app.items) return;
-    printf("[Subdivide] Calling catmullClarkSubdivide(1), editMode=%d\n", 
-           static_cast<int>(g_app.items->getEditMode()));
+    DEBUG_LOG("[Subdivide] Calling catmullClarkSubdivide(1), editMode=%d\n", 
+              static_cast<int>(g_app.items->getEditMode()));
     sceneActionWithUndo("Subdivide", []() { g_app.items->catmullClarkSubdivide(1); });
 }
 
