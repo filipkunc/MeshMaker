@@ -49,6 +49,18 @@ function App() {
       // Update undo/redo state
       setCanUndo(module.canUndo());
       setCanRedo(module.canRedo());
+      
+      // Sync transform mode from WASM (keyboard shortcuts change it in C++)
+      const modeFromWasm = module.getTransformMode();
+      const modeMap: Record<number, TransformMode> = { 0: 'select', 1: 'translate', 2: 'rotate', 3: 'scale' };
+      const wasmTransformMode = modeMap[modeFromWasm] ?? 'select';
+      setTransformMode(prev => prev !== wasmTransformMode ? wasmTransformMode : prev);
+      
+      // Sync edit mode from WASM (keyboard shortcuts change it in C++)
+      const editModeFromWasm = module.getEditMode();
+      const editModeMap: Record<number, EditMode> = { 0: 'items', 1: 'vertices', 2: 'triangles', 3: 'edges' };
+      const wasmEditMode = editModeMap[editModeFromWasm] ?? 'items';
+      setEditMode(prev => prev !== wasmEditMode ? wasmEditMode : prev);
     };
     
     // Update initially
@@ -57,7 +69,7 @@ function App() {
     // Poll every 100ms to catch changes from viewport interaction
     const interval = setInterval(updateState, 100);
     return () => clearInterval(interval);
-  }, [module, transformMode]); // Re-poll when transform mode changes
+  }, [module]); // Poll syncs all state from WASM including transform/edit modes
   
   // Sync split view state with C++
   useEffect(() => {
