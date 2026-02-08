@@ -4182,6 +4182,53 @@ bool api_importFromGLBArray(emscripten::val data) {
     return Serialization::importFromGLB(*g_app.items, glbData);
 }
 
+// Phased GLB import for progress reporting
+emscripten::val api_importGLBParse(emscripten::val data) {
+    auto result = emscripten::val::object();
+    
+    if (!g_app.items) {
+        result.set("success", false);
+        result.set("stepCount", 0);
+        return result;
+    }
+    
+    unsigned int length = data["length"].as<unsigned int>();
+    if (length == 0) {
+        result.set("success", false);
+        result.set("stepCount", 0);
+        return result;
+    }
+    
+    std::vector<uint8_t> glbData(length);
+    emscripten::val destView = emscripten::val(emscripten::typed_memory_view(length, glbData.data()));
+    destView.call<void>("set", data);
+    
+    Serialization::GLBImportInfo info;
+    bool ok = Serialization::beginGLBImport(std::move(glbData), g_app.items->getItemCount(), info);
+    
+    result.set("success", ok && info.success);
+    result.set("stepCount", info.stepCount);
+    return result;
+}
+
+emscripten::val api_importGLBStepInfo(int stepIndex) {
+    auto result = emscripten::val::object();
+    auto info = Serialization::getActiveGLBStepInfo(stepIndex);
+    result.set("name", info.name);
+    result.set("estimatedVertices", static_cast<int>(info.estimatedVertices));
+    return result;
+}
+
+bool api_importGLBStep(int stepIndex) {
+    if (!g_app.items) return false;
+    return Serialization::executeGLBStep(*g_app.items, stepIndex);
+}
+
+bool api_importGLBFinalize() {
+    if (!g_app.items) return false;
+    return Serialization::finalizeActiveGLBImport(*g_app.items);
+}
+
 // Clear all items
 void api_clearScene() {
     if (!g_app.items) return;

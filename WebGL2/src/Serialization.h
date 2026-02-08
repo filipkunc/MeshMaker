@@ -41,6 +41,32 @@ std::vector<uint8_t> exportMeshToGLB(const Mesh2& mesh, const std::string& meshN
 bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData);
 
 // ============================================================================
+// Phased GLB Import (for progress reporting)
+// ============================================================================
+
+struct GLBImportInfo {
+    int stepCount;      // Number of meshes/nodes to import
+    bool success;
+};
+
+struct GLBStepInfo {
+    std::string name;           // Node or mesh name
+    size_t estimatedVertices;   // Estimated vertex count for this step
+};
+
+// Phase 1: Parse GLB, load textures, compute transforms (stores context internally)
+bool beginGLBImport(std::vector<uint8_t> glbData, size_t importStartIndex, GLBImportInfo& outInfo);
+
+// Get info about a specific import step (name, vertex count)
+GLBStepInfo getActiveGLBStepInfo(int stepIndex);
+
+// Phase 2: Import a single mesh by step index [0, info.stepCount)
+bool executeGLBStep(ItemCollection& items, int stepIndex);
+
+// Phase 3: Finalize (auto-scale, center, deselect old items)
+bool finalizeActiveGLBImport(ItemCollection& items);
+
+// ============================================================================
 // Utilities
 // ============================================================================
 

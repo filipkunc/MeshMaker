@@ -272,19 +272,50 @@ function App() {
         const buffer = e.target?.result as ArrayBuffer;
         if (buffer) {
           const data = new Uint8Array(buffer);
-          if (isLargeFile) {
-            setImportProgress('Importing GLB...');
-          }
-          // Use setTimeout to allow UI to update before blocking import
-          setTimeout(() => {
-            const success = module.importFromGLB(data);
-            if (!success) {
-              console.error('Failed to import GLB file');
+          setIsImporting(true);
+          setImportProgress('Parsing GLB...');
+          
+          // Use phased import for detailed progress
+          const importGLBPhased = async () => {
+            try {
+              // Phase 1: Parse header, JSON, textures
+              await new Promise(r => setTimeout(r, 16)); // let UI paint
+              const info = module.importGLBParse(data);
+              if (!info.success) {
+                console.error('Failed to parse GLB file');
+                setIsImporting(false);
+                setImportProgress('');
+                triggerUpdate();
+                return;
+              }
+              
+              // Phase 2: Import each mesh with progress
+              for (let i = 0; i < info.stepCount; i++) {
+                const stepInfo = module.importGLBStepInfo(i);
+                const vertexStr = stepInfo.estimatedVertices > 0
+                  ? ` (${(stepInfo.estimatedVertices / 1000).toFixed(0)}K vertices)`
+                  : '';
+                setImportProgress(
+                  `Importing ${stepInfo.name}${vertexStr}... (${i + 1}/${info.stepCount})`
+                );
+                await new Promise(r => setTimeout(r, 16)); // let UI paint
+                module.importGLBStep(i);
+              }
+              
+              // Phase 3: Finalize
+              setImportProgress('Finalizing...');
+              await new Promise(r => setTimeout(r, 16));
+              module.importGLBFinalize();
+              
+            } catch (err) {
+              console.error('GLB import error:', err);
             }
             setIsImporting(false);
             setImportProgress('');
             triggerUpdate();
-          }, 50);
+          };
+          
+          importGLBPhased();
         }
       };
       reader.readAsArrayBuffer(file);

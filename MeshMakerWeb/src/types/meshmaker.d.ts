@@ -82,6 +82,13 @@ export interface MeshMakerModule extends EmscriptenModule {
   importFromOBJ(objData: string): boolean;
   exportToGLB(): Uint8Array | null;
   importFromGLB(data: Uint8Array): boolean;
+  
+  // Phased GLB Import (for progress reporting)
+  importGLBParse(data: Uint8Array): { success: boolean; stepCount: number };
+  importGLBStepInfo(stepIndex: number): { name: string; estimatedVertices: number };
+  importGLBStep(stepIndex: number): boolean;
+  importGLBFinalize(): boolean;
+  
   clearScene(): void;
   
   // Texture API

@@ -924,7 +924,343 @@ private:
     }
 };
 
-bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
+// ============================================================================
+// Phased GLB Import Context & Implementation
+// ============================================================================
+
+struct GLBImportContext {
+    // Owned GLB data (binData points into this)
+    std::vector<uint8_t> glbDataOwned;
+    const uint8_t* binData = nullptr;
+    size_t binLength = 0;
+    
+    // Parsed JSON
+    JsonValue root;
+    
+    // Loaded textures
+    std::vector<std::shared_ptr<Texture>> loadedTextures;
+    std::vector<std::shared_ptr<Texture>> materialTextures;
+    
+    // Node world transforms (only if hasNodes)
+    std::vector<glm::mat4> nodeWorldTransforms;
+    
+    // Import mode
+    bool hasNodes = false;
+    
+    // Indices of nodes/meshes to import (one per step)
+    std::vector<size_t> stepIndices;
+    
+    // Import tracking
+    size_t importStartIndex = 0;
+    bool imported = false;
+    
+    // Helper methods
+    std::shared_ptr<Texture> getMaterialTexture(const JsonValue& primitive) const;
+    std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>> importPrimitive(const JsonValue& primitive);
+    std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> importMesh(size_t meshIdx);
+    static glm::mat4 getNodeLocalTransform(const JsonValue& nodeJson);
+};
+
+std::shared_ptr<Texture> GLBImportContext::getMaterialTexture(const JsonValue& primitive) const {
+    if (primitive.type == JsonValue::Object && primitive.object.count("material")) {
+        int matIdx = primitive.object.at("material").asInt();
+        if (matIdx >= 0 && static_cast<size_t>(matIdx) < materialTextures.size()) {
+            return materialTextures[matIdx];
+        }
+    }
+    return nullptr;
+}
+
+std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>> GLBImportContext::importPrimitive(const JsonValue& primitive) {
+    if (primitive.type != JsonValue::Object) return {nullptr, nullptr};
+    
+    auto attrIt = primitive.object.find("attributes");
+    if (attrIt == primitive.object.end()) return {nullptr, nullptr};
+    auto& attributes = attrIt->second;
+    if (attributes.type != JsonValue::Object) return {nullptr, nullptr};
+    
+    auto& accessors = root.object["accessors"];
+    auto& bufferViews = root.object["bufferViews"];
+    
+    // Get accessor indices
+    int posAccessorIdx = -1;
+    int texCoordAccessorIdx = -1;
+    int indexAccessorIdx = -1;
+    
+    if (attributes.object.count("POSITION")) {
+        posAccessorIdx = attributes.object.at("POSITION").asInt();
+    }
+    if (attributes.object.count("TEXCOORD_0")) {
+        texCoordAccessorIdx = attributes.object.at("TEXCOORD_0").asInt();
+    }
+    if (primitive.object.count("indices")) {
+        indexAccessorIdx = primitive.object.at("indices").asInt();
+    }
+    
+    if (posAccessorIdx < 0) return {nullptr, nullptr};
+    
+    // Get position data
+    auto& posAccessor = accessors.array[posAccessorIdx];
+    if (!posAccessor.object.count("bufferView") || !posAccessor.object.count("count")) {
+        return {nullptr, nullptr};
+    }
+    int posBvIdx = posAccessor.object.at("bufferView").asInt();
+    size_t posCount = posAccessor.object.at("count").asSize();
+    size_t posAccessorByteOffset = posAccessor.object.count("byteOffset") ? 
+        posAccessor.object.at("byteOffset").asSize() : 0;
+    
+    if (posBvIdx < 0 || static_cast<size_t>(posBvIdx) >= bufferViews.array.size()) {
+        return {nullptr, nullptr};
+    }
+    auto& posBv = bufferViews.array[posBvIdx];
+    size_t posByteOffset = posBv.object.count("byteOffset") ? posBv.object.at("byteOffset").asSize() : 0;
+    posByteOffset += posAccessorByteOffset;
+    size_t posByteStride = posBv.object.count("byteStride") ? posBv.object.at("byteStride").asSize() : 12;
+    if (posByteStride == 0) posByteStride = 12; // Default for VEC3 float
+    
+    // Read all positions
+    std::vector<glm::vec3> positions;
+    for (size_t i = 0; i < posCount; i++) {
+        size_t off = posByteOffset + i * posByteStride;
+        if (off + 12 > binLength) break;
+        
+        float x = readFloat(binData + off);
+        float y = readFloat(binData + off + 4);
+        float z = readFloat(binData + off + 8);
+        positions.push_back(glm::vec3(x, y, z));
+    }
+    
+    // Read texture coordinates if present
+    std::vector<glm::vec2> texCoords;
+    if (texCoordAccessorIdx >= 0 && static_cast<size_t>(texCoordAccessorIdx) < accessors.array.size()) {
+        auto& texAccessor = accessors.array[texCoordAccessorIdx];
+        if (texAccessor.object.count("bufferView") && texAccessor.object.count("count")) {
+            int texBvIdx = texAccessor.object.at("bufferView").asInt();
+            size_t texCount = texAccessor.object.at("count").asSize();
+            size_t texAccessorByteOffset = texAccessor.object.count("byteOffset") ?
+                texAccessor.object.at("byteOffset").asSize() : 0;
+            
+            if (texBvIdx >= 0 && static_cast<size_t>(texBvIdx) < bufferViews.array.size()) {
+                auto& texBv = bufferViews.array[texBvIdx];
+                size_t texByteOffset = texBv.object.count("byteOffset") ? texBv.object.at("byteOffset").asSize() : 0;
+                texByteOffset += texAccessorByteOffset;
+                size_t texByteStride = texBv.object.count("byteStride") ? texBv.object.at("byteStride").asSize() : 8;
+                if (texByteStride == 0) texByteStride = 8; // Default for VEC2 float
+                
+                for (size_t i = 0; i < texCount; i++) {
+                    size_t off = texByteOffset + i * texByteStride;
+                    if (off + 8 > binLength) break;
+                    
+                    float u = readFloat(binData + off);
+                    float v = readFloat(binData + off + 4);
+                    // glTF uses V=0 at top, OpenGL uses V=0 at bottom
+                    // Since we flip textures on load, we also need to flip V
+                    texCoords.push_back(glm::vec2(u, 1.0f - v));
+                }
+            }
+        }
+    }
+    
+    auto mesh = std::make_unique<Mesh2>();
+    
+    // Pre-allocate capacity to avoid repeated vector reallocations
+    // For a triangle mesh: #faces ≈ idxCount/3, edges ≈ 1.5×faces
+    if (indexAccessorIdx >= 0 && static_cast<size_t>(indexAccessorIdx) < accessors.array.size()) {
+        auto& acc = accessors.array[indexAccessorIdx];
+        if (acc.object.count("count")) {
+            size_t cnt = acc.object.at("count").asSize();
+            mesh->reserveForImport(positions.size(), cnt / 3);
+        }
+    }
+    
+    // Deduplicate vertices
+    std::map<std::tuple<float, float, float>, int> positionToVertex;
+    std::vector<int> originalToMesh(positions.size(), -1);
+    
+    for (size_t i = 0; i < positions.size(); i++) {
+        const auto& pos = positions[i];
+        auto key = std::make_tuple(pos.x, pos.y, pos.z);
+        
+        if (positionToVertex.count(key)) {
+            originalToMesh[i] = positionToVertex[key];
+        } else {
+            int newIdx = mesh->addVertex(pos);
+            positionToVertex[key] = newIdx;
+            originalToMesh[i] = newIdx;
+        }
+    }
+    
+    // Get indices
+    if (indexAccessorIdx >= 0 && static_cast<size_t>(indexAccessorIdx) < accessors.array.size()) {
+        auto& idxAccessor = accessors.array[indexAccessorIdx];
+        if (!idxAccessor.object.count("bufferView") || 
+            !idxAccessor.object.count("count") ||
+            !idxAccessor.object.count("componentType")) {
+            return {nullptr, nullptr};
+        }
+        int idxBvIdx = idxAccessor.object.at("bufferView").asInt();
+        size_t idxCount = idxAccessor.object.at("count").asSize();
+        int componentType = idxAccessor.object.at("componentType").asInt();
+        size_t idxAccessorByteOffset = idxAccessor.object.count("byteOffset") ?
+            idxAccessor.object.at("byteOffset").asSize() : 0;
+        
+        if (idxBvIdx < 0 || static_cast<size_t>(idxBvIdx) >= bufferViews.array.size()) {
+            return {nullptr, nullptr};
+        }
+        auto& idxBv = bufferViews.array[idxBvIdx];
+        size_t idxByteOffset = idxBv.object.count("byteOffset") ? idxBv.object.at("byteOffset").asSize() : 0;
+        idxByteOffset += idxAccessorByteOffset;
+        
+        std::vector<uint32_t> indices;
+        indices.reserve(idxCount);
+        
+        for (size_t i = 0; i < idxCount; i++) {
+            uint32_t idx = 0;
+            if (componentType == 5123) { // UNSIGNED_SHORT
+                size_t off = idxByteOffset + i * 2;
+                if (off + 2 <= binLength) {
+                    idx = readLittleEndian<uint16_t>(binData + off);
+                }
+            } else if (componentType == 5125) { // UNSIGNED_INT
+                size_t off = idxByteOffset + i * 4;
+                if (off + 4 <= binLength) {
+                    idx = readLittleEndian<uint32_t>(binData + off);
+                }
+            } else if (componentType == 5121) { // UNSIGNED_BYTE
+                size_t off = idxByteOffset + i;
+                if (off + 1 <= binLength) {
+                    idx = binData[off];
+                }
+            }
+            indices.push_back(idx);
+        }
+        
+        // Add triangles with UVs
+        for (size_t i = 0; i + 2 < indices.size(); i += 3) {
+            uint32_t origIdx0 = indices[i];
+            uint32_t origIdx1 = indices[i + 1];
+            uint32_t origIdx2 = indices[i + 2];
+            
+            // Bounds check
+            if (origIdx0 >= originalToMesh.size() || 
+                origIdx1 >= originalToMesh.size() || 
+                origIdx2 >= originalToMesh.size()) {
+                continue;
+            }
+            
+            int v0 = originalToMesh[origIdx0];
+            int v1 = originalToMesh[origIdx1];
+            int v2 = originalToMesh[origIdx2];
+            
+            if (v0 < 0 || v1 < 0 || v2 < 0) continue;
+            
+            int faceIdx = mesh->addTriangle(v0, v1, v2);
+            
+            if (!texCoords.empty() && faceIdx >= 0) {
+                glm::vec2 uv0 = (origIdx0 < texCoords.size()) ? texCoords[origIdx0] : glm::vec2(0);
+                glm::vec2 uv1 = (origIdx1 < texCoords.size()) ? texCoords[origIdx1] : glm::vec2(0);
+                glm::vec2 uv2 = (origIdx2 < texCoords.size()) ? texCoords[origIdx2] : glm::vec2(0);
+                mesh->setFaceUVs(faceIdx, uv0, uv1, uv2);
+            }
+        }
+    }
+    
+    mesh->buildConnectivity();
+    mesh->computeNormals();
+    mesh->createGPUBuffers();
+    
+    return {std::move(mesh), getMaterialTexture(primitive)};
+}
+
+std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> GLBImportContext::importMesh(size_t meshIdx) {
+    std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> result;
+    
+    auto& meshesJson = root.object["meshes"];
+    if (meshIdx >= meshesJson.array.size()) return result;
+    
+    const auto& meshJson = meshesJson.array[meshIdx];
+    if (meshJson.type != JsonValue::Object) return result;
+    
+    auto primIt = meshJson.object.find("primitives");
+    if (primIt == meshJson.object.end()) return result;
+    auto& primitives = primIt->second;
+    if (primitives.type != JsonValue::Array || primitives.array.empty()) return result;
+    
+    // Import ALL primitives from this mesh
+    for (const auto& primitive : primitives.array) {
+        auto [mesh, texture] = importPrimitive(primitive);
+        if (mesh) {
+            result.push_back({std::move(mesh), texture});
+        }
+    }
+    
+    return result;
+}
+
+glm::mat4 GLBImportContext::getNodeLocalTransform(const JsonValue& nodeJson) {
+    // Check for matrix property first (takes precedence)
+    if (nodeJson.object.count("matrix")) {
+        auto& m = nodeJson.object.at("matrix");
+        if (m.type == JsonValue::Array && m.array.size() >= 16) {
+            // glTF matrices are column-major
+            glm::mat4 mat;
+            for (int i = 0; i < 16; i++) {
+                mat[i / 4][i % 4] = m.array[i].asFloat();
+            }
+            return mat;
+        }
+    }
+    
+    // Otherwise use T/R/S
+    glm::vec3 translation(0.0f);
+    glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 scale(1.0f);
+    
+    if (nodeJson.object.count("translation")) {
+        auto& t = nodeJson.object.at("translation");
+        if (t.type == JsonValue::Array && t.array.size() >= 3) {
+            translation.x = t.array[0].asFloat();
+            translation.y = t.array[1].asFloat();
+            translation.z = t.array[2].asFloat();
+        }
+    }
+    
+    if (nodeJson.object.count("rotation")) {
+        auto& r = nodeJson.object.at("rotation");
+        if (r.type == JsonValue::Array && r.array.size() >= 4) {
+            rotation.x = r.array[0].asFloat();
+            rotation.y = r.array[1].asFloat();
+            rotation.z = r.array[2].asFloat();
+            rotation.w = r.array[3].asFloat();
+        }
+    }
+    
+    if (nodeJson.object.count("scale")) {
+        auto& s = nodeJson.object.at("scale");
+        if (s.type == JsonValue::Array && s.array.size() >= 3) {
+            scale.x = s.array[0].asFloat();
+            scale.y = s.array[1].asFloat();
+            scale.z = s.array[2].asFloat();
+        }
+    }
+    
+    glm::mat4 mat = glm::mat4(1.0f);
+    mat = glm::translate(mat, translation);
+    mat = mat * glm::mat4_cast(rotation);
+    mat = glm::scale(mat, scale);
+    return mat;
+}
+
+// Module-internal import context (single active import at a time)
+static std::unique_ptr<GLBImportContext> g_importCtx;
+
+// Phase 1: Parse GLB header, JSON, textures, compute transforms
+bool beginGLBImport(std::vector<uint8_t> glbData, size_t importStartIndex, GLBImportInfo& outInfo) {
+    outInfo.stepCount = 0;
+    outInfo.success = false;
+    
+    g_importCtx.reset();
+    
     if (glbData.size() < 12) return false;
     
     // Check magic
@@ -940,8 +1276,8 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
     
     // Parse chunks
     std::string jsonStr;
-    const uint8_t* binData = nullptr;
-    size_t binLength = 0;
+    size_t binOffset = 0;
+    size_t binLen = 0;
     
     size_t offset = 12;
     while (offset + 8 <= glbData.size()) {
@@ -954,25 +1290,31 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
         if (chunkType == 0x4E4F534A) { // "JSON"
             jsonStr = std::string(reinterpret_cast<const char*>(&glbData[offset]), chunkLength);
         } else if (chunkType == 0x004E4942) { // "BIN\0"
-            binData = &glbData[offset];
-            binLength = chunkLength;
+            binOffset = offset;
+            binLen = chunkLength;
         }
         
         offset += chunkLength;
     }
     
-    if (jsonStr.empty() || !binData) return false;
+    if (jsonStr.empty() || binLen == 0) return false;
+    
+    auto ctx = std::make_unique<GLBImportContext>();
+    ctx->glbDataOwned = std::move(glbData);
+    ctx->binData = &ctx->glbDataOwned[binOffset];
+    ctx->binLength = binLen;
+    ctx->importStartIndex = importStartIndex;
     
     // Parse JSON
     JsonParser parser(jsonStr);
-    JsonValue root = parser.parse();
+    ctx->root = parser.parse();
     
-    if (root.type != JsonValue::Object) return false;
+    if (ctx->root.type != JsonValue::Object) return false;
     
     // Get required arrays
-    auto& accessors = root.object["accessors"];
-    auto& bufferViews = root.object["bufferViews"];
-    auto& meshesJson = root.object["meshes"];
+    auto& accessors = ctx->root.object["accessors"];
+    auto& bufferViews = ctx->root.object["bufferViews"];
+    auto& meshesJson = ctx->root.object["meshes"];
     
     if (accessors.type != JsonValue::Array || 
         bufferViews.type != JsonValue::Array || 
@@ -981,16 +1323,15 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
     }
     
     // Get optional arrays
-    bool hasNodes = root.object.count("nodes") && root.object["nodes"].type == JsonValue::Array;
-    bool hasImages = root.object.count("images") && root.object["images"].type == JsonValue::Array;
-    bool hasTextures = root.object.count("textures") && root.object["textures"].type == JsonValue::Array;
-    bool hasMaterials = root.object.count("materials") && root.object["materials"].type == JsonValue::Array;
+    ctx->hasNodes = ctx->root.object.count("nodes") && ctx->root.object["nodes"].type == JsonValue::Array;
+    bool hasImages = ctx->root.object.count("images") && ctx->root.object["images"].type == JsonValue::Array;
+    bool hasTextures = ctx->root.object.count("textures") && ctx->root.object["textures"].type == JsonValue::Array;
+    bool hasMaterials = ctx->root.object.count("materials") && ctx->root.object["materials"].type == JsonValue::Array;
     
     // Load embedded textures
-    std::vector<std::shared_ptr<Texture>> loadedTextures;
     if (hasImages && hasTextures) {
-        auto& imagesJson = root.object["images"];
-        auto& texturesJson = root.object["textures"];
+        auto& imagesJson = ctx->root.object["images"];
+        auto& texturesJson = ctx->root.object["textures"];
         
         // Load images
         std::vector<std::shared_ptr<Texture>> loadedImages;
@@ -1005,8 +1346,8 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
                     size_t byteOffset = bv.object.count("byteOffset") ? bv.object.at("byteOffset").asSize() : 0;
                     size_t byteLength = bv.object.at("byteLength").asSize();
                     
-                    if (byteOffset + byteLength <= binLength) {
-                        tex->loadFromFileData(binData + byteOffset, byteLength);
+                    if (byteOffset + byteLength <= ctx->binLength) {
+                        tex->loadFromFileData(ctx->binData + byteOffset, byteLength);
                     }
                 }
             }
@@ -1018,20 +1359,19 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
             if (texJson.type == JsonValue::Object && texJson.object.count("source")) {
                 int sourceIdx = texJson.object.at("source").asInt();
                 if (sourceIdx >= 0 && static_cast<size_t>(sourceIdx) < loadedImages.size()) {
-                    loadedTextures.push_back(loadedImages[sourceIdx]);
+                    ctx->loadedTextures.push_back(loadedImages[sourceIdx]);
                 } else {
-                    loadedTextures.push_back(nullptr);
+                    ctx->loadedTextures.push_back(nullptr);
                 }
             } else {
-                loadedTextures.push_back(nullptr);
+                ctx->loadedTextures.push_back(nullptr);
             }
         }
     }
     
     // Map material index to texture
-    std::vector<std::shared_ptr<Texture>> materialTextures;
     if (hasMaterials) {
-        auto& materialsJson = root.object["materials"];
+        auto& materialsJson = ctx->root.object["materials"];
         for (const auto& matJson : materialsJson.array) {
             std::shared_ptr<Texture> tex = nullptr;
             
@@ -1041,323 +1381,25 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
                     auto& baseColorTex = pbr.object.at("baseColorTexture");
                     if (baseColorTex.type == JsonValue::Object && baseColorTex.object.count("index")) {
                         int texIdx = baseColorTex.object.at("index").asInt();
-                        if (texIdx >= 0 && static_cast<size_t>(texIdx) < loadedTextures.size()) {
-                            tex = loadedTextures[texIdx];
+                        if (texIdx >= 0 && static_cast<size_t>(texIdx) < ctx->loadedTextures.size()) {
+                            tex = ctx->loadedTextures[texIdx];
                         }
                     }
                 }
             }
-            materialTextures.push_back(tex);
+            ctx->materialTextures.push_back(tex);
         }
     }
     
-    // Helper to get material for a primitive
-    auto getMaterialTexture = [&](const JsonValue& primitive) -> std::shared_ptr<Texture> {
-        if (primitive.type == JsonValue::Object && primitive.object.count("material")) {
-            int matIdx = primitive.object.at("material").asInt();
-            if (matIdx >= 0 && static_cast<size_t>(matIdx) < materialTextures.size()) {
-                return materialTextures[matIdx];
-            }
-        }
-        return nullptr;
-    };
-    
-    // Helper to import a single primitive from a mesh
-    auto importPrimitive = [&](const JsonValue& primitive) -> std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>> {
-        if (primitive.type != JsonValue::Object) return {nullptr, nullptr};
-        
-        auto attrIt = primitive.object.find("attributes");
-        if (attrIt == primitive.object.end()) return {nullptr, nullptr};
-        auto& attributes = attrIt->second;
-        if (attributes.type != JsonValue::Object) return {nullptr, nullptr};
-        
-        // Get accessor indices
-        int posAccessorIdx = -1;
-        int texCoordAccessorIdx = -1;
-        int indexAccessorIdx = -1;
-        
-        if (attributes.object.count("POSITION")) {
-            posAccessorIdx = attributes.object.at("POSITION").asInt();
-        }
-        if (attributes.object.count("TEXCOORD_0")) {
-            texCoordAccessorIdx = attributes.object.at("TEXCOORD_0").asInt();
-        }
-        if (primitive.object.count("indices")) {
-            indexAccessorIdx = primitive.object.at("indices").asInt();
-        }
-        
-        if (posAccessorIdx < 0) return {nullptr, nullptr};
-        
-        // Get position data
-        auto& posAccessor = accessors.array[posAccessorIdx];
-        if (!posAccessor.object.count("bufferView") || !posAccessor.object.count("count")) {
-            return {nullptr, nullptr};
-        }
-        int posBvIdx = posAccessor.object.at("bufferView").asInt();
-        size_t posCount = posAccessor.object.at("count").asSize();
-        size_t posAccessorByteOffset = posAccessor.object.count("byteOffset") ? 
-            posAccessor.object.at("byteOffset").asSize() : 0;
-        
-        if (posBvIdx < 0 || static_cast<size_t>(posBvIdx) >= bufferViews.array.size()) {
-            return {nullptr, nullptr};
-        }
-        auto& posBv = bufferViews.array[posBvIdx];
-        size_t posByteOffset = posBv.object.count("byteOffset") ? posBv.object.at("byteOffset").asSize() : 0;
-        posByteOffset += posAccessorByteOffset;
-        size_t posByteStride = posBv.object.count("byteStride") ? posBv.object.at("byteStride").asSize() : 12;
-        if (posByteStride == 0) posByteStride = 12; // Default for VEC3 float
-        
-        // Read all positions
-        std::vector<glm::vec3> positions;
-        for (size_t i = 0; i < posCount; i++) {
-            size_t off = posByteOffset + i * posByteStride;
-            if (off + 12 > binLength) break;
-            
-            float x = readFloat(binData + off);
-            float y = readFloat(binData + off + 4);
-            float z = readFloat(binData + off + 8);
-            positions.push_back(glm::vec3(x, y, z));
-        }
-        
-        // Read texture coordinates if present
-        std::vector<glm::vec2> texCoords;
-        if (texCoordAccessorIdx >= 0 && static_cast<size_t>(texCoordAccessorIdx) < accessors.array.size()) {
-            auto& texAccessor = accessors.array[texCoordAccessorIdx];
-            if (texAccessor.object.count("bufferView") && texAccessor.object.count("count")) {
-                int texBvIdx = texAccessor.object.at("bufferView").asInt();
-                size_t texCount = texAccessor.object.at("count").asSize();
-                size_t texAccessorByteOffset = texAccessor.object.count("byteOffset") ?
-                    texAccessor.object.at("byteOffset").asSize() : 0;
-                
-                if (texBvIdx >= 0 && static_cast<size_t>(texBvIdx) < bufferViews.array.size()) {
-                    auto& texBv = bufferViews.array[texBvIdx];
-                    size_t texByteOffset = texBv.object.count("byteOffset") ? texBv.object.at("byteOffset").asSize() : 0;
-                    texByteOffset += texAccessorByteOffset;
-                    size_t texByteStride = texBv.object.count("byteStride") ? texBv.object.at("byteStride").asSize() : 8;
-                    if (texByteStride == 0) texByteStride = 8; // Default for VEC2 float
-                    
-                    for (size_t i = 0; i < texCount; i++) {
-                        size_t off = texByteOffset + i * texByteStride;
-                        if (off + 8 > binLength) break;
-                        
-                        float u = readFloat(binData + off);
-                        float v = readFloat(binData + off + 4);
-                        // glTF uses V=0 at top, OpenGL uses V=0 at bottom
-                        // Since we flip textures on load, we also need to flip V
-                        texCoords.push_back(glm::vec2(u, 1.0f - v));
-                    }
-                }
-            }
-        }
-        
-        auto mesh = std::make_unique<Mesh2>();
-        
-        // Pre-allocate capacity to avoid repeated vector reallocations
-        // For a triangle mesh: #faces ≈ idxCount/3, edges ≈ 1.5×faces
-        if (indexAccessorIdx >= 0 && static_cast<size_t>(indexAccessorIdx) < accessors.array.size()) {
-            auto& acc = accessors.array[indexAccessorIdx];
-            if (acc.object.count("count")) {
-                size_t cnt = acc.object.at("count").asSize();
-                mesh->reserveForImport(positions.size(), cnt / 3);
-            }
-        }
-        
-        // Deduplicate vertices
-        std::map<std::tuple<float, float, float>, int> positionToVertex;
-        std::vector<int> originalToMesh(positions.size(), -1);
-        
-        for (size_t i = 0; i < positions.size(); i++) {
-            const auto& pos = positions[i];
-            auto key = std::make_tuple(pos.x, pos.y, pos.z);
-            
-            if (positionToVertex.count(key)) {
-                originalToMesh[i] = positionToVertex[key];
-            } else {
-                int newIdx = mesh->addVertex(pos);
-                positionToVertex[key] = newIdx;
-                originalToMesh[i] = newIdx;
-            }
-        }
-        
-        // Get indices
-        if (indexAccessorIdx >= 0 && static_cast<size_t>(indexAccessorIdx) < accessors.array.size()) {
-            auto& idxAccessor = accessors.array[indexAccessorIdx];
-            if (!idxAccessor.object.count("bufferView") || 
-                !idxAccessor.object.count("count") ||
-                !idxAccessor.object.count("componentType")) {
-                return {nullptr, nullptr};
-            }
-            int idxBvIdx = idxAccessor.object.at("bufferView").asInt();
-            size_t idxCount = idxAccessor.object.at("count").asSize();
-            int componentType = idxAccessor.object.at("componentType").asInt();
-            size_t idxAccessorByteOffset = idxAccessor.object.count("byteOffset") ?
-                idxAccessor.object.at("byteOffset").asSize() : 0;
-            
-            if (idxBvIdx < 0 || static_cast<size_t>(idxBvIdx) >= bufferViews.array.size()) {
-                return {nullptr, nullptr};
-            }
-            auto& idxBv = bufferViews.array[idxBvIdx];
-            size_t idxByteOffset = idxBv.object.count("byteOffset") ? idxBv.object.at("byteOffset").asSize() : 0;
-            idxByteOffset += idxAccessorByteOffset;
-            
-            std::vector<uint32_t> indices;
-            indices.reserve(idxCount);
-            
-            for (size_t i = 0; i < idxCount; i++) {
-                uint32_t idx = 0;
-                if (componentType == 5123) { // UNSIGNED_SHORT
-                    size_t off = idxByteOffset + i * 2;
-                    if (off + 2 <= binLength) {
-                        idx = readLittleEndian<uint16_t>(binData + off);
-                    }
-                } else if (componentType == 5125) { // UNSIGNED_INT
-                    size_t off = idxByteOffset + i * 4;
-                    if (off + 4 <= binLength) {
-                        idx = readLittleEndian<uint32_t>(binData + off);
-                    }
-                } else if (componentType == 5121) { // UNSIGNED_BYTE
-                    size_t off = idxByteOffset + i;
-                    if (off + 1 <= binLength) {
-                        idx = binData[off];
-                    }
-                }
-                indices.push_back(idx);
-            }
-            
-            // Add triangles with UVs
-            for (size_t i = 0; i + 2 < indices.size(); i += 3) {
-                uint32_t origIdx0 = indices[i];
-                uint32_t origIdx1 = indices[i + 1];
-                uint32_t origIdx2 = indices[i + 2];
-                
-                // Bounds check
-                if (origIdx0 >= originalToMesh.size() || 
-                    origIdx1 >= originalToMesh.size() || 
-                    origIdx2 >= originalToMesh.size()) {
-                    continue;
-                }
-                
-                int v0 = originalToMesh[origIdx0];
-                int v1 = originalToMesh[origIdx1];
-                int v2 = originalToMesh[origIdx2];
-                
-                if (v0 < 0 || v1 < 0 || v2 < 0) continue;
-                
-                int faceIdx = mesh->addTriangle(v0, v1, v2);
-                
-                if (!texCoords.empty() && faceIdx >= 0) {
-                    glm::vec2 uv0 = (origIdx0 < texCoords.size()) ? texCoords[origIdx0] : glm::vec2(0);
-                    glm::vec2 uv1 = (origIdx1 < texCoords.size()) ? texCoords[origIdx1] : glm::vec2(0);
-                    glm::vec2 uv2 = (origIdx2 < texCoords.size()) ? texCoords[origIdx2] : glm::vec2(0);
-                    mesh->setFaceUVs(faceIdx, uv0, uv1, uv2);
-                }
-            }
-        }
-        
-        mesh->buildConnectivity();
-        mesh->computeNormals();
-        mesh->createGPUBuffers();
-        
-        return {std::move(mesh), getMaterialTexture(primitive)};
-    };
-    
-    // Helper to import all primitives from a mesh
-    auto importMesh = [&](size_t meshIdx) -> std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> {
-        std::vector<std::pair<std::unique_ptr<Mesh2>, std::shared_ptr<Texture>>> result;
-        
-        if (meshIdx >= meshesJson.array.size()) return result;
-        
-        const auto& meshJson = meshesJson.array[meshIdx];
-        if (meshJson.type != JsonValue::Object) return result;
-        
-        auto primIt = meshJson.object.find("primitives");
-        if (primIt == meshJson.object.end()) return result;
-        auto& primitives = primIt->second;
-        if (primitives.type != JsonValue::Array || primitives.array.empty()) return result;
-        
-        // Import ALL primitives from this mesh
-        for (const auto& primitive : primitives.array) {
-            auto [mesh, texture] = importPrimitive(primitive);
-            if (mesh) {
-                result.push_back({std::move(mesh), texture});
-            }
-        }
-        
-        return result;
-    };
-    
-    // Helper to get local transform matrix for a node
-    auto getNodeLocalTransform = [](const JsonValue& nodeJson) -> glm::mat4 {
-        // Check for matrix property first (takes precedence)
-        if (nodeJson.object.count("matrix")) {
-            auto& m = nodeJson.object.at("matrix");
-            if (m.type == JsonValue::Array && m.array.size() >= 16) {
-                // glTF matrices are column-major
-                glm::mat4 mat;
-                for (int i = 0; i < 16; i++) {
-                    mat[i / 4][i % 4] = m.array[i].asFloat();
-                }
-                return mat;
-            }
-        }
-        
-        // Otherwise use T/R/S
-        glm::vec3 translation(0.0f);
-        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-        glm::vec3 scale(1.0f);
-        
-        if (nodeJson.object.count("translation")) {
-            auto& t = nodeJson.object.at("translation");
-            if (t.type == JsonValue::Array && t.array.size() >= 3) {
-                translation.x = t.array[0].asFloat();
-                translation.y = t.array[1].asFloat();
-                translation.z = t.array[2].asFloat();
-            }
-        }
-        
-        if (nodeJson.object.count("rotation")) {
-            auto& r = nodeJson.object.at("rotation");
-            if (r.type == JsonValue::Array && r.array.size() >= 4) {
-                rotation.x = r.array[0].asFloat();
-                rotation.y = r.array[1].asFloat();
-                rotation.z = r.array[2].asFloat();
-                rotation.w = r.array[3].asFloat();
-            }
-        }
-        
-        if (nodeJson.object.count("scale")) {
-            auto& s = nodeJson.object.at("scale");
-            if (s.type == JsonValue::Array && s.array.size() >= 3) {
-                scale.x = s.array[0].asFloat();
-                scale.y = s.array[1].asFloat();
-                scale.z = s.array[2].asFloat();
-            }
-        }
-        
-        glm::mat4 mat = glm::mat4(1.0f);
-        mat = glm::translate(mat, translation);
-        mat = mat * glm::mat4_cast(rotation);
-        mat = glm::scale(mat, scale);
-        return mat;
-    };
-    
-    // Build world transforms for all nodes by traversing the hierarchy
-    std::vector<glm::mat4> nodeWorldTransforms;
-    
-    // Import via nodes if available (for transforms), otherwise directly from meshes
-    bool imported = false;
-    
-    if (hasNodes) {
-        auto& nodesJson = root.object["nodes"];
+    // Build node transforms and step indices
+    if (ctx->hasNodes) {
+        auto& nodesJson = ctx->root.object["nodes"];
         size_t nodeCount = nodesJson.array.size();
         
-        // Initialize all transforms to identity
-        nodeWorldTransforms.resize(nodeCount, glm::mat4(1.0f));
-        
-        // First pass: compute local transforms
+        // Compute local transforms
         std::vector<glm::mat4> localTransforms(nodeCount);
         for (size_t i = 0; i < nodeCount; i++) {
-            localTransforms[i] = getNodeLocalTransform(nodesJson.array[i]);
+            localTransforms[i] = GLBImportContext::getNodeLocalTransform(nodesJson.array[i]);
         }
         
         // Build parent index map
@@ -1377,106 +1419,167 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
             }
         }
         
-        // Compute world transforms (multiply from root to node)
+        // Compute world transforms
+        ctx->nodeWorldTransforms.resize(nodeCount, glm::mat4(1.0f));
         for (size_t i = 0; i < nodeCount; i++) {
             int parent = parentIndex[i];
-            
-            // Walk up the hierarchy to collect ancestors
             std::vector<int> ancestors;
             while (parent >= 0) {
                 ancestors.push_back(parent);
                 parent = parentIndex[parent];
             }
-            
-            // Apply transforms from root down (ancestors are in child-to-root order)
-            // So we need to start from the end (root) and multiply: root * ... * parent * local
             glm::mat4 worldMat(1.0f);
             for (auto it = ancestors.rbegin(); it != ancestors.rend(); ++it) {
                 worldMat = worldMat * localTransforms[*it];
             }
-            // Finally multiply by the node's own local transform
             worldMat = worldMat * localTransforms[i];
-            
-            nodeWorldTransforms[i] = worldMat;
+            ctx->nodeWorldTransforms[i] = worldMat;
         }
         
-        // Track starting index for newly imported items
-        size_t importStartIndex = items.getItemCount();
-        
-        // Now import meshes with their world transforms
-        for (size_t nodeIdx = 0; nodeIdx < nodeCount; nodeIdx++) {
-            const auto& nodeJson = nodesJson.array[nodeIdx];
-            if (nodeJson.type != JsonValue::Object) continue;
-            if (!nodeJson.object.count("mesh")) continue;
-            
-            int meshIdx = nodeJson.object.at("mesh").asInt();
-            auto meshPrimitives = importMesh(meshIdx);
-            
-            // Create an item for each primitive in the mesh
-            for (auto& [mesh, texture] : meshPrimitives) {
-                if (!mesh) continue;
-                
-                auto item = std::make_unique<Item>(std::move(mesh));
-                
-                // Apply world transform to mesh vertices
-                item->mesh->transformAllVertices(nodeWorldTransforms[nodeIdx]);
-                item->mesh->createGPUBuffers();
-                
-                // Don't center individual items - keep them in world space
-                // This preserves the spatial relationships between parts
-                // The item position stays at origin, vertices are in world space
-                item->position = glm::vec3(0.0f);
-                
-                // Set texture if available
-                if (texture && texture->isValid()) {
-                    item->setTexture(texture);
-                }
-                
-                item->selected = true;
-                
-                items.addItem(std::move(item));
-                imported = true;
+        // Collect node indices that have meshes
+        for (size_t i = 0; i < nodeCount; i++) {
+            const auto& nodeJson = nodesJson.array[i];
+            if (nodeJson.type == JsonValue::Object && nodeJson.object.count("mesh")) {
+                ctx->stepIndices.push_back(i);
             }
-        }
-        
-        // Deselect pre-existing items, keep newly imported selected
-        for (size_t i = 0; i < importStartIndex; i++) {
-            Item* existing = items.getItemAtIndex(i);
-            if (existing) existing->selected = false;
         }
     } else {
-        // Fallback: import meshes directly without transforms
-        size_t importStartIndex = items.getItemCount();
-        
+        // No nodes — import meshes directly
         for (size_t i = 0; i < meshesJson.array.size(); i++) {
-            auto meshPrimitives = importMesh(i);
-            
-            for (auto& [mesh, texture] : meshPrimitives) {
-                if (!mesh) continue;
-                
-                auto item = std::make_unique<Item>(std::move(mesh));
-                // Don't center here - let auto-scale handle it
-                item->position = glm::vec3(0.0f);
-                
-                if (texture && texture->isValid()) {
-                    item->setTexture(texture);
-                }
-                
-                item->selected = true;
-                items.addItem(std::move(item));
-                imported = true;
-            }
-        }
-        
-        // Deselect pre-existing items
-        for (size_t i = 0; i < importStartIndex; i++) {
-            Item* existing = items.getItemAtIndex(i);
-            if (existing) existing->selected = false;
+            ctx->stepIndices.push_back(i);
         }
     }
     
+    outInfo.stepCount = static_cast<int>(ctx->stepIndices.size());
+    outInfo.success = true;
+    g_importCtx = std::move(ctx);
+    return true;
+}
+
+// Get info about a specific import step
+GLBStepInfo getActiveGLBStepInfo(int stepIndex) {
+    GLBStepInfo info;
+    info.estimatedVertices = 0;
+    
+    if (!g_importCtx || stepIndex < 0 || static_cast<size_t>(stepIndex) >= g_importCtx->stepIndices.size()) return info;
+    auto& ctx = *g_importCtx;
+    
+    size_t idx = ctx.stepIndices[stepIndex];
+    
+    // Get name and vertex count from the mesh/node
+    int meshIdx = -1;
+    
+    if (ctx.hasNodes) {
+        const auto& nodeJson = ctx.root.object.at("nodes").array[idx];
+        if (nodeJson.object.count("name")) {
+            info.name = nodeJson.object.at("name").str;
+        }
+        if (nodeJson.object.count("mesh")) {
+            meshIdx = nodeJson.object.at("mesh").asInt();
+        }
+    } else {
+        meshIdx = static_cast<int>(idx);
+    }
+    
+    if (meshIdx >= 0) {
+        const auto& meshJson = ctx.root.object.at("meshes").array[meshIdx];
+        if (info.name.empty() && meshJson.object.count("name")) {
+            info.name = meshJson.object.at("name").str;
+        }
+        
+        // Sum vertex counts across all primitives
+        if (meshJson.object.count("primitives")) {
+            const auto& prims = meshJson.object.at("primitives");
+            if (prims.type == JsonValue::Array) {
+                for (const auto& prim : prims.array) {
+                    if (prim.type == JsonValue::Object && prim.object.count("attributes")) {
+                        const auto& attrs = prim.object.at("attributes");
+                        if (attrs.type == JsonValue::Object && attrs.object.count("POSITION")) {
+                            int posIdx = attrs.object.at("POSITION").asInt();
+                            if (posIdx >= 0 && static_cast<size_t>(posIdx) < ctx.root.object.at("accessors").array.size()) {
+                                const auto& acc = ctx.root.object.at("accessors").array[posIdx];
+                                if (acc.object.count("count")) {
+                                    info.estimatedVertices += acc.object.at("count").asSize();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    if (info.name.empty()) {
+        info.name = "Mesh " + std::to_string(stepIndex + 1);
+    }
+    
+    return info;
+}
+
+// Phase 2: Import a single step (node or mesh)
+bool executeGLBStep(ItemCollection& items, int stepIndex) {
+    if (!g_importCtx || stepIndex < 0 || static_cast<size_t>(stepIndex) >= g_importCtx->stepIndices.size()) return false;
+    auto& ctx = *g_importCtx;
+    
+    size_t idx = ctx.stepIndices[stepIndex];
+    
+    if (ctx.hasNodes) {
+        const auto& nodeJson = ctx.root.object["nodes"].array[idx];
+        if (nodeJson.type != JsonValue::Object || !nodeJson.object.count("mesh")) return false;
+        
+        int meshIdx = nodeJson.object.at("mesh").asInt();
+        auto meshPrimitives = ctx.importMesh(meshIdx);
+        
+        for (auto& [mesh, texture] : meshPrimitives) {
+            if (!mesh) continue;
+            
+            auto item = std::make_unique<Item>(std::move(mesh));
+            item->mesh->transformAllVertices(ctx.nodeWorldTransforms[idx]);
+            item->mesh->createGPUBuffers();
+            item->position = glm::vec3(0.0f);
+            
+            if (texture && texture->isValid()) {
+                item->setTexture(texture);
+            }
+            
+            item->selected = true;
+            items.addItem(std::move(item));
+            ctx.imported = true;
+        }
+    } else {
+        auto meshPrimitives = ctx.importMesh(idx);
+        
+        for (auto& [mesh, texture] : meshPrimitives) {
+            if (!mesh) continue;
+            
+            auto item = std::make_unique<Item>(std::move(mesh));
+            item->position = glm::vec3(0.0f);
+            
+            if (texture && texture->isValid()) {
+                item->setTexture(texture);
+            }
+            
+            item->selected = true;
+            items.addItem(std::move(item));
+            ctx.imported = true;
+        }
+    }
+    
+    return true;
+}
+
+// Phase 3: Finalize (auto-scale, center, deselect old items)
+bool finalizeActiveGLBImport(ItemCollection& items) {
+    if (!g_importCtx) return false;
+    auto& ctx = *g_importCtx;
+    // Deselect pre-existing items
+    for (size_t i = 0; i < ctx.importStartIndex; i++) {
+        Item* existing = items.getItemAtIndex(i);
+        if (existing) existing->selected = false;
+    }
+    
     // Auto-scale and center imported items
-    if (imported) {
+    if (ctx.imported) {
         // Calculate combined bounding box of all selected (newly imported) items
         float minX = std::numeric_limits<float>::max();
         float maxX = std::numeric_limits<float>::lowest();
@@ -1526,7 +1629,21 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
         }
     }
     
-    return imported;
+    bool result = ctx.imported;
+    g_importCtx.reset();
+    return result;
+}
+
+// Original function, now uses phased import internally
+bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
+    GLBImportInfo info;
+    if (!beginGLBImport(std::vector<uint8_t>(glbData), items.getItemCount(), info)) return false;
+    
+    for (int i = 0; i < info.stepCount; i++) {
+        executeGLBStep(items, i);
+    }
+    
+    return finalizeActiveGLBImport(items);
 }
 
 // ============================================================================

@@ -79,6 +79,10 @@ extern std::string api_exportToOBJ();
 extern bool api_importFromOBJ(const std::string& objData);
 extern emscripten::val api_exportToGLB();
 extern bool api_importFromGLBArray(emscripten::val data);
+extern emscripten::val api_importGLBParse(emscripten::val data);
+extern emscripten::val api_importGLBStepInfo(int stepIndex);
+extern bool api_importGLBStep(int stepIndex);
+extern bool api_importGLBFinalize();
 extern void api_clearScene();
 extern int api_getItemCount_export();
 
@@ -200,6 +204,10 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("importFromOBJ", &api_importFromOBJ);
     function("exportToGLB", &api_exportToGLB);
     function("importFromGLB", &api_importFromGLBArray);
+    function("importGLBParse", &api_importGLBParse);
+    function("importGLBStepInfo", &api_importGLBStepInfo);
+    function("importGLBStep", &api_importGLBStep);
+    function("importGLBFinalize", &api_importGLBFinalize);
     function("clearScene", &api_clearScene);
     
     // Texture API
