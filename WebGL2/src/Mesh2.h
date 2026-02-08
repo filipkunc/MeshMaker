@@ -149,6 +149,7 @@ public:
     const std::vector<MeshVertex>& getVertices() const { return m_vertices; }
     std::vector<MeshVertex>& mutVertices() { return m_vertices; }
     const std::vector<Face>& getFaces() const { return m_faces; }
+    std::vector<Face>& mutFaces() { return m_faces; }
     const std::vector<Edge>& getEdges() const { return m_edges; }
     
     // Transform all vertices by a matrix (for baking transforms during import)

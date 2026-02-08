@@ -91,6 +91,52 @@ export const SCRIPTING_FUNCTIONS: ScriptingFunction[] = [
   { name: 'unwrapAllUVs', description: 'Unwrap UVs for all faces', signature: '(projectionType: number): void' },
   { name: 'markSelectedEdgesAsSeam', description: 'Mark/unmark selected edges as UV seams', signature: '(isSeam: boolean): void' },
   { name: 'clearAllSeams', description: 'Clear all UV seams', signature: '(): void' },
+
+  // Per-Item Iteration API
+  { name: 'getItemPositionX', description: 'Get X position of item at index', signature: '(index: number): number' },
+  { name: 'getItemPositionY', description: 'Get Y position of item at index', signature: '(index: number): number' },
+  { name: 'getItemPositionZ', description: 'Get Z position of item at index', signature: '(index: number): number' },
+  { name: 'setItemPosition', description: 'Set position of item at index', signature: '(index: number, x: number, y: number, z: number): void' },
+  { name: 'getItemRotationX', description: 'Get X rotation of item at index (degrees)', signature: '(index: number): number' },
+  { name: 'getItemRotationY', description: 'Get Y rotation of item at index (degrees)', signature: '(index: number): number' },
+  { name: 'getItemRotationZ', description: 'Get Z rotation of item at index (degrees)', signature: '(index: number): number' },
+  { name: 'setItemRotation', description: 'Set rotation of item at index (degrees)', signature: '(index: number, xDeg: number, yDeg: number, zDeg: number): void' },
+  { name: 'getItemScaleX', description: 'Get X scale of item at index', signature: '(index: number): number' },
+  { name: 'getItemScaleY', description: 'Get Y scale of item at index', signature: '(index: number): number' },
+  { name: 'getItemScaleZ', description: 'Get Z scale of item at index', signature: '(index: number): number' },
+  { name: 'setItemScale', description: 'Set scale of item at index', signature: '(index: number, x: number, y: number, z: number): void' },
+  { name: 'isItemSelected', description: 'Check if item at index is selected', signature: '(index: number): boolean' },
+  { name: 'selectItemAtIndex', description: 'Select item at index', signature: '(index: number): void' },
+  { name: 'deselectItemAtIndex', description: 'Deselect item at index', signature: '(index: number): void' },
+  { name: 'isItemVisible', description: 'Check if item at index is visible', signature: '(index: number): boolean' },
+  { name: 'setItemVisible', description: 'Set visibility of item at index', signature: '(index: number, visible: boolean): void' },
+  { name: 'getItemVertexCount', description: 'Get vertex count of item at index', signature: '(index: number): number' },
+  { name: 'getItemFaceCount', description: 'Get face count of item at index', signature: '(index: number): number' },
+  { name: 'getItemEdgeCount', description: 'Get edge count of item at index', signature: '(index: number): number' },
+
+  // Per-Vertex Iteration API
+  { name: 'getVertexX', description: 'Get X position of vertex in item', signature: '(itemIndex: number, vertexIndex: number): number' },
+  { name: 'getVertexY', description: 'Get Y position of vertex in item', signature: '(itemIndex: number, vertexIndex: number): number' },
+  { name: 'getVertexZ', description: 'Get Z position of vertex in item', signature: '(itemIndex: number, vertexIndex: number): number' },
+  { name: 'setVertexPosition', description: 'Set position of vertex in item', signature: '(itemIndex: number, vertexIndex: number, x: number, y: number, z: number): void' },
+  { name: 'getVertexNormalX', description: 'Get X normal of vertex in item', signature: '(itemIndex: number, vertexIndex: number): number' },
+  { name: 'getVertexNormalY', description: 'Get Y normal of vertex in item', signature: '(itemIndex: number, vertexIndex: number): number' },
+  { name: 'getVertexNormalZ', description: 'Get Z normal of vertex in item', signature: '(itemIndex: number, vertexIndex: number): number' },
+  { name: 'isVertexSelected', description: 'Check if vertex is selected', signature: '(itemIndex: number, vertexIndex: number): boolean' },
+  { name: 'setVertexSelected', description: 'Set vertex selection state', signature: '(itemIndex: number, vertexIndex: number, selected: boolean): void' },
+
+  // Per-Face Iteration API
+  { name: 'isFaceSelected', description: 'Check if face is selected', signature: '(itemIndex: number, faceIndex: number): boolean' },
+  { name: 'setFaceSelected', description: 'Set face selection state', signature: '(itemIndex: number, faceIndex: number, selected: boolean): void' },
+  { name: 'getFaceVertexCount', description: 'Get vertex count of face (3=tri, 4=quad)', signature: '(itemIndex: number, faceIndex: number): number' },
+  { name: 'getFaceVertexIndex', description: 'Get vertex index at face corner', signature: '(itemIndex: number, faceIndex: number, cornerIndex: number): number' },
+
+  // Mesh Mutation API
+  { name: 'clearMesh', description: 'Clear all geometry from item mesh', signature: '(itemIndex: number): void' },
+  { name: 'addMeshVertex', description: 'Add vertex to item mesh, returns vertex index', signature: '(itemIndex: number, x: number, y: number, z: number): number' },
+  { name: 'addMeshTriangle', description: 'Add triangle to item mesh, returns face index', signature: '(itemIndex: number, v0: number, v1: number, v2: number): number' },
+  { name: 'addMeshQuad', description: 'Add quad to item mesh, returns face index', signature: '(itemIndex: number, v0: number, v1: number, v2: number, v3: number): number' },
+  { name: 'rebuildMesh', description: 'Rebuild edges, normals and GPU buffers after mesh changes', signature: '(itemIndex: number): void' },
 ];
 
 /**

@@ -116,6 +116,50 @@ extern int api_getActiveViewport();
 extern void api_setActiveViewport(int viewport);
 extern int api_getViewportAtPosition(float x, float y);
 
+// Per-Item Iteration API
+extern float api_getItemPositionX(int index);
+extern float api_getItemPositionY(int index);
+extern float api_getItemPositionZ(int index);
+extern void api_setItemPosition(int index, float x, float y, float z);
+extern float api_getItemRotationX(int index);
+extern float api_getItemRotationY(int index);
+extern float api_getItemRotationZ(int index);
+extern void api_setItemRotation(int index, float xDeg, float yDeg, float zDeg);
+extern float api_getItemScaleX(int index);
+extern float api_getItemScaleY(int index);
+extern float api_getItemScaleZ(int index);
+extern void api_setItemScale(int index, float x, float y, float z);
+extern bool api_isItemSelected(int index);
+extern void api_selectItemAtIndex(int index);
+extern void api_deselectItemAtIndex(int index);
+extern bool api_isItemVisible(int index);
+extern void api_setItemVisible(int index, bool visible);
+extern int api_getItemVertexCount(int index);
+extern int api_getItemFaceCount(int index);
+extern int api_getItemEdgeCount(int index);
+
+// Per-Vertex Iteration API
+extern float api_getVertexX(int itemIndex, int vertexIndex);
+extern float api_getVertexY(int itemIndex, int vertexIndex);
+extern float api_getVertexZ(int itemIndex, int vertexIndex);
+extern void api_setVertexPosition(int itemIndex, int vertexIndex, float x, float y, float z);
+extern float api_getVertexNormalX(int itemIndex, int vertexIndex);
+extern float api_getVertexNormalY(int itemIndex, int vertexIndex);
+extern float api_getVertexNormalZ(int itemIndex, int vertexIndex);
+extern bool api_isVertexSelected(int itemIndex, int vertexIndex);
+extern void api_setVertexSelected(int itemIndex, int vertexIndex, bool selected);
+extern bool api_isFaceSelected(int itemIndex, int faceIndex);
+extern void api_setFaceSelected(int itemIndex, int faceIndex, bool selected);
+extern int api_getFaceVertexCount(int itemIndex, int faceIndex);
+extern int api_getFaceVertexIndex(int itemIndex, int faceIndex, int cornerIndex);
+
+// Mesh Mutation API
+extern void api_clearMesh(int itemIndex);
+extern int api_addMeshVertex(int itemIndex, float x, float y, float z);
+extern int api_addMeshTriangle(int itemIndex, int v0, int v1, int v2);
+extern int api_addMeshQuad(int itemIndex, int v0, int v1, int v2, int v3);
+extern void api_rebuildMesh(int itemIndex);
+
 // ============================================================================
 // Embind Bindings
 // ============================================================================
@@ -242,6 +286,50 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("getActiveViewport", &api_getActiveViewport);
     function("setActiveViewport", &api_setActiveViewport);
     function("getViewportAtPosition", &api_getViewportAtPosition);
+    
+    // Per-Item Iteration API
+    function("getItemPositionX", &api_getItemPositionX);
+    function("getItemPositionY", &api_getItemPositionY);
+    function("getItemPositionZ", &api_getItemPositionZ);
+    function("setItemPosition", &api_setItemPosition);
+    function("getItemRotationX", &api_getItemRotationX);
+    function("getItemRotationY", &api_getItemRotationY);
+    function("getItemRotationZ", &api_getItemRotationZ);
+    function("setItemRotation", &api_setItemRotation);
+    function("getItemScaleX", &api_getItemScaleX);
+    function("getItemScaleY", &api_getItemScaleY);
+    function("getItemScaleZ", &api_getItemScaleZ);
+    function("setItemScale", &api_setItemScale);
+    function("isItemSelected", &api_isItemSelected);
+    function("selectItemAtIndex", &api_selectItemAtIndex);
+    function("deselectItemAtIndex", &api_deselectItemAtIndex);
+    function("isItemVisible", &api_isItemVisible);
+    function("setItemVisible", &api_setItemVisible);
+    function("getItemVertexCount", &api_getItemVertexCount);
+    function("getItemFaceCount", &api_getItemFaceCount);
+    function("getItemEdgeCount", &api_getItemEdgeCount);
+    
+    // Per-Vertex Iteration API
+    function("getVertexX", &api_getVertexX);
+    function("getVertexY", &api_getVertexY);
+    function("getVertexZ", &api_getVertexZ);
+    function("setVertexPosition", &api_setVertexPosition);
+    function("getVertexNormalX", &api_getVertexNormalX);
+    function("getVertexNormalY", &api_getVertexNormalY);
+    function("getVertexNormalZ", &api_getVertexNormalZ);
+    function("isVertexSelected", &api_isVertexSelected);
+    function("setVertexSelected", &api_setVertexSelected);
+    function("isFaceSelected", &api_isFaceSelected);
+    function("setFaceSelected", &api_setFaceSelected);
+    function("getFaceVertexCount", &api_getFaceVertexCount);
+    function("getFaceVertexIndex", &api_getFaceVertexIndex);
+    
+    // Mesh Mutation API
+    function("clearMesh", &api_clearMesh);
+    function("addMeshVertex", &api_addMeshVertex);
+    function("addMeshTriangle", &api_addMeshTriangle);
+    function("addMeshQuad", &api_addMeshQuad);
+    function("rebuildMesh", &api_rebuildMesh);
 }
 
 #endif // EMSCRIPTEN_BUILD

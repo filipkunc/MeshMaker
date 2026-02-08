@@ -4423,4 +4423,303 @@ void api_clearAllSeams() {
     });
 }
 
+// ============================================================================
+// Per-Item Iteration API
+// ============================================================================
+
+// Helper: get item by index with bounds check
+Item* api_getItemByIndex(int index) {
+    if (!g_app.items) return nullptr;
+    if (index < 0 || index >= static_cast<int>(g_app.items->getItemCount())) return nullptr;
+    return g_app.items->getItemAtIndex(static_cast<size_t>(index));
+}
+
+// Item position
+float api_getItemPositionX(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->position.x : 0.0f;
+}
+
+float api_getItemPositionY(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->position.y : 0.0f;
+}
+
+float api_getItemPositionZ(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->position.z : 0.0f;
+}
+
+void api_setItemPosition(int index, float x, float y, float z) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return;
+    glm::vec3 newPos(x, y, z);
+    sceneActionWithUndo("Set Item Position", [index, newPos]() {
+        Item* it = api_getItemByIndex(index);
+        if (it) it->position = newPos;
+    });
+}
+
+// Item rotation (exposed as degrees for scripting ergonomics)
+float api_getItemRotationX(int index) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return 0.0f;
+    return quaternionToEulerDegrees(item->rotation).x;
+}
+
+float api_getItemRotationY(int index) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return 0.0f;
+    return quaternionToEulerDegrees(item->rotation).y;
+}
+
+float api_getItemRotationZ(int index) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return 0.0f;
+    return quaternionToEulerDegrees(item->rotation).z;
+}
+
+void api_setItemRotation(int index, float xDeg, float yDeg, float zDeg) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return;
+    glm::vec3 eulerRad = glm::radians(glm::vec3(xDeg, yDeg, zDeg));
+    glm::quat newRot(eulerRad);
+    sceneActionWithUndo("Set Item Rotation", [index, newRot]() {
+        Item* it = api_getItemByIndex(index);
+        if (it) it->rotation = newRot;
+    });
+}
+
+// Item scale
+float api_getItemScaleX(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->scale.x : 1.0f;
+}
+
+float api_getItemScaleY(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->scale.y : 1.0f;
+}
+
+float api_getItemScaleZ(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->scale.z : 1.0f;
+}
+
+void api_setItemScale(int index, float x, float y, float z) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return;
+    glm::vec3 newScale(x, y, z);
+    sceneActionWithUndo("Set Item Scale", [index, newScale]() {
+        Item* it = api_getItemByIndex(index);
+        if (it) it->scale = newScale;
+    });
+}
+
+// Item selection
+bool api_isItemSelected(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->selected : false;
+}
+
+void api_selectItemAtIndex(int index) {
+    if (!g_app.items) return;
+    if (index < 0 || index >= static_cast<int>(g_app.items->getItemCount())) return;
+    g_app.items->selectItemAtIndex(static_cast<size_t>(index), false);
+}
+
+void api_deselectItemAtIndex(int index) {
+    if (!g_app.items) return;
+    if (index < 0 || index >= static_cast<int>(g_app.items->getItemCount())) return;
+    g_app.items->deselectItemAtIndex(static_cast<size_t>(index));
+}
+
+// Item visibility
+bool api_isItemVisible(int index) {
+    Item* item = api_getItemByIndex(index);
+    return item ? item->visible : false;
+}
+
+void api_setItemVisible(int index, bool visible) {
+    Item* item = api_getItemByIndex(index);
+    if (!item) return;
+    item->visible = visible;
+}
+
+// Mesh counts per item
+int api_getItemVertexCount(int index) {
+    Item* item = api_getItemByIndex(index);
+    if (!item || !item->mesh) return 0;
+    return static_cast<int>(item->mesh->getVertexCount());
+}
+
+int api_getItemFaceCount(int index) {
+    Item* item = api_getItemByIndex(index);
+    if (!item || !item->mesh) return 0;
+    return static_cast<int>(item->mesh->getFaceCount());
+}
+
+int api_getItemEdgeCount(int index) {
+    Item* item = api_getItemByIndex(index);
+    if (!item || !item->mesh) return 0;
+    return static_cast<int>(item->mesh->getEdgeCount());
+}
+
+// ============================================================================
+// Per-Vertex Iteration API (operates on item by index + vertex by index)
+// ============================================================================
+
+float api_getVertexX(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0.0f;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return 0.0f;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).position.x;
+}
+
+float api_getVertexY(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0.0f;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return 0.0f;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).position.y;
+}
+
+float api_getVertexZ(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0.0f;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return 0.0f;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).position.z;
+}
+
+void api_setVertexPosition(int itemIndex, int vertexIndex, float x, float y, float z) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return;
+    glm::vec3 newPos(x, y, z);
+    sceneActionWithUndo("Set Vertex Position", [itemIndex, vertexIndex, newPos]() {
+        Item* it = api_getItemByIndex(itemIndex);
+        if (it && it->mesh && vertexIndex < static_cast<int>(it->mesh->getVertexCount())) {
+            it->mesh->mutVertices()[static_cast<uint32_t>(vertexIndex)].position = newPos;
+            it->mesh->computeNormals();
+        }
+    });
+}
+
+// Vertex normals (read-only)
+float api_getVertexNormalX(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0.0f;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return 0.0f;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).normal.x;
+}
+
+float api_getVertexNormalY(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0.0f;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return 0.0f;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).normal.y;
+}
+
+float api_getVertexNormalZ(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0.0f;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return 0.0f;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).normal.z;
+}
+
+// Vertex selection
+bool api_isVertexSelected(int itemIndex, int vertexIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return false;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return false;
+    return item->mesh->getVertex(static_cast<uint32_t>(vertexIndex)).selected;
+}
+
+void api_setVertexSelected(int itemIndex, int vertexIndex, bool selected) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return;
+    if (vertexIndex < 0 || vertexIndex >= static_cast<int>(item->mesh->getVertexCount())) return;
+    item->mesh->mutVertices()[static_cast<uint32_t>(vertexIndex)].selected = selected;
+}
+
+// Face selection 
+bool api_isFaceSelected(int itemIndex, int faceIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return false;
+    if (faceIndex < 0 || faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return false;
+    return item->mesh->getFace(static_cast<uint32_t>(faceIndex)).selected;
+}
+
+void api_setFaceSelected(int itemIndex, int faceIndex, bool selected) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return;
+    if (faceIndex < 0 || faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return;
+    item->mesh->mutFaces()[static_cast<uint32_t>(faceIndex)].selected = selected;
+}
+
+// Face vertex count (3 = triangle, 4 = quad)
+int api_getFaceVertexCount(int itemIndex, int faceIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return 0;
+    if (faceIndex < 0 || faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return 0;
+    return static_cast<int>(item->mesh->getFace(static_cast<uint32_t>(faceIndex)).vertexCount);
+}
+
+// Get a vertex index from a face (cornerIndex: 0-3 for which vertex of the face)
+int api_getFaceVertexIndex(int itemIndex, int faceIndex, int cornerIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return -1;
+    if (faceIndex < 0 || faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return -1;
+    const Face& face = item->mesh->getFace(static_cast<uint32_t>(faceIndex));
+    if (cornerIndex < 0 || cornerIndex >= static_cast<int>(face.vertexCount)) return -1;
+    return static_cast<int>(face.vertices[cornerIndex]);
+}
+
+// ============================================================================
+// Mesh Mutation API (add/remove geometry directly)
+// ============================================================================
+
+void api_clearMesh(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return;
+    sceneActionWithUndo("Clear Mesh", [itemIndex]() {
+        Item* it = api_getItemByIndex(itemIndex);
+        if (it && it->mesh) it->mesh->clear();
+    });
+}
+
+int api_addMeshVertex(int itemIndex, float x, float y, float z) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return -1;
+    return static_cast<int>(item->mesh->addVertex(glm::vec3(x, y, z)));
+}
+
+int api_addMeshTriangle(int itemIndex, int v0, int v1, int v2) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return -1;
+    return static_cast<int>(item->mesh->addTriangle(
+        static_cast<uint32_t>(v0),
+        static_cast<uint32_t>(v1),
+        static_cast<uint32_t>(v2)));
+}
+
+int api_addMeshQuad(int itemIndex, int v0, int v1, int v2, int v3) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return -1;
+    return static_cast<int>(item->mesh->addQuad(
+        static_cast<uint32_t>(v0),
+        static_cast<uint32_t>(v1),
+        static_cast<uint32_t>(v2),
+        static_cast<uint32_t>(v3)));
+}
+
+void api_rebuildMesh(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh) return;
+    item->mesh->buildConnectivity();
+    item->mesh->computeNormals();
+    if (!Mesh2::s_disableGPU) {
+        item->mesh->updateGPUBuffers();
+    }
+}
+
 #endif // EMSCRIPTEN_BUILD

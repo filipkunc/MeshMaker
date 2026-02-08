@@ -126,6 +126,52 @@ export interface MeshMakerModule extends EmscriptenModule {
   
   // Info
   getItemCount(): number;
+  
+  // Per-Item Iteration API
+  getItemPositionX(index: number): number;
+  getItemPositionY(index: number): number;
+  getItemPositionZ(index: number): number;
+  setItemPosition(index: number, x: number, y: number, z: number): void;
+  getItemRotationX(index: number): number;
+  getItemRotationY(index: number): number;
+  getItemRotationZ(index: number): number;
+  setItemRotation(index: number, xDeg: number, yDeg: number, zDeg: number): void;
+  getItemScaleX(index: number): number;
+  getItemScaleY(index: number): number;
+  getItemScaleZ(index: number): number;
+  setItemScale(index: number, x: number, y: number, z: number): void;
+  isItemSelected(index: number): boolean;
+  selectItemAtIndex(index: number): void;
+  deselectItemAtIndex(index: number): void;
+  isItemVisible(index: number): boolean;
+  setItemVisible(index: number, visible: boolean): void;
+  getItemVertexCount(index: number): number;
+  getItemFaceCount(index: number): number;
+  getItemEdgeCount(index: number): number;
+  
+  // Per-Vertex Iteration API
+  getVertexX(itemIndex: number, vertexIndex: number): number;
+  getVertexY(itemIndex: number, vertexIndex: number): number;
+  getVertexZ(itemIndex: number, vertexIndex: number): number;
+  setVertexPosition(itemIndex: number, vertexIndex: number, x: number, y: number, z: number): void;
+  getVertexNormalX(itemIndex: number, vertexIndex: number): number;
+  getVertexNormalY(itemIndex: number, vertexIndex: number): number;
+  getVertexNormalZ(itemIndex: number, vertexIndex: number): number;
+  isVertexSelected(itemIndex: number, vertexIndex: number): boolean;
+  setVertexSelected(itemIndex: number, vertexIndex: number, selected: boolean): void;
+  
+  // Per-Face Iteration API
+  isFaceSelected(itemIndex: number, faceIndex: number): boolean;
+  setFaceSelected(itemIndex: number, faceIndex: number, selected: boolean): void;
+  getFaceVertexCount(itemIndex: number, faceIndex: number): number;
+  getFaceVertexIndex(itemIndex: number, faceIndex: number, cornerIndex: number): number;
+  
+  // Mesh Mutation API
+  clearMesh(itemIndex: number): void;
+  addMeshVertex(itemIndex: number, x: number, y: number, z: number): number;
+  addMeshTriangle(itemIndex: number, v0: number, v1: number, v2: number): number;
+  addMeshQuad(itemIndex: number, v0: number, v1: number, v2: number, v3: number): number;
+  rebuildMesh(itemIndex: number): void;
 }
 
 // Edit mode enum values

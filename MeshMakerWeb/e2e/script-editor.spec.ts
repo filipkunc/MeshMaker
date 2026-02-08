@@ -224,3 +224,215 @@ test.describe('Script Editor Keyboard', () => {
     await expect(consoleArea).toContainText('total:');
   });
 });
+
+test.describe('Per-Item Iteration API', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await waitForWASMReady(page);
+    await openScriptEditor(page);
+  });
+
+  test('getItemCount and per-item position', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'addPlane()',
+      'log("count:", getItemCount())',
+      'log("pos:", getItemPositionX(0), getItemPositionY(0), getItemPositionZ(0))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('count: 2');
+    await expect(consoleArea).toContainText('pos: 0 0 0');
+  });
+
+  test('setItemPosition moves an item', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'setItemPosition(0, 2.5, 3.0, -1.0)',
+      'log("x:", getItemPositionX(0))',
+      'log("y:", getItemPositionY(0))',
+      'log("z:", getItemPositionZ(0))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('x: 2.5');
+    await expect(consoleArea).toContainText('y: 3');
+    await expect(consoleArea).toContainText('z: -1');
+  });
+
+  test('item scale get/set', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'log("default:", getItemScaleX(0), getItemScaleY(0), getItemScaleZ(0))',
+      'setItemScale(0, 2, 3, 4)',
+      'log("after:", getItemScaleX(0), getItemScaleY(0), getItemScaleZ(0))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('default: 1 1 1');
+    await expect(consoleArea).toContainText('after: 2 3 4');
+  });
+
+  test('item selection and visibility', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'addPlane()',
+      'log("selected0:", isItemSelected(0))',
+      'log("visible0:", isItemVisible(0))',
+      'selectItemAtIndex(0)',
+      'log("afterSelect:", isItemSelected(0))',
+      'setItemVisible(1, false)',
+      'log("visible1:", isItemVisible(1))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('visible0: true');
+    await expect(consoleArea).toContainText('afterSelect: true');
+    await expect(consoleArea).toContainText('visible1: false');
+  });
+
+  test('item mesh counts', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'log("verts:", getItemVertexCount(0))',
+      'log("faces:", getItemFaceCount(0))',
+      'log("edges:", getItemEdgeCount(0))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    // A cube has 8 vertices, 6 faces, 12 edges
+    await expect(consoleArea).toContainText('verts: 8');
+    await expect(consoleArea).toContainText('faces: 6');
+    await expect(consoleArea).toContainText('edges: 12');
+  });
+
+  test('iterate all items in a loop', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'addPlane()',
+      'addIcosahedron()',
+      'for (let i = 0; i < getItemCount(); i++) {',
+      '  log("item", i, "verts:", getItemVertexCount(i))',
+      '}',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('item 0 verts:');
+    await expect(consoleArea).toContainText('item 1 verts:');
+    await expect(consoleArea).toContainText('item 2 verts:');
+  });
+});
+
+test.describe('Per-Vertex Iteration API', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await waitForWASMReady(page);
+    await openScriptEditor(page);
+  });
+
+  test('read vertex positions of a cube', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'const n = getItemVertexCount(0)',
+      'log("vertCount:", n)',
+      'for (let i = 0; i < n; i++) {',
+      '  log("v" + i, getVertexX(0, i).toFixed(2), getVertexY(0, i).toFixed(2), getVertexZ(0, i).toFixed(2))',
+      '}',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('vertCount: 8');
+    // Should have 8 vertex lines
+    await expect(consoleArea).toContainText('v0');
+    await expect(consoleArea).toContainText('v7');
+  });
+
+  test('setVertexPosition modifies mesh', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'log("before:", getVertexX(0, 0).toFixed(2))',
+      'setVertexPosition(0, 0, 10.0, 20.0, 30.0)',
+      'log("after:", getVertexX(0, 0).toFixed(2), getVertexY(0, 0).toFixed(2), getVertexZ(0, 0).toFixed(2))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('after: 10.00 20.00 30.00');
+  });
+
+  test('read vertex normals', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'log("nx:", typeof getVertexNormalX(0, 0))',
+      'log("ny:", typeof getVertexNormalY(0, 0))',
+      'log("nz:", typeof getVertexNormalZ(0, 0))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('nx: number');
+    await expect(consoleArea).toContainText('ny: number');
+    await expect(consoleArea).toContainText('nz: number');
+  });
+
+  test('face iteration', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      'const faceCount = getItemFaceCount(0)',
+      'log("faces:", faceCount)',
+      'for (let f = 0; f < faceCount; f++) {',
+      '  const vc = getFaceVertexCount(0, f)',
+      '  let indices = []',
+      '  for (let c = 0; c < vc; c++) {',
+      '    indices.push(getFaceVertexIndex(0, f, c))',
+      '  }',
+      '  log("face" + f, "(" + vc + " verts):", indices.join(","))',
+      '}',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('faces: 6');
+    await expect(consoleArea).toContainText('face0');
+    await expect(consoleArea).toContainText('face5');
+  });
+
+  test('bounds checking returns safe defaults', async ({ page }) => {
+    await setEditorContent(page, [
+      'clearScene()',
+      'addCube()',
+      '// Out of bounds item index',
+      'log("oob-item:", getItemVertexCount(99))',
+      'log("oob-vert:", getVertexX(0, 999))',
+      'log("oob-face:", getFaceVertexCount(0, 999))',
+      '// Negative indices',
+      'log("neg-item:", getItemPositionX(-1))',
+      'log("neg-vert:", getVertexY(-1, 0))',
+    ].join('\n'));
+    await clickRun(page);
+
+    const consoleArea = getConsoleOutput(page);
+    await expect(consoleArea).toContainText('oob-item: 0');
+    await expect(consoleArea).toContainText('oob-vert: 0');
+    await expect(consoleArea).toContainText('oob-face: 0');
+    await expect(consoleArea).toContainText('neg-item: 0');
+    await expect(consoleArea).toContainText('neg-vert: 0');
+  });
+});
