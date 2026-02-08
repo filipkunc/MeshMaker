@@ -21,17 +21,25 @@ async function setupCubeInTranslateMode(page: Page) {
   await page.waitForTimeout(200);
 }
 
-// Helper: get the X input in the bottom panel (the first number input next to the red "X" label)
+// Helper: get the X/Y/Z inputs in the bottom panel
 function getBottomPanelXInput(page: Page) {
-  return page.locator('label').filter({ hasText: /^X$/ }).locator('input[type="number"]').first();
+  return page.locator('label').filter({ hasText: /^X$/ }).locator('input[type="text"]').first();
 }
 
 function getBottomPanelYInput(page: Page) {
-  return page.locator('label').filter({ hasText: /^Y$/ }).locator('input[type="number"]').first();
+  return page.locator('label').filter({ hasText: /^Y$/ }).locator('input[type="text"]').first();
 }
 
 function getBottomPanelZInput(page: Page) {
-  return page.locator('label').filter({ hasText: /^Z$/ }).locator('input[type="number"]').first();
+  return page.locator('label').filter({ hasText: /^Z$/ }).locator('input[type="text"]').first();
+}
+
+// Helper: fill an input and wait for React to settle before pressing keys.
+// Playwright fill() + CDP key dispatch can race with React's controlled input
+// reconciliation. An intermediate assertion ensures the DOM is stable.
+async function fillAndSettle(input: ReturnType<typeof getBottomPanelXInput>, value: string) {
+  await input.fill(value);
+  await expect(input).toHaveValue(value);
 }
 
 test.describe('Editor Input: Transform Value Text Fields', () => {
@@ -45,28 +53,28 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
 
     // Clear and type a value
     await xInput.click();
-    await xInput.fill('1.23');
-    await expect(xInput).toHaveValue('1.23');
+    await fillAndSettle(xInput, '1.23');
   });
 
   test('typing a value and pressing Enter commits it', async ({ page }) => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
-    await xInput.fill('2.5');
+    await fillAndSettle(xInput, '2.5');
     await xInput.press('Enter');
     await page.waitForTimeout(200);
 
-    // After commit, the value should persist (the WASM module updates the selection)
-    await expect(xInput).toHaveValue('2.50');
+    // After commit, the WASM module updates the selection and the polling
+    // syncs the formatted value back to the input
+    const value = await xInput.inputValue();
+    expect(parseFloat(value)).toBeCloseTo(2.5, 1);
   });
 
   test('Backspace key works inside the X input field', async ({ page }) => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
 
-    // Clear the field and type a value
-    await xInput.fill('1.23');
-    await expect(xInput).toHaveValue('1.23');
+    // Fill and wait for React to settle before pressing keys
+    await fillAndSettle(xInput, '1.23');
 
     // Move cursor to the end and press Backspace to delete '3'
     await xInput.press('End');
@@ -79,28 +87,26 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
 
-    // Type a value  
-    await xInput.fill('5.67');
-    await expect(xInput).toHaveValue('5.67');
+    // Fill and wait for React to settle
+    await fillAndSettle(xInput, '5.67');
 
     // Press Backspace — should only delete a character, NOT delete the selected cube
     await xInput.press('End');
     await xInput.press('Backspace');
-    await page.waitForTimeout(200);
+
+    // The value should have the last character removed
+    await expect(xInput).toHaveValue('5.6');
 
     // The cube should still be selected (selection count > 0)
     const selectionText = page.locator('text=Selection:');
     await expect(selectionText).toBeVisible();
-
-    // The value should have the last character removed
-    await expect(xInput).toHaveValue('5.6');
   });
 
   test('Delete key works inside the X input field', async ({ page }) => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
 
-    await xInput.fill('3.45');
+    await fillAndSettle(xInput, '3.45');
     // Move cursor to the beginning and delete first character
     await xInput.press('Home');
     await xInput.press('Delete');
@@ -112,7 +118,7 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
 
-    await xInput.fill('1.23');
+    await fillAndSettle(xInput, '1.23');
 
     // Arrow left then Backspace should delete '2' (second-to-last digit)
     await xInput.press('End');
@@ -126,18 +132,16 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
 
-    await xInput.fill('12.34');
+    await fillAndSettle(xInput, '12.34');
     await xInput.press('End');
 
     // Press Backspace: '12.34' -> '12.3'
     await xInput.press('Backspace');
     await expect(xInput).toHaveValue('12.3');
 
-    // Press Backspace twice more to get past the decimal point
-    // Note: type="number" inputs treat "12." as invalid, so the browser
-    // may report an empty value for that intermediate state. We skip
-    // asserting the "12." state and just verify the final result.
+    // Press Backspace more to get past the decimal point
     await xInput.press('Backspace');
+    await expect(xInput).toHaveValue('12.');
     await xInput.press('Backspace');
     await expect(xInput).toHaveValue('12');
   });
@@ -146,7 +150,7 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
     // Y input
     const yInput = getBottomPanelYInput(page);
     await yInput.click();
-    await yInput.fill('4.56');
+    await fillAndSettle(yInput, '4.56');
     await yInput.press('End');
     await yInput.press('Backspace');
     await expect(yInput).toHaveValue('4.5');
@@ -154,7 +158,7 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
     // Z input
     const zInput = getBottomPanelZInput(page);
     await zInput.click();
-    await zInput.fill('7.89');
+    await fillAndSettle(zInput, '7.89');
     await zInput.press('End');
     await zInput.press('Backspace');
     await expect(zInput).toHaveValue('7.8');
@@ -163,10 +167,9 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
   test('keyboard shortcuts do not fire while editing input fields', async ({ page }) => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
-    await xInput.fill('1.00');
+    await fillAndSettle(xInput, '1.00');
 
-    // Press 'd' (duplicate shortcut) — should type 'd' or be ignored, NOT duplicate the cube
-    // Since this is type="number", 'd' won't change the value but also shouldn't trigger duplicate
+    // Press 'd' (duplicate shortcut) — should type 'd' into the text input, NOT duplicate the cube
     await xInput.press('d');
     await page.waitForTimeout(200);
 
@@ -178,7 +181,7 @@ test.describe('Editor Input: Transform Value Text Fields', () => {
   test('select text with Ctrl+A inside input does not trigger Select All', async ({ page }) => {
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
-    await xInput.fill('9.99');
+    await fillAndSettle(xInput, '9.99');
 
     // Ctrl+A in the input should select the text, not trigger "select all" scene objects
     await xInput.press('Control+a');
@@ -238,7 +241,7 @@ test.describe('Editor Input: Transform Mode Switching', () => {
 
     const xInput = getBottomPanelXInput(page);
     await xInput.click();
-    await xInput.fill('3.14');
+    await fillAndSettle(xInput, '3.14');
     await xInput.press('Enter');
     await page.waitForTimeout(300);
 

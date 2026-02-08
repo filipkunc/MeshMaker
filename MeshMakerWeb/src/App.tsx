@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { Viewport } from './components';
 import { TopToolbar } from './components/TopToolbar';
 import { BottomPanel } from './components/BottomPanel';
+import { ScriptEditor } from './components/ScriptEditor';
+import { ResizableSplitter } from './components/ResizableSplitter';
 import { useMeshMaker } from './hooks/useMeshMaker';
 
 type EditMode = 'items' | 'vertices' | 'triangles' | 'edges';
@@ -24,6 +26,12 @@ function App() {
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState('');
   const [showUVEditor, setShowUVEditor] = useState(false);
+  const [showScriptEditor, setShowScriptEditor] = useState(false);
+  const [scriptPanelWidth, setScriptPanelWidth] = useState(400);
+
+  const handleScriptPanelResize = useCallback((deltaX: number) => {
+    setScriptPanelWidth(prev => Math.max(250, Math.min(prev - deltaX, 800)));
+  }, []);
   
   // Poll selection state and undo/redo state from WASM module
   useEffect(() => {
@@ -159,35 +167,35 @@ function App() {
   };
 
   // Unified selection value handlers (work with current transform mode)
-  const handleSelectionXChange = (value: number) => {
+  const handleSelectionXChange = useCallback((value: number) => {
     if (!module) return;
     module.setSelectionX(value);
     triggerUpdate();
-  };
+  }, [module, triggerUpdate]);
 
-  const handleSelectionYChange = (value: number) => {
+  const handleSelectionYChange = useCallback((value: number) => {
     if (!module) return;
     module.setSelectionY(value);
     triggerUpdate();
-  };
+  }, [module, triggerUpdate]);
 
-  const handleSelectionZChange = (value: number) => {
+  const handleSelectionZChange = useCallback((value: number) => {
     if (!module) return;
     module.setSelectionZ(value);
     triggerUpdate();
-  };
+  }, [module, triggerUpdate]);
 
-  const handleDuplicate = () => {
+  const handleDuplicate = useCallback(() => {
     if (!module) return;
     module.duplicateSelection();
     triggerUpdate();
-  };
+  }, [module, triggerUpdate]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (!module) return;
     module.deleteSelection();
     triggerUpdate();
-  };
+  }, [module, triggerUpdate]);
 
   // File operations
   const handleExportOBJ = useCallback(() => {
@@ -470,8 +478,11 @@ function App() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing in an input
+      // Ignore if typing in an input or in the Monaco editor
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      if ((e.target as HTMLElement)?.closest?.('.monaco-editor')) {
         return;
       }
 
@@ -613,10 +624,14 @@ function App() {
         onSelectEdgeLoop={handleSelectEdgeLoop}
         onSelectEdgeRing={handleSelectEdgeRing}
         onGrowEdgeSelection={handleGrowEdgeSelection}
+        showScriptEditor={showScriptEditor}
+        onToggleScript={() => setShowScriptEditor(prev => !prev)}
       />
 
-      {/* Main Content Area - Single Canvas with Split View */}
-      <div className="flex-1 relative">
+      {/* Main Content Area */}
+      <div className="flex-1 flex min-h-0">
+      {/* 3D Viewport Side */}
+      <div className="flex-1 relative min-w-0">
         <Viewport
           canvasRef={canvasRef}
           containerRef={containerRef}
@@ -648,7 +663,7 @@ function App() {
         </button>
         
         {/* UV View Controls (shown when split view is active) */}
-        {showUVEditor && (
+        {showUVEditor && !showScriptEditor && (
           <div className="absolute top-2 left-1/2 ml-4 flex gap-2 z-10">
             <button
               onClick={() => { module?.setUVZoom(1); module?.setUVOffset(0, 0); }}
@@ -710,6 +725,17 @@ function App() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Script Editor Panel (right side) */}
+      {showScriptEditor && (
+        <>
+          <ResizableSplitter onResize={handleScriptPanelResize} />
+          <div style={{ width: scriptPanelWidth }} className="shrink-0">
+            <ScriptEditor module={module} />
+          </div>
+        </>
+      )}
       </div>
 
       {/* Bottom Panel */}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 
 type TransformMode = 'select' | 'translate' | 'rotate' | 'scale';
 
@@ -20,7 +20,7 @@ interface PropertiesPanelProps {
   onRemoveTexture?: () => void;
 }
 
-export function PropertiesPanel({ 
+export const PropertiesPanel = memo(function PropertiesPanel({ 
   selectionCount = 0,
   transformMode = 'select',
   selectionX = 0,
@@ -40,12 +40,15 @@ export function PropertiesPanel({
   const [localY, setLocalY] = useState('0');
   const [localZ, setLocalZ] = useState('0');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const xRef = useRef<HTMLInputElement>(null);
+  const yRef = useRef<HTMLInputElement>(null);
+  const zRef = useRef<HTMLInputElement>(null);
 
-  // Update local state when selection values change
+  // Update local state when selection values change (skip if user is editing that field)
   useEffect(() => {
-    setLocalX(selectionX.toFixed(2));
-    setLocalY(selectionY.toFixed(2));
-    setLocalZ(selectionZ.toFixed(2));
+    if (document.activeElement !== xRef.current) setLocalX(selectionX.toFixed(2));
+    if (document.activeElement !== yRef.current) setLocalY(selectionY.toFixed(2));
+    if (document.activeElement !== zRef.current) setLocalZ(selectionZ.toFixed(2));
   }, [selectionX, selectionY, selectionZ]);
 
   const handleCommit = (axis: 'x' | 'y' | 'z', value: string) => {
@@ -116,8 +119,9 @@ export function PropertiesPanel({
               <label className="text-xs text-zinc-500">Y</label>
               <label className="text-xs text-zinc-500">Z</label>
               <input
-                type="number"
-                step={getStep()}
+                ref={xRef}
+                type="text"
+                inputMode="decimal"
                 value={localX}
                 onChange={(e) => setLocalX(e.target.value)}
                 onBlur={() => handleCommit('x', localX)}
@@ -125,8 +129,9 @@ export function PropertiesPanel({
                 className="bg-zinc-700 text-zinc-200 text-sm px-2 py-1 rounded border border-zinc-600 focus:border-blue-500 focus:outline-none"
               />
               <input
-                type="number"
-                step={getStep()}
+                ref={yRef}
+                type="text"
+                inputMode="decimal"
                 value={localY}
                 onChange={(e) => setLocalY(e.target.value)}
                 onBlur={() => handleCommit('y', localY)}
@@ -134,8 +139,9 @@ export function PropertiesPanel({
                 className="bg-zinc-700 text-zinc-200 text-sm px-2 py-1 rounded border border-zinc-600 focus:border-blue-500 focus:outline-none"
               />
               <input
-                type="number"
-                step={getStep()}
+                ref={zRef}
+                type="text"
+                inputMode="decimal"
                 value={localZ}
                 onChange={(e) => setLocalZ(e.target.value)}
                 onBlur={() => handleCommit('z', localZ)}
@@ -202,4 +208,4 @@ export function PropertiesPanel({
       )}
     </div>
   );
-}
+});

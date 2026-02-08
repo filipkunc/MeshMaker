@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 
 type TransformMode = 'select' | 'translate' | 'rotate' | 'scale';
 type ViewMode = 'solid' | 'wireframe' | 'solidWireframe';
@@ -36,7 +36,7 @@ interface BottomPanelProps {
   onMeshStepsChange: (steps: number) => void;
 }
 
-export function BottomPanel({
+export const BottomPanel = memo(function BottomPanel({
   selectionCount,
   transformMode,
   selectionX,
@@ -66,11 +66,15 @@ export function BottomPanel({
   const [localY, setLocalY] = useState('0.00');
   const [localZ, setLocalZ] = useState('0.00');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const xRef = useRef<HTMLInputElement>(null);
+  const yRef = useRef<HTMLInputElement>(null);
+  const zRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLocalX(selectionX.toFixed(2));
-    setLocalY(selectionY.toFixed(2));
-    setLocalZ(selectionZ.toFixed(2));
+    // Don't overwrite local state while the user is actively editing that field
+    if (document.activeElement !== xRef.current) setLocalX(selectionX.toFixed(2));
+    if (document.activeElement !== yRef.current) setLocalY(selectionY.toFixed(2));
+    if (document.activeElement !== zRef.current) setLocalZ(selectionZ.toFixed(2));
   }, [selectionX, selectionY, selectionZ]);
 
   const handleCommit = (axis: 'x' | 'y' | 'z', value: string) => {
@@ -118,8 +122,9 @@ export function BottomPanel({
             <label className="flex items-center gap-1">
               <span className="text-red-400">X</span>
               <input
-                type="number"
-                step={transformMode === 'rotate' ? '15' : '0.1'}
+                ref={xRef}
+                type="text"
+                inputMode="decimal"
                 value={localX}
                 onChange={(e) => setLocalX(e.target.value)}
                 onBlur={() => handleCommit('x', localX)}
@@ -130,8 +135,9 @@ export function BottomPanel({
             <label className="flex items-center gap-1">
               <span className="text-green-400">Y</span>
               <input
-                type="number"
-                step={transformMode === 'rotate' ? '15' : '0.1'}
+                ref={yRef}
+                type="text"
+                inputMode="decimal"
                 value={localY}
                 onChange={(e) => setLocalY(e.target.value)}
                 onBlur={() => handleCommit('y', localY)}
@@ -142,8 +148,9 @@ export function BottomPanel({
             <label className="flex items-center gap-1">
               <span className="text-blue-400">Z</span>
               <input
-                type="number"
-                step={transformMode === 'rotate' ? '15' : '0.1'}
+                ref={zRef}
+                type="text"
+                inputMode="decimal"
                 value={localZ}
                 onChange={(e) => setLocalZ(e.target.value)}
                 onBlur={() => handleCommit('z', localZ)}
@@ -280,4 +287,4 @@ export function BottomPanel({
       </label>
     </div>
   );
-}
+});

@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { MeshMakerModule } from '../types/meshmaker';
 
+// Module-level guard: WASM module should only be loaded once, even in
+// React StrictMode (which double-invokes effects in development).
+let wasmModuleLoaded = false;
+
 interface UseMeshMakerOptions {
   wasmPath?: string;
   jsPath?: string;
@@ -28,6 +32,10 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
   const moduleRef = useRef<MeshMakerModule | null>(null);
 
   const loadModule = useCallback(async () => {
+    // Prevent double-load in React StrictMode
+    if (wasmModuleLoaded) return;
+    wasmModuleLoaded = true;
+
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) {
@@ -43,6 +51,50 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
       const rect = container.getBoundingClientRect();
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
+
+      // ---- Keyboard isolation for Monaco editor & input elements ----
+      // Emscripten's GLFW registers capture-phase keyboard handlers on window
+      // (and potentially document) that unconditionally call preventDefault(),
+      // stealing keys from <input> elements and the Monaco code editor.
+      //
+      // We patch EventTarget.prototype.addEventListener BEFORE loading the
+      // Emscripten script so every keyboard handler registered by GLFW/Emscripten
+      // — regardless of whether it's on window, document, or canvas, and
+      // regardless of cached references — gets wrapped with a focus check.
+      //
+      // After the module initializes we restore the prototype so that Monaco's
+      // own handlers (loaded lazily later) are NOT wrapped.
+      const origProtoAEL = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function (
+        this: EventTarget,
+        type: string,
+        listener: EventListenerOrEventListenerObject | null,
+        options?: boolean | AddEventListenerOptions,
+      ) {
+        if (
+          listener &&
+          (type === 'keydown' || type === 'keyup' || type === 'keypress')
+        ) {
+          const original = listener;
+          const wrapped: EventListener = function (this: unknown, ev: Event) {
+            if (ev instanceof KeyboardEvent) {
+              const t = ev.target as HTMLElement | null;
+              // Skip when the Monaco editor has focus
+              if (t?.closest?.('.monaco-editor')) return;
+              // Skip ALL keys when a regular input/textarea has focus —
+              // GLFW should never intercept keyboard events from form elements
+              if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement) return;
+            }
+            if (typeof original === 'function') {
+              original.call(this, ev);
+            } else if (original && typeof (original as EventListenerObject).handleEvent === 'function') {
+              (original as EventListenerObject).handleEvent(ev);
+            }
+          };
+          return origProtoAEL.call(this, type, wrapped, options);
+        }
+        return origProtoAEL.call(this, type, listener, options);
+      };
 
       // Load the Emscripten JS file
       const script = document.createElement('script');
@@ -62,21 +114,6 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
         throw new Error('MeshMaker module factory not found');
       }
 
-      // Guard against Emscripten's GLFW keydown handler which registers in
-      // the capture phase and unconditionally calls preventDefault() on
-      // Backspace and Tab — even when the user is typing in an <input>.
-      // By registering our own capture-phase listener BEFORE glfwInit runs,
-      // we can stopImmediatePropagation so GLFW never sees the event.
-      const inputKeyGuard = (e: KeyboardEvent) => {
-        if (
-          (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
-          (e.key === 'Backspace' || e.key === 'Tab')
-        ) {
-          e.stopImmediatePropagation();
-        }
-      };
-      window.addEventListener('keydown', inputKeyGuard, true);
-
       // Initialize the module with our canvas
       const moduleInstance = await factory({
         canvas: canvasRef.current,
@@ -89,6 +126,10 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
         print: (text: string) => { if (import.meta.env.DEV) console.log('[MeshMaker]', text); },
         printErr: (text: string) => console.error('[MeshMaker]', text),
       });
+
+      // Restore the original prototype — GLFW's handlers are already wrapped,
+      // future handlers (e.g. Monaco's own) will be registered normally.
+      EventTarget.prototype.addEventListener = origProtoAEL;
 
       moduleRef.current = moduleInstance;
       setModule(moduleInstance);

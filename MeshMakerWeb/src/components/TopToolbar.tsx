@@ -30,6 +30,9 @@ interface TopToolbarProps {
   onSelectEdgeLoop?: () => void;
   onSelectEdgeRing?: () => void;
   onGrowEdgeSelection?: () => void;
+  // Script editor
+  showScriptEditor?: boolean;
+  onToggleScript?: () => void;
 }
 
 interface IconButtonProps {
@@ -136,6 +139,8 @@ export function TopToolbar({
   onSelectEdgeLoop,
   onSelectEdgeRing,
   onGrowEdgeSelection,
+  showScriptEditor,
+  onToggleScript,
 }: TopToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -300,6 +305,18 @@ export function TopToolbar({
       
       {/* Clear */}
       <EmojiButton label="🗑️" title="Clear Scene" onClick={onClearScene} />
+      
+      <div className="flex-1" />
+      
+      {/* Script Editor Toggle */}
+      {onToggleScript && (
+        <TextButton
+          label="Script"
+          title={showScriptEditor ? 'Hide Script Editor' : 'Show Script Editor'}
+          onClick={onToggleScript}
+          active={showScriptEditor}
+        />
+      )}
     </div>
   );
 }
