@@ -31,6 +31,7 @@ public:
     glm::vec3 getAxisY() const { return m_axisY; }
     glm::vec3 getAxisZ() const { return m_axisZ; }
     glm::vec3 getForwardDirection() const { return -m_axisZ; }  // Camera looks along -Z
+    float getFOV() const { return m_fov; }
     
 private:
     void computeVectors();

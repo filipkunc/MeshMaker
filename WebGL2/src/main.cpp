@@ -246,6 +246,17 @@ glm::vec3 getSelectionCenter() {
     }
 }
 
+// Helper: Compute manipulator world-space size for constant screen-space pixel size.
+// Transforms manipulator position into view space to get accurate Z-depth.
+float computeManipulatorSize(const glm::vec3& manipulatorPos, float viewportHeight, const glm::mat4& view) {
+    const float targetPixels = 130.0f;
+    // Transform to view space — Z-depth is -viewPos.z (OpenGL: -Z is forward)
+    glm::vec4 viewPos = view * glm::vec4(manipulatorPos, 1.0f);
+    float zDepth = std::max(-viewPos.z, 0.1f);
+    float tanHalfFov = tanf(glm::radians(g_app.camera.getFOV()) * 0.5f);
+    return targetPixels * 2.0f * zDepth * tanHalfFov / viewportHeight;
+}
+
 // Helper: Translate selection based on current EditMode
 void translateSelection(const glm::vec3& offset) {
     if (!g_app.items) return;
@@ -2023,10 +2034,7 @@ int selectManipulatorAtPoint(int x, int y) {
     
     // Position manipulator at selection center
     manipulator->position = getSelectionCenter();
-    // Scale manipulator based on distance from camera eye to manipulator position
-    // so it maintains a consistent screen-space size regardless of zoom
-    float distToManipulator = glm::length(g_app.camera.getPosition() - manipulator->position);
-    manipulator->size = distToManipulator * 0.15f;
+    manipulator->size = computeManipulatorSize(manipulator->position, static_cast<float>(vp.height), view);
     
     // Use a simple shader that outputs color based on uColorIndex
     // We need to create a selection shader variant for the manipulator
@@ -3202,8 +3210,7 @@ void render3DViewport(int x, int y, int width, int height) {
     Manipulator* manipulator = getCurrentManipulator();
     if (manipulator && getSelectionCount() > 0) {
         manipulator->position = getSelectionCenter();
-        float distToManipulator = glm::length(g_app.camera.getPosition() - manipulator->position);
-        manipulator->size = distToManipulator * 0.15f;
+        manipulator->size = computeManipulatorSize(manipulator->position, static_cast<float>(height), view);
         glm::vec3 cameraForward = g_app.camera.getForwardDirection();
         
         manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
@@ -3406,8 +3413,7 @@ void render() {
         Manipulator* manipulator = getCurrentManipulator();
         if (manipulator && getSelectionCount() > 0) {
             manipulator->position = getSelectionCenter();
-            float distToManipulator = glm::length(g_app.camera.getPosition() - manipulator->position);
-            manipulator->size = distToManipulator * 0.15f;
+            manipulator->size = computeManipulatorSize(manipulator->position, static_cast<float>(g_app.framebufferHeight), view);
             glm::vec3 cameraForward = g_app.camera.getForwardDirection();
             
             manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
