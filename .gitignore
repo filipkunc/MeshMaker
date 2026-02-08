@@ -43,3 +43,4 @@ CMakeUserPresets.json
 
 .last-run.json
 **/playwright-report/index.html
+**/tsconfig.e2e.tsbuildinfo
