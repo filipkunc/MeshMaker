@@ -1729,6 +1729,24 @@ void Mesh2::buildRenderData() {
     m_wireRenderVertices.clear();
     m_thickEdgeVertices.clear();
     
+    // Reserve capacity upfront to avoid repeated 2x reallocations
+    // Each triangle = 3 Vertex + 3 WireVertex; each quad = 6 + 6
+    size_t triCount = 0, quadCount = 0;
+    for (const Face& f : m_faces) {
+        if (f.isQuad()) quadCount++; else triCount++;
+    }
+    size_t solidVerts = triCount * 3 + quadCount * 6;
+    m_renderVertices.reserve(solidVerts);
+    m_wireRenderVertices.reserve(solidVerts);
+    
+    // For very large meshes, skip thick edge vertex generation to save memory
+    // ThickLineVertex = 6 per edge × 40 bytes = biggest memory consumer
+    static constexpr size_t LARGE_MESH_FACE_THRESHOLD = 100000;
+    bool skipThickEdges = m_faces.size() > LARGE_MESH_FACE_THRESHOLD;
+    if (!skipThickEdges) {
+        m_thickEdgeVertices.reserve(m_edges.size() * 6);
+    }
+    
     // Barycentric coords for each vertex of a triangle
     const glm::vec3 bary0(1.0f, 0.0f, 0.0f);
     const glm::vec3 bary1(0.0f, 1.0f, 0.0f);
@@ -1816,6 +1834,11 @@ void Mesh2::buildRenderData() {
     }
     
     // Build thick edge render data (6 vertices per edge = 2 triangles forming a quad)
+    // Skip for very large meshes to avoid OOM — edges can't be individually visualized anyway
+    if (skipThickEdges) {
+        m_renderDataDirty = false;
+        return;
+    }
     const glm::vec3 seamColor(0.0f, 0.8f, 0.0f);  // Green for seam edges
     for (const Edge& edge : m_edges) {
         glm::vec3 edgeColor;

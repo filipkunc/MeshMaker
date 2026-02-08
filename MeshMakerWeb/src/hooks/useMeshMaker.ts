@@ -79,6 +79,9 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
       setModule(moduleInstance);
       setIsLoading(false);
       
+      // Expose module on window for Playwright E2E tests
+      (window as any).Module = moduleInstance;
+      
       if (import.meta.env.DEV) {
         console.log('MeshMaker WASM module loaded successfully');
       }

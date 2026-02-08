@@ -221,10 +221,17 @@ if(EMSCRIPTEN)
         "-lembind"
     )
     
+    # Larger initial memory and stack for big models
+    list(APPEND EMSCRIPTEN_LINK_FLAGS
+        "-sSTACK_SIZE=5242880"       # 5 MB stack (default is 64KB)
+        "-sINITIAL_MEMORY=134217728"  # 128 MB initial (default is 16MB)
+        "-sMAXIMUM_MEMORY=4294967296" # 4 GB max growth (WASM32 limit)
+    )
+
     # Add DWARF debug symbols for WASM debugging
     if(WASM_DEBUG_SYMBOLS)
         list(APPEND EMSCRIPTEN_COMPILE_FLAGS "-g" "-O0")
-        list(APPEND EMSCRIPTEN_LINK_FLAGS "-g" "-O0")
+        list(APPEND EMSCRIPTEN_LINK_FLAGS "-g" "-O0" "-sASSERTIONS=2")
     endif()
     
     target_compile_options(${PROJECT_NAME} PRIVATE ${EMSCRIPTEN_COMPILE_FLAGS})

@@ -126,6 +126,15 @@ public:
     void computeNormals();
     void clear();
     
+    // Pre-allocate capacity for import (avoids repeated vector reallocation)
+    void reserveForImport(size_t vertexCount, size_t faceCount) {
+        m_vertices.reserve(vertexCount);
+        m_faces.reserve(faceCount);
+        // Triangle mesh: ~1.5 edges per triangle
+        m_edges.reserve(faceCount * 3 / 2);
+        m_edgeLookup.reserve(faceCount * 3 / 2);
+    }
+    
     // Access
     size_t getVertexCount() const { return m_vertices.size(); }
     size_t getFaceCount() const { return m_faces.size(); }

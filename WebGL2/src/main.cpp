@@ -4172,15 +4172,12 @@ bool api_importFromGLBArray(emscripten::val data) {
     unsigned int length = data["length"].as<unsigned int>();
     if (length == 0) return false;
     
-    // Copy data from JavaScript
+    // Allocate buffer
     std::vector<uint8_t> glbData(length);
-    emscripten::val memoryView = emscripten::val::module_property("HEAPU8");
-    emscripten::val buffer = data.call<emscripten::val>("slice");
     
-    // Use a more direct approach - iterate and copy
-    for (unsigned int i = 0; i < length; i++) {
-        glbData[i] = data[i].as<uint8_t>();
-    }
+    // Fast bulk copy: create a typed view into the WASM heap at our buffer, then set from JS array
+    emscripten::val destView = emscripten::val(emscripten::typed_memory_view(length, glbData.data()));
+    destView.call<void>("set", data);
     
     return Serialization::importFromGLB(*g_app.items, glbData);
 }

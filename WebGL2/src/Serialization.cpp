@@ -1152,6 +1152,16 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
         
         auto mesh = std::make_unique<Mesh2>();
         
+        // Pre-allocate capacity to avoid repeated vector reallocations
+        // For a triangle mesh: #faces ≈ idxCount/3, edges ≈ 1.5×faces
+        if (indexAccessorIdx >= 0 && static_cast<size_t>(indexAccessorIdx) < accessors.array.size()) {
+            auto& acc = accessors.array[indexAccessorIdx];
+            if (acc.object.count("count")) {
+                size_t cnt = acc.object.at("count").asSize();
+                mesh->reserveForImport(positions.size(), cnt / 3);
+            }
+        }
+        
         // Deduplicate vertices
         std::map<std::tuple<float, float, float>, int> positionToVertex;
         std::vector<int> originalToMesh(positions.size(), -1);
@@ -1191,6 +1201,7 @@ bool importFromGLB(ItemCollection& items, const std::vector<uint8_t>& glbData) {
             idxByteOffset += idxAccessorByteOffset;
             
             std::vector<uint32_t> indices;
+            indices.reserve(idxCount);
             
             for (size_t i = 0; i < idxCount; i++) {
                 uint32_t idx = 0;
