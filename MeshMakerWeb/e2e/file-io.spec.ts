@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { Buffer } from 'node:buffer';
 
 // Helper: wait for WASM module to load
 async function waitForWASMReady(page: Page) {
