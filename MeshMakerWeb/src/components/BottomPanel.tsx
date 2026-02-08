@@ -38,7 +38,7 @@ interface BottomPanelProps {
 
 export const BottomPanel = memo(function BottomPanel({
   selectionCount,
-  transformMode,
+  transformMode: _transformMode,
   selectionX,
   selectionY,
   selectionZ,

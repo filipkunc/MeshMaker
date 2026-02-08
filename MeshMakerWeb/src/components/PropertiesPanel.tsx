@@ -85,13 +85,6 @@ export const PropertiesPanel = memo(function PropertiesPanel({
     }
   };
 
-  const getStep = () => {
-    switch (transformMode) {
-      case 'rotate': return '15';
-      default: return '0.1';
-    }
-  };
-
   return (
     <div className="w-64 p-3 bg-zinc-800 border-l border-zinc-700 overflow-y-auto">
       <h2 className="text-sm font-semibold text-zinc-200 mb-4">Properties</h2>
