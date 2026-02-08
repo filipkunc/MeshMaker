@@ -2023,7 +2023,10 @@ int selectManipulatorAtPoint(int x, int y) {
     
     // Position manipulator at selection center
     manipulator->position = getSelectionCenter();
-    manipulator->size = g_app.camera.getDistance() * 0.15f;
+    // Scale manipulator based on distance from camera eye to manipulator position
+    // so it maintains a consistent screen-space size regardless of zoom
+    float distToManipulator = glm::length(g_app.camera.getPosition() - manipulator->position);
+    manipulator->size = distToManipulator * 0.15f;
     
     // Use a simple shader that outputs color based on uColorIndex
     // We need to create a selection shader variant for the manipulator
@@ -3199,7 +3202,8 @@ void render3DViewport(int x, int y, int width, int height) {
     Manipulator* manipulator = getCurrentManipulator();
     if (manipulator && getSelectionCount() > 0) {
         manipulator->position = getSelectionCenter();
-        manipulator->size = g_app.camera.getDistance() * 0.15f;
+        float distToManipulator = glm::length(g_app.camera.getPosition() - manipulator->position);
+        manipulator->size = distToManipulator * 0.15f;
         glm::vec3 cameraForward = g_app.camera.getForwardDirection();
         
         manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
@@ -3402,7 +3406,8 @@ void render() {
         Manipulator* manipulator = getCurrentManipulator();
         if (manipulator && getSelectionCount() > 0) {
             manipulator->position = getSelectionCenter();
-            manipulator->size = g_app.camera.getDistance() * 0.15f;
+            float distToManipulator = glm::length(g_app.camera.getPosition() - manipulator->position);
+            manipulator->size = distToManipulator * 0.15f;
             glm::vec3 cameraForward = g_app.camera.getForwardDirection();
             
             manipulator->draw(*g_app.manipulatorShader, *g_app.thickLineShader, view, projection, 
