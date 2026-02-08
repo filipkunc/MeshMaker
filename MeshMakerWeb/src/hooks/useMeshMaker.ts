@@ -62,6 +62,21 @@ export function useMeshMaker(options: UseMeshMakerOptions = {}): UseMeshMakerRes
         throw new Error('MeshMaker module factory not found');
       }
 
+      // Guard against Emscripten's GLFW keydown handler which registers in
+      // the capture phase and unconditionally calls preventDefault() on
+      // Backspace and Tab — even when the user is typing in an <input>.
+      // By registering our own capture-phase listener BEFORE glfwInit runs,
+      // we can stopImmediatePropagation so GLFW never sees the event.
+      const inputKeyGuard = (e: KeyboardEvent) => {
+        if (
+          (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) &&
+          (e.key === 'Backspace' || e.key === 'Tab')
+        ) {
+          e.stopImmediatePropagation();
+        }
+      };
+      window.addEventListener('keydown', inputKeyGuard, true);
+
       // Initialize the module with our canvas
       const moduleInstance = await factory({
         canvas: canvasRef.current,

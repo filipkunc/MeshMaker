@@ -42,3 +42,4 @@ CMakeUserPresets.json
 **/wasm/**
 
 .last-run.json
+**/playwright-report/index.html
