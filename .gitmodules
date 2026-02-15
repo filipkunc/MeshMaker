@@ -1,3 +1,6 @@
 [submodule "Submodules/OpenSubdiv"]
 	path = Submodules/OpenSubdiv
 	url = https://github.com/filipkunc/OpenSubdiv.git
+[submodule "Hunyuan3D-2"]
+	path = Hunyuan3D-2
+	url = https://github.com/filipkunc/Hunyuan3D-2.git
