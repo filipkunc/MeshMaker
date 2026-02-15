@@ -177,13 +177,12 @@ async function pollForCompletion(
       throw new Error(data.error || 'Generation failed on server');
     }
 
-    // Show server-side stage + GPU info + elapsed time
+    // Show percentage + stage + elapsed time
     const elapsed = Math.round((Date.now() - startTime) / 1000);
     const stage = data.stage || 'Processing';
-    const gpuUsed = data.gpu_used_gb ?? 0;
-    const gpuTotal = data.gpu_total_gb ?? 0;
-    const gpuInfo = gpuTotal > 0 ? ` — GPU: ${gpuUsed}/${gpuTotal} GB` : '';
-    onProgress(`${stage} (${elapsed}s${gpuInfo})`);
+    const percent = data.percent;
+    const pctStr = percent != null ? `${percent}% — ` : '';
+    onProgress(`${pctStr}${stage} (${elapsed}s)`);
   }
 
   throw new Error('Generation timed out');
