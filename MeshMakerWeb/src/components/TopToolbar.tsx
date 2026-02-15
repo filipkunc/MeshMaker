@@ -33,6 +33,8 @@ interface TopToolbarProps {
   // Script editor
   showScriptEditor?: boolean;
   onToggleScript?: () => void;
+  // AI generation
+  onAIGenerate?: () => void;
 }
 
 interface IconButtonProps {
@@ -141,6 +143,7 @@ export function TopToolbar({
   onGrowEdgeSelection,
   showScriptEditor,
   onToggleScript,
+  onAIGenerate,
 }: TopToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -300,6 +303,13 @@ export function TopToolbar({
         title="Add Icosahedron"
         onClick={() => onAddPrimitive('icosahedron')}
       />
+      
+      <Separator />
+      
+      {/* AI Generate */}
+      {onAIGenerate && (
+        <EmojiButton label="✨" title="AI 3D Generation" onClick={onAIGenerate} />
+      )}
       
       <Separator />
       

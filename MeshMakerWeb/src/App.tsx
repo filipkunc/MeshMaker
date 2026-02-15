@@ -5,6 +5,7 @@ import { BottomPanel } from './components/BottomPanel';
 import { ScriptEditor } from './components/ScriptEditor';
 import { ResizableSplitter } from './components/ResizableSplitter';
 import { useMeshMaker } from './hooks/useMeshMaker';
+import { AIGenerateDialog } from './components/AIGenerateDialog';
 
 type EditMode = 'items' | 'vertices' | 'triangles' | 'edges';
 type ViewMode = 'solid' | 'wireframe' | 'solidWireframe';
@@ -27,6 +28,7 @@ function App() {
   const [importProgress, setImportProgress] = useState('');
   const [showUVEditor, setShowUVEditor] = useState(false);
   const [showScriptEditor, setShowScriptEditor] = useState(false);
+  const [showAIDialog, setShowAIDialog] = useState(false);
   const [scriptPanelWidth, setScriptPanelWidth] = useState(400);
 
   const handleScriptPanelResize = useCallback((deltaX: number) => {
@@ -450,6 +452,40 @@ function App() {
     setHasTexture(false);
   }, [module]);
 
+  // AI generation handler
+  const handleAIGenerated = useCallback((glbData: Uint8Array) => {
+    if (!module) return;
+    setIsImporting(true);
+    setImportProgress('Importing AI-generated model...');
+
+    const importAI = async () => {
+      try {
+        const info = module.importGLBParse(glbData);
+        if (!info.success) {
+          console.error('Failed to parse AI-generated GLB');
+          setIsImporting(false);
+          setImportProgress('');
+          return;
+        }
+        for (let i = 0; i < info.stepCount; i++) {
+          const stepInfo = module.importGLBStepInfo(i);
+          setImportProgress(`Importing ${stepInfo.name}... (${i + 1}/${info.stepCount})`);
+          await new Promise(r => setTimeout(r, 16));
+          module.importGLBStep(i);
+        }
+        setImportProgress('Finalizing...');
+        await new Promise(r => setTimeout(r, 16));
+        module.importGLBFinalize();
+      } catch (err) {
+        console.error('AI GLB import error:', err);
+      }
+      setIsImporting(false);
+      setImportProgress('');
+      triggerUpdate();
+    };
+    importAI();
+  }, [module, triggerUpdate]);
+
   // View settings
   const handleViewModeChange = useCallback((mode: 'solid' | 'wireframe' | 'solidWireframe') => {
     if (!module) return;
@@ -626,6 +662,7 @@ function App() {
         onGrowEdgeSelection={handleGrowEdgeSelection}
         showScriptEditor={showScriptEditor}
         onToggleScript={() => setShowScriptEditor(prev => !prev)}
+        onAIGenerate={() => setShowAIDialog(true)}
       />
 
       {/* Main Content Area */}
@@ -737,6 +774,13 @@ function App() {
         </>
       )}
       </div>
+
+      {/* AI Generation Dialog */}
+      <AIGenerateDialog
+        open={showAIDialog}
+        onClose={() => setShowAIDialog(false)}
+        onGenerated={handleAIGenerated}
+      />
 
       {/* Bottom Panel */}
       <BottomPanel

@@ -70,6 +70,24 @@
             "sourceMapPathOverrides": {
                 "*": "${workspaceFolder}/WebGL2/*"
             }
+        },
+        {
+            "name": "React + WASM + AI Server (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/MeshMakerWeb",
+            "sourceMaps": true,
+            "preLaunchTask": "Build and Start React + Hunyuan3D-2"
+        },
+        {
+            "name": "React + WASM + AI Server with Textures (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/MeshMakerWeb",
+            "sourceMaps": true,
+            "preLaunchTask": "Build and Start React + Hunyuan3D-2 (Full)"
         }
     ]
 }

@@ -7,7 +7,6 @@ MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php)
 MeshMaker uses:
 
  * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
- * [Fragaria editor](http://www.mugginsoft.com/code/fragaria). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/Fragaria](https://github.com/filipkunc/Fragaria)
  * [RapidXml](http://rapidxml.sourceforge.net)
  
 For working with submodules I recommend reading [Pro Git chapter about submodules](http://git-scm.com/book/en/Git-Tools-Submodules).
@@ -64,3 +63,86 @@ Editor can be used also only with multitouch trackpad (MacBooks) and keyboard.
  * Adding to selection - Shift + Left Mouse Button
  * Inverting selection - Command + Left Mouse Button
  * Soft selection - global mode in Edit menu
+
+## WebGL2 / React Web App
+
+MeshMaker has a WebGL2 port built with Emscripten (C++ to WASM) and a React + TypeScript frontend.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+)
+- [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) (for building WASM)
+- CMake + Ninja
+
+### Building and Running
+
+```bash
+# 1. Configure WASM build
+cd WebGL2
+emcmake cmake --preset webgl-debug   # or webgl-release
+
+# 2. Build WASM
+cd build-wasm
+ninja
+
+# 3. Copy WASM artifacts to React app
+cd ../../MeshMakerWeb
+npm install
+npm run copy-wasm
+
+# 4. Start dev server
+npm run dev
+```
+
+### AI 3D Generation (Hunyuan3D-2)
+
+MeshMaker integrates with [Hunyuan3D-2](https://github.com/Tencent-Hunyuan/Hunyuan3D-2) (Tencent, MIT license) for AI-powered image-to-3D and text-to-3D generation. The server runs natively on Windows with CUDA.
+
+#### Requirements
+
+- NVIDIA GPU with **16 GB VRAM** (tested on RTX 5070 Ti)
+- CUDA Toolkit 12.8+
+- Visual Studio Build Tools (C++ workload)
+- [uv](https://docs.astral.sh/uv/) package manager
+
+#### Server Setup
+
+```bash
+cd Hunyuan3D-2
+
+# Install Python dependencies
+uv sync
+
+# Build native CUDA extensions
+.\build_extensions.ps1
+
+# Start the server (image-to-3D + text-to-3D)
+uv run python api_server.py --port 8081 --enable_t2i
+
+# Or with texture painting (requires more VRAM)
+uv run python api_server.py --port 8081 --enable_t2i --enable_tex
+```
+
+Model weights are downloaded automatically from HuggingFace on first run (~2-3 GB for mini-turbo).
+
+#### Usage
+
+1. Start the Hunyuan3D-2 server (`uv run python api_server.py --port 8081 --enable_t2i`)
+2. Run the MeshMaker web app (`npm run dev`)
+3. Click the sparkle button in the toolbar
+4. Choose **Image to 3D** (upload/drag image) or **Text to 3D** (type a prompt)
+5. Click **Generate**
+6. The generated mesh imports directly into the viewport
+
+#### Configuration
+
+The server URL defaults to `http://localhost:8081`. To change it, open the AI dialog, expand **Advanced Options**, update the **Hunyuan3D-2 Server URL**, and click **Save**. The setting persists in your browser.
+
+#### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/send` | POST | Start async generation (`{image?, text?, seed?, texture?, ...}`) |
+| `/status/{uid}` | GET | Poll task status (returns base64 GLB when completed) |
+| `/generate` | POST | Synchronous generation (returns GLB file directly) |
+| `/health` | GET | Server health check |

@@ -275,6 +275,70 @@
             "dependsOn": ["Build WASM and Copy", "Build React Production", "Deploy to Cloudflare Pages"],
             "dependsOrder": "sequence",
             "problemMatcher": []
+        },
+        {
+            "label": "Start Hunyuan3D-2 Server",
+            "type": "shell",
+            "command": "uv run python api_server.py --port 8081 --enable_t2i",
+            "options": {
+                "cwd": "${workspaceFolder}/Hunyuan3D-2"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "hunyuan",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": "Uvicorn running"
+                }
+            }
+        },
+        {
+            "label": "Start Hunyuan3D-2 Server (Full)",
+            "type": "shell",
+            "command": "uv run python api_server.py --port 8081 --enable_t2i --enable_tex",
+            "options": {
+                "cwd": "${workspaceFolder}/Hunyuan3D-2"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "hunyuan",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": "Uvicorn running"
+                }
+            }
+        },
+        {
+            "label": "Start React + Hunyuan3D-2 Servers",
+            "dependsOn": ["Start Hunyuan3D-2 Server", "Start React Dev Server"],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        },
+        {
+            "label": "Start React + Hunyuan3D-2 Servers (Full)",
+            "dependsOn": ["Start Hunyuan3D-2 Server (Full)", "Start React Dev Server"],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Start React + Hunyuan3D-2",
+            "dependsOn": ["Build WASM and Copy", "Start React + Hunyuan3D-2 Servers"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Start React + Hunyuan3D-2 (Full)",
+            "dependsOn": ["Build WASM and Copy", "Start React + Hunyuan3D-2 Servers (Full)"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
         }
     ]
 }

@@ -44,3 +44,12 @@ CMakeUserPresets.json
 .last-run.json
 **/playwright-report/index.html
 **/tsconfig.e2e.tsbuildinfo
+
+# AI server logs
+gradio_cache/
+
+# Vite cache
+.vite/
+
+# Claude Code local settings
+.claude/

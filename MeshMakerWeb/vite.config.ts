@@ -12,5 +12,13 @@ export default defineConfig({
     fs: {
       allow: ['..'],
     },
+    // Proxy Hunyuan3D-2 API requests to local server
+    proxy: {
+      '/api/hunyuan': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/hunyuan/, ''),
+      },
+    },
   },
 })
