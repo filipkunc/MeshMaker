@@ -116,33 +116,34 @@ uv sync
 # Build native CUDA extensions
 .\build_extensions.ps1
 
-# Start the server (image-to-3D + text-to-3D)
-uv run python api_server.py --port 8081 --enable_t2i
+# Start the Gradio server (includes both UI and REST API)
+uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode
 
-# Or with texture painting (requires more VRAM)
-uv run python api_server.py --port 8081 --enable_t2i --enable_tex
+# With text-to-3D support
+uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode --enable_t23d
 ```
 
 Model weights are downloaded automatically from HuggingFace on first run (~2-3 GB for mini-turbo).
 
 #### Usage
 
-1. Start the Hunyuan3D-2 server (`uv run python api_server.py --port 8081 --enable_t2i`)
+1. Start the Hunyuan3D-2 server (see command above)
 2. Run the MeshMaker web app (`npm run dev`)
 3. Click the sparkle button in the toolbar
 4. Choose **Image to 3D** (upload/drag image) or **Text to 3D** (type a prompt)
 5. Click **Generate**
 6. The generated mesh imports directly into the viewport
 
+The Gradio UI is also available at `http://localhost:8080` for standalone use.
+
 #### Configuration
 
-The server URL defaults to `http://localhost:8081`. To change it, open the AI dialog, expand **Advanced Options**, update the **Hunyuan3D-2 Server URL**, and click **Save**. The setting persists in your browser.
+The server URL defaults to `http://localhost:8080/api`. To change it, open the AI dialog, expand **Advanced Options**, update the **Hunyuan3D-2 Server URL**, and click **Save**. The setting persists in your browser.
 
 #### API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/send` | POST | Start async generation (`{image?, text?, seed?, texture?, ...}`) |
-| `/status/{uid}` | GET | Poll task status (returns base64 GLB when completed) |
-| `/generate` | POST | Synchronous generation (returns GLB file directly) |
-| `/health` | GET | Server health check |
+| `/api/send` | POST | Start async generation (`{image?, text?, seed?, texture?, ...}`) |
+| `/api/status/{uid}` | GET | Poll task status (returns base64 GLB when completed) |
+| `/api/health` | GET | Server health check |

@@ -5,7 +5,7 @@ const KEY_SERVER_URL = 'hunyuan-server-url';
 
 // ── Public helpers for persisted settings ──────────────────────────
 export function getStoredServerUrl(): string {
-  return localStorage.getItem(KEY_SERVER_URL) || 'http://localhost:8081';
+  return localStorage.getItem(KEY_SERVER_URL) || 'http://localhost:8080/api';
 }
 
 export function setServerUrl(url: string) {
@@ -16,6 +16,7 @@ export function setServerUrl(url: string) {
 function getApiBase(): string {
   const stored = localStorage.getItem(KEY_SERVER_URL);
   if (!stored) return '/api/hunyuan'; // vite proxy
+  // Strip trailing /api if stored URL already includes it and we're proxying
   return stored;
 }
 
@@ -75,7 +76,7 @@ export function useAIGeneration() {
           body.text = options.text;
         }
 
-        // 2) Start async generation
+        // 2) Start async generation (endpoints: /api/send, /api/status, /api/health)
         const res = await fetch(`${baseUrl}/send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -191,7 +192,7 @@ async function pollForCompletion(
 // ── Error formatting ───────────────────────────────────────────────
 function getErrorMessage(err: unknown): string {
   if (err instanceof TypeError && (err.message.includes('fetch') || err.message.includes('NetworkError'))) {
-    return 'Cannot connect to Hunyuan3D-2 server. Make sure the server is running (python api_server.py --port 8081)';
+    return 'Cannot connect to Hunyuan3D-2 server. Make sure the server is running (python gradio_app.py --low_vram_mode)';
   }
   return (err as Error).message || 'Unknown error';
 }

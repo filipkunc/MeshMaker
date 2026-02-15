@@ -6,7 +6,7 @@ import * as fs from 'node:fs';
  *
  * Prerequisites:
  *   1. Hunyuan3D-2 server running:
- *      cd Hunyuan3D-2 && uv run python api_server.py --port 8081 --enable_t2i
+ *      cd Hunyuan3D-2 && uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode --enable_t23d
  *   2. React dev server running:
  *      cd MeshMakerWeb && npm run dev
  *
@@ -14,7 +14,7 @@ import * as fs from 'node:fs';
  *   npx playwright test e2e/ai-generation.spec.ts
  */
 
-const HUNYUAN_URL = 'http://localhost:8081';
+const HUNYUAN_URL = 'http://localhost:8080';
 
 // Generation can take 30-120s on a real GPU
 const GENERATION_TIMEOUT = 180_000;
@@ -33,7 +33,7 @@ async function getItemCount(page: Page): Promise<number> {
 
 async function isHunyuanServerRunning(): Promise<boolean> {
   try {
-    const res = await fetch(`${HUNYUAN_URL}/health`, {
+    const res = await fetch(`${HUNYUAN_URL}/api/health`, {
       signal: AbortSignal.timeout(5000),
     });
     return res.ok;
@@ -61,7 +61,7 @@ test.describe('AI 3D Generation (Hunyuan3D-2)', () => {
 
   test.beforeEach(async ({ page }) => {
     const running = await isHunyuanServerRunning();
-    test.skip(!running, 'Hunyuan3D-2 server not running on localhost:8081');
+    test.skip(!running, 'Hunyuan3D-2 server not running on localhost:8080');
 
     await page.goto('/');
     await waitForWASMReady(page);

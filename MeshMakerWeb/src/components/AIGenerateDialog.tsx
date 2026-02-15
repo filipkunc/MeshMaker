@@ -193,7 +193,7 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
                 disabled={isGenerating}
               />
               <div className="text-xs text-zinc-500 mt-1">
-                Requires server started with --enable_t2i flag
+                Requires server started with --enable_t23d flag
               </div>
             </div>
           )}
@@ -300,7 +300,7 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
                       disabled={isGenerating}
                     />
                     Enable texture painting
-                    <span className="text-zinc-500">(requires --enable_tex)</span>
+                    <span className="text-zinc-500">(requires texture model loaded)</span>
                   </label>
                   <label className="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer">
                     <input
@@ -323,7 +323,7 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
                       value={serverUrlInput}
                       onChange={(e) => setServerUrlInput(e.target.value)}
                       className="flex-1 bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
-                      placeholder="http://localhost:8081"
+                      placeholder="http://localhost:8080/api"
                       disabled={isGenerating}
                     />
                     <button
@@ -346,7 +346,7 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
                   )}
                   {connectionStatus === 'failed' && (
                     <div className="text-xs text-red-400 mt-1">
-                      Cannot connect. Is the server running? (python api_server.py --port 8081)
+                      Cannot connect. Is the server running? (python gradio_app.py --low_vram_mode)
                     </div>
                   )}
                 </div>
