@@ -33,7 +33,7 @@ async function getItemCount(page: Page): Promise<number> {
 
 async function isHunyuanServerRunning(): Promise<boolean> {
   try {
-    const res = await fetch(`${HUNYUAN_URL}/api/health`, {
+    const res = await fetch(`${HUNYUAN_URL}/config`, {
       signal: AbortSignal.timeout(5000),
     });
     return res.ok;
@@ -88,6 +88,13 @@ test.describe('AI 3D Generation (Hunyuan3D-2)', () => {
   });
 
   test('connection test succeeds against real server', async ({ page }) => {
+    const consoleErrors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
     await openAIDialog(page);
 
     // Open advanced options
@@ -100,6 +107,11 @@ test.describe('AI 3D Generation (Hunyuan3D-2)', () => {
     // Should show green "Connected" message
     const connected = page.locator('text=Connected to Hunyuan3D-2 server');
     await expect(connected).toBeVisible({ timeout: 10000 });
+
+    const bufferErrors = consoleErrors.filter((message) =>
+      /Buffer is not defined/i.test(message)
+    );
+    expect(bufferErrors).toEqual([]);
   });
 
   test('text-to-3D generates and imports a mesh', async ({ page }) => {
@@ -133,8 +145,46 @@ test.describe('AI 3D Generation (Hunyuan3D-2)', () => {
     });
 
     // Verify mesh was imported
-    const itemCount = await getItemCount(page);
-    expect(itemCount).toBeGreaterThan(0);
+    await expect
+      .poll(async () => getItemCount(page), {
+        timeout: 30_000,
+        message: 'Expected generated mesh to be imported after dialog closes',
+      })
+      .toBeGreaterThan(0);
+  });
+
+  test('image-to-3D with texture enabled completes and imports mesh', async ({ page }) => {
+    test.setTimeout(1_200_000);
+
+    await openAIDialog(page);
+    await page.click('text=Advanced Options');
+
+    const fileInput = page.locator('input[type="file"][accept="image/png,image/jpeg,image/webp"]');
+    const testImagePath = 'C:\\Users\\kuncf\\OneDrive\\Pictures\\20251108_085028.jpg';
+    expect(fs.existsSync(testImagePath)).toBe(true);
+
+    await fileInput.setInputFiles(testImagePath);
+    await expect(page.locator('img[alt="Preview"]')).toBeVisible({ timeout: 5000 });
+
+    await page.getByLabel('Enable texture painting').check();
+
+    const generateBtn = page.locator('button:has-text("Generate")');
+    await expect(generateBtn).toBeEnabled();
+    await generateBtn.click();
+
+    await expect(page.locator('.animate-spin')).toBeVisible({ timeout: 5000 });
+
+    await page.waitForSelector('h2:has-text("AI 3D Generation")', {
+      state: 'hidden',
+      timeout: 1_200_000,
+    });
+
+    await expect
+      .poll(async () => getItemCount(page), {
+        timeout: 30_000,
+        message: 'Expected textured generated mesh to be imported after dialog closes',
+      })
+      .toBeGreaterThan(0);
   });
 
   test('image-to-3D generates and imports a mesh', async ({ page }) => {
@@ -146,7 +196,7 @@ test.describe('AI 3D Generation (Hunyuan3D-2)', () => {
     await expect(page.getByText('Click or drag an image here')).toBeVisible();
 
     // Upload a real photo via the hidden file input
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept="image/png,image/jpeg,image/webp"]');
     const testImagePath = 'C:\\Users\\kuncf\\OneDrive\\Pictures\\DSC_5282 - Copy.jpg';
 
     // Verify test image exists
@@ -176,6 +226,60 @@ test.describe('AI 3D Generation (Hunyuan3D-2)', () => {
     });
 
     // Verify mesh was imported
+    const itemCount = await getItemCount(page);
+    expect(itemCount).toBeGreaterThan(0);
+  });
+
+  test('image-to-3D with user photo enters queue (no immediate client error)', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await openAIDialog(page);
+
+    const fileInput = page.locator('input[type="file"][accept="image/png,image/jpeg,image/webp"]');
+    const testImagePath = 'C:\\Users\\kuncf\\OneDrive\\Pictures\\20251108_085028.jpg';
+    expect(fs.existsSync(testImagePath)).toBe(true);
+
+    await fileInput.setInputFiles(testImagePath);
+    await expect(page.locator('img[alt="Preview"]')).toBeVisible({ timeout: 5000 });
+
+    const generateBtn = page.locator('button:has-text("Generate")');
+    await expect(generateBtn).toBeEnabled();
+    await generateBtn.click();
+
+    await expect(page.locator('.animate-spin')).toBeVisible({ timeout: 5000 });
+
+    const progressText = page.locator('text=Waiting in queue').or(page.locator('text=Generating 3D model'));
+    await expect(progressText).toBeVisible({ timeout: 20_000 });
+
+    await expect(page.locator('text=Buffer is not defined')).not.toBeVisible();
+
+    await page.locator('button:has-text("Cancel")').click();
+    await expect(page.locator('.animate-spin')).not.toBeVisible({ timeout: 5000 });
+  });
+
+  test('image-to-3D with user photo completes and imports mesh', async ({ page }) => {
+    test.setTimeout(600_000);
+
+    await openAIDialog(page);
+
+    const fileInput = page.locator('input[type="file"][accept="image/png,image/jpeg,image/webp"]');
+    const testImagePath = 'C:\\Users\\kuncf\\OneDrive\\Pictures\\20251108_085028.jpg';
+    expect(fs.existsSync(testImagePath)).toBe(true);
+
+    await fileInput.setInputFiles(testImagePath);
+    await expect(page.locator('img[alt="Preview"]')).toBeVisible({ timeout: 5000 });
+
+    const generateBtn = page.locator('button:has-text("Generate")');
+    await expect(generateBtn).toBeEnabled();
+    await generateBtn.click();
+
+    await expect(page.locator('.animate-spin')).toBeVisible({ timeout: 5000 });
+
+    await page.waitForSelector('h2:has-text("AI 3D Generation")', {
+      state: 'hidden',
+      timeout: 600_000,
+    });
+
     const itemCount = await getItemCount(page);
     expect(itemCount).toBeGreaterThan(0);
   });

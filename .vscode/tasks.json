@@ -279,7 +279,7 @@
         {
             "label": "Start Hunyuan3D-2 Server",
             "type": "shell",
-            "command": "uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode --enable_t23d",
+            "command": "uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode",
             "options": {
                 "cwd": "${workspaceFolder}/Hunyuan3D-2"
             },

@@ -11,7 +11,7 @@ interface AIGenerateDialogProps {
 
 export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialogProps) {
   const [inputMode, setInputMode] = useState<InputMode>('image');
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [textPrompt, setTextPrompt] = useState('');
   const [seed, setSeed] = useState(42);
@@ -19,13 +19,14 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
   const [serverUrlInput, setServerUrlInput] = useState(getStoredServerUrl());
   const [connectionStatus, setConnectionStatus] = useState<'untested' | 'ok' | 'failed'>('untested');
 
-  // Advanced Hunyuan3D-2 parameters
-  const [octreeResolution, setOctreeResolution] = useState(128);
-  const [numInferenceSteps, setNumInferenceSteps] = useState(5);
+  // Advanced Hunyuan3D-2 parameters (defaults match Gradio UI)
+  const [octreeResolution, setOctreeResolution] = useState(256);
+  const [numInferenceSteps, setNumInferenceSteps] = useState(30);
   const [guidanceScale, setGuidanceScale] = useState(5.0);
+  const [numChunks, setNumChunks] = useState(8000);
   const [texture, setTexture] = useState(false);
-  const [faceCount, setFaceCount] = useState(40000);
   const [noRembg, setNoRembg] = useState(false);
+  const [randomizeSeed, setRandomizeSeed] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isGenerating, progress, error, generate, cancel, testConnection } =
@@ -34,12 +35,12 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
   const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImageFile(file);
 
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
       setImagePreview(dataUrl);
-      setImageBase64(dataUrl.split(',')[1]);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -49,29 +50,29 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
+    setImageFile(file);
 
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
       setImagePreview(dataUrl);
-      setImageBase64(dataUrl.split(',')[1]);
     };
     reader.readAsDataURL(file);
   }, []);
 
-  const canGenerate = inputMode === 'image' ? !!imageBase64 : textPrompt.trim().length > 0;
+  const canGenerate = inputMode === 'image' ? !!imageFile : textPrompt.trim().length > 0;
 
   const handleGenerate = async () => {
     if (!canGenerate) return;
     const glbData = await generate({
-      image: inputMode === 'image' ? imageBase64 ?? undefined : undefined,
+      imageFile: inputMode === 'image' ? imageFile ?? undefined : undefined,
       text: inputMode === 'text' ? textPrompt.trim() : undefined,
-      seed,
+      seed: randomizeSeed ? Math.floor(Math.random() * 10000000) : seed,
       octreeResolution,
       numInferenceSteps,
       guidanceScale,
+      numChunks,
       texture,
-      faceCount,
       noRembg,
     });
     if (glbData) {
@@ -88,11 +89,7 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
 
   const handleServerUrlSave = () => {
     const trimmed = serverUrlInput.trim().replace(/\/+$/, '');
-    if (trimmed === '/api/hunyuan' || trimmed === '') {
-      setServerUrl('');
-    } else {
-      setServerUrl(trimmed);
-    }
+    setServerUrl(trimmed);
     setConnectionStatus('untested');
   };
 
@@ -201,21 +198,24 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
           {/* Seed */}
           <div>
             <label className="block text-xs text-zinc-400 mb-1">Seed</label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="number"
                 value={seed}
                 onChange={(e) => setSeed(Number(e.target.value))}
-                className="flex-1 bg-zinc-900 border border-zinc-600 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
-                disabled={isGenerating}
+                className={`flex-1 bg-zinc-900 border border-zinc-600 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500 ${randomizeSeed ? 'opacity-50' : ''}`}
+                disabled={isGenerating || randomizeSeed}
               />
-              <button
-                onClick={() => setSeed(Math.floor(Math.random() * 99999))}
-                className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-300"
-                disabled={isGenerating}
-              >
-                Random
-              </button>
+              <label className="flex items-center gap-1 text-xs text-zinc-300 cursor-pointer whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={randomizeSeed}
+                  onChange={(e) => setRandomizeSeed(e.target.checked)}
+                  className="rounded border-zinc-600"
+                  disabled={isGenerating}
+                />
+                Randomize
+              </label>
             </div>
           </div>
 
@@ -272,20 +272,17 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Face Count</label>
+                    <label className="block text-xs text-zinc-400 mb-1">Number of Chunks</label>
                     <input
                       type="number"
-                      value={faceCount}
-                      onChange={(e) => setFaceCount(Number(e.target.value))}
-                      className={`w-full bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500 ${
-                        !texture ? 'opacity-50' : ''
-                      }`}
-                      disabled={isGenerating || !texture}
+                      value={numChunks}
+                      onChange={(e) => setNumChunks(Number(e.target.value))}
+                      className="w-full bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
+                      disabled={isGenerating}
                       min={1000}
-                      max={200000}
+                      max={5000000}
                       step={1000}
                     />
-                    <div className="text-xs text-zinc-500 mt-0.5">Only used with texture</div>
                   </div>
                 </div>
 
@@ -323,7 +320,7 @@ export function AIGenerateDialog({ open, onClose, onGenerated }: AIGenerateDialo
                       value={serverUrlInput}
                       onChange={(e) => setServerUrlInput(e.target.value)}
                       className="flex-1 bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500"
-                      placeholder="http://localhost:8080/api"
+                      placeholder="http://localhost:8080"
                       disabled={isGenerating}
                     />
                     <button
