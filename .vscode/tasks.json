@@ -149,9 +149,14 @@
         {
             "label": "Build WASM",
             "type": "shell",
-            "command": "C:\\emsdk\\emsdk_env.ps1; ninja",
+            "command": "bash",
+            "args": ["-c", "source $HOME/emsdk/emsdk_env.sh && cmake --preset webgl && ninja -C build-wasm"],
+            "windows": {
+                "command": "C:\\emsdk\\emsdk_env.ps1; cmake --preset webgl; ninja -C build-wasm",
+                "args": []
+            },
             "options": {
-                "cwd": "${workspaceFolder}/WebGL2/build-wasm"
+                "cwd": "${workspaceFolder}/WebGL2"
             },
             "group": "build",
             "problemMatcher": ["$gcc"]
@@ -159,7 +164,12 @@
         {
             "label": "Configure WASM Debug",
             "type": "shell",
-            "command": "C:\\emsdk\\emsdk_env.ps1; cmake --preset webgl-debug",
+            "command": "bash",
+            "args": ["-c", "source $HOME/emsdk/emsdk_env.sh && cmake --preset webgl-debug"],
+            "windows": {
+                "command": "C:\\emsdk\\emsdk_env.ps1; cmake --preset webgl-debug",
+                "args": []
+            },
             "options": {
                 "cwd": "${workspaceFolder}/WebGL2"
             },
@@ -168,9 +178,14 @@
         {
             "label": "Build WASM Debug",
             "type": "shell",
-            "command": "C:\\emsdk\\emsdk_env.ps1; ninja",
+            "command": "bash",
+            "args": ["-c", "source $HOME/emsdk/emsdk_env.sh && cmake --preset webgl-debug && ninja -C build-wasm-debug"],
+            "windows": {
+                "command": "C:\\emsdk\\emsdk_env.ps1; cmake --preset webgl-debug; ninja -C build-wasm-debug",
+                "args": []
+            },
             "options": {
-                "cwd": "${workspaceFolder}/WebGL2/build-wasm-debug"
+                "cwd": "${workspaceFolder}/WebGL2"
             },
             "group": "build",
             "problemMatcher": ["$gcc"]
@@ -279,7 +294,8 @@
         {
             "label": "Start Hunyuan3D-2 Server",
             "type": "shell",
-            "command": "uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode",
+            "command": "bash",
+            "args": ["-c", "export PATH=$HOME/.local/bin:$PATH && uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode"],
             "options": {
                 "cwd": "${workspaceFolder}/Hunyuan3D-2"
             },
@@ -299,7 +315,8 @@
         {
             "label": "Start Hunyuan3D-2 Server (Full)",
             "type": "shell",
-            "command": "uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode --enable_t23d",
+            "command": "bash",
+            "args": ["-c", "export PATH=$HOME/.local/bin:$PATH && uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode --enable_t23d"],
             "options": {
                 "cwd": "${workspaceFolder}/Hunyuan3D-2"
             },

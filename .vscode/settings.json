@@ -1,3 +1,3 @@
 {
-    "cmake.sourceDirectory": "C:/Projects/MeshMaker/WebGL2"
+    "cmake.sourceDirectory": "${workspaceFolder}/WebGL2"
 }

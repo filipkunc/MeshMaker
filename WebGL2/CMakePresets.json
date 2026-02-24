@@ -12,9 +12,8 @@
             "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "C:/Program Files/LLVM/bin/clang.exe",
-                "CMAKE_CXX_COMPILER": "C:/Program Files/LLVM/bin/clang++.exe",
-                "CMAKE_RC_COMPILER": "C:/Program Files/LLVM/bin/llvm-rc.exe",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
@@ -45,9 +44,6 @@
             "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
-            },
-            "environment": {
-                "EMSDK": "C:/emsdk"
             }
         },
         {
@@ -60,9 +56,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "WASM_DEBUG_SYMBOLS": "ON"
-            },
-            "environment": {
-                "EMSDK": "C:/emsdk"
             }
         }
     ],
