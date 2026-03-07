@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "Mesh2.h"
+#include <algorithm>
 
 // =============================================================================
 // Test Environment - Disables GPU operations for all tests

@@ -3,6 +3,8 @@
 #include "Texture.h"
 #include "DebugLog.h"
 
+#include <algorithm>
+
 #ifdef EMSCRIPTEN_BUILD
 #include <GLES3/gl3.h>
 #else

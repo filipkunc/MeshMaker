@@ -2,13 +2,30 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Desktop Debug",
+            "label": "Configure Desktop Debug",
             "type": "shell",
             "command": "cmake",
-            "args": [
-                "--build",
-                "build"
-            ],
+            "args": ["--preset", "desktop-debug", "--fresh"],
+            "options": {
+                "cwd": "${workspaceFolder}/WebGL2"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Configure Desktop Release",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--preset", "desktop-release", "--fresh"],
+            "options": {
+                "cwd": "${workspaceFolder}/WebGL2"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Desktop Debug",
+            "type": "shell",
+            "command": "bash",
+            "args": ["-c", "cmake --preset desktop-debug --fresh && ninja -C build"],
             "options": {
                 "cwd": "${workspaceFolder}/WebGL2"
             },
@@ -21,13 +38,8 @@
         {
             "label": "Build Desktop Release",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build",
-                "--config",
-                "Release"
-            ],
+            "command": "bash",
+            "args": ["-c", "cmake --preset desktop-release --fresh && ninja -C build"],
             "options": {
                 "cwd": "${workspaceFolder}/WebGL2"
             },
@@ -35,112 +47,10 @@
             "problemMatcher": ["$gcc"]
         },
         {
-            "label": "Build WebGL",
-            "type": "shell",
-            "command": "emmake",
-            "args": [
-                "cmake",
-                "--build",
-                "."
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/WebGL2/build_web"
-            },
-            "group": "build",
-            "problemMatcher": "$gcc"
-        },
-        {
-            "label": "Configure Desktop",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-B",
-                "build",
-                "-S",
-                "."
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/WebGL2"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Configure WebGL",
-            "type": "shell",
-            "command": "emcmake",
-            "args": [
-                "cmake",
-                ".."
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/WebGL2/build_web"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Build and Run WebGL",
-            "dependsOn": ["Build WebGL", "Run WebGL (emrun)"],
-            "dependsOrder": "sequence",
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Run WebGL (emrun)",
-            "type": "shell",
-            "command": "emrun",
-            "args": [
-                "--port",
-                "8080",
-                "--no_emrun_detect",
-                "MeshMakerWebGL2.html"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/WebGL2/build_web"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Start WebGL Server",
-            "type": "shell",
-            "command": "emrun",
-            "args": [
-                "--port",
-                "8080",
-                "--no_browser",
-                "MeshMakerWebGL2.html"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/WebGL2/build_web"
-            },
-            "isBackground": true,
-            "problemMatcher": {
-                "owner": "emrun",
-                "pattern": {
-                    "regexp": "^$"
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": ".*",
-                    "endsPattern": "^Web server"
-                }
-            }
-        },
-        {
-            "label": "Build and Start WebGL Server",
-            "dependsOn": ["Build WebGL", "Start WebGL Server"],
-            "dependsOrder": "sequence",
-            "problemMatcher": []
-        },
-        {
             "label": "Clean Desktop",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build",
-                "--target",
-                "clean"
-            ],
+            "command": "ninja",
+            "args": ["-C", "build", "clean"],
             "options": {
                 "cwd": "${workspaceFolder}/WebGL2"
             },

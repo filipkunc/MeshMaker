@@ -5,22 +5,9 @@
             "name": "Desktop Debug (LLDB)",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/WebGL2/build/MeshMakerWebGL2.exe",
+            "program": "${workspaceFolder}/WebGL2/build/MeshMakerWebGL2",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}/WebGL2",
-            "preLaunchTask": "Build Desktop Debug"
-        },
-        {
-            "name": "Desktop Debug (VSDBG)",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/WebGL2/build/MeshMakerWebGL2.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/WebGL2",
-            "environment": [],
-            "console": "integratedTerminal",
             "preLaunchTask": "Build Desktop Debug"
         },
         {
@@ -41,7 +28,7 @@
             "sourceMaps": true,
             "preLaunchTask": "Build and Start React (Debug WASM)",
             "sourceMapPathOverrides": {
-                "file:///C:/Projects/MeshMaker/WebGL2/*": "${workspaceFolder}/WebGL2/*"
+                "file:///home/fkunc/Projects/MeshMaker/WebGL2/*": "${workspaceFolder}/WebGL2/*"
             }
         },
         {
@@ -51,25 +38,6 @@
             "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}/MeshMakerWeb",
             "sourceMaps": true
-        },
-        {
-            "name": "WebGL Standalone (Chrome)",
-            "type": "chrome",
-            "request": "launch",
-            "url": "http://localhost:8080/MeshMakerWebGL2.html",
-            "webRoot": "${workspaceFolder}/WebGL2/build-wasm",
-            "preLaunchTask": "Build and Start WebGL Server"
-        },
-        {
-            "name": "WebGL Standalone (Edge)",
-            "type": "msedge",
-            "request": "launch",
-            "url": "http://localhost:8080/MeshMakerWebGL2.html",
-            "webRoot": "${workspaceFolder}/WebGL2/build-wasm",
-            "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "*": "${workspaceFolder}/WebGL2/*"
-            }
         },
         {
             "name": "React + WASM + AI Server (Chrome)",
