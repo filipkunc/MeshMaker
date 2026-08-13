@@ -12,6 +12,9 @@ def Xform "Root"
         int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
         int[] faceVertexIndices = [0, 3, 2, 1, 4, 5, 6, 7, 0, 1, 5, 4, 2, 3, 7, 6, 0, 4, 7, 3, 1, 2, 6, 5]
         point3f[] points = [(-1, -1, -1), (1, -1, -1), (1, 1, -1), (-1, 1, -1), (-1, -1, 1), (1, -1, 1), (1, 1, 1), (-1, 1, 1)]
+        texCoord2f[] primvars:st = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1)] (
+            interpolation = "faceVarying"
+        )
         uniform token subdivisionScheme = "none"
         double3 xformOp:translate = (2, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -23,6 +26,9 @@ def Xform "Root"
         int[] faceVertexCounts = [3]
         int[] faceVertexIndices = [0, 1, 2]
         point3f[] points = [(0, 0, 0), (1, 0, 0), (0, 1, 0)]
+        texCoord2f[] primvars:st = [(0, 0), (1, 0), (0, 1)] (
+            interpolation = "faceVarying"
+        )
         uniform token subdivisionScheme = "none"
     }
 }

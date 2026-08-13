@@ -46,10 +46,16 @@ function addMesh(exp, name, mesh, translate, rotate, scale) {
   const pT = alloc(new Float32Array(translate));
   const pR = alloc(new Float32Array(rotate));
   const pS = alloc(new Float32Array(scale));
+  const uv = new Float32Array(mesh.indices.length * 2);
+  for (let i = 0; i < mesh.indices.length; i++) {
+    uv[i * 2] = i % 2;
+    uv[i * 2 + 1] = (i >> 1) % 2;
+  }
+  const pUv = alloc(uv);
   mod._usdio_export_add_mesh(exp, pName,
     pPts, mesh.points.length / 3, pCounts, mesh.counts.length, pIdx, mesh.indices.length,
-    pT, pR, pS);
-  [pName, pPts, pCounts, pIdx, pT, pR, pS].forEach((p) => mod._free(p));
+    pT, pR, pS, pUv, mesh.indices.length, 0, 0, 0);
+  [pName, pPts, pCounts, pIdx, pT, pR, pS, pUv].forEach((p) => mod._free(p));
 }
 
 function exportScene(format) {
@@ -84,6 +90,10 @@ function importScene(bytes, ext) {
       points: new Float32Array(mod.HEAPF32.buffer, mod._usdio_mesh_points(h, i), numPts * 3).slice(),
       counts: new Int32Array(mod.HEAP32.buffer, mod._usdio_mesh_counts(h, i), numFaces).slice(),
       indices: new Int32Array(mod.HEAP32.buffer, mod._usdio_mesh_indices(h, i), numIdx).slice(),
+      uvs: new Float32Array(mod.HEAPF32.buffer, mod._usdio_mesh_uvs(h, i),
+        mod._usdio_mesh_num_uvs(h, i) * 2).slice(),
+      texture: new Uint8Array(mod.HEAPU8.buffer, mod._usdio_mesh_texture(h, i),
+        mod._usdio_mesh_texture_size(h, i)).slice(),
     });
   }
   mod._usdio_scene_free(h);
@@ -100,6 +110,7 @@ function checkScene(meshes, label) {
   // translate (2,0,0) baked into world-space points
   assert.equal(c.points[0], 1, `${label}: cube transform baked (-1 + 2)`);
   assert.deepEqual([...c.indices], [...cube.indices], `${label}: cube indices`);
+  assert.equal(c.uvs.length, c.indices.length * 2, `${label}: face-varying UVs`);
 }
 
 // 1. usda round trip
@@ -128,6 +139,14 @@ for (const ext of ['usda', 'usdc']) {
   checkScene(importScene(fixture, ext), `${ext} fixture`);
   console.log(`OK: ${ext} fixture imported`);
 }
+
+const texturedUsdz = await readFile(new URL('./models/textured.usdz', import.meta.url));
+assert.equal(new TextDecoder().decode(texturedUsdz.subarray(0, 2)), 'PK', 'usdz zip magic');
+const textured = importScene(texturedUsdz, 'usdz');
+checkScene(textured, 'usdz fixture');
+assert.ok(textured.find((mesh) => mesh.name.startsWith('Cube')).texture.length > 0,
+  'USDZ texture bytes imported');
+console.log('OK: textured usdz fixture imported with UVs and bitmap');
 
 // Z-up stage with a pentagon (n-gon): up-axis fix + fan triangulation
 const zUpPentagon = `#usda 1.0

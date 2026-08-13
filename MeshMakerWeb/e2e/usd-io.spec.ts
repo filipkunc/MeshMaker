@@ -85,12 +85,12 @@ test.describe('File I/O: USD', () => {
     expect(await faceHistogram(page, 1)).toEqual(cylBefore);
   });
 
-  for (const ext of ['usda', 'usdc'] as const) {
+  for (const ext of ['usda', 'usdc', 'usdz'] as const) {
     test(`imports the checked-in ${ext.toUpperCase()} model`, async ({ page }) => {
       test.setTimeout(180000);
       await page.click('button[title="Clear Scene"]');
       const bytes = await readFile(
-        new URL(`../../usd-io/test/models/mixed-topology.${ext}`, import.meta.url));
+        new URL(`../../usd-io/test/models/${ext === 'usdz' ? 'textured' : 'mixed-topology'}.${ext}`, import.meta.url));
 
       const added = await page.evaluate(async ({ data, extension }) => {
         const { importUsd } = await (new Function(
@@ -102,6 +102,8 @@ test.describe('File I/O: USD', () => {
       expect(await getItemCount(page)).toBe(2);
       expect(await faceHistogram(page, 0)).toEqual({ 4: 6 });
       expect(await faceHistogram(page, 1)).toEqual({ 3: 1 });
+      expect(await page.evaluate(() => (window as any).Module.itemHasTexture(0)))
+        .toBe(ext === 'usdz');
     });
   }
 
@@ -135,5 +137,40 @@ test.describe('File I/O: USD', () => {
       fromUsdc: 1,
     });
     expect(await faceHistogram(page, 0)).toEqual({ 4: 6 });
+  });
+
+  test('USDZ round-trip preserves face-varying UVs and bitmap texture', async ({ page }) => {
+    test.setTimeout(180000);
+    await page.click('button[title="Clear Scene"]');
+    await page.click('button[title="Add Cube"]');
+
+    const result = await page.evaluate(async (pngBase64) => {
+      const mm = (window as any).Module;
+      const png = Uint8Array.from(atob(pngBase64), (char) => char.charCodeAt(0));
+      mm.setFaceUV(0, 0, 0, 0.125, 0.875);
+      if (!mm.setItemTextureFromFileData(0, png)) throw new Error('fixture PNG decode failed');
+      const { exportUsd, importUsd } = await (new Function(
+        'return import("/src/lib/usdIo.ts")')() as Promise<any>);
+      const usdz = await exportUsd(mm, 'usdz');
+      mm.clearScene();
+      const added = await importUsd(mm, usdz, 'usdz');
+      return {
+        magic: new TextDecoder().decode(usdz.subarray(0, 2)),
+        added,
+        textured: mm.itemHasTexture(0),
+        width: mm.getItemTextureWidth(0),
+        height: mm.getItemTextureHeight(0),
+        u: mm.getFaceUVX(0, 0, 0),
+        v: mm.getFaceUVY(0, 0, 0),
+      };
+    }, 'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfqCA0TNyrszXWTAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA4LTEzVDE5OjU1OjQyKzAwOjAwR5PNDQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wOC0xM1QxOTo1NTo0MiswMDowMDbOdbEAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDgtMTNUMTk6NTU6NDIrMDA6MDBh21RuAAAAFElEQVQI12P8z8Dwn4GBgYGJAQoAHxcCAmep4oIAAAAASUVORK5CYII=');
+
+    expect(result.magic).toBe('PK');
+    expect(result.added).toBe(1);
+    expect(result.textured).toBe(true);
+    expect(result.width).toBe(2);
+    expect(result.height).toBe(2);
+    expect(result.u).toBeCloseTo(0.125);
+    expect(result.v).toBeCloseTo(0.875);
   });
 });

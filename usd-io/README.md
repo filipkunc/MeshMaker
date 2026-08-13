@@ -5,7 +5,9 @@ Lives beside the main editor module (`MeshMakerWebGL2.wasm`) as a **separate**
 Emscripten build with its own memory; mesh data crosses as flat typed arrays
 through a narrow C API (`src/usd_io.cpp`). The point: USD's
 `faceVertexCounts`/`faceVertexIndices` preserve MeshMaker's mixed quad/tri
-topology, which the `.glb` exporter destroys by triangulating.
+topology, which the `.glb` exporter destroys by triangulating. Face-varying
+UVs are stored as the standard `primvars:st`; textured exports use USDZ so the
+`UsdPreviewSurface` material and PNG bitmap travel in one browser download.
 
 ## Building
 
@@ -58,7 +60,8 @@ export walks items with the per-face API and sends local points + item TRS
 (authored as translate/rotateZYX/scale xformOps — rotateZYX matches
 `glm::quat(euler)` = Rx*Ry*Rz); import creates items via
 addCube/clearMesh/addMeshVertex/addMeshQuad/addMeshTriangle/rebuildMesh with
-world-baked Y-up points. `npm run copy-usd-io` syncs build artifacts to
+world-baked Y-up points. Imported USDZ textures are decoded by the editor and
+assigned to their corresponding items. `npm run copy-usd-io` syncs artifacts to
 `public/usd-io/`. E2E coverage in `e2e/usd-io.spec.ts`.
 
 ## Deployment note
@@ -75,7 +78,9 @@ public/_headers, and needed in the site server for /meshmaker/*):
 
 ## Known gaps (follow-ups)
 
-- UVs/texcoords: the editor core has no texcoord access API yet, so USD
-  export/import is geometry-only (faceVarying UV primvars are the next step).
-- usdz export + AR Quick Look: needs usdUtils linked (usdz *import* works).
+- USDA/USDC texture references are external files, which the browser's
+  single-file import picker cannot resolve. Use USDZ for textured scenes.
+- Only the diffuse bitmap of a `UsdPreviewSurface` is mapped today; metallic,
+  roughness, opacity, normal maps, and arbitrary MaterialX networks are not yet
+  represented by MeshMaker's one-texture-per-item material model.
 - Item transforms survive USD as xformOps but import bakes them into points.

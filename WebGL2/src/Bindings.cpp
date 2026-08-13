@@ -152,6 +152,14 @@ extern bool api_isFaceSelected(int itemIndex, int faceIndex);
 extern void api_setFaceSelected(int itemIndex, int faceIndex, bool selected);
 extern int api_getFaceVertexCount(int itemIndex, int faceIndex);
 extern int api_getFaceVertexIndex(int itemIndex, int faceIndex, int cornerIndex);
+extern float api_getFaceUVX(int itemIndex, int faceIndex, int cornerIndex);
+extern float api_getFaceUVY(int itemIndex, int faceIndex, int cornerIndex);
+extern void api_setFaceUV(int itemIndex, int faceIndex, int cornerIndex, float u, float v);
+extern bool api_itemHasTexture(int itemIndex);
+extern int api_getItemTextureWidth(int itemIndex);
+extern int api_getItemTextureHeight(int itemIndex);
+extern emscripten::val api_getItemTexturePixels(int itemIndex);
+extern bool api_setItemTextureFromFileData(int itemIndex, emscripten::val data);
 
 // Mesh Mutation API
 extern void api_clearMesh(int itemIndex);
@@ -323,6 +331,14 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("setFaceSelected", &api_setFaceSelected);
     function("getFaceVertexCount", &api_getFaceVertexCount);
     function("getFaceVertexIndex", &api_getFaceVertexIndex);
+    function("getFaceUVX", &api_getFaceUVX);
+    function("getFaceUVY", &api_getFaceUVY);
+    function("setFaceUV", &api_setFaceUV);
+    function("itemHasTexture", &api_itemHasTexture);
+    function("getItemTextureWidth", &api_getItemTextureWidth);
+    function("getItemTextureHeight", &api_getItemTextureHeight);
+    function("getItemTexturePixels", &api_getItemTexturePixels);
+    function("setItemTextureFromFileData", &api_setItemTextureFromFileData);
     
     // Mesh Mutation API
     function("clearMesh", &api_clearMesh);

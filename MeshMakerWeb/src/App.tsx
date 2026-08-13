@@ -372,12 +372,12 @@ function App() {
     setIsImporting(true);
     setImportProgress('Exporting USD...');
     try {
-      const bytes = await exportUsd(module, 'usda');
-      const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'model/vnd.usda' });
+      const bytes = await exportUsd(module, 'usdz');
+      const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'model/vnd.usdz+zip' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'meshmaker-export.usda';
+      a.download = 'meshmaker-export.usdz';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

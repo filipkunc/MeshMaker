@@ -19,6 +19,9 @@
 #include <pxr/base/tf/error.h>
 #include <pxr/base/tf/stringUtils.h>
 #include <pxr/base/vt/array.h>
+#include <pxr/usd/ar/asset.h>
+#include <pxr/usd/ar/resolver.h>
+#include <pxr/usd/sdf/layerUtils.h>
 #include <pxr/usd/sdf/layer.h>
 #include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usd/stage.h>
@@ -27,6 +30,11 @@
 #include <pxr/usd/usdGeom/tokens.h>
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdGeom/xformCache.h>
+#include <pxr/usd/usdGeom/primvarsAPI.h>
+#include <pxr/usd/usdShade/material.h>
+#include <pxr/usd/usdShade/materialBindingAPI.h>
+#include <pxr/usd/usdShade/shader.h>
+#include <pxr/usd/usdUtils/usdzPackage.h>
 
 #include <cstdint>
 #include <cstdio>
@@ -87,6 +95,7 @@ void EnsurePluginsRegistered()
 struct Exporter {
     UsdStageRefPtr stage;
     int meshIndex = 0;
+    std::vector<std::string> texturePaths;
 };
 
 struct ImportedMesh {
@@ -94,6 +103,8 @@ struct ImportedMesh {
     std::vector<float> points;    // xyz interleaved, world space, Y-up
     std::vector<int32_t> counts;  // faceVertexCounts, only 3s and 4s
     std::vector<int32_t> indices; // faceVertexIndices
+    std::vector<float> uvs;       // face-varying uv pairs
+    std::vector<uint8_t> texture; // encoded PNG/JPEG bytes
 };
 
 struct Scene {
@@ -139,7 +150,10 @@ void usdio_export_add_mesh(void *h, const char *name,
                            const int32_t *faceVertexCounts, uint32_t numFaces,
                            const int32_t *faceVertexIndices, uint32_t numIndices,
                            const float *translate, const float *rotateDeg,
-                           const float *scale)
+                           const float *scale,
+                           const float *uvs, uint32_t numUvs,
+                           const uint8_t *textureBytes, uint32_t textureLen,
+                           const char *textureExt)
 {
     auto *exp = static_cast<Exporter *>(h);
 
@@ -171,9 +185,56 @@ void usdio_export_add_mesh(void *h, const char *name,
         VtArray<int32_t>(faceVertexIndices, faceVertexIndices + numIndices));
     // The mesh is the editing cage, not a subdiv limit surface.
     mesh.CreateSubdivisionSchemeAttr().Set(UsdGeomTokens->none);
+
+    if (uvs && numUvs == numIndices) {
+        VtArray<GfVec2f> st(numUvs);
+        for (uint32_t i = 0; i < numUvs; ++i)
+            st[i] = GfVec2f(uvs[i * 2], uvs[i * 2 + 1]);
+        UsdGeomPrimvarsAPI(mesh).CreatePrimvar(
+            TfToken("st"), SdfValueTypeNames->TexCoord2fArray,
+            UsdGeomTokens->faceVarying).Set(st);
+    }
+
+    if (textureBytes && textureLen && uvs && numUvs == numIndices) {
+        const std::string ext = textureExt && textureExt[0] ? textureExt : "png";
+        const std::string fileName = TfStringPrintf("texture_%d.%s",
+            exp->meshIndex - 1, ext.c_str());
+        const std::string filePath = "/tmp/" + fileName;
+        std::ofstream image(filePath, std::ios::binary | std::ios::trunc);
+        image.write(reinterpret_cast<const char *>(textureBytes), textureLen);
+        exp->texturePaths.push_back(filePath);
+
+        const SdfPath materialPath = path.AppendChild(TfToken("Material"));
+        UsdShadeMaterial material = UsdShadeMaterial::Define(exp->stage, materialPath);
+        UsdShadeShader surface = UsdShadeShader::Define(
+            exp->stage, materialPath.AppendChild(TfToken("PreviewSurface")));
+        surface.CreateIdAttr(VtValue(TfToken("UsdPreviewSurface")));
+        surface.CreateInput(TfToken("roughness"), SdfValueTypeNames->Float).Set(0.4f);
+        surface.CreateInput(TfToken("metallic"), SdfValueTypeNames->Float).Set(0.0f);
+        surface.CreateOutput(TfToken("surface"), SdfValueTypeNames->Token);
+        material.CreateSurfaceOutput().ConnectToSource(
+            surface.ConnectableAPI(), TfToken("surface"));
+
+        UsdShadeShader reader = UsdShadeShader::Define(
+            exp->stage, materialPath.AppendChild(TfToken("PrimvarReader")));
+        reader.CreateIdAttr(VtValue(TfToken("UsdPrimvarReader_float2")));
+        reader.CreateInput(TfToken("varname"), SdfValueTypeNames->Token).Set(TfToken("st"));
+        reader.CreateOutput(TfToken("result"), SdfValueTypeNames->Float2);
+
+        UsdShadeShader texture = UsdShadeShader::Define(
+            exp->stage, materialPath.AppendChild(TfToken("DiffuseTexture")));
+        texture.CreateIdAttr(VtValue(TfToken("UsdUVTexture")));
+        texture.CreateInput(TfToken("file"), SdfValueTypeNames->Asset).Set(SdfAssetPath(fileName));
+        texture.CreateInput(TfToken("st"), SdfValueTypeNames->Float2).ConnectToSource(
+            reader.ConnectableAPI(), TfToken("result"));
+        texture.CreateOutput(TfToken("rgb"), SdfValueTypeNames->Float3);
+        surface.CreateInput(TfToken("diffuseColor"), SdfValueTypeNames->Color3f)
+            .ConnectToSource(texture.ConnectableAPI(), TfToken("rgb"));
+        UsdShadeMaterialBindingAPI::Apply(mesh.GetPrim()).Bind(material);
+    }
 }
 
-// format: 0 = usda text, 1 = usdc binary. Returns malloc'd bytes (text is
+// format: 0 = usda text, 1 = usdc binary, 2 = usdz package.
 // NUL-terminated but *outLen excludes the NUL). Frees the exporter either way.
 uint8_t *usdio_export_end(void *h, int32_t format, uint32_t *outLen)
 {
@@ -184,7 +245,7 @@ uint8_t *usdio_export_end(void *h, int32_t format, uint32_t *outLen)
     if (format == 0) {
         if (!exp->stage->GetRootLayer()->ExportToString(&data))
             return nullptr;
-    } else {
+    } else if (format == 1) {
         const char *tmp = "/tmp/usdio_export.usdc";
         if (!exp->stage->GetRootLayer()->Export(tmp))
             return nullptr;
@@ -194,7 +255,20 @@ uint8_t *usdio_export_end(void *h, int32_t format, uint32_t *outLen)
         std::remove(tmp);
         if (data.empty())
             return nullptr;
+    } else {
+        const char *root = "/tmp/meshmaker.usdc";
+        const char *package = "/tmp/usdio_export.usdz";
+        if (!exp->stage->GetRootLayer()->Export(root) ||
+            !UsdUtilsCreateNewUsdzPackage(SdfAssetPath(root), package, "meshmaker.usdc"))
+            return nullptr;
+        std::ifstream in(package, std::ios::binary);
+        data.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        std::remove(root);
+        std::remove(package);
     }
+
+    for (const std::string &texturePath : exp->texturePaths)
+        std::remove(texturePath.c_str());
 
     auto *out = static_cast<uint8_t *>(std::malloc(data.size() + 1));
     std::memcpy(out, data.data(), data.size());
@@ -260,6 +334,37 @@ void *usdio_import(const uint8_t *bytes, uint32_t len, const char *ext)
         ImportedMesh out;
         out.name = prim.GetName().GetString();
         out.points.reserve(pts.size() * 3);
+
+        UsdGeomPrimvar st = UsdGeomPrimvarsAPI(mesh).GetPrimvar(TfToken("st"));
+        VtArray<GfVec2f> uvValues;
+        const bool hasUvs = st && st.ComputeFlattened(&uvValues) &&
+                            uvValues.size() == indices.size();
+        auto appendUv = [&](size_t index) {
+            if (!hasUvs) return;
+            out.uvs.push_back(uvValues[index][0]);
+            out.uvs.push_back(uvValues[index][1]);
+        };
+
+        UsdShadeMaterial material = UsdShadeMaterialBindingAPI(mesh).ComputeBoundMaterial();
+        if (material) {
+            for (const UsdPrim &child : UsdPrimRange(material.GetPrim())) {
+                UsdShadeShader shader(child);
+                TfToken id;
+                if (!shader || !shader.GetIdAttr().Get(&id) || id != TfToken("UsdUVTexture"))
+                    continue;
+                SdfAssetPath assetPath;
+                if (!shader.GetInput(TfToken("file")).Get(&assetPath)) continue;
+                const std::string anchored = SdfComputeAssetPathRelativeToLayer(
+                    stage->GetRootLayer(), assetPath.GetAssetPath());
+                auto asset = ArGetResolver().OpenAsset(ArResolvedPath(anchored));
+                if (asset) {
+                    out.texture.resize(asset->GetSize());
+                    if (asset->Read(out.texture.data(), out.texture.size(), 0) != out.texture.size())
+                        out.texture.clear();
+                }
+                break;
+            }
+        }
         for (const GfVec3f &p : pts) {
             const GfVec3d w = world.Transform(GfVec3d(p));
             out.points.push_back(static_cast<float>(w[0]));
@@ -280,12 +385,17 @@ void *usdio_import(const uint8_t *bytes, uint32_t len, const char *ext)
                 out.counts.push_back(c);
                 for (int32_t k = 0; k < c; ++k)
                     out.indices.push_back(indices[cursor + k]);
+                for (int32_t k = 0; k < c; ++k)
+                    appendUv(cursor + k);
             } else {
                 for (int32_t k = 1; k + 1 < c; ++k) {
                     out.counts.push_back(3);
                     out.indices.push_back(indices[cursor]);
                     out.indices.push_back(indices[cursor + k]);
                     out.indices.push_back(indices[cursor + k + 1]);
+                    appendUv(cursor);
+                    appendUv(cursor + k);
+                    appendUv(cursor + k + 1);
                 }
             }
             cursor += c;
@@ -338,6 +448,26 @@ const int32_t *usdio_mesh_counts(void *h, uint32_t i)
 uint32_t usdio_mesh_num_indices(void *h, uint32_t i)
 {
     return static_cast<Scene *>(h)->meshes[i].indices.size();
+}
+
+uint32_t usdio_mesh_num_uvs(void *h, uint32_t i)
+{
+    return static_cast<Scene *>(h)->meshes[i].uvs.size() / 2;
+}
+
+const float *usdio_mesh_uvs(void *h, uint32_t i)
+{
+    return static_cast<Scene *>(h)->meshes[i].uvs.data();
+}
+
+uint32_t usdio_mesh_texture_size(void *h, uint32_t i)
+{
+    return static_cast<Scene *>(h)->meshes[i].texture.size();
+}
+
+const uint8_t *usdio_mesh_texture(void *h, uint32_t i)
+{
+    return static_cast<Scene *>(h)->meshes[i].texture.data();
 }
 
 const int32_t *usdio_mesh_indices(void *h, uint32_t i)

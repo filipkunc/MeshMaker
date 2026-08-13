@@ -23,6 +23,7 @@ Texture::Texture(Texture&& other) noexcept
     , m_width(other.m_width)
     , m_height(other.m_height)
     , m_name(std::move(other.m_name))
+    , m_pixels(std::move(other.m_pixels))
 {
     other.m_textureId = 0;
     other.m_width = 0;
@@ -36,6 +37,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
         m_width = other.m_width;
         m_height = other.m_height;
         m_name = std::move(other.m_name);
+        m_pixels = std::move(other.m_pixels);
         
         other.m_textureId = 0;
         other.m_width = 0;
@@ -51,6 +53,7 @@ void Texture::release() {
     m_textureId = 0;
     m_width = 0;
     m_height = 0;
+    m_pixels.clear();
 }
 
 void Texture::createGLTexture(const uint8_t* rgba, int width, int height) {
@@ -91,7 +94,9 @@ bool Texture::loadFromRGBA(const uint8_t* data, int width, int height) {
         return false;
     }
     
+    std::vector<uint8_t> pixels(data, data + static_cast<size_t>(width) * height * 4);
     createGLTexture(data, width, height);
+    m_pixels = std::move(pixels);
     return m_textureId != 0;
 }
 
@@ -115,7 +120,9 @@ bool Texture::loadFromFileData(const uint8_t* fileData, size_t dataSize) {
         return false;
     }
     
+    std::vector<uint8_t> retained(pixels, pixels + static_cast<size_t>(width) * height * 4);
     createGLTexture(pixels, width, height);
+    m_pixels = std::move(retained);
     
     stbi_image_free(pixels);
     

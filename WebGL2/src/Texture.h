@@ -57,6 +57,7 @@ public:
     // Get dimensions
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
+    const std::vector<uint8_t>& getPixels() const { return m_pixels; }
     
     // Get name (for UI/debugging)
     const std::string& getName() const { return m_name; }
@@ -70,6 +71,7 @@ private:
     int m_width = 0;
     int m_height = 0;
     std::string m_name;
+    std::vector<uint8_t> m_pixels; // RGBA copy retained for serialization
 };
 
 // Manages texture loading and caching

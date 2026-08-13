@@ -170,7 +170,7 @@ export function TopToolbar({
       <EmojiButton label="📂" title="Import (OBJ/GLB/USD)" onClick={() => fileInputRef.current?.click()} />
       <EmojiButton label="💾" title="Export OBJ" onClick={onExportOBJ} />
       <EmojiButton label="📦" title="Export GLB" onClick={onExportGLB} />
-      <EmojiButton label="🎬" title="Export USD (.usda, quads preserved)" onClick={onExportUSD} />
+      <EmojiButton label="🎬" title="Export USDZ (textures and quads preserved)" onClick={onExportUSD} />
       
       <Separator />
       

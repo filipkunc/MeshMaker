@@ -165,6 +165,14 @@ export interface MeshMakerModule extends EmscriptenModule {
   setFaceSelected(itemIndex: number, faceIndex: number, selected: boolean): void;
   getFaceVertexCount(itemIndex: number, faceIndex: number): number;
   getFaceVertexIndex(itemIndex: number, faceIndex: number, cornerIndex: number): number;
+  getFaceUVX(itemIndex: number, faceIndex: number, cornerIndex: number): number;
+  getFaceUVY(itemIndex: number, faceIndex: number, cornerIndex: number): number;
+  setFaceUV(itemIndex: number, faceIndex: number, cornerIndex: number, u: number, v: number): void;
+  itemHasTexture(itemIndex: number): boolean;
+  getItemTextureWidth(itemIndex: number): number;
+  getItemTextureHeight(itemIndex: number): number;
+  getItemTexturePixels(itemIndex: number): Uint8Array | null;
+  setItemTextureFromFileData(itemIndex: number, data: Uint8Array): boolean;
   
   // Mesh Mutation API
   clearMesh(itemIndex: number): void;

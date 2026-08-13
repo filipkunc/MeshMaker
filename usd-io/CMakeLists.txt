@@ -26,7 +26,7 @@ target_compile_options(usd-io PRIVATE -pthread --use-port=zlib -fexceptions)
 # linker strips them from static archives otherwise (see the comment in USD's
 # own extras/usd/examples/wasmFetchResolver/CMakeLists.txt).
 set(PXR_WHOLE_ARCHIVE_LIBS
-    arch tf gf js trace vt work plug kind ts ar sdf pcp sdr usd usdGeom)
+    arch tf gf js trace vt work plug kind ts ar sdf pcp sdr usd usdGeom usdShade usdUtils)
 target_link_libraries(usd-io PRIVATE
     "$<LINK_LIBRARY:WHOLE_ARCHIVE,${PXR_WHOLE_ARCHIVE_LIBS}>")
 
@@ -45,6 +45,10 @@ set(EXPORTED_FUNCS
     _usdio_mesh_counts
     _usdio_mesh_num_indices
     _usdio_mesh_indices
+    _usdio_mesh_num_uvs
+    _usdio_mesh_uvs
+    _usdio_mesh_texture_size
+    _usdio_mesh_texture
     _usdio_scene_free
     _malloc
     _free

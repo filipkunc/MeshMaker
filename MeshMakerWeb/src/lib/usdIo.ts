@@ -18,6 +18,8 @@ interface UsdIoModule {
     counts: number, numFaces: number,
     indices: number, numIndices: number,
     translate: number, rotateDeg: number, scale: number,
+    uvs: number, numUvs: number,
+    textureBytes: number, textureLen: number, textureExt: number,
   ): void;
   _usdio_export_end(exp: number, format: number, outLen: number): number;
   _usdio_free_buffer(ptr: number): void;
@@ -30,6 +32,10 @@ interface UsdIoModule {
   _usdio_mesh_counts(scene: number, i: number): number;
   _usdio_mesh_num_indices(scene: number, i: number): number;
   _usdio_mesh_indices(scene: number, i: number): number;
+  _usdio_mesh_num_uvs(scene: number, i: number): number;
+  _usdio_mesh_uvs(scene: number, i: number): number;
+  _usdio_mesh_texture_size(scene: number, i: number): number;
+  _usdio_mesh_texture(scene: number, i: number): number;
   _usdio_scene_free(scene: number): void;
   UTF8ToString(ptr: number): string;
   HEAPF32: Float32Array;
@@ -95,7 +101,7 @@ function lastError(usd: UsdIoModule): string {
  * (translate / rotateZYX / scale — matching glm's euler convention).
  */
 export async function exportUsd(
-  mm: MeshMakerModule, format: 'usda' | 'usdc',
+  mm: MeshMakerModule, format: 'usda' | 'usdc' | 'usdz',
 ): Promise<Uint8Array> {
   const usd = await loadUsdIo();
 
@@ -117,11 +123,13 @@ export async function exportUsd(
 
     const counts = new Int32Array(faceCount);
     const indices: number[] = [];
+    const uvValues: number[] = [];
     for (let f = 0; f < faceCount; f++) {
       const corners = mm.getFaceVertexCount(item, f);
       counts[f] = corners;
       for (let c = 0; c < corners; c++) {
         indices.push(mm.getFaceVertexIndex(item, f, c));
+        uvValues.push(mm.getFaceUVX(item, f, c), mm.getFaceUVY(item, f, c));
       }
     }
 
@@ -136,19 +144,31 @@ export async function exportUsd(
     ]);
 
     const indicesArr = new Int32Array(indices);
+    const uvs = new Float32Array(uvValues);
+    let texture: Uint8Array<ArrayBufferLike> = new Uint8Array();
+    if (format === 'usdz' && mm.itemHasTexture(item)) {
+      const pixels = mm.getItemTexturePixels(item)?.slice();
+      if (pixels) texture = await rgbaToPng(
+        pixels, mm.getItemTextureWidth(item), mm.getItemTextureHeight(item));
+    }
     const ptrs = [
       allocCString(usd, `Item_${item}`),
       alloc(usd, points), alloc(usd, counts), alloc(usd, indicesArr),
       alloc(usd, translate), alloc(usd, rotate), alloc(usd, scale),
+      alloc(usd, uvs),
+      texture.length ? allocBytes(usd, texture) : 0,
+      texture.length ? allocCString(usd, 'png') : 0,
     ];
     usd._usdio_export_add_mesh(exp, ptrs[0],
       ptrs[1], vertexCount, ptrs[2], faceCount, ptrs[3], indicesArr.length,
-      ptrs[4], ptrs[5], ptrs[6]);
-    ptrs.forEach((p) => usd._free(p));
+      ptrs[4], ptrs[5], ptrs[6], ptrs[7], indicesArr.length,
+      ptrs[8], texture.length, ptrs[9]);
+    ptrs.forEach((p) => { if (p) usd._free(p); });
   }
 
   const pLen = usd._malloc(4);
-  const pData = usd._usdio_export_end(exp, format === 'usda' ? 0 : 1, pLen);
+  const pData = usd._usdio_export_end(
+    exp, format === 'usda' ? 0 : format === 'usdc' ? 1 : 2, pLen);
   if (!pData) {
     usd._free(pLen);
     throw new Error(lastError(usd));
@@ -190,6 +210,12 @@ export async function importUsd(
         usd.HEAP32.buffer, usd._usdio_mesh_counts(scene, i), numFaces);
       const indices = new Int32Array(
         usd.HEAP32.buffer, usd._usdio_mesh_indices(scene, i), numIndices);
+      const numUvs = usd._usdio_mesh_num_uvs(scene, i);
+      const uvs = numUvs ? new Float32Array(
+        usd.HEAPF32.buffer, usd._usdio_mesh_uvs(scene, i), numUvs * 2) : null;
+      const textureSize = usd._usdio_mesh_texture_size(scene, i);
+      const texture = textureSize ? new Uint8Array(
+        usd.HEAPU8.buffer, usd._usdio_mesh_texture(scene, i), textureSize).slice() : null;
 
       // New item: the mutation API works on an existing item's mesh, so add
       // a primitive and replace its geometry (same trick the scripts use).
@@ -211,10 +237,33 @@ export async function importUsd(
         }
         cursor += c;
       }
+      if (uvs && numUvs === numIndices) {
+        cursor = 0;
+        for (let f = 0; f < numFaces; f++) {
+          for (let c = 0; c < counts[f]; c++) {
+            mm.setFaceUV(item, f, c, uvs[cursor * 2], uvs[cursor * 2 + 1]);
+            cursor++;
+          }
+        }
+      }
+      if (texture && !mm.setItemTextureFromFileData(item, texture))
+        console.warn(`USD texture on mesh ${i} could not be decoded`);
       mm.rebuildMesh(item);
     }
   } finally {
     usd._usdio_scene_free(scene);
   }
   return meshCount;
+}
+
+async function rgbaToPng(pixels: Uint8Array, width: number, height: number): Promise<Uint8Array> {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Canvas 2D is unavailable for USD texture encoding');
+  context.putImageData(new ImageData(new Uint8ClampedArray(pixels), width, height), 0, 0);
+  const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(
+    (value) => value ? resolve(value) : reject(new Error('PNG encoding failed')), 'image/png'));
+  return new Uint8Array(await blob.arrayBuffer());
 }

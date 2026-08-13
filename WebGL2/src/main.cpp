@@ -4674,6 +4674,68 @@ int api_getFaceVertexIndex(int itemIndex, int faceIndex, int cornerIndex) {
     return static_cast<int>(face.vertices[cornerIndex]);
 }
 
+float api_getFaceUVX(int itemIndex, int faceIndex, int cornerIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh || faceIndex < 0 ||
+        faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return 0.0f;
+    const Face& face = item->mesh->getFace(static_cast<uint32_t>(faceIndex));
+    if (cornerIndex < 0 || cornerIndex >= static_cast<int>(face.vertexCount)) return 0.0f;
+    return face.uvs[cornerIndex].x;
+}
+
+float api_getFaceUVY(int itemIndex, int faceIndex, int cornerIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh || faceIndex < 0 ||
+        faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return 0.0f;
+    const Face& face = item->mesh->getFace(static_cast<uint32_t>(faceIndex));
+    if (cornerIndex < 0 || cornerIndex >= static_cast<int>(face.vertexCount)) return 0.0f;
+    return face.uvs[cornerIndex].y;
+}
+
+void api_setFaceUV(int itemIndex, int faceIndex, int cornerIndex, float u, float v) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->mesh || faceIndex < 0 ||
+        faceIndex >= static_cast<int>(item->mesh->getFaceCount())) return;
+    Face& face = item->mesh->mutFaces()[static_cast<uint32_t>(faceIndex)];
+    if (cornerIndex < 0 || cornerIndex >= static_cast<int>(face.vertexCount)) return;
+    face.uvs[cornerIndex] = glm::vec2(u, v);
+}
+
+bool api_itemHasTexture(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    return item && item->hasTexture();
+}
+
+int api_getItemTextureWidth(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    return item && item->hasTexture() ? item->getTexture()->getWidth() : 0;
+}
+
+int api_getItemTextureHeight(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    return item && item->hasTexture() ? item->getTexture()->getHeight() : 0;
+}
+
+emscripten::val api_getItemTexturePixels(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->hasTexture()) return emscripten::val::null();
+    const auto& pixels = item->getTexture()->getPixels();
+    return emscripten::val(emscripten::typed_memory_view(pixels.size(), pixels.data()));
+}
+
+bool api_setItemTextureFromFileData(int itemIndex, emscripten::val data) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item) return false;
+    const unsigned int length = data["length"].as<unsigned int>();
+    std::vector<uint8_t> bytes(length);
+    for (unsigned int i = 0; i < length; ++i) bytes[i] = data[i].as<uint8_t>();
+    auto texture = TextureManager::instance().createFromFileData(
+        "usd_texture_" + std::to_string(itemIndex), bytes.data(), bytes.size());
+    if (!texture) return false;
+    item->setTexture(texture);
+    return true;
+}
+
 // ============================================================================
 // Mesh Mutation API (add/remove geometry directly)
 // ============================================================================
