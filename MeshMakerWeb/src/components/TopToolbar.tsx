@@ -21,6 +21,7 @@ interface TopToolbarProps {
   onImportFile: (file: File) => void;
   onExportOBJ: () => void;
   onExportGLB: () => void;
+  onExportUSD: () => void;
   onClearScene: () => void;
   // Mesh operations
   onSubdivide: () => void;
@@ -134,6 +135,7 @@ export function TopToolbar({
   onImportFile,
   onExportOBJ,
   onExportGLB,
+  onExportUSD,
   onClearScene,
   onSubdivide,
   onMerge,
@@ -161,13 +163,14 @@ export function TopToolbar({
       <input
         ref={fileInputRef}
         type="file"
-        accept=".obj,.glb"
+        accept=".obj,.glb,.usd,.usda,.usdc,.usdz"
         onChange={handleFileImport}
         className="hidden"
       />
-      <EmojiButton label="📂" title="Import (OBJ/GLB)" onClick={() => fileInputRef.current?.click()} />
+      <EmojiButton label="📂" title="Import (OBJ/GLB/USD)" onClick={() => fileInputRef.current?.click()} />
       <EmojiButton label="💾" title="Export OBJ" onClick={onExportOBJ} />
       <EmojiButton label="📦" title="Export GLB" onClick={onExportGLB} />
+      <EmojiButton label="🎬" title="Export USD (.usda, quads preserved)" onClick={onExportUSD} />
       
       <Separator />
       

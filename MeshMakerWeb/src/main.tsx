@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer'
 // @gradio/client uses Buffer without a globalThis guard, so polyfill it
-globalThis.Buffer = Buffer
+;(globalThis as { Buffer?: typeof Buffer }).Buffer = Buffer
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

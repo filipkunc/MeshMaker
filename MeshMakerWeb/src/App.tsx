@@ -6,6 +6,7 @@ import { ScriptEditor } from './components/ScriptEditor';
 import { ResizableSplitter } from './components/ResizableSplitter';
 import { useMeshMaker } from './hooks/useMeshMaker';
 import { AIGenerateDialog } from './components/AIGenerateDialog';
+import { exportUsd, importUsd, isUsdExtension } from './lib/usdIo';
 
 type EditMode = 'items' | 'vertices' | 'triangles' | 'edges';
 type ViewMode = 'solid' | 'wireframe' | 'solidWireframe';
@@ -341,12 +342,52 @@ function App() {
         }
       };
       reader.readAsArrayBuffer(file);
+    } else if (isUsdExtension(extension)) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const buffer = e.target?.result as ArrayBuffer;
+        if (!buffer) return;
+        setIsImporting(true);
+        setImportProgress('Loading USD module...');
+        try {
+          const added = await importUsd(module, new Uint8Array(buffer), extension!);
+          console.log(`Imported ${added} mesh(es) from ${file.name}`);
+        } catch (err) {
+          console.error('USD import error:', err);
+        }
+        setIsImporting(false);
+        setImportProgress('');
+        triggerUpdate();
+      };
+      reader.readAsArrayBuffer(file);
     } else {
       setIsImporting(false);
       setImportProgress('');
       console.error('Unsupported file format:', extension);
     }
   }, [module, triggerUpdate]);
+
+  const handleExportUSD = useCallback(async () => {
+    if (!module) return;
+    setIsImporting(true);
+    setImportProgress('Exporting USD...');
+    try {
+      const bytes = await exportUsd(module, 'usda');
+      const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'model/vnd.usda' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'meshmaker-export.usda';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('USD export error:', err);
+    }
+    setIsImporting(false);
+    setImportProgress('');
+  }, [module]);
 
   const handleClearScene = useCallback(() => {
     if (!module) return;
@@ -653,6 +694,7 @@ function App() {
         onImportFile={handleImportFile}
         onExportOBJ={handleExportOBJ}
         onExportGLB={handleExportGLB}
+        onExportUSD={handleExportUSD}
         onClearScene={handleClearScene}
         onSubdivide={handleSubdivide}
         onMerge={handleMergeVertices}

@@ -1,0 +1,7 @@
+deps/src/
+deps/build/
+deps/tbb_wasm/
+deps/openusd_wasm/
+build/
+build-diag/
+deps/*.log

@@ -11,7 +11,8 @@
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
     "copy-wasm": "node scripts/copy-wasm.mjs",
-    "copy-wasm-debug": "node scripts/copy-wasm.mjs --debug"
+    "copy-wasm-debug": "node scripts/copy-wasm.mjs --debug",
+    "copy-usd-io": "node scripts/copy-usd-io.mjs"
   },
   "dependencies": {
     "@gradio/client": "^2.0.4",

@@ -45,6 +45,12 @@ export default defineConfig({
   assetsInclude: ['**/*.wasm'],
   server: {
     cors: true,
+    // Cross-origin isolation: the lazy-loaded usd-io module uses pthreads
+    // (shared WebAssembly.Memory), which browsers gate behind COOP/COEP.
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+    },
     // Allow serving files from the WebGL2 build directory
     fs: {
       allow: ['..'],
@@ -58,6 +64,12 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/hunyuan/, ''),
         ws: true,
       },
+    },
+  },
+  preview: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
     },
   },
 })

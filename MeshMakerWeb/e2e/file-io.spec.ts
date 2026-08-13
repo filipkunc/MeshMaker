@@ -302,7 +302,7 @@ test.describe('File I/O: Import via file chooser', () => {
     // Create a synthetic OBJ file and trigger the file input
     const [fileChooser] = await Promise.all([
       page.waitForEvent('filechooser'),
-      page.click('button[title="Import (OBJ/GLB)"]'),
+      page.click('button[title="Import (OBJ/GLB/USD)"]'),
     ]);
 
     // Write OBJ content to a temp buffer and set as file
@@ -345,7 +345,7 @@ test.describe('File I/O: Import via file chooser', () => {
     // Import via file picker
     const [fileChooser] = await Promise.all([
       page.waitForEvent('filechooser'),
-      page.click('button[title="Import (OBJ/GLB)"]'),
+      page.click('button[title="Import (OBJ/GLB/USD)"]'),
     ]);
 
     const buffer = Buffer.from(glbBase64!, 'base64');
