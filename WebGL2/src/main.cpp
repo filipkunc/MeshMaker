@@ -4706,6 +4706,21 @@ bool api_itemHasTexture(int itemIndex) {
     return item && item->hasTexture();
 }
 
+float api_getItemBaseColorR(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.r : 1.0f; }
+float api_getItemBaseColorG(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.g : 1.0f; }
+float api_getItemBaseColorB(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.b : 1.0f; }
+float api_getItemOpacity(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.a : 1.0f; }
+float api_getItemMetallic(int i) { Item* p = api_getItemByIndex(i); return p ? p->metallic : 0.0f; }
+float api_getItemRoughness(int i) { Item* p = api_getItemByIndex(i); return p ? p->roughness : 0.4f; }
+void api_setItemMaterial(int i, float r, float g, float b, float opacity,
+                         float metallic, float roughness) {
+    Item* p = api_getItemByIndex(i);
+    if (!p) return;
+    p->baseColor = glm::clamp(glm::vec4(r, g, b, opacity), 0.0f, 1.0f);
+    p->metallic = glm::clamp(metallic, 0.0f, 1.0f);
+    p->roughness = glm::clamp(roughness, 0.0f, 1.0f);
+}
+
 int api_getItemTextureWidth(int itemIndex) {
     Item* item = api_getItemByIndex(itemIndex);
     return item && item->hasTexture() ? item->getTexture()->getWidth() : 0;

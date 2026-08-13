@@ -661,6 +661,9 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
             meshWireShader.setVec3("uSelectionColor", glm::vec3(1.0f, 0.5f, 0.0f));
             meshWireShader.setVec3("uSeamColor", glm::vec3(0.0f, 0.8f, 0.0f));
             meshWireShader.setFloat("uLineWidth", 1.0f);
+            meshWireShader.setVec4("uBaseColor", item->baseColor);
+            meshWireShader.setFloat("uMetallic", item->metallic);
+            meshWireShader.setFloat("uRoughness", item->roughness);
             
             if (item->hasTexture()) {
                 item->getTexture()->bind(0);
@@ -670,7 +673,12 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
                 meshWireShader.setBool("uUseTexture", false);
             }
             
+            if (item->baseColor.a < 1.0f) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }
             item->mesh->drawSolidWireframe();
+            if (item->baseColor.a < 1.0f) glDisable(GL_BLEND);
             
             if (item->hasTexture()) {
                 Texture::unbind(0);
@@ -682,6 +690,9 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
             meshShader.setMat4("uView", view);
             meshShader.setMat4("uProjection", projection);
             meshShader.setMat3("uNormalMatrix", normalMatrix);
+            meshShader.setVec4("uBaseColor", item->baseColor);
+            meshShader.setFloat("uMetallic", item->metallic);
+            meshShader.setFloat("uRoughness", item->roughness);
             
             if (item->hasTexture()) {
                 item->getTexture()->bind(0);
@@ -691,7 +702,12 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
                 meshShader.setBool("uUseTexture", false);
             }
             
+            if (item->baseColor.a < 1.0f) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }
             item->mesh->draw(ViewMode::Solid);
+            if (item->baseColor.a < 1.0f) glDisable(GL_BLEND);
             
             if (item->hasTexture()) {
                 Texture::unbind(0);

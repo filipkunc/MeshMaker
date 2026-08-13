@@ -18,6 +18,7 @@ interface UsdIoModule {
     counts: number, numFaces: number,
     indices: number, numIndices: number,
     translate: number, rotateDeg: number, scale: number,
+    material: number,
     uvs: number, numUvs: number,
     textureBytes: number, textureLen: number, textureExt: number,
   ): void;
@@ -36,6 +37,7 @@ interface UsdIoModule {
   _usdio_mesh_uvs(scene: number, i: number): number;
   _usdio_mesh_texture_size(scene: number, i: number): number;
   _usdio_mesh_texture(scene: number, i: number): number;
+  _usdio_mesh_material(scene: number, i: number): number;
   _usdio_scene_free(scene: number): void;
   UTF8ToString(ptr: number): string;
   HEAPF32: Float32Array;
@@ -142,6 +144,10 @@ export async function exportUsd(
     const scale = new Float32Array([
       mm.getItemScaleX(item), mm.getItemScaleY(item), mm.getItemScaleZ(item),
     ]);
+    const material = new Float32Array([
+      mm.getItemBaseColorR(item), mm.getItemBaseColorG(item), mm.getItemBaseColorB(item),
+      mm.getItemOpacity(item), mm.getItemMetallic(item), mm.getItemRoughness(item),
+    ]);
 
     const indicesArr = new Int32Array(indices);
     const uvs = new Float32Array(uvValues);
@@ -155,14 +161,14 @@ export async function exportUsd(
       allocCString(usd, `Item_${item}`),
       alloc(usd, points), alloc(usd, counts), alloc(usd, indicesArr),
       alloc(usd, translate), alloc(usd, rotate), alloc(usd, scale),
-      alloc(usd, uvs),
+      alloc(usd, material), alloc(usd, uvs),
       texture.length ? allocBytes(usd, texture) : 0,
       texture.length ? allocCString(usd, 'png') : 0,
     ];
     usd._usdio_export_add_mesh(exp, ptrs[0],
       ptrs[1], vertexCount, ptrs[2], faceCount, ptrs[3], indicesArr.length,
-      ptrs[4], ptrs[5], ptrs[6], ptrs[7], indicesArr.length,
-      ptrs[8], texture.length, ptrs[9]);
+      ptrs[4], ptrs[5], ptrs[6], ptrs[7], ptrs[8], indicesArr.length,
+      ptrs[9], texture.length, ptrs[10]);
     ptrs.forEach((p) => { if (p) usd._free(p); });
   }
 
@@ -216,6 +222,8 @@ export async function importUsd(
       const textureSize = usd._usdio_mesh_texture_size(scene, i);
       const texture = textureSize ? new Uint8Array(
         usd.HEAPU8.buffer, usd._usdio_mesh_texture(scene, i), textureSize).slice() : null;
+      const material = new Float32Array(
+        usd.HEAPF32.buffer, usd._usdio_mesh_material(scene, i), 6).slice();
 
       // New item: the mutation API works on an existing item's mesh, so add
       // a primitive and replace its geometry (same trick the scripts use).
@@ -248,6 +256,8 @@ export async function importUsd(
       }
       if (texture && !mm.setItemTextureFromFileData(item, texture))
         console.warn(`USD texture on mesh ${i} could not be decoded`);
+      mm.setItemMaterial(item, material[0], material[1], material[2], material[3],
+        material[4], material[5]);
       mm.rebuildMesh(item);
     }
   } finally {

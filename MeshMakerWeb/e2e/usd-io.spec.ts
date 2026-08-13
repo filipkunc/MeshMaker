@@ -148,6 +148,7 @@ test.describe('File I/O: USD', () => {
       const mm = (window as any).Module;
       const png = Uint8Array.from(atob(pngBase64), (char) => char.charCodeAt(0));
       mm.setFaceUV(0, 0, 0, 0.125, 0.875);
+      mm.setItemMaterial(0, 0.8, 0.2, 0.1, 0.75, 0.6, 0.3);
       if (!mm.setItemTextureFromFileData(0, png)) throw new Error('fixture PNG decode failed');
       const { exportUsd, importUsd } = await (new Function(
         'return import("/src/lib/usdIo.ts")')() as Promise<any>);
@@ -162,6 +163,9 @@ test.describe('File I/O: USD', () => {
         height: mm.getItemTextureHeight(0),
         u: mm.getFaceUVX(0, 0, 0),
         v: mm.getFaceUVY(0, 0, 0),
+        material: [mm.getItemBaseColorR(0), mm.getItemBaseColorG(0),
+          mm.getItemBaseColorB(0), mm.getItemOpacity(0),
+          mm.getItemMetallic(0), mm.getItemRoughness(0)],
       };
     }, 'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfqCA0TNyrszXWTAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA4LTEzVDE5OjU1OjQyKzAwOjAwR5PNDQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wOC0xM1QxOTo1NTo0MiswMDowMDbOdbEAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDgtMTNUMTk6NTU6NDIrMDA6MDBh21RuAAAAFElEQVQI12P8z8Dwn4GBgYGJAQoAHxcCAmep4oIAAAAASUVORK5CYII=');
 
@@ -172,5 +176,9 @@ test.describe('File I/O: USD', () => {
     expect(result.height).toBe(2);
     expect(result.u).toBeCloseTo(0.125);
     expect(result.v).toBeCloseTo(0.875);
+    expect(result.material).toEqual([
+      expect.closeTo(0.8), expect.closeTo(0.2), expect.closeTo(0.1),
+      expect.closeTo(0.75), expect.closeTo(0.6), expect.closeTo(0.3),
+    ]);
   });
 });

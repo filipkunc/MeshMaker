@@ -61,6 +61,10 @@ std::unique_ptr<Item> Item::duplicate() const {
     newItem->scale = scale;
     newItem->selected = true;  // Select the duplicate
     newItem->visible = visible;
+    newItem->baseColor = baseColor;
+    newItem->metallic = metallic;
+    newItem->roughness = roughness;
+    newItem->texture = texture;
     
     // Merge source mesh into new empty mesh (original pattern)
     newItem->mesh->merge(mesh.get());

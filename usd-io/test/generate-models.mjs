@@ -22,19 +22,20 @@ function cstr(value) {
   return ptr;
 }
 
-function addMesh(exporter, name, points, counts, indices, translate, texture = null) {
+function addMesh(exporter, name, points, counts, indices, translate, texture = null,
+  material = [1, 1, 1, 1, 0, 0.4]) {
   const uvs = indices.flatMap((_, i) => [i % 2, (i >> 1) % 2]);
   const values = [
     cstr(name), alloc(new Float32Array(points)), alloc(new Int32Array(counts)),
     alloc(new Int32Array(indices)), alloc(new Float32Array(translate)),
     alloc(new Float32Array([0, 0, 0])), alloc(new Float32Array([1, 1, 1])),
-    alloc(new Float32Array(uvs)), texture ? cstr('png') : 0,
+    alloc(new Float32Array(material)), alloc(new Float32Array(uvs)), texture ? cstr('png') : 0,
     texture ? (() => { const ptr = mod._malloc(texture.length); mod.HEAPU8.set(texture, ptr); return ptr; })() : 0,
   ];
   mod._usdio_export_add_mesh(exporter, values[0], values[1], points.length / 3,
     values[2], counts.length, values[3], indices.length,
-    values[4], values[5], values[6], values[7], indices.length,
-    values[9], texture?.length ?? 0, values[8]);
+    values[4], values[5], values[6], values[7], values[8], indices.length,
+    values[10], texture?.length ?? 0, values[9]);
   values.forEach((ptr) => { if (ptr) mod._free(ptr); });
 }
 
@@ -49,7 +50,7 @@ function createModel(format) {
   ], [4, 4, 4, 4, 4, 4], [
     0, 3, 2, 1, 4, 5, 6, 7, 0, 1, 5, 4,
     2, 3, 7, 6, 0, 4, 7, 3, 1, 2, 6, 5,
-  ], [2, 0, 0], checkerPng);
+  ], [2, 0, 0], checkerPng, [0.8, 0.2, 0.1, 0.75, 0.6, 0.3]);
   addMesh(exporter, 'Tri', [0, 0, 0, 1, 0, 0, 0, 1, 0],
     [3], [0, 1, 2], [0, 0, 0]);
 

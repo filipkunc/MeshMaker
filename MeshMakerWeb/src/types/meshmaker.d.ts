@@ -169,6 +169,14 @@ export interface MeshMakerModule extends EmscriptenModule {
   getFaceUVY(itemIndex: number, faceIndex: number, cornerIndex: number): number;
   setFaceUV(itemIndex: number, faceIndex: number, cornerIndex: number, u: number, v: number): void;
   itemHasTexture(itemIndex: number): boolean;
+  getItemBaseColorR(itemIndex: number): number;
+  getItemBaseColorG(itemIndex: number): number;
+  getItemBaseColorB(itemIndex: number): number;
+  getItemOpacity(itemIndex: number): number;
+  getItemMetallic(itemIndex: number): number;
+  getItemRoughness(itemIndex: number): number;
+  setItemMaterial(itemIndex: number, r: number, g: number, b: number, opacity: number,
+    metallic: number, roughness: number): void;
   getItemTextureWidth(itemIndex: number): number;
   getItemTextureHeight(itemIndex: number): number;
   getItemTexturePixels(itemIndex: number): Uint8Array | null;

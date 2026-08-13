@@ -13,6 +13,9 @@ out vec4 FragColor;
 
 uniform sampler2D uTexture;
 uniform bool uUseTexture;
+uniform vec4 uBaseColor;
+uniform float uMetallic;
+uniform float uRoughness;
 uniform vec3 uWireColor;
 uniform vec3 uSelectionColor;
 uniform vec3 uSeamColor;
@@ -33,9 +36,9 @@ void main() {
     vec3 material;
     if (uUseTexture) {
         vec4 texColor = texture(uTexture, vTexCoord);
-        material = texColor.rgb * vColor;
+        material = texColor.rgb * uBaseColor.rgb * vColor;
     } else {
-        material = vColor;
+        material = uBaseColor.rgb * vColor;
     }
     
     vec3 s = normalize(l - vEyeCoords);
@@ -49,7 +52,9 @@ void main() {
     vec3 specular = vec3(0.0);
     
     if (sDotN > 0.0) {
-        specular = material * pow(max(dot(r, v), 0.0), 40.0);
+        float shininess = mix(128.0, 4.0, clamp(uRoughness, 0.0, 1.0));
+        vec3 specularColor = mix(vec3(0.04), material, clamp(uMetallic, 0.0, 1.0));
+        specular = specularColor * pow(max(dot(r, v), 0.0), shininess);
     }
     
     vec3 solidColor = min(ambient + diffuse + specular, vColor * 1.8);
@@ -93,5 +98,5 @@ void main() {
     
     // Blend wire color over solid color
     vec3 finalColor = mix(solidColor, wireColor, edgeFactor);
-    FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(finalColor, uBaseColor.a);
 }

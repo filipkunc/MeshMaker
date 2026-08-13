@@ -16,6 +16,9 @@ public:
     glm::vec3 scale;
     bool selected;
     bool visible;
+    glm::vec4 baseColor{1.0f};
+    float metallic = 0.0f;
+    float roughness = 0.4f;
     
     std::unique_ptr<Mesh2> mesh;
     std::shared_ptr<Texture> texture;  // Optional texture for this item

@@ -156,6 +156,14 @@ extern float api_getFaceUVX(int itemIndex, int faceIndex, int cornerIndex);
 extern float api_getFaceUVY(int itemIndex, int faceIndex, int cornerIndex);
 extern void api_setFaceUV(int itemIndex, int faceIndex, int cornerIndex, float u, float v);
 extern bool api_itemHasTexture(int itemIndex);
+extern float api_getItemBaseColorR(int itemIndex);
+extern float api_getItemBaseColorG(int itemIndex);
+extern float api_getItemBaseColorB(int itemIndex);
+extern float api_getItemOpacity(int itemIndex);
+extern float api_getItemMetallic(int itemIndex);
+extern float api_getItemRoughness(int itemIndex);
+extern void api_setItemMaterial(int itemIndex, float r, float g, float b, float opacity,
+                                float metallic, float roughness);
 extern int api_getItemTextureWidth(int itemIndex);
 extern int api_getItemTextureHeight(int itemIndex);
 extern emscripten::val api_getItemTexturePixels(int itemIndex);
@@ -335,6 +343,13 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("getFaceUVY", &api_getFaceUVY);
     function("setFaceUV", &api_setFaceUV);
     function("itemHasTexture", &api_itemHasTexture);
+    function("getItemBaseColorR", &api_getItemBaseColorR);
+    function("getItemBaseColorG", &api_getItemBaseColorG);
+    function("getItemBaseColorB", &api_getItemBaseColorB);
+    function("getItemOpacity", &api_getItemOpacity);
+    function("getItemMetallic", &api_getItemMetallic);
+    function("getItemRoughness", &api_getItemRoughness);
+    function("setItemMaterial", &api_setItemMaterial);
     function("getItemTextureWidth", &api_getItemTextureWidth);
     function("getItemTextureHeight", &api_getItemTextureHeight);
     function("getItemTexturePixels", &api_getItemTexturePixels);

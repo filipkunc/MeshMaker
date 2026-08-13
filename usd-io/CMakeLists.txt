@@ -49,6 +49,7 @@ set(EXPORTED_FUNCS
     _usdio_mesh_uvs
     _usdio_mesh_texture_size
     _usdio_mesh_texture
+    _usdio_mesh_material
     _usdio_scene_free
     _malloc
     _free

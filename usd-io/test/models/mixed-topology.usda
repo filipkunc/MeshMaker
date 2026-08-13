@@ -6,11 +6,14 @@
 
 def Xform "Root"
 {
-    def Mesh "Cube_0"
+    def Mesh "Cube_0" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
     {
         float3[] extent = [(-1, -1, -1), (1, 1, 1)]
         int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
         int[] faceVertexIndices = [0, 3, 2, 1, 4, 5, 6, 7, 0, 1, 5, 4, 2, 3, 7, 6, 0, 4, 7, 3, 1, 2, 6, 5]
+        rel material:binding = </Root/Cube_0/Material>
         point3f[] points = [(-1, -1, -1), (1, -1, -1), (1, 1, -1), (-1, 1, -1), (-1, -1, 1), (1, -1, 1), (1, 1, 1), (-1, 1, 1)]
         texCoord2f[] primvars:st = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1), (0, 0), (1, 0), (0, 1), (1, 1)] (
             interpolation = "faceVarying"
@@ -18,17 +21,50 @@ def Xform "Root"
         uniform token subdivisionScheme = "none"
         double3 xformOp:translate = (2, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Material "Material"
+        {
+            token outputs:surface.connect = </Root/Cube_0/Material/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.8, 0.2, 0.1)
+                float inputs:metallic = 0.6
+                float inputs:opacity = 0.75
+                float inputs:roughness = 0.3
+                token outputs:surface
+            }
+        }
     }
 
-    def Mesh "Tri_1"
+    def Mesh "Tri_1" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
     {
         float3[] extent = [(0, 0, 0), (1, 1, 0)]
         int[] faceVertexCounts = [3]
         int[] faceVertexIndices = [0, 1, 2]
+        rel material:binding = </Root/Tri_1/Material>
         point3f[] points = [(0, 0, 0), (1, 0, 0), (0, 1, 0)]
         texCoord2f[] primvars:st = [(0, 0), (1, 0), (0, 1)] (
             interpolation = "faceVarying"
         )
         uniform token subdivisionScheme = "none"
+
+        def Material "Material"
+        {
+            token outputs:surface.connect = </Root/Tri_1/Material/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:metallic = 0
+                float inputs:opacity = 1
+                float inputs:roughness = 0.4
+                token outputs:surface
+            }
+        }
     }
 }

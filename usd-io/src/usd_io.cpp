@@ -105,6 +105,7 @@ struct ImportedMesh {
     std::vector<int32_t> indices; // faceVertexIndices
     std::vector<float> uvs;       // face-varying uv pairs
     std::vector<uint8_t> texture; // encoded PNG/JPEG bytes
+    float material[6] = {1, 1, 1, 1, 0, 0.4f}; // rgb, opacity, metallic, roughness
 };
 
 struct Scene {
@@ -151,6 +152,7 @@ void usdio_export_add_mesh(void *h, const char *name,
                            const int32_t *faceVertexIndices, uint32_t numIndices,
                            const float *translate, const float *rotateDeg,
                            const float *scale,
+                           const float *materialValues,
                            const float *uvs, uint32_t numUvs,
                            const uint8_t *textureBytes, uint32_t textureLen,
                            const char *textureExt)
@@ -195,7 +197,22 @@ void usdio_export_add_mesh(void *h, const char *name,
             UsdGeomTokens->faceVarying).Set(st);
     }
 
-    if (textureBytes && textureLen && uvs && numUvs == numIndices) {
+    if (materialValues) {
+        const SdfPath materialPath = path.AppendChild(TfToken("Material"));
+        UsdShadeMaterial material = UsdShadeMaterial::Define(exp->stage, materialPath);
+        UsdShadeShader surface = UsdShadeShader::Define(
+            exp->stage, materialPath.AppendChild(TfToken("PreviewSurface")));
+        surface.CreateIdAttr(VtValue(TfToken("UsdPreviewSurface")));
+        surface.CreateInput(TfToken("diffuseColor"), SdfValueTypeNames->Color3f).Set(
+            GfVec3f(materialValues[0], materialValues[1], materialValues[2]));
+        surface.CreateInput(TfToken("opacity"), SdfValueTypeNames->Float).Set(materialValues[3]);
+        surface.CreateInput(TfToken("metallic"), SdfValueTypeNames->Float).Set(materialValues[4]);
+        surface.CreateInput(TfToken("roughness"), SdfValueTypeNames->Float).Set(materialValues[5]);
+        surface.CreateOutput(TfToken("surface"), SdfValueTypeNames->Token);
+        material.CreateSurfaceOutput().ConnectToSource(
+            surface.ConnectableAPI(), TfToken("surface"));
+
+        if (textureBytes && textureLen && uvs && numUvs == numIndices) {
         const std::string ext = textureExt && textureExt[0] ? textureExt : "png";
         const std::string fileName = TfStringPrintf("texture_%d.%s",
             exp->meshIndex - 1, ext.c_str());
@@ -203,17 +220,6 @@ void usdio_export_add_mesh(void *h, const char *name,
         std::ofstream image(filePath, std::ios::binary | std::ios::trunc);
         image.write(reinterpret_cast<const char *>(textureBytes), textureLen);
         exp->texturePaths.push_back(filePath);
-
-        const SdfPath materialPath = path.AppendChild(TfToken("Material"));
-        UsdShadeMaterial material = UsdShadeMaterial::Define(exp->stage, materialPath);
-        UsdShadeShader surface = UsdShadeShader::Define(
-            exp->stage, materialPath.AppendChild(TfToken("PreviewSurface")));
-        surface.CreateIdAttr(VtValue(TfToken("UsdPreviewSurface")));
-        surface.CreateInput(TfToken("roughness"), SdfValueTypeNames->Float).Set(0.4f);
-        surface.CreateInput(TfToken("metallic"), SdfValueTypeNames->Float).Set(0.0f);
-        surface.CreateOutput(TfToken("surface"), SdfValueTypeNames->Token);
-        material.CreateSurfaceOutput().ConnectToSource(
-            surface.ConnectableAPI(), TfToken("surface"));
 
         UsdShadeShader reader = UsdShadeShader::Define(
             exp->stage, materialPath.AppendChild(TfToken("PrimvarReader")));
@@ -230,6 +236,7 @@ void usdio_export_add_mesh(void *h, const char *name,
         texture.CreateOutput(TfToken("rgb"), SdfValueTypeNames->Float3);
         surface.CreateInput(TfToken("diffuseColor"), SdfValueTypeNames->Color3f)
             .ConnectToSource(texture.ConnectableAPI(), TfToken("rgb"));
+        }
         UsdShadeMaterialBindingAPI::Apply(mesh.GetPrim()).Bind(material);
     }
 }
@@ -347,6 +354,15 @@ void *usdio_import(const uint8_t *bytes, uint32_t len, const char *ext)
 
         UsdShadeMaterial material = UsdShadeMaterialBindingAPI(mesh).ComputeBoundMaterial();
         if (material) {
+            UsdShadeShader surface = material.ComputeSurfaceSource();
+            if (surface) {
+                GfVec3f color(1.0f);
+                surface.GetInput(TfToken("diffuseColor")).Get(&color);
+                out.material[0] = color[0]; out.material[1] = color[1]; out.material[2] = color[2];
+                surface.GetInput(TfToken("opacity")).Get(&out.material[3]);
+                surface.GetInput(TfToken("metallic")).Get(&out.material[4]);
+                surface.GetInput(TfToken("roughness")).Get(&out.material[5]);
+            }
             for (const UsdPrim &child : UsdPrimRange(material.GetPrim())) {
                 UsdShadeShader shader(child);
                 TfToken id;
@@ -468,6 +484,11 @@ uint32_t usdio_mesh_texture_size(void *h, uint32_t i)
 const uint8_t *usdio_mesh_texture(void *h, uint32_t i)
 {
     return static_cast<Scene *>(h)->meshes[i].texture.data();
+}
+
+const float *usdio_mesh_material(void *h, uint32_t i)
+{
+    return static_cast<Scene *>(h)->meshes[i].material;
 }
 
 const int32_t *usdio_mesh_indices(void *h, uint32_t i)
