@@ -66,14 +66,18 @@ cmake --build build
 source /path/to/emsdk/emsdk_env.sh
 
 # Configure and build
-emcmake cmake -B build-web
-cmake --build build-web
+cmake --preset webgl
+cmake --build --preset webgl
 
-# Serve locally
-cd build-web
-python3 -m http.server 8000
-# Open http://localhost:8000/MeshMakerWebGL2.html
+# Copy into and run the React frontend
+cd ../MeshMakerWeb
+npm install
+npm run copy-wasm
+npm run dev
 ```
+
+See [`../usd-io/README.md`](../usd-io/README.md) to enable USDA, USDC, and
+USDZ import/export in the web app.
 
 ## Controls
 

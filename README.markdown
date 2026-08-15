@@ -77,21 +77,43 @@ MeshMaker has a WebGL2 port built with Emscripten (C++ to WASM) and a React + Ty
 ### Building and Running
 
 ```bash
-# 1. Configure WASM build
+# Activate emsdk first, then build the editor WASM module
 cd WebGL2
-emcmake cmake --preset webgl-debug   # or webgl-release
+cmake --preset webgl
+cmake --build --preset webgl
 
-# 2. Build WASM
-cd build-wasm
-ninja
-
-# 3. Copy WASM artifacts to React app
-cd ../../MeshMakerWeb
+# Install the frontend and copy the editor module
+cd ../MeshMakerWeb
 npm install
 npm run copy-wasm
 
-# 4. Start dev server
+# Start the development server
 npm run dev
+```
+
+Open the URL printed by Vite (normally `http://localhost:5173`). For OpenUSD
+support, first build the separate module as described in
+[`usd-io/README.md`](usd-io/README.md), then run `npm run copy-usd-io` in
+`MeshMakerWeb`.
+
+The web editor reads and writes OBJ, GLB, USDA, USDC, and USDZ. OpenUSD keeps
+mixed triangle/quad topology and supports face-varying UVs, `UsdPreviewSurface`
+materials, diffuse textures, and tangent-space normal maps. Use USDZ when a
+scene contains textures so the images travel with the model.
+
+### Tests
+
+```bash
+# Native C++ suite
+cd WebGL2
+cmake --preset desktop-debug
+cmake --build --preset desktop-debug
+ctest --preset desktop-debug
+
+# Browser end-to-end suite
+cd ../MeshMakerWeb
+npx playwright install chromium
+npm run test:e2e
 ```
 
 ### AI 3D Generation (Hunyuan3D-2)
