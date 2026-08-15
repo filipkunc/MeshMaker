@@ -80,7 +80,8 @@ public/_headers, and needed in the site server for /meshmaker/*):
 
 - USDA/USDC texture references are external files, which the browser's
   single-file import picker cannot resolve. Use USDZ for textured scenes.
-- `UsdPreviewSurface` base color, opacity, metallic, roughness, and diffuse
-  bitmap are mapped. Normal maps and arbitrary MaterialX networks are not yet
-  represented by MeshMaker's item material model.
+- `UsdPreviewSurface` base color, opacity, metallic, roughness, emissive color,
+  clearcoat, clearcoat roughness, IOR, diffuse bitmap, and tangent-space normal
+  map are mapped. Arbitrary MaterialX networks are not yet represented by
+  MeshMaker's item material model.
 - Item transforms survive USD as xformOps but import bakes them into points.

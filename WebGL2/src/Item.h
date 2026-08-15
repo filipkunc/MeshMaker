@@ -19,9 +19,14 @@ public:
     glm::vec4 baseColor{1.0f};
     float metallic = 0.0f;
     float roughness = 0.4f;
+    glm::vec3 emissiveColor{0.0f};
+    float clearcoat = 0.0f;
+    float clearcoatRoughness = 0.01f;
+    float ior = 1.5f;
     
     std::unique_ptr<Mesh2> mesh;
     std::shared_ptr<Texture> texture;  // Optional texture for this item
+    std::shared_ptr<Texture> normalTexture;
     
     Item();
     Item(std::unique_ptr<Mesh2> aMesh);
@@ -39,6 +44,9 @@ public:
     void setTexture(std::shared_ptr<Texture> tex);
     std::shared_ptr<Texture> getTexture() const;
     bool hasTexture() const;
+    void setNormalTexture(std::shared_ptr<Texture> tex) { normalTexture = tex; }
+    std::shared_ptr<Texture> getNormalTexture() const { return normalTexture; }
+    bool hasNormalTexture() const { return normalTexture != nullptr; }
     
     // Create a duplicate of this item
     std::unique_ptr<Item> duplicate() const;

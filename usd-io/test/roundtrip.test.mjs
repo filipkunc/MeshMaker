@@ -52,10 +52,11 @@ function addMesh(exp, name, mesh, translate, rotate, scale) {
     uv[i * 2 + 1] = (i >> 1) % 2;
   }
   const pUv = alloc(uv);
-  const pMaterial = alloc(new Float32Array([1, 1, 1, 1, 0, 0.4]));
+  const pMaterial = alloc(new Float32Array(
+    [1, 1, 1, 1, 0, 0.4, 0, 0, 0, 0, 0.01, 1.5]));
   mod._usdio_export_add_mesh(exp, pName,
     pPts, mesh.points.length / 3, pCounts, mesh.counts.length, pIdx, mesh.indices.length,
-    pT, pR, pS, pMaterial, pUv, mesh.indices.length, 0, 0, 0);
+    pT, pR, pS, pMaterial, pUv, mesh.indices.length, 0, 0, 0, 0, 0, 0);
   [pName, pPts, pCounts, pIdx, pT, pR, pS, pMaterial, pUv].forEach((p) => mod._free(p));
 }
 
@@ -96,7 +97,10 @@ function importScene(bytes, ext) {
       texture: new Uint8Array(mod.HEAPU8.buffer, mod._usdio_mesh_texture(h, i),
         mod._usdio_mesh_texture_size(h, i)).slice(),
       material: new Float32Array(mod.HEAPF32.buffer,
-        mod._usdio_mesh_material(h, i), 6).slice(),
+        mod._usdio_mesh_material(h, i), 12).slice(),
+      normalTexture: new Uint8Array(mod.HEAPU8.buffer,
+        mod._usdio_mesh_normal_texture(h, i),
+        mod._usdio_mesh_normal_texture_size(h, i)).slice(),
     });
   }
   mod._usdio_scene_free(h);
@@ -151,6 +155,12 @@ assert.ok(textured.find((mesh) => mesh.name.startsWith('Cube')).texture.length >
   'USDZ texture bytes imported');
 assert.ok(Math.abs(textured.find((mesh) => mesh.name.startsWith('Cube')).material[4] - 0.6) < 1e-5,
   'USDZ metallic imported');
+assert.ok(textured.find((mesh) => mesh.name.startsWith('Cube')).normalTexture.length > 0,
+  'USDZ normal texture bytes imported');
+assert.deepEqual(
+  [...textured.find((mesh) => mesh.name.startsWith('Cube')).material].map((v) => +v.toFixed(4)),
+  [0.8, 0.2, 0.1, 0.75, 0.6, 0.3, 0.05, 0.1, 0.2, 0.7, 0.15, 1.45],
+  'USDZ PreviewSurface scalar and color inputs imported');
 console.log('OK: textured usdz fixture imported with UVs and bitmap');
 
 // Z-up stage with a pentagon (n-gon): up-axis fix + fan triangulation

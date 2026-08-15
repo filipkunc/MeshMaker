@@ -664,6 +664,10 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
             meshWireShader.setVec4("uBaseColor", item->baseColor);
             meshWireShader.setFloat("uMetallic", item->metallic);
             meshWireShader.setFloat("uRoughness", item->roughness);
+            meshWireShader.setVec3("uEmissiveColor", item->emissiveColor);
+            meshWireShader.setFloat("uClearcoat", item->clearcoat);
+            meshWireShader.setFloat("uClearcoatRoughness", item->clearcoatRoughness);
+            meshWireShader.setFloat("uIor", item->ior);
             
             if (item->hasTexture()) {
                 item->getTexture()->bind(0);
@@ -671,6 +675,13 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
                 meshWireShader.setBool("uUseTexture", true);
             } else {
                 meshWireShader.setBool("uUseTexture", false);
+            }
+            if (item->hasNormalTexture()) {
+                item->getNormalTexture()->bind(1);
+                meshWireShader.setInt("uNormalTexture", 1);
+                meshWireShader.setBool("uUseNormalTexture", true);
+            } else {
+                meshWireShader.setBool("uUseNormalTexture", false);
             }
             
             if (item->baseColor.a < 1.0f) {
@@ -683,6 +694,7 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
             if (item->hasTexture()) {
                 Texture::unbind(0);
             }
+            if (item->hasNormalTexture()) Texture::unbind(1);
         } else if (mode == ViewMode::Solid || (mode == ViewMode::SolidWireframe && !drawWireframe)) {
             // Solid only
             meshShader.use();
@@ -693,6 +705,10 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
             meshShader.setVec4("uBaseColor", item->baseColor);
             meshShader.setFloat("uMetallic", item->metallic);
             meshShader.setFloat("uRoughness", item->roughness);
+            meshShader.setVec3("uEmissiveColor", item->emissiveColor);
+            meshShader.setFloat("uClearcoat", item->clearcoat);
+            meshShader.setFloat("uClearcoatRoughness", item->clearcoatRoughness);
+            meshShader.setFloat("uIor", item->ior);
             
             if (item->hasTexture()) {
                 item->getTexture()->bind(0);
@@ -700,6 +716,13 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
                 meshShader.setBool("uUseTexture", true);
             } else {
                 meshShader.setBool("uUseTexture", false);
+            }
+            if (item->hasNormalTexture()) {
+                item->getNormalTexture()->bind(1);
+                meshShader.setInt("uNormalTexture", 1);
+                meshShader.setBool("uUseNormalTexture", true);
+            } else {
+                meshShader.setBool("uUseNormalTexture", false);
             }
             
             if (item->baseColor.a < 1.0f) {
@@ -712,6 +735,7 @@ void ItemCollection::draw(Shader& meshShader, Shader& meshWireShader, Shader& th
             if (item->hasTexture()) {
                 Texture::unbind(0);
             }
+            if (item->hasNormalTexture()) Texture::unbind(1);
         } else if (mode == ViewMode::Wireframe) {
             // Wireframe only - use thick line shader
             glEnable(GL_BLEND);

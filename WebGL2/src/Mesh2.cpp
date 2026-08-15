@@ -1751,6 +1751,18 @@ void Mesh2::buildRenderData() {
     const glm::vec3 bary0(1.0f, 0.0f, 0.0f);
     const glm::vec3 bary1(0.0f, 1.0f, 0.0f);
     const glm::vec3 bary2(0.0f, 0.0f, 1.0f);
+    auto computeTangent = [](const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2,
+                             const glm::vec2& uv0, const glm::vec2& uv1, const glm::vec2& uv2,
+                             const glm::vec3& normal) {
+        const glm::vec3 e1 = p1 - p0, e2 = p2 - p0;
+        const glm::vec2 d1 = uv1 - uv0, d2 = uv2 - uv0;
+        const float det = d1.x * d2.y - d1.y * d2.x;
+        if (std::abs(det) < 1e-8f) return glm::vec4(1, 0, 0, 1);
+        const float inv = 1.0f / det;
+        glm::vec3 tangent = glm::normalize((e1 * d2.y - e2 * d1.y) * inv);
+        glm::vec3 bitangent = glm::normalize((e2 * d1.x - e1 * d2.x) * inv);
+        return glm::vec4(tangent, glm::dot(glm::cross(normal, tangent), bitangent) < 0 ? -1.0f : 1.0f);
+    };
     
     // Helper to get edge state: 0=normal, 1=selected, 2=seam, 3=selected+seam
     auto getEdgeState = [&](uint32_t va, uint32_t vb) -> float {
@@ -1775,17 +1787,19 @@ void Mesh2::buildRenderData() {
         
         if (face.isQuad()) {
             glm::vec3 v3 = m_vertices[face.vertices[3]].position;
+            const glm::vec4 tangent1 = computeTangent(v0, v1, v2, face.uvs[0], face.uvs[1], face.uvs[2], faceNormal);
+            const glm::vec4 tangent2 = computeTangent(v0, v2, v3, face.uvs[0], face.uvs[2], face.uvs[3], faceNormal);
             
             // Standard render vertices (no bary data)
             // First triangle (vertices 0, 1, 2)
-            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
-            m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1]});
-            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
+            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], tangent1});
+            m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], tangent1});
+            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], tangent1});
             
             // Second triangle (vertices 0, 2, 3)
-            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
-            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
-            m_renderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3]});
+            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], tangent2});
+            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], tangent2});
+            m_renderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3], tangent2});
             
             // Wire render vertices with barycentric coords
             // Quad split into 2 triangles: (0,1,2) and (0,2,3)
@@ -1800,9 +1814,9 @@ void Mesh2::buildRenderData() {
             glm::vec3 state1(getEdgeState(face.vertices[1], face.vertices[2]),
                              0.0f,  // diagonal
                              getEdgeState(face.vertices[0], face.vertices[1]));
-            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask1, state1});
-            m_wireRenderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], bary1, mask1, state1});
-            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary2, mask1, state1});
+            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask1, state1, tangent1});
+            m_wireRenderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], bary1, mask1, state1, tangent1});
+            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary2, mask1, state1, tangent1});
             
             // Triangle 2: vertices 0, 2, 3
             // bary0 -> vertex 0, opposite edge is 2-3 (real)
@@ -1812,10 +1826,11 @@ void Mesh2::buildRenderData() {
             glm::vec3 state2(getEdgeState(face.vertices[2], face.vertices[3]),
                              getEdgeState(face.vertices[0], face.vertices[3]),
                              0.0f);  // diagonal
-            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask2, state2});
-            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary1, mask2, state2});
-            m_wireRenderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3], bary2, mask2, state2});
+            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask2, state2, tangent2});
+            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary1, mask2, state2, tangent2});
+            m_wireRenderVertices.push_back({v3, faceNormal, faceColor, face.uvs[3], bary2, mask2, state2, tangent2});
         } else {
+            const glm::vec4 tangent = computeTangent(v0, v1, v2, face.uvs[0], face.uvs[1], face.uvs[2], faceNormal);
             // Triangle: all 3 edges are real
             glm::vec3 mask(1.0f, 1.0f, 1.0f);
             // edgeState: x = edge opposite v0 (v1-v2), y = edge opposite v1 (v0-v2), z = edge opposite v2 (v0-v1)
@@ -1823,13 +1838,13 @@ void Mesh2::buildRenderData() {
                             getEdgeState(face.vertices[0], face.vertices[2]),
                             getEdgeState(face.vertices[0], face.vertices[1]));
             
-            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0]});
-            m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1]});
-            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2]});
+            m_renderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], tangent});
+            m_renderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], tangent});
+            m_renderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], tangent});
             
-            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask, state});
-            m_wireRenderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], bary1, mask, state});
-            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary2, mask, state});
+            m_wireRenderVertices.push_back({v0, faceNormal, faceColor, face.uvs[0], bary0, mask, state, tangent});
+            m_wireRenderVertices.push_back({v1, faceNormal, faceColor, face.uvs[1], bary1, mask, state, tangent});
+            m_wireRenderVertices.push_back({v2, faceNormal, faceColor, face.uvs[2], bary2, mask, state, tangent});
         }
     }
     
@@ -1899,6 +1914,8 @@ void Mesh2::createGPUBuffers() {
         // UV
         glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
         glEnableVertexAttribArray(3);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(11 * sizeof(float)));
+        glEnableVertexAttribArray(4);
         
         glBindVertexArray(0);
     }
@@ -1934,6 +1951,8 @@ void Mesh2::createGPUBuffers() {
         // Edge state (0=normal, 1=selected, 2=seam, 3=selected+seam)
         glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(17 * sizeof(float)));
         glEnableVertexAttribArray(6);
+        glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(WireVertex), (void*)(20 * sizeof(float)));
+        glEnableVertexAttribArray(7);
         
         glBindVertexArray(0);
     }

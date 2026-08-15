@@ -21,6 +21,7 @@ interface UsdIoModule {
     material: number,
     uvs: number, numUvs: number,
     textureBytes: number, textureLen: number, textureExt: number,
+    normalBytes: number, normalLen: number, normalExt: number,
   ): void;
   _usdio_export_end(exp: number, format: number, outLen: number): number;
   _usdio_free_buffer(ptr: number): void;
@@ -38,6 +39,8 @@ interface UsdIoModule {
   _usdio_mesh_texture_size(scene: number, i: number): number;
   _usdio_mesh_texture(scene: number, i: number): number;
   _usdio_mesh_material(scene: number, i: number): number;
+  _usdio_mesh_normal_texture_size(scene: number, i: number): number;
+  _usdio_mesh_normal_texture(scene: number, i: number): number;
   _usdio_scene_free(scene: number): void;
   UTF8ToString(ptr: number): string;
   HEAPF32: Float32Array;
@@ -147,6 +150,8 @@ export async function exportUsd(
     const material = new Float32Array([
       mm.getItemBaseColorR(item), mm.getItemBaseColorG(item), mm.getItemBaseColorB(item),
       mm.getItemOpacity(item), mm.getItemMetallic(item), mm.getItemRoughness(item),
+      mm.getItemEmissiveR(item), mm.getItemEmissiveG(item), mm.getItemEmissiveB(item),
+      mm.getItemClearcoat(item), mm.getItemClearcoatRoughness(item), mm.getItemIor(item),
     ]);
 
     const indicesArr = new Int32Array(indices);
@@ -157,6 +162,12 @@ export async function exportUsd(
       if (pixels) texture = await rgbaToPng(
         pixels, mm.getItemTextureWidth(item), mm.getItemTextureHeight(item));
     }
+    let normalTexture: Uint8Array<ArrayBufferLike> = new Uint8Array();
+    if (format === 'usdz' && mm.itemHasNormalTexture(item)) {
+      const pixels = mm.getItemNormalTexturePixels(item)?.slice();
+      if (pixels) normalTexture = await rgbaToPng(pixels,
+        mm.getItemNormalTextureWidth(item), mm.getItemNormalTextureHeight(item));
+    }
     const ptrs = [
       allocCString(usd, `Item_${item}`),
       alloc(usd, points), alloc(usd, counts), alloc(usd, indicesArr),
@@ -164,11 +175,14 @@ export async function exportUsd(
       alloc(usd, material), alloc(usd, uvs),
       texture.length ? allocBytes(usd, texture) : 0,
       texture.length ? allocCString(usd, 'png') : 0,
+      normalTexture.length ? allocBytes(usd, normalTexture) : 0,
+      normalTexture.length ? allocCString(usd, 'png') : 0,
     ];
     usd._usdio_export_add_mesh(exp, ptrs[0],
       ptrs[1], vertexCount, ptrs[2], faceCount, ptrs[3], indicesArr.length,
       ptrs[4], ptrs[5], ptrs[6], ptrs[7], ptrs[8], indicesArr.length,
-      ptrs[9], texture.length, ptrs[10]);
+      ptrs[9], texture.length, ptrs[10],
+      ptrs[11], normalTexture.length, ptrs[12]);
     ptrs.forEach((p) => { if (p) usd._free(p); });
   }
 
@@ -223,7 +237,10 @@ export async function importUsd(
       const texture = textureSize ? new Uint8Array(
         usd.HEAPU8.buffer, usd._usdio_mesh_texture(scene, i), textureSize).slice() : null;
       const material = new Float32Array(
-        usd.HEAPF32.buffer, usd._usdio_mesh_material(scene, i), 6).slice();
+        usd.HEAPF32.buffer, usd._usdio_mesh_material(scene, i), 12).slice();
+      const normalSize = usd._usdio_mesh_normal_texture_size(scene, i);
+      const normalTexture = normalSize ? new Uint8Array(
+        usd.HEAPU8.buffer, usd._usdio_mesh_normal_texture(scene, i), normalSize).slice() : null;
 
       // New item: the mutation API works on an existing item's mesh, so add
       // a primitive and replace its geometry (same trick the scripts use).
@@ -256,8 +273,12 @@ export async function importUsd(
       }
       if (texture && !mm.setItemTextureFromFileData(item, texture))
         console.warn(`USD texture on mesh ${i} could not be decoded`);
+      if (normalTexture && !mm.setItemNormalTextureFromFileData(item, normalTexture))
+        console.warn(`USD normal texture on mesh ${i} could not be decoded`);
       mm.setItemMaterial(item, material[0], material[1], material[2], material[3],
         material[4], material[5]);
+      mm.setItemAdvancedMaterial(item, material[6], material[7], material[8],
+        material[9], material[10], material[11]);
       mm.rebuildMesh(item);
     }
   } finally {

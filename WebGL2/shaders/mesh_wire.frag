@@ -8,6 +8,8 @@ in vec2 vTexCoord;
 in vec3 vBary;
 in vec3 vEdgeMask;
 in vec3 vEdgeState;
+in vec3 vTangent;
+in vec3 vBitangent;
 
 out vec4 FragColor;
 
@@ -16,6 +18,12 @@ uniform bool uUseTexture;
 uniform vec4 uBaseColor;
 uniform float uMetallic;
 uniform float uRoughness;
+uniform sampler2D uNormalTexture;
+uniform bool uUseNormalTexture;
+uniform vec3 uEmissiveColor;
+uniform float uClearcoat;
+uniform float uClearcoatRoughness;
+uniform float uIor;
 uniform vec3 uWireColor;
 uniform vec3 uSelectionColor;
 uniform vec3 uSeamColor;
@@ -31,6 +39,10 @@ void main() {
     } else {
         l = vec3(0.0, 0.0, -1.0);
         n = normalize(vNormal);
+    }
+    if (uUseNormalTexture) {
+        vec3 mapped = texture(uNormalTexture, vTexCoord).xyz * 2.0 - 1.0;
+        n = normalize(mat3(normalize(vTangent), normalize(vBitangent), n) * mapped);
     }
     
     vec3 material;
@@ -53,11 +65,15 @@ void main() {
     
     if (sDotN > 0.0) {
         float shininess = mix(128.0, 4.0, clamp(uRoughness, 0.0, 1.0));
-        vec3 specularColor = mix(vec3(0.04), material, clamp(uMetallic, 0.0, 1.0));
+        float dielectricF0 = pow((max(uIor, 1.0) - 1.0) / (max(uIor, 1.0) + 1.0), 2.0);
+        vec3 specularColor = mix(vec3(dielectricF0), material, clamp(uMetallic, 0.0, 1.0));
         specular = specularColor * pow(max(dot(r, v), 0.0), shininess);
+        float coatShininess = mix(256.0, 8.0, clamp(uClearcoatRoughness, 0.0, 1.0));
+        specular += vec3(0.04 * clamp(uClearcoat, 0.0, 1.0)) *
+            pow(max(dot(r, v), 0.0), coatShininess);
     }
     
-    vec3 solidColor = min(ambient + diffuse + specular, vColor * 1.8);
+    vec3 solidColor = min(ambient + diffuse + specular + uEmissiveColor, vColor * 1.8 + uEmissiveColor);
     
     // === Wireframe overlay ===
     // Compute screen-space distance to each triangle edge using derivatives

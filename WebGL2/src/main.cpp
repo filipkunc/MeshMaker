@@ -4705,6 +4705,10 @@ bool api_itemHasTexture(int itemIndex) {
     Item* item = api_getItemByIndex(itemIndex);
     return item && item->hasTexture();
 }
+bool api_itemHasNormalTexture(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    return item && item->hasNormalTexture();
+}
 
 float api_getItemBaseColorR(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.r : 1.0f; }
 float api_getItemBaseColorG(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.g : 1.0f; }
@@ -4712,6 +4716,12 @@ float api_getItemBaseColorB(int i) { Item* p = api_getItemByIndex(i); return p ?
 float api_getItemOpacity(int i) { Item* p = api_getItemByIndex(i); return p ? p->baseColor.a : 1.0f; }
 float api_getItemMetallic(int i) { Item* p = api_getItemByIndex(i); return p ? p->metallic : 0.0f; }
 float api_getItemRoughness(int i) { Item* p = api_getItemByIndex(i); return p ? p->roughness : 0.4f; }
+float api_getItemEmissiveR(int i) { Item* p = api_getItemByIndex(i); return p ? p->emissiveColor.r : 0.0f; }
+float api_getItemEmissiveG(int i) { Item* p = api_getItemByIndex(i); return p ? p->emissiveColor.g : 0.0f; }
+float api_getItemEmissiveB(int i) { Item* p = api_getItemByIndex(i); return p ? p->emissiveColor.b : 0.0f; }
+float api_getItemClearcoat(int i) { Item* p = api_getItemByIndex(i); return p ? p->clearcoat : 0.0f; }
+float api_getItemClearcoatRoughness(int i) { Item* p = api_getItemByIndex(i); return p ? p->clearcoatRoughness : 0.01f; }
+float api_getItemIor(int i) { Item* p = api_getItemByIndex(i); return p ? p->ior : 1.5f; }
 void api_setItemMaterial(int i, float r, float g, float b, float opacity,
                          float metallic, float roughness) {
     Item* p = api_getItemByIndex(i);
@@ -4719,6 +4729,15 @@ void api_setItemMaterial(int i, float r, float g, float b, float opacity,
     p->baseColor = glm::clamp(glm::vec4(r, g, b, opacity), 0.0f, 1.0f);
     p->metallic = glm::clamp(metallic, 0.0f, 1.0f);
     p->roughness = glm::clamp(roughness, 0.0f, 1.0f);
+}
+void api_setItemAdvancedMaterial(int i, float emissiveR, float emissiveG, float emissiveB,
+                                 float clearcoat, float clearcoatRoughness, float ior) {
+    Item* p = api_getItemByIndex(i);
+    if (!p) return;
+    p->emissiveColor = glm::max(glm::vec3(emissiveR, emissiveG, emissiveB), glm::vec3(0.0f));
+    p->clearcoat = glm::clamp(clearcoat, 0.0f, 1.0f);
+    p->clearcoatRoughness = glm::clamp(clearcoatRoughness, 0.0f, 1.0f);
+    p->ior = glm::clamp(ior, 1.0f, 3.0f);
 }
 
 int api_getItemTextureWidth(int itemIndex) {
@@ -4730,11 +4749,26 @@ int api_getItemTextureHeight(int itemIndex) {
     Item* item = api_getItemByIndex(itemIndex);
     return item && item->hasTexture() ? item->getTexture()->getHeight() : 0;
 }
+int api_getItemNormalTextureWidth(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    return item && item->hasNormalTexture() ? item->getNormalTexture()->getWidth() : 0;
+}
+int api_getItemNormalTextureHeight(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    return item && item->hasNormalTexture() ? item->getNormalTexture()->getHeight() : 0;
+}
 
 emscripten::val api_getItemTexturePixels(int itemIndex) {
     Item* item = api_getItemByIndex(itemIndex);
     if (!item || !item->hasTexture()) return emscripten::val::null();
     const auto& pixels = item->getTexture()->getPixels();
+    return emscripten::val(emscripten::typed_memory_view(pixels.size(), pixels.data()));
+}
+
+emscripten::val api_getItemNormalTexturePixels(int itemIndex) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item || !item->hasNormalTexture()) return emscripten::val::null();
+    const auto& pixels = item->getNormalTexture()->getPixels();
     return emscripten::val(emscripten::typed_memory_view(pixels.size(), pixels.data()));
 }
 
@@ -4748,6 +4782,19 @@ bool api_setItemTextureFromFileData(int itemIndex, emscripten::val data) {
         "usd_texture_" + std::to_string(itemIndex), bytes.data(), bytes.size());
     if (!texture) return false;
     item->setTexture(texture);
+    return true;
+}
+
+bool api_setItemNormalTextureFromFileData(int itemIndex, emscripten::val data) {
+    Item* item = api_getItemByIndex(itemIndex);
+    if (!item) return false;
+    const unsigned int length = data["length"].as<unsigned int>();
+    std::vector<uint8_t> bytes(length);
+    for (unsigned int i = 0; i < length; ++i) bytes[i] = data[i].as<uint8_t>();
+    auto texture = TextureManager::instance().createFromFileData(
+        "usd_normal_" + std::to_string(itemIndex), bytes.data(), bytes.size());
+    if (!texture) return false;
+    item->setNormalTexture(texture);
     return true;
 }
 

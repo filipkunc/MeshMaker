@@ -23,7 +23,8 @@ function cstr(value) {
 }
 
 function addMesh(exporter, name, points, counts, indices, translate, texture = null,
-  material = [1, 1, 1, 1, 0, 0.4]) {
+  normalTexture = null,
+  material = [1, 1, 1, 1, 0, 0.4, 0, 0, 0, 0, 0.01, 1.5]) {
   const uvs = indices.flatMap((_, i) => [i % 2, (i >> 1) % 2]);
   const values = [
     cstr(name), alloc(new Float32Array(points)), alloc(new Int32Array(counts)),
@@ -31,11 +32,14 @@ function addMesh(exporter, name, points, counts, indices, translate, texture = n
     alloc(new Float32Array([0, 0, 0])), alloc(new Float32Array([1, 1, 1])),
     alloc(new Float32Array(material)), alloc(new Float32Array(uvs)), texture ? cstr('png') : 0,
     texture ? (() => { const ptr = mod._malloc(texture.length); mod.HEAPU8.set(texture, ptr); return ptr; })() : 0,
+    normalTexture ? cstr('png') : 0,
+    normalTexture ? (() => { const ptr = mod._malloc(normalTexture.length); mod.HEAPU8.set(normalTexture, ptr); return ptr; })() : 0,
   ];
   mod._usdio_export_add_mesh(exporter, values[0], values[1], points.length / 3,
     values[2], counts.length, values[3], indices.length,
     values[4], values[5], values[6], values[7], values[8], indices.length,
-    values[10], texture?.length ?? 0, values[9]);
+    values[10], texture?.length ?? 0, values[9],
+    values[12], normalTexture?.length ?? 0, values[11]);
   values.forEach((ptr) => { if (ptr) mod._free(ptr); });
 }
 
@@ -44,13 +48,17 @@ function createModel(format) {
   const checkerPng = format === 2 ? Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfqCA0TNyrszXWTAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA4LTEzVDE5OjU1OjQyKzAwOjAwR5PNDQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wOC0xM1QxOTo1NTo0MiswMDowMDbOdbEAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDgtMTNUMTk6NTU6NDIrMDA6MDBh21RuAAAAFElEQVQI12P8z8Dwn4GBgYGJAQoAHxcCAmep4oIAAAAASUVORK5CYII=',
     'base64') : null;
+  const flatNormalPng = format === 2 ? Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfqCA8UMgYMJDM7AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA4LTE1VDIwOjUwOjA2KzAwOjAwedpqdwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wOC0xNVQyMDo1MDowNiswMDowMAiH0ssAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDgtMTVUMjA6NTA6MDYrMDA6MDBfkvMUAAAAFElEQVQI12NsaPj/n4GBgYGJAQoALZkDAoFnMKoAAAAASUVORK5CYII=',
+    'base64') : null;
   addMesh(exporter, 'Cube', [
     -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1,
     -1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1,
   ], [4, 4, 4, 4, 4, 4], [
     0, 3, 2, 1, 4, 5, 6, 7, 0, 1, 5, 4,
     2, 3, 7, 6, 0, 4, 7, 3, 1, 2, 6, 5,
-  ], [2, 0, 0], checkerPng, [0.8, 0.2, 0.1, 0.75, 0.6, 0.3]);
+  ], [2, 0, 0], checkerPng, flatNormalPng,
+  [0.8, 0.2, 0.1, 0.75, 0.6, 0.3, 0.05, 0.1, 0.2, 0.7, 0.15, 1.45]);
   addMesh(exporter, 'Tri', [0, 0, 0, 1, 0, 0, 0, 1, 0],
     [3], [0, 1, 2], [0, 0, 0]);
 

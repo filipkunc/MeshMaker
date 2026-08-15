@@ -156,18 +156,32 @@ extern float api_getFaceUVX(int itemIndex, int faceIndex, int cornerIndex);
 extern float api_getFaceUVY(int itemIndex, int faceIndex, int cornerIndex);
 extern void api_setFaceUV(int itemIndex, int faceIndex, int cornerIndex, float u, float v);
 extern bool api_itemHasTexture(int itemIndex);
+extern bool api_itemHasNormalTexture(int itemIndex);
 extern float api_getItemBaseColorR(int itemIndex);
 extern float api_getItemBaseColorG(int itemIndex);
 extern float api_getItemBaseColorB(int itemIndex);
 extern float api_getItemOpacity(int itemIndex);
 extern float api_getItemMetallic(int itemIndex);
 extern float api_getItemRoughness(int itemIndex);
+extern float api_getItemEmissiveR(int itemIndex);
+extern float api_getItemEmissiveG(int itemIndex);
+extern float api_getItemEmissiveB(int itemIndex);
+extern float api_getItemClearcoat(int itemIndex);
+extern float api_getItemClearcoatRoughness(int itemIndex);
+extern float api_getItemIor(int itemIndex);
 extern void api_setItemMaterial(int itemIndex, float r, float g, float b, float opacity,
                                 float metallic, float roughness);
+extern void api_setItemAdvancedMaterial(int itemIndex, float emissiveR, float emissiveG,
+                                        float emissiveB, float clearcoat,
+                                        float clearcoatRoughness, float ior);
 extern int api_getItemTextureWidth(int itemIndex);
 extern int api_getItemTextureHeight(int itemIndex);
+extern int api_getItemNormalTextureWidth(int itemIndex);
+extern int api_getItemNormalTextureHeight(int itemIndex);
 extern emscripten::val api_getItemTexturePixels(int itemIndex);
+extern emscripten::val api_getItemNormalTexturePixels(int itemIndex);
 extern bool api_setItemTextureFromFileData(int itemIndex, emscripten::val data);
+extern bool api_setItemNormalTextureFromFileData(int itemIndex, emscripten::val data);
 
 // Mesh Mutation API
 extern void api_clearMesh(int itemIndex);
@@ -343,17 +357,29 @@ EMSCRIPTEN_BINDINGS(meshmaker) {
     function("getFaceUVY", &api_getFaceUVY);
     function("setFaceUV", &api_setFaceUV);
     function("itemHasTexture", &api_itemHasTexture);
+    function("itemHasNormalTexture", &api_itemHasNormalTexture);
     function("getItemBaseColorR", &api_getItemBaseColorR);
     function("getItemBaseColorG", &api_getItemBaseColorG);
     function("getItemBaseColorB", &api_getItemBaseColorB);
     function("getItemOpacity", &api_getItemOpacity);
     function("getItemMetallic", &api_getItemMetallic);
     function("getItemRoughness", &api_getItemRoughness);
+    function("getItemEmissiveR", &api_getItemEmissiveR);
+    function("getItemEmissiveG", &api_getItemEmissiveG);
+    function("getItemEmissiveB", &api_getItemEmissiveB);
+    function("getItemClearcoat", &api_getItemClearcoat);
+    function("getItemClearcoatRoughness", &api_getItemClearcoatRoughness);
+    function("getItemIor", &api_getItemIor);
     function("setItemMaterial", &api_setItemMaterial);
+    function("setItemAdvancedMaterial", &api_setItemAdvancedMaterial);
     function("getItemTextureWidth", &api_getItemTextureWidth);
     function("getItemTextureHeight", &api_getItemTextureHeight);
+    function("getItemNormalTextureWidth", &api_getItemNormalTextureWidth);
+    function("getItemNormalTextureHeight", &api_getItemNormalTextureHeight);
     function("getItemTexturePixels", &api_getItemTexturePixels);
+    function("getItemNormalTexturePixels", &api_getItemNormalTexturePixels);
     function("setItemTextureFromFileData", &api_setItemTextureFromFileData);
+    function("setItemNormalTextureFromFileData", &api_setItemNormalTextureFromFileData);
     
     // Mesh Mutation API
     function("clearMesh", &api_clearMesh);

@@ -29,11 +29,22 @@ def Xform "Root"
             def Shader "PreviewSurface"
             {
                 uniform token info:id = "UsdPreviewSurface"
+                float inputs:clearcoat = 0.7
+                float inputs:clearcoatRoughness = 0.15
                 color3f inputs:diffuseColor = (0.8, 0.2, 0.1)
+                color3f inputs:emissiveColor = (0.05, 0.1, 0.2)
+                float inputs:ior = 1.45
                 float inputs:metallic = 0.6
                 float inputs:opacity = 0.75
                 float inputs:roughness = 0.3
                 token outputs:surface
+            }
+
+            def Shader "PrimvarReader"
+            {
+                uniform token info:id = "UsdPrimvarReader_float2"
+                token inputs:varname = "st"
+                float2 outputs:result
             }
         }
     }
@@ -59,11 +70,22 @@ def Xform "Root"
             def Shader "PreviewSurface"
             {
                 uniform token info:id = "UsdPreviewSurface"
+                float inputs:clearcoat = 0
+                float inputs:clearcoatRoughness = 0.01
                 color3f inputs:diffuseColor = (1, 1, 1)
+                color3f inputs:emissiveColor = (0, 0, 0)
+                float inputs:ior = 1.5
                 float inputs:metallic = 0
                 float inputs:opacity = 1
                 float inputs:roughness = 0.4
                 token outputs:surface
+            }
+
+            def Shader "PrimvarReader"
+            {
+                uniform token info:id = "UsdPrimvarReader_float2"
+                token inputs:varname = "st"
+                float2 outputs:result
             }
         }
     }

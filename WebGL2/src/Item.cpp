@@ -64,7 +64,12 @@ std::unique_ptr<Item> Item::duplicate() const {
     newItem->baseColor = baseColor;
     newItem->metallic = metallic;
     newItem->roughness = roughness;
+    newItem->emissiveColor = emissiveColor;
+    newItem->clearcoat = clearcoat;
+    newItem->clearcoatRoughness = clearcoatRoughness;
+    newItem->ior = ior;
     newItem->texture = texture;
+    newItem->normalTexture = normalTexture;
     
     // Merge source mesh into new empty mesh (original pattern)
     newItem->mesh->merge(mesh.get());
