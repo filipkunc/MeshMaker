@@ -743,7 +743,7 @@ function App() {
         
         {/* UV View Controls (shown when split view is active) */}
         {showUVEditor && !showScriptEditor && (
-          <div className="absolute top-2 left-1/2 ml-4 flex gap-2 z-10">
+          <div className="absolute top-2 right-28 flex max-w-[calc(50%-7rem)] flex-wrap justify-end gap-2 z-10">
             <button
               onClick={() => { module?.setUVZoom(1); module?.setUVOffset(0, 0); }}
               className="px-2 py-1 text-xs bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-200"

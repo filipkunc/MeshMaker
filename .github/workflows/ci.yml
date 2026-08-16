@@ -38,7 +38,22 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install --yes libgl1-mesa-dev ninja-build xorg-dev
+          sudo apt-get install --yes \
+            libgl1-mesa-dev \
+            libwayland-bin \
+            libwayland-dev \
+            libxkbcommon-dev \
+            ninja-build \
+            wayland-protocols \
+            xorg-dev
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Install GLAD generator dependencies
+        run: python -m pip install --disable-pip-version-check "Jinja2>=3.1,<4"
 
       - name: Configure
         working-directory: WebGL2
