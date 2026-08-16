@@ -108,6 +108,9 @@ set(NO_GLFW ON CACHE BOOL "" FORCE)
 set(NO_DX ON CACHE BOOL "" FORCE)
 set(NO_METAL ON CACHE BOOL "" FORCE)
 set(NO_GLTESTS ON CACHE BOOL "" FORCE)
+# OpenSubdiv's framework packaging assumes it is the top-level source tree,
+# which is not true when it is brought in through FetchContent.
+set(NO_MACOS_FRAMEWORK ON CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
     opensubdiv
