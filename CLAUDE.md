@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MeshMaker is a 3D mesh modeling application with a C++17/WebGL2 core compiled to WASM via Emscripten, and a React 19 + TypeScript frontend. It also supports native desktop builds (OpenGL 3.3). The active development branch is `webgl2-port`.
+MeshMaker is a 3D mesh modeling application with a C++17/WebGL2 core compiled to WASM via Emscripten, and a React 19 + TypeScript frontend. It also supports native desktop builds (OpenGL 3.3). The active development branch is `main`.
 
 ## Build Commands
 

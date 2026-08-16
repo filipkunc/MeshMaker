@@ -12,7 +12,7 @@ The steps would need to be incremental to reduce the complexity of the port and 
 
 My recommendation would be to make a separate folder with the CMake setup and clean room setup code using the OpenGL/WebGL2 and then incrementally port the code there.
 
-## Current Progress (webgl2-port branch)
+## Current Progress (`main` branch)
 
 ### Completed ✅
 
