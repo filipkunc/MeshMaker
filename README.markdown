@@ -1,171 +1,155 @@
-# Welcome to MeshMaker
+# MeshMaker
 
-## License and submodules
+<p align="center">
+  <strong>A focused 3D mesh editor built since 2009, now running in the browser with C++17, WebAssembly, WebGL2, and React.</strong>
+</p>
 
-MeshMaker is under [MIT license](http://opensource.org/licenses/mit-license.php). You find it in file "LICENSE.TXT". 
+<p align="center">
+  <a href="https://filipkunc.com/meshmaker"><strong>Open the live editor</strong></a>
+  ·
+  <a href="https://filipkunc.com/posts/meshmaker">Read the story</a>
+</p>
 
-MeshMaker uses:
+<p align="center">
+  <a href="https://github.com/filipkunc/MeshMaker/actions/workflows/ci.yml"><img src="https://github.com/filipkunc/MeshMaker/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <a href="LICENSE.TXT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+</p>
 
- * [OpenSubdiv library](http://graphics.pixar.com/opensubdiv) from Pixar Animation Studios under [Ms-PL license](http://www.microsoft.com/en-us/openness/licenses.aspx#MPL). Library is slightly modified for this project, modifications are at [https://github.com/filipkunc/OpenSubdiv](https://github.com/filipkunc/OpenSubdiv).
- * [RapidXml](http://rapidxml.sourceforge.net)
- 
-For working with submodules I recommend reading [Pro Git chapter about submodules](http://git-scm.com/book/en/Git-Tools-Submodules).
+<p align="center">
+  <img src="https://raw.githubusercontent.com/filipkunc/FilipKuncCom/main/src/content/posts/meshmaker/unwrap.png" alt="MeshMaker's WebGL2 editor showing a textured cube and its UV layout" width="900">
+</p>
 
-## About
+MeshMaker is a low-poly modeling tool centered on direct editing of triangle and quad meshes. It began as a native macOS application written in Objective-C++ and C++, later gained a Windows port, and was rebuilt for the web so it can run on any modern platform without installation.
 
-MeshMaker is very basic modeling tool focused on low poly modeling with triangles and quads.
+The current editor keeps the modeling engine in C++. Emscripten compiles that engine to WebAssembly, while a React and TypeScript frontend provides the application UI. The same engine can also be built natively against OpenGL 3.3 for fast development and testing.
 
-## Triangles and Quads
+## Highlights
 
-MeshMaker supports triangles and quads in same mesh. There is no support for arbitrary polygons.
+- Mixed triangle and quad topology, with vertex, edge, face, and object selection
+- Extrude, split, merge, triangulate, quadify, transform, duplicate, and delete operations
+- Edge loop, ring, grow, and through-selection workflows
+- Catmull-Clark and Loop subdivision powered by Pixar's OpenSubdiv
+- Box, planar, cylindrical, spherical, and seam-based LSCM UV unwrapping
+- Textures, normal maps, and physically based material properties
+- Undo and redo across modeling, scene, transform, and material operations
+- OBJ, GLB, USDA, USDC, and USDZ import and export
+- Monaco-based JavaScript scripting over the WebAssembly API
+- Optional image-to-3D and text-to-3D generation with Hunyuan3D-2
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/main/Screenshots/triquads.png" alt="Triangles and Quads" width="745px" height="569px"></img>
+## How it works
 
-## Edge loops
+```mermaid
+flowchart LR
+    UI[React + TypeScript UI] -->|embind calls| Core[C++17 mesh engine]
+    Core -->|Emscripten| WASM[WebAssembly]
+    WASM --> GL[WebGL2 renderer]
+    UI --> USD[OpenUSD WebAssembly module]
+```
 
-MeshMaker enables edge loop selection with Double Click and edge expand selection with Command Double Click. Combinations of triangle/quad extrusion and expanded edge splitting enables simple and fast  modeling.
+The React frontend does not own or duplicate mesh data. It calls the C++ engine directly through Emscripten's embind layer and reads back the small amount of state needed to keep the interface synchronized. The engine handles topology, rendering, selection, transforms, UVs, undo and redo, and core file I/O.
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/main/Screenshots/edgeloops.png" alt="Edge loops" width="832px" height="653px"></img>
+The port was deliberately split into two steps: first move the engine into a clean C++17/OpenGL 3.3 build, then compile that same code to WebAssembly and WebGL2. That keeps graphics-porting problems separate from browser-integration problems and gives core algorithms a fast native test target.
 
-## Scripting
+## Try it
 
-For scripting is used JavaScript via WebScriptObject and Fragaria editor for editing code. 
-Example scripts are in Scripts folder.
+Open **[filipkunc.com/meshmaker](https://filipkunc.com/meshmaker)** in a browser with WebGL2 support. The editor runs locally in the browser; the optional AI generation feature requires a separate Hunyuan3D-2 server.
 
-All script actions are undoable.
+Camera controls follow Maya and Unity conventions:
 
-<img src="https://github.com/filipkunc/MeshMaker/raw/main/Screenshots/scripting.png" alt="Scripting" width="833px" height="652px"></img>
+| Action | Mouse |
+| --- | --- |
+| Rotate | <kbd>Alt</kbd> + left drag |
+| Pan | <kbd>Alt</kbd> + middle drag |
+| Zoom | <kbd>Alt</kbd> + right drag |
 
-## Windows port
-
-MeshMaker is now mostly C++ project with Objective-C++ on Mac part and C++/CLI and C# on Windows part.
-
-<img src="https://github.com/filipkunc/MeshMaker/raw/more_cpp/Screenshots/triquads_win.png" alt="Triangles and Quads" width="715px" height="541px"></img>
- 
-## Camera manipulation
-
-Similar to Maya, Unity. 
-
-* Rotation - Alt + Left Mouse Button
-* Pan - Alt + Middle Mouse Button
-* Zoom - Alt + Right Mouse Button
-
-Editor can be used also only with multitouch trackpad (MacBooks) and keyboard.
-
-* Rotation - Alt + Two Fingers
-* Pan - Control + Alt + Two Fingers
-* Zoom - Two Fingers Zoom
-
-## Selection
-
- * Normal selection - Left Mouse Button
- * Select through (selects back faces for example) - Control + Left Mouse Button
- * Adding to selection - Shift + Left Mouse Button
- * Inverting selection - Command + Left Mouse Button
- * Soft selection - global mode in Edit menu
-
-## WebGL2 / React Web App
-
-MeshMaker has a WebGL2 port built with Emscripten (C++ to WASM) and a React + TypeScript frontend.
+## Build from source
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18+)
-- [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) (for building WASM)
-- CMake + Ninja
+- CMake 3.21 or newer
+- Ninja
+- Clang with C++17 support
+- [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html)
+- Node.js 24 or newer
 
-### Building and Running
+The C++ dependencies are downloaded by CMake during configuration.
+
+### Web editor
+
+Activate the Emscripten SDK, then build the C++ engine and start the frontend:
 
 ```bash
-# Activate emsdk first, then build the editor WASM module
-cd WebGL2
+git clone https://github.com/filipkunc/MeshMaker.git
+cd MeshMaker/WebGL2
+
 cmake --preset webgl
-cmake --build --preset webgl
+cmake --build --preset webgl --parallel
 
-# Install the frontend and copy the editor module
 cd ../MeshMakerWeb
-npm install
+npm ci
 npm run copy-wasm
-
-# Start the development server
 npm run dev
 ```
 
-Open the URL printed by Vite (normally `http://localhost:5173`). For OpenUSD
-support, first build the separate module as described in
-[`usd-io/README.md`](usd-io/README.md), then run `npm run copy-usd-io` in
-`MeshMakerWeb`.
+Open the URL printed by Vite, normally <http://localhost:5173>.
 
-The web editor reads and writes OBJ, GLB, USDA, USDC, and USDZ. OpenUSD keeps
-mixed triangle/quad topology and supports face-varying UVs, `UsdPreviewSurface`
-materials, diffuse textures, and tangent-space normal maps. Use USDZ when a
-scene contains textures so the images travel with the model.
+The optional OpenUSD module is maintained separately because of its size and build requirements. See [`usd-io/README.md`](usd-io/README.md) for rebuilding it; checked-in release artifacts allow the standard web build to use USD import and export immediately.
 
-### Tests
+### Native engine
+
+The OpenGL 3.3 build is useful for working on the C++ engine without a browser:
 
 ```bash
-# Native C++ suite
 cd WebGL2
 cmake --preset desktop-debug
-cmake --build --preset desktop-debug
-ctest --preset desktop-debug
+cmake --build --preset desktop-debug --parallel
+```
 
-# Browser end-to-end suite
-cd ../MeshMakerWeb
+On Linux, install the OpenGL and X11 development packages required by GLFW. For example, Ubuntu uses `libgl1-mesa-dev` and `xorg-dev`.
+
+## Tests
+
+Run the native GoogleTest suite:
+
+```bash
+cd WebGL2
+ctest --preset desktop-debug
+```
+
+Run frontend checks and the Playwright browser suite after building and copying the WebAssembly module:
+
+```bash
+cd MeshMakerWeb
+npm run lint
+npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
 
-### AI 3D Generation (Hunyuan3D-2)
+The Hunyuan3D-2 end-to-end tests require a compatible NVIDIA GPU and a running generation server, so they are excluded from the standard CI browser suite.
 
-MeshMaker integrates with [Hunyuan3D-2](https://github.com/Tencent-Hunyuan/Hunyuan3D-2) (Tencent, MIT license) for AI-powered image-to-3D and text-to-3D generation. The server runs natively on Windows with CUDA.
+## AI 3D generation
 
-#### Requirements
+MeshMaker can connect to [Hunyuan3D-2](https://github.com/Tencent-Hunyuan/Hunyuan3D-2) for image-to-3D and text-to-3D generation. This is optional and runs as a separate local service; the editor itself does not require Python, CUDA, or model weights.
 
-- NVIDIA GPU with **16 GB VRAM** (tested on RTX 5070 Ti)
-- CUDA Toolkit 12.8+
-- Visual Studio Build Tools (C++ workload)
-- [uv](https://docs.astral.sh/uv/) package manager
+The included server setup is tested on Windows with an NVIDIA GPU and CUDA. See [`Hunyuan3D-2/README.md`](Hunyuan3D-2/README.md) for model installation and server commands. Once the server is running, use the sparkle button in MeshMaker and configure its URL under **Advanced Options**.
 
-#### Server Setup
+## Project layout
 
-```bash
-cd Hunyuan3D-2
+| Path | Purpose |
+| --- | --- |
+| [`WebGL2/`](WebGL2/) | C++17 engine, OpenGL/WebGL2 renderer, Emscripten bindings, and GoogleTests |
+| [`MeshMakerWeb/`](MeshMakerWeb/) | React and TypeScript interface, scripting editor, and Playwright tests |
+| [`usd-io/`](usd-io/) | Lazy-loaded OpenUSD WebAssembly module and round-trip tests |
+| [`Hunyuan3D-2/`](Hunyuan3D-2/) | Optional AI generation server submodule |
+| [`legacy-macos`](https://github.com/filipkunc/MeshMaker/tree/legacy-macos) | Archived pre-WebGL2 application history |
 
-# Install Python dependencies
-uv sync
+## History
 
-# Build native CUDA extensions
-.\build_extensions.ps1
+MeshMaker started around 2009 as a way to learn 3D editor development by doing. Its original UI was native Cocoa, with Objective-C++ sharing a C++ modeling core. A C++/CLI and C# Windows port followed. Development slowed around 2015, then resumed with the C++17, WebGL2, WebAssembly, and React port now on `main`.
 
-# Start the Gradio server (includes both UI and REST API)
-uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode
+The longer write-up—covering the porting strategy, C++/JavaScript boundary, OpenSubdiv, automated tests, scripting, and AI-assisted development—is available in **[MeshMaker: the story of the web port](https://filipkunc.com/posts/meshmaker)**.
 
-# With text-to-3D support
-uv run python gradio_app.py --model_path tencent/Hunyuan3D-2mini --subfolder hunyuan3d-dit-v2-mini --texgen_model_path tencent/Hunyuan3D-2 --low_vram_mode --enable_t23d
-```
+## License
 
-Model weights are downloaded automatically from HuggingFace on first run (~2-3 GB for mini-turbo).
-
-#### Usage
-
-1. Start the Hunyuan3D-2 server (see command above)
-2. Run the MeshMaker web app (`npm run dev`)
-3. Click the sparkle button in the toolbar
-4. Choose **Image to 3D** (upload/drag image) or **Text to 3D** (type a prompt)
-5. Click **Generate**
-6. The generated mesh imports directly into the viewport
-
-The Gradio UI is also available at `http://localhost:8080` for standalone use.
-
-#### Configuration
-
-The server URL defaults to `http://localhost:8080/api`. To change it, open the AI dialog, expand **Advanced Options**, update the **Hunyuan3D-2 Server URL**, and click **Save**. The setting persists in your browser.
-
-#### API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/send` | POST | Start async generation (`{image?, text?, seed?, texture?, ...}`) |
-| `/api/status/{uid}` | GET | Poll task status (returns base64 GLB when completed) |
-| `/api/health` | GET | Server health check |
+MeshMaker is available under the [MIT License](LICENSE.TXT). Third-party components, including OpenSubdiv, GLM, GLFW, GLAD, Dear ImGui, GoogleTest, React, Monaco, and Hunyuan3D-2, retain their respective licenses.

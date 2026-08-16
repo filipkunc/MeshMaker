@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    name: Native (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: macOS
+            os: macos-latest
+          - name: Windows
+            os: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libgl1-mesa-dev ninja-build xorg-dev
+
+      - name: Configure
+        working-directory: WebGL2
+        run: cmake --preset desktop-release
+
+      - name: Build
+        working-directory: WebGL2
+        run: cmake --build --preset desktop-release --parallel
+
+      - name: Test
+        working-directory: WebGL2
+        run: ctest --preset desktop-release
+
+  web:
+    name: WebAssembly and React
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install --yes ninja-build
+
+      - name: Set up Emscripten
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: 5.0.2
+          actions-cache-folder: emsdk-cache
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: MeshMakerWeb/package-lock.json
+
+      - name: Configure WebAssembly engine
+        working-directory: WebGL2
+        run: cmake --preset webgl
+
+      - name: Build WebAssembly engine
+        working-directory: WebGL2
+        run: cmake --build --preset webgl --parallel
+
+      - name: Install frontend dependencies
+        working-directory: MeshMakerWeb
+        run: npm ci
+
+      - name: Copy WebAssembly module
+        working-directory: MeshMakerWeb
+        run: npm run copy-wasm
+
+      - name: Lint frontend
+        working-directory: MeshMakerWeb
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: MeshMakerWeb
+        run: npm run build
+
+      - name: Install Chromium
+        working-directory: MeshMakerWeb
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        working-directory: MeshMakerWeb
+        run: npm run test:e2e -- --grep-invert "AI 3D Generation"
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v7
+        with:
+          name: meshmaker-web-${{ github.sha }}
+          path: MeshMakerWeb/dist/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: MeshMakerWeb/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

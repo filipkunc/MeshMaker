@@ -397,7 +397,7 @@ test.describe('File I/O: Edge cases', () => {
   });
 
   test('export GLB with no items returns null/empty', async ({ page }) => {
-    const result = await page.evaluate(() => {
+    await page.evaluate(() => {
       const m = (window as any).Module;
       const data = m?.exportToGLB();
       return data ? data.length : 0;
@@ -408,7 +408,7 @@ test.describe('File I/O: Edge cases', () => {
   });
 
   test('export OBJ with no items returns empty string', async ({ page }) => {
-    const result = await page.evaluate(() => {
+    await page.evaluate(() => {
       const m = (window as any).Module;
       return m?.exportToOBJ() as string;
     });

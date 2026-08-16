@@ -19,5 +19,25 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      }],
+      // Transform inputs intentionally mirror values owned by the WASM engine.
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
+  {
+    files: [
+      'e2e/**/*.ts',
+      'src/components/ScriptEditor.tsx',
+      'src/hooks/useMeshMaker.ts',
+    ],
+    rules: {
+      // These files cross untyped browser, Monaco, Playwright, and Emscripten APIs.
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
 ])
