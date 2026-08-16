@@ -57,10 +57,12 @@ jobs:
 
       - name: Configure
         working-directory: WebGL2
-        env:
-          Python_ROOT_DIR: ${{ env.pythonLocation }}
-          Python3_ROOT_DIR: ${{ env.pythonLocation }}
-        run: cmake --preset desktop-release
+        shell: bash
+        run: |
+          mm_python="$(python -c 'import sys; print(sys.executable)')"
+          cmake --preset desktop-release \
+            "-DPython_EXECUTABLE=$mm_python" \
+            "-DPython3_EXECUTABLE=$mm_python"
 
       - name: Build
         working-directory: WebGL2
