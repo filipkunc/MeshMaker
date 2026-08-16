@@ -155,16 +155,24 @@ test.describe('Script Editor Keyboard', () => {
   });
 
   test('backspace works via editor commands', async ({ page }) => {
-    // Verify that backspace isn't blocked by our keyboard isolation.
-    // We type characters, then type more — confirming GLFW wrappers
-    // don't interfere with Monaco text input.
-    await setEditorContent(page, '');
-    await focusEditor(page);
-    await page.keyboard.type('hello world', { delay: 30 });
-    await page.waitForTimeout(200);
+    await setEditorContent(page, 'hello world');
+    await expect.poll(() => getEditorContent(page)).toBe('hello world');
 
-    const content = await getEditorContent(page);
-    expect(content).toContain('hello world');
+    // Position the real Monaco editor at the end and send one browser key event.
+    // This tests Backspace without relying on a flaky stream of synthetic typing.
+    await page.evaluate(() => {
+      const editor = (window as any).__meshmakerScriptEditor?.getEditor();
+      const model = editor?.getModel();
+      if (!editor || !model) {
+        throw new Error('Monaco editor is not ready');
+      }
+
+      editor.setPosition(model.getFullModelRange().getEndPosition());
+      editor.focus();
+    });
+    await page.keyboard.press('Backspace');
+
+    await expect.poll(() => getEditorContent(page)).toBe('hello worl');
   });
 
   test('special keys are not blocked by keyboard isolation', async ({ page }) => {
