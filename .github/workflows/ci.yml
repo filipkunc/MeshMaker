@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   native:
-    name: Native (${{ matrix.name }})
+    name: Desktop OpenGL 3.3 (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -45,6 +45,7 @@ jobs:
             libxkbcommon-dev \
             ninja-build \
             wayland-protocols \
+            xvfb \
             xorg-dev
 
       - name: Set up Python
@@ -71,6 +72,13 @@ jobs:
       - name: Test
         working-directory: WebGL2
         run: ctest --preset desktop-release
+
+      - name: Smoke-test OpenGL 3.3 runtime
+        if: runner.os == 'Linux'
+        working-directory: WebGL2/build
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" ./MeshMakerWebGL2 --smoke-test
 
   web:
     name: WebAssembly and React
