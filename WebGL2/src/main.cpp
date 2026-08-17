@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <climits>
 #include <cmath>
+#include <string>
 
 #include "Camera.h"
 #include "Mesh2.h"
@@ -3494,7 +3495,12 @@ void emscriptenMainLoop() {
 }
 #endif
 
+#ifdef EMSCRIPTEN_BUILD
 int main() {
+#else
+int main(int argc, char* argv[]) {
+    const bool smokeTest = argc > 1 && std::string(argv[1]) == "--smoke-test";
+#endif
     // Initialize GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -3516,6 +3522,9 @@ int main() {
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+    if (smokeTest) {
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    }
 #endif
     
     // Create window
@@ -3536,6 +3545,24 @@ int main() {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    GLint contextMajor = 0;
+    GLint contextMinor = 0;
+    GLint contextProfile = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &contextMajor);
+    glGetIntegerv(GL_MINOR_VERSION, &contextMinor);
+    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &contextProfile);
+    if (contextMajor < 3 || (contextMajor == 3 && contextMinor < 3) ||
+        (contextProfile & GL_CONTEXT_CORE_PROFILE_BIT) == 0) {
+        std::cerr << "OpenGL 3.3 Core is required, got "
+                  << contextMajor << '.' << contextMinor << std::endl;
+        glfwDestroyWindow(g_app.window);
+        glfwTerminate();
+        return -1;
+    }
+
+    std::cout << "OpenGL context: " << glGetString(GL_VERSION) << '\n'
+              << "OpenGL renderer: " << glGetString(GL_RENDERER) << std::endl;
 #endif
     
     // Get initial framebuffer size and content scale for High DPI support
@@ -3656,8 +3683,21 @@ int main() {
 #ifdef EMSCRIPTEN_BUILD
     emscripten_set_main_loop(emscriptenMainLoop, 0, 1);
 #else
-    while (!glfwWindowShouldClose(g_app.window)) {
+    int exitCode = 0;
+    if (smokeTest) {
         mainLoop();
+        glFinish();
+        const GLenum error = glGetError();
+        if (error == GL_NO_ERROR) {
+            std::cout << "OpenGL 3.3 runtime smoke test passed" << std::endl;
+        } else {
+            std::cerr << "OpenGL runtime error: 0x" << std::hex << error << std::endl;
+            exitCode = 1;
+        }
+    } else {
+        while (!glfwWindowShouldClose(g_app.window)) {
+            mainLoop();
+        }
     }
 #endif
     
@@ -3669,7 +3709,11 @@ int main() {
     glfwDestroyWindow(g_app.window);
     glfwTerminate();
     
+#ifdef EMSCRIPTEN_BUILD
     return 0;
+#else
+    return exitCode;
+#endif
 }
 
 // ============================================================================

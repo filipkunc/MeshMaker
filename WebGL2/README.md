@@ -46,6 +46,9 @@ sudo apt install cmake libglfw3-dev
 # Configure and build
 cmake -B build
 cmake --build build
+
+# Optional: verify context creation, shaders, GPU buffers, and one rendered frame.
+./build/MeshMakerWebGL2 --smoke-test
 ```
 
 ### Desktop (macOS)
